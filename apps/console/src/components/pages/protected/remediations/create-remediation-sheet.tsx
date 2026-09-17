@@ -1,7 +1,5 @@
 'use client'
 
-import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-
 import React, { useEffect } from 'react'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import useFormSchema from './hooks/use-form-schema'
@@ -64,7 +62,7 @@ const CreateRemediationSheet = ({ isOpen, onClose, initialData, defaultTitle, on
       onClose={onClose}
       createMutation={createMutation}
       updateMutation={updateMutation}
-      buildPayload={async ({ internalOwner, ...rest }) => ({ ...rest, ...initialData, ...buildResponsibilityPayload('internalOwner', internalOwner) })}
+      buildPayload={async (data) => ({ ...data, ...initialData })}
       renderFields={(props: RemediationFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers)}
     />
   )

@@ -98,6 +98,9 @@ const PersonnelPropertiesSidebar: React.FC<PersonnelPropertiesSidebarProps> = ({
         <TextField name="externalReferenceID" label="External Ref ID" icon={<KeyRound className={iconClass} />} tooltipContent="A reference ID from an external system" {...sharedFieldProps} />
 
         <ResponsibilityField
+          name="internalOwner"
+          fieldBaseName="internalOwner"
+          label="Internal Owner"
           icon={<UserRound className={iconClass} />}
           layout="horizontal"
           labelClassName="text-muted-foreground"

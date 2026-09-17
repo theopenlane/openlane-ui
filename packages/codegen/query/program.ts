@@ -206,24 +206,7 @@ export const GET_PROGRAM_BASIC_INFO = gql`
       frameworkName
       status
       programKindName
-      internalOwner
-      internalOwnerUserID
-      internalOwnerGroupID
-      internalOwnerIdentityHolderID
-      internalOwnerUser {
-        id
-        displayName
-        email
-      }
-      internalOwnerGroup {
-        id
-        displayName
-      }
-      internalOwnerIdentityHolder {
-        id
-        fullName
-        email
-      }
+      programOwnerID
     }
   }
 `
@@ -414,23 +397,9 @@ export const GET_PROGRAM_DASHBOARD = gql`
           status
           endDate
           startDate
-          internalOwner
-          internalOwnerUserID
-          internalOwnerGroupID
-          internalOwnerIdentityHolderID
-          internalOwnerUser {
+          programOwner {
             id
             displayName
-            email
-          }
-          internalOwnerGroup {
-            id
-            displayName
-          }
-          internalOwnerIdentityHolder {
-            id
-            fullName
-            email
           }
           submittedEvidences: controls(where: { hasEvidenceWith: [{ statusIn: [READY_FOR_AUDITOR, AUDITOR_APPROVED] }] }) {
             totalCount

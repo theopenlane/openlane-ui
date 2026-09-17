@@ -1,4 +1,3 @@
-import { normalizeResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useEffect, useMemo, useState } from 'react'
 import { useWatch, type UseFormReturn } from 'react-hook-form'
 import { useGetProgramBasicInfo, useGetProgramGroups, useGetProgramMembers } from '@/lib/graphql-hooks/program'
@@ -39,8 +38,8 @@ export const useFromExistingPrefill = ({ methods, sourceProgramID, currentUserID
   const sourceControlIDs = useMemo(() => sourceControls.map((sourceControl) => sourceControl.id), [sourceControls])
   const controlsByFramework = useMemo(() => controlCountsByFramework(sourceControls), [sourceControls])
 
-  const ownerName = userOptions.find((user) => user.value === sourceProgram?.internalOwnerUserID)?.label
-  const ownerLeftOrg = !isMembersLoading && !!sourceProgram?.internalOwnerUserID && !ownerName
+  const ownerName = userOptions.find((user) => user.value === sourceProgram?.programOwnerID)?.label
+  const ownerLeftOrg = !isMembersLoading && !!sourceProgram?.programOwnerID && !ownerName
 
   const {
     data: sourceMembersData,
@@ -84,14 +83,7 @@ export const useFromExistingPrefill = ({ methods, sourceProgramID, currentUserID
       framework: sourceProgram.frameworkName ?? '',
       startDate: today,
       endDate: oneYearFromToday,
-      internalOwner: ownerLeftOrg
-        ? undefined
-        : normalizeResponsibilityField({
-            user: sourceProgram.internalOwnerUser,
-            group: sourceProgram.internalOwnerGroup,
-            personnel: sourceProgram.internalOwnerIdentityHolder,
-            stringValue: sourceProgram.internalOwner,
-          }),
+      programOwnerID: ownerLeftOrg ? undefined : (sourceProgram.programOwnerID ?? undefined),
       useSameAuditor: hasAuditorDetails(sourceProgram),
       ...auditorValuesFrom(sourceProgram),
       ...emptySelections(),

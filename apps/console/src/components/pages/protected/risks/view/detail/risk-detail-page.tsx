@@ -109,8 +109,13 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
         mitigation: data.risk.mitigation ?? undefined,
         businessCosts: data.risk.businessCosts ?? undefined,
         tags: data.risk.tags || [],
-        stakeholder: normalizeResponsibilityField({ user: data.risk.stakeholderUser, group: data.risk.stakeholderGroup, personnel: data.risk.stakeholderIdentityHolder }),
-        delegate: normalizeResponsibilityField({ user: data.risk.delegateUser, group: data.risk.delegateGroup, personnel: data.risk.delegateIdentityHolder }),
+        stakeholder: normalizeResponsibilityField({
+          user: data.risk.stakeholderUser,
+          group: data.risk.stakeholderGroup,
+          personnel: data.risk.stakeholderIdentityHolder,
+          stringValue: data.risk.stakeholderName,
+        }),
+        delegate: normalizeResponsibilityField({ user: data.risk.delegateUser, group: data.risk.delegateGroup, personnel: data.risk.delegateIdentityHolder, stringValue: data.risk.delegateName }),
         reviewRequired: data.risk.reviewRequired ?? true,
         reviewFrequency: data.risk.reviewFrequency ?? '',
         nextReviewDueAt: data.risk.nextReviewDueAt ?? '',
@@ -142,8 +147,8 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
       const { stakeholder: _stakeholder, delegate: _delegate, ...rest } = changedFields
       const input: UpdateRiskInput = {
         ...rest,
-        ...('stakeholder' in changedFields ? buildResponsibilityPayload('stakeholder', values.stakeholder, { mode: 'update', allowRawInput: false }) : {}),
-        ...('delegate' in changedFields ? buildResponsibilityPayload('delegate', values.delegate, { mode: 'update', allowRawInput: false }) : {}),
+        ...('stakeholder' in changedFields ? buildResponsibilityPayload('stakeholder', values.stakeholder, { mode: 'update' }) : {}),
+        ...('delegate' in changedFields ? buildResponsibilityPayload('delegate', values.delegate, { mode: 'update' }) : {}),
         details,
         businessCosts,
         mitigation,

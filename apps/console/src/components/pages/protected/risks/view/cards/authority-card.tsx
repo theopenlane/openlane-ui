@@ -27,7 +27,6 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isEditA
     handleUpdate: async (input: UpdateRiskInput) => {
       await handleUpdate?.(input)
     },
-    allowRawInput: false,
   }
   return (
     <FormProvider {...form}>

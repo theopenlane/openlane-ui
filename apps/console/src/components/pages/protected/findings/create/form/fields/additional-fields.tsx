@@ -87,7 +87,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="mb-4">
-            <ResponsibilityField {...sharedFieldProps} />
+            <ResponsibilityField name="internalOwner" fieldBaseName="internalOwner" label="Internal Owner" {...sharedFieldProps} />
           </div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField name="findingStatusName" label="Status" options={enumOptions.findingStatusOptions} onCreateOption={enumCreateHandlers?.findingStatusName} {...sharedFieldProps} />

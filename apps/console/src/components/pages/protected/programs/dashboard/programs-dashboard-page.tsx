@@ -226,12 +226,7 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
   const { mutateAsync: updateProgram, isPending: isUpdatingStatus } = useUpdateProgram()
   const { successNotification, errorNotification } = useNotification()
 
-  const ownerDisplayName =
-    program.internalOwnerUser?.displayName ??
-    program.internalOwnerGroup?.displayName ??
-    program.internalOwnerIdentityHolder?.fullName ??
-    program.internalOwnerIdentityHolder?.email ??
-    program.internalOwner
+  const ownerDisplayName = program.programOwner?.displayName
 
   const renderDates = () => {
     const hasBothDates = !!program.startDate && !!program.endDate

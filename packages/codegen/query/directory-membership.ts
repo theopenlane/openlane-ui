@@ -10,15 +10,11 @@ export const GET_ALL_DIRECTORY_MEMBERSHIPS = gql`
           createdBy
           directoryAccountID
           directoryGroupID
-          directorySyncRunID
           displayID
           environmentID
           environmentName
-          firstSeenAt
           id
           integrationID
-          lastConfirmedRunID
-          lastSeenAt
           metadata
           observedAt
           scopeID
@@ -45,15 +41,11 @@ export const DIRECTORY_MEMBERSHIP = gql`
       createdBy
       directoryAccountID
       directoryGroupID
-      directorySyncRunID
       displayID
       environmentID
       environmentName
-      firstSeenAt
       id
       integrationID
-      lastConfirmedRunID
-      lastSeenAt
       metadata
       observedAt
       scopeID

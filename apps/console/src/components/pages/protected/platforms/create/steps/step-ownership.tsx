@@ -7,6 +7,19 @@ const StepOwnership: React.FC = () => {
   return (
     <div className="space-y-4">
       <ResponsibilityField
+        name="platformOwner"
+        fieldBaseName="platformOwner"
+        label="Platform Owner"
+        tooltipContent="The owner responsible for this platform"
+        isEditing={true}
+        isEditAllowed={true}
+        isCreate={true}
+        internalEditing={null}
+        setInternalEditing={() => {}}
+        userOnly={true}
+      />
+
+      <ResponsibilityField
         name="businessOwner"
         fieldBaseName="businessOwner"
         label="Business Owner"
@@ -31,6 +44,9 @@ const StepOwnership: React.FC = () => {
       />
 
       <ResponsibilityField
+        name="internalOwner"
+        fieldBaseName="internalOwner"
+        label="Internal Owner"
         tooltipContent="The internal owner responsible for this platform"
         isEditing={true}
         isEditAllowed={true}

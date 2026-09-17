@@ -76,7 +76,8 @@ export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedR
     },
     {
       id: 'stakeholder',
-      accessorFn: (risk) => risk.stakeholderUser?.displayName ?? risk.stakeholderGroup?.displayName ?? risk.stakeholderIdentityHolder?.fullName ?? risk.stakeholderIdentityHolder?.email ?? '',
+      accessorFn: (risk) =>
+        risk.stakeholderUser?.displayName ?? risk.stakeholderGroup?.displayName ?? risk.stakeholderIdentityHolder?.fullName ?? risk.stakeholderIdentityHolder?.email ?? risk.stakeholderName ?? '',
       header: 'Stakeholder',
       cell: ({ row }) => <StakeholderCell risk={row.original} />,
       size: 120,
@@ -89,7 +90,7 @@ export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedR
     },
     {
       id: 'delegate',
-      accessorFn: (risk) => risk.delegateUser?.displayName ?? risk.delegateGroup?.displayName ?? risk.delegateIdentityHolder?.fullName ?? risk.delegateIdentityHolder?.email ?? '',
+      accessorFn: (risk) => risk.delegateUser?.displayName ?? risk.delegateGroup?.displayName ?? risk.delegateIdentityHolder?.fullName ?? risk.delegateIdentityHolder?.email ?? risk.delegateName ?? '',
       header: 'Delegate',
       size: 160,
       cell: ({ row }) => <DelegateCell risk={row.original} />,

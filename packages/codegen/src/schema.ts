@@ -2314,7 +2314,6 @@ export interface DirectoryAccountsWithFilterQuery {
         createdAt: any
         createdBy: string | null
         department: string | null
-        directorySyncRunID: string | null
         displayID: string
         displayName: string | null
         environmentID: string | null
@@ -2325,12 +2324,10 @@ export interface DirectoryAccountsWithFilterQuery {
         id: string
         integrationID: string | null
         jobTitle: string | null
-        lastLoginAt: any
         lastSeenIP: string | null
         observedAt: any
         organizationUnit: string | null
         profile: any
-        profileHash: string
         rawProfileFileID: string | null
         scopeID: string | null
         scopeName: string | null
@@ -2354,7 +2351,6 @@ export interface DirectoryAccountQuery {
     createdAt: any
     createdBy: string | null
     department: string | null
-    directorySyncRunID: string | null
     displayID: string
     displayName: string | null
     environmentID: string | null
@@ -2365,12 +2361,10 @@ export interface DirectoryAccountQuery {
     id: string
     integrationID: string | null
     jobTitle: string | null
-    lastLoginAt: any
     lastSeenIP: string | null
     observedAt: any
     organizationUnit: string | null
     profile: any
-    profileHash: string
     rawProfileFileID: string | null
     scopeID: string | null
     scopeName: string | null
@@ -2423,7 +2417,6 @@ export interface DirectoryGroupsWithFilterQuery {
         createdAt: any
         createdBy: string | null
         description: string | null
-        directorySyncRunID: string
         displayID: string
         displayName: string | null
         email: string | null
@@ -2436,7 +2429,6 @@ export interface DirectoryGroupsWithFilterQuery {
         memberCount: number | null
         observedAt: any
         profile: any
-        profileHash: string
         rawProfileFileID: string | null
         scopeID: string | null
         scopeName: string | null
@@ -2458,7 +2450,6 @@ export interface DirectoryGroupQuery {
     createdAt: any
     createdBy: string | null
     description: string | null
-    directorySyncRunID: string
     displayID: string
     displayName: string | null
     email: string | null
@@ -2471,7 +2462,6 @@ export interface DirectoryGroupQuery {
     memberCount: number | null
     observedAt: any
     profile: any
-    profileHash: string
     rawProfileFileID: string | null
     scopeID: string | null
     scopeName: string | null
@@ -2524,15 +2514,11 @@ export interface DirectoryMembershipsWithFilterQuery {
         createdBy: string | null
         directoryAccountID: string
         directoryGroupID: string
-        directorySyncRunID: string
         displayID: string
         environmentID: string | null
         environmentName: string | null
-        firstSeenAt: any
         id: string
         integrationID: string
-        lastConfirmedRunID: string | null
-        lastSeenAt: any
         metadata: any
         observedAt: any
         scopeID: string | null
@@ -2556,15 +2542,11 @@ export interface DirectoryMembershipQuery {
     createdBy: string | null
     directoryAccountID: string
     directoryGroupID: string
-    directorySyncRunID: string
     displayID: string
     environmentID: string | null
     environmentName: string | null
-    firstSeenAt: any
     id: string
     integrationID: string
-    lastConfirmedRunID: string | null
-    lastSeenAt: any
     metadata: any
     observedAt: any
     scopeID: string | null
@@ -2598,98 +2580,6 @@ export type DeleteDirectoryMembershipMutationVariables = Exact<{
 
 export interface DeleteDirectoryMembershipMutation {
   deleteDirectoryMembership: { deletedID: string }
-}
-
-export type DirectorySyncRunsWithFilterQueryVariables = Exact<{
-  where?: Types.DirectorySyncRunWhereInput | null | undefined
-  orderBy?: Array<Types.DirectorySyncRunOrder> | Types.DirectorySyncRunOrder | null | undefined
-  first?: number | null | undefined
-  after?: any
-  last?: number | null | undefined
-  before?: any
-}>
-
-export interface DirectorySyncRunsWithFilterQuery {
-  directorySyncRuns: {
-    totalCount: number
-    edges: Array<{
-      node: {
-        completedAt: any
-        createdAt: any
-        createdBy: string | null
-        deltaCount: number
-        displayID: string
-        environmentID: string | null
-        environmentName: string | null
-        error: string | null
-        fullCount: number
-        id: string
-        integrationID: string
-        rawManifestFileID: string | null
-        scopeID: string | null
-        scopeName: string | null
-        sourceCursor: string | null
-        startedAt: any
-        stats: any
-        updatedAt: any
-        updatedBy: string | null
-      } | null
-    } | null> | null
-    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
-  }
-}
-
-export type DirectorySyncRunQueryVariables = Exact<{
-  directorySyncRunId: string
-}>
-
-export interface DirectorySyncRunQuery {
-  directorySyncRun: {
-    completedAt: any
-    createdAt: any
-    createdBy: string | null
-    deltaCount: number
-    displayID: string
-    environmentID: string | null
-    environmentName: string | null
-    error: string | null
-    fullCount: number
-    id: string
-    integrationID: string
-    rawManifestFileID: string | null
-    scopeID: string | null
-    scopeName: string | null
-    sourceCursor: string | null
-    startedAt: any
-    stats: any
-    updatedAt: any
-    updatedBy: string | null
-  }
-}
-
-export type CreateDirectorySyncRunMutationVariables = Exact<{
-  input: Types.CreateDirectorySyncRunInput
-}>
-
-export interface CreateDirectorySyncRunMutation {
-  createDirectorySyncRun: { directorySyncRun: { id: string } }
-}
-
-export type UpdateDirectorySyncRunMutationVariables = Exact<{
-  updateDirectorySyncRunId: string
-  input: Types.UpdateDirectorySyncRunInput
-}>
-
-export interface UpdateDirectorySyncRunMutation {
-  updateDirectorySyncRun: { directorySyncRun: { id: string } }
-}
-
-export type DeleteDirectorySyncRunMutationVariables = Exact<{
-  deleteDirectorySyncRunId: string
-}>
-
-export interface DeleteDirectorySyncRunMutation {
-  deleteDirectorySyncRun: { deletedID: string }
 }
 
 export type CreateDiscussionMutationVariables = Exact<{
@@ -5999,12 +5889,14 @@ export interface PlatformsWithFilterQuery {
         createdBy: string | null
         updatedAt: any
         updatedBy: string | null
+        platformOwnerID: string | null
         internalOwner: string | null
         internalOwnerUserID: string | null
         internalOwnerGroupID: string | null
         internalOwnerIdentityHolderID: string | null
         businessOwner: string | null
         technicalOwner: string | null
+        platformOwner: { id: string; displayName: string; email: string } | null
         internalOwnerUser: { id: string; displayName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
@@ -6068,6 +5960,7 @@ export interface PlatformQuery {
     trustBoundaryDescription: string | null
     businessOwner: string | null
     technicalOwner: string | null
+    platformOwnerID: string | null
     internalOwner: string | null
     securityOwner: string | null
     businessOwnerUser: { id: string; displayName: string; email: string } | null
@@ -6076,6 +5969,7 @@ export interface PlatformQuery {
     technicalOwnerUser: { id: string; displayName: string; email: string } | null
     technicalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     technicalOwnerGroup: { id: string; name: string } | null
+    platformOwner: { id: string; displayName: string; email: string } | null
     internalOwnerUser: { id: string; displayName: string; email: string } | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; name: string } | null
@@ -6643,13 +6537,7 @@ export interface GetProgramBasicInfoQuery {
     frameworkName: string | null
     status: Types.ProgramProgramStatus
     programKindName: string | null
-    internalOwner: string | null
-    internalOwnerUserID: string | null
-    internalOwnerGroupID: string | null
-    internalOwnerIdentityHolderID: string | null
-    internalOwnerUser: { id: string; displayName: string; email: string } | null
-    internalOwnerGroup: { id: string; displayName: string } | null
-    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
+    programOwnerID: string | null
   }
 }
 
@@ -6780,13 +6668,7 @@ export interface GetProgramDashboardQuery {
         status: Types.ProgramProgramStatus
         endDate: any
         startDate: any
-        internalOwner: string | null
-        internalOwnerUserID: string | null
-        internalOwnerGroupID: string | null
-        internalOwnerIdentityHolderID: string | null
-        internalOwnerUser: { id: string; displayName: string; email: string } | null
-        internalOwnerGroup: { id: string; displayName: string } | null
-        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
+        programOwner: { id: string; displayName: string } | null
         submittedEvidences: { totalCount: number }
         tasks: { edges: Array<{ node: { id: string; status: Types.TaskTaskStatus } | null } | null> | null }
         controls: { totalCount: number }
@@ -6825,10 +6707,7 @@ export interface RemediationsWithFilterQuery {
         instructions: string | null
         intent: string | null
         metadata: any
-        internalOwner: string | null
-        internalOwnerUserID: string | null
-        internalOwnerGroupID: string | null
-        internalOwnerIdentityHolderID: string | null
+        ownerReference: string | null
         prGeneratedAt: string | null
         pullRequestURI: string | null
         repositoryURI: string | null
@@ -6842,9 +6721,6 @@ export interface RemediationsWithFilterQuery {
         title: string | null
         updatedAt: any
         updatedBy: string | null
-        internalOwnerUser: { id: string; displayName: string; email: string } | null
-        internalOwnerGroup: { id: string; displayName: string } | null
-        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -6873,10 +6749,7 @@ export interface RemediationQuery {
     instructions: string | null
     intent: string | null
     metadata: any
-    internalOwner: string | null
-    internalOwnerUserID: string | null
-    internalOwnerGroupID: string | null
-    internalOwnerIdentityHolderID: string | null
+    ownerReference: string | null
     prGeneratedAt: string | null
     pullRequestURI: string | null
     repositoryURI: string | null
@@ -6890,9 +6763,6 @@ export interface RemediationQuery {
     title: string | null
     updatedAt: any
     updatedBy: string | null
-    internalOwnerUser: { id: string; displayName: string; email: string } | null
-    internalOwnerGroup: { id: string; displayName: string } | null
-    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
   }
 }
 
@@ -7178,9 +7048,11 @@ export type RiskFieldsFragment = {
   reviewRequired: boolean | null
   dueDate: string | null
   riskDecision: Types.RiskRiskDecision | null
+  stakeholderName: string | null
   stakeholderUserID: string | null
   stakeholderGroupID: string | null
   stakeholderIdentityHolderID: string | null
+  delegateName: string | null
   delegateUserID: string | null
   delegateGroupID: string | null
   delegateIdentityHolderID: string | null
@@ -7202,6 +7074,7 @@ export type RiskTableFieldsFragment = {
   score: number | null
   status: Types.RiskRiskStatus | null
   businessCosts: string | null
+  delegateName: string | null
   delegateUserID: string | null
   delegateGroupID: string | null
   delegateIdentityHolderID: string | null
@@ -7222,6 +7095,7 @@ export type RiskTableFieldsFragment = {
   riskDecision: Types.RiskRiskDecision | null
   environmentName: string | null
   scopeName: string | null
+  stakeholderName: string | null
   stakeholderUserID: string | null
   stakeholderGroupID: string | null
   stakeholderIdentityHolderID: string | null
@@ -7263,9 +7137,11 @@ export interface GetRiskByIdQuery {
     reviewRequired: boolean | null
     dueDate: string | null
     riskDecision: Types.RiskRiskDecision | null
+    stakeholderName: string | null
     stakeholderUserID: string | null
     stakeholderGroupID: string | null
     stakeholderIdentityHolderID: string | null
+    delegateName: string | null
     delegateUserID: string | null
     delegateGroupID: string | null
     delegateIdentityHolderID: string | null
@@ -7302,6 +7178,7 @@ export interface GetAllRisksQuery {
         score: number | null
         status: Types.RiskRiskStatus | null
         businessCosts: string | null
+        delegateName: string | null
         delegateUserID: string | null
         delegateGroupID: string | null
         delegateIdentityHolderID: string | null
@@ -7322,6 +7199,7 @@ export interface GetAllRisksQuery {
         riskDecision: Types.RiskRiskDecision | null
         environmentName: string | null
         scopeName: string | null
+        stakeholderName: string | null
         stakeholderUserID: string | null
         stakeholderGroupID: string | null
         stakeholderIdentityHolderID: string | null

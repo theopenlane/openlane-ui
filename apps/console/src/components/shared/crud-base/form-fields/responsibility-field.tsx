@@ -21,9 +21,9 @@ import { isValidEmail } from '@/lib/validators'
 import { cn } from '@repo/ui/lib/utils'
 
 interface ResponsibilityFieldProps {
-  name?: string
-  label?: string
-  fieldBaseName?: string
+  name: string
+  label: string
+  fieldBaseName: string
   isEditing: boolean
   isEditAllowed: boolean
   isCreate?: boolean
@@ -37,15 +37,12 @@ interface ResponsibilityFieldProps {
   userOnly?: boolean
   groupOnly?: boolean
   allowPersonnel?: boolean
-  // some schemas like risks do not allow you just put a random value/email
-  // as the responsibility holder. this defaults to true and keeps the normal behavior
-  allowRawInput?: boolean
 }
 
 export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
-  name = 'internalOwner',
-  label = 'Internal Owner',
-  fieldBaseName = 'internalOwner',
+  name,
+  label,
+  fieldBaseName,
   isEditing,
   isEditAllowed,
   isCreate = false,
@@ -59,7 +56,6 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   userOnly = false,
   groupOnly = false,
   allowPersonnel = true,
-  allowRawInput = true,
 }) => {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
@@ -121,7 +117,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
     setSearchText('')
 
     if (!isEditing && !isCreate && handleUpdate) {
-      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selectionToUse, { allowPersonnel, allowRawInput })
+      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selectionToUse, { allowPersonnel })
       await handleUpdate(payload)
     }
 
@@ -209,13 +205,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                       <Command shouldFilter={false}>
                         {groupOnly && <CommandInput placeholder="Search groups..." value={searchText} onValueChange={setSearchText} />}
                         {userOnly && <CommandInput placeholder="Search users..." value={searchText} onValueChange={setSearchText} />}
-                        {!groupOnly && !userOnly && (
-                          <CommandInput
-                            placeholder={allowRawInput ? 'Search users, groups, personnel, or type a name/email...' : 'Search users, groups, or personnel...'}
-                            value={searchText}
-                            onValueChange={setSearchText}
-                          />
-                        )}
+                        {!groupOnly && !userOnly && <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} />}
                         <CommandList className="max-h-[min(300px,var(--radix-popover-content-available-height,300px))]">
                           <CommandEmpty>No results found.</CommandEmpty>
                           {currentValue && !groupOnly && !userOnly && (
@@ -282,7 +272,6 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                           )}
                           {!userOnly &&
                             !groupOnly &&
-                            allowRawInput &&
                             searchText.trim() &&
                             !hasExactMatch &&
                             !personnelOptions.some((person) => person.label.toLowerCase() === normalizedSearchText || person.email?.toLowerCase() === normalizedSearchText) && (

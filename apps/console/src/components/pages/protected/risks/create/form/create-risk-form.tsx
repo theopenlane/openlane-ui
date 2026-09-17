@@ -48,8 +48,8 @@ const CreateRiskForm: React.FC = () => {
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           reviewFrequency: (values.reviewFrequency as RiskFrequency) || RiskFrequency.YEARLY,
           riskDecision: (values.riskDecision as RiskRiskDecision) || undefined,
-          ...buildResponsibilityPayload('stakeholder', stakeholder, { allowRawInput: false }),
-          ...buildResponsibilityPayload('delegate', delegate, { allowRawInput: false }),
+          ...buildResponsibilityPayload('stakeholder', stakeholder),
+          ...buildResponsibilityPayload('delegate', delegate),
         },
       })
 

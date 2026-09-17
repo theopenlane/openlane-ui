@@ -14,13 +14,12 @@ import { PersonnelOptionItem } from './personnel-option-item'
 import { isValidEmail } from '@/lib/validators'
 
 interface BulkResponsibilityPickerProps {
-  allowRawInput?: boolean
   allowPersonnel?: boolean
   value: ResponsibilitySelection
   onChange: (selection: ResponsibilitySelection) => void
 }
 
-export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> = ({ allowPersonnel = true, allowRawInput = true, value, onChange }) => {
+export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> = ({ allowPersonnel = true, value, onChange }) => {
   const [open, setOpen] = useState(false)
   const [searchText, setSearchText] = useState('')
 
@@ -95,11 +94,7 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
         sideOffset={4}
       >
         <Command shouldFilter={false}>
-          <CommandInput
-            placeholder={allowRawInput ? 'Search users, groups, personnel, or type a name/email...' : 'Search users, groups, or personnel...'}
-            value={searchText}
-            onValueChange={setSearchText}
-          />
+          <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} />
           <CommandList className="max-h-[min(300px,var(--radix-popover-content-available-height,300px))]">
             <CommandEmpty>No results found.</CommandEmpty>
             {value && (
@@ -148,19 +143,16 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
                 ))}
               </CommandGroup>
             )}
-            {allowRawInput &&
-              searchText.trim() &&
-              !hasExactMatch &&
-              !personnelOptions.some((person) => person.label.toLowerCase() === normalizedSearchText || person.email?.toLowerCase() === normalizedSearchText) && (
-                <CommandGroup heading="Custom">
-                  <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() })}>
-                    <Type className="mr-2 h-4 w-4" />
-                    <span className="truncate" title={customEmailLabel}>
-                      {customEmailLabel}
-                    </span>
-                  </CommandItem>
-                </CommandGroup>
-              )}
+            {searchText.trim() && !hasExactMatch && !personnelOptions.some((person) => person.label.toLowerCase() === normalizedSearchText || person.email?.toLowerCase() === normalizedSearchText) && (
+              <CommandGroup heading="Custom">
+                <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() })}>
+                  <Type className="mr-2 h-4 w-4" />
+                  <span className="truncate" title={customEmailLabel}>
+                    {customEmailLabel}
+                  </span>
+                </CommandItem>
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>

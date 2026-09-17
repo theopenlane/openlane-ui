@@ -6,7 +6,7 @@ export const responsibilityFieldSchema = z
     type: z.enum(['user', 'group', 'personnel', 'string']),
     value: z.string(),
     displayName: z.string().optional(),
-    noClearOtherFields: z.boolean().optional(), // for legacy fields with a single user or group ID
+    noClearOtherFields: z.boolean().optional(), // for types that are update but do not have other fields to clear, like delegate in risks
   })
   .refine((data) => data.type !== 'string' || isValidEmail(data.value), {
     message: 'Must be a valid email address',
@@ -87,7 +87,6 @@ type ResponsibilityPayloadMode = 'create' | 'update'
 interface ResponsibilityPayloadOptions {
   mode?: ResponsibilityPayloadMode
   allowPersonnel?: boolean
-  allowRawInput?: boolean
 }
 
 function getClearFieldNames(fieldBaseName: string): { clearUser: string; clearGroup: string; clearString: string; clearPersonnel: string } {
@@ -102,11 +101,10 @@ function getClearFieldNames(fieldBaseName: string): { clearUser: string; clearGr
 export function buildResponsibilityPayload(
   fieldBaseName: string,
   selection: ResponsibilitySelection,
-  { mode = 'create', allowPersonnel = true, allowRawInput = true }: ResponsibilityPayloadOptions = {},
+  { mode = 'create', allowPersonnel = true }: ResponsibilityPayloadOptions = {},
 ): Record<string, string | boolean | undefined> {
   if (mode === 'update') {
     const { clearUser, clearGroup, clearString, clearPersonnel } = getClearFieldNames(fieldBaseName)
-    const clearStringFields = allowRawInput ? { [clearString]: true } : {}
     const clearPersonnelFields = allowPersonnel ? { [clearPersonnel]: true } : {}
 
     if (!selection) {
@@ -114,14 +112,14 @@ export function buildResponsibilityPayload(
         ...clearPersonnelFields,
         [clearUser]: true,
         [clearGroup]: true,
-        ...clearStringFields,
+        [clearString]: true,
       }
     }
 
     // clear just the single field, used by group and user only fields
     if (selection.value === '') {
       return {
-        ...clearStringFields,
+        [clearString]: true,
       }
     }
 
@@ -135,17 +133,17 @@ export function buildResponsibilityPayload(
           ...clearPersonnelFields,
           [`${fieldBaseName}UserID`]: selection.value,
           [clearGroup]: true,
-          ...clearStringFields,
+          [clearString]: true,
         }
       case 'group':
         return {
           [`${fieldBaseName}GroupID`]: selection.value,
           ...clearPersonnelFields,
           [clearUser]: true,
-          ...clearStringFields,
+          [clearString]: true,
         }
       case 'personnel':
-        return { [`${fieldBaseName}IdentityHolderID`]: selection.value, [clearUser]: true, [clearGroup]: true, ...clearStringFields }
+        return { [`${fieldBaseName}IdentityHolderID`]: selection.value, [clearUser]: true, [clearGroup]: true, [clearString]: true }
       case 'string':
         return {
           [fieldBaseName]: selection.value,
@@ -183,9 +181,9 @@ export function buildResponsibilityPayload(
 export function buildResponsibilityInlineUpdate(
   fieldBaseName: string,
   selection: ResponsibilitySelection,
-  { allowPersonnel = true, allowRawInput = true }: ResponsibilityPayloadOptions = {},
+  { allowPersonnel = true }: ResponsibilityPayloadOptions = {},
 ): Record<string, string | boolean | undefined> {
-  return buildResponsibilityPayload(fieldBaseName, selection, { mode: 'update', allowPersonnel, allowRawInput })
+  return buildResponsibilityPayload(fieldBaseName, selection, { mode: 'update', allowPersonnel })
 }
 
 function capitalize(str: string): string {

@@ -240,7 +240,7 @@ export const collectBulkEditFieldInput = (field: BulkEditFieldLike, input: Recor
   if (!key) return
 
   if (field.selectedObject?.inputType === InputType.Responsibility && field.selectedResponsibility !== undefined) {
-    Object.assign(input, buildResponsibilityPayload(key, field.selectedResponsibility, { mode: 'update', allowRawInput: false }))
+    Object.assign(input, buildResponsibilityPayload(key, field.selectedResponsibility, { mode: 'update' }))
     return
   }
 

@@ -63,7 +63,7 @@ const TableComponent = ({
       if (item.updatedBy && isUlid(item.updatedBy)) ids.add(item.updatedBy)
       if (item.businessOwnerUser?.id) ids.add(item.businessOwnerUser.id)
       if (item.technicalOwnerUser?.id) ids.add(item.technicalOwnerUser.id)
-      if (item.internalOwnerUserID) ids.add(item.internalOwnerUserID)
+      if (item.platformOwnerID) ids.add(item.platformOwnerID)
     })
     return Array.from(ids)
   }, [items])

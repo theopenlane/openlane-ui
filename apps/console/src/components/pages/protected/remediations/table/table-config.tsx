@@ -60,7 +60,7 @@ export const visibilityFields = {
   externalID: false,
   externalOwnerID: false,
   externalURI: false,
-  internalOwner: true,
+  ownerReference: false,
   ticketReference: false,
   pullRequestURI: false,
   repositoryURI: false,

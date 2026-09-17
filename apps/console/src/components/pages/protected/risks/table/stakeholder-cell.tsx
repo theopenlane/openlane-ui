@@ -12,7 +12,7 @@ const StakeholderCell: React.FC<{ risk: RiskTableFieldsFragment }> = ({ risk }) 
   const { successNotification, errorNotification } = useNotification()
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
   const form = useForm({
-    values: { stakeholder: normalizeResponsibilityField({ user: risk.stakeholderUser, group: risk.stakeholderGroup, personnel: risk.stakeholderIdentityHolder }) },
+    values: { stakeholder: normalizeResponsibilityField({ user: risk.stakeholderUser, group: risk.stakeholderGroup, personnel: risk.stakeholderIdentityHolder, stringValue: risk.stakeholderName }) },
   })
 
   const handleUpdate = async (input: UpdateRiskInput) => {
@@ -37,7 +37,6 @@ const StakeholderCell: React.FC<{ risk: RiskTableFieldsFragment }> = ({ risk }) 
           internalEditing={internalEditing}
           setInternalEditing={setInternalEditing}
           handleUpdate={handleUpdate}
-          allowRawInput={false}
         />
       </div>
     </FormProvider>

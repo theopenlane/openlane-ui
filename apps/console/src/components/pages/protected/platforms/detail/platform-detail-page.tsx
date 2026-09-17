@@ -112,6 +112,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
     scopeName: platform.scopeName,
     environmentName: platform.environmentName,
     containsPii: platform.containsPii ?? false,
+    platformOwner: platform.platformOwnerID ? { type: 'user' as const, value: platform.platformOwnerID, displayName: platform.platformOwner?.displayName ?? platform.platformOwnerID } : undefined,
     businessOwner: normalizeResponsibilityField({
       personnel: platform.businessOwnerIdentityHolder,
       user: platform.businessOwnerUser ? { id: platform.businessOwnerUser.id, displayName: platform.businessOwnerUser.displayName } : null,
@@ -156,7 +157,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
   const baselineLinkIDs = (field: PlatformLinkField) => new Set((form.formState.defaultValues?.[field] ?? []).filter((id): id is string => !!id))
 
   const buildPayload = async (data: EditPlatformFormData): Promise<UpdatePlatformInput> => {
-    const { businessOwner, technicalOwner, internalOwner, securityOwner, entityIDs, outOfScopeVendorIDs, assetIDs, outOfScopeAssetIDs, ...rest } = data
+    const { businessOwner, technicalOwner, platformOwner, internalOwner, securityOwner, entityIDs, outOfScopeVendorIDs, assetIDs, outOfScopeAssetIDs, ...rest } = data
 
     const currentAssetIDs = baselineLinkIDs('assetIDs')
     const currentOutOfScopeAssetIDs = baselineLinkIDs('outOfScopeAssetIDs')
@@ -192,6 +193,8 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
       businessPurpose,
       dataFlowSummary,
       trustBoundaryDescription,
+      platformOwnerID: platformOwner?.type === 'user' ? platformOwner.value : undefined,
+      clearPlatformOwner: !platformOwner || platformOwner.type !== 'user' ? true : undefined,
       ...buildResponsibilityPayload('businessOwner', businessOwner, { mode: 'update' }),
       ...buildResponsibilityPayload('technicalOwner', technicalOwner, { mode: 'update' }),
       ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'update' }),
@@ -314,6 +317,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
           <CardTitle className="text-sm font-medium">Ownership</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 pt-1">
+          {platform.platformOwner && renderOwner('Platform Owner', <User size={14} className="text-muted-foreground" />, platform.platformOwner.displayName, platform.platformOwner.email)}
           {(platform.businessOwnerUser || platform.businessOwnerGroup || platform.businessOwner) &&
             renderOwner(
               'Business Owner',
@@ -328,16 +332,12 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
               platform.technicalOwnerUser?.displayName ?? platform.technicalOwnerGroup?.name ?? platform.technicalOwner,
               platform.technicalOwnerUser?.email,
             )}
-          {(platform.internalOwnerUser || platform.internalOwnerGroup || platform.internalOwnerIdentityHolder || platform.internalOwner) &&
+          {(platform.internalOwnerUser || platform.internalOwnerGroup || platform.internalOwner) &&
             renderOwner(
               'Internal Owner',
               platform.internalOwnerGroup ? <Users size={14} className="text-muted-foreground" /> : <User size={14} className="text-muted-foreground" />,
-              platform.internalOwnerUser?.displayName ??
-                platform.internalOwnerGroup?.name ??
-                platform.internalOwnerIdentityHolder?.fullName ??
-                platform.internalOwnerIdentityHolder?.email ??
-                platform.internalOwner,
-              platform.internalOwnerUser?.email ?? platform.internalOwnerIdentityHolder?.email,
+              platform.internalOwnerUser?.displayName ?? platform.internalOwnerGroup?.name ?? platform.internalOwner,
+              platform.internalOwnerUser?.email,
             )}
           {(platform.securityOwnerUser || platform.securityOwnerGroup || platform.securityOwner) &&
             renderOwner(
@@ -346,7 +346,8 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
               platform.securityOwnerUser?.displayName ?? platform.securityOwnerGroup?.name ?? platform.securityOwner,
               platform.securityOwnerUser?.email,
             )}
-          {!platform.businessOwnerUser &&
+          {!platform.platformOwner &&
+            !platform.businessOwnerUser &&
             !platform.businessOwnerGroup &&
             !platform.businessOwner &&
             !platform.technicalOwner &&
@@ -355,7 +356,6 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
             !platform.internalOwner &&
             !platform.internalOwnerUser &&
             !platform.internalOwnerGroup &&
-            !platform.internalOwnerIdentityHolder &&
             !platform.securityOwner &&
             !platform.securityOwnerUser &&
             !platform.securityOwnerGroup && <p className="text-sm text-muted-foreground">No owners assigned.</p>}

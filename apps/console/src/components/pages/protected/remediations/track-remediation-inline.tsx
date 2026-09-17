@@ -1,7 +1,5 @@
 'use client'
 
-import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-
 import React from 'react'
 import { Form } from '@repo/ui/form'
 import useFormSchema, { type RemediationFormData } from './hooks/use-form-schema'
@@ -56,10 +54,8 @@ export const TrackRemediationForm: React.FC<TrackRemediationFormProps> = ({ enti
 
   const onSubmit = async (data: RemediationFormData) => {
     try {
-      const { internalOwner, ...rest } = data
       const input = {
-        ...rest,
-        ...buildResponsibilityPayload('internalOwner', internalOwner),
+        ...data,
         ...(entityType === 'finding' ? { findingIDs: [entityId] } : { vulnerabilityIDs: [entityId] }),
       }
       await mutateAsync({ input })

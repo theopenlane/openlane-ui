@@ -1,4 +1,3 @@
-import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { type RemediationsNodeNonNull } from '@/lib/graphql-hooks/remediation'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
@@ -18,22 +17,9 @@ export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems 
     { accessorKey: 'state', header: 'State', size: 110 },
     { accessorKey: 'source', header: 'Source', size: 120 },
     { accessorKey: 'externalID', header: 'External ID', size: 150 },
-    {
-      accessorKey: 'internalOwner',
-      header: 'Internal Owner',
-      size: 160,
-      cell: ({ row }) => (
-        <ResponsibilityCell
-          userMap={userMap}
-          user={row.original.internalOwnerUser}
-          group={row.original.internalOwnerGroup}
-          personnel={row.original.internalOwnerIdentityHolder}
-          stringValue={row.original.internalOwner}
-        />
-      ),
-    },
     { accessorKey: 'externalOwnerID', header: 'External Owner', size: 140 },
     { accessorKey: 'externalURI', header: 'External URI', size: 160 },
+    { accessorKey: 'ownerReference', header: 'Owner Reference', size: 140 },
     { accessorKey: 'ticketReference', header: 'Ticket Reference', size: 140 },
     { accessorKey: 'pullRequestURI', header: 'Pull Request URI', size: 160 },
     { accessorKey: 'repositoryURI', header: 'Repository URI', size: 160 },

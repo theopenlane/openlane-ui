@@ -18,6 +18,12 @@ export const GET_ALL_PLATFORMS = gql`
           createdBy
           updatedAt
           updatedBy
+          platformOwnerID
+          platformOwner {
+            id
+            displayName
+            email
+          }
           internalOwner
           internalOwnerUserID
           internalOwnerGroupID
@@ -179,6 +185,12 @@ export const PLATFORM = gql`
       technicalOwnerGroup {
         id
         name
+      }
+      platformOwnerID
+      platformOwner {
+        id
+        displayName
+        email
       }
       internalOwner
       internalOwnerUser {

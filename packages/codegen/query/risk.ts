@@ -27,6 +27,7 @@ const RISK_FIELDS = gql`
     dueDate
     riskDecision
     dueDate
+    stakeholderName
     stakeholderUserID
     stakeholderGroupID
     stakeholderIdentityHolderID
@@ -44,6 +45,7 @@ const RISK_FIELDS = gql`
       fullName
       email
     }
+    delegateName
     delegateUserID
     delegateGroupID
     delegateIdentityHolderID
@@ -75,6 +77,7 @@ const RISK_TABLE_FIELDS = gql`
     score
     status
     businessCosts
+    delegateName
     delegateUserID
     delegateGroupID
     delegateIdentityHolderID
@@ -109,6 +112,7 @@ const RISK_TABLE_FIELDS = gql`
     riskDecision
     environmentName
     scopeName
+    stakeholderName
     stakeholderUserID
     stakeholderGroupID
     stakeholderIdentityHolderID

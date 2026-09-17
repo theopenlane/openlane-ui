@@ -23,7 +23,7 @@ config:
     JSON: any
     Upload: any
 overwrite: true
-schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/clientschema/schema.graphql
+schema: https://raw.githubusercontent.com/theopenlane/core/c25b7a861f7a95560d035422d7fa5e6090bc3326/internal/graphapi/clientschema/schema.graphql
 # schema: ../../../core-more/internal/graphapi/clientschema/schema.graphql
 documents: './query/**/*.ts'
 generates:
@@ -53,14 +53,14 @@ generates:
     config:
       importSchemaTypesFrom: './src/schema-types'
   ./src/historyschema-types.ts:
-    schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/historyschema/schema.graphql
+    schema: https://raw.githubusercontent.com/theopenlane/core/c25b7a861f7a95560d035422d7fa5e6090bc3326/internal/graphapi/historyschema/schema.graphql
     documents: './query-history/**/*.ts'
     plugins:
       - typescript
       - add:
           content: '/* eslint-disable */'
   ./src/historyschema.ts:
-    schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/historyschema/schema.graphql
+    schema: https://raw.githubusercontent.com/theopenlane/core/c25b7a861f7a95560d035422d7fa5e6090bc3326/internal/graphapi/historyschema/schema.graphql
     documents: './query-history/**/*.ts'
     plugins:
       - typescript-operations

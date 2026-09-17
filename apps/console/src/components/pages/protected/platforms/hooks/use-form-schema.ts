@@ -16,6 +16,7 @@ const formSchema = z.object({
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
   containsPii: z.boolean().optional(),
+  platformOwner: responsibilityFieldSchema,
   businessOwner: responsibilityFieldSchema,
   technicalOwner: responsibilityFieldSchema,
   internalOwner: responsibilityFieldSchema,

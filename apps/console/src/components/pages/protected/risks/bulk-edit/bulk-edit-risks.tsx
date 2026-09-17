@@ -192,7 +192,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                           <Controller
                             control={control}
                             name={`fieldsArray.${index}.selectedResponsibility`}
-                            render={({ field }) => <BulkResponsibilityPicker allowRawInput={false} value={field.value} onChange={field.onChange} />}
+                            render={({ field }) => <BulkResponsibilityPicker value={field.value} onChange={field.onChange} />}
                           />
                         ) : item.selectedObject.inputType === InputType.Select ? (
                           <div className="flex flex-col items-center gap-2">

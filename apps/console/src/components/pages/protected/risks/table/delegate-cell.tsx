@@ -12,7 +12,7 @@ const DelegateCell: React.FC<{ risk: RiskTableFieldsFragment }> = ({ risk }) => 
   const { successNotification, errorNotification } = useNotification()
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
   const form = useForm({
-    values: { delegate: normalizeResponsibilityField({ user: risk.delegateUser, group: risk.delegateGroup, personnel: risk.delegateIdentityHolder }) },
+    values: { delegate: normalizeResponsibilityField({ user: risk.delegateUser, group: risk.delegateGroup, personnel: risk.delegateIdentityHolder, stringValue: risk.delegateName }) },
   })
 
   const handleUpdate = async (input: UpdateRiskInput) => {
@@ -37,7 +37,6 @@ const DelegateCell: React.FC<{ risk: RiskTableFieldsFragment }> = ({ risk }) => 
           internalEditing={internalEditing}
           setInternalEditing={setInternalEditing}
           handleUpdate={handleUpdate}
-          allowRawInput={false}
         />
       </div>
     </FormProvider>

@@ -85,6 +85,8 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
         <h3 className="text-lg font-medium mb-4">Properties</h3>
         <div className="flex flex-col gap-3">
           <ResponsibilityField
+            name="internalOwner"
+            fieldBaseName="internalOwner"
             label="Owner"
             icon={<UserRound className={iconClass} />}
             layout="horizontal"
