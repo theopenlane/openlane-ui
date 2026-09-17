@@ -1,6 +1,7 @@
 import type { JWT } from '@auth/core/jwt'
 import { fetchNewAccessToken, type RefreshResult } from './refresh-token'
 import { ACCESS_REFRESH_FALLBACK_BUFFER_MS, CLOCK_SKEW_MS, decodeTimeClaims, type TimeClaims } from './token-claims'
+import { describeToken, logSessionEvent } from './session-log'
 
 const inFlightRefreshes = new Map<string, Promise<RefreshResult>>()
 
@@ -49,6 +50,11 @@ export const refreshSessionToken = async (token: JWT): Promise<JWT | null> => {
     const pending = inFlightRefreshes.get(refreshToken)
 
     if (!pending) {
+      logSessionEvent('warn', 'session ended: refresh token expired', {
+        access: describeToken(accessToken),
+        refresh: describeToken(refreshToken),
+      })
+
       return null
     }
 
@@ -67,8 +73,18 @@ export const refreshSessionToken = async (token: JWT): Promise<JWT | null> => {
     case 'ok':
       return { ...token, accessToken: result.tokens.accessToken, refreshToken: result.tokens.refreshToken }
     case 'rejected':
+      logSessionEvent('warn', 'session ended: core rejected the refresh token', {
+        access: describeToken(accessToken),
+        refresh: describeToken(refreshToken),
+      })
+
       return null
     default:
+      logSessionEvent('warn', 'refresh could not be completed, keeping the current token', {
+        status: result.status,
+        access: describeToken(accessToken),
+      })
+
       return token
   }
 }
