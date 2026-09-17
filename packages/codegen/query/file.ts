@@ -12,6 +12,7 @@ export const GET_FILES = gql`
       edges {
         node {
           id
+          name
           providedFileName
           providedFileSize
           providedFileExtension

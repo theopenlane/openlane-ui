@@ -252,10 +252,11 @@ export const GET_IDENTITY_HOLDER_FILES_PAGINATED = gql`
         totalCount
         edges {
           node {
+            name
             providedFileName
             providedFileSize
             providedFileExtension
-            categoryType
+            categoryName
             createdAt
             id
             uri
@@ -268,8 +269,8 @@ export const GET_IDENTITY_HOLDER_FILES_PAGINATED = gql`
 `
 
 export const UPDATE_IDENTITY_HOLDER_WITH_FILES = gql`
-  mutation UpdateIdentityHolderWithFiles($updateIdentityHolderId: ID!, $input: UpdateIdentityHolderInput!, $identityHolderFiles: [Upload!]) {
-    updateIdentityHolder(id: $updateIdentityHolderId, input: $input, identityHolderFiles: $identityHolderFiles) {
+  mutation UpdateIdentityHolderWithFiles($updateIdentityHolderId: ID!, $input: UpdateIdentityHolderInput!, $identityHolderFiles: [Upload!], $identityHolderFilesMetadata: [FileMetadataInput!]) {
+    updateIdentityHolder(id: $updateIdentityHolderId, input: $input, identityHolderFiles: $identityHolderFiles, identityHolderFilesMetadata: $identityHolderFilesMetadata) {
       identityHolder {
         id
       }

@@ -3,6 +3,7 @@
 import React from 'react'
 import { useGetIdentityHolderFilesPaginated, useUploadIdentityHolderFiles, useUpdateIdentityHolder } from '@/lib/graphql-hooks/identity-holder'
 import { DocumentsSection } from '@/components/shared/documents-section/documents-section'
+import { toFileUploadArgs, type StagedUpload } from '@/components/shared/documents-section/staged-upload'
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
 import { FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
@@ -47,12 +48,15 @@ const IdentityHolderDocumentsSection: React.FC<IdentityHolderDocumentsSectionPro
     return null
   }
 
-  const handleUpload = async (newFiles: File[]) => {
+  const handleUpload = async (uploads: StagedUpload[]) => {
     try {
+      const { files: identityHolderFiles, metadata: identityHolderFilesMetadata } = toFileUploadArgs(uploads)
+
       await uploadFiles({
         updateIdentityHolderId: identityHolderId,
         input: {},
-        identityHolderFiles: newFiles,
+        identityHolderFiles,
+        identityHolderFilesMetadata,
       })
       successNotification({
         title: 'Documents uploaded',

@@ -3316,13 +3316,14 @@ export interface GetEntityFilesPaginatedQuery {
       pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
       edges: Array<{
         node: {
+          name: string | null
           providedFileName: string
           providedFileSize: number | null
           providedFileExtension: string
           id: string
           uri: string | null
           presignedURL: string | null
-          categoryType: string | null
+          categoryName: string | null
           createdAt: any
         } | null
       } | null> | null
@@ -3334,6 +3335,7 @@ export type UpdateEntityWithFilesMutationVariables = Exact<{
   updateEntityId: string
   input: Types.UpdateEntityInput
   entityFiles?: Array<any> | any | null | undefined
+  entityFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
   logoFile?: any
 }>
 
@@ -3821,6 +3823,7 @@ export interface GetFilesQuery {
     edges: Array<{
       node: {
         id: string
+        name: string | null
         providedFileName: string
         providedFileSize: number | null
         providedFileExtension: string
@@ -4649,10 +4652,11 @@ export interface GetIdentityHolderFilesPaginatedQuery {
       pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
       edges: Array<{
         node: {
+          name: string | null
           providedFileName: string
           providedFileSize: number | null
           providedFileExtension: string
-          categoryType: string | null
+          categoryName: string | null
           createdAt: any
           id: string
           uri: string | null
@@ -4667,6 +4671,7 @@ export type UpdateIdentityHolderWithFilesMutationVariables = Exact<{
   updateIdentityHolderId: string
   input: Types.UpdateIdentityHolderInput
   identityHolderFiles?: Array<any> | any | null | undefined
+  identityHolderFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
 }>
 
 export interface UpdateIdentityHolderWithFilesMutation {
@@ -7065,6 +7070,7 @@ export type UpdateReviewMutationVariables = Exact<{
   updateReviewId: string
   input: Types.UpdateReviewInput
   reviewFiles?: Array<any> | any | null | undefined
+  reviewFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
 }>
 
 export interface UpdateReviewMutation {
@@ -7138,7 +7144,16 @@ export interface GetReviewFilesPaginatedQuery {
       totalCount: number
       pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
       edges: Array<{
-        node: { providedFileName: string; providedFileSize: number | null; providedFileExtension: string; id: string; uri: string | null; presignedURL: string | null } | null
+        node: {
+          name: string | null
+          providedFileName: string
+          providedFileSize: number | null
+          providedFileExtension: string
+          categoryName: string | null
+          id: string
+          uri: string | null
+          presignedURL: string | null
+        } | null
       } | null> | null
     }
   }
