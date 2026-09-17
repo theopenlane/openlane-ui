@@ -3,13 +3,13 @@
 import React from 'react'
 import { Button } from '@repo/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { ArrowLeft, ArrowRight, ShieldCheck, ShieldOff, Clock, UserPlus } from 'lucide-react'
-import AssigneeSelect from './assignee-select'
-import { type TriageVuln } from './triage-utils'
+import { ArrowLeft, ArrowRight, ShieldCheck, ShieldOff, Clock } from 'lucide-react'
+import { ResponsibilityPicker } from '@/components/shared/crud-base/form-fields/responsibility-picker'
+import { type ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 type Props = {
-  vuln: TriageVuln
-  onAssign: (userId: string | null) => void
+  assignee: ResponsibilitySelection
+  onAssign: (selection: ResponsibilitySelection) => void
   onRemediate: () => void
   onAcceptRisk: () => void
   onSnooze: () => void
@@ -22,23 +22,12 @@ type Props = {
   canCreateRemediation: boolean
 }
 
-const TriageQuickActions: React.FC<Props> = ({ vuln, onAssign, onRemediate, onAcceptRisk, onSnooze, onPrev, onNext, hasPrev, hasNext, isBusy, canEdit, canCreateRemediation }) => {
+const TriageQuickActions: React.FC<Props> = ({ assignee, onAssign, onRemediate, onAcceptRisk, onSnooze, onPrev, onNext, hasPrev, hasNext, isBusy, canEdit, canCreateRemediation }) => {
   const mutationsDisabled = isBusy || !canEdit
   return (
     <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t bg-secondary px-6 py-3">
       <div className="flex flex-wrap items-center gap-2">
-        <AssigneeSelect
-          value={vuln.assignedToUserID}
-          onAssign={onAssign}
-          disabled={mutationsDisabled}
-          className="h-9 w-auto min-w-[110px]"
-          trigger={
-            <span className="flex items-center gap-1.5 font-medium">
-              <UserPlus size={14} />
-              Assign
-            </span>
-          }
-        />
+        <ResponsibilityPicker value={assignee} onChange={onAssign} placeholder="Assign..." triggerClassName="h-9 w-52" disabled={mutationsDisabled} />
         <Button variant="outline" size="md" icon={<ShieldCheck size={14} />} iconPosition="left" onClick={onRemediate} disabled={isBusy || !canCreateRemediation}>
           Remediate
         </Button>

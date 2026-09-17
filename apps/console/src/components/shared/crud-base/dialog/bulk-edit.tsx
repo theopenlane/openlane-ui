@@ -21,7 +21,7 @@ import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { type EnumOptionsGeneric } from '../page'
 import { toHumanLabel } from '@/utils/strings'
 import { buildResponsibilityPayload, type ResponsibilitySelection } from '../form-fields/responsibility-field-utils'
-import { BulkResponsibilityPicker } from '../form-fields/bulk-responsibility-picker'
+import { ResponsibilityPicker } from '../form-fields/responsibility-picker'
 import { useBulkUpdateFeedback } from '../use-bulk-update-feedback'
 import { type BulkUpdatePayload } from '../types'
 
@@ -249,7 +249,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                         control={control}
                         name={`fieldsArray.${index}.selectedResponsibility`}
                         render={({ field }) => (
-                          <BulkResponsibilityPicker allowPersonnel={responsibilityFields[fieldKey].allowPersonnel} value={field.value as ResponsibilitySelection} onChange={field.onChange} />
+                          <ResponsibilityPicker allowPersonnel={responsibilityFields[fieldKey].allowPersonnel} value={field.value as ResponsibilitySelection} onChange={field.onChange} />
                         )}
                       />
                     ) : fieldKey && innerZodType instanceof z.ZodArray && selectOptions ? (
