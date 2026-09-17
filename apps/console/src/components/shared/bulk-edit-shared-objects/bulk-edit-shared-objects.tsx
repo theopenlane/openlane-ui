@@ -257,7 +257,8 @@ export const checkHasFieldsToUpdate = (watchedFields: BulkEditFieldLike[]): bool
   })
 }
 
-const POLICY_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
+const POLICY_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.PROGRAM, ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
+const PROCEDURE_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.PROGRAM] as const
 const CONTROL_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
 const RISK_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.INTERNAL_POLICY] as const
 const EVIDENCE_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.PROGRAM, ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.SCAN] as const
@@ -361,7 +362,7 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: BulkEditGroup[], typ
   ]
 }
 
-export const getAllSelectOptionsForBulkEditProcedures = (groups: BulkEditGroup[], typeOptions: Option[]): SelectOptionSelectedObject<SelectOptionBulkEditProcedures>[] => {
+export const getAllSelectOptionsForBulkEditProcedures = (groups: BulkEditGroup[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureDelegate,
@@ -399,6 +400,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: BulkEditGroup[]
       inputType: InputType.Tag,
       placeholder: 'Add a tag',
     },
+    ...generateAssociationSelectOptions(PROCEDURE_ALLOWED_OBJECT_TYPES),
   ]
 }
 
