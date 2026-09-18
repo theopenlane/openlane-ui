@@ -35,7 +35,7 @@ import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/c
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 import { useSession } from 'next-auth/react'
-import { isSoc2Framework } from '@/constants/trust-services-categories'
+import { isSoc2Framework, SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-categories'
 import TrustServicesCategoriesField from './trust-services-categories-field'
 
 const formSchema = z.object({
@@ -186,7 +186,7 @@ const BasicInformation = () => {
           {/* Name */}
           <div className="flex flex-col border-b pb-3 w-full">
             <div className="flex items-center">
-              <Label className="block w-32 shrink-0">Name</Label>
+              <Label className="block w-56 shrink-0">Name</Label>
               <div className="flex flex-col w-full">
                 {isEditing ? <Controller name="name" control={form.control} render={({ field }) => <Input {...field} className="w-full" />} /> : <span>{program?.name || '—'}</span>}
                 {form.formState.errors.name && <p className="text-destructive ">{form.formState.errors.name.message}</p>}
@@ -195,7 +195,7 @@ const BasicInformation = () => {
           </div>
           {/* Type */}
           <div className="flex border-b pb-3 items-center">
-            <Label className="block w-32 shrink-0">Type</Label>
+            <Label className="block w-56 shrink-0">Type</Label>
             <div className="flex w-full flex-wrap items-center gap-3">
               <CustomTypeEnumValue value={program?.programKindName || ''} options={enumOptions ?? []} placeholder="-" />
               {docsHelpAvailable && program?.programKindName === 'Gap Analysis' && (
@@ -212,11 +212,11 @@ const BasicInformation = () => {
           </div>
           {/* Framework */}
           <FrameworkField form={form} program={program} isEditing={isEditing} isEditAllowed={isEditAllowed} standardOptionsNormalized={standardOptionsNormalized} name="frameworkName" />
-          {isSoc2Framework(frameworkName) && <TrustServicesCategoriesField programId={id} frameworkName={frameworkName} canManage={canManageCategories} />}
+          {isSoc2Framework(frameworkName) && <TrustServicesCategoriesField programId={id} frameworkName={SOC_2_FRAMEWORK_NAME} canManage={canManageCategories} />}
           {/* Tags */}
           {(isEditing || (program?.tags && program.tags.length > 0)) && (
             <div className="flex border-b pb-3 items-center">
-              <Label className="block w-32 shrink-0">Tags</Label>
+              <Label className="block w-56 shrink-0">Tags</Label>
               <div className="text-sm text-left flex gap-2 w-full">
                 {isEditing ? (
                   <Controller
@@ -246,7 +246,7 @@ const BasicInformation = () => {
           )}
           {/* Description */}
           <div className="flex border-b pb-3 items-center">
-            <Label className="block w-32 shrink-0">Description</Label>
+            <Label className="block w-56 shrink-0">Description</Label>
             <div className="flex-1">
               <Controller
                 name="description"
@@ -263,7 +263,7 @@ const BasicInformation = () => {
           </div>
           {/* Program Owner */}
           <div className="flex pb-3 items-center">
-            <Label className="block w-32 shrink-0">Program Owner</Label>
+            <Label className="block w-56 shrink-0">Program Owner</Label>
             <div className="flex-1">
               <Controller
                 name="programOwnerId"
@@ -315,7 +315,7 @@ export function FrameworkField<T extends FieldValues>({ form, program, isEditing
 
   return (
     <div className="flex border-b pb-3 items-center relative">
-      <Label className="block w-32 shrink-0">Framework</Label>
+      <Label className="block w-56 shrink-0">Framework</Label>
       <div className="flex-1 relative">
         <Controller
           name={name}

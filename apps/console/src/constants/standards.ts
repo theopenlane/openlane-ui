@@ -40,6 +40,12 @@ export const isSystemStandardRecord = ({ systemOwned, framework }: { systemOwned
 
 export const normalizeFrameworkName = (frameworkName?: string | null): string => frameworkName?.trim() ?? ''
 
+export const splitFrameworkNames = (frameworkName?: string | null): string[] =>
+  normalizeFrameworkName(frameworkName)
+    .split(',')
+    .map((name) => name.trim())
+    .filter(Boolean)
+
 export const programFrameworkControlsWhere = (programId: string, frameworkName: string): ControlWhereInput => ({
   hasProgramsWith: [{ id: programId }],
   referenceFrameworkEqualFold: normalizeFrameworkName(frameworkName),

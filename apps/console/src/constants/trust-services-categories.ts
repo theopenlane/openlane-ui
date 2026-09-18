@@ -1,5 +1,5 @@
 import { BookLock, Cloud, GlobeLock, Shield, SlidersHorizontal, type LucideIcon } from 'lucide-react'
-import { normalizeFrameworkName } from '@/constants/standards'
+import { splitFrameworkNames } from '@/constants/standards'
 
 export const SOC_2_FRAMEWORK_NAME = 'SOC 2'
 
@@ -23,7 +23,7 @@ const TRUST_SERVICES_CATEGORY_NAMES = new Set(TRUST_SERVICES_CATEGORIES.map((cat
 
 export const isTrustServicesCategory = (name: string): boolean => TRUST_SERVICES_CATEGORY_NAMES.has(name)
 
-export const isSoc2Framework = (frameworkName?: string | null): frameworkName is string => normalizeFrameworkName(frameworkName).toLowerCase() === SOC_2_FRAMEWORK_NAME.toLowerCase()
+export const isSoc2Framework = (frameworkName?: string | null): boolean => splitFrameworkNames(frameworkName).some((name) => name.toLowerCase() === SOC_2_FRAMEWORK_NAME.toLowerCase())
 
 export const sortTrustServicesCategories = (categories: string[]): string[] => [
   ...TRUST_SERVICES_CATEGORIES.filter((category) => categories.includes(category.name)).map((category) => category.name),
