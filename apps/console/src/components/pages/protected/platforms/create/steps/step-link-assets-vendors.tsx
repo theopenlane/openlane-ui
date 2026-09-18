@@ -11,9 +11,14 @@ import { Check, Laptop, Building2, X } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
+import { useGetCustomTypeEnums, type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
+import { CustomTypeEnumOptionChip } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { type EditPlatformFormData } from '../../hooks/use-form-schema'
 
-type ItemInfo = { id: string; name: string }
+type ItemInfo = { id: string; name: string; scopeOption?: CustomTypeEnumOption }
+
+const toScopeOption = (scopeName: string | null | undefined, options: CustomTypeEnumOption[]): CustomTypeEnumOption | undefined =>
+  scopeName ? (options.find((option) => option.value === scopeName) ?? { value: scopeName, label: scopeName }) : undefined
 
 type ScopeFieldName = keyof Pick<EditPlatformFormData, 'assetIDs' | 'outOfScopeAssetIDs' | 'entityIDs' | 'outOfScopeVendorIDs'>
 
@@ -124,7 +129,14 @@ const MultiSelectField: React.FC<MultiSelectProps> = ({ fieldName, oppositeField
                                 {isSelected && <Check className="h-3 w-3" />}
                               </div>
                               <span className="mr-2 text-muted-foreground">{icon}</span>
-                              <span>{item.name}</span>
+                              <span className="truncate" title={item.name}>
+                                {item.name}
+                              </span>
+                              {item.scopeOption && (
+                                <span className="ml-auto shrink-0">
+                                  <CustomTypeEnumOptionChip option={item.scopeOption} />
+                                </span>
+                              )}
                             </CommandItem>
                           )
                           if (!isDisabled) return <React.Fragment key={item.id}>{row}</React.Fragment>
@@ -160,8 +172,10 @@ const StepLinkAssetsVendors: React.FC = () => {
     enabled: true,
   })
 
-  const assets = useMemo(() => assetsNodes.map((a) => ({ id: a.id, name: a.name ?? a.id })), [assetsNodes])
-  const vendors = useMemo(() => vendorNodes.map((v) => ({ id: v.id, name: v.displayName ?? v.name ?? v.id })), [vendorNodes])
+  const { enumOptions: scopeOptions } = useGetCustomTypeEnums({ where: { field: 'scope' } })
+
+  const assets = useMemo(() => assetsNodes.map((a) => ({ id: a.id, name: a.name ?? a.id, scopeOption: toScopeOption(a.scopeName, scopeOptions) })), [assetsNodes, scopeOptions])
+  const vendors = useMemo(() => vendorNodes.map((v) => ({ id: v.id, name: v.displayName ?? v.name ?? v.id, scopeOption: toScopeOption(v.scopeName, scopeOptions) })), [vendorNodes, scopeOptions])
 
   return (
     <div className="space-y-5">
