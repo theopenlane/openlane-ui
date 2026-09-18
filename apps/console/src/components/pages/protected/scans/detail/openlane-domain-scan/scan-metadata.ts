@@ -250,9 +250,6 @@ export const getCompanyInfo = (metadata: ScanMetadata | null) => {
 
 export const getVendors = (metadata: ScanMetadata | null): Vendor[] => metadata?.vendors ?? []
 
-// hasFindingsSummary gates the findings card. Email authentication counts towards it even
-// though it is not part of Findings server-side: a domain with no DMARC record has a finding
-// worth showing whether or not the scanner produced anything else
 export const hasFindingsSummary = (metadata: ScanMetadata | null): boolean =>
   (!!metadata?.findings && (!!metadata.findings.agent_readiness?.length || !!metadata.findings.missing_compliance_links)) || hasEmailAuth(metadata) || hasWebPosture(metadata)
 

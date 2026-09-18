@@ -39,11 +39,8 @@ export const FindingsStep = ({ findings, selected, setSelected, agentReadiness, 
     DomainScanFindingCategory.AGENT_READINESS,
   ]
 
-  // categories whose description is a markdown checklist rather than free text
   const checklistCategories: DomainScanFindingCategoryValue[] = [DomainScanFindingCategory.AGENT_READINESS, DomainScanFindingCategory.COMPLIANCE_LINKS]
 
-  // findings that carry a domain are grouped once per category and domain, so a multi-domain
-  // review reads as "Web Posture for a.com" and "Web Posture for b.com" rather than one mixed list
   const groups = categoryOrder
     .flatMap((category) => {
       const items = findings.filter((finding) => finding.category === category)

@@ -35,9 +35,7 @@ export type Finding = {
   description?: string
   severity?: string
   category: DomainScanFindingCategoryValue
-  // category sent on import when it should be more specific than the review grouping, e.g. DMARC under EMAIL_AUTHENTICATION
   importCategory?: string
-  // domain the finding was raised against, used to group the review list per domain
   domain?: string
 }
 

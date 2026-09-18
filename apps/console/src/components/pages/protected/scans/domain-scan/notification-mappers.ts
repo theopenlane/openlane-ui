@@ -259,12 +259,10 @@ export const findingsFromNotification = (data?: DomainScanNotificationData): Fin
   return [...genericFindings, ...complianceLinkFindings, ...postureFindings, ...agentReadinessFindings]
 }
 
-// posture checks that concern email rather than the web site, for review grouping
 const EMAIL_AUTH_CHECKS = new Set(['dmarc', 'spf', 'dkim'])
 
 const CHECKLIST_ITEM_REGEX = /^(- \[[ xX]\]\s*)(.+)$/
 
-// complianceChecklistToMarkdown swaps each document type in the checklist for its display name
 const complianceChecklistToMarkdown = (checklist: string): string =>
   checklist
     .split('\n')
