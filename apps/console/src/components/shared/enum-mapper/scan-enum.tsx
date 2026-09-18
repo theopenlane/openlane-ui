@@ -3,7 +3,7 @@ import { ScanScanStatus, ScanScanType } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { toHumanLabel } from '@/utils/strings'
-
+import { cn } from '@repo/ui/lib/utils'
 export const ScanTypeIconMapper: Record<ScanScanType, React.ReactNode> = {
   [ScanScanType.DOMAIN]: <Globe height={16} width={16} />,
   [ScanScanType.PROVIDER]: <Server height={16} width={16} />,
@@ -53,7 +53,7 @@ export const PostureStatusIconMapper: Record<PostureStatus, { Icon: LucideIcon; 
 
 export function PostureStatusIcon({ status, size = 14, className = '' }: { status: PostureStatus; size?: number; className?: string }) {
   const { Icon, className: color } = PostureStatusIconMapper[status]
-  return <Icon size={size} className={`${color} ${className}`.trim()} />
+  return <Icon size={size} className={cn(color, className)} />
 }
 
 // document types whose label is an expansion toHumanLabel cannot derive
