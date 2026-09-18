@@ -42,6 +42,7 @@ import {
   type Program,
   type GetProgramDashboardQuery,
   type GetProgramDashboardQueryVariables,
+  EvidenceEvidenceStatus,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -141,21 +142,20 @@ export const useGetProgramBasicInfo = (programId: string | null, enabled: boolea
   })
 }
 
-type ProgramEvidenceStats = {
-  total: number
-  submitted: number
-  accepted: number
-  rejected: number
-}
+export const EVIDENCE_STAT_STATUS_GROUPS = {
+  requested: [EvidenceEvidenceStatus.REQUESTED],
+  submitted: [EvidenceEvidenceStatus.SUBMITTED, EvidenceEvidenceStatus.READY_FOR_AUDITOR],
+  readyForAuditor: [EvidenceEvidenceStatus.READY_FOR_AUDITOR],
+  accepted: [EvidenceEvidenceStatus.AUDITOR_APPROVED],
+} as const satisfies Record<string, readonly EvidenceEvidenceStatus[]>
 
-type ProgramEvidenceScopeStats = ProgramEvidenceStats & {
+export type EvidenceStatGroupKey = keyof typeof EVIDENCE_STAT_STATUS_GROUPS
+
+export type ProgramEvidenceScopeStats = {
+  total: number
   framework: number
   organization: number
-}
-
-type EvidenceScopeStatsResponse = GetEvidenceStatsQuery & {
-  frameworkControls: { totalCount: number }
-  organizationControls: { totalCount: number }
+  byGroup: Record<EvidenceStatGroupKey, number>
 }
 
 export const useProgramEvidenceStats = (programId: string | undefined) => {
@@ -164,15 +164,18 @@ export const useProgramEvidenceStats = (programId: string | undefined) => {
   return useQuery<ProgramEvidenceScopeStats>({
     queryKey: ['program-evidence-stats', programId],
     queryFn: async () => {
-      const data = await client.request<EvidenceScopeStatsResponse>(GET_EVIDENCE_STATS, { programId })
+      const data = await client.request<GetEvidenceStatsQuery>(GET_EVIDENCE_STATS, { programId })
 
       return {
         total: data.totalControls.totalCount,
-        submitted: data.submitted.totalCount,
-        accepted: data.accepted.totalCount,
-        rejected: data.rejected.totalCount,
         framework: data.frameworkControls.totalCount,
         organization: data.organizationControls.totalCount,
+        byGroup: {
+          requested: data.requested.totalCount,
+          submitted: data.submitted.totalCount,
+          readyForAuditor: data.readyForAuditor.totalCount,
+          accepted: data.accepted.totalCount,
+        },
       }
     },
     enabled: !!programId,

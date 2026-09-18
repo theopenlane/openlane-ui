@@ -1,8 +1,10 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
@@ -72,9 +74,9 @@ const SeverityField: React.FC<SeverityFieldProps> = ({ isEditing, isEditAllowed,
             ) : (
               <div
                 className="text-sm py-2 rounded-md cursor-pointer px-1 w-full hover:bg-accent"
-                onClick={() => {
+                {...activatable(() => {
                   if (isEditAllowed) setInternalEditing('severity')
-                }}
+                })}
               >
                 {securityLevel ? <SeverityChip severity={securityLevel} /> : <span className="text-muted-foreground italic">Not set</span>}
               </div>
@@ -104,6 +106,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
     }
     return handleUpdateField?.(input)
   }
+
+  const handleResponsibilityUpdate = handleUpdateField ? (input: Record<string, string | boolean | undefined>) => handleUpdateField(input as UpdateVulnerabilityInput) : undefined
 
   const sharedFieldProps = {
     isEditing,
@@ -222,6 +226,41 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <CheckboxField name="production" label="Affects Production" {...sharedFieldProps} />
             <CheckboxField name="blocking" label="Blocks Production Changes" {...sharedFieldProps} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-md p-0">Assignment</CardTitle>
+          <CardDescription className="p-0">People responsible for triaging and reviewing this vulnerability</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <ResponsibilityField
+              name="assignedTo"
+              fieldBaseName="assignedTo"
+              label="Assignee"
+              tooltipContent="Who is responsible for remediating this vulnerability"
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleResponsibilityUpdate}
+            />
+            <ResponsibilityField
+              name="reviewedBy"
+              fieldBaseName="reviewedBy"
+              label="Reviewed By"
+              tooltipContent="Set to whoever accepts the risk or creates a remediation for this vulnerability"
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleResponsibilityUpdate}
+            />
           </div>
         </CardContent>
       </Card>

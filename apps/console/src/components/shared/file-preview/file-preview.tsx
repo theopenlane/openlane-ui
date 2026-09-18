@@ -3,17 +3,20 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Loader2, FileWarning, Download } from 'lucide-react'
+import { Download } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import type { File as GqlFile } from '@repo/codegen/src/schema'
 import { HTML_SANITIZE_CONFIG, isSafeLinkHref, useHtmlPurifier } from '@/lib/html/sanitize-html'
+import CsvPreview from '@/components/shared/file-preview/csv-preview'
+import { isFetchedPreviewKind, resolveFileKind, type TFetchedPreviewKind, type TPreviewFileShape } from '@/components/shared/file-preview/preview-mime'
+import { InfoCard, LoadingSpinner } from '@/components/shared/file-preview/preview-chrome'
 
 export { isSafeLinkHref, SAFE_LINK_PROTOCOLS } from '@/lib/html/sanitize-html'
 
 type PreviewFile = Pick<GqlFile, 'presignedURL' | 'providedFileName' | 'providedFileExtension' | 'detectedMimeType'>
 
-type Format = 'pdf' | 'markdown' | 'html' | 'docx' | 'text' | 'unsupported'
-type FetchedFormat = 'pdf' | 'markdown' | 'html' | 'docx' | 'text'
+type FetchedFormat = TFetchedPreviewKind
+type Format = FetchedFormat | 'unsupported'
 
 type LoadState =
   | { status: 'loading' }
@@ -23,6 +26,7 @@ type LoadState =
   | { status: 'markdown'; text: string }
   | { status: 'html'; text: string }
   | { status: 'text'; text: string }
+  | { status: 'csv'; text: string }
 
 const PREVIEW_FRAME_CLASS = 'h-[80vh] w-full overflow-hidden rounded-md border bg-muted'
 const PREVIEW_SCROLL_CLASS = 'docx-preview-container overflow-auto rounded-md border bg-card p-4 [&_.docx-wrapper]:bg-transparent!'
@@ -44,16 +48,10 @@ const NETWORK_ERROR_MESSAGE = "Couldn't load preview. The file may be unavailabl
 
 const isNetworkError = (err: unknown): boolean => err instanceof TypeError && /failed to fetch/i.test(err.message)
 
-export const detectFormat = (mimeType: string | null | undefined, extension: string | null | undefined): Format => {
-  const mime = (mimeType ?? '').toLowerCase()
-  const ext = (extension ?? '').toLowerCase().replace(/^\./, '')
+export const detectFormat = (file: TPreviewFileShape): Format => {
+  const kind = resolveFileKind(file)
 
-  if (mime === 'application/pdf' || ext === 'pdf') return 'pdf'
-  if (mime === 'text/markdown' || mime === 'text/x-markdown' || ext === 'md' || ext === 'mdx' || ext === 'markdown') return 'markdown'
-  if (mime === 'text/html' || ext === 'html' || ext === 'htm') return 'html'
-  if (mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || ext === 'docx') return 'docx'
-  if (mime.startsWith('text/plain') || ext === 'txt') return 'text'
-  return 'unsupported'
+  return kind && isFetchedPreviewKind(kind) ? kind : 'unsupported'
 }
 
 type Props = {
@@ -61,7 +59,8 @@ type Props = {
 }
 
 const FilePreview: React.FC<Props> = ({ file }) => {
-  const format = useMemo(() => detectFormat(file.detectedMimeType, file.providedFileExtension), [file.detectedMimeType, file.providedFileExtension])
+  const { detectedMimeType, providedFileExtension, providedFileName } = file
+  const format = useMemo(() => detectFormat({ detectedMimeType, providedFileExtension, providedFileName }), [detectedMimeType, providedFileExtension, providedFileName])
 
   if (format === 'unsupported') {
     return <UnsupportedPreview file={file} />
@@ -141,6 +140,8 @@ const FetchingPreview: React.FC<{ file: PreviewFile; format: FetchedFormat }> = 
       )
     case 'html':
       return <HtmlPreview text={state.text} />
+    case 'csv':
+      return <CsvPreview text={state.text} />
     case 'text':
       return (
         <div className={PROSE_CARD_CLASS}>
@@ -235,7 +236,7 @@ const UnsupportedPreview: React.FC<{ file: PreviewFile }> = ({ file }) => {
             {ext ? ` (.${ext})` : ''}
           </p>
           <p className="mt-2 text-xs text-muted-foreground">
-            {isLegacyDoc ? 'Re-save the document as .docx to enable in-browser preview, or download to view.' : 'Supported formats: PDF, Word (.docx), Markdown, HTML, Plain Text.'}
+            {isLegacyDoc ? 'Re-save the document as .docx to enable in-browser preview, or download to view.' : 'Supported formats: PDF, Word (.docx), CSV, Markdown, HTML, Plain Text.'}
           </p>
         </>
       }
@@ -243,26 +244,6 @@ const UnsupportedPreview: React.FC<{ file: PreviewFile }> = ({ file }) => {
     />
   )
 }
-
-const LoadingSpinner: React.FC = () => (
-  <div role="status" aria-live="polite" aria-label="Loading file preview" className="flex h-96 w-full items-center justify-center">
-    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden="true" />
-  </div>
-)
-
-type InfoCardProps = {
-  tone: 'error' | 'muted'
-  message: React.ReactNode
-  action?: React.ReactNode
-}
-
-const InfoCard: React.FC<InfoCardProps> = ({ tone, message, action }) => (
-  <div className="flex flex-col items-center gap-3 rounded-md border border-muted bg-muted/40 p-6 text-sm">
-    <FileWarning className={tone === 'error' ? 'h-6 w-6 text-destructive' : 'h-6 w-6 text-muted-foreground'} />
-    <div className="text-center">{message}</div>
-    {action}
-  </div>
-)
 
 const triggerDownload = (file: PreviewFile) => {
   if (!file.presignedURL) return

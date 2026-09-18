@@ -5,6 +5,8 @@ import { Box, Server, ShieldAlert, Users } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardTitle } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
 
+type ScanFoundSummaryRow = { icon: React.ReactNode; count: number; label: string }
+
 type ScanFoundSummaryProps = {
   hostname: string
   systemsCount: number
@@ -14,15 +16,21 @@ type ScanFoundSummaryProps = {
 }
 
 export const ScanFoundSummary = ({ hostname, systemsCount, assetsCount, vendorsCount, findingsCount }: ScanFoundSummaryProps) => {
-  const rows: { icon: React.ReactNode; count: number; label: string }[] = [
-    { icon: <Server size={16} />, count: systemsCount, label: 'systems' },
-    { icon: <Box size={16} />, count: assetsCount, label: 'assets' },
-    { icon: <Users size={16} />, count: vendorsCount, label: 'vendors' },
-    { icon: <ShieldAlert size={16} />, count: findingsCount, label: 'findings' },
-  ]
+  const rows = (
+    [
+      { icon: <Server size={16} />, count: systemsCount, label: 'systems' },
+      { icon: <Box size={16} />, count: assetsCount, label: 'assets' },
+      { icon: <Users size={16} />, count: vendorsCount, label: 'vendors' },
+      { icon: <ShieldAlert size={16} />, count: findingsCount, label: 'findings' },
+    ] satisfies ScanFoundSummaryRow[]
+  ).filter((row) => row.count > 0)
+
+  if (rows.length === 0) {
+    return null
+  }
 
   return (
-    <Card className="mb-6">
+    <Card className="mt-6 mb-6">
       <CardTitle className="text-xl py-3">Here&apos;s what we found</CardTitle>
       <CardDescription className="pb-3">We scanned {hostname} and found the following. Review and edit each section as you go.</CardDescription>
       <Separator separatorClass="bg-border" />

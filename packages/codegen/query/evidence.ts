@@ -10,32 +10,6 @@ export const CREATE_EVIDENCE = gql`
   }
 `
 
-export const GET_EVIDENCE_FILES = gql`
-  query GetEvidenceFiles($where: FileWhereInput, $first: Int, $last: Int, $before: Cursor, $after: Cursor) {
-    files(where: $where, first: $first, last: $last, before: $before, after: $after) {
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
-      edges {
-        node {
-          id
-          providedFileName
-          providedFileSize
-          presignedURL
-          providedFileExtension
-          detectedMimeType
-          categoryType
-          createdAt
-        }
-      }
-    }
-  }
-`
-
 export const GET_ALL_EVIDENCES = gql`
   query GetAllEvidences($where: EvidenceWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     evidences(where: $where, first: $first, after: $after, last: $last, before: $before) {

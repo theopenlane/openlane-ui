@@ -8,7 +8,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { AlertTriangle, Clock, ClipboardCheck, CalendarClock, SearchIcon, CircleHelp } from 'lucide-react'
+import { Clock, ClipboardCheck, CalendarClock, SearchIcon, CircleHelp } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
 import { type GetRiskByIdQuery, RiskFrequency, type RiskRiskLikelihood, type UpdateRiskInput } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
@@ -23,6 +23,7 @@ import ReviewDetailSheet from '@/components/pages/protected/reviews/common/revie
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { RiskLikelihoodOptions } from '@/components/shared/enum-mapper/risk-enum'
 import { riskLikelihoodStyle } from '../../../../risk-label'
+import { Callout } from '@/components/shared/callout/callout'
 
 const iconClass = 'h-4 w-4 text-muted-foreground'
 
@@ -76,17 +77,15 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ risk, handleUpdateField, 
   return (
     <div className="space-y-6">
       {isOverdue && (
-        <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive border border-destructive/20">
-          <Clock size={16} />
-          <span className="text-sm font-medium">Review overdue - immediate action required</span>
-        </div>
+        <Callout variant="danger" icon={Clock} compact contentClassName="font-medium">
+          Review overdue - immediate action required
+        </Callout>
       )}
 
       {isHighRisk && (
-        <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive border border-destructive/20">
-          <AlertTriangle size={16} />
-          <span className="text-sm font-medium">High risk - immediate action required</span>
-        </div>
+        <Callout variant="danger" compact contentClassName="font-medium">
+          High risk - immediate action required
+        </Callout>
       )}
 
       <div>

@@ -1,7 +1,8 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { type Ref, useMemo, useState } from 'react'
-import { Check, ChevronDown, Plus } from 'lucide-react'
+import { Check, ChevronDown, Plus, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { cn } from '@repo/ui/lib/utils'
@@ -11,10 +12,12 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface CreatableCustomTypeEnumSelectProps {
+  triggerId?: string
   value?: string
   options: CustomTypeEnumOption[]
   onValueChange: (value: string) => void | Promise<void>
   onCreateOption?: (value: string) => Promise<void>
+  clearable?: boolean
   placeholder?: string
   searchPlaceholder?: string
   disabled?: boolean
@@ -25,10 +28,12 @@ interface CreatableCustomTypeEnumSelectProps {
 }
 
 export const CreatableCustomTypeEnumSelect = ({
+  triggerId,
   value,
   options,
   onValueChange,
   onCreateOption,
+  clearable = false,
   placeholder = 'Select',
   searchPlaceholder = 'Search...',
   disabled = false,
@@ -90,9 +95,8 @@ export const CreatableCustomTypeEnumSelect = ({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
+          id={triggerId}
           type="button"
-          role="combobox"
-          aria-expanded={open}
           disabled={disabled}
           className={cn(
             'w-full flex justify-between font-normal border border-border bg-input rounded-md h-10 items-center px-3 text-sm disabled:cursor-not-allowed disabled:opacity-50',
@@ -118,7 +122,7 @@ export const CreatableCustomTypeEnumSelect = ({
               {showCreateOption && (
                 <div
                   className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
-                  onClick={handleCreateValue}
+                  {...activatable(handleCreateValue)}
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   <span>Create &quot;{trimmedSearch}&quot;</span>
@@ -127,6 +131,12 @@ export const CreatableCustomTypeEnumSelect = ({
               {!showCreateOption && <div className="p-4 text-center text-sm text-muted-foreground">No results found.</div>}
             </CommandEmpty>
             <CommandGroup>
+              {clearable && value && (
+                <CommandItem value="None" onSelect={() => handleSelectValue('')}>
+                  <X className="mr-2 h-4 w-4" />
+                  <span className="text-muted-foreground">None</span>
+                </CommandItem>
+              )}
               {allOptions.map((option) => (
                 <CommandItem
                   key={option.value}

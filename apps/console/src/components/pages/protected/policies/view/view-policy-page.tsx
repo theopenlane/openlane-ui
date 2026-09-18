@@ -24,10 +24,7 @@ import { canDelete, canEdit } from '@/lib/authz/utils'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Menu from '@/components/shared/menu/menu.tsx'
-import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
-import { type TAssociationItem } from '@/components/shared/object-association/association-items'
-import { getAssociationDisplayName } from '@/components/shared/object-association/utils'
-import CreateItemsFromPolicyToolbar from './create-items-from-policy-toolbar'
+import CreatePolicyButton from '@/components/pages/protected/policies/create-policy-button'
 import { SuggestedControlMappings } from '@/components/pages/protected/policies/suggested-control-mappings'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
@@ -122,9 +119,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     return () => clearInterval(timer)
   }, [justCreated, settlingMappings, mappedControlCount, policyId, queryClient, router])
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
-  const policyAssociationInitialData = useMemo<TObjectAssociationMap>(() => ({ internalPolicyIDs: [policyId] }), [policyId])
-  const policyAssociationName = policy ? getAssociationDisplayName(policy, 'policies') : ''
-  const policyAssociationItems = useMemo<TAssociationItem[]>(() => (policyAssociationName ? [{ id: policyId, name: policyAssociationName, kind: 'policies' }] : []), [policyId, policyAssociationName])
   const plateEditorHelper = usePlateEditor()
   const [activeTab, setActiveTab] = useState<TabValue>('policy')
   const isExternalReference = policy?.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
@@ -283,14 +277,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     [form, onSubmitHandler],
   )
 
-  const handleCreateNewPolicy = async () => {
-    router.push(`/policies/create`)
-  }
-
-  const handleCreateNewProcedure = async () => {
-    router.push(`/procedures/create?policyId=${policyId}`)
-  }
-
   const handleUpdateField = async (input: UpdateInternalPolicyInput, options?: { throwOnError?: boolean }) => {
     if (!policy?.id) {
       return
@@ -346,12 +332,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         </div>
       ) : (
         <div className="flex gap-2 justify-end">
-          <CreateItemsFromPolicyToolbar
-            initialData={policyAssociationInitialData}
-            handleCreateNewPolicy={handleCreateNewPolicy}
-            handleCreateNewProcedure={handleCreateNewProcedure}
-            objectAssociationItems={policyAssociationItems}
-          />
+          <CreatePolicyButton />
           {!editAllowed && !deleteAllowed ? (
             <></>
           ) : (

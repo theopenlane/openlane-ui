@@ -1,13 +1,14 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState } from 'react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetTrigger } from '@repo/ui/sheet'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Switch } from '@repo/ui/switch'
-import { AlertTriangleIcon, CopyIcon, SquarePlus } from 'lucide-react'
+import { CopyIcon, SquarePlus } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
@@ -21,10 +22,11 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { buildOrganizationsInput } from './utils'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import useFormSchema, { type TokenFormData } from './hooks/use-form-schema'
 import { useSSOAuthorize } from './hooks/sso'
+import { Callout } from '@/components/shared/callout/callout'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 
 export type EditTokenData = {
   id: string
@@ -299,16 +301,15 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
     </Form>
   )
 
+  const requestClose = () => {
+    // Block dismissal (×, overlay click, Escape) until the copy confirmation is checked
+    if (step === STEP.CREATED && !confirmationChecked) return
+    handleOpenChange(false)
+    setTimeout(resetDataToDefault, 300)
+  }
+
   return (
-    <Sheet
-      open={open}
-      onOpenChange={(nextOpen) => {
-        // Block dismissal (×, overlay click, Escape) until the copy confirmation is checked
-        if (!nextOpen && step === STEP.CREATED && !confirmationChecked) return
-        handleOpenChange(nextOpen)
-        if (!nextOpen) setTimeout(resetDataToDefault, 300)
-      }}
-    >
+    <Sheet open={open} onOpenChange={(nextOpen) => (nextOpen ? handleOpenChange(true) : requestClose())}>
       {!isControlled && (
         <SheetTrigger asChild>
           {triggerText ? (
@@ -325,20 +326,32 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
       )}
 
       {!isEditMode && step === STEP.CREATED ? (
-        <SheetContent initialWidth={700}>
-          <SheetHeader>
-            <SheetTitle className="text-2xl font-semibold">Token created</SheetTitle>
-            <div className="flex gap-3 p-4 border rounded-md mt-2">
-              <AlertTriangleIcon className="shrink-0" />
-              <div>
-                <p className="text-base">Heads up!</p>
-                <p className="text-sm mt-0">Copy your access token now, as you will not be able to see this again</p>
-              </div>
-            </div>
-          </SheetHeader>
+        <SheetContent
+          initialWidth={700}
+          header={
+            <SlideoutHeader
+              title="Token created"
+              formActions={
+                <>
+                  {showSSOButton && (
+                    <Button type="button" disabled={!confirmationChecked || isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
+                      {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for SSO'}
+                    </Button>
+                  )}
+                  <Button type="button" variant="primary" disabled={!confirmationChecked || isAuthorizingSSO} onClick={requestClose}>
+                    Done
+                  </Button>
+                </>
+              }
+            />
+          }
+        >
+          <Callout variant="warning" title="Heads up!" className="mt-2" compact>
+            Copy your access token now, as you will not be able to see this again
+          </Callout>
 
           <div className="space-y-4 py-4">
-            <div onClick={handleCopyToken} className="flex items-center justify-between w-full cursor-pointer">
+            <div {...activatable(handleCopyToken)} className="flex items-center justify-between w-full cursor-pointer">
               <Input className="truncate text-sm bg-background py-0 h-9" icon={<CopyIcon className="h-4 w-4" />} readOnly value={createdToken} maxWidth />
             </div>
             <div className="flex items-center mt-4">
@@ -348,47 +361,34 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
               </Label>
             </div>
           </div>
-
-          <SheetFooter>
-            <div className="flex gap-3 w-full">
-              {showSSOButton && (
-                <Button disabled={!confirmationChecked || isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
-                  {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for SSO'}
-                </Button>
-              )}
-              <SheetClose asChild>
-                <Button variant="primary" disabled={!confirmationChecked || isAuthorizingSSO} className="flex-1">
-                  Close
-                </Button>
-              </SheetClose>
-            </div>
-          </SheetFooter>
         </SheetContent>
       ) : (
-        <SheetContent initialWidth={700}>
-          <SheetHeader>
-            <SheetTitle className="text-xl font-semibold pb-4">{isEditMode ? 'Edit token' : 'Create new token'}</SheetTitle>
-          </SheetHeader>
-
+        <SheetContent
+          initialWidth={700}
+          header={
+            <SlideoutHeader
+              title={isEditMode ? 'Edit token' : 'Create new token'}
+              onClose={requestClose}
+              formActions={
+                <SlideoutFormActions
+                  formId="token-form"
+                  onCancel={requestClose}
+                  isPending={isSubmitting}
+                  saveLabel={isEditMode ? 'Save' : 'Create Token'}
+                  savingLabel={isEditMode ? 'Saving...' : 'Creating...'}
+                  secondaryActions={
+                    isEditMode && showSSOButton ? (
+                      <Button type="button" disabled={isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
+                        {isAuthorizingSSO ? 'Authorizing...' : 'Authorize for SSO'}
+                      </Button>
+                    ) : undefined
+                  }
+                />
+              }
+            />
+          }
+        >
           {renderForm()}
-
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-secondary border-t">
-            {isEditMode ? (
-              <div className="flex gap-2 w-full">
-                {showSSOButton && (
-                  <Button disabled={isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
-                    {isAuthorizingSSO ? 'Authorizing...' : 'Authorize for SSO'}
-                  </Button>
-                )}
-                <CancelButton onClick={() => handleOpenChange(false)} />
-                <SaveButton form="token-form" isSaving={isSubmitting} disabled={isSubmitting} />
-              </div>
-            ) : (
-              <Button form="token-form" variant="primary" className="w-full" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create Token'}
-              </Button>
-            )}
-          </div>
         </SheetContent>
       )}
     </Sheet>

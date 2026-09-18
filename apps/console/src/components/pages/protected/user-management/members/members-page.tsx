@@ -20,7 +20,7 @@ const MembersPage = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'User Management', href: '/user-management/members' },
+      { label: 'User Management', href: '/user-management' },
       { label: 'Members', href: '/user-management/members' },
     ])
   }, [setCrumbs])

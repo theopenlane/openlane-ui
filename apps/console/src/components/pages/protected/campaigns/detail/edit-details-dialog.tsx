@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useId, useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
@@ -18,6 +18,8 @@ interface EditDetailsDialogProps {
 export const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({ open, onOpenChange, initialName, initialDescription, onSave, isPending }) => {
   const [name, setName] = useState(initialName)
   const [description, setDescription] = useState(initialDescription)
+  const nameId = useId()
+  const descriptionId = useId()
 
   useEffect(() => {
     if (open) {
@@ -34,15 +36,17 @@ export const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({ open, onOp
         </DialogHeader>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium">
+          <label className="text-sm font-medium" htmlFor={nameId}>
             Campaign name<span className="text-destructive">*</span>
           </label>
-          <Input value={name} onChange={(e) => setName(e.currentTarget.value)} placeholder="Enter a campaign name" />
+          <Input id={nameId} value={name} onChange={(e) => setName(e.currentTarget.value)} placeholder="Enter a campaign name" />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium">Description</label>
-          <Textarea value={description} onChange={(e) => setDescription(e.currentTarget.value)} placeholder="Describe the purpose of this campaign..." rows={3} />
+          <label className="text-sm font-medium" htmlFor={descriptionId}>
+            Description
+          </label>
+          <Textarea id={descriptionId} value={description} onChange={(e) => setDescription(e.currentTarget.value)} placeholder="Describe the purpose of this campaign..." rows={3} />
         </div>
 
         <div className="flex items-center justify-end gap-2">

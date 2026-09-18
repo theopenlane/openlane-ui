@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
@@ -11,9 +12,12 @@ import { useMemo, useRef, useState } from 'react'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
+import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
 import { type ResponsibilitySelection, buildResponsibilityInlineUpdate } from './responsibility-field-utils'
+import { PersonnelOptionItem } from './personnel-option-item'
+import { ResponsibilitySelectionLabel } from './responsibility-type-icon'
 import { isValidEmail } from '@/lib/validators'
 import { cn } from '@repo/ui/lib/utils'
 
@@ -33,6 +37,7 @@ interface ResponsibilityFieldProps {
   labelClassName?: string
   userOnly?: boolean
   groupOnly?: boolean
+  allowPersonnel?: boolean
 }
 
 export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
@@ -51,6 +56,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   labelClassName,
   userOnly = false,
   groupOnly = false,
+  allowPersonnel = true,
 }) => {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
@@ -60,6 +66,10 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
 
   const { userOptions } = useUserSelect({})
   const { groupOptions } = useGroupSelect()
+  const { personnelOptions } = usePersonnelSelect({
+    searchText,
+    enabled: open && !userOnly && !groupOnly && allowPersonnel,
+  })
   const { errorNotification } = useNotification()
 
   const isFieldEditing = isCreate || isEditing || internalEditing === name
@@ -108,7 +118,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
     setSearchText('')
 
     if (!isEditing && !isCreate && handleUpdate) {
-      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selectionToUse)
+      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selectionToUse, { allowPersonnel })
       await handleUpdate(payload)
     }
 
@@ -117,26 +127,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
     }
   }
 
-  const getTypeIcon = (type?: string) => {
-    switch (type) {
-      case 'user':
-        return <User className="h-3.5 w-3.5 text-muted-foreground" />
-      case 'group':
-        return <Users className="h-3.5 w-3.5 text-muted-foreground" />
-      case 'string':
-        return <Type className="h-3.5 w-3.5 text-muted-foreground" />
-      default:
-        return null
-    }
-  }
-
-  const placeholderText = (name?: string) => {
-    if (name) {
-      return `Select ${name.toLowerCase()}...`
-    }
-
-    return 'Select owner...'
-  }
+  const placeholderText = label ? `Select ${label.toLowerCase()}...` : 'Select owner...'
 
   const normalizedSearchText = searchText.toLowerCase()
 
@@ -155,6 +146,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
       name={name}
       render={({ field }) => {
         const currentValue = field.value as ResponsibilitySelection
+        const customEmailLabel = `Use "${searchText.trim()}" as custom email`
 
         return (
           <FormItem className={layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : ''}>
@@ -168,15 +160,8 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                 <div ref={triggerRef} className="w-full">
                   <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
-                      <div className="flex w-full items-center gap-2 rounded-md border bg-input px-3 py-2 text-sm cursor-pointer h-10" onClick={() => setOpen(true)}>
-                        {currentValue ? (
-                          <>
-                            {getTypeIcon(currentValue.type)}
-                            <span className="truncate">{currentValue.displayName || currentValue.value}</span>
-                          </>
-                        ) : (
-                          <span className="text-muted-foreground">{placeholderText(name)}</span>
-                        )}
+                      <div className="flex w-full items-center gap-2 rounded-md border bg-input px-3 py-2 text-sm cursor-pointer h-10" {...activatable(() => setOpen(true))}>
+                        {currentValue ? <ResponsibilitySelectionLabel selection={currentValue} /> : <span className="text-muted-foreground">{placeholderText}</span>}
                         <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </div>
                     </PopoverTrigger>
@@ -190,7 +175,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                       <Command shouldFilter={false}>
                         {groupOnly && <CommandInput placeholder="Search groups..." value={searchText} onValueChange={setSearchText} />}
                         {userOnly && <CommandInput placeholder="Search users..." value={searchText} onValueChange={setSearchText} />}
-                        {!groupOnly && !userOnly && <CommandInput placeholder="Search users, groups, or type a name..." value={searchText} onValueChange={setSearchText} />}
+                        {!groupOnly && !userOnly && <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} />}
                         <CommandList className="max-h-[min(300px,var(--radix-popover-content-available-height,300px))]">
                           <CommandEmpty>No results found.</CommandEmpty>
                           {currentValue && !groupOnly && !userOnly && (
@@ -218,7 +203,9 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                                   onSelect={() => handleSelect({ type: 'user', value: option.value, displayName: option.label }, field)}
                                 >
                                   <User className="mr-2 h-4 w-4" />
-                                  <span>{option.label}</span>
+                                  <span className="truncate" title={option.label}>
+                                    {option.label}
+                                  </span>
                                   {currentValue?.type === 'user' && currentValue?.value === option.value && <Check className="ml-auto h-4 w-4" />}
                                 </CommandItem>
                               ))}
@@ -233,35 +220,51 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                                   onSelect={() => handleSelect({ type: 'group', value: option.value, displayName: option.label }, field)}
                                 >
                                   <Users className="mr-2 h-4 w-4" />
-                                  <span>{option.label}</span>
+                                  <span className="truncate" title={option.label}>
+                                    {option.label}
+                                  </span>
                                   {currentValue?.type === 'group' && currentValue?.value === option.value && <Check className="ml-auto h-4 w-4" />}
                                 </CommandItem>
                               ))}
                             </CommandGroup>
                           )}
-                          {!userOnly && !groupOnly && searchText.trim() && !hasExactMatch && (
-                            <CommandGroup heading="Custom">
-                              <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() }, field)}>
-                                <Type className="mr-2 h-4 w-4" />
-                                <span>Use &quot;{searchText.trim()}&quot; as custom email</span>
-                              </CommandItem>
+                          {!userOnly && !groupOnly && allowPersonnel && personnelOptions.length > 0 && (
+                            <CommandGroup heading="Personnel">
+                              {personnelOptions.map((option) => (
+                                <PersonnelOptionItem
+                                  key={`personnel-${option.value}`}
+                                  option={option}
+                                  isSelected={currentValue?.type === 'personnel' && currentValue.value === option.value}
+                                  onSelect={() => handleSelect({ type: 'personnel', value: option.value, displayName: option.label }, field)}
+                                />
+                              ))}
                             </CommandGroup>
                           )}
+                          {!userOnly &&
+                            !groupOnly &&
+                            searchText.trim() &&
+                            !hasExactMatch &&
+                            !personnelOptions.some((person) => person.label.toLowerCase() === normalizedSearchText || person.email?.toLowerCase() === normalizedSearchText) && (
+                              <CommandGroup heading="Custom">
+                                <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() }, field)}>
+                                  <Type className="mr-2 h-4 w-4" />
+                                  <span className="truncate" title={customEmailLabel}>
+                                    {customEmailLabel}
+                                  </span>
+                                </CommandItem>
+                              </CommandGroup>
+                            )}
                         </CommandList>
                       </Command>
                     </PopoverContent>
                   </Popover>
                 </div>
               ) : (
-                <div className={cn('flex items-center gap-2 rounded-md px-1 py-2 text-sm cursor-pointer hover:bg-accent w-full', layout === 'horizontal' && 'justify-end')} onClick={handleClick}>
-                  {currentValue ? (
-                    <>
-                      {getTypeIcon(currentValue.type)}
-                      <span>{currentValue.displayName || currentValue.value}</span>
-                    </>
-                  ) : (
-                    <span className="text-muted-foreground italic">Not set</span>
-                  )}
+                <div
+                  className={cn('flex min-w-0 items-center gap-2 rounded-md px-1 py-2 text-sm cursor-pointer hover:bg-accent w-full', layout === 'horizontal' && 'justify-end')}
+                  {...activatable(isEditAllowed ? handleClick : undefined)}
+                >
+                  {currentValue ? <ResponsibilitySelectionLabel selection={currentValue} /> : <span className="text-muted-foreground italic">Not set</span>}
                 </div>
               )}
             </FormControl>

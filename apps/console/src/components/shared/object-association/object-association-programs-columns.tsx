@@ -33,13 +33,13 @@ export const getProgramsColumns = ({ selectedPrograms, setSelectedPrograms, conv
         const allSelected = currentPageRows.length > 0 && currentPageRows.every((row) => selectedIds.has(row.id))
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={allSelected} onCheckedChange={(checked) => toggleSelection(currentPageRows.map(toLinkedProgram), checked === true)} />
           </div>
         )
       },
       cell: ({ row }) => (
-        <div onClick={(e) => e.stopPropagation()}>
+        <div role="presentation" onClick={(e) => e.stopPropagation()}>
           <Checkbox checked={selectedIds.has(row.original.id)} onCheckedChange={(val) => toggleSelection([toLinkedProgram(row.original)], val === true)} />
         </div>
       ),

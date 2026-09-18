@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Image from 'next/image'
-import { Info, ShieldCheck, Star, UserCheck, Users } from 'lucide-react'
+import { ShieldCheck, Star, UserCheck, Users } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { useQueryClient } from '@tanstack/react-query'
@@ -10,6 +10,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { PRIMARY_DIRECTORY_FIELD, saveIntegrationConfiguration } from '@/lib/integrations/flow'
 import { readIntegrationUserInput } from '@/lib/integrations/utils'
 import { type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
+import { Callout } from '@/components/shared/callout/callout'
 
 type PrimaryDirectoryPromptDialogProps = {
   open: boolean
@@ -99,13 +100,9 @@ const PrimaryDirectoryPromptDialog = ({ open, onOpenChange, provider, integratio
               ))}
             </ul>
 
-            <div className="flex items-start gap-3 rounded-lg border p-4">
-              <Info className="mt-0.5 size-5 shrink-0 text-brand" />
-              <div>
-                <p className="text-sm font-medium">Only one directory can be primary.</p>
-                <p className="text-xs text-muted-foreground">If another directory is already primary, setting this one will replace it.</p>
-              </div>
-            </div>
+            <Callout variant="info" title="Only one directory can be primary." compact>
+              If another directory is already primary, setting this one will replace it.
+            </Callout>
 
             <DialogFooter className="mt-2">
               <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} disabled={isSubmitting}>

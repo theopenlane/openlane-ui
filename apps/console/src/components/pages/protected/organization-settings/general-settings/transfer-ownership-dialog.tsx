@@ -122,19 +122,20 @@ export const TransferOwnershipDialog: React.FC<TransferOwnershipDialogProps> = (
               {filteredOptions.map((opt) => {
                 const selected = email === opt.label
                 return (
-                  <div
+                  <button
                     key={opt.value}
+                    type="button"
                     role="option"
                     aria-selected={selected}
                     onClick={() => handleSelectOption(opt.label)}
-                    className={cn('flex items-center gap-2 px-3 py-1.5 cursor-pointer text-sm hover:bg-muted', selected && 'bg-muted font-medium')}
+                    className={cn('flex w-full items-center gap-2 px-3 py-1.5 cursor-pointer text-sm text-left hover:bg-muted', selected && 'bg-muted font-medium')}
                   >
                     <div className="relative h-4 w-4 flex items-center justify-center">
                       <div className="h-3 w-3 rounded-full border border-primary" />
                       {selected && <div className="absolute h-1 w-1 rounded-full bg-primary" />}
                     </div>
                     {opt.label}
-                  </div>
+                  </button>
                 )
               })}
             </div>

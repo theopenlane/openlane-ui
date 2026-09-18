@@ -9,8 +9,8 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import PlatformsEmptyState from '../platforms-empty/platforms-empty-state'
-import { usePlatformsWithFilter, useCreatePlatform, useUpdatePlatform } from '@/lib/graphql-hooks/platform'
-import { type Platform, PlatformPlatformStatus, type CreatePlatformInput } from '@repo/codegen/src/schema'
+import { usePlatformsWithFilter, useCreatePlatform, useUpdatePlatform, type PlatformsNodeNonNull } from '@/lib/graphql-hooks/platform'
+import { PlatformPlatformStatus, type CreatePlatformInput } from '@repo/codegen/src/schema'
 import { StepDialog } from '@/components/shared/crud-base/step-dialog'
 import { createPlatformSteps } from '../create/steps/platform-create-steps'
 import useFormSchema, { type EditPlatformFormData } from '../hooks/use-form-schema'
@@ -55,7 +55,7 @@ const PlatformsDashboardPage: React.FC = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Registry', href: '/registry/platforms' },
+      { label: 'Registry', href: '/registry' },
       { label: 'Platforms', href: '/registry/platforms' },
     ])
   }, [setCrumbs])
@@ -182,7 +182,7 @@ const PlatformsDashboardPage: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {platformsNodes.map((platform) => (
-              <PlatformCard key={platform.id} platform={platform as unknown as Platform} />
+              <PlatformCard key={platform.id} platform={platform} />
             ))}
           </div>
         </>
@@ -207,7 +207,7 @@ const PlatformsDashboardPage: React.FC = () => {
   )
 }
 
-const PlatformCard: React.FC<{ platform: Platform }> = ({ platform }) => {
+const PlatformCard: React.FC<{ platform: PlatformsNodeNonNull }> = ({ platform }) => {
   const plateEditorHelper = usePlateEditor()
 
   const ownerName = platform.platformOwner?.displayName ?? platform.businessOwnerUser?.displayName ?? platform.businessOwnerGroup?.name ?? platform.businessOwner ?? null

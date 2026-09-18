@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useEffect, useState } from 'react'
 import { organizationSelectorStyles } from './organization-selector.styles'
 import { Button } from '@repo/ui/button'
@@ -10,6 +11,7 @@ import { Tag } from '@repo/ui/tag'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { switchOrganization, handleSSORedirect } from '@/lib/user'
+import { useNotification } from '@/hooks/useNotification'
 import { Loading } from '../loading/loading'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
@@ -20,6 +22,7 @@ import { useParams, usePathname, useRouter } from 'next/navigation'
 
 export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
   const { data: sessionData, update: updateSession } = useSession()
+  const { errorNotification } = useNotification()
   const queryClient = useQueryClient()
   const [orgData, setOrgData] = useState({
     organizationSearch: '',
@@ -77,9 +80,13 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
         return
       }
 
-      if (sessionData && response) {
+      if (!response.access_token) {
+        errorNotification({ title: 'Unable to switch organization', description: response.message ?? 'Please try again.' })
+        return
+      }
+
+      if (sessionData) {
         await updateSession({
-          ...response.session,
           user: {
             ...sessionData.user,
             accessToken: response.access_token,
@@ -183,7 +190,7 @@ const OrganizationItem = ({ org, isCurrent, role, onClick }: { org: Organization
   const { orgWrapper, orgInfo, orgTitle } = organizationSelectorStyles()
 
   return (
-    <div key={org.id} className={`${orgWrapper()} group`} onClick={onClick}>
+    <div key={org.id} className={`${orgWrapper()} group`} {...activatable(onClick)}>
       <div className={orgInfo()}>
         <div className="flex items-center gap-1">
           {isCurrent ? <Check size={16} /> : <Check size={16} className="opacity-0" />}

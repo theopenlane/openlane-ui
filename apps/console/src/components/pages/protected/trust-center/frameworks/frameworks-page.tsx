@@ -12,7 +12,6 @@ import { Switch } from '@repo/ui/switch'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination'
-import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/standards'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { BookUp2, PencilIcon, SquarePlus, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
@@ -28,7 +27,8 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { type StandardWhereInput } from '@repo/codegen/src/schema'
-import { useNavigationGuard } from 'next-navigation-guard'
+import { mergeWhere } from '@/lib/merge-where'
+import { useNavigationGuard } from 'nextjs-nav-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -55,25 +55,18 @@ export default function FrameworksPage() {
   const canEditCompliance = hasPermission(tcPermission?.roles, AccessEnum.CanEditTrustCenterCompliance, session)
 
   const { compliances, isError: compliancesError, isFetched: compliancesFetched } = useGetTrustCenterCompliances()
-  const baseWhere: StandardWhereInput = {
-    frameworkNEQ: OPENLANE_TRUST_CENTER_STANDARD.framework,
-    ...(isChecked ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } : {}),
-  }
+  const baseWhere: StandardWhereInput | undefined = isChecked ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } : undefined
 
   const sessionResolved = sessionStatus !== 'loading'
 
   const { standards: recommendedStandards, isFetched: recommendedFetched } = useGetRecommendedStandards({
-    where: { ...baseWhere, hasControlsWith: [{ hasOwnerWith: [{ id: currentOrgId }] }] },
+    where: mergeWhere<StandardWhereInput>([baseWhere, { hasControlsWith: [{ hasOwnerWith: [{ id: currentOrgId }] }] }]),
     enabled: !!currentOrgId,
-    includeSystemStandards: true,
   })
 
   const recommendedStandardsIDs = useMemo(() => recommendedStandards.map((s) => s.id), [recommendedStandards])
 
-  const where: StandardWhereInput = {
-    ...baseWhere,
-    ...(recommendedStandardsIDs.length ? { idNotIn: recommendedStandardsIDs } : {}),
-  }
+  const where = mergeWhere<StandardWhereInput>([baseWhere, recommendedStandardsIDs.length ? { idNotIn: recommendedStandardsIDs } : undefined])
 
   const {
     standards,
@@ -83,9 +76,8 @@ export default function FrameworksPage() {
     fetchNextPage,
   } = useGetAllStandardsInfinite({
     where,
-    pagination: cardPagination,
+    pageSize: cardPagination.pageSize,
     enabled: sessionResolved && (!currentOrgId || recommendedFetched),
-    includeSystemStandards: true,
   })
 
   const initialLoading = !compliancesFetched || !standardsFetched
@@ -276,7 +268,7 @@ export default function FrameworksPage() {
         <CardContent className="flex p-0 gap-6 justify-between h-16">
           <p className="text-sm text-muted-foreground line-clamp-3">{standard.description || 'No description provided'}</p>
 
-          <div className="flex" onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" className="flex" onClick={(e) => e.stopPropagation()}>
             <div className="flex gap-3">
               <Switch disabled={!canEditCompliance && !canEditTc} checked={isAssociated} onCheckedChange={(checked) => handleToggle(standard.id, checked)} />
             </div>
@@ -310,7 +302,14 @@ export default function FrameworksPage() {
 
         <div className="flex items-center shrink-0 gap-6 ">
           <div className="gap-2 flex items-center">
-            <Switch id="hide-unselected" checked={isChecked} onCheckedChange={setIsChecked} />
+            <Switch
+              id="hide-unselected"
+              checked={isChecked}
+              onCheckedChange={(checked) => {
+                setIsChecked(checked)
+                resetPagination()
+              }}
+            />
             <Label className="text-sm" htmlFor="hide-unselected">
               Hide unselected
             </Label>
@@ -337,7 +336,7 @@ export default function FrameworksPage() {
         </div>
       </div>
 
-      <InfiniteScroll pageSize={10} pagination={cardPagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="standards-card">
+      <InfiniteScroll pageSize={cardPagination.pageSize} pagination={cardPagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="standards-card">
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
           {recommendedStandards.map((standard) => renderStandardCard(standard, true))}
           {standards.map((standard) => renderStandardCard(standard, false))}

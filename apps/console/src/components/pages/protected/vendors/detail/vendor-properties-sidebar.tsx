@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
@@ -194,9 +195,9 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
               ) : (
                 <div
                   className={`text-sm py-2 rounded-md px-1 w-full hover:bg-accent ${canEditVendor ? 'cursor-pointer' : ''}`}
-                  onClick={() => {
+                  {...activatable(() => {
                     if (canEditVendor && !isEditing) beginTagsEditing()
-                  }}
+                  })}
                 >
                   {data?.tags?.length ? (
                     <div className="flex gap-2 flex-wrap justify-end">

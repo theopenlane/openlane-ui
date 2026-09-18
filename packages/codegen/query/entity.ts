@@ -33,6 +33,11 @@ export const GET_ALL_ENTITIES = gql`
             base64
           }
           internalOwner
+          internalOwnerIdentityHolder {
+            id
+            fullName
+            email
+          }
           internalOwnerGroup {
             id
             displayName
@@ -48,6 +53,11 @@ export const GET_ALL_ENTITIES = gql`
           nextReviewAt
           renewalRisk
           reviewedBy
+          reviewedByIdentityHolder {
+            id
+            fullName
+            email
+          }
           reviewedByGroup {
             id
             displayName
@@ -138,6 +148,11 @@ export const ENTITY = gql`
         }
       }
       internalOwner
+      internalOwnerIdentityHolder {
+        id
+        fullName
+        email
+      }
       internalOwnerGroup {
         id
         displayName
@@ -160,6 +175,11 @@ export const ENTITY = gql`
       providedServices
       renewalRisk
       reviewedBy
+      reviewedByIdentityHolder {
+        id
+        fullName
+        email
+      }
       reviewedByGroup {
         id
         displayName
@@ -270,13 +290,14 @@ export const GET_ENTITY_FILES_PAGINATED = gql`
         totalCount
         edges {
           node {
+            name
             providedFileName
             providedFileSize
             providedFileExtension
             id
             uri
             presignedURL
-            categoryType
+            categoryName
             createdAt
           }
         }
@@ -286,8 +307,8 @@ export const GET_ENTITY_FILES_PAGINATED = gql`
 `
 
 export const UPDATE_ENTITY_WITH_FILES = gql`
-  mutation UpdateEntityWithFiles($updateEntityId: ID!, $input: UpdateEntityInput!, $entityFiles: [Upload!], $logoFile: Upload) {
-    updateEntity(id: $updateEntityId, input: $input, entityFiles: $entityFiles, logoFile: $logoFile) {
+  mutation UpdateEntityWithFiles($updateEntityId: ID!, $input: UpdateEntityInput!, $entityFiles: [Upload!], $entityFilesMetadata: [FileMetadataInput!], $logoFile: Upload) {
+    updateEntity(id: $updateEntityId, input: $input, entityFiles: $entityFiles, entityFilesMetadata: $entityFilesMetadata, logoFile: $logoFile) {
       entity {
         id
       }

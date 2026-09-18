@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { subDays, format as formatDate } from 'date-fns'
 import { auth } from '@/lib/auth/auth'
+import { STATS_WINDOW_DAYS } from '@/constants/stats'
 
 const BASE_URL = 'https://api.pirsch.io/api/v1'
 
@@ -70,7 +71,7 @@ export async function GET(request: Request) {
   if (!domainId) return NextResponse.json({ error: 'Missing Pirsch domain ID' }, { status: 400 })
 
   const to = new Date()
-  const from = subDays(to, 30)
+  const from = subDays(to, STATS_WINDOW_DAYS)
 
   const query = new URLSearchParams({
     id: domainId,

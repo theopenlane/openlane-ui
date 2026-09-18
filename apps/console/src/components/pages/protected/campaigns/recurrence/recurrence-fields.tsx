@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useId, useState } from 'react'
 import { startOfDay } from 'date-fns'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
@@ -25,6 +25,9 @@ export const RecurrenceFields: React.FC<RecurrenceFieldsProps> = ({ values, onCh
     ? FREQUENCY_OPTIONS
     : [...FREQUENCY_OPTIONS, { value: values.frequency, label: getEnumLabel(values.frequency) }]
 
+  const frequencyId = useId()
+  const intervalId = useId()
+
   const handleIntervalChange = (rawValue: string) => {
     const parsed = Number.parseInt(rawValue, 10)
     onChange({ ...values, interval: Number.isNaN(parsed) ? 1 : Math.max(parsed, 1) })
@@ -41,9 +44,11 @@ export const RecurrenceFields: React.FC<RecurrenceFieldsProps> = ({ values, onCh
         <div className="flex flex-col gap-3 rounded-md border border-border p-3">
           <div className="grid grid-cols-2 gap-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium">Frequency</label>
+              <label className="text-sm font-medium" htmlFor={frequencyId}>
+                Frequency
+              </label>
               <Select value={values.frequency} onValueChange={(value) => onChange({ ...values, frequency: value as CampaignFrequency })}>
-                <SelectTrigger>
+                <SelectTrigger id={frequencyId}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -56,19 +61,21 @@ export const RecurrenceFields: React.FC<RecurrenceFieldsProps> = ({ values, onCh
               </Select>
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium">Interval</label>
-              <Input type="number" min={1} value={values.interval} onChange={(e) => handleIntervalChange(e.currentTarget.value)} />
+              <label className="text-sm font-medium" htmlFor={intervalId}>
+                Interval
+              </label>
+              <Input id={intervalId} type="number" min={1} value={values.interval} onChange={(e) => handleIntervalChange(e.currentTarget.value)} />
             </div>
           </div>
           <span className="text-xs text-muted-foreground">Repeats: {describeRecurrence(values)}</span>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium">Timezone</label>
+            <span className="text-sm font-medium">Timezone</span>
             <TimezoneSelect value={values.timezone} onChange={(timezone) => onChange({ ...values, timezone })} />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium">End date (optional)</label>
+            <span className="text-sm font-medium">End date (optional)</span>
             <CalendarPopover portal defaultValue={values.endAt} disabledFrom={today} onChange={(endAt) => onChange({ ...values, endAt })} />
           </div>
         </div>

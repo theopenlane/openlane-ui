@@ -12,7 +12,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Callout } from '@/components/shared/callout/callout'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
-import { type TUploadedFile } from '../upload/TUploadedFile'
+import { type TUploadedFile } from '@/components/shared/file-upload/types'
 import { toHumanLabel, pluralizeTypeName } from '@/utils/strings'
 
 type GenericBulkCsvCreateDialogProps = {
@@ -91,9 +91,9 @@ const GenericBulkCSVCreateDialog: React.FC<GenericBulkCsvCreateDialogProps> = ({
         <Callout title="CSV Format">
           <p className="text-sm">
             You can upload a csv containing {entityLabelPlural}. Please refer to our{' '}
-            <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
+            <button type="button" className="text-brand hover:underline cursor-pointer bg-transparent" onClick={() => handleCSVExport()}>
               template csv file
-            </a>{' '}
+            </button>{' '}
             for available fields and format.
           </p>
         </Callout>

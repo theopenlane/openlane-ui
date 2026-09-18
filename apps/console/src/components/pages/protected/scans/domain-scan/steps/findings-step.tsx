@@ -9,7 +9,6 @@ import { EditableName } from '../editable-name'
 import { SectionCard } from '../components/section-card'
 import { SelectionRow } from '../components/selection-row'
 import { SelectAllCheckbox } from '../components/select-all-checkbox'
-import { EmptyState } from '../components/empty-state'
 import { toggleSetValue } from '../selection-utils'
 import { DomainScanFindingCategory, type DomainScanAgentReadinessPayload, type DomainScanFindingCategoryValue, type Finding, type OverrideMap } from '../types'
 

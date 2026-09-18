@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
-import { setSsoTokenAuthorization, type SsoTokenType } from '@/lib/auth/utils/sso-token-storage'
+import { startSsoRedirect, type SsoTokenType } from '@/lib/auth/utils/sso-intent'
 
 type UseSSOAuthorizeProps = {
   isApiKeyPage: boolean
@@ -31,8 +31,9 @@ export const useSSOAuthorize = ({ isApiKeyPage, isEditMode, editTokenId, created
       })
       const data = await response.json()
       if (response.ok && data.success && data.redirect_uri) {
-        setSsoTokenAuthorization(tokenType)
-        window.location.assign(data.redirect_uri)
+        if (!startSsoRedirect(data.redirect_uri, tokenType)) {
+          throw new Error('Enable browser storage for this site so we can return you here after authorizing the token')
+        }
       } else {
         throw new Error(data.error || 'SSO authorization failed')
       }

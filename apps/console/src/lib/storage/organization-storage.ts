@@ -1,3 +1,5 @@
+import { safeGetItem, safeRemoveItem, safeSetItem } from '@/lib/storage/safe-local-storage'
+
 const ORGANIZATION_SCOPE_SEGMENT = 'organization'
 
 export const getOrganizationStorageKey = (key: string, organizationId?: string): string => `${key}:${ORGANIZATION_SCOPE_SEGMENT}:${organizationId ?? 'unresolved'}`
@@ -7,31 +9,15 @@ export const getOrganizationStorageKey = (key: string, organizationId?: string):
 // never write (they run in render-phase initializers, and the legacy value must stay
 // available to a user's other organizations); instead any write or remove retires the
 // legacy key — otherwise a cleared value would resurrect from the fallback.
-export const getOrganizationStorageItem = (key: string, organizationId?: string): string | null => {
-  if (typeof window === 'undefined') return null
-  try {
-    return localStorage.getItem(getOrganizationStorageKey(key, organizationId)) ?? localStorage.getItem(key)
-  } catch {
-    return null
-  }
-}
+export const getOrganizationStorageItem = (key: string, organizationId?: string): string | null => safeGetItem(getOrganizationStorageKey(key, organizationId)) ?? safeGetItem(key)
 
 export const setOrganizationStorageItem = (key: string, value: string, organizationId?: string): void => {
-  if (typeof window === 'undefined') return
-  try {
-    localStorage.setItem(getOrganizationStorageKey(key, organizationId), value)
-    localStorage.removeItem(key)
-  } catch {
-    return
+  if (safeSetItem(getOrganizationStorageKey(key, organizationId), value)) {
+    safeRemoveItem(key)
   }
 }
 
 export const removeOrganizationStorageItem = (key: string, organizationId?: string): void => {
-  if (typeof window === 'undefined') return
-  try {
-    localStorage.removeItem(getOrganizationStorageKey(key, organizationId))
-    localStorage.removeItem(key)
-  } catch {
-    return
-  }
+  safeRemoveItem(getOrganizationStorageKey(key, organizationId))
+  safeRemoveItem(key)
 }

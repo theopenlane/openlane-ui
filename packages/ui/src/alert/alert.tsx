@@ -19,8 +19,10 @@ const Alert = ({ className, variant, ref, ...props }: React.HTMLAttributes<HTMLD
   <div ref={ref} role="alert" className={cn(alertVariants({ variant }), className)} {...props} />
 )
 
-const AlertTitle = ({ className, ref, ...props }: React.HTMLAttributes<HTMLHeadingElement> & { ref?: React.Ref<HTMLParagraphElement> }) => (
-  <h5 ref={ref} className={cn('mb-1 font-medium leading-none tracking-tight', className)} {...props} />
+const AlertTitle = ({ className, children, ref, ...props }: React.HTMLAttributes<HTMLHeadingElement> & { ref?: React.Ref<HTMLParagraphElement> }) => (
+  <h5 ref={ref} className={cn('mb-1 font-medium leading-none tracking-tight', className)} {...props}>
+    {children}
+  </h5>
 )
 
 const AlertDescription = ({ className, ref, ...props }: React.HTMLAttributes<HTMLParagraphElement> & { ref?: React.Ref<HTMLParagraphElement> }) => (

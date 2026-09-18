@@ -34,7 +34,7 @@ export const buttonStyles = tv({
         focus-visible:shadow-[0_0_0_4px_rgba(9,21,29,0.06),_0_1px_2px_0_rgba(9,21,29,0.04),_0_-1px_0_0_rgba(9,21,29,0.1)_inset]
         dark:focus-visible:shadow-[0_0_0_4px_rgba(96,232,201,0.24),_0_1px_1px_0.5px_rgba(9,21,29,0.24)]
       `,
-      outline: 'border-border text-text-paragraph border',
+      outline: 'border-border text-text-paragraph border disabled:cursor-not-allowed disabled:opacity-40',
       transparent: `
         bg-transparent
         border
@@ -80,8 +80,11 @@ export const buttonStyles = tv({
       sm: 'h-auto p-0 text-sm px-2',
       md: 'h-8 px-2 text-sm',
       lg: 'h-16 px-8 text-lg',
-      icon: 'size-9 p-0',
-      'icon-sm': 'size-8 p-0',
+      xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+      icon: 'size-9 p-0 gap-0',
+      'icon-xs': "size-6 p-0 gap-0 rounded-md [&_svg:not([class*='size-'])]:size-3",
+      'icon-sm': 'size-8 p-0 gap-0',
+      'icon-lg': 'size-10 p-0 gap-0',
     },
     iconPosition: {
       left: 'flex-row-reverse',

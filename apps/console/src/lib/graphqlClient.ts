@@ -5,18 +5,53 @@ import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
 import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { fetchCSRFToken, invalidateCSRFToken, isCSRFRejection } from './auth/utils/secure-fetch'
-import { probeSession, SessionUnavailableError } from './auth/utils/session-health'
-import { refreshTokens, setTokenPersister } from './auth/utils/session-refresh'
+import { probeSession, resetSessionProbe, SessionUnavailableError } from './auth/utils/session-health'
 import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
-import { getKnownTokens, getUsableTokens, observeSessionTokens, setAuthoritativeTokens, type TokenState } from './auth/utils/session-tokens'
+import { ACCESS_EXPIRY_MARGIN_MS, tokenExpiresAt } from './auth/utils/token-claims'
+import { describeToken, logSessionEvent } from './auth/utils/session-log'
 
 export { getIsSessionInvalid, markSessionExpired } from './auth/utils/session-status'
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
 
+const readOperationName = (body: BodyInit | null | undefined): string | null => {
+  if (typeof body !== 'string') {
+    return null
+  }
+
+  try {
+    const parsed: { operationName?: string } = JSON.parse(body)
+
+    return parsed.operationName ?? null
+  } catch {
+    return null
+  }
+}
+
 let resyncPromise: Promise<Session | null> | null = null
+
+// currentAccessToken asks the session route for the token pair, which refreshes it server side when due
+export const currentAccessToken = async (options?: { maxAgeMs?: number; notBefore?: number }): Promise<string> => {
+  const probe = await probeSession(options)
+
+  if (probe.status === 'unavailable') {
+    throw new SessionUnavailableError(probe.retryAfterMs)
+  }
+
+  const accessToken = probe.status === 'available' ? probe.session.user?.accessToken : undefined
+
+  if (!accessToken) {
+    logSessionEvent('warn', 'session ended: the session route no longer returns a token', {
+      probe: probe.status,
+    })
+    notifySessionExpired()
+    throw new Error('Session expired')
+  }
+
+  return accessToken
+}
 
 const useSessionUpdateRef = () => {
   const { update } = useSession()
@@ -29,35 +64,13 @@ const useSessionUpdateRef = () => {
   return updateRef
 }
 
-export const useSessionTokenSync = () => {
-  const { data, update } = useSession()
-  const sessionRef = useRef(data)
-  const updateRef = useRef(update)
-  const accessToken = data?.user?.accessToken
-  const refreshToken = data?.user?.refreshToken
-
-  useEffect(() => {
-    sessionRef.current = data
-    updateRef.current = update
-  }, [data, update])
-
-  useEffect(() => {
-    setTokenPersister((tokens) => updateRef.current({ ...sessionRef.current, user: tokens }))
-    return () => setTokenPersister(null)
-  }, [])
-
-  useEffect(() => {
-    if (!accessToken) return
-    setAuthoritativeTokens(accessToken, refreshToken ?? '')
-  }, [accessToken, refreshToken])
-}
-
 export const useSessionResync = () => {
   const updateRef = useSessionUpdateRef()
 
   return useCallback(() => {
     if (!resyncPromise) {
       resyncPromise = updateRef.current().finally(() => {
+        resetSessionProbe()
         resyncPromise = null
       })
     }
@@ -69,6 +82,8 @@ export const useSessionResync = () => {
 export const useFetchWithRetry = () => {
   const { data: session } = useSession()
   const resyncSession = useSessionResync()
+  const sessionAccessToken = session?.user?.accessToken
+  const accessExpiresAt = useMemo(() => tokenExpiresAt(sessionAccessToken), [sessionAccessToken])
 
   const fetchWithRetry = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     if (getIsSessionInvalid()) {
@@ -76,54 +91,16 @@ export const useFetchWithRetry = () => {
     }
 
     const requestUrl = typeof input === 'string' || input instanceof URL ? input.toString() : input
-    const isImpersonation = session?.user?.isImpersonation
 
-    let accessToken = session?.user?.accessToken
-    let refreshToken = session?.user?.refreshToken
+    let accessToken = sessionAccessToken
 
-    if (!accessToken || (!refreshToken && !isImpersonation)) {
-      const usable = getUsableTokens()
-
-      if (usable && (usable.refreshToken || isImpersonation)) {
-        accessToken = usable.accessToken
-        refreshToken = usable.refreshToken
-      } else {
-        const probe = await probeSession()
-
-        if (probe.status === 'unavailable') {
-          throw new SessionUnavailableError(probe.retryAfterMs)
-        }
-
-        const probedAccessToken = probe.status === 'available' ? probe.session.user?.accessToken : undefined
-        const probedRefreshToken = probe.status === 'available' ? probe.session.user?.refreshToken : undefined
-        const probedImpersonation = probe.status === 'available' ? probe.session.user?.isImpersonation : false
-
-        if (!probedAccessToken || (!probedRefreshToken && !probedImpersonation)) {
-          notifySessionExpired()
-          throw new Error('Session expired')
-        }
-
-        accessToken = probedAccessToken
-        refreshToken = probedRefreshToken
-        void resyncSession()
-      }
-    }
-
-    let current: TokenState
-    try {
-      current = observeSessionTokens(accessToken, refreshToken ?? '')
-    } catch (e) {
-      console.error('❌ Failed to decode access token:', e)
-      notifySessionExpired()
-      throw new Error('Session expired', { cause: e })
-    }
-
-    if (Date.now() >= current.refreshAt && current.refreshToken) {
-      current = await refreshTokens(current.refreshToken)
+    if (!accessToken || accessExpiresAt === null || Date.now() >= accessExpiresAt - ACCESS_EXPIRY_MARGIN_MS) {
+      accessToken = await currentAccessToken()
+      void resyncSession()
     }
 
     const headers = new Headers(init?.headers || {})
-    headers.set('Authorization', `Bearer ${current.accessToken}`)
+    headers.set('Authorization', `Bearer ${accessToken}`)
     headers.set('Content-Type', 'application/json')
 
     let csrfCookieValue = getCookie(csrfCookieName)
@@ -179,12 +156,21 @@ export const useFetchWithRetry = () => {
       return response
     }
 
-    const retryRefreshToken = getKnownTokens()?.refreshToken || refreshToken
+    if (response.status === 401 && !getIsSessionInvalid()) {
+      const rejectedAt = Date.now()
+      const refreshedAccessToken = await currentAccessToken({ notBefore: rejectedAt })
 
-    if (response.status === 401 && retryRefreshToken && !getIsSessionInvalid()) {
-      const refreshed = await refreshTokens(retryRefreshToken)
-      headers.set('Authorization', `Bearer ${refreshed.accessToken}`)
-      response = await makeRequest()
+      if (refreshedAccessToken !== accessToken) {
+        headers.set('Authorization', `Bearer ${refreshedAccessToken}`)
+        void resyncSession()
+        response = await makeRequest()
+      } else {
+        logSessionEvent('warn', 'request rejected and the session produced the same token, not retrying', {
+          url: typeof requestUrl === 'string' ? requestUrl : requestUrl.url,
+          operation: readOperationName(init?.body),
+          token: describeToken(refreshedAccessToken),
+        })
+      }
     }
 
     if (response.ok) {

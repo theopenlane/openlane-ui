@@ -10,7 +10,6 @@ export const GET_ALL_DIRECTORY_ACCOUNTS = gql`
           createdAt
           createdBy
           department
-          directorySyncRunID
           displayID
           displayName
           environmentID
@@ -21,12 +20,10 @@ export const GET_ALL_DIRECTORY_ACCOUNTS = gql`
           id
           integrationID
           jobTitle
-          lastLoginAt
           lastSeenIP
           observedAt
           organizationUnit
           profile
-          profileHash
           rawProfileFileID
           scopeID
           scopeName
@@ -53,7 +50,6 @@ export const DIRECTORY_ACCOUNT = gql`
       createdAt
       createdBy
       department
-      directorySyncRunID
       displayID
       displayName
       environmentID
@@ -64,12 +60,10 @@ export const DIRECTORY_ACCOUNT = gql`
       id
       integrationID
       jobTitle
-      lastLoginAt
       lastSeenIP
       observedAt
       organizationUnit
       profile
-      profileHash
       rawProfileFileID
       scopeID
       scopeName

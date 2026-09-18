@@ -10,6 +10,7 @@ import 'survey-core/survey-core.min.css'
 import '@/styles/questionnaire/survey-viewer.css'
 import { jwtDecode } from 'jwt-decode'
 import { useQuestionnaire, useSubmitQuestionnaire, useResendQuestionnaireLink } from '@/lib/query-hooks/questionnaire'
+import { attachSurveyProgressText } from '@/components/shared/survey/survey-progress-text'
 import { lightTheme } from '@/styles/questionnaire/theme-light'
 import { darkTheme } from '@/styles/questionnaire/theme-dark'
 import { CircleCheckBig, MailCheck } from 'lucide-react'
@@ -123,6 +124,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
   const survey = useMemo(() => {
     if (!questionnaireData || !token) return null
     const surveyModel = new Model(questionnaireData)
+    attachSurveyProgressText(surveyModel)
 
     if (savedData) {
       surveyModel.data = savedData

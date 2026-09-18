@@ -44,10 +44,22 @@ export const DropdownSearchMultiselect: React.FC<DropdownSearchMultiselectProps>
       <PopoverContent align="start" className="p-2 w-[400px]">
         <Input placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="mb-2" />
 
-        <ul className="max-h-48 overflow-y-auto border rounded-md flex flex-col">
+        <ul role="listbox" aria-multiselectable className="max-h-48 overflow-y-auto border rounded-md flex flex-col">
           {filteredOptions.length > 0 ? (
             filteredOptions.map((opt) => (
-              <li key={opt.value} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm" onClick={() => handleToggle(opt.value)}>
+              <li
+                key={opt.value}
+                role="option"
+                aria-selected={value.includes(opt.value)}
+                tabIndex={0}
+                className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm"
+                onClick={() => handleToggle(opt.value)}
+                onKeyDown={(event) => {
+                  if (event.key !== 'Enter' && event.key !== ' ') return
+                  event.preventDefault()
+                  handleToggle(opt.value)
+                }}
+              >
                 <Checkbox checked={value.includes(opt.value)} className="accent-primary" />
                 <span>{opt.label}</span>
               </li>

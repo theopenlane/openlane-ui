@@ -1,21 +1,18 @@
 'use client'
-import React, { useMemo, useState } from 'react'
-import { fromUnixTime, isPast } from 'date-fns'
+import React, { useMemo } from 'react'
 import BillingEmailDialog from './billing-email-dialog'
 import BillingContactDialog from './billing-contract-dialog'
+import CancelSubscriptionSection from './cancel-subscription-section'
 import { useOrganization } from '@/hooks/useOrganization'
 import { billingSettingsStyles } from './billing-settings.styles'
 import { cn } from '@repo/ui/lib/utils'
 import { useGetOrganizationBilling, useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
-import { useCancelSubscriptionMutation, usePaymentMethodsQuery, useRenewSubscriptionMutation, useSchedulesQuery } from '@/lib/query-hooks/stripe'
+import { usePaymentMethodsQuery } from '@/lib/query-hooks/stripe'
 import { Button } from '@repo/ui/button'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { formatDate } from '@/utils/date'
-import { SUPPORT_URL } from '@/constants'
 import Invoices from './invoices'
 import { Card } from '@repo/ui/cardpanel'
 import { CreditCard, ExternalLink } from 'lucide-react'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useOpenBillingPortal } from '@/hooks/useBillingPortal'
 
 const BillingSettings: React.FC = () => {
   const { panel, section, sectionContent, emailText, paragraph, text } = billingSettingsStyles()
@@ -25,49 +22,15 @@ const BillingSettings: React.FC = () => {
   const billingAddress = settingData?.organization.setting?.billingAddress
   const formattedAddress = [billingAddress?.line1, billingAddress?.city, billingAddress?.postalCode].filter(Boolean).join(', ')
   const email = settingData?.organization.setting?.billingEmail || ''
-  const { mutateAsync: cancelSubscription, isPending: canceling } = useCancelSubscriptionMutation()
-  const { mutateAsync: renewSubscription } = useRenewSubscriptionMutation()
-
-  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false)
+  const { openBillingPortal, redirecting } = useOpenBillingPortal()
 
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const stripeCustomerId = currentOrganization?.node?.stripeCustomerID
-  const { data: schedules = [], isLoading: schedulesLoading } = useSchedulesQuery(stripeCustomerId)
-  const schedule = schedules?.[0]
-  const isCanceledBySchedule = schedule?.end_behavior === 'cancel'
   const { data: paymentData } = usePaymentMethodsQuery(stripeCustomerId)
-  const isTrialing = !!schedule?.phases?.[0]?.trial
-  const endDate = useMemo(() => (schedule?.current_phase?.end_date ? fromUnixTime(schedule.current_phase.end_date) : null), [schedule])
-  const endDatePassed = useMemo(() => (endDate ? isPast(endDate) : false), [endDate])
 
   const defaultCard = useMemo(() => {
     return paymentData?.defaultPaymentMethod?.card ? paymentData.defaultPaymentMethod.card : paymentData?.paymentMethods?.[0]?.card
   }, [paymentData])
-
-  const handleConfirm = async () => {
-    setConfirmCancelOpen(false)
-    if (!schedule) return
-    if (isCanceledBySchedule) {
-      await renewSubscription({ scheduleId: schedule.id })
-    } else {
-      await cancelSubscription({ scheduleId: schedule.id })
-    }
-  }
-
-  const handleManagePayment = async () => {
-    const res = await fetch('/api/stripe/create-portal-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customerId: stripeCustomerId }),
-    })
-
-    const data = await res.json()
-    if (data.url) {
-      window.location.href = data.url
-    } else {
-      console.error('❌ Portal error:', data.error)
-    }
-  }
 
   return (
     <div id="billing-settings" className={cn(panel())}>
@@ -139,7 +102,7 @@ const BillingSettings: React.FC = () => {
             <p className="text-sm text-text-informational">No payment method on file</p>
           )}
         </div>
-        <Button icon={<ExternalLink />} className="h-8 p-2 gap-1" onClick={handleManagePayment}>
+        <Button icon={<ExternalLink />} className="h-8 p-2 gap-1" loading={redirecting} disabled={redirecting} onClick={() => openBillingPortal(stripeCustomerId)}>
           Manage
         </Button>
       </Card>
@@ -147,75 +110,7 @@ const BillingSettings: React.FC = () => {
       {/* Invoices Section */}
       <Invoices stripeCustomerId={stripeCustomerId} />
 
-      {/* Cancel Section */}
-      {isTrialing && isCanceledBySchedule ? (
-        <>
-          <p className="mt-8"> Your trial subscription was cancelled and cannot be renewed.</p>
-          <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="mt-2 mx-auto mb-5 block">
-            <Button>Contact Support</Button>
-          </a>
-        </>
-      ) : (
-        <>
-          {endDatePassed ? (
-            <>
-              <p className="mt-8"> Your subscription has expired.</p>
-              <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="mt-2 mx-auto mb-5 block">
-                <Button>Contact Support</Button>
-              </a>
-            </>
-          ) : (
-            <>
-              {' '}
-              <h2 className="text-2xl mt-8 mb-4">Cancel Subscription</h2>
-              {data?.organization?.orgSubscriptions && data?.organization?.orgSubscriptions.length > 0 && (
-                <div id="cancel-subscription">
-                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 w-full">
-                    <p className={cn(text())}>You can cancel your subscription anytime. Your access will remain active until the end of your billing period.</p>
-                  </div>
-                  {!schedule ? (
-                    <>
-                      <CancelButton
-                        className="self-end h-8 p-2"
-                        title={canceling ? 'Processing…' : isCanceledBySchedule ? 'Renew subscription' : 'Cancel subscription'}
-                        disabled={canceling || schedulesLoading}
-                        variant={isCanceledBySchedule ? 'secondary' : 'destructive'}
-                        onClick={() => setConfirmCancelOpen(true)}
-                      ></CancelButton>
-                    </>
-                  ) : (
-                    <a href={`${SUPPORT_URL}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500">
-                      Reach out to support
-                    </a>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-        </>
-      )}
-
-      {/* Cancel subscription confirmation */}
-      <ConfirmationDialog
-        open={confirmCancelOpen}
-        onOpenChange={setConfirmCancelOpen}
-        onConfirm={handleConfirm}
-        title={isCanceledBySchedule ? 'Renew subscription?' : 'Cancel subscription?'}
-        description={
-          !isCanceledBySchedule ? (
-            <>
-              <p>
-                Your subscription will be cancelled at the end of your current billing cycle on <b>{endDate ? formatDate(endDate.toISOString()) : 'the end date'}</b>.
-              </p>
-              <p>Until then, you&apos;ll continue to have full access.</p>
-            </>
-          ) : (
-            <p>Your subscription will be renewed starting today.</p>
-          )
-        }
-        confirmationText={isCanceledBySchedule ? 'Renew' : 'Confirm'}
-        confirmationTextVariant={isCanceledBySchedule ? 'success' : 'destructive'}
-      />
+      <CancelSubscriptionSection stripeCustomerId={stripeCustomerId} hasSubscription={!!data?.organization?.orgSubscriptions?.length} />
     </div>
   )
 }

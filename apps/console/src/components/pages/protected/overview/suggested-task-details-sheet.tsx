@@ -1,14 +1,14 @@
 'use client'
 
 import React from 'react'
-import { Sheet, SheetContent, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import { Callout } from '@/components/shared/callout/callout'
 import { Check, ArrowUpRight } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type SuggestedTask } from '@/lib/suggested-tasks/types'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 
 type SuggestedTaskDetailsSheetProps = {
   task: SuggestedTask | null
@@ -21,41 +21,51 @@ const SuggestedTaskDetailsSheet: React.FC<SuggestedTaskDetailsSheetProps> = ({ t
 
   return (
     <Sheet open={!!task} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" minWidth={420} resizable={false}>
+      <SheetContent
+        side="right"
+        minWidth={420}
+        resizable={false}
+        header={
+          task && (
+            <SlideoutHeader
+              title={task.title}
+              aboveTitle={
+                <Badge variant="outline" className="self-start" style={{ borderColor: task.taskKind.color, color: task.taskKind.color }}>
+                  {task.taskKind.name}
+                </Badge>
+              }
+              onClose={onClose}
+              primaryAction={{
+                label: 'Mark as complete',
+                icon: <Check size={16} />,
+                onClick: () => {
+                  onComplete(task.id)
+                  onClose()
+                },
+              }}
+              menuActions={
+                task.metadata.docsLink
+                  ? [
+                      {
+                        key: 'docs',
+                        label: 'Docs',
+                        icon: <ArrowUpRight size={16} strokeWidth={2} />,
+                        onClick: () => window.open(task.metadata.docsLink, '_blank', 'noopener,noreferrer'),
+                      },
+                    ]
+                  : undefined
+              }
+            />
+          )
+        }
+      >
         {task && (
           <div className="flex flex-col gap-5">
-            <SheetTitle className="sr-only">{task.title}</SheetTitle>
-
             <Callout variant="recommendation" compact title="Suggested by Openlane">
               We think this is a good next step based on where your organization is in its compliance journey
             </Callout>
 
-            <div className="space-y-2">
-              <Badge variant="outline" style={{ borderColor: task.taskKind.color, color: task.taskKind.color }}>
-                {task.taskKind.name}
-              </Badge>
-              <div className="flex items-start justify-between gap-3">
-                <h2 className="text-xl font-semibold">{task.title}</h2>
-                <div className="flex gap-3 shrink-0">
-                  <Button
-                    icon={<Check />}
-                    iconPosition="left"
-                    onClick={() => {
-                      onComplete(task.id)
-                      onClose()
-                    }}
-                  >
-                    Mark as complete
-                  </Button>
-                  {task.metadata.docsLink && (
-                    <Button variant="secondary" icon={<ArrowUpRight />} onClick={() => window.open(task.metadata.docsLink, '_blank', 'noopener,noreferrer')}>
-                      Docs
-                    </Button>
-                  )}
-                </div>
-              </div>
-              <div className="cursor-not-allowed">{convertToReadOnly(task.details)}</div>
-            </div>
+            <div className="cursor-not-allowed">{convertToReadOnly(task.details)}</div>
 
             {task.metadata.references && task.metadata.references.length > 0 && (
               <Card className="p-4">

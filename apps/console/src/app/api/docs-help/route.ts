@@ -17,6 +17,7 @@ import { lookupSection } from '@/lib/docs-help/retrieval'
 import { cacheKeyOf, readSectionCache, writeSectionCache } from '@/lib/docs-help/section-cache'
 import { docsHelpStream } from '@/lib/docs-help/stream'
 import { mapWithConcurrency } from '@/utils/async'
+import { modelArmorErrorResponse } from '@/lib/model-armor/responses'
 import type { DocsHelpChunk } from '@/types/docs-help'
 
 export const runtime = 'nodejs'
@@ -54,6 +55,14 @@ const requestSchema = z.object({
     .optional(),
 })
 
+const failure = (err: unknown, message: string) => {
+  const armorResponse = modelArmorErrorResponse(err)
+  if (armorResponse) return armorResponse
+
+  console.error(`${message}:`, err instanceof Error ? err.message : err)
+  return NextResponse.json({ error: message }, { status: 500 })
+}
+
 export const POST = async (req: NextRequest) => {
   const session = await auth()
   if (!session?.user?.accessToken) {
@@ -73,24 +82,31 @@ export const POST = async (req: NextRequest) => {
   const { query, prefer, section, summarize, extractSection, policyMapping, suggestTitles, suggestPublicRepresentation, fullPageFor, batch } = parsed.data
 
   if (suggestPublicRepresentation) {
-    return NextResponse.json({ text: await docs.publicRepresentation(suggestPublicRepresentation) })
+    try {
+      return NextResponse.json({ text: await docs.publicRepresentation(suggestPublicRepresentation, req.signal) })
+    } catch (err) {
+      return failure(err, 'Failed to draft a public representation')
+    }
   }
 
   if (suggestTitles) {
     if (suggestTitles.length === 0) return NextResponse.json({ titles: [] })
-    return NextResponse.json({ titles: await docs.controlTitles(suggestTitles) })
+    try {
+      return NextResponse.json({ titles: await docs.controlTitles(suggestTitles, req.signal) })
+    } catch (err) {
+      return failure(err, 'Failed to suggest titles')
+    }
   }
 
   if (batch) {
     try {
       const results = await mapWithConcurrency(batch, BATCH_CONCURRENCY, async (lookup) => ({
         key: lookup.key,
-        ...(await lookupSection(docs, lookup, section)),
+        ...(await lookupSection(docs, lookup, section, req.signal)),
       }))
       return NextResponse.json({ results })
     } catch (err) {
-      console.error('docs-help batch error:', err instanceof Error ? err.message : err)
-      return NextResponse.json({ error: 'Failed to retrieve docs' }, { status: 500 })
+      return failure(err, 'Failed to retrieve docs')
     }
   }
 
@@ -105,7 +121,7 @@ export const POST = async (req: NextRequest) => {
 
   try {
     const wantsWholePage = !!extractSection || !!policyMapping || !!fullPageFor
-    const contexts = await docs.retrieve(query)
+    const contexts = await docs.retrieve(query, { signal: req.signal })
     const chunks = rankChunks(dedupeBySource(contexts.map((context) => context.text)), prefer, section)
 
     if (wantsWholePage) {
@@ -152,7 +168,6 @@ export const POST = async (req: NextRequest) => {
       },
     })
   } catch (err) {
-    console.error('docs-help error:', err instanceof Error ? err.message : err)
-    return NextResponse.json({ error: 'Failed to retrieve docs' }, { status: 500 })
+    return failure(err, 'Failed to retrieve docs')
   }
 }

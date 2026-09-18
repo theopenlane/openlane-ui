@@ -88,8 +88,15 @@ export const EXCLUDED_FIELDS = ['deletedAt', 'deletedBy', 'systemInternalID', 'i
 // Edge types to exclude from associations
 export const EXCLUDED_ASSOCIATIONS = ['groups', 'editors', 'viewers', 'blockedGroups', 'user', 'owner', 'organization']
 
+export const EXCLUDED_CRUD_TYPES = ['DirectoryMembership', 'IntegrationRun']
+
 const excludedTypeNames = new Set(EXCLUDED_TYPES.map((name) => name.toLowerCase()))
+const excludedCrudTypeNames = new Set([...EXCLUDED_TYPES, ...EXCLUDED_CRUD_TYPES].map((name) => name.toLowerCase()))
 
 export const isExcludedType = (typeName) => excludedTypeNames.has(typeName.toLowerCase())
 
-export const DISPLAY_FIELD_ORDER = ['refCode', 'displayID', 'name', 'title', 'status', 'createdAt']
+export const isExcludedCrudType = (typeName) => excludedCrudTypeNames.has(typeName.toLowerCase())
+
+export const IDENTITY_FIELD = 'id'
+
+export const DISPLAY_FIELD_ORDER = ['refCode', 'name', 'title', 'status', 'createdAt']

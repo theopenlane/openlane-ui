@@ -95,17 +95,17 @@ const BulkCSVCreateEvidenceDialog: React.FC<BulkCSVCreateEvidenceDialogProps> = 
           <Callout title="CSV Format">
             <p className="text-sm">
               You can upload a csv containing evidence. See the{' '}
-              <a className="text-brand hover:underline cursor-pointer" onClick={handleOpenInfo}>
+              <button type="button" className="text-brand hover:underline cursor-pointer bg-transparent" onClick={handleOpenInfo}>
                 CSV format guide
-              </a>{' '}
+              </button>{' '}
               for the fields and an example, or refer to our{' '}
               <a href={EVIDENCE_DOCS_URL} target="_blank" className="text-brand hover:underline" rel="noreferrer">
                 documentation
               </a>
               . We also provide a{' '}
-              <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
+              <button type="button" className="text-brand hover:underline cursor-pointer bg-transparent" onClick={() => handleCSVExport()}>
                 template csv file
-              </a>{' '}
+              </button>{' '}
               for you to fill out.
             </p>
           </Callout>

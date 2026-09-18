@@ -1,20 +1,28 @@
 import type { TReportFieldKind } from '@repo/codegen/src/report-schema.generated'
+import type { TPagination } from '@repo/ui/pagination-types'
+import { htmlToText } from '@/lib/html/html-to-text'
 import { formatDateTime } from '@/utils/date'
+import { sliceByPagination } from '@/utils/pagination'
 import type { TReportColumn } from './report-schema'
 
 export type TReportRow = Record<string, unknown>
 
+export type TReportPageInfo = {
+  hasNextPage?: boolean
+  hasPreviousPage?: boolean
+  startCursor?: string | null
+  endCursor?: string | null
+}
+
 export type TReportResult = {
   totalCount: number
-  pageInfo: {
-    hasNextPage?: boolean
-    hasPreviousPage?: boolean
-    startCursor?: string | null
-    endCursor?: string | null
-  }
+  matchedCount: number
+  pageInfo?: TReportPageInfo
   columns: TReportColumn[]
   rows: TReportRow[]
 }
+
+export const rowsForPage = (result: TReportResult, pagination: TPagination): TReportRow[] => (result.pageInfo ? result.rows : sliceByPagination(result.rows, pagination))
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
 
@@ -26,13 +34,28 @@ const edgeNodes = (value: unknown): Record<string, unknown>[] => {
   return []
 }
 
-const cellValue = (node: Record<string, unknown>, column: TReportColumn): unknown => {
+const rawCellValue = (node: Record<string, unknown>, column: TReportColumn): unknown => {
   if (!column.edge) return node[column.field.name]
 
   const related = node[column.edge.name]
   if (!column.edge.list) return isRecord(related) ? related[column.field.name] : null
 
   return edgeNodes(related).map((item) => item[column.field.name])
+}
+
+const asPlainText = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(asPlainText)
+  if (isRecord(value)) return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, asPlainText(item)]))
+
+  return typeof value === 'string' ? htmlToText(value) : value
+}
+
+const RICH_TEXT_KINDS: ReadonlySet<TReportFieldKind> = new Set(['string', 'json'])
+
+const cellValue = (node: Record<string, unknown>, column: TReportColumn): unknown => {
+  const value = rawCellValue(node, column)
+
+  return RICH_TEXT_KINDS.has(column.field.kind) ? asPlainText(value) : value
 }
 
 export const flattenRows = (nodes: Record<string, unknown>[], columns: TReportColumn[]): TReportRow[] =>

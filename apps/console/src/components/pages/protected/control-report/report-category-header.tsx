@@ -96,12 +96,19 @@ const ReportCategoryHeader: React.FC<ReportCategoryHeaderProps> = ({ category, c
           </div>
         </div>
         {showButton && (
-          <Callout variant="recommendation" compact contentClassName="flex items-center gap-3">
-            <span className="flex-1 font-medium">{gaps.totalCount} recommended mappings are ready for review</span>
-            <Button type="button" variant="link" className="shrink-0 gap-1 text-[var(--color-recommendation)]" icon={<ArrowRight size={14} />} onClick={() => setShowResolveGaps(true)}>
-              Review recommendations
-            </Button>
-            <DismissButton onClick={dismissBanner} label="Dismiss resolve gaps banner" tooltip="Dismiss" />
+          <Callout
+            variant="recommendation"
+            compact
+            action={
+              <>
+                <Button type="button" variant="link" className="gap-1 text-[var(--color-recommendation)]" icon={<ArrowRight size={14} />} onClick={() => setShowResolveGaps(true)}>
+                  Review recommendations
+                </Button>
+                <DismissButton onClick={dismissBanner} label="Dismiss resolve gaps banner" tooltip="Dismiss" />
+              </>
+            }
+          >
+            <span className="font-medium">{gaps.totalCount} recommended mappings are ready for review</span>
           </Callout>
         )}
       </div>

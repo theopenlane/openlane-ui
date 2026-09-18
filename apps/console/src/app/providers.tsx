@@ -4,19 +4,18 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 import { ThemeProvider } from '@/providers/theme'
 import { usePathname } from 'next/navigation'
-import { type ReactNode, useMemo } from 'react'
+import { type ReactNode, useEffect, useMemo, useRef } from 'react'
 import { Loading } from '@/components/shared/loading/loading'
-import { NavigationGuardProvider } from 'next-navigation-guard'
+import { NavigationGuardProvider } from 'nextjs-nav-guard'
 import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 import { InitPlugSDK } from '@/providers/chatSdk'
-import { TooltipProvider } from '@repo/ui/tooltip'
+import { AppTooltipProvider } from '@repo/ui/tooltip'
 import { devrevChatEnabled } from '@repo/dally/auth'
 import { WebSocketProvider } from '@/providers/websocket-provider'
 import { NotificationsProvider } from '@/providers/notifications-provider'
 import { NotificationToastContainer } from '@/components/shared/SystemNotification/notification-toast-container'
-import { SessionUnavailableError } from '@/lib/auth/utils/session-health'
+import { resetSessionProbe, SessionUnavailableError } from '@/lib/auth/utils/session-health'
 import { getIsSessionInvalid } from '@/lib/auth/utils/session-status'
-import { useSessionTokenSync } from '@/lib/graphqlClient'
 import { isNonRetryableGraphQlError } from '@/utils/graphQlErrorMatcher'
 
 interface ProvidersProps {
@@ -51,7 +50,17 @@ const sessionRetryDelay = (failureCount: number, error: Error) =>
 const Providers = ({ children }: ProvidersProps) => {
   const { status, data } = useSession()
   const pathname = usePathname()
-  useSessionTokenSync()
+  const knownAccessTokenRef = useRef(data?.user?.accessToken)
+
+  useEffect(() => {
+    const accessToken = data?.user?.accessToken
+
+    if (accessToken !== knownAccessTokenRef.current) {
+      knownAccessTokenRef.current = accessToken
+      resetSessionProbe()
+    }
+  }, [data?.user?.accessToken])
+
   const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/questionnaire/') || /^\/orgs\/[^/]+\/sso$/.test(pathname)
 
   const queryClient = useMemo(
@@ -80,32 +89,32 @@ const Providers = ({ children }: ProvidersProps) => {
   if (isPublicPage) {
     return (
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <AppTooltipProvider>{children}</AppTooltipProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     )
   }
 
-  if (status === 'loading' && !data) {
-    return <Loading />
-  }
-
   return (
     <NavigationGuardProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        <QueryClientProvider client={queryClient}>
-          <WebSocketProvider>
-            <NotificationsProvider>
-              <BreadcrumbProvider>
-                {devrevChatEnabled && <InitPlugSDK />}
-                <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
-                  {children}
-                </TooltipProvider>
-                <NotificationToastContainer />
-              </BreadcrumbProvider>
-            </NotificationsProvider>
-          </WebSocketProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
+      {status === 'loading' && !data ? (
+        <Loading />
+      ) : (
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <QueryClientProvider client={queryClient}>
+            <WebSocketProvider>
+              <NotificationsProvider>
+                <BreadcrumbProvider>
+                  {devrevChatEnabled && <InitPlugSDK />}
+                  <AppTooltipProvider>{children}</AppTooltipProvider>
+                  <NotificationToastContainer />
+                </BreadcrumbProvider>
+              </NotificationsProvider>
+            </WebSocketProvider>
+          </QueryClientProvider>
+        </ThemeProvider>
+      )}
     </NavigationGuardProvider>
   )
 }

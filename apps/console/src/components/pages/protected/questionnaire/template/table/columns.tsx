@@ -147,7 +147,7 @@ export const getTemplateColumns = (params?: Params) => {
           return null
         }
         return (
-          <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
+          <div role="presentation" onClick={(e) => e.stopPropagation()} className="flex justify-end">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" aria-label="Row actions">

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useId, useCallback, useMemo, useState } from 'react'
 import { Download, Expand, Fingerprint, ImagePlus, Trash2, X } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
@@ -11,23 +11,22 @@ import { useDropzone } from 'react-dropzone'
 import { cn } from '@repo/ui/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { toHumanLabel } from '@/utils/strings'
-import { useUploadPlatformDiagram, useRemovePlatformDiagram } from '@/lib/graphql-hooks/platform'
+import { formatDate } from '@/utils/date'
+import { useUploadPlatformDiagram, useRemovePlatformDiagram, DIAGRAM_TYPES, type DiagramType, type PlatformDiagram } from '@/lib/graphql-hooks/platform'
 import { useGetEvidencesWithFileIds } from '@/lib/graphql-hooks/evidence'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { fileDownload } from '@/components/shared/lib/export'
 import MarkAsDiagramEvidenceDialog from './mark-as-diagram-evidence-dialog'
 import UnmarkDiagramEvidenceDialog from './unmark-diagram-evidence-dialog'
-
-export type DiagramType = 'architecture' | 'trust-boundary' | 'data-flow'
+import Skeleton from '@/components/shared/skeleton/skeleton'
 
 const diagramTypeLabel = (type: DiagramType) => `${toHumanLabel(type)} Diagram`
 
-export interface PlatformDiagram {
-  id: string
-  type: DiagramType
-  name: string
-  url: string
+interface DiagramUploadedAtProps {
+  createdAt: string | null
 }
+
+const DiagramUploadedAt: React.FC<DiagramUploadedAtProps> = ({ createdAt }) => (createdAt ? <span className="text-xs text-muted-foreground">Uploaded at: {formatDate(createdAt)}</span> : null)
 
 interface AddDiagramDialogProps {
   open: boolean
@@ -39,6 +38,7 @@ interface AddDiagramDialogProps {
 const AddDiagramDialog: React.FC<AddDiagramDialogProps> = ({ open, onOpenChange, onAdd, isUploading }) => {
   const { errorNotification } = useNotification()
   const [selectedType, setSelectedType] = useState<DiagramType | ''>('')
+  const diagramTypeId = useId()
   const [stagedFile, setStagedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
 
@@ -90,15 +90,19 @@ const AddDiagramDialog: React.FC<AddDiagramDialogProps> = ({ open, onOpenChange,
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Diagram Type</label>
-            <Select value={selectedType} onValueChange={(v) => setSelectedType(v as DiagramType)}>
-              <SelectTrigger>
+            <label className="text-sm font-medium" htmlFor={diagramTypeId}>
+              Diagram Type
+            </label>
+            <Select value={selectedType} onValueChange={(value) => setSelectedType(DIAGRAM_TYPES.find((type) => type === value) ?? '')}>
+              <SelectTrigger id={diagramTypeId}>
                 <SelectValue placeholder="Select diagram type…" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="architecture">Architecture Diagram</SelectItem>
-                <SelectItem value="trust-boundary">Trust Boundary Diagram</SelectItem>
-                <SelectItem value="data-flow">Data Flow Diagram</SelectItem>
+                {DIAGRAM_TYPES.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {diagramTypeLabel(type)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -168,8 +172,9 @@ const ExpandDiagramDialog: React.FC<ExpandDiagramDialogProps> = ({ diagram, onCl
           <div className="space-y-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={diagram.url} alt={diagram.name} className="w-full object-contain max-h-[70vh] rounded-md bg-muted" />
-            <div className="flex justify-end">
-              <Button variant="secondary" icon={<Download size={14} />} iconPosition="left" onClick={() => fileDownload(diagram.url, diagram.name, errorNotification)}>
+            <div className="flex items-center justify-between gap-2">
+              <DiagramUploadedAt createdAt={diagram.createdAt} />
+              <Button className="ml-auto" variant="secondary" icon={<Download size={14} />} iconPosition="left" onClick={() => fileDownload(diagram.url, diagram.name, errorNotification)}>
                 Download
               </Button>
             </div>
@@ -199,55 +204,58 @@ const DiagramCard: React.FC<DiagramCardProps> = ({ diagram, canEdit, hasEvidence
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={diagram.url} alt={diagram.name} className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-[1.02]" />
       </button>
-      <div className="px-3 py-2 flex items-center justify-between gap-2 border-t">
-        <div className="flex items-center gap-2 min-w-0">
-          <Badge variant="secondary" className="text-xs shrink-0">
+      <div className="px-3 py-2 flex flex-col gap-1 border-t">
+        <div className="flex flex-wrap items-center justify-between gap-x-2">
+          <Badge variant="secondary" className="text-xs">
             {diagramTypeLabel(diagram.type)}
           </Badge>
-          <span className="text-xs text-muted-foreground truncate">{diagram.name}</span>
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <button
-            type="button"
-            className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            onClick={onExpand}
-            aria-label="Expand"
-          >
-            <Expand size={13} />
-          </button>
-          <button
-            type="button"
-            className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => fileDownload(diagram.url, diagram.name, errorNotification)}
-            aria-label="Download"
-          >
-            <Download size={13} />
-          </button>
-          <TooltipProvider disableHoverableContent>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  className={cn('h-7 w-7 flex items-center justify-center rounded hover:bg-muted transition-colors', hasEvidence ? 'text-primary' : 'text-muted-foreground hover:text-foreground')}
-                  onClick={hasEvidence ? onUnmarkEvidence : onMarkEvidence}
-                  aria-label={hasEvidence ? 'Remove evidence' : 'Mark as evidence'}
-                >
-                  <Fingerprint size={13} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">{hasEvidence ? 'Remove evidence' : 'Mark as evidence'}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          {canEdit && (
+          <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"
-              className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-destructive hover:text-destructive transition-colors"
-              onClick={onDelete}
-              aria-label="Delete"
+              className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              onClick={onExpand}
+              aria-label="Expand"
             >
-              <Trash2 size={13} />
+              <Expand size={13} />
             </button>
-          )}
+            <button
+              type="button"
+              className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => fileDownload(diagram.url, diagram.name, errorNotification)}
+              aria-label="Download"
+            >
+              <Download size={13} />
+            </button>
+            <TooltipProvider disableHoverableContent>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn('h-7 w-7 flex items-center justify-center rounded hover:bg-muted transition-colors', hasEvidence ? 'text-primary' : 'text-muted-foreground hover:text-foreground')}
+                    onClick={hasEvidence ? onUnmarkEvidence : onMarkEvidence}
+                    aria-label={hasEvidence ? 'Remove evidence' : 'Mark as evidence'}
+                  >
+                    <Fingerprint size={13} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{hasEvidence ? 'Remove evidence' : 'Mark as evidence'}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            {canEdit && (
+              <button
+                type="button"
+                className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-destructive hover:text-destructive transition-colors"
+                onClick={onDelete}
+                aria-label="Delete"
+              >
+                <Trash2 size={13} />
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-x-2">
+          <span className="min-w-0 flex-1 text-xs text-muted-foreground truncate">{diagram.name}</span>
+          <DiagramUploadedAt createdAt={diagram.createdAt} />
         </div>
       </div>
     </div>
@@ -259,9 +267,10 @@ interface PlatformDiagramsSectionProps {
   platformName: string
   canEdit: boolean
   diagrams: PlatformDiagram[]
+  isLoading: boolean
 }
 
-const PlatformDiagramsSection: React.FC<PlatformDiagramsSectionProps> = ({ platformId, platformName, canEdit, diagrams }) => {
+const PlatformDiagramsSection: React.FC<PlatformDiagramsSectionProps> = ({ platformId, platformName, canEdit, diagrams, isLoading }) => {
   const { successNotification, errorNotification } = useNotification()
   const [addOpen, setAddOpen] = useState(false)
   const [expandedDiagram, setExpandedDiagram] = useState<PlatformDiagram | null>(null)
@@ -318,7 +327,9 @@ const PlatformDiagramsSection: React.FC<PlatformDiagramsSectionProps> = ({ platf
         )}
       </div>
 
-      {diagrams.length === 0 ? (
+      {isLoading ? (
+        <Skeleton width="100%" height="9rem" />
+      ) : diagrams.length === 0 ? (
         <div className="rounded-lg border border-dashed border-muted-foreground/30 py-10 flex flex-col items-center justify-center gap-2 text-muted-foreground">
           <ImagePlus size={24} className="opacity-40" />
           <p className="text-sm">{canEdit ? 'No diagrams yet. Click "Add Diagram" to upload one.' : 'No diagrams have been added.'}</p>

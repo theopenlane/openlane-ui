@@ -52,7 +52,7 @@ export const getColumns = ({
         const { id, refCode } = row.original
         const isChecked = selectedControls.some((c) => c.id === id)
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id, refCode })} />
           </div>
         )

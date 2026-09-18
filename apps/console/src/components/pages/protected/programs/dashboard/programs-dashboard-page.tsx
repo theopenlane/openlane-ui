@@ -1,8 +1,8 @@
 'use client'
 
-import React, { use, useEffect, useMemo, useState } from 'react'
+import React, { useId, use, useEffect, useMemo, useState } from 'react'
 import { type ProgramFromGetProgramDashboard as Program, useGetProgramDashboard } from '@/lib/graphql-hooks/program'
-import { Calendar, ChevronRight, SquarePlus, SearchIcon, UserRoundPlus, Undo, UserIcon, TriangleAlert } from 'lucide-react'
+import { Calendar, ChevronRight, SquarePlus, SearchIcon, UserRoundPlus, Undo, UserIcon } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Input } from '@repo/ui/input'
@@ -37,10 +37,11 @@ import { useSession } from 'next-auth/react'
 
 const ProgramsDashboardPage = () => {
   const [search, setSearch] = useState('')
+  const expandAllId = useId()
   const { data: session } = useSession()
   const [expanded, setExpanded] = useState<string[]>([])
   const [filterStatus, setFilterStatus] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE')
-  const { data: orgPermission } = useOrganizationRoles()
+  const { data: orgPermission, isPending: isPermissionPending } = useOrganizationRoles()
   const { setCrumbs } = use(BreadcrumbContext)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -115,6 +116,10 @@ const ProgramsDashboardPage = () => {
   }
 
   if (!data?.programs.edges?.length && isSuccess && !search && filterStatus === 'ACTIVE') {
+    if (!session?.user?.isImpersonation && isPermissionPending) {
+      return <ProgramsDashboardSkeleton />
+    }
+
     return (
       <>
         {hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram, session) ? (
@@ -140,12 +145,15 @@ const ProgramsDashboardPage = () => {
           <h2 className="text-header text-2xl">Programs</h2>
           <div className="flex items-center gap-2">
             <Switch
+              id={expandAllId}
               checked={expanded.length === allKeys.length && allKeys.length > 0}
               onCheckedChange={(checked) => {
                 setExpanded(checked ? allKeys : [])
               }}
             />
-            <label className="text-sm">Expand all</label>
+            <label className="text-sm" htmlFor={expandAllId}>
+              Expand all
+            </label>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -285,18 +293,18 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
       </div>
 
       {showArchiveSuggestion && (
-        <div className="flex items-center justify-between gap-4 rounded-md border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10 p-4">
-          <div className="flex items-start gap-3">
-            <TriangleAlert className="size-5 shrink-0 text-[var(--color-warning)]" />
-            <div className="text-sm">
-              <p className="font-medium">This program is completed and past its end date</p>
-              <p className="text-muted-foreground">To keep your workspace organized, we recommend archiving it</p>
-            </div>
-          </div>
-          <Button variant="secondary" className="shrink-0 border-[var(--color-warning)]/60 " onClick={handleArchive} disabled={isUpdatingStatus} aria-label="Archive program">
-            {isUpdatingStatus ? 'Archiving...' : 'Archive Program'}
-          </Button>
-        </div>
+        <Callout
+          variant="warning"
+          compact
+          title="This program is completed and past its end date"
+          action={
+            <Button variant="secondary" onClick={handleArchive} disabled={isUpdatingStatus} aria-label="Archive program">
+              {isUpdatingStatus ? 'Archiving...' : 'Archive Program'}
+            </Button>
+          }
+        >
+          <span className="text-muted-foreground">To keep your workspace organized, we recommend archiving it</span>
+        </Callout>
       )}
 
       {/* Status row */}

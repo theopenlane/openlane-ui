@@ -38,7 +38,7 @@ const WorkflowWizardPage = ({ embedded = false }: WorkflowWizardPageProps) => {
 
   useEffect(() => {
     if (embedded) return
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Automation', href: '/automation/workflows' }, { label: 'Workflows', href: '/automation/workflows' }, { label: 'Wizard' }])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Automation', href: '/automation' }, { label: 'Workflows', href: '/automation/workflows' }, { label: 'Wizard' }])
   }, [setCrumbs, embedded])
   const router = useRouter()
   const searchParams = useSearchParams()

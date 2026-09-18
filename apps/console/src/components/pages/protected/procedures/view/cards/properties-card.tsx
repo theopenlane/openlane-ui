@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useRef, useState } from 'react'
 import { type ProcedureByIdFragment, type ProcedureDocumentStatus, type UpdateProcedureInput } from '@repo/codegen/src/schema'
 import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-react'
@@ -136,9 +137,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
             <div
               data-testid="procedure-status-trigger"
               className={`flex items-center space-x-2 text-sm ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-              onClick={() => {
+              {...activatable(() => {
                 if (!isEditing && editAllowed) setEditingField('status')
-              }}
+              })}
             >
               {DocumentIconMapper[procedure.status as ProcedureDocumentStatus]}
               <p>{ProcedureStatusOptions.find((item) => item.value === procedure.status)?.label}</p>
@@ -262,9 +263,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
           ) : (
             <div
               className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}
-              onClick={() => {
+              {...activatable(() => {
                 if (!isEditing && editAllowed) setEditingField('procedureKindName')
-              }}
+              })}
             >
               <div className="w-full block min-h-6 text-sm">
                 <CustomTypeEnumValue value={procedure?.procedureKindName ?? ''} options={enumOptions ?? []} placeholder="" />
@@ -320,9 +321,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
           ) : (
             <div
               className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}
-              onClick={() => {
+              {...activatable(() => {
                 if (!isEditing && editAllowed) setEditingField('reviewDue')
-              }}
+              })}
             >
               <span className="block min-h-6 text-sm">{formatDate(procedure?.reviewDue) || '\u00A0'}</span>
             </div>

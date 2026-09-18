@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useId } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
 import MultipleSelector from '@repo/ui/multiple-selector'
@@ -14,6 +14,10 @@ const AdvancedSetupStep4 = () => {
   const { groups, groupOptions } = useGroupSelect()
   const whereNotCurrentUser = { not: { userID: data?.user?.userId } }
   const { members, userOptions } = useUserSelect({ where: whereNotCurrentUser })
+  const programAdminsId = useId()
+  const programMembersId = useId()
+  const editAccessGroupsId = useId()
+  const readOnlyGroupsId = useId()
 
   return (
     <div className="space-y-6">
@@ -38,12 +42,15 @@ const AdvancedSetupStep4 = () => {
       <div className="space-y-5">
         {/* Program Admins */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm">Program Admins</label>
+          <label className="text-sm" htmlFor={programAdminsId}>
+            Program Admins
+          </label>
           <Controller
             control={control}
             name="programAdmins"
             render={({ field }) => (
               <MultipleSelector
+                inputProps={{ id: programAdminsId }}
                 placeholder="Search users..."
                 options={userOptions}
                 value={
@@ -60,12 +67,15 @@ const AdvancedSetupStep4 = () => {
 
         {/* Program Members */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm">Program Members</label>
+          <label className="text-sm" htmlFor={programMembersId}>
+            Program Members
+          </label>
           <Controller
             control={control}
             name="programMembers"
             render={({ field }) => (
               <MultipleSelector
+                inputProps={{ id: programMembersId }}
                 placeholder="Search users..."
                 options={userOptions}
                 value={
@@ -82,12 +92,15 @@ const AdvancedSetupStep4 = () => {
 
         {/* Groups with Edit Access */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm">Groups with Edit Access</label>
+          <label className="text-sm" htmlFor={editAccessGroupsId}>
+            Groups with Edit Access
+          </label>
           <Controller
             control={control}
             name="editAccessGroups"
             render={({ field }) => (
               <MultipleSelector
+                inputProps={{ id: editAccessGroupsId }}
                 placeholder="Search groups..."
                 options={groupOptions}
                 value={
@@ -104,12 +117,15 @@ const AdvancedSetupStep4 = () => {
 
         {/* Groups with Read Only Access */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm">Groups with Read Only Access</label>
+          <label className="text-sm" htmlFor={readOnlyGroupsId}>
+            Groups with Read Only Access
+          </label>
           <Controller
             control={control}
             name="readOnlyGroups"
             render={({ field }) => (
               <MultipleSelector
+                inputProps={{ id: readOnlyGroupsId }}
                 placeholder="Search groups..."
                 options={groupOptions}
                 value={

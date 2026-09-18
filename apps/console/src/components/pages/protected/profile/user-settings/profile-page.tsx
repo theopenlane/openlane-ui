@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { Suspense, useMemo, useState, useEffect, use, useCallback } from 'react'
 import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
@@ -170,7 +171,7 @@ const ProfilePage = () => {
         text: (
           <p className="text-sm text-muted-foreground">
             A second factor method has been added for your account. Ensure you have your recovery codes stored, or{' '}
-            <span className="text-blue-400 cursor-pointer" onClick={regenerateCodes}>
+            <span className="text-blue-400 cursor-pointer" {...activatable(regenerateCodes)}>
               regenerate&nbsp;
             </span>
             them now.
@@ -192,7 +193,7 @@ const ProfilePage = () => {
       text: (
         <p className="text-sm text-muted-foreground">
           A second factor method has been added for your account. Ensure you have your recovery codes stored, or{' '}
-          <span className="text-blue-400 cursor-pointer" onClick={regenerateCodes}>
+          <span className="text-blue-400 cursor-pointer" {...activatable(regenerateCodes)}>
             regenerate&nbsp;
           </span>
           them now.

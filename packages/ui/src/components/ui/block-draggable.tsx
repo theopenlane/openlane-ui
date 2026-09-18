@@ -167,7 +167,13 @@ const DragHandle = React.memo(function DragHandle({
       <TooltipTrigger asChild>
         <div
           className="flex size-full items-center justify-center"
+          tabIndex={0}
           onClick={() => {
+            editor.getApi(BlockSelectionPlugin).blockSelection.set(element.id as string)
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return
+            event.preventDefault()
             editor.getApi(BlockSelectionPlugin).blockSelection.set(element.id as string)
           }}
           onMouseDown={(e) => {

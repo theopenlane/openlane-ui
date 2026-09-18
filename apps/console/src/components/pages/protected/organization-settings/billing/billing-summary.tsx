@@ -1,6 +1,6 @@
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
-import { useOpenlaneProductsQuery, useSchedulesQuery, useSwitchIntervalMutation, useUpcomingInvoiceQuery } from '@/lib/query-hooks/stripe'
+import { useOpenlaneProductsQuery, useOutstandingInvoiceDueDateQuery, useSchedulesQuery, useSwitchIntervalMutation, useUpcomingInvoiceQuery } from '@/lib/query-hooks/stripe'
 import { type OrgSubscription } from '@repo/codegen/src/schema'
 import React, { useCallback, useMemo, useState } from 'react'
 import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
@@ -133,28 +133,34 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
   const formattedDiscount = useMemo(() => formatCurrency(discountAmount), [discountAmount, formatCurrency])
   const hasDiscount = discountAmount > 0
 
-  const badge = useMemo(() => {
+  const subscriptionState = useMemo(() => {
     switch (status) {
       case 'trialing':
-        return { variant: 'gold', text: 'Trial' } as const
+        return { variant: 'gold', text: 'Trial', expired: false, awaitingPayment: false } as const
       case 'past_due':
-        return { variant: 'destructive', text: 'Past due' } as const
+        return { variant: 'destructive', text: 'Past due', expired: false, awaitingPayment: true } as const
       case 'unpaid':
-        return { variant: 'destructive', text: 'Unpaid' } as const
+        return { variant: 'destructive', text: 'Unpaid', expired: false, awaitingPayment: true } as const
       case 'incomplete':
-        return { variant: 'destructive', text: 'Incomplete' } as const
+        return { variant: 'destructive', text: 'Incomplete', expired: false, awaitingPayment: false } as const
       case 'paused':
-        return { variant: 'select', text: 'Paused' } as const
+        return { variant: 'select', text: 'Paused', expired: false, awaitingPayment: false } as const
       case 'canceled':
       case 'incomplete_expired':
-        return { variant: 'destructive', text: 'Expired' } as const
+        return { variant: 'destructive', text: 'Expired', expired: true, awaitingPayment: false } as const
       case 'active':
-        return { variant: 'default', text: 'Active' } as const
+        return { variant: 'default', text: 'Active', expired: false, awaitingPayment: false } as const
     }
 
-    if (active) return { variant: 'default', text: 'Active' } as const
-    return { variant: 'destructive', text: 'Expired' } as const
+    if (active) return { variant: 'default', text: 'Active', expired: false, awaitingPayment: false } as const
+    return { variant: 'destructive', text: 'Expired', expired: true, awaitingPayment: false } as const
   }, [status, active])
+
+  const { data: outstandingInvoiceDueDate, isPending: outstandingInvoicePending } = useOutstandingInvoiceDueDateQuery(subscriptionState.awaitingPayment ? stripeCustomerId : null)
+
+  const showTrialStatus = status === 'trialing' && !!trialExpiresAt
+  const showNextBilling = !showTrialStatus && !subscriptionState.expired && !(subscriptionState.awaitingPayment && outstandingInvoicePending)
+  const nextBillingDate = subscriptionState.awaitingPayment && outstandingInvoiceDueDate ? outstandingInvoiceDueDate : nextPhaseStart
 
   const formattedExpiresDate = useMemo(() => {
     try {
@@ -212,17 +218,18 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
               </div>
             )}
             {/* Expiration */}
-            <Badge variant={badge.variant}>{badge.text}</Badge>
+            <Badge variant={subscriptionState.variant}>{subscriptionState.text}</Badge>
           </div>
-          {trialExpiresAt && status === 'trialing' ? (
+          {showTrialStatus && (
             <div className="flex items-center gap-2">
               <p className="text-sm font-medium text-text-informational">Trial status:</p>
               <p className="text-sm text-text-informational">{formattedExpiresDate}</p>
             </div>
-          ) : (
+          )}
+          {showNextBilling && (
             <div className="flex items-center gap-2">
               <p className="text-sm font-medium">Next billing:</p>
-              <p className="text-sm text-text-informational">{nextPhaseStart ? formatDate(nextPhaseStart.toISOString()) : 'N/A'}</p>
+              <p className="text-sm text-text-informational">{nextBillingDate ? formatDate(nextBillingDate.toISOString()) : 'N/A'}</p>
             </div>
           )}
         </div>

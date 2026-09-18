@@ -153,7 +153,7 @@ const NDAsPage = () => {
               <DialogTitle>NDA Preview - {latestFile?.providedFileName}</DialogTitle>
             </DialogHeader>
             <div className="flex-1 w-full overflow-hidden rounded-md border bg-muted">
-              {previewUrl && <iframe src={`${previewUrl}#toolbar=0`} className="w-full h-full" style={{ border: 'none' }} />}
+              {previewUrl && <iframe title="NDA document preview" src={`${previewUrl}#toolbar=0`} className="w-full h-full" style={{ border: 'none' }} />}
             </div>
           </DialogContent>
         </Dialog>

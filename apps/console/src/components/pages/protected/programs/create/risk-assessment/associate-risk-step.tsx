@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useId } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
 import { useRiskSelect } from '@/lib/graphql-hooks/risk'
@@ -8,6 +8,7 @@ import MultipleSelector from '@repo/ui/multiple-selector'
 
 const AssociateRisksStep = () => {
   const { control } = useFormContext()
+  const riskIDsId = useId()
   const { riskOptions } = useRiskSelect()
 
   return (
@@ -29,12 +30,15 @@ const AssociateRisksStep = () => {
 
       {/* Risks selector */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm">Select Existing Risks</label>
+        <label className="text-sm" htmlFor={riskIDsId}>
+          Select Existing Risks
+        </label>
         <Controller
           control={control}
           name="riskIDs"
           render={({ field }) => (
             <MultipleSelector
+              inputProps={{ id: riskIDsId }}
               placeholder="Select risks from the list"
               options={riskOptions}
               value={riskOptions.filter((o) => field.value?.includes(o.value))}

@@ -1,15 +1,16 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { VendorLogo } from './vendor-logo'
-import type { LinkableItem } from '../types'
+import type { DomainScanSummaryItem } from '../types'
 
 type SidebarGroupRowProps = {
   title: string
-  items: LinkableItem[]
+  items: DomainScanSummaryItem[]
   onEdit: () => void
 }
 
@@ -18,7 +19,7 @@ export const SidebarGroupRow = ({ title, items, onEdit }: SidebarGroupRowProps) 
 
   return (
     <div>
-      <div className="flex cursor-pointer items-center justify-between px-4 py-3 select-none" onClick={() => setOpen((value) => !value)}>
+      <div className="flex cursor-pointer items-center justify-between px-4 py-3 select-none" {...activatable(() => setOpen((value) => !value))}>
         <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           {title}
           <Badge variant="secondary">{items.length}</Badge>

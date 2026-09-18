@@ -31,7 +31,6 @@ export const CustomClassNames: Story = {
   args: {
     showOutsideDays: true,
     classNames: {
-      nav_button: 'custom-nav-button',
       day_selected: 'custom-day-selected',
     },
   },

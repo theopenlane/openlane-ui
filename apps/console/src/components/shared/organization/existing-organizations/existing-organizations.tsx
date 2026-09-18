@@ -49,9 +49,13 @@ export const ExistingOrganizations = () => {
         return
       }
 
-      if (sessionData && response) {
+      if (!response.access_token) {
+        errorNotification({ title: 'Unable to switch organization', description: response.message ?? 'Please try again.' })
+        return
+      }
+
+      if (sessionData) {
         await updateSession({
-          ...response.session,
           user: {
             ...sessionData.user,
             accessToken: response.access_token,
@@ -88,9 +92,13 @@ export const ExistingOrganizations = () => {
           return
         }
 
-        if (sessionData && response) {
+        if (!response.access_token) {
+          errorNotification({ title: 'Unable to switch organization', description: response.message ?? 'Please try again.' })
+          return
+        }
+
+        if (sessionData) {
           await updateSession({
-            ...response.session,
             user: {
               ...sessionData.user,
               accessToken: response.access_token,

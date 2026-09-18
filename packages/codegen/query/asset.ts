@@ -9,6 +9,11 @@ export const GET_ALL_ASSETS = gql`
           id
           name
           internalOwner
+          internalOwnerIdentityHolder {
+            id
+            fullName
+            email
+          }
           internalOwnerGroup {
             id
             displayName
@@ -72,6 +77,11 @@ export const ASSET = gql`
       id
       name
       internalOwner
+      internalOwnerIdentityHolder {
+        id
+        fullName
+        email
+      }
       internalOwnerGroup {
         id
         displayName

@@ -14,8 +14,7 @@ import { OrganizationSelector } from '@/components/shared/organization-selector/
 import Menu from '@/components/shared/menu/menu'
 import CreateMenu from '@/components/shared/sidebar/create-menu/create-menu'
 import { CONTRIBUTE_URL, SUPPORT_URL } from '@/constants'
-import { featureUtil } from '@/lib/subscription-plan/plans'
-import { useIsNavItemLocked } from '@/lib/subscription-plan/hooks/use-module-access'
+import { useBillingExpired, useIsNavItemLocked } from '@/lib/subscription-plan/hooks/use-module-access'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { Button } from '@repo/ui/button'
 import { DOCS_URL } from '@/constants/docs'
@@ -108,7 +107,7 @@ export default function SideNav({
   const isLocked = useIsNavItemLocked()
 
   const sidebarItems = [...navItems, ...footerNavItems]
-  const billingExpired = featureUtil.hasNoModules(session)
+  const billingExpired = useBillingExpired()
 
   useEffect(() => {
     if (sessionStatus === 'loading' || openPanel) {

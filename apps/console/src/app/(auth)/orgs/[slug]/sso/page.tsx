@@ -7,6 +7,7 @@ import { Logo } from '@repo/ui/logo'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { OPENLANE_WEBSITE_URL, SUPPORT_URL } from '@/constants'
+import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
 
 // SSOInitiatePage is the public, shareable per-organization SSO entry point, e.g. /orgs/<slug>/sso. It
 // mirrors GitHub's org SSO landing: a Continue action that starts the identity provider flow. The backend
@@ -38,7 +39,7 @@ const SSOInitiatePage: React.FC = () => {
       const data = await response.json()
 
       if (response.ok && data.success && data.redirect_uri) {
-        window.location.href = data.redirect_uri
+        startSsoRedirect(data.redirect_uri)
         return
       }
 

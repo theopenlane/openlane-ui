@@ -1,15 +1,15 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
 import { formatDate, formatCurrency } from '@/utils/date'
-import { ExternalLink } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
-import { normalizeUrl } from '@/utils/normalizeUrl'
+import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 import { cn } from '@repo/ui/lib/utils'
 import { useRef } from 'react'
 
@@ -115,7 +115,9 @@ export const TextField = <TUpdateInput,>({
     }
   }
 
-  const resolvedPrefix = type === 'currency' ? '$' : type === 'link' ? 'https://' : prefix
+  const resolvedPrefix = type === 'currency' ? '$' : prefix
+  const resolvedPlaceholder = type === 'link' ? (placeholder ?? 'https://example.com') : placeholder
+  const inputType = type === 'link' || type === 'currency' ? 'text' : type
 
   const popoverRef = useRef<HTMLDivElement>(null)
 
@@ -131,16 +133,7 @@ export const TextField = <TUpdateInput,>({
     }
 
     if (type === 'link') {
-      return value ? (
-        <a href={normalizeUrl(value)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 min-w-0 max-w-full" onClick={(e) => e.stopPropagation()}>
-          <span className="truncate" title={normalizeUrl(value)}>
-            {normalizeUrl(value)}
-          </span>
-          <ExternalLink className="w-4 h-4 ml-1 shrink-0" />
-        </a>
-      ) : (
-        notSet
-      )
+      return <ExternalLinkValue value={value} fallback={notSet} />
     }
 
     if (!value) {
@@ -187,9 +180,9 @@ export const TextField = <TUpdateInput,>({
                   className="w-full"
                   {...field}
                   value={field.value ?? ''}
-                  type={type}
+                  type={inputType}
                   prefix={resolvedPrefix}
-                  placeholder={placeholder}
+                  placeholder={resolvedPlaceholder}
                   onBlur={handleBlur}
                   onKeyDown={handleKeyDown}
                   autoFocus={internalEditing === name}
@@ -198,12 +191,12 @@ export const TextField = <TUpdateInput,>({
             ) : (
               <div
                 className={cn(
-                  'text-sm py-2 rounded-md px-1 w-full',
+                  'text-sm py-2 rounded-md px-1 w-full min-w-0',
                   isEditAllowed ? 'cursor-pointer hover:bg-accent' : 'cursor-not-allowed',
                   layout === 'horizontal' && 'text-right',
                   multiline && 'whitespace-pre-wrap',
                 )}
-                onClick={handleClick}
+                {...activatable(isEditAllowed ? handleClick : undefined)}
               >
                 {type === 'number' ? (
                   <div ref={popoverRef} className="w-full flex items-center gap-4">
@@ -219,7 +212,7 @@ export const TextField = <TUpdateInput,>({
                 ) : displaySuffix ? (
                   <div className="flex items-center justify-between gap-2 w-full">
                     <div className={cn('min-w-0', layout === 'horizontal' && 'text-right')}>{renderDisplayValue()}</div>
-                    <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <div role="presentation" className="shrink-0" onClick={(e) => e.stopPropagation()}>
                       {displaySuffix}
                     </div>
                   </div>

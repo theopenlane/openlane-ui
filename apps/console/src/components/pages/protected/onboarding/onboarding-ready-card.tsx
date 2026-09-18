@@ -2,8 +2,7 @@ import { ArrowRight, Box, Server, ShieldAlert, Users } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
-
-const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
+import { isRecord } from '@/utils/type-guards'
 
 const countArray = (value: unknown): number => (Array.isArray(value) ? value.length : 0)
 
@@ -35,7 +34,7 @@ const OnboardingReadyCard = ({ totalSteps, scanData, hasScanReport, primaryDomai
   const stats = domainScanStats(scanData)
 
   return (
-    <Card className="w-full min-h-96 p-7 md:p-8 shadow-lg rounded-xl">
+    <Card className="w-full min-h-96 p-5 sm:p-8 shadow-lg rounded-xl">
       <div className="flex flex-col gap-3 mb-8 w-full">
         <Badge variant="primary" className="w-fit uppercase tracking-wide border-primary/24">
           Step {totalSteps} of {totalSteps}

@@ -403,6 +403,7 @@ const MultipleSelector = ({
       filter={commandFilter()}
     >
       <div
+        role="presentation"
         className={cn(
           'min-h-10 rounded-md border bg-input text-base md:text-sm px-3 py-2',
           {

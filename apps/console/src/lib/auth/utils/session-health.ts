@@ -26,8 +26,11 @@ export class SessionUnavailableError extends Error {
   }
 }
 
-let inFlightProbe: Promise<SessionProbeResult> | null = null
+let inFlightProbe: { promise: Promise<SessionProbeResult>; generation: number; startedAt: number } | null = null
 let cachedProbe: { result: SessionProbeResult; expiresAt: number } | null = null
+let probeGeneration = 0
+let probeSequence = 0
+let latestSettledSequence = 0
 
 const runProbe = async (): Promise<SessionProbeResult> => {
   let response: Response
@@ -55,25 +58,39 @@ const runProbe = async (): Promise<SessionProbeResult> => {
 
 export const resetSessionProbe = () => {
   cachedProbe = null
+  probeGeneration += 1
 }
 
-export const probeSession = async ({ maxAgeMs = PROBE_CACHE_MS }: { maxAgeMs?: number } = {}): Promise<SessionProbeResult> => {
-  if (maxAgeMs > 0 && cachedProbe && Date.now() < cachedProbe.expiresAt) {
+export const probeSession = async ({ maxAgeMs = PROBE_CACHE_MS, notBefore }: { maxAgeMs?: number; notBefore?: number } = {}): Promise<SessionProbeResult> => {
+  if (notBefore === undefined && maxAgeMs > 0 && cachedProbe && Date.now() < cachedProbe.expiresAt) {
     return cachedProbe.result
   }
 
-  if (inFlightProbe) {
-    return inFlightProbe
+  const startedGeneration = probeGeneration
+  const current = inFlightProbe
+
+  if (current && current.generation === startedGeneration && (notBefore === undefined || current.startedAt >= notBefore)) {
+    return current.promise
   }
 
-  inFlightProbe = runProbe()
+  const startedSequence = ++probeSequence
+
+  const promise = runProbe()
     .then((result) => {
-      cachedProbe = { result, expiresAt: Date.now() + PROBE_CACHE_MS }
+      if (probeGeneration === startedGeneration && startedSequence > latestSettledSequence) {
+        latestSettledSequence = startedSequence
+        cachedProbe = { result, expiresAt: Date.now() + PROBE_CACHE_MS }
+      }
+
       return result
     })
     .finally(() => {
-      inFlightProbe = null
+      if (inFlightProbe?.promise === promise) {
+        inFlightProbe = null
+      }
     })
 
-  return inFlightProbe
+  inFlightProbe = { promise, generation: startedGeneration, startedAt: Date.now() }
+
+  return promise
 }

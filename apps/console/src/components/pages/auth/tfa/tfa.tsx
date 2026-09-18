@@ -1,17 +1,20 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState, useMemo } from 'react'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
 import { useNotification } from '@/hooks/useNotification'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 
 const TfaPage: React.FC = () => {
   const [otpValue, setOtpValue] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { data: sessionData, update: updateSession } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isSecret, setIsSecret] = useState(false)
   const [error, setError] = useState<string>('')
   const { errorNotification } = useNotification()
@@ -26,11 +29,11 @@ const TfaPage: React.FC = () => {
             <>
               <p className="text-sm text-text-light">Want to go back to authenticator? Click&nbsp;</p>
               <p
-                onClick={() => {
+                {...activatable(() => {
                   setIsSecret(false)
                   setOtpValue('')
                   setError('')
-                }}
+                })}
                 className="text-sm underline cursor-pointer text-primary"
               >
                 here
@@ -45,11 +48,11 @@ const TfaPage: React.FC = () => {
             <>
               <p className="text-sm text-text-light">Don&apos;t have access to your app? Click&nbsp;</p>
               <p
-                onClick={() => {
+                {...activatable(() => {
                   setIsSecret(true)
                   setOtpValue('')
                   setError('')
-                }}
+                })}
                 className="text-sm underline cursor-pointer text-primary"
               >
                 here
@@ -74,8 +77,10 @@ const TfaPage: React.FC = () => {
       },
     })
 
+    const redirectTo = sanitizeLoginRedirect(searchParams?.get('redirect'), '/dashboard')
+
     setTimeout(() => {
-      router.push('/dashboard')
+      router.push(redirectTo)
     }, 1000)
   }
 
@@ -117,7 +122,7 @@ const TfaPage: React.FC = () => {
       <h1 className="text-3xl mb-20 text-text-light">Two-Factor Authentication</h1>
       <div className="flex flex-col items-center gap-4">
         <p className="text-sm text-text-light">{config.title}</p>
-        <InputOTP value={otpValue} maxLength={otpLength} onChange={handleOtpChange} containerClassName="gap-2">
+        <InputOTP key={otpLength} autoFocus value={otpValue} maxLength={otpLength} onChange={handleOtpChange} containerClassName="gap-2">
           <InputOTPGroup className="text-text-light">
             {Array.from({ length: otpLength }).map((_, index) => (
               <InputOTPSlot key={index} index={index} />

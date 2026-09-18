@@ -21,7 +21,7 @@ function buildSelectColumn<T extends { id: string }>(
       const allSelected = currentPageItems.length > 0 && currentPageItems.every((item) => selectedItems.some((sc) => sc.id === item.id))
 
       return (
-        <div onClick={(e) => e.stopPropagation()}>
+        <div role="presentation" onClick={(e) => e.stopPropagation()}>
           <Checkbox
             aria-label="Select all rows on this page"
             checked={allSelected}
@@ -45,7 +45,7 @@ function buildSelectColumn<T extends { id: string }>(
       const isChecked = selectedItems.some((c) => c.id === id)
 
       return (
-        <div onClick={(e) => e.stopPropagation()}>
+        <div role="presentation" onClick={(e) => e.stopPropagation()}>
           <Checkbox
             aria-label="Select row"
             checked={isChecked}

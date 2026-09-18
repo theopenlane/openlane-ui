@@ -31,6 +31,8 @@ import {
   type DeleteBulkTrustCenterNdaRequestMutationVariables,
   TemplateTemplateKind,
 } from '@repo/codegen/src/schema'
+import { startOfDay, subDays } from 'date-fns'
+import { STATS_WINDOW_DAYS } from '@/constants/stats'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 
@@ -108,27 +110,26 @@ export const useUpdateTrustCenterNdaRequest = () => {
   })
 }
 
-export const useGetNDAStats = ({ ndaApprovalRequired, enabled = true }: { ndaApprovalRequired: boolean; enabled: boolean }) => {
+const statsWindowStart = () => startOfDay(subDays(new Date(), STATS_WINDOW_DAYS)).toISOString()
+
+export const ndaRequestsWhere = {
+  needingApproval: (): TrustCenterNdaRequestWhereInput => ({ status: TrustCenterNdaRequestTrustCenterNdaRequestStatus.NEEDS_APPROVAL }),
+  signedWithinWindow: (): TrustCenterNdaRequestWhereInput => ({ signedAtGTE: statsWindowStart() }),
+  createdWithinWindow: (): TrustCenterNdaRequestWhereInput => ({ createdAtGTE: statsWindowStart() }),
+}
+
+export const useGetNdaRequestCount = ({ where, enabled = true }: { where: TrustCenterNdaRequestWhereInput; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetNdaRequestCountQuery>({
-    queryKey: ['ndaRequestsCount', ndaApprovalRequired],
-    queryFn: () => {
-      const thirtyDaysAgo = new Date()
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-
-      const variables: GetNdaRequestCountQueryVariables = {
-        where: ndaApprovalRequired ? { status: TrustCenterNdaRequestTrustCenterNdaRequestStatus.NEEDS_APPROVAL } : { createdAtGTE: thirtyDaysAgo.toISOString() },
-      }
-
-      return client.request<GetNdaRequestCountQuery>(GET_NDA_REQUESTS_COUNT, variables)
-    },
+    queryKey: ['trustCenter', 'ndaRequests', 'count', where],
+    queryFn: () => client.request<GetNdaRequestCountQuery, GetNdaRequestCountQueryVariables>(GET_NDA_REQUESTS_COUNT, { where }),
     enabled,
   })
 
   return {
     ...queryResult,
-    count: queryResult.data?.trustCenterNdaRequests?.totalCount ?? 0,
+    totalCount: queryResult.data?.trustCenterNdaRequests?.totalCount ?? 0,
   }
 }
 

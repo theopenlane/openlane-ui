@@ -1,10 +1,7 @@
 'use client'
 
 import React, { useCallback, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
-import { ChevronDown, ChevronRight, ExternalLink, PanelRightClose } from 'lucide-react'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { DocumentStatusBadge } from '@/components/shared/enum-mapper/policy-enum'
 import PlateEditor from '@/components/shared/plate/plate-editor'
@@ -24,6 +21,7 @@ import { type Value } from 'platejs'
 import { type Group, type ProcedureByIdFragment } from '@repo/codegen/src/schema'
 import { resolveAuthor } from '@/lib/authors'
 import { GenericDetailsSheet, type RenderFieldsProps, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
+import { SlideoutPreviewHeader } from '@/components/shared/crud-base/slideout-preview-header'
 import { useForm } from 'react-hook-form'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -33,7 +31,6 @@ type Props = {
 }
 
 export const ViewProcedureSheet: React.FC<Props> = ({ procedureId, onClose }) => {
-  const router = useRouter()
   const [detailsOpen, setDetailsOpen] = useState(true)
   const form = useForm()
   const normalizeData = useCallback(() => ({}), [])
@@ -111,32 +108,8 @@ export const ViewProcedureSheet: React.FC<Props> = ({ procedureId, onClose }) =>
   )
 
   const renderHeader = useCallback(
-    ({ close }: RenderHeaderProps) => (
-      <SheetHeader>
-        <SheetTitle className="sr-only">Procedure</SheetTitle>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <PanelRightClose size={16} className="cursor-pointer" onClick={close} />
-          </div>
-          <div className="flex items-center gap-2 mr-6">
-            <Button
-              variant="secondary"
-              icon={<ExternalLink />}
-              iconPosition="left"
-              onClick={() => {
-                if (procedureId) {
-                  close()
-                  router.push(`/procedures/${procedureId}/view`)
-                }
-              }}
-            >
-              Open Full
-            </Button>
-          </div>
-        </div>
-      </SheetHeader>
-    ),
-    [procedureId, router],
+    ({ close }: RenderHeaderProps) => <SlideoutPreviewHeader title="Procedure" close={close} fullPagePath={procedureId ? `/procedures/${procedureId}/view` : null} />,
+    [procedureId],
   )
 
   const renderFields = useCallback(

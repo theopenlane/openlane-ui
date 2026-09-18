@@ -74,7 +74,6 @@ export const CreateOrganizationForm = () => {
 
         if (switchResponse) {
           await update({
-            ...switchResponse.session,
             user: {
               ...session.user,
               accessToken: switchResponse.access_token,

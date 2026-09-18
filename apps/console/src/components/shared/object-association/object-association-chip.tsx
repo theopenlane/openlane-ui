@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState } from 'react'
 import { ExternalLink, Info, PencilLine, SlidersHorizontal } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -71,7 +72,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
                 <span className="font-medium">Name</span>
               </div>
               <div className="w-full border-b pb-2">
-                <span className="text-brand pl-3 cursor-pointer hover:underline inline-flex items-center gap-1" onClick={handleNavigate}>
+                <span className="text-brand pl-3 cursor-pointer hover:underline inline-flex items-center gap-1" {...activatable(handleNavigate)}>
                   {display.name}
                   <ExternalLink size={12} />
                 </span>

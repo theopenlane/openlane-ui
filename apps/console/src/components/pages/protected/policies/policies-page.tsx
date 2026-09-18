@@ -4,12 +4,9 @@ import { PoliciesTable } from './table/policies-table'
 import PoliciesDashboard from './policies-dashboard/policies-dashboard'
 import PoliciesEmptyState from './policies-empty/policies-empty-state'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { SlidersHorizontal, SquarePlus } from 'lucide-react'
+import { SlidersHorizontal } from 'lucide-react'
+import CreatePolicyButton from '@/components/pages/protected/policies/create-policy-button'
 import { Button } from '@repo/ui/button'
-import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import Link from 'next/link'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { Checkbox } from '@repo/ui/checkbox'
 import { getFiltersUpdatedEvent, isStringArray, loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
@@ -20,7 +17,6 @@ import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-swi
 import { useInternalPoliciesCount } from '@/lib/graphql-hooks/internal-policy'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useSession } from 'next-auth/react'
 import { SuggestedPolicyCoverage } from '@/components/pages/protected/policies/suggested-policy-coverage'
 
 type TPoliciesPageProps = {
@@ -30,8 +26,6 @@ type TPoliciesPageProps = {
 
 const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
   const { currentOrgId } = useOrganization()
-  const { data: permission } = useOrganizationRoles()
-  const { data: session } = useSession()
   const { groupOptions } = useGroupSelect()
   const { setCrumbs } = use(BreadcrumbContext)
   const { isLoading: fetching, totalCount } = useInternalPoliciesCount({
@@ -123,13 +117,7 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
               </DropdownMenu>
             )}
 
-            {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && totalCount > 0 && (
-              <Link href="/policies/create">
-                <Button className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
-                  Create
-                </Button>
-              </Link>
-            )}
+            {totalCount > 0 && <CreatePolicyButton />}
           </div>
         )}
       </div>

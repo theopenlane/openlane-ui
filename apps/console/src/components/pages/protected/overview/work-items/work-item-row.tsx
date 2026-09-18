@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import React from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
@@ -17,7 +18,7 @@ type WorkItemRowProps = {
 }
 
 const WorkItemRow = ({ item, showKindLabel = false }: WorkItemRowProps) => (
-  <div className={WORK_ITEM_ROW_CLASS} style={item.kindColor ? { borderLeftColor: item.kindColor, borderLeftWidth: 3 } : undefined} onClick={item.onClick}>
+  <div className={WORK_ITEM_ROW_CLASS} style={item.kindColor ? { borderLeftColor: item.kindColor, borderLeftWidth: 3 } : undefined} {...activatable(item.onClick)}>
     <div className="min-w-0 flex-1">
       <p className="text-sm font-medium truncate">
         {showKindLabel && item.kind !== UNCATEGORIZED_KIND && <span className="text-xs font-normal uppercase tracking-wider text-muted-foreground">{item.kind}: </span>}

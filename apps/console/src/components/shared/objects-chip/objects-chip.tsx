@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import { XIcon } from 'lucide-react'
 
 type TObjectsChipProps = {
@@ -13,7 +14,7 @@ const ObjectsChip = ({ name, objectType, removable, onRemove, onClick }: TObject
 
   return (
     <div
-      onClick={onClick}
+      {...activatable(onClick)}
       className={`inline-flex gap-1 bg-secondary items-center rounded-full px-2.5 py-0.5 border text-xs font-semibold transition-colors focus:outline-hidden h-fit shrink-0 ${borderClass} ${onClick ? 'cursor-pointer' : ''}`}
     >
       {name}

@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { MoreHorizontal, ShieldCheck, ShieldOff, ShieldPlus, Trash2, UserRoundPen, UsersRound } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
@@ -238,7 +239,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
                     e.preventDefault()
                   }}
                 >
-                  <div className="flex" onClick={() => setShowDeleteConfirmation(true)}>
+                  <div className="flex" {...activatable(() => setShowDeleteConfirmation(true))}>
                     <Trash2 width={ICON_SIZE} /> &nbsp; Remove Member
                   </div>
                   <ConfirmationDialog

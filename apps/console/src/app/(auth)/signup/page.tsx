@@ -3,6 +3,7 @@ import AuthMarketingPanel from '@/components/shared/auth-marketing-panel/auth-ma
 import { SignupPage } from '@/components/pages/auth/signup/signup'
 import { type Metadata } from 'next'
 import { Logo } from '@repo/ui/logo'
+import HubspotTracking from '@/components/shared/hubspot/hubspot-tracking'
 
 export const metadata: Metadata = {
   title: 'Signup',
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 const AuthLogin: React.FC = () => {
   return (
     <>
+      <HubspotTracking />
       <Suspense>
         <div className="flex h-full w-full min-h-screen">
           <div className="flex flex-col justify-between items-center w-full lg:w-4/5 relative">

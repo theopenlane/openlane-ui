@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { FileText, FolderSync, Info, Star } from 'lucide-react'
+import { FileText, FolderSync, Star } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Switch } from '@repo/ui/switch'
@@ -12,6 +12,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { DOCUMENT_FOLDER_FIELD, PRIMARY_DOCUMENT_FIELD, saveIntegrationConfiguration } from '@/lib/integrations/flow'
 import { getDocumentFolderFieldConfig, readIntegrationUserInput, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
+import { Callout } from '@/components/shared/callout/callout'
 
 type DocumentSyncPromptDialogProps = {
   open: boolean
@@ -118,13 +119,9 @@ const DocumentSyncPromptDialog = ({ open, onOpenChange, provider, integration }:
             </div>
           </div>
 
-          <div className="flex items-start gap-3 rounded-lg border p-4">
-            <Info className="mt-0.5 size-5 shrink-0 text-brand" />
-            <div>
-              <p className="text-sm font-medium">Only one document integration can be primary.</p>
-              <p className="text-xs text-muted-foreground">If another document integration is already primary, setting this one will replace it.</p>
-            </div>
-          </div>
+          <Callout variant="info" title="Only one document integration can be primary." compact>
+            If another document integration is already primary, setting this one will replace it.
+          </Callout>
 
           <DialogFooter className="mt-2">
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} disabled={isSubmitting}>

@@ -54,6 +54,11 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
           id
           identityHolderType
           internalOwner
+          internalOwnerIdentityHolder {
+            id
+            fullName
+            email
+          }
           internalOwnerGroup {
             id
             displayName
@@ -90,16 +95,24 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
   }
 `
 
+const IDENTITY_HOLDER_OPTION_FIELDS = gql`
+  fragment IdentityHolderOptionFields on IdentityHolder {
+    id
+    email
+    fullName
+    identityHolderType
+    isOpenlaneUser
+  }
+`
+
 export const GET_IDENTITY_HOLDER_OPTIONS = gql`
+  ${IDENTITY_HOLDER_OPTION_FIELDS}
   query GetIdentityHolderOptions($where: IdentityHolderWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     identityHolders(where: $where, first: $first, after: $after, last: $last, before: $before) {
       totalCount
       edges {
         node {
-          id
-          email
-          fullName
-          identityHolderType
+          ...IdentityHolderOptionFields
         }
       }
       pageInfo {
@@ -135,6 +148,11 @@ export const IDENTITY_HOLDER = gql`
       id
       identityHolderType
       internalOwner
+      internalOwnerIdentityHolder {
+        id
+        fullName
+        email
+      }
       internalOwnerGroup {
         id
         displayName
@@ -234,10 +252,11 @@ export const GET_IDENTITY_HOLDER_FILES_PAGINATED = gql`
         totalCount
         edges {
           node {
+            name
             providedFileName
             providedFileSize
             providedFileExtension
-            categoryType
+            categoryName
             createdAt
             id
             uri
@@ -250,8 +269,8 @@ export const GET_IDENTITY_HOLDER_FILES_PAGINATED = gql`
 `
 
 export const UPDATE_IDENTITY_HOLDER_WITH_FILES = gql`
-  mutation UpdateIdentityHolderWithFiles($updateIdentityHolderId: ID!, $input: UpdateIdentityHolderInput!, $identityHolderFiles: [Upload!]) {
-    updateIdentityHolder(id: $updateIdentityHolderId, input: $input, identityHolderFiles: $identityHolderFiles) {
+  mutation UpdateIdentityHolderWithFiles($updateIdentityHolderId: ID!, $input: UpdateIdentityHolderInput!, $identityHolderFiles: [Upload!], $identityHolderFilesMetadata: [FileMetadataInput!]) {
+    updateIdentityHolder(id: $updateIdentityHolderId, input: $input, identityHolderFiles: $identityHolderFiles, identityHolderFilesMetadata: $identityHolderFilesMetadata) {
       identityHolder {
         id
       }

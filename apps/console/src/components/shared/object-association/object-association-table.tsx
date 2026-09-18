@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { Checkbox } from '@repo/ui/checkbox'
@@ -21,53 +21,65 @@ type Props = {
   onRowClick?: (id: string) => void
 }
 
+type TSelection = {
+  ids: TObjectAssociationMap
+  refCodes: TObjectAssociationMap
+}
+
+type TSelectableRow = TableRow & { isSelected: boolean }
+
+const isSelectedRow = (row: TableRow, ids: TObjectAssociationMap): boolean => !!row.id && !!row.inputName && (ids[row.inputName] ?? []).includes(row.id)
+
 const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitialData, onPaginationChange, pagination, paginationMeta, isLoading, onRowClick }: Props) => {
-  const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>(() => initialData ?? {})
-  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>(() => refCodeInitialData ?? {})
+  const [selection, setSelection] = useState<TSelection>(() => ({ ids: initialData ?? {}, refCodes: refCodeInitialData ?? {} }))
+  const selectionRef = useRef(selection)
 
   useEffect(() => {
-    if (initialData) setSelectedIdsMap(initialData)
-    if (refCodeInitialData) setSelectedRefCodeMap(refCodeInitialData)
+    if (!initialData && !refCodeInitialData) return
+    const seeded = { ids: initialData ?? selectionRef.current.ids, refCodes: refCodeInitialData ?? selectionRef.current.refCodes }
+    selectionRef.current = seeded
+    setSelection(seeded)
   }, [initialData, refCodeInitialData])
 
-  useEffect(() => {
-    onIDsChange(selectedIdsMap, selectedRefCodeMap)
-  }, [selectedIdsMap, selectedRefCodeMap, onIDsChange])
+  const applySelection = (computeNext: (previous: TSelection) => TSelection) => {
+    const next = computeNext(selectionRef.current)
+    selectionRef.current = next
+    setSelection(next)
+    onIDsChange(next.ids, next.refCodes)
+  }
 
   const showFramework = data.some((row) => 'referenceFramework' in row)
 
-  const columns: ColumnDef<TableRow>[] = [
+  const columns: ColumnDef<TSelectableRow>[] = [
     {
       id: 'select',
       header: ({ table }) => {
         const currentPageRows = table.getRowModel().rows.map((row) => row.original)
 
-        const validRows = currentPageRows.filter((row): row is TableRow & { id: string; inputName: string } => !!row.id && !!row.inputName)
+        const validRows = currentPageRows.filter((row): row is TSelectableRow & { id: string; inputName: string } => !!row.id && !!row.inputName)
 
-        const allSelected = validRows.length > 0 && validRows.every((row) => (selectedIdsMap[row.inputName] ?? []).includes(row.id))
+        const allSelected = validRows.length > 0 && validRows.every((row) => row.isSelected)
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox
               checked={allSelected}
               onCheckedChange={(isChecked: boolean) => {
-                setSelectedIdsMap((prev) => {
-                  const updated = { ...prev }
+                applySelection((previous) => {
+                  const ids = { ...previous.ids }
                   validRows.forEach(({ id, inputName }) => {
-                    const current = updated[inputName] ?? []
-                    updated[inputName] = isChecked ? [...new Set([...current, id])] : current.filter((v) => v !== id)
+                    const current = ids[inputName] ?? []
+                    ids[inputName] = isChecked ? [...new Set([...current, id])] : current.filter((v) => v !== id)
                   })
-                  return updated
-                })
 
-                setSelectedRefCodeMap((prev) => {
-                  const updated = { ...prev }
+                  const refCodes = { ...previous.refCodes }
                   validRows.forEach(({ refCode, inputName }) => {
                     if (!refCode) return
-                    const current = updated[inputName] ?? []
-                    updated[inputName] = isChecked ? [...new Set([...current, refCode])] : current.filter((v) => v !== refCode)
+                    const current = refCodes[inputName] ?? []
+                    refCodes[inputName] = isChecked ? [...new Set([...current, refCode])] : current.filter((v) => v !== refCode)
                   })
-                  return updated
+
+                  return { ids, refCodes }
                 })
               }}
             />
@@ -75,34 +87,32 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
         )
       },
       cell: ({ row }) => {
-        const { id, refCode, inputName } = row.original
+        const { id, refCode, inputName, isSelected } = row.original
         if (!id || !inputName) return null
 
-        const checked = selectedIdsMap[inputName]?.includes(id) ?? false
-
         const toggleChecked = (isChecked: boolean) => {
-          setSelectedIdsMap((prev) => {
-            const current = prev[inputName] ?? []
-            return {
-              ...prev,
-              [inputName]: isChecked ? (current.includes(id) ? current : [...current, id]) : current.filter((v) => v !== id),
+          applySelection((previous) => {
+            const currentIds = previous.ids[inputName] ?? []
+            const ids = {
+              ...previous.ids,
+              [inputName]: isChecked ? (currentIds.includes(id) ? currentIds : [...currentIds, id]) : currentIds.filter((v) => v !== id),
             }
-          })
 
-          if (refCode) {
-            setSelectedRefCodeMap((prev) => {
-              const current = prev[inputName] ?? []
-              return {
-                ...prev,
-                [inputName]: isChecked ? (current.includes(refCode) ? current : [...current, refCode]) : current.filter((v) => v !== refCode),
-              }
-            })
-          }
+            if (!refCode) return { ids, refCodes: previous.refCodes }
+
+            const currentRefCodes = previous.refCodes[inputName] ?? []
+            const refCodes = {
+              ...previous.refCodes,
+              [inputName]: isChecked ? (currentRefCodes.includes(refCode) ? currentRefCodes : [...currentRefCodes, refCode]) : currentRefCodes.filter((v) => v !== refCode),
+            }
+
+            return { ids, refCodes }
+          })
         }
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={checked} onCheckedChange={toggleChecked} />
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
+            <Checkbox checked={isSelected} onCheckedChange={toggleChecked} />
           </div>
         )
       },
@@ -127,17 +137,13 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
             header: 'Framework',
             size: 100,
             maxSize: 100,
-            cell: ({ row }: { row: { original: TableRow } }) => <span className="block truncate">{row.original.referenceFramework ?? '—'}</span>,
-          } satisfies ColumnDef<TableRow>,
+            cell: ({ row }: { row: { original: TSelectableRow } }) => <span className="block truncate">{row.original.referenceFramework ?? '—'}</span>,
+          } satisfies ColumnDef<TSelectableRow>,
         ]
       : []),
   ]
 
-  // Force new data reference when selection changes so the memoized DataTable body re-renders
-  const tableData = useMemo(() => {
-    void selectedIdsMap
-    return [...data]
-  }, [data, selectedIdsMap])
+  const tableData = useMemo<TSelectableRow[]>(() => data.map((row) => ({ ...row, isSelected: isSelectedRow(row, selection.ids) })), [data, selection])
 
   return (
     <DataTable

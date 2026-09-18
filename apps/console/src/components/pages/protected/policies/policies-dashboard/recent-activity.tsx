@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo, useState } from 'react'
 import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/internal-policy'
 import { wherePoliciesDashboard } from './dashboard-config'
@@ -49,8 +50,8 @@ const RecentActivity = () => {
           const timestamp = isCreated ? policy.createdAt : policy.updatedAt
           const formattedDate = formatDate(timestamp)
           return (
-            <li key={policy.id} className={cn('flex justify-between items-center border-b pb-2 last:border-b-0 cursor-pointer')} onClick={() => setSelectedPolicyId(policy.id)}>
-              <div className="flex-1 flex justify-between items-center">
+            <li key={policy.id} className={cn('flex justify-between items-center border-b pb-2 last:border-b-0')}>
+              <div className="flex-1 flex justify-between items-center cursor-pointer" {...activatable(() => setSelectedPolicyId(policy.id))}>
                 <div className="flex items-center gap-3">
                   <span className="text-sm flex items-center gap-1">
                     <strong>{policy.name}</strong> was {action} by

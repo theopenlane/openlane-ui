@@ -6,41 +6,17 @@ import { Building2 } from 'lucide-react'
 import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import ViewVendorSheet from '@/components/pages/protected/vendors/view-vendor-sheet'
 import { VendorStatusBadge } from '@/components/shared/enum-mapper/vendor-enum'
-import { type EntityEntityStatus } from '@repo/codegen/src/schema'
-
-type VendorOwnerUser = {
-  id: string
-  displayName?: string | null
-  email?: string | null
-}
-
-type VendorOwnerGroup = {
-  id: string
-  displayName?: string | null
-}
-
-type VendorNode = {
-  id: string
-  name?: string | null
-  displayName?: string | null
-  status?: EntityEntityStatus | null
-  logoFile?: { base64?: string | null } | null
-  internalOwner?: string | null
-  internalOwnerUser?: VendorOwnerUser | null
-  internalOwnerGroup?: VendorOwnerGroup | null
-}
+import { type PlatformLinkedVendor } from '@/lib/graphql-hooks/platform'
 
 interface PlatformVendorsTableProps {
-  platformId: string
-  inScopeVendors: VendorNode[]
-  outOfScopeVendors: VendorNode[]
-  canEdit: boolean
+  inScopeVendors: PlatformLinkedVendor[]
+  outOfScopeVendors: PlatformLinkedVendor[]
 }
 
 const HEADER_CELL = 'text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-2'
 const BODY_CELL = 'px-4 py-2.5 align-middle'
 
-const renderOwnerLabel = (vendor: VendorNode) => {
+const renderOwnerLabel = (vendor: PlatformLinkedVendor) => {
   const label = vendor.internalOwnerUser?.displayName ?? vendor.internalOwnerGroup?.displayName ?? vendor.internalOwner ?? null
   if (!label) return <span className="text-muted-foreground">-</span>
   return (
@@ -50,7 +26,7 @@ const renderOwnerLabel = (vendor: VendorNode) => {
   )
 }
 
-const VendorSection: React.FC<{ title: string; vendors: VendorNode[]; outOfScope?: boolean; onRowClick: (id: string) => void }> = ({ title, vendors, outOfScope, onRowClick }) => (
+const VendorSection: React.FC<{ title: string; vendors: PlatformLinkedVendor[]; outOfScope?: boolean; onRowClick: (id: string) => void }> = ({ title, vendors, outOfScope, onRowClick }) => (
   <div className="rounded-md border overflow-hidden">
     <div className="px-4 py-2 bg-muted/30 border-b">
       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">

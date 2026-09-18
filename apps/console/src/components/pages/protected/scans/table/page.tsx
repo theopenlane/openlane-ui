@@ -19,9 +19,9 @@ import ScanDetailView from '../detail/scan-detail-view'
 
 const normalizeData = (data: ScansNodeNonNull | null | undefined) =>
   normalizeEntityData(data, {
-    assignedTo: { user: data?.assignedToUser, group: data?.assignedToGroup, stringValue: data?.assignedTo },
+    assignedTo: { personnel: data?.assignedToIdentityHolder, user: data?.assignedToUser, group: data?.assignedToGroup, stringValue: data?.assignedTo },
     performedBy: { user: data?.performedByUser, group: data?.performedByGroup, stringValue: data?.performedBy },
-    reviewedBy: { user: data?.reviewedByUser, group: data?.reviewedByGroup, stringValue: data?.reviewedBy },
+    reviewedBy: { personnel: data?.reviewedByIdentityHolder, user: data?.reviewedByUser, group: data?.reviewedByGroup, stringValue: data?.reviewedBy },
   })
 
 const ScanPage: React.FC = () => {
@@ -122,7 +122,7 @@ const ScanPage: React.FC = () => {
         scanDate: scanDate instanceof Date ? scanDate.toISOString() : scanDate,
         nextScanRunAt: nextScanRunAt instanceof Date ? nextScanRunAt.toISOString() : nextScanRunAt,
         ...buildResponsibilityPayload('assignedTo', assignedTo, { mode }),
-        ...buildResponsibilityPayload('performedBy', performedBy, { mode }),
+        ...buildResponsibilityPayload('performedBy', performedBy, { mode, allowPersonnel: false }),
         ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode }),
       }
     },

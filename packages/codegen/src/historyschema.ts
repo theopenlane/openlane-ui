@@ -537,6 +537,7 @@ export interface AssetsWithFilterQuery {
         tags: Array<string> | null
         website: string | null
         categories: Array<string> | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerUser: { id: string; displayName: string } | null
         entities: { edges: Array<{ node: { id: string; name: string | null; displayName: string | null } | null } | null> | null }
@@ -583,6 +584,7 @@ export interface AssetQuery {
     tags: Array<string> | null
     website: string | null
     categories: Array<string> | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
     entities: { edges: Array<{ node: { id: string; name: string | null; displayName: string | null } | null } | null> | null }
@@ -2353,7 +2355,6 @@ export interface DirectoryAccountsWithFilterQuery {
         createdAt: any
         createdBy: string | null
         department: string | null
-        directorySyncRunID: string | null
         displayID: string
         displayName: string | null
         environmentID: string | null
@@ -2364,12 +2365,10 @@ export interface DirectoryAccountsWithFilterQuery {
         id: string
         integrationID: string | null
         jobTitle: string | null
-        lastLoginAt: any
         lastSeenIP: string | null
         observedAt: any
         organizationUnit: string | null
         profile: any
-        profileHash: string
         rawProfileFileID: string | null
         scopeID: string | null
         scopeName: string | null
@@ -2393,7 +2392,6 @@ export interface DirectoryAccountQuery {
     createdAt: any
     createdBy: string | null
     department: string | null
-    directorySyncRunID: string | null
     displayID: string
     displayName: string | null
     environmentID: string | null
@@ -2404,12 +2402,10 @@ export interface DirectoryAccountQuery {
     id: string
     integrationID: string | null
     jobTitle: string | null
-    lastLoginAt: any
     lastSeenIP: string | null
     observedAt: any
     organizationUnit: string | null
     profile: any
-    profileHash: string
     rawProfileFileID: string | null
     scopeID: string | null
     scopeName: string | null
@@ -2462,7 +2458,6 @@ export interface DirectoryGroupsWithFilterQuery {
         createdAt: any
         createdBy: string | null
         description: string | null
-        directorySyncRunID: string
         displayID: string
         displayName: string | null
         email: string | null
@@ -2475,7 +2470,6 @@ export interface DirectoryGroupsWithFilterQuery {
         memberCount: number | null
         observedAt: any
         profile: any
-        profileHash: string
         rawProfileFileID: string | null
         scopeID: string | null
         scopeName: string | null
@@ -2497,7 +2491,6 @@ export interface DirectoryGroupQuery {
     createdAt: any
     createdBy: string | null
     description: string | null
-    directorySyncRunID: string
     displayID: string
     displayName: string | null
     email: string | null
@@ -2510,7 +2503,6 @@ export interface DirectoryGroupQuery {
     memberCount: number | null
     observedAt: any
     profile: any
-    profileHash: string
     rawProfileFileID: string | null
     scopeID: string | null
     scopeName: string | null
@@ -2543,192 +2535,6 @@ export type DeleteDirectoryGroupMutationVariables = Exact<{
 
 export interface DeleteDirectoryGroupMutation {
   deleteDirectoryGroup: { deletedID: string }
-}
-
-export type DirectoryMembershipsWithFilterQueryVariables = Exact<{
-  where?: Types.DirectoryMembershipWhereInput | null | undefined
-  orderBy?: Array<Types.DirectoryMembershipOrder> | Types.DirectoryMembershipOrder | null | undefined
-  first?: number | null | undefined
-  after?: any
-  last?: number | null | undefined
-  before?: any
-}>
-
-export interface DirectoryMembershipsWithFilterQuery {
-  directoryMemberships: {
-    totalCount: number
-    edges: Array<{
-      node: {
-        createdAt: any
-        createdBy: string | null
-        directoryAccountID: string
-        directoryGroupID: string
-        directorySyncRunID: string
-        displayID: string
-        environmentID: string | null
-        environmentName: string | null
-        firstSeenAt: any
-        id: string
-        integrationID: string
-        lastConfirmedRunID: string | null
-        lastSeenAt: any
-        metadata: any
-        observedAt: any
-        scopeID: string | null
-        scopeName: string | null
-        source: string | null
-        updatedAt: any
-        updatedBy: string | null
-      } | null
-    } | null> | null
-    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
-  }
-}
-
-export type DirectoryMembershipQueryVariables = Exact<{
-  directoryMembershipId: string
-}>
-
-export interface DirectoryMembershipQuery {
-  directoryMembership: {
-    createdAt: any
-    createdBy: string | null
-    directoryAccountID: string
-    directoryGroupID: string
-    directorySyncRunID: string
-    displayID: string
-    environmentID: string | null
-    environmentName: string | null
-    firstSeenAt: any
-    id: string
-    integrationID: string
-    lastConfirmedRunID: string | null
-    lastSeenAt: any
-    metadata: any
-    observedAt: any
-    scopeID: string | null
-    scopeName: string | null
-    source: string | null
-    updatedAt: any
-    updatedBy: string | null
-  }
-}
-
-export type CreateDirectoryMembershipMutationVariables = Exact<{
-  input: Types.CreateDirectoryMembershipInput
-}>
-
-export interface CreateDirectoryMembershipMutation {
-  createDirectoryMembership: { directoryMembership: { id: string } }
-}
-
-export type UpdateDirectoryMembershipMutationVariables = Exact<{
-  updateDirectoryMembershipId: string
-  input: Types.UpdateDirectoryMembershipInput
-}>
-
-export interface UpdateDirectoryMembershipMutation {
-  updateDirectoryMembership: { directoryMembership: { id: string } }
-}
-
-export type DeleteDirectoryMembershipMutationVariables = Exact<{
-  deleteDirectoryMembershipId: string
-}>
-
-export interface DeleteDirectoryMembershipMutation {
-  deleteDirectoryMembership: { deletedID: string }
-}
-
-export type DirectorySyncRunsWithFilterQueryVariables = Exact<{
-  where?: Types.DirectorySyncRunWhereInput | null | undefined
-  orderBy?: Array<Types.DirectorySyncRunOrder> | Types.DirectorySyncRunOrder | null | undefined
-  first?: number | null | undefined
-  after?: any
-  last?: number | null | undefined
-  before?: any
-}>
-
-export interface DirectorySyncRunsWithFilterQuery {
-  directorySyncRuns: {
-    totalCount: number
-    edges: Array<{
-      node: {
-        completedAt: any
-        createdAt: any
-        createdBy: string | null
-        deltaCount: number
-        displayID: string
-        environmentID: string | null
-        environmentName: string | null
-        error: string | null
-        fullCount: number
-        id: string
-        integrationID: string
-        rawManifestFileID: string | null
-        scopeID: string | null
-        scopeName: string | null
-        sourceCursor: string | null
-        startedAt: any
-        stats: any
-        updatedAt: any
-        updatedBy: string | null
-      } | null
-    } | null> | null
-    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
-  }
-}
-
-export type DirectorySyncRunQueryVariables = Exact<{
-  directorySyncRunId: string
-}>
-
-export interface DirectorySyncRunQuery {
-  directorySyncRun: {
-    completedAt: any
-    createdAt: any
-    createdBy: string | null
-    deltaCount: number
-    displayID: string
-    environmentID: string | null
-    environmentName: string | null
-    error: string | null
-    fullCount: number
-    id: string
-    integrationID: string
-    rawManifestFileID: string | null
-    scopeID: string | null
-    scopeName: string | null
-    sourceCursor: string | null
-    startedAt: any
-    stats: any
-    updatedAt: any
-    updatedBy: string | null
-  }
-}
-
-export type CreateDirectorySyncRunMutationVariables = Exact<{
-  input: Types.CreateDirectorySyncRunInput
-}>
-
-export interface CreateDirectorySyncRunMutation {
-  createDirectorySyncRun: { directorySyncRun: { id: string } }
-}
-
-export type UpdateDirectorySyncRunMutationVariables = Exact<{
-  updateDirectorySyncRunId: string
-  input: Types.UpdateDirectorySyncRunInput
-}>
-
-export interface UpdateDirectorySyncRunMutation {
-  updateDirectorySyncRun: { directorySyncRun: { id: string } }
-}
-
-export type DeleteDirectorySyncRunMutationVariables = Exact<{
-  deleteDirectorySyncRunId: string
-}>
-
-export interface DeleteDirectorySyncRunMutation {
-  deleteDirectorySyncRun: { deletedID: string }
 }
 
 export type CreateDiscussionMutationVariables = Exact<{
@@ -3146,8 +2952,10 @@ export interface EntitiesWithFilterQuery {
         updatedBy: string | null
         vendorMetadata: any
         logoFile: { base64: string | null } | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerUser: { id: string; displayName: string } | null
+        reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
         reviewedByGroup: { id: string; displayName: string } | null
         reviewedByUser: { id: string; displayName: string } | null
       } | null
@@ -3224,9 +3032,11 @@ export interface EntityQuery {
     updatedBy: string | null
     vendorMetadata: any
     integrations: { edges: Array<{ node: { id: string; definitionID: string | null; name: string; directoryGroups: { totalCount: number } } | null } | null> | null }
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
     logoFile: { base64: string | null } | null
+    reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
     reviewedByGroup: { id: string; displayName: string } | null
     reviewedByUser: { id: string; displayName: string } | null
   }
@@ -3310,13 +3120,14 @@ export interface GetEntityFilesPaginatedQuery {
       pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
       edges: Array<{
         node: {
+          name: string | null
           providedFileName: string
           providedFileSize: number | null
           providedFileExtension: string
           id: string
           uri: string | null
           presignedURL: string | null
-          categoryType: string | null
+          categoryName: string | null
           createdAt: any
         } | null
       } | null> | null
@@ -3328,6 +3139,7 @@ export type UpdateEntityWithFilesMutationVariables = Exact<{
   updateEntityId: string
   input: Types.UpdateEntityInput
   entityFiles?: Array<any> | any | null | undefined
+  entityFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
   logoFile?: any
 }>
 
@@ -3393,33 +3205,6 @@ export type CreateEvidenceMutationVariables = Exact<{
 
 export interface CreateEvidenceMutation {
   createEvidence: { evidence: { id: string } }
-}
-
-export type GetEvidenceFilesQueryVariables = Exact<{
-  where?: Types.FileWhereInput | null | undefined
-  first?: number | null | undefined
-  last?: number | null | undefined
-  before?: any
-  after?: any
-}>
-
-export interface GetEvidenceFilesQuery {
-  files: {
-    totalCount: number
-    pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
-    edges: Array<{
-      node: {
-        id: string
-        providedFileName: string
-        providedFileSize: number | null
-        presignedURL: string | null
-        providedFileExtension: string
-        detectedMimeType: string | null
-        categoryType: string | null
-        createdAt: any
-      } | null
-    } | null> | null
-  }
 }
 
 export type GetAllEvidencesQueryVariables = Exact<{
@@ -3727,31 +3512,6 @@ export interface GetEvidenceFilesByIdQuery {
   }
 }
 
-export type GetEvidenceTrendDataQueryVariables = Exact<{
-  currentWeekStart: any
-  previousWeekStart: any
-  previousWeekEnd: any
-  status?: Types.EvidenceEvidenceStatus | null | undefined
-}>
-
-export interface GetEvidenceTrendDataQuery {
-  currentWeek: { totalCount: number }
-  previousWeek: { totalCount: number }
-}
-
-export type GetProgramEvidenceTrendDataQueryVariables = Exact<{
-  programId: string
-  currentWeekStart: any
-  previousWeekStart: any
-  previousWeekEnd: any
-  status?: Types.EvidenceEvidenceStatus | null | undefined
-}>
-
-export interface GetProgramEvidenceTrendDataQuery {
-  currentWeek: { totalCount: number }
-  previousWeek: { totalCount: number }
-}
-
 export type EvidenceSuggestedActionsQueryVariables = Exact<{ [key: string]: never }>
 
 export interface EvidenceSuggestedActionsQuery {
@@ -3854,6 +3614,7 @@ export interface GetExportsQuery {
 
 export type GetFilesQueryVariables = Exact<{
   where?: Types.FileWhereInput | null | undefined
+  orderBy?: Array<Types.FileOrder> | Types.FileOrder | null | undefined
   first?: number | null | undefined
   last?: number | null | undefined
   before?: any
@@ -3862,10 +3623,19 @@ export type GetFilesQueryVariables = Exact<{
 
 export interface GetFilesQuery {
   files: {
-    totalCount: number
     pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
     edges: Array<{
-      node: { id: string; providedFileName: string; providedFileSize: number | null; presignedURL: string | null; providedFileExtension: string; categoryType: string | null; createdAt: any } | null
+      node: {
+        id: string
+        name: string | null
+        providedFileName: string
+        providedFileSize: number | null
+        providedFileExtension: string
+        detectedMimeType: string | null
+        presignedURL: string | null
+        categoryName: string | null
+        createdAt: any
+      } | null
     } | null> | null
   }
 }
@@ -4544,6 +4314,7 @@ export interface IdentityHoldersWithFilterQuery {
         updatedBy: string | null
         userID: string | null
         workflowEligibleMarker: boolean | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerUser: { id: string; displayName: string } | null
       } | null
@@ -4551,6 +4322,8 @@ export interface IdentityHoldersWithFilterQuery {
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
+
+export type IdentityHolderOptionFieldsFragment = { id: string; email: string; fullName: string; identityHolderType: Types.IdentityHolderIdentityHolderType; isOpenlaneUser: boolean | null }
 
 export type GetIdentityHolderOptionsQueryVariables = Exact<{
   where?: Types.IdentityHolderWhereInput | null | undefined
@@ -4563,7 +4336,7 @@ export type GetIdentityHolderOptionsQueryVariables = Exact<{
 export interface GetIdentityHolderOptionsQuery {
   identityHolders: {
     totalCount: number
-    edges: Array<{ node: { id: string; email: string; fullName: string; identityHolderType: Types.IdentityHolderIdentityHolderType } | null } | null> | null
+    edges: Array<{ node: { id: string; email: string; fullName: string; identityHolderType: Types.IdentityHolderIdentityHolderType; isOpenlaneUser: boolean | null } | null } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
@@ -4610,6 +4383,7 @@ export interface IdentityHolderQuery {
     updatedBy: string | null
     userID: string | null
     workflowEligibleMarker: boolean | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
   }
@@ -4682,10 +4456,11 @@ export interface GetIdentityHolderFilesPaginatedQuery {
       pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
       edges: Array<{
         node: {
+          name: string | null
           providedFileName: string
           providedFileSize: number | null
           providedFileExtension: string
-          categoryType: string | null
+          categoryName: string | null
           createdAt: any
           id: string
           uri: string | null
@@ -4700,6 +4475,7 @@ export type UpdateIdentityHolderWithFilesMutationVariables = Exact<{
   updateIdentityHolderId: string
   input: Types.UpdateIdentityHolderInput
   identityHolderFiles?: Array<any> | any | null | undefined
+  identityHolderFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
 }>
 
 export interface UpdateIdentityHolderWithFilesMutation {
@@ -6047,63 +5823,27 @@ export interface PlatformsWithFilterQuery {
     totalCount: number
     edges: Array<{
       node: {
-        accessModelID: string | null
-        accessModelName: string | null
-        businessOwner: string | null
-        businessOwnerGroupID: string | null
-        businessOwnerUserID: string | null
-        businessPurpose: string | null
+        id: string
+        displayID: string
+        name: string
+        status: Types.PlatformPlatformStatus
+        scopeName: string | null
+        environmentName: string | null
         containsPii: boolean | null
-        costCenter: string | null
+        businessPurpose: string | null
         createdAt: any
         createdBy: string | null
-        criticalityID: string | null
-        criticalityName: string | null
-        dataFlowSummary: string | null
-        description: string | null
-        displayID: string
-        encryptionStatusID: string | null
-        encryptionStatusName: string | null
-        environmentID: string | null
-        environmentName: string | null
-        estimatedMonthlyCost: number | null
-        externalReferenceID: string | null
-        hasPendingWorkflow: boolean
-        hasWorkflowHistory: boolean
-        id: string
-        internalOwner: string | null
-        internalOwnerGroupID: string | null
-        internalOwnerUserID: string | null
-        metadata: any
-        name: string
-        physicalLocation: string | null
-        platformDataClassificationID: string | null
-        platformDataClassificationName: string | null
-        platformKindID: string | null
-        platformKindName: string | null
-        platformOwnerID: string | null
-        purchaseDate: string | null
-        region: string | null
-        scopeID: string | null
-        scopeName: string | null
-        scopeStatement: string | null
-        securityOwner: string | null
-        securityOwnerGroupID: string | null
-        securityOwnerUserID: string | null
-        securityTierID: string | null
-        securityTierName: string | null
-        sourceIdentifier: string | null
-        status: Types.PlatformPlatformStatus
-        technicalOwner: string | null
-        technicalOwnerGroupID: string | null
-        technicalOwnerUserID: string | null
-        trustBoundaryDescription: string | null
         updatedAt: any
         updatedBy: string | null
-        workflowEligibleMarker: boolean | null
+        platformOwnerID: string | null
+        businessOwner: string | null
+        technicalOwner: string | null
+        platformOwner: { id: string; displayName: string; email: string } | null
         businessOwnerUser: { id: string; displayName: string; email: string } | null
+        businessOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         businessOwnerGroup: { id: string; name: string } | null
         technicalOwnerUser: { id: string; displayName: string; email: string } | null
+        technicalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         technicalOwnerGroup: { id: string; name: string } | null
       } | null
     } | null> | null
@@ -6119,75 +5859,72 @@ export interface GetPlatformByIdMinifiedQuery {
   platform: { id: string; name: string; displayID: string }
 }
 
+export type PlatformDiagramFileFieldsFragment = { id: string; providedFileName: string; presignedURL: string | null; createdAt: any }
+
+export type PlatformLinkedAssetFieldsFragment = {
+  id: string
+  name: string
+  assetType: Types.AssetAssetType
+  internalOwner: string | null
+  internalOwnerUser: { id: string; displayName: string; email: string } | null
+  internalOwnerGroup: { id: string; displayName: string } | null
+}
+
+export type PlatformLinkedVendorFieldsFragment = {
+  id: string
+  name: string | null
+  displayName: string | null
+  status: Types.EntityEntityStatus | null
+  internalOwner: string | null
+  logoFile: { base64: string | null } | null
+  internalOwnerUser: { id: string; displayName: string; email: string } | null
+  internalOwnerGroup: { id: string; displayName: string } | null
+}
+
 export type PlatformQueryVariables = Exact<{
   platformId: string
 }>
 
 export interface PlatformQuery {
   platform: {
-    accessModelID: string | null
-    accessModelName: string | null
-    businessOwner: string | null
-    businessOwnerGroupID: string | null
-    businessOwnerUserID: string | null
-    businessPurpose: string | null
-    containsPii: boolean | null
-    costCenter: string | null
-    createdAt: any
-    createdBy: string | null
-    criticalityID: string | null
-    criticalityName: string | null
-    dataFlowSummary: string | null
-    description: string | null
-    displayID: string
-    encryptionStatusID: string | null
-    encryptionStatusName: string | null
-    environmentID: string | null
-    environmentName: string | null
-    estimatedMonthlyCost: number | null
-    externalReferenceID: string | null
-    hasPendingWorkflow: boolean
-    hasWorkflowHistory: boolean
     id: string
-    internalOwner: string | null
-    internalOwnerGroupID: string | null
-    internalOwnerUserID: string | null
-    metadata: any
     name: string
-    physicalLocation: string | null
-    platformDataClassificationID: string | null
-    platformDataClassificationName: string | null
-    platformKindID: string | null
-    platformKindName: string | null
-    platformOwnerID: string | null
-    purchaseDate: string | null
-    region: string | null
-    scopeID: string | null
-    scopeName: string | null
-    scopeStatement: string | null
-    securityOwner: string | null
-    securityOwnerGroupID: string | null
-    securityOwnerUserID: string | null
-    securityTierID: string | null
-    securityTierName: string | null
-    sourceIdentifier: string | null
+    description: string | null
     status: Types.PlatformPlatformStatus
-    technicalOwner: string | null
-    technicalOwnerGroupID: string | null
-    technicalOwnerUserID: string | null
+    scopeName: string | null
+    environmentName: string | null
+    containsPii: boolean | null
+    businessPurpose: string | null
+    dataFlowSummary: string | null
     trustBoundaryDescription: string | null
-    updatedAt: any
-    updatedBy: string | null
-    workflowEligibleMarker: boolean | null
-    businessOwnerUser: { id: string; displayName: string; email: string } | null
-    businessOwnerGroup: { id: string; name: string } | null
-    internalOwnerUser: { id: string; displayName: string; email: string } | null
-    internalOwnerGroup: { id: string; name: string } | null
+    platformOwnerID: string | null
+    businessOwner: string | null
+    technicalOwner: string | null
+    internalOwner: string | null
+    securityOwner: string | null
     platformOwner: { id: string; displayName: string; email: string } | null
-    securityOwnerUser: { id: string; displayName: string; email: string } | null
-    securityOwnerGroup: { id: string; name: string } | null
+    businessOwnerUser: { id: string; displayName: string; email: string } | null
+    businessOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
+    businessOwnerGroup: { id: string; name: string } | null
     technicalOwnerUser: { id: string; displayName: string; email: string } | null
+    technicalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     technicalOwnerGroup: { id: string; name: string } | null
+    internalOwnerUser: { id: string; displayName: string; email: string } | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
+    internalOwnerGroup: { id: string; name: string } | null
+    securityOwnerUser: { id: string; displayName: string; email: string } | null
+    securityOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
+    securityOwnerGroup: { id: string; name: string } | null
+  }
+}
+
+export type PlatformAssetsQueryVariables = Exact<{
+  platformId: string
+}>
+
+export interface PlatformAssetsQuery {
+  platform: {
+    id: string
     assets: {
       edges: Array<{
         node: {
@@ -6212,6 +5949,16 @@ export interface PlatformQuery {
         } | null
       } | null> | null
     }
+  }
+}
+
+export type PlatformVendorsQueryVariables = Exact<{
+  platformId: string
+}>
+
+export interface PlatformVendorsQuery {
+  platform: {
+    id: string
     entities: {
       edges: Array<{
         node: {
@@ -6240,9 +5987,19 @@ export interface PlatformQuery {
         } | null
       } | null> | null
     }
-    architectureDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null } | null } | null> | null }
-    dataFlowDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null } | null } | null> | null }
-    trustBoundaryDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; base64: string | null } | null } | null> | null }
+  }
+}
+
+export type PlatformDiagramsQueryVariables = Exact<{
+  platformId: string
+}>
+
+export interface PlatformDiagramsQuery {
+  platform: {
+    id: string
+    architectureDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null; createdAt: any } | null } | null> | null }
+    dataFlowDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null; createdAt: any } | null } | null> | null }
+    trustBoundaryDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null; createdAt: any } | null } | null> | null }
   }
 }
 
@@ -6829,9 +6586,10 @@ export interface GetEvidenceStatsQuery {
   totalControls: { totalCount: number }
   frameworkControls: { totalCount: number }
   organizationControls: { totalCount: number }
+  requested: { totalCount: number }
   submitted: { totalCount: number }
+  readyForAuditor: { totalCount: number }
   accepted: { totalCount: number }
-  rejected: { totalCount: number }
 }
 
 export type GetProgramDashboardQueryVariables = Exact<{
@@ -7116,6 +6874,7 @@ export type UpdateReviewMutationVariables = Exact<{
   updateReviewId: string
   input: Types.UpdateReviewInput
   reviewFiles?: Array<any> | any | null | undefined
+  reviewFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
 }>
 
 export interface UpdateReviewMutation {
@@ -7189,7 +6948,16 @@ export interface GetReviewFilesPaginatedQuery {
       totalCount: number
       pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
       edges: Array<{
-        node: { providedFileName: string; providedFileSize: number | null; providedFileExtension: string; id: string; uri: string | null; presignedURL: string | null } | null
+        node: {
+          name: string | null
+          providedFileName: string
+          providedFileSize: number | null
+          providedFileExtension: string
+          categoryName: string | null
+          id: string
+          uri: string | null
+          presignedURL: string | null
+        } | null
       } | null> | null
     }
   }
@@ -7580,10 +7348,12 @@ export interface ScansWithFilterQuery {
         updatedAt: any
         updatedBy: string | null
         assignedToUser: { id: string; displayName: string } | null
+        assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
         assignedToGroup: { id: string; displayName: string } | null
         performedByUser: { id: string; displayName: string } | null
         performedByGroup: { id: string; displayName: string } | null
         reviewedByUser: { id: string; displayName: string } | null
+        reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
         reviewedByGroup: { id: string; displayName: string } | null
       } | null
     } | null> | null
@@ -7619,10 +7389,12 @@ export interface ScanQuery {
     updatedAt: any
     updatedBy: string | null
     assignedToUser: { id: string; displayName: string } | null
+    assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
     assignedToGroup: { id: string; displayName: string } | null
     performedByUser: { id: string; displayName: string } | null
     performedByGroup: { id: string; displayName: string } | null
     reviewedByUser: { id: string; displayName: string } | null
+    reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
     reviewedByGroup: { id: string; displayName: string } | null
   }
 }
@@ -9179,6 +8951,7 @@ export interface TrustCenterFaQsWithFilterQuery {
         id: string
         noteID: string
         referenceLink: string | null
+        trustCenterFaqKindName: string | null
         trustCenterID: string | null
         updatedAt: any
         updatedBy: string | null
@@ -9201,6 +8974,7 @@ export interface TrustCenterFaqQuery {
     id: string
     noteID: string
     referenceLink: string | null
+    trustCenterFaqKindName: string | null
     trustCenterID: string | null
     updatedAt: any
     updatedBy: string | null
@@ -9894,7 +9668,8 @@ export interface VulnerabilitiesWithFilterQuery {
     totalCount: number
     edges: Array<{
       node: {
-        assignedToUserID: string | null
+        assignedTo: string | null
+        reviewedBy: string | null
         blocking: boolean | null
         category: string | null
         createdAt: any
@@ -9943,6 +9718,12 @@ export interface VulnerabilitiesWithFilterQuery {
         vector: string | null
         vulnerabilityStatusName: string | null
         vulnerableVersionRange: string | null
+        assignedToUser: { id: string; displayName: string } | null
+        assignedToGroup: { id: string; displayName: string } | null
+        assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
+        reviewedByUser: { id: string; displayName: string } | null
+        reviewedByGroup: { id: string; displayName: string } | null
+        reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
         remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
       } | null
     } | null> | null
@@ -9956,7 +9737,8 @@ export type VulnerabilityQueryVariables = Exact<{
 
 export interface VulnerabilityQuery {
   vulnerability: {
-    assignedToUserID: string | null
+    assignedTo: string | null
+    reviewedBy: string | null
     blocking: boolean | null
     category: string | null
     createdAt: any
@@ -10006,6 +9788,12 @@ export interface VulnerabilityQuery {
     vector: string | null
     vulnerabilityStatusName: string | null
     vulnerableVersionRange: string | null
+    assignedToUser: { id: string; displayName: string } | null
+    assignedToGroup: { id: string; displayName: string } | null
+    assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
+    reviewedByUser: { id: string; displayName: string } | null
+    reviewedByGroup: { id: string; displayName: string } | null
+    reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
     integrations: { totalCount: number }
     remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
   }

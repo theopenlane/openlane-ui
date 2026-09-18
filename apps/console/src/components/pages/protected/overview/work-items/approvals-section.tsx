@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import React from 'react'
 import { Button } from '@repo/ui/button'
 import { X } from 'lucide-react'
@@ -20,7 +21,7 @@ const ApprovalsSection = ({ notifications, showHeader, onOpen, onDismiss }: Appr
     <div className="space-y-3">
       {showHeader && <SectionHeader label={FILTER_LABELS.approvals} count={notifications.length} />}
       {notifications.map((notification) => (
-        <div key={`notification-${notification.id}`} className={WORK_ITEM_ROW_CLASS} onClick={() => onOpen(notification)}>
+        <div key={`notification-${notification.id}`} className={WORK_ITEM_ROW_CLASS} {...activatable(() => onOpen(notification))}>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium truncate">{notification.title}</p>
             <p className="text-xs text-muted-foreground truncate">{notification.body}</p>

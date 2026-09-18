@@ -21,8 +21,9 @@ import { OrganizationSettingSsoProvider, type OrganizationSetting, type UpdateOr
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { Alert, AlertDescription } from '@repo/ui/alert'
-import { Check, Copy, Info, MoreHorizontal, Pencil, RefreshCw, Shield, X } from 'lucide-react'
+import { Check, Copy, Info, MoreHorizontal, Pencil, RefreshCw, Shield } from 'lucide-react'
+import { Callout } from '@/components/shared/callout/callout'
+import { DismissButton } from '@/components/shared/docs-help/suggestion-card'
 import { siteUrl } from '@repo/dally/auth'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -34,31 +35,28 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { isValidDomain } from '@/utils/strings'
 import { DomainListEditor } from '@/components/shared/domain-list-editor/domain-list-editor'
 import { Switch } from '@repo/ui/switch'
+import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
+import { isSsoCallbackError, type SsoCallbackError } from '@/lib/auth/utils/sso-callback-error'
 
 type viewMode = 'overview' | 'edit'
 
+const SSO_ERROR_MESSAGES: Record<SsoCallbackError, string> = {
+  sso_signin_failed: 'SSO sign-in failed',
+  sso_callback_failed: 'SSO callback failed',
+  sso_callback_error: 'SSO callback error occurred',
+  missing_oauth_params: 'The identity provider did not return the expected authorization details',
+  missing_organization_id: 'The verification session expired before your identity provider responded',
+}
+
+const ssoErrorLabel = (error?: string | null): string => (isSsoCallbackError(error) ? SSO_ERROR_MESSAGES[error] : 'The connection could not be verified')
+
 const providerLabel = (provider: string): string => SSO_PROVIDER_NAMES[provider as OrganizationSettingSsoProvider] ?? getEnumLabel(provider)
 
-const StatusAlert = ({ tone, message, onClose }: { tone: 'warning' | 'success' | 'error'; message: string; onClose: () => void }) => {
-  const styles = {
-    warning: { container: 'border-yellow-200 bg-yellow-50', text: 'text-yellow-800', button: 'text-yellow-600 hover:text-yellow-800' },
-    success: { container: 'border-green-200 bg-green-50', text: 'text-green-800', button: 'text-green-600 hover:text-green-800' },
-    error: { container: 'border-red-200 bg-red-50', text: 'text-red-800', button: 'text-red-600 hover:text-red-800' },
-  }[tone]
-
-  return (
-    <Alert className={`mb-4 ${styles.container}`}>
-      <AlertDescription className={styles.text}>
-        <div className="flex items-center justify-between">
-          <span className="font-medium">{message}</span>
-          <Button variant="secondary" size="sm" onClick={onClose} className={`${styles.button} h-6 w-6 p-0`}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </AlertDescription>
-    </Alert>
-  )
-}
+const StatusAlert = ({ variant, message, onClose }: { variant: 'warning' | 'success' | 'danger'; message: string; onClose: () => void }) => (
+  <Callout role="alert" variant={variant} compact className="mb-4" contentClassName="font-medium" action={<DismissButton onClick={onClose} label="Dismiss alert" tooltip="Dismiss" />}>
+    {message}
+  </Callout>
+)
 
 const SSOOverview = ({
   setting,
@@ -509,8 +507,6 @@ const SSOPage = () => {
     setIsTestingSSO(true)
 
     try {
-      localStorage.setItem('testing_sso', 'true')
-
       const response = await fetch('/api/auth/sso', {
         method: 'POST',
         headers: {
@@ -525,7 +521,13 @@ const SSOPage = () => {
       const data = await response.json()
 
       if (response.ok && data.success && data.redirect_uri) {
-        window.location.href = data.redirect_uri
+        if (!startSsoRedirect(data.redirect_uri, 'test')) {
+          errorNotification({
+            title: 'SSO test failed',
+            description: 'Enable browser storage for this site so we can return you here after verifying the connection.',
+          })
+        }
+
         return
       }
 
@@ -563,29 +565,23 @@ const SSOPage = () => {
 
   useEffect(() => {
     const ssoTested = searchParams?.get('ssotested')
+
+    if (!ssoTested) return
+
     const error = searchParams?.get('error')
 
     if (ssoTested === '1') {
+      setShowSSOErrorAlert(false)
       setShowSSOTestedAlert(true)
       setShowReTestWarning(false)
       setPendingEnforceCheck(true)
-      router.replace(pathname)
-      return
+    } else {
+      setShowSSOTestedAlert(false)
+      setShowSSOErrorAlert(true)
+      setSSOErrorMessage(ssoErrorLabel(error))
     }
 
-    if (error) {
-      const errorMessagesMap = {
-        sso_signin_failed: 'SSO sign-in failed',
-        sso_callback_failed: 'SSO callback failed',
-        sso_callback_error: 'SSO callback error occurred',
-      }
-      const errorMessage = errorMessagesMap[error as keyof typeof errorMessagesMap]
-      if (errorMessage) {
-        setShowSSOErrorAlert(true)
-        setSSOErrorMessage(errorMessage)
-        router.replace(pathname)
-      }
-    }
+    router.replace(pathname)
   }, [searchParams, router, pathname])
 
   useEffect(() => {
@@ -677,10 +673,14 @@ const SSOPage = () => {
 
             <div className="mt-6 border-t pt-4">
               {showReTestWarning && (
-                <StatusAlert tone="warning" message="SSO credentials updated — we recommend re-testing your connection to confirm everything is working." onClose={() => setShowReTestWarning(false)} />
+                <StatusAlert
+                  variant="warning"
+                  message="SSO credentials updated — we recommend re-testing your connection to confirm everything is working."
+                  onClose={() => setShowReTestWarning(false)}
+                />
               )}
-              {showSSOTestedAlert && <StatusAlert tone="success" message="SSO connection tested and verified successfully!" onClose={() => setShowSSOTestedAlert(false)} />}
-              {showSSOErrorAlert && <StatusAlert tone="error" message={`SSO verification failed: ${ssoErrorMessage}`} onClose={() => setShowSSOErrorAlert(false)} />}
+              {showSSOTestedAlert && <StatusAlert variant="success" message="SSO connection tested and verified successfully!" onClose={() => setShowSSOTestedAlert(false)} />}
+              {showSSOErrorAlert && <StatusAlert variant="danger" message={`SSO verification failed: ${ssoErrorMessage}`} onClose={() => setShowSSOErrorAlert(false)} />}
 
               {viewMode === 'overview' ? (
                 <SSOOverview
@@ -795,11 +795,7 @@ const SSOPage = () => {
 
                       <div className="flex justify-end gap-2 pt-2">
                         <CancelButton onClick={handleCancel}></CancelButton>
-                        <SaveButton
-                          variant={isSuccess ? 'success' : 'primary'}
-                          title={isPending ? 'Saving Changes' : isSuccess ? 'Saved' : 'Save Changes'}
-                          disabled={!form.formState.isDirty || isPending}
-                        />
+                        <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving...' : isSuccess ? 'Saved' : 'Save'} disabled={!form.formState.isDirty || isPending} />
                       </div>
                     </form>
                   </Form>

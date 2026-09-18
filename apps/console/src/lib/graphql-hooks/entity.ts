@@ -252,7 +252,7 @@ export const useGetEntityFilesPaginated = ({ entityId, orderBy, pagination, wher
   })
 
   const entity = queryResult.data?.entity
-  const files = entity?.files?.edges?.map((edge) => edge?.node) ?? []
+  const files = useMemo(() => entity?.files?.edges?.flatMap((edge) => (edge?.node ? [edge.node] : [])) ?? [], [entity])
   const pageInfo = entity?.files?.pageInfo
   const totalCount = entity?.files?.totalCount
 

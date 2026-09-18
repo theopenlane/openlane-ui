@@ -1,4 +1,6 @@
 const LOGIN_PATH = '/login'
+const TFA_PATH = '/tfa'
+const AUTH_PATHS = [LOGIN_PATH, TFA_PATH]
 const DEFAULT_REDIRECT_PATH = '/'
 
 const parseRedirectPath = (redirect: string): { path: string; pathname: string } | null => {
@@ -20,7 +22,7 @@ const parseRedirectPath = (redirect: string): { path: string; pathname: string }
 }
 
 const isBlockedRedirectPath = (pathname: string) => {
-  return pathname === LOGIN_PATH || pathname.startsWith(`${LOGIN_PATH}/`)
+  return AUTH_PATHS.some((authPath) => pathname === authPath || pathname.startsWith(`${authPath}/`))
 }
 
 export const sanitizeLoginRedirect = (redirect?: string | null, fallback = DEFAULT_REDIRECT_PATH) => {
@@ -43,16 +45,20 @@ const isRootRedirectPath = (path: string) => {
   return !parsed || parsed.pathname === DEFAULT_REDIRECT_PATH
 }
 
-export const buildLoginRedirect = (redirect?: string | null, fallback = DEFAULT_REDIRECT_PATH) => {
+const buildAuthRedirect = (basePath: string, redirect?: string | null) => {
   if (!redirect) {
-    return LOGIN_PATH
+    return basePath
   }
 
-  const sanitized = sanitizeLoginRedirect(redirect, fallback)
+  const sanitized = sanitizeLoginRedirect(redirect)
 
-  if (sanitized === fallback || isRootRedirectPath(sanitized)) {
-    return LOGIN_PATH
+  if (isRootRedirectPath(sanitized)) {
+    return basePath
   }
 
-  return `${LOGIN_PATH}?redirect=${encodeURIComponent(sanitized)}`
+  return `${basePath}?redirect=${encodeURIComponent(sanitized)}`
 }
+
+export const buildLoginRedirect = (redirect?: string | null) => buildAuthRedirect(LOGIN_PATH, redirect)
+
+export const buildTfaRedirect = (redirect?: string | null) => buildAuthRedirect(TFA_PATH, redirect)

@@ -1,95 +1,95 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { jwtDecode } from 'jwt-decode'
-import { refreshTokens } from '@/lib/auth/utils/session-refresh'
-import { getIsSessionInvalid } from '@/lib/auth/utils/session-status'
+import { probeSession } from '@/lib/auth/utils/session-health'
+import { getIsSessionInvalid, notifySessionExpired, SESSION_EXPIRED_EVENT } from '@/lib/auth/utils/session-status'
+import { tokenExpiresAt } from '@/lib/auth/utils/token-claims'
+import { useSessionResync } from '@/lib/graphqlClient'
 
-const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = ['keydown', 'mousemove', 'click', 'scroll', 'touchstart']
+const MAX_TIMEOUT_MS = 2_147_483_647
 
-interface RefreshTokenClaims {
-  nbf?: number
-  exp?: number
+const hasExpired = (expiresAt: number | null): boolean => expiresAt === null || Date.now() >= expiresAt
+
+const scheduleAt = (deadline: number, run: () => void): (() => void) => {
+  let timeoutId = 0
+
+  const armNextChunk = () => {
+    const remaining = deadline - Date.now()
+    timeoutId = window.setTimeout(remaining > MAX_TIMEOUT_MS ? armNextChunk : run, Math.max(0, Math.min(remaining, MAX_TIMEOUT_MS)))
+  }
+
+  armNextChunk()
+
+  return () => window.clearTimeout(timeoutId)
 }
 
-export function useSessionExpiry() {
+// useSessionExpiry surfaces the expired-session modal once the server no longer honours the session
+export const useSessionExpiry = () => {
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(getIsSessionInvalid)
   const { data: sessionData } = useSession()
+  const resyncSession = useSessionResync()
+  const refreshToken = sessionData?.user?.refreshToken
+  const [nextCheckAt, setNextCheckAt] = useState<number | null>(null)
+
+  const checkSession = useCallback(async () => {
+    const probe = await probeSession({ maxAgeMs: 0 })
+
+    switch (probe.status) {
+      case 'available': {
+        void resyncSession()
+
+        const serverExpiry = tokenExpiresAt(probe.session.user?.refreshToken)
+
+        setNextCheckAt(serverExpiry !== null && Number.isFinite(serverExpiry) && serverExpiry > Date.now() ? serverExpiry : null)
+        break
+      }
+      case 'signed-out':
+        setNextCheckAt(null)
+        notifySessionExpired()
+        break
+      default:
+        setNextCheckAt(Date.now() + probe.retryAfterMs)
+    }
+  }, [resyncSession])
 
   useEffect(() => {
     const handler = () => setShowSessionExpiredModal(true)
-    window.addEventListener('session-expired', handler)
-    return () => window.removeEventListener('session-expired', handler)
+    window.addEventListener(SESSION_EXPIRED_EVENT, handler)
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handler)
   }, [])
 
   useEffect(() => {
     const handler = () => {
-      if (document.visibilityState !== 'visible') return
-      const token = sessionData?.user?.refreshToken
-      if (!token) return
-      try {
-        const { exp } = jwtDecode<RefreshTokenClaims>(token)
-        if (exp && Date.now() >= exp * 1000) setShowSessionExpiredModal(true)
-      } catch {
-        setShowSessionExpiredModal(true)
+      if (document.visibilityState === 'visible' && hasExpired(tokenExpiresAt(refreshToken))) {
+        void checkSession()
       }
     }
     document.addEventListener('visibilitychange', handler)
     return () => document.removeEventListener('visibilitychange', handler)
-  }, [sessionData])
+  }, [refreshToken, checkSession])
 
   useEffect(() => {
-    const token = sessionData?.user?.refreshToken
-    if (!token) return
+    if (!refreshToken) return
 
-    let claims: RefreshTokenClaims
-    try {
-      claims = jwtDecode<RefreshTokenClaims>(token)
-    } catch {
-      setShowSessionExpiredModal(true)
-      return
-    }
-    if (!claims.exp) return
+    const expiresAt = tokenExpiresAt(refreshToken)
 
-    const now = Date.now()
-    const nbfMs = (claims.nbf ?? 0) * 1000
-    const expMs = claims.exp * 1000
-
-    if (now >= expMs) {
-      setShowSessionExpiredModal(true)
+    if (expiresAt === Number.POSITIVE_INFINITY) {
       return
     }
 
-    let armed = false
-    let inFlight = false
+    return scheduleAt(expiresAt ?? Date.now(), () => void checkSession())
+  }, [refreshToken, checkSession])
 
-    const onActivity = async () => {
-      if (!armed || inFlight) return
-      inFlight = true
-      try {
-        await refreshTokens(token)
-      } catch {
-        inFlight = false
-      }
-    }
+  useEffect(() => {
+    setNextCheckAt(null)
+  }, [refreshToken])
 
-    ACTIVITY_EVENTS.forEach((e) => window.addEventListener(e, onActivity, { passive: true }))
+  useEffect(() => {
+    if (nextCheckAt === null) return
 
-    const armTimeoutId = window.setTimeout(
-      () => {
-        armed = true
-      },
-      Math.max(0, nbfMs - now),
-    )
-    const expireTimeoutId = window.setTimeout(() => setShowSessionExpiredModal(true), expMs - now)
-
-    return () => {
-      window.clearTimeout(armTimeoutId)
-      window.clearTimeout(expireTimeoutId)
-      ACTIVITY_EVENTS.forEach((e) => window.removeEventListener(e, onActivity))
-    }
-  }, [sessionData])
+    return scheduleAt(nextCheckAt, () => void checkSession())
+  }, [nextCheckAt, checkSession])
 
   return { showSessionExpiredModal }
 }

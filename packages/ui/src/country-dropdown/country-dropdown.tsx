@@ -73,26 +73,31 @@ export function CountryDropdown({ value = [], onChange, disabled, placeholder = 
         <ChevronDown size={16} />
       </PopoverTrigger>
 
-      <PopoverContent side="bottom" collisionPadding={10} className="p-0 w-full min-w-[250px] pointer-events-auto overflow-visible">
+      <PopoverContent side="bottom" collisionPadding={10} className="p-0 w-full min-w-[250px] pointer-events-auto">
         {/* Search input */}
         <div className="sticky top-0 z-10 bg-popover px-2 py-1 border-b">
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..." className="w-full h-8 px-2 rounded-md border bg-background text-sm" />
         </div>
 
         {/* Scrollable list */}
-        <ul className="max-h-64 overflow-y-auto">
+        <ul role="listbox" aria-multiselectable className="max-h-64 overflow-y-auto">
           {filtered.length === 0 && <li className="p-3 text-sm text-muted-foreground">No country found.</li>}
 
           {filtered.map((country) => {
             const isSelected = value.includes(country.alpha3)
+            const toggleSelection = (alpha3: string) => (value.includes(alpha3) ? value.filter((v) => v !== alpha3) : [...value, alpha3])
 
             return (
               <li
                 key={country.alpha3}
-                onClick={() => {
-                  const newSelection = isSelected ? value.filter((v) => v !== country.alpha3) : [...value, country.alpha3]
-
-                  onChange?.(newSelection)
+                role="option"
+                aria-selected={isSelected}
+                tabIndex={0}
+                onClick={() => onChange?.(toggleSelection(country.alpha3))}
+                onKeyDown={(event) => {
+                  if (event.key !== 'Enter' && event.key !== ' ') return
+                  event.preventDefault()
+                  onChange?.(toggleSelection(country.alpha3))
                 }}
                 className={cn('flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground', isSelected && 'bg-accent')}
               >

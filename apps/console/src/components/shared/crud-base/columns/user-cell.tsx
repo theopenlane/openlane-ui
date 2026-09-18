@@ -1,4 +1,5 @@
 import { Avatar, type AvatarEntityLike } from '@/components/shared/avatar/avatar'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 type UserCellProps = {
   user: AvatarEntityLike | undefined
@@ -6,7 +7,7 @@ type UserCellProps = {
   className?: string
 }
 
-export function UserCell({ user, fallback, className = 'h-6 w-6' }: UserCellProps) {
+export const UserCell = ({ user, fallback, className = 'h-6 w-6' }: UserCellProps) => {
   if (!user) {
     if (fallback) {
       return <span className="text-muted-foreground">{fallback}</span>
@@ -15,9 +16,9 @@ export function UserCell({ user, fallback, className = 'h-6 w-6' }: UserCellProp
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex min-w-0 items-center gap-2">
       <Avatar entity={user} className={className} />
-      {user.displayName || '-'}
+      <TruncatedCell portal>{user.displayName || '-'}</TruncatedCell>
     </div>
   )
 }

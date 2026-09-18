@@ -25,7 +25,6 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
 
   const { mutateAsync: updateControlObjective } = useUpdateControlObjective()
 
-  const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const [isSaving, setIsSaving] = useState(false)
   const [open, setOpen] = useState(false)
   const [saveEnabled, setSaveEnabled] = useState(false)
@@ -45,6 +44,9 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
     }),
     [controlObjectiveData],
   )
+
+  const [associations, setAssociations] = useState<TObjectAssociationMap>(initialData)
+
   function getAssociationDiffs(initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } {
     const added: TObjectAssociationMap = {}
     const removed: TObjectAssociationMap = {}
@@ -98,6 +100,11 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
         ),
       }
 
+      if (Object.keys(associationInputs).length === 0) {
+        setOpen(false)
+        return
+      }
+
       await updateControlObjective({
         updateControlObjectiveId: controlObjectiveData.id ?? '',
         input: associationInputs,
@@ -118,7 +125,8 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
 
   const handleDialogChange = (isOpen: boolean) => {
     if (!isOpen) {
-      setAssociations({})
+      setAssociations(initialData)
+      setSaveEnabled(false)
     }
     setOpen(isOpen)
   }
@@ -138,8 +146,8 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
         <ObjectAssociation
           defaultSelectedObject={isSubcontrol ? ObjectTypeObjects.SUB_CONTROL : ObjectTypeObjects.CONTROL}
           onIdChange={(updatedMap) => {
-            setSaveEnabled(saveEnabled)
             setAssociations(updatedMap)
+            setSaveEnabled(true)
           }}
           initialData={initialData}
           allowedObjectTypes={[
@@ -154,7 +162,7 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
           ]}
         />
         <DialogFooter>
-          <SaveButton onClick={onSave} disabled={isSaving || saveEnabled} isSaving={isSaving} />
+          <SaveButton onClick={onSave} disabled={!saveEnabled || isSaving} isSaving={isSaving} />
           <CancelButton onClick={() => setOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>

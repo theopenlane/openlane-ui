@@ -7,6 +7,7 @@ import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
 import { getSSORedirect } from '@/lib/auth/utils/get-openlane-token'
 import { getCookie } from '@/lib/auth/utils/getCookie'
 import { Loading } from '@/components/shared/loading/loading'
+import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
 
 const SSOEnforcePage: React.FC = () => {
   const router = useRouter()
@@ -62,7 +63,7 @@ const SSOEnforcePage: React.FC = () => {
         return
       }
 
-      window.location.href = ssoConfig.redirect_uri
+      startSsoRedirect(ssoConfig.redirect_uri)
     } catch {
       setError('An error occurred during SSO login')
       setLoading(false)

@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { z } from 'zod'
-import { useEffect, useState, use } from 'react'
+import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
@@ -14,7 +14,6 @@ import { useUpdateOrganization, useUpdateOrgAvatar } from '@/lib/graphql-hooks/o
 import { toBase64DataUri } from '@/lib/image-utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
-import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import CopyableText from '@/components/shared/copyable-text/copyable-text'
@@ -23,7 +22,6 @@ const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const { mutateAsync: uploadAvatar } = useUpdateOrgAvatar()
-  const { setCrumbs } = use(BreadcrumbContext)
 
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
@@ -43,14 +41,6 @@ const OrganizationNameForm = () => {
       displayName: '',
     },
   })
-
-  useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Organization Settings', href: '/organization-settings/general-settings' },
-      { label: 'General Settings', href: '/organization-settings/general-settings' },
-    ])
-  }, [setCrumbs])
 
   useEffect(() => {
     if (currentOrganization) {
@@ -145,7 +135,7 @@ const OrganizationNameForm = () => {
                       <Input {...field} variant="medium" className="h-10" />
                     </FormControl>
 
-                    <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving Changes' : isSuccess ? 'Saved' : 'Save Changes'} />
+                    <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving...' : isSuccess ? 'Saved' : 'Save'} />
                   </div>
                   <FormMessage className="mt-1 text-sm text-error" />
                 </FormItem>

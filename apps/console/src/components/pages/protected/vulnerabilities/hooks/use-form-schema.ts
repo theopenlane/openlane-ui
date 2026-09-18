@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type Value } from 'platejs'
+import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 const formSchema = z.object({
   displayName: z.string().optional(),
@@ -41,6 +42,8 @@ const formSchema = z.object({
   packageEcosystem: z.string().optional(),
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
+  assignedTo: responsibilityFieldSchema,
+  reviewedBy: responsibilityFieldSchema,
   blocking: z.boolean().optional(),
   open: z.boolean().optional(),
   production: z.boolean().optional(),
@@ -62,6 +65,8 @@ export const bulkEditFieldSchema = z.object({
   category: z.string().optional(),
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
+  assignedTo: responsibilityFieldSchema,
+  reviewedBy: responsibilityFieldSchema,
   blocking: z.boolean().optional(),
   open: z.boolean().optional(),
   production: z.boolean().optional(),

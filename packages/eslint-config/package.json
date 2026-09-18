@@ -6,15 +6,17 @@
   "exports": {
     "./base": "./base.js",
     "./next-js": "./next.js",
-    "./react-internal": "./react-internal.js"
+    "./react-internal": "./react-internal.js",
+    "./a11y": "./a11y.js"
   },
   "devDependencies": {
+    "@eslint-react/eslint-plugin": "^5.18.3",
     "@eslint/js": "^10.0.0",
     "@next/eslint-plugin-next": "^16.3.2",
     "eslint": "^10.9.0",
     "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-only-warn": "^1.1.0",
-    "@eslint-react/eslint-plugin": "^5.18.3",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-turbo": "^2.10.11",
     "globals": "^17.11.0",

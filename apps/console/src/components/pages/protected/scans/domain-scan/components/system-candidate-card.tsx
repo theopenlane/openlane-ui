@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useId, useState } from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
@@ -20,6 +20,8 @@ type SystemCandidateCardProps = {
 
 export const SystemCandidateCard = ({ name, namePlaceholder, description, onNameChange, onDescriptionChange, onRemove, alreadyExists }: SystemCandidateCardProps) => {
   const [open, setOpen] = useState(false)
+  const nameId = useId()
+  const descriptionId = useId()
 
   return (
     <Card>
@@ -45,14 +47,16 @@ export const SystemCandidateCard = ({ name, namePlaceholder, description, onName
           <Separator separatorClass="bg-border" />
           <div className="space-y-4 px-6 py-4">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">System name</label>
-              <Input value={name} onChange={(event) => onNameChange(event.target.value)} placeholder={namePlaceholder} />
+              <label className="text-sm font-medium" htmlFor={nameId}>
+                System name
+              </label>
+              <Input id={nameId} value={name} onChange={(event) => onNameChange(event.target.value)} placeholder={namePlaceholder} />
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">
+              <label className="text-sm font-medium" htmlFor={descriptionId}>
                 Description <span className="font-normal text-muted-foreground">- Optional</span>
               </label>
-              <Textarea value={description} onChange={(event) => onDescriptionChange(event.target.value)} placeholder="Add a short description of this system" />
+              <Textarea id={descriptionId} value={description} onChange={(event) => onDescriptionChange(event.target.value)} placeholder="Add a short description of this system" />
             </div>
           </div>
         </>

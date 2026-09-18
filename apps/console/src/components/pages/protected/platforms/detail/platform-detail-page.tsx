@@ -3,12 +3,13 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { usePlatform, useUpdatePlatform, useDeletePlatform } from '@/lib/graphql-hooks/platform'
+import { usePlatform, usePlatformAssets, usePlatformVendors, usePlatformDiagrams, useUpdatePlatform, useDeletePlatform, type PlatformDetail } from '@/lib/graphql-hooks/platform'
 import { useNotification } from '@/hooks/useNotification'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit, canDelete } from '@/lib/authz/utils'
 import { useSession } from 'next-auth/react'
 import { useHasScrollbar } from '@/hooks/useHasScrollbar'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
@@ -21,7 +22,7 @@ import { Trash2, PencilIcon, NetworkIcon, Laptop, Building2, User, Users, Copy, 
 import Menu from '@/components/shared/menu/menu'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { type Platform, PlatformPlatformStatus, type UpdatePlatformInput } from '@repo/codegen/src/schema'
+import { PlatformPlatformStatus, type UpdatePlatformInput } from '@repo/codegen/src/schema'
 import PlatformAssetsTable from './platform-assets-table'
 import PlatformVendorsTable from './platform-vendors-table'
 import PlatformGraph from './platform-graph'
@@ -29,7 +30,7 @@ import { CollapsibleHtml } from './collapsible-html'
 import { PlatformDiagramsSection } from './platform-diagrams-section'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import useFormSchema, { type EditPlatformFormData } from '../hooks/use-form-schema'
+import useFormSchema, { type EditPlatformFormData, type PlatformLinkField } from '../hooks/use-form-schema'
 import { buildResponsibilityPayload, normalizeResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { toHumanLabel } from '@/utils/strings'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
@@ -41,7 +42,6 @@ import StepTrustBoundary from '../create/steps/step-trust-boundary'
 import StepAuditScope from '../create/steps/step-audit-scope'
 import StepOwnership from '../create/steps/step-ownership'
 import StepLinkAssetsVendors from '../create/steps/step-link-assets-vendors'
-import { useQueryClient } from '@tanstack/react-query'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
@@ -63,9 +63,11 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
   const { successNotification, errorNotification } = useNotification()
   const plateEditorHelper = usePlateEditor()
   const { form } = useFormSchema()
-  const queryClient = useQueryClient()
 
   const { data, isLoading } = usePlatform(platformId)
+  const { inScopeAssets, outOfScopeAssets, isPending: isAssetsPending, isSuccess: isAssetsLoaded, error: assetsError } = usePlatformAssets(platformId)
+  const { inScopeVendors, outOfScopeVendors, isPending: isVendorsPending, isSuccess: isVendorsLoaded, error: vendorsError } = usePlatformVendors(platformId)
+  const { diagrams, isPending: isDiagramsPending } = usePlatformDiagrams(platformId)
   const { data: permission } = useAccountRoles(ObjectTypes.PLATFORM, platformId)
   const { data: session } = useSession()
   const { mutateAsync: deletePlatform } = useDeletePlatform()
@@ -76,22 +78,31 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
   const [hideOutOfScope, setHideOutOfScope] = useState(true)
 
-  const platform = data?.platform as Platform | undefined
+  const platform = data?.platform
+  const areLinksPending = isAssetsPending || isVendorsPending
+  const areLinksLoaded = isAssetsLoaded && isVendorsLoaded
   const canEditPlatform = canEdit(permission?.roles, session)
   const canDeletePlatform = canDelete(permission?.roles)
 
-  const hasScrollbar = useHasScrollbar([platform])
+  const hasScrollbar = useHasScrollbar([platform, areLinksPending, isDiagramsPending])
+
+  useQueryErrorNotification({ error: assetsError, description: 'Failed to load the assets linked to this platform' })
+  useQueryErrorNotification({ error: vendorsError, description: 'Failed to load the vendors linked to this platform' })
+
+  useEffect(() => {
+    setIsEditing(false)
+  }, [platformId])
 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Registry', href: '/registry/platforms' },
+      { label: 'Registry', href: '/registry' },
       { label: 'Platforms', href: '/registry/platforms' },
       { label: platform?.name ?? '', isLoading },
     ])
   }, [setCrumbs, platform?.name, isLoading])
 
-  const buildEditFormValues = (platform: Platform) => ({
+  const buildEditFormValues = (platform: PlatformDetail) => ({
     name: platform.name ?? '',
     description: platform.description ?? '',
     status: platform.status,
@@ -103,35 +114,38 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
     containsPii: platform.containsPii ?? false,
     platformOwner: platform.platformOwnerID ? { type: 'user' as const, value: platform.platformOwnerID, displayName: platform.platformOwner?.displayName ?? platform.platformOwnerID } : undefined,
     businessOwner: normalizeResponsibilityField({
+      personnel: platform.businessOwnerIdentityHolder,
       user: platform.businessOwnerUser ? { id: platform.businessOwnerUser.id, displayName: platform.businessOwnerUser.displayName } : null,
       group: platform.businessOwnerGroup ? { id: platform.businessOwnerGroup.id, displayName: platform.businessOwnerGroup.name } : null,
       stringValue: platform.businessOwner,
     }),
     technicalOwner: normalizeResponsibilityField({
+      personnel: platform.technicalOwnerIdentityHolder,
       user: platform.technicalOwnerUser ? { id: platform.technicalOwnerUser.id, displayName: platform.technicalOwnerUser.displayName } : null,
       group: platform.technicalOwnerGroup ? { id: platform.technicalOwnerGroup.id, displayName: platform.technicalOwnerGroup.name } : null,
       stringValue: platform.technicalOwner,
     }),
     internalOwner: normalizeResponsibilityField({
+      personnel: platform.internalOwnerIdentityHolder,
       user: platform.internalOwnerUser ? { id: platform.internalOwnerUser.id, displayName: platform.internalOwnerUser.displayName } : null,
       group: platform.internalOwnerGroup ? { id: platform.internalOwnerGroup.id, displayName: platform.internalOwnerGroup.name } : null,
       stringValue: platform.internalOwner,
     }),
     securityOwner: normalizeResponsibilityField({
+      personnel: platform.securityOwnerIdentityHolder,
       user: platform.securityOwnerUser ? { id: platform.securityOwnerUser.id, displayName: platform.securityOwnerUser.displayName } : null,
       group: platform.securityOwnerGroup ? { id: platform.securityOwnerGroup.id, displayName: platform.securityOwnerGroup.name } : null,
       stringValue: platform.securityOwner,
     }),
-    assetIDs: (platform.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-    outOfScopeAssetIDs: (platform.outOfScopeAssets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-    entityIDs: (platform.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-    outOfScopeVendorIDs: (platform.outOfScopeVendors?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+    assetIDs: inScopeAssets.map((asset) => asset.id),
+    outOfScopeAssetIDs: outOfScopeAssets.map((asset) => asset.id),
+    entityIDs: inScopeVendors.map((vendor) => vendor.id),
+    outOfScopeVendorIDs: outOfScopeVendors.map((vendor) => vendor.id),
   })
 
   const handleEdit = () => {
-    if (platform) {
-      form.reset(buildEditFormValues(platform))
-    }
+    if (!platform) return
+    form.reset(buildEditFormValues(platform))
     setIsEditing(true)
   }
 
@@ -140,13 +154,15 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
     form.reset()
   }
 
+  const baselineLinkIDs = (field: PlatformLinkField) => new Set((form.formState.defaultValues?.[field] ?? []).filter((id): id is string => !!id))
+
   const buildPayload = async (data: EditPlatformFormData): Promise<UpdatePlatformInput> => {
     const { businessOwner, technicalOwner, platformOwner, internalOwner, securityOwner, entityIDs, outOfScopeVendorIDs, assetIDs, outOfScopeAssetIDs, ...rest } = data
 
-    const currentAssetIDs = new Set((platform?.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [])
-    const currentOutOfScopeAssetIDs = new Set((platform?.outOfScopeAssets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [])
-    const currentEntityIDs = new Set((platform?.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [])
-    const currentOutOfScopeVendorIDs = new Set((platform?.outOfScopeVendors?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [])
+    const currentAssetIDs = baselineLinkIDs('assetIDs')
+    const currentOutOfScopeAssetIDs = baselineLinkIDs('outOfScopeAssetIDs')
+    const currentEntityIDs = baselineLinkIDs('entityIDs')
+    const currentOutOfScopeVendorIDs = baselineLinkIDs('outOfScopeVendorIDs')
 
     const newAssetIDs = new Set(assetIDs ?? [])
     const newOutOfScopeAssetIDs = new Set(outOfScopeAssetIDs ?? [])
@@ -198,7 +214,6 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
     try {
       const input = await buildPayload(data)
       await updatePlatformMutation({ updatePlatformId: platformId, input })
-      queryClient.invalidateQueries({ queryKey: ['platform', platformId] })
       successNotification({ title: 'Platform updated', description: 'The platform was successfully updated.' })
       setIsEditing(false)
     } catch (error) {
@@ -227,21 +242,6 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
   }
 
   if (!platform) return null
-
-  const inScopeAssets = platform.assets?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []
-  const outOfScopeAssets = platform.outOfScopeAssets?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []
-  const inScopeVendors = platform.entities?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []
-  const outOfScopeVendors = platform.outOfScopeVendors?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []
-
-  const todiagram =
-    <T extends string>(type: T) =>
-    (f: { id: string; providedFileName: string; presignedURL?: string | null }) => ({ id: f.id, type, name: f.providedFileName, url: f.presignedURL ?? '' })
-
-  const diagrams = [
-    ...(platform.architectureDiagrams?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []).map(todiagram('architecture' as const)),
-    ...(platform.dataFlowDiagrams?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []).map(todiagram('data-flow' as const)),
-    ...(platform.trustBoundaryDiagrams?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []).map(todiagram('trust-boundary' as const)),
-  ]
 
   const renderOwner = (label: string, icon: React.ReactNode, name?: string | null, email?: string | null) => {
     if (!name && !email) return null
@@ -287,7 +287,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
           content={
             <>
               {canEditPlatform && (
-                <Button type="button" size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={handleEdit}>
+                <Button type="button" size="sm" variant="transparent" disabled={!areLinksLoaded} className="flex justify-start space-x-2" onClick={handleEdit}>
                   <PencilIcon size={16} strokeWidth={2} />
                   <span>Edit</span>
                 </Button>
@@ -322,14 +322,14 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
             renderOwner(
               'Business Owner',
               platform.businessOwnerGroup ? <Users size={14} className="text-muted-foreground" /> : <User size={14} className="text-muted-foreground" />,
-              platform.businessOwnerUser?.displayName ?? platform.businessOwnerGroup?.displayName ?? platform.businessOwner,
+              platform.businessOwnerUser?.displayName ?? platform.businessOwnerGroup?.name ?? platform.businessOwner,
               platform.businessOwnerUser?.email,
             )}
           {(platform.technicalOwnerUser || platform.technicalOwnerGroup || platform.technicalOwner) &&
             renderOwner(
               'Technical Owner',
               platform.technicalOwnerGroup ? <Users size={14} className="text-muted-foreground" /> : <User size={14} className="text-muted-foreground" />,
-              platform.technicalOwnerUser?.displayName ?? platform.technicalOwnerGroup?.displayName ?? platform.technicalOwner,
+              platform.technicalOwnerUser?.displayName ?? platform.technicalOwnerGroup?.name ?? platform.technicalOwner,
               platform.technicalOwnerUser?.email,
             )}
           {(platform.internalOwnerUser || platform.internalOwnerGroup || platform.internalOwner) &&
@@ -380,13 +380,17 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <PlatformGraph
-            platform={platform}
-            inScopeAssets={inScopeAssets}
-            outOfScopeAssets={hideOutOfScope ? [] : outOfScopeAssets}
-            inScopeVendors={inScopeVendors}
-            outOfScopeVendors={hideOutOfScope ? [] : outOfScopeVendors}
-          />
+          {areLinksPending ? (
+            <Skeleton width="100%" height="12rem" />
+          ) : (
+            <PlatformGraph
+              platform={platform}
+              inScopeAssets={inScopeAssets}
+              outOfScopeAssets={hideOutOfScope ? [] : outOfScopeAssets}
+              inScopeVendors={inScopeVendors}
+              outOfScopeVendors={hideOutOfScope ? [] : outOfScopeVendors}
+            />
+          )}
         </CardContent>
       </Card>
     </div>
@@ -489,7 +493,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
         </div>
       )}
 
-      <PlatformDiagramsSection platformId={platformId} platformName={platform.name} canEdit={canEditPlatform} diagrams={diagrams} />
+      <PlatformDiagramsSection platformId={platformId} platformName={platform.name} canEdit={canEditPlatform} diagrams={diagrams} isLoading={isDiagramsPending} />
 
       <Tabs defaultValue="assets">
         <TabsList>
@@ -497,24 +501,24 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
             <Laptop size={14} />
             Assets
             <Badge variant="secondary" className="ml-1 text-xs">
-              {inScopeAssets.length + outOfScopeAssets.length}
+              {isAssetsPending ? '–' : inScopeAssets.length + outOfScopeAssets.length}
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="vendors" className="flex items-center gap-1.5 pl-2">
             <Building2 size={14} />
             Vendors
             <Badge variant="secondary" className="ml-1 text-xs">
-              {inScopeVendors.length + outOfScopeVendors.length}
+              {isVendorsPending ? '–' : inScopeVendors.length + outOfScopeVendors.length}
             </Badge>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="assets" className="mt-4">
-          <PlatformAssetsTable platformId={platformId} inScopeAssets={inScopeAssets} outOfScopeAssets={outOfScopeAssets} canEdit={canEditPlatform} />
+          {isAssetsPending ? <Skeleton width="100%" height="8rem" /> : <PlatformAssetsTable inScopeAssets={inScopeAssets} outOfScopeAssets={outOfScopeAssets} />}
         </TabsContent>
 
         <TabsContent value="vendors" className="mt-4">
-          <PlatformVendorsTable platformId={platformId} inScopeVendors={inScopeVendors} outOfScopeVendors={outOfScopeVendors} canEdit={canEditPlatform} />
+          {isVendorsPending ? <Skeleton width="100%" height="8rem" /> : <PlatformVendorsTable inScopeVendors={inScopeVendors} outOfScopeVendors={outOfScopeVendors} />}
         </TabsContent>
       </Tabs>
     </div>

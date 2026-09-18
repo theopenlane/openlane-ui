@@ -9,7 +9,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { INTEGRATIONS_DOCUMENT_FILTER_URL } from '@/constants'
 import Link from 'next/link'
 import { BookOpenIcon, ChevronDown, FileTextIcon, InfoIcon, LinkIcon, LoaderCircle, Sparkles, X } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -45,6 +45,8 @@ const HelperText = ({ form, editorRef, initialAIPolicyName }: THelperProps) => {
 
   const [showGenerateDialog, setShowGenerateDialog] = useState(false)
   const [tempPolicyName, setTempPolicyName] = useState('')
+  const policyNameId = useId()
+  const additionalContextId = useId()
   const [additionalContext, setAdditionalContext] = useState('')
 
   const [showTemplateBrowser, setShowTemplateBrowser] = useState(false)
@@ -235,8 +237,11 @@ const HelperText = ({ form, editorRef, initialAIPolicyName }: THelperProps) => {
 
               <form onSubmit={handleGenerateSubmit} className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Policy Name</label>
+                  <label className="block text-sm font-medium mb-2" htmlFor={policyNameId}>
+                    Policy Name
+                  </label>
                   <Input
+                    id={policyNameId}
                     type="text"
                     value={tempPolicyName}
                     onChange={(e) => setTempPolicyName(e.target.value)}
@@ -249,10 +254,11 @@ const HelperText = ({ form, editorRef, initialAIPolicyName }: THelperProps) => {
                 <p className="text-sm opacity-70">Give your policy a descriptive name. AI will use this to generate relevant content.</p>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-sm font-medium mb-2" htmlFor={additionalContextId}>
                     Additional Context <span className="opacity-60"> (optional)</span>
                   </label>
                   <textarea
+                    id={additionalContextId}
                     value={additionalContext}
                     onChange={(e) => setAdditionalContext(e.target.value)}
                     placeholder="E.g., specific systems, teams, regulations, or requirements this policy should cover."

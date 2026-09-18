@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { QRCodeSVG } from 'qrcode.react'
@@ -175,7 +176,7 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
             ) : (
               <div className="flex">
                 <p className="text-sm">Unable to scan? You can use the&nbsp;</p>
-                <p onClick={() => setIsSecretKeySetup(true)} className="text-sm underline text-primary cursor-pointer">
+                <p {...activatable(() => setIsSecretKeySetup(true))} className="text-sm underline text-primary cursor-pointer">
                   setup key
                 </p>
                 <p className="text-sm">&nbsp;to manually configure your authenticator app.</p>

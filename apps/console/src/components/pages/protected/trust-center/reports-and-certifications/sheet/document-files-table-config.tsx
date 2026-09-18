@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Download, Trash2 } from 'lucide-react'
@@ -36,10 +37,10 @@ export const useGetFilesColumns = ({ onDelete }: { onDelete: (file: TDocumentFil
       accessorKey: 'actions',
       header: 'Actions',
       cell: ({ row }) => (
-        <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-3">
+        <div role="presentation" onClick={(e) => e.stopPropagation()} className="flex items-center gap-3">
           <SystemTooltip
             icon={
-              <p className="flex items-center gap-1 cursor-pointer" onClick={() => fileDownload(row.original.presignedURL || '', row.original.providedFileName, errorNotification)}>
+              <p className="flex items-center gap-1 cursor-pointer" {...activatable(() => fileDownload(row.original.presignedURL || '', row.original.providedFileName, errorNotification))}>
                 <Download size={16} />
               </p>
             }
@@ -48,7 +49,7 @@ export const useGetFilesColumns = ({ onDelete }: { onDelete: (file: TDocumentFil
 
           <SystemTooltip
             icon={
-              <p className="flex items-center gap-1 cursor-pointer" onClick={() => onDelete(row.original)}>
+              <p className="flex items-center gap-1 cursor-pointer" {...activatable(() => onDelete(row.original))}>
                 <Trash2 size={16} />
               </p>
             }

@@ -8,6 +8,7 @@ import {
   BookmarkIcon,
   BriefcaseBusinessIcon,
   ChartBarDecreasingIcon,
+  ChartLineIcon,
   ChartSplineIcon,
   CircleHelpIcon,
   ClipboardCheckIcon,
@@ -78,12 +79,6 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       href: '/dashboard',
       icon: HomeIcon,
       hidden: session?.user?.isOnboarding || billingExpired,
-    },
-    {
-      title: 'Custom Report',
-      href: '/reports/custom',
-      icon: ChartBarDecreasingIcon,
-      hidden: true,
     },
     {
       title: 'Compliance',
@@ -368,6 +363,12 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           hidden: true,
         },
       ],
+    },
+    {
+      title: 'Custom Report',
+      href: '/reports/custom',
+      icon: ChartLineIcon,
+      hidden: session?.user?.isOnboarding || billingExpired,
     },
   ]
 }

@@ -5,7 +5,7 @@ import SetupProgressCard from '@/components/pages/protected/onboarding/onboardin
 import OnboardingFooter from '@/components/pages/protected/onboarding/onboarding-footer'
 import OnboardingReadyCard from '@/components/pages/protected/onboarding/onboarding-ready-card'
 import OnboardingTransitionCard from '@/components/pages/protected/onboarding/onboarding-transition-card'
-import { CONTENT_LEFT_COLUMN_CLASS, CONTENT_RIGHT_COLUMN_CLASS } from '@/components/pages/protected/onboarding/onboarding-layout-classes'
+import { CONTENT_LEFT_COLUMN_CLASS, CONTENT_RIGHT_COLUMN_CLASS, PAGE_FOOTER_CLEARANCE_CLASS } from '@/components/pages/protected/onboarding/onboarding-layout-classes'
 import { useOnboardingSubmit } from '@/components/pages/protected/onboarding/hooks/use-onboarding-submit'
 import { useOnboardingQuestions } from '@/hooks/useOnboardingQuestions'
 import { allQuestionsForStep, buildOnboardingDefaultValues, buildOnboardingSchema, getRequiredKeysForStep, getVisibleKeysForStep, isAnswered } from '@/lib/onboarding-questions/build-schema'
@@ -99,7 +99,7 @@ const MultiStepForm = ({ questionSteps, trialCards, trialTitle, trialDescription
   const primaryDomain = Array.isArray(domains) && typeof domains[0] === 'string' ? domains[0] : undefined
 
   return (
-    <div className={`flex flex-col w-full max-w-6xl m-auto px-4 py-8 ${submitStage === 'form' ? 'pb-28' : ''}`}>
+    <div className={`flex flex-col w-full max-w-6xl m-auto px-4 py-8 ${submitStage === 'form' ? PAGE_FOOTER_CLEARANCE_CLASS : ''}`}>
       <div className="flex flex-col lg:flex-row w-full gap-10">
         <div className={`hidden lg:flex flex-col gap-8 self-start ${CONTENT_LEFT_COLUMN_CLASS}`}>
           <Logo width={150} height={24} />
@@ -114,7 +114,15 @@ const MultiStepForm = ({ questionSteps, trialCards, trialTitle, trialDescription
 
         <div className={`flex flex-col ${CONTENT_RIGHT_COLUMN_CLASS}`}>
           {submitStage === 'transition' && (
-            <OnboardingTransitionCard totalSteps={steps.length} title={trialTitle} description={trialDescription} cards={trialCards} primaryDomain={primaryDomain} onLeave={leaveOnboarding} />
+            <OnboardingTransitionCard
+              totalSteps={steps.length}
+              title={trialTitle}
+              description={trialDescription}
+              cards={trialCards}
+              primaryDomain={primaryDomain}
+              isSubmitting={methods.formState.isSubmitting}
+              onLeave={leaveOnboarding}
+            />
           )}
 
           {submitStage === 'ready' && (
@@ -130,8 +138,14 @@ const MultiStepForm = ({ questionSteps, trialCards, trialTitle, trialDescription
 
           {submitStage === 'form' && currentStep && (
             <FormProvider {...methods}>
-              <form className="w-full" onSubmit={methods.handleSubmit(submitOnboarding)}>
-                <Card className="w-full min-h-96 p-7 md:p-8 shadow-lg rounded-xl">
+              <form
+                className="w-full"
+                onSubmit={(event) => {
+                  event.preventDefault()
+                  handleNext()
+                }}
+              >
+                <Card className="w-full min-h-96 p-5 sm:p-8 shadow-lg rounded-xl">
                   <div className="flex flex-col gap-3 mb-8">
                     <Badge variant="primary" className="w-fit uppercase tracking-wide border-primary/24">
                       Step {currentIndex + 1} of {steps.length}
@@ -160,6 +174,7 @@ const MultiStepForm = ({ questionSteps, trialCards, trialTitle, trialDescription
             backLabel={steps[currentIndex - 1]?.label}
             nextLabel={steps[currentIndex + 1]?.label}
             isNextDisabled={hasFormErrors || isCurrentStepIncomplete}
+            isSubmitting={methods.formState.isSubmitting}
             onBack={handleBack}
             onNext={handleNext}
           />,

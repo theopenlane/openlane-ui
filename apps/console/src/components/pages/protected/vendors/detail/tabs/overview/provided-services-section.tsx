@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Badge } from '@repo/ui/badge'
@@ -77,7 +78,7 @@ const ProvidedServicesSection: React.FC<ProvidedServicesSectionProps> = ({ vendo
             />
           </div>
         ) : (
-          <div className={`text-sm py-2 rounded-md w-full hover:bg-accent ${canEdit ? 'cursor-pointer' : ''}`} onClick={handleReadClick}>
+          <div className={`text-sm py-2 rounded-md w-full hover:bg-accent ${canEdit ? 'cursor-pointer' : ''}`} {...activatable(canEdit ? handleReadClick : undefined)}>
             {vendor?.providedServices?.length ? (
               <div className="flex gap-2 flex-wrap">
                 {vendor.providedServices.map((service) => (

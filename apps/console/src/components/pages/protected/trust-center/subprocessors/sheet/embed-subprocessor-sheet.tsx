@@ -1,11 +1,12 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Button } from '@repo/ui/button'
-import { Copy, PanelRightClose } from 'lucide-react'
+import { Copy } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 
 type EmbedSubprocessorSheetProps = {
   open: boolean
@@ -39,15 +40,7 @@ export const EmbedSubprocessorSheet: React.FC<EmbedSubprocessorSheetProps> = ({ 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChangeAction}>
-      <SheetContent side="right" className="w-[480px] sm:w-[520px] overflow-y-auto">
-        <SheetTitle />
-        <SheetDescription />
-        <SheetHeader>
-          <div className="flex justify-between">
-            <PanelRightClose aria-label="Close embed sheet" size={16} className="cursor-pointer" onClick={() => onOpenChangeAction(false)} />
-          </div>
-        </SheetHeader>
-
+      <SheetContent side="right" className="w-[480px] sm:w-[520px] overflow-y-auto" header={<SlideoutHeader title="Embed Subprocessors" onClose={() => onOpenChangeAction(false)} />}>
         <div className="mt-6 space-y-5">
           <div>
             <h3 className="text-base font-semibold">Embed Subprocessor Table</h3>
@@ -64,9 +57,7 @@ export const EmbedSubprocessorSheet: React.FC<EmbedSubprocessorSheetProps> = ({ 
 
             <TabsContent value="code" className="mt-3">
               <div className="relative">
-                <Button variant="secondary" onClick={handleCopy} className="absolute top-2 right-2 h-8 px-2" type="button">
-                  <Copy size={14} />
-                </Button>
+                <Button variant="secondary" onClick={handleCopy} className="absolute top-2 right-2" icon={<Copy />} iconPosition="left" type="button" aria-label="Copy embed snippet" />
                 <pre className="bg-secondary rounded-md p-4 pr-12 text-sm font-mono overflow-x-auto whitespace-pre-wrap break-all border">{snippet}</pre>
               </div>
             </TabsContent>

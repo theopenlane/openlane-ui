@@ -1,10 +1,12 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { useGetVulnerabilityAssociations } from '@/lib/graphql-hooks/vulnerability'
-import { useUserSelect } from '@/lib/graphql-hooks/member'
+import { ResponsibilitySelectionLabel } from '@/components/shared/crud-base/form-fields/responsibility-type-icon'
+import { type ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { getVulnerabilityResponsibilities } from '../../vulnerabilities/vulnerability-responsibilities'
 import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import { toHumanLabel } from '@/utils/strings'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
@@ -17,6 +19,13 @@ type Props = {
   vuln: TriageVuln
 }
 
+const ResponsibilityValue: React.FC<{ label: string; selection: ResponsibilitySelection }> = ({ label, selection }) => (
+  <div>
+    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+    <div className="mt-2 flex items-center gap-2 text-sm">{selection ? <ResponsibilitySelectionLabel selection={selection} /> : <span className="text-muted-foreground">Not set</span>}</div>
+  </div>
+)
+
 const StatCard: React.FC<{ label: string; value: React.ReactNode; sub?: React.ReactNode; valueClassName?: string }> = ({ label, value, sub, valueClassName }) => (
   <div className="rounded-lg border bg-card p-4">
     <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
@@ -27,15 +36,13 @@ const StatCard: React.FC<{ label: string; value: React.ReactNode; sub?: React.Re
 
 const TriageDetail: React.FC<Props> = ({ vuln }) => {
   const { data: associations } = useGetVulnerabilityAssociations(vuln.id)
-  const { userOptions } = useUserSelect({})
+  const { assignee, reviewedBy } = useMemo(() => getVulnerabilityResponsibilities(vuln), [vuln])
   const sheetNav = useSheetNavigation()
 
   const severityLabel = getSeverityLabel(vuln)
 
   const assets = (associations?.vulnerability?.assets?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => Boolean(node))
   const remediationCount = associations?.vulnerability?.remediations?.totalCount ?? 0
-
-  const assigneeName = userOptions.find((option) => option.value === vuln.assignedToUserID)?.label
 
   const { dueDate, pastDue, daysOverdue, daysUntilDue } = vuln.dueInfo
   const dueSubtitle = (() => {
@@ -106,9 +113,9 @@ const TriageDetail: React.FC<Props> = ({ vuln }) => {
         </div>
       </div>
 
-      <div className="mt-6">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Ownership</p>
-        <p className="mt-2 text-sm">{assigneeName || <span className="text-muted-foreground">Unassigned</span>}</p>
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <ResponsibilityValue label="Assignee" selection={assignee} />
+        <ResponsibilityValue label="Reviewed by" selection={reviewedBy} />
       </div>
 
       <div className="mt-6">

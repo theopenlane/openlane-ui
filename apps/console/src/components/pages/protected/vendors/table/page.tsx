@@ -33,8 +33,18 @@ import { ENTITY_ASSOCIATION_CONFIG } from '@/components/shared/object-associatio
 
 const normalizeData = (data: EntitiesNodeNonNull) =>
   normalizeEntityData(data, {
-    internalOwner: { user: data?.internalOwnerUser, group: data?.internalOwnerGroup, stringValue: data?.internalOwner },
-    reviewedBy: { user: data?.reviewedByUser, group: data?.reviewedByGroup, stringValue: data?.reviewedBy },
+    internalOwner: {
+      personnel: data?.internalOwnerIdentityHolder,
+      user: data?.internalOwnerUser,
+      group: data?.internalOwnerGroup,
+      stringValue: data?.internalOwner,
+    },
+    reviewedBy: {
+      personnel: data?.reviewedByIdentityHolder,
+      user: data?.reviewedByUser,
+      group: data?.reviewedByGroup,
+      stringValue: data?.reviewedBy,
+    },
   })
 
 const VendorPage: React.FC = () => {

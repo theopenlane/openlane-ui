@@ -7,6 +7,7 @@ import { sidebarStyles } from '../sidebar/sidebar.styles'
 import { useSidebar } from '@/hooks/useSidebar'
 import React, { useCallback, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { ONBOARDING_ROUTE } from '@/constants'
 import SystemNotificationTracker from '@/components/shared/SystemNotification/SystemNotification.tsx'
 
 type ActivePanel = 'notifications' | 'user-menu' | null
@@ -31,7 +32,7 @@ export default function Header() {
     isOpen,
   })
 
-  if (path === '/onboarding') {
+  if (path === ONBOARDING_ROUTE) {
     return (
       <div className={header()}>
         <nav className={nav()}>

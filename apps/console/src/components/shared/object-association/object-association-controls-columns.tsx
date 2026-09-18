@@ -76,7 +76,7 @@ export const getControlsAndSubcontrolsColumns = ({
         )
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox
               checked={allSelected}
               onCheckedChange={(checked) => {
@@ -97,7 +97,7 @@ export const getControlsAndSubcontrolsColumns = ({
             : !!evidenceSubcontrols?.find((c) => c.refCode === refCode && c.referenceFramework === referenceFramework)
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={checked} onCheckedChange={(val) => toggleChecked(id, refCode, val === true, referenceFramework || undefined)} />
           </div>
         )

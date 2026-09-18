@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import Slider from '@/components/shared/slider/slider'
@@ -107,7 +108,7 @@ const MapControlsRelations = ({ onDelete, deleteLoading }: Props) => {
           render={({ field }) => (
             <div className="flex items-center flex-col">
               <Slider value={field.value ?? 0} onChange={(val) => field.onChange(val)} />
-              <p className="text-blue-500 cursor-pointer self-start" onClick={() => setValue('confidence', 0)}>
+              <p className="text-blue-500 cursor-pointer self-start" {...activatable(() => setValue('confidence', 0))}>
                 Clear
               </p>
             </div>

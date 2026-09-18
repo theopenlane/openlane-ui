@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { type LucideIcon } from 'lucide-react'
 
@@ -13,7 +14,7 @@ export const SuggestedActionCard = ({ handleRouting, icon: Icon, header, subhead
   return (
     <Card className="bg-btn-secondary w-full transition-all duration-200 cursor-pointer hover:-translate-y-1 hover:border-primary">
       <CardContent>
-        <div onClick={() => handleRouting(route)} className="flex items-center gap-4">
+        <div {...activatable(() => handleRouting(route))} className="flex items-center gap-4">
           <div className="flex items-center justify-center h-10 w-10  rounded-md bg-card">
             <Icon size={20} className="text-primary" />
           </div>

@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import { formatTimeSince } from '@/utils/date'
 import { cn } from '@repo/ui/lib/utils'
 import React from 'react'
@@ -22,7 +23,7 @@ export const ExportRow = ({ notification, exportData, onRead }: ExportRowProps) 
   }
 
   return (
-    <div onClick={handleClick} className={cn('flex items-center gap-3 py-2 cursor-pointer transition-colors hover:bg-accent/50 px-1 rounded-md justify-center', isUnread && 'bg-accent/20')}>
+    <div {...activatable(handleClick)} className={cn('flex items-center gap-3 py-2 cursor-pointer transition-colors hover:bg-accent/50 px-1 rounded-md justify-center', isUnread && 'bg-accent/20')}>
       <div className="relative">
         <NotificationIcon objectType={notification.objectType} isFailed={notification.title?.includes('Failed')} />
       </div>

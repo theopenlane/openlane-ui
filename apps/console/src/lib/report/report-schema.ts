@@ -8,6 +8,7 @@ import {
   type TReportField,
   type TReportOperator,
 } from '@repo/codegen/src/report-schema.generated'
+import { type OrderDirection } from '@repo/codegen/src/schema'
 import { toHumanLabel } from '@/utils/strings'
 
 export const PATH_SEPARATOR = '.'
@@ -18,6 +19,10 @@ export type TReportColumn = {
   field: TReportField
   edge?: TReportEdge
 }
+
+export type TReportOrder = { field: string; direction: OrderDirection }
+
+export type TReportSort = { field: string | null; direction: OrderDirection }
 
 export type TLabelled<T> = { item: T; label: string }
 
@@ -56,11 +61,23 @@ export const getEnumValues = (field: TReportField): string[] => (field.enumName 
 
 export const buildPath = (edgeName: string, fieldName: string): string => `${edgeName}${PATH_SEPARATOR}${fieldName}`
 
+export const pathEdgeName = (path: string): string | null => {
+  const separator = path.indexOf(PATH_SEPARATOR)
+
+  return separator === -1 ? null : path.slice(0, separator)
+}
+
 export const pathLabel = (path: string): string => path.split(PATH_SEPARATOR).map(toHumanLabel).join(' › ')
+
+export const labelledOrderFields = (entity: TReportEntity): TLabelled<string>[] => withLabels(entity.order?.fields ?? [], (value) => value)
 
 export const labelledEdges = (entity: TReportEntity): TLabelled<TReportEdge>[] => withLabels(entity.edges, (edge) => edge.name)
 
-export const buildColumnIndex = (entity: TReportEntity): Map<string, TReportColumn> => {
+const columnIndexByEntity = new Map<string, Map<string, TReportColumn>>()
+
+const EMPTY_COLUMN_INDEX: Map<string, TReportColumn> = new Map()
+
+const buildColumnIndex = (entity: TReportEntity): Map<string, TReportColumn> => {
   const index = new Map<string, TReportColumn>()
 
   for (const field of entity.fields) {
@@ -73,6 +90,18 @@ export const buildColumnIndex = (entity: TReportEntity): Map<string, TReportColu
       index.set(path, { path, label: pathLabel(path), field, edge })
     }
   }
+
+  return index
+}
+
+export const getColumnIndex = (entity: TReportEntity | undefined): Map<string, TReportColumn> => {
+  if (!entity) return EMPTY_COLUMN_INDEX
+
+  const cached = columnIndexByEntity.get(entity.queryName)
+  if (cached) return cached
+
+  const index = buildColumnIndex(entity)
+  columnIndexByEntity.set(entity.queryName, index)
 
   return index
 }

@@ -61,11 +61,27 @@ export type OverrideMap = Record<string, TextOverride>
 
 export type LinkableItem = { id: string; name: string; logoUrl?: string }
 
-export const DOMAIN_SCAN_STEP_IDS = ['platform', 'systems', 'assets', 'vendors', 'link', 'findings', 'confirm'] as const
+export type DomainScanSummaryItem = LinkableItem & { description?: string; linkedVendorNames?: string[] }
 
-export type StepId = (typeof DOMAIN_SCAN_STEP_IDS)[number]
+export type DomainScanSummarySection = {
+  stepId: EditableStepId
+  title: string
+  items: DomainScanSummaryItem[]
+}
 
-export const isStepId = (value: string): value is StepId => DOMAIN_SCAN_STEP_IDS.some((stepId) => stepId === value)
+export const DOMAIN_SCAN_STEPS = [
+  { id: 'platform', label: 'Platform' },
+  { id: 'systems', label: 'System Details' },
+  { id: 'assets', label: 'Assets' },
+  { id: 'vendors', label: 'Vendors' },
+  { id: 'link', label: 'Link' },
+  { id: 'findings', label: 'Findings' },
+  { id: 'confirm', label: 'Confirm' },
+] as const
+
+export type StepId = (typeof DOMAIN_SCAN_STEPS)[number]['id']
+
+export const isStepId = (value: string): value is StepId => DOMAIN_SCAN_STEPS.some((step) => step.id === value)
 
 export type EditableStepId = Extract<StepId, 'platform' | 'systems' | 'assets' | 'vendors' | 'findings'>
 

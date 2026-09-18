@@ -3,6 +3,7 @@
 import React from 'react'
 import { useGetEntityFilesPaginated, useUploadEntityFiles, useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { DocumentsSection } from '@/components/shared/documents-section/documents-section'
+import { toFileUploadArgs, type StagedUpload } from '@/components/shared/documents-section/staged-upload'
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
 import { type FileWhereInput, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
@@ -51,12 +52,15 @@ const EntityDocumentsSection: React.FC<EntityDocumentsSectionProps> = ({ entityI
     return null
   }
 
-  const handleUpload = async (newFiles: File[]) => {
+  const handleUpload = async (uploads: StagedUpload[]) => {
     try {
+      const { files: entityFiles, metadata: entityFilesMetadata } = toFileUploadArgs(uploads)
+
       await uploadFiles({
         updateEntityId: entityId,
         input: {},
-        entityFiles: newFiles,
+        entityFiles,
+        entityFilesMetadata,
       })
       successNotification({
         title: 'Documents uploaded',

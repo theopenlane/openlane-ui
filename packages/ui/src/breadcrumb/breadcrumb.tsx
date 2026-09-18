@@ -25,20 +25,33 @@ const BreadcrumbLink = ({
   asChild,
   className,
   href,
+  children,
   ref,
   ...props
 }: React.ComponentPropsWithoutRef<'a'> & {
   asChild?: boolean
 } & { ref?: React.Ref<HTMLAnchorElement> }) => {
   if (asChild) {
-    return <Slot ref={ref} className={cn('transition-colors hover:text-foreground', className)} {...props} />
+    return (
+      <Slot ref={ref} className={cn('transition-colors hover:text-foreground', className)} {...props}>
+        {children}
+      </Slot>
+    )
   }
 
   if (href && href.startsWith('/')) {
-    return <Link ref={ref} href={href} className={cn('transition-colors hover:text-foreground', className)} {...props} />
+    return (
+      <Link ref={ref} href={href} className={cn('transition-colors hover:text-foreground', className)} {...props}>
+        {children}
+      </Link>
+    )
   }
 
-  return <a ref={ref} href={href} className={cn('transition-colors hover:text-foreground', className)} {...props} />
+  return (
+    <a ref={ref} href={href} className={cn('transition-colors hover:text-foreground', className)} {...props}>
+      {children}
+    </a>
+  )
 }
 
 const BreadcrumbPage = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<'span'> & { ref?: React.Ref<HTMLSpanElement> }) => (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Input } from '@repo/ui/input'
 import {
   extractTableRows,
@@ -14,7 +14,6 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import ObjectAssociationTable from '@/components/shared/object-association/object-association-table'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -49,15 +48,6 @@ export const BulkEditSingleObjectAssociation: React.FC<Props> = ({ objectType, o
 
   const tableData = useMemo<TableRow[]>(() => extractTableRows(config.responseObjectKey, data, config.inputName), [data, config.responseObjectKey, config.inputName])
 
-  const onChangeRef = useRef(onChange)
-  useEffect(() => {
-    onChangeRef.current = onChange
-  }, [onChange])
-
-  const stableOnIdChange = useCallback((updatedMap: TObjectAssociationMap) => {
-    onChangeRef.current(updatedMap as Record<string, string[]>)
-  }, [])
-
   return (
     <div className="space-y-2">
       <Input onChange={(e) => setSearchValue(e.target.value)} value={searchValue} placeholder={config.placeholder} className="h-10 w-full" />
@@ -67,7 +57,7 @@ export const BulkEditSingleObjectAssociation: React.FC<Props> = ({ objectType, o
         pagination={pagination}
         paginationMeta={{ totalCount, pageInfo, isLoading }}
         data={tableData}
-        onIDsChange={stableOnIdChange}
+        onIDsChange={(updatedMap) => onChange(updatedMap as Record<string, string[]>)}
       />
     </div>
   )

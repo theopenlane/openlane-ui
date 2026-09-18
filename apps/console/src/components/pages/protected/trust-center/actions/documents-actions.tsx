@@ -5,7 +5,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Droplet, Eye, MoreHorizontal, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useId, useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
@@ -25,6 +25,7 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
   const queryClient = useQueryClient()
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const watermarkId = useId()
 
   const handleDeleteDocument = async () => {
     try {
@@ -93,13 +94,13 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
       >
         Preview
       </Button>
-      <div onClick={(e) => e.stopPropagation()}>
+      <div role="presentation" onClick={(e) => e.stopPropagation()}>
         <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
           <DialogContent className="w-[60vw] h-[60vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Document Preview</DialogTitle>
             </DialogHeader>
-            <iframe src={previewUrl ?? undefined} className="w-full h-full" style={{ border: 'none' }} />
+            <iframe title="Document preview" src={previewUrl ?? undefined} className="w-full h-full" style={{ border: 'none' }} />
           </DialogContent>
         </Dialog>
       </div>
@@ -107,6 +108,7 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <div
+            role="presentation"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
             className="flex items-center justify-center bg-homepage-card-item border border-switch-bg-inactive rounded-md w-8 h-8 cursor-pointer"
@@ -138,8 +140,11 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
           >
             <div className="flex items-center gap-2">
               <Droplet size={16} />
-              <label className="text-sm">Watermark</label>
+              <label className="text-sm" htmlFor={watermarkId}>
+                Watermark
+              </label>
               <Switch
+                id={watermarkId}
                 checked={isWatermarkEnabled}
                 onCheckedChange={(checked) => {
                   setIsWatermarkEnabled(checked)
@@ -150,7 +155,7 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <div onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+      <div role="presentation" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
         <ConfirmationDialog
           open={isDeleteDialogOpen}
           onOpenChange={setIsDeleteDialogOpen}

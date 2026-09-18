@@ -1,11 +1,15 @@
 import { auth } from '@/lib/auth/auth'
-import { FinishReason, GoogleGenAI } from '@google/genai'
+import { FinishReason } from '@google/genai'
 import { type NextRequest, NextResponse } from 'next/server'
 import { VertexRagServiceClient } from '@google-cloud/aiplatform'
 import { Storage } from '@google-cloud/storage'
+import { getGoogleServiceAccountCredentials } from '@/lib/google/credentials'
+import { getVertexGenAI } from '@/lib/google/vertex-genai'
+import { sanitizePrompt } from '@/lib/model-armor/sanitize'
+import { modelArmorErrorResponse } from '@/lib/model-armor/responses'
+import { z } from 'zod'
 import {
   aiEnabled,
-  googleAPIKey,
   googleAIRegion,
   googleProjectID,
   aiLogBucket,
@@ -21,25 +25,19 @@ import {
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
-let genAI: GoogleGenAI | null = null
+const requestSchema = z.object({
+  section: z.string().optional(),
+  prompt: z.string().trim().min(1),
+  context: z.unknown().optional(),
+})
+
 let storage: Storage | null = null
 let ragClient: VertexRagServiceClient | null = null
 
-// Initialize with credentials
-if (aiEnabled && googleProjectID && googleAPIKey) {
-  const b64 = googleAPIKey
-  const json = Buffer.from(b64, 'base64').toString('utf8')
-  const creds = JSON.parse(json)
+const genAI = getVertexGenAI()
+const creds = genAI ? getGoogleServiceAccountCredentials() : null
 
-  genAI = new GoogleGenAI({
-    vertexai: true,
-    project: googleProjectID,
-    location: googleAIRegion,
-    googleAuthOptions: {
-      credentials: creds,
-    },
-  })
-
+if (creds) {
   // Initialize Storage client
   storage = new Storage({
     projectId: googleProjectID,
@@ -98,12 +96,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { section, prompt, context } = await req.json()
+    const parsedBody = requestSchema.safeParse(await req.json().catch(() => null))
+    if (!parsedBody.success) {
+      return NextResponse.json({ error: 'Invalid suggestions payload' }, { status: 400 })
+    }
+    const { section, prompt, context } = parsedBody.data
     let contextData = ''
 
     // Configure additional context for RAG if corpus ID is provided
     if (ragCorpusID) {
-      contextData = await getContext(prompt)
+      contextData = await getContext(prompt, req.signal)
     }
 
     const systemInstruction = section === 'policy' ? `${aiSystemInstruction}\n${policySystemInstruction}` : `${aiSystemInstruction}\n${controlSystemInstruction}`
@@ -126,6 +128,7 @@ export async function POST(req: NextRequest) {
         temperature,
         maxOutputTokens,
         thinkingConfig: { thinkingBudget: 0 },
+        abortSignal: req.signal,
       },
     })
 
@@ -136,7 +139,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      await logQuestionToBucket(prompt, context, text)
+      await logQuestionToBucket(prompt, toText(context), text)
     } catch (loggingError) {
       console.log('Failed to log question to bucket:', loggingError)
     }
@@ -149,12 +152,15 @@ export async function POST(req: NextRequest) {
       },
     })
   } catch (error) {
+    const armorResponse = modelArmorErrorResponse(error)
+    if (armorResponse) return armorResponse
+
     console.error('API Error:', error)
     return new Response(JSON.stringify({ error: 'Failed to get suggestions' }), { status: 500 })
   }
 }
 
-async function getContext(prompt: string): Promise<string> {
+const getContext = async (prompt: string, signal: AbortSignal): Promise<string> => {
   const ragCorpus = `projects/${googleProjectID}/locations/${googleAIRegion}/ragCorpora/${ragCorpusID}`
   const parent = `projects/${googleProjectID}/locations/${googleAIRegion}`
 
@@ -165,7 +171,7 @@ async function getContext(prompt: string): Promise<string> {
   const [response] = await ragClient.retrieveContexts({
     parent,
     query: {
-      text: prompt,
+      text: await sanitizePrompt(prompt, signal),
     },
     vertexRagStore: {
       ragResources: [{ ragCorpus: ragCorpus }],

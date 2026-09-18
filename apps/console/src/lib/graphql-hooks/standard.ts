@@ -31,7 +31,6 @@ import {
   StandardOrderField,
 } from '@repo/codegen/src/schema'
 import { useMemo } from 'react'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { EXCLUDE_SYSTEM_STANDARDS_WHERE, type TSystemStandard } from '@/constants/standards'
 import { mergeWhere } from '@/lib/merge-where'
@@ -138,7 +137,7 @@ export const useCreateStandard = () => {
     },
 
     onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ['standards'] })
+      queryClient.invalidateQueries({ queryKey: ['standards'] })
     },
   })
 }
@@ -165,7 +164,7 @@ export const useUpdateStandard = () => {
     },
 
     onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ['standards'] })
+      queryClient.invalidateQueries({ queryKey: ['standards'] })
     },
   })
 }
@@ -177,7 +176,7 @@ export const useDeleteStandard = () => {
     mutationFn: async (variables) => client.request<DeleteStandardMutation, DeleteStandardMutationVariables>(DELETE_STANDARD, variables),
 
     onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ['standards'] })
+      queryClient.invalidateQueries({ queryKey: ['standards'] })
     },
   })
 }
@@ -186,42 +185,48 @@ type StandardEdge = NonNullable<NonNullable<GetStandardsPaginatedQuery['standard
 
 export type StandardNode = NonNullable<NonNullable<StandardEdge>['node']>
 
-export const useGetAllStandardsInfinite = ({ where, pagination, enabled = true, includeSystemStandards }: TStandardsQueryArgs & { pagination: TPagination }) => {
+export const useGetAllStandardsInfinite = ({ where, pageSize, enabled = true, includeSystemStandards }: TStandardsQueryArgs & { pageSize: number }) => {
   const { client } = useGraphQLClient()
   const effectiveWhere = resolveStandardsWhere(where, includeSystemStandards)
 
-  const queryKey = ['standards', 'infinite', effectiveWhere, pagination.query] as const
+  const queryKey = ['standards', 'infinite', effectiveWhere, pageSize] as const
 
   const queryResult = useInfiniteQuery<GetStandardsPaginatedQuery, Error, InfiniteData<GetStandardsPaginatedQuery>, typeof queryKey, string | null>({
     queryKey,
     initialPageParam: null,
     queryFn: ({ pageParam }) =>
       client.request<GetStandardsPaginatedQuery, GetStandardsPaginatedQueryVariables>(GET_STANDARDS_PAGINATED, {
-        ...pagination.query,
-        first: pagination.query.first,
+        first: pageSize,
         after: pageParam ?? undefined,
         where: effectiveWhere,
         orderBy: [{ field: StandardOrderField.short_name, direction: OrderDirection.ASC }],
       }),
 
-    getNextPageParam: (lastPage) => {
+    getNextPageParam: (lastPage, _allPages, _lastPageParam, allPageParams) => {
       const pageInfo = lastPage.standards?.pageInfo
-      if (!pageInfo?.hasNextPage) return undefined
-      return pageInfo.endCursor ?? undefined
+      const nextCursor = pageInfo?.endCursor ?? null
+
+      if (!pageInfo?.hasNextPage || nextCursor === null || allPageParams.includes(nextCursor)) {
+        return undefined
+      }
+
+      return nextCursor
     },
 
     staleTime: Infinity,
     enabled,
   })
 
-  const standards: StandardNode[] = queryResult.data?.pages.flatMap((page) => page.standards?.edges?.map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => !!node) ?? []) ?? []
+  const pages = queryResult.data?.pages
 
-  const lastPage = queryResult.data?.pages.at(-1)
+  const standards: StandardNode[] = useMemo(() => pages?.flatMap((page) => page.standards?.edges?.map((edge) => edge?.node).filter((node): node is StandardNode => !!node) ?? []) ?? [], [pages])
+
+  const lastPage = pages?.at(-1)
 
   const paginationMeta = {
     totalCount: lastPage?.standards?.totalCount ?? 0,
     pageInfo: lastPage?.standards?.pageInfo,
-    isLoading: queryResult.isPending,
+    isLoading: queryResult.isPending || queryResult.isFetchingNextPage,
   }
 
   return {

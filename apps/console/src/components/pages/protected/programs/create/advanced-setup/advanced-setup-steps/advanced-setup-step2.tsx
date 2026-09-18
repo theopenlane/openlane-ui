@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useId } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
 import { Input } from '@repo/ui/input'
@@ -16,6 +16,8 @@ const AdvancedSetupStep2 = ({ defaultFramework }: { defaultFramework?: string })
   } = useFormContext()
 
   const programKindName = useWatch({ control, name: 'programKindName' })
+  const nameId = useId()
+  const descriptionId = useId()
 
   return (
     <div className="space-y-6">
@@ -42,25 +44,27 @@ const AdvancedSetupStep2 = ({ defaultFramework }: { defaultFramework?: string })
           {errors.framework && <span className="text-xs text-destructive">{String(errors.framework.message)}</span>}
         </div>
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm">
+          <label className="text-sm" htmlFor={nameId}>
             Program Name<span className="text-destructive">*</span>
           </label>
-          <Input placeholder="Program Test" {...register('name', { required: 'Program name is required' })} />
+          <Input id={nameId} placeholder="Program Test" {...register('name', { required: 'Program name is required' })} />
           {errors.name && <span className="text-xs text-destructive">{String(errors.name.message)}</span>}
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm">Description</label>
-          <Textarea placeholder="Enter a description for this program" {...register('description')} />
+          <label className="text-sm" htmlFor={descriptionId}>
+            Description
+          </label>
+          <Textarea id={descriptionId} placeholder="Enter a description for this program" {...register('description')} />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm">Start Date</label>
+            <span className="text-sm">Start Date</span>
             <DateSelect name="startDate" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm">End Date</label>
+            <span className="text-sm">End Date</span>
             <DateSelect name="endDate" />
             {errors.endDate && <span className="text-xs text-destructive">{String(errors.endDate.message)}</span>}
           </div>

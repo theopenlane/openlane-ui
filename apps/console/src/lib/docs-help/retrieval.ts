@@ -4,12 +4,12 @@ import { DEEP_RETRIEVAL_TOP_K } from '@/lib/docs-help/constants'
 import { dedupeBySource, extractMarkdownSection, parseChunk, rankChunks } from '@/lib/docs-help/parse'
 import { cacheKeyOf, readSectionCache, writeSectionCache } from '@/lib/docs-help/section-cache'
 
-export const lookupSection = async (docs: DocsProvider, lookup: SectionLookup, section?: string): Promise<SectionResult> => {
+export const lookupSection = async (docs: DocsProvider, lookup: SectionLookup, section?: string, signal?: AbortSignal): Promise<SectionResult> => {
   const cacheKey = cacheKeyOf(lookup, section)
   const cached = readSectionCache(cacheKey)
   if (cached) return cached
 
-  const contexts = await docs.retrieve(lookup.query, DEEP_RETRIEVAL_TOP_K)
+  const contexts = await docs.retrieve(lookup.query, { topK: DEEP_RETRIEVAL_TOP_K, signal })
   const parsed = contexts.map((context) => ({ chunk: parseChunk(context.text), sourceUri: context.sourceUri }))
   const ranked = rankChunks(dedupeBySource(contexts.map((context) => context.text)), lookup.prefer, section)
   const top = ranked[0]

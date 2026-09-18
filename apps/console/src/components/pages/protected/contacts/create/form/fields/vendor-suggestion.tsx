@@ -2,11 +2,12 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Sparkles, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { getEmailDomain, isValidDomain } from '@/utils/strings'
 import { type ContactFormData } from '../../../hooks/use-form-schema'
+import { Callout } from '@/components/shared/callout/callout'
 
 const VendorSuggestion: React.FC = () => {
   const { watch, setValue } = useFormContext<ContactFormData>()
@@ -26,13 +27,7 @@ const VendorSuggestion: React.FC = () => {
   }
 
   return (
-    <div className="rounded-md border border-primary/40 bg-primary/5 p-3">
-      <div className="mb-2 flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-primary" />
-        <span className="text-sm font-medium">
-          {matches.length === 1 ? 'Matching vendor' : 'Matching vendors'} found for “{domain}”
-        </span>
-      </div>
+    <Callout variant="recommendation" compact title={`${matches.length === 1 ? 'Matching vendor' : 'Matching vendors'} found for “${domain}”`}>
       <div className="flex flex-wrap gap-2">
         {matches.map((v) => {
           const linked = entityIDs.includes(v.id)
@@ -51,7 +46,7 @@ const VendorSuggestion: React.FC = () => {
           )
         })}
       </div>
-    </div>
+    </Callout>
   )
 }
 

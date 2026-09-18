@@ -5,6 +5,7 @@ import pluginReactHooks from 'eslint-plugin-react-hooks'
 import eslintReact from '@eslint-react/eslint-plugin'
 import globals from 'globals'
 import pluginNext from '@next/eslint-plugin-next'
+import { a11yConfig } from './a11y.js'
 import { config as baseConfig } from './base.js'
 
 /**
@@ -19,6 +20,7 @@ export const nextJsConfig = [
   eslintConfigPrettier,
   ...tseslint.configs.recommended,
   eslintReact.configs['recommended-typescript'],
+  ...a11yConfig,
   {
     languageOptions: {
       globals: {

@@ -8,7 +8,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { AlertTriangle, Clock, ClipboardCheck, CalendarClock, SearchIcon } from 'lucide-react'
+import { Clock, ClipboardCheck, CalendarClock, SearchIcon } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
 import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -23,6 +23,7 @@ import type { WhereCondition } from '@/types'
 import { reviewHistoryColumns, isHighRiskTier, mappedReviewColumns, DEFAULT_VISIBILITY, REVIEW_FILTER_FIELDS, TIER_OPTIONS } from '@/components/pages/protected/reviews/common/risk-review-config'
 import VendorReviewSheet from './vendor-review/vendor-review-sheet'
 import { useHasRecentReview } from '@/components/pages/protected/reviews/hooks/use-has-recent-review'
+import { Callout } from '@/components/shared/callout/callout'
 
 interface RiskReviewTabProps {
   vendor: EntityQuery['entity']
@@ -87,17 +88,15 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
   return (
     <div className="space-y-6">
       {isOverdue && (
-        <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive border border-destructive/20">
-          <Clock size={16} />
-          <span className="text-sm font-medium">Review overdue - immediate action required</span>
-        </div>
+        <Callout variant="danger" icon={Clock} compact contentClassName="font-medium">
+          Review overdue - immediate action required
+        </Callout>
       )}
 
       {showHighRiskWarning && (
-        <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive border border-destructive/20">
-          <AlertTriangle size={16} />
-          <span className="text-sm font-medium">High risk vendor - immediate action required</span>
-        </div>
+        <Callout variant="danger" compact contentClassName="font-medium">
+          High risk vendor - immediate action required
+        </Callout>
       )}
 
       <div>

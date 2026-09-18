@@ -1,19 +1,48 @@
-import { type InvoicesResponse, type OpenlaneProductsResponse, type Subscription, type SubscriptionSchedulesResponse, type UpcomingInvoiceResponse } from '@/types/stripe'
+import {
+  type Invoice,
+  type InvoicesResponse,
+  type OpenlaneProductsResponse,
+  type Subscription,
+  type SubscriptionSchedule,
+  type SubscriptionSchedulesResponse,
+  type UpcomingInvoiceResponse,
+} from '@/types/stripe'
 import { openlaneAPIUrl } from '@repo/dally/auth'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { fromUnixTime } from 'date-fns'
+import type Stripe from 'stripe'
 
-export function useSchedulesQuery(customerId?: string | null) {
-  return useQuery<SubscriptionSchedulesResponse>({
+const schedulesQueryOptions = (customerId?: string | null) =>
+  queryOptions({
     queryKey: ['stripe-schedules', customerId],
-    queryFn: async () => {
+    queryFn: async (): Promise<SubscriptionSchedulesResponse> => {
       if (!customerId) return []
       const res = await fetch(`/api/stripe/schedules?customerId=${customerId}`)
       if (!res.ok) throw new Error('Failed to fetch schedules')
-      return res.json()
+      return res.json() as Promise<SubscriptionSchedulesResponse>
     },
     enabled: !!customerId,
   })
-}
+
+export const useSchedulesQuery = (customerId?: string | null) => useQuery(schedulesQueryOptions(customerId))
+
+export const findManageableSchedule = (schedules?: SubscriptionSchedulesResponse): SubscriptionSchedule | null => schedules?.find((schedule) => schedule.status === 'active') ?? null
+
+export const useBillingPortalMutation = () =>
+  useMutation({
+    mutationFn: async ({ customerId, fullPortal = false }: { customerId: string; fullPortal?: boolean }): Promise<string> => {
+      const res = await fetch('/api/stripe/create-portal-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerId, isBillingSettings: fullPortal }),
+      })
+      const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string }
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || 'Failed to open the billing portal')
+      }
+      return data.url
+    },
+  })
 
 type UseUpcomingInvoiceQueryParams = {
   customerId?: string | null
@@ -105,9 +134,7 @@ export function useCancelSubscriptionMutation() {
       }
       return res.json()
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] })
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] }),
   })
 }
 
@@ -123,13 +150,11 @@ export function useRenewSubscriptionMutation() {
       })
       if (!res.ok) {
         const error = await res.json().catch(() => ({}))
-        throw new Error(error.error || 'Failed to cancel subscription')
+        throw new Error(error.error || 'Failed to renew subscription')
       }
       return res.json()
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] })
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] }),
   })
 }
 
@@ -197,18 +222,23 @@ export function usePaymentMethodsQuery(customerId?: string | null) {
   })
 }
 
-export function useInvoicesQuery(customerId?: string | null) {
-  return useQuery<InvoicesResponse>({
-    queryKey: ['stripe-invoices', customerId],
-    queryFn: async () => {
-      if (!customerId) {
-        return { invoices: [] }
-      }
+const DEFAULT_INVOICE_LIMIT = 10
+const OUTSTANDING_INVOICE_LIMIT = 100
 
+type InvoicesQueryParams = {
+  customerId?: string | null
+  status?: Stripe.InvoiceListParams.Status
+  limit?: number
+}
+
+const invoicesQueryOptions = ({ customerId, status, limit = DEFAULT_INVOICE_LIMIT }: InvoicesQueryParams) =>
+  queryOptions({
+    queryKey: ['stripe-invoices', customerId, status ?? null, limit],
+    queryFn: async (): Promise<InvoicesResponse> => {
       const res = await fetch(`/api/stripe/invoices`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerId }),
+        body: JSON.stringify({ customerId, status, limit }),
       })
 
       if (!res.ok) {
@@ -220,4 +250,16 @@ export function useInvoicesQuery(customerId?: string | null) {
     },
     enabled: !!customerId,
   })
+
+export const useInvoicesQuery = (customerId?: string | null) => useQuery(invoicesQueryOptions({ customerId }))
+
+const dueTimestamp = (invoice: Invoice) => invoice.due_date ?? invoice.created
+
+const selectOutstandingInvoiceDueDate = ({ invoices }: InvoicesResponse): Date | null => {
+  const oldest = invoices.filter((invoice) => invoice.amount_due > 0).reduce<Invoice | null>((acc, invoice) => (!acc || dueTimestamp(invoice) < dueTimestamp(acc) ? invoice : acc), null)
+
+  return oldest ? fromUnixTime(dueTimestamp(oldest)) : null
 }
+
+export const useOutstandingInvoiceDueDateQuery = (customerId?: string | null) =>
+  useQuery({ ...invoicesQueryOptions({ customerId, status: 'open', limit: OUTSTANDING_INVOICE_LIMIT }), select: selectOutstandingInvoiceDueDate })

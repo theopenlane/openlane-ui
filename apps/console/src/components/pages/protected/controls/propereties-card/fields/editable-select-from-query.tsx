@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
@@ -202,7 +203,7 @@ export const EditableSelectFromQuery = ({
                       </CommandGroup>
                     </CommandList>
                     {allowCustomApply && (
-                      <div className="border-t px-2 py-1" onClick={handleCustomApply}>
+                      <div className="border-t px-2 py-1" {...activatable(handleCustomApply)}>
                         <div className="w-full justify-start text-left text-sm flex items-center">
                           <PlusIcon className="mr-1 h-4 w-4" />
                           <span>Add&nbsp;</span>

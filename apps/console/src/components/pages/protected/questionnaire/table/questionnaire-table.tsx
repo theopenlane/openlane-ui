@@ -229,7 +229,7 @@ export const QuestionnairesTable = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/questionnaires' },
+      { label: 'Automation', href: '/automation' },
       { label: 'Questionnaires', href: '/automation/questionnaires' },
     ])
   }, [setCrumbs])

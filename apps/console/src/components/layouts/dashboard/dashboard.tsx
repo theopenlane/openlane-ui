@@ -24,6 +24,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ImpersonationBanner from '@/components/shared/impersonation-banner/impersonation-banner'
 import { GLOBAL_BANNER_HEIGHT_VAR, TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
+import { ONBOARDING_ROUTE } from '@/constants'
 import { DashboardContentOffsetProvider } from '@/providers/DashboardContentOffsetContext'
 import { DocsHelpTopicProvider } from '@/components/shared/docs-help/docs-help-context'
 import { DocsHelpTab } from '@/components/shared/docs-help/docs-help-tab'
@@ -66,8 +67,8 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const primaryWidth = primaryExpanded ? PRIMARY_EXPANDED_WIDTH : PRIMARY_WIDTH
   const secondaryWidth = openPanel ? (secondaryExpanded ? SECONDARY_EXPANDED_WIDTH : SECONDARY_COLLAPSED_WIDTH) : 0
 
-  const isOnboarding = sessionData?.user?.isOnboarding
-  const contentMarginLeft = isOnboarding ? 8 : primaryWidth + secondaryWidth + 4
+  const isSidebarHidden = pathname === ONBOARDING_ROUTE || sessionData?.user?.isOnboarding
+  const contentMarginLeft = isSidebarHidden ? 8 : primaryWidth + secondaryWidth + 4
 
   const bannerRef = useRef<HTMLDivElement>(null)
   const bannerHeight = useElementHeight(bannerRef)

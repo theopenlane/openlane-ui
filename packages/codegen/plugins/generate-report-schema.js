@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const { pluralizeTypeName, isExcludedType, DISPLAY_FIELD_ORDER, EXCLUDED_FIELDS, EXCLUDED_ASSOCIATIONS } = require('./lib')
+const { pluralizeTypeName, isExcludedType, DISPLAY_FIELD_ORDER, IDENTITY_FIELD, EXCLUDED_FIELDS, EXCLUDED_ASSOCIATIONS } = require('./lib')
 
 const introspectionPath = path.join(__dirname, '..', 'src', 'introspectionschema.json')
 const typeNamesPath = path.join(__dirname, '..', 'src', 'type-names.ts')
@@ -167,10 +167,30 @@ const buildEdges = (types, nodeType, edgeTypes, enums) => {
   return edges.sort((a, b) => a.name.localeCompare(b.name))
 }
 
+const buildOrder = (types, orderArg) => {
+  if (!orderArg) return null
+
+  const orderType = types.get(unwrap(orderArg.type).name ?? '')
+  const orderField = orderType?.inputFields?.find((f) => f.name === 'field')
+  const enumType = orderField && types.get(unwrap(orderField.type).name ?? '')
+
+  if (!orderType?.name || !enumType?.enumValues) return null
+
+  return { typeName: orderType.name, fields: enumType.enumValues.map((v) => v.name) }
+}
+
 const defaultFieldsFor = (fields) => {
   const names = new Set(fields.map((f) => f.name))
-  const defaults = DISPLAY_FIELD_ORDER.filter((name) => names.has(name)).slice(0, 4)
-  return defaults.length > 0 ? defaults : fields.slice(0, 3).map((f) => f.name)
+  const display = DISPLAY_FIELD_ORDER.filter((name) => names.has(name)).slice(0, 4)
+  const described =
+    display.length > 0
+      ? display
+      : fields
+          .filter((f) => f.name !== IDENTITY_FIELD)
+          .slice(0, 3)
+          .map((f) => f.name)
+
+  return names.has(IDENTITY_FIELD) ? [IDENTITY_FIELD, ...described] : described
 }
 
 const buildEntities = (types, query, edgeTypes, enums, unknownPredicates, objectTypes) => {
@@ -197,6 +217,11 @@ const buildEntities = (types, query, edgeTypes, enums, unknownPredicates, object
 
     for (const predicate of unexplainedPredicates(whereFields, nodeType)) unknownPredicates.add(`${whereType.name}.${predicate}`)
 
+    const order = buildOrder(
+      types,
+      field.args.find((a) => a.name === 'orderBy'),
+    )
+
     entities.push({
       queryName: field.name,
       typeName: nodeType.name,
@@ -205,6 +230,7 @@ const buildEntities = (types, query, edgeTypes, enums, unknownPredicates, object
       fields,
       edges: buildEdges(types, nodeType, edgeTypes, enums),
       defaultFields: defaultFieldsFor(fields),
+      order,
     })
   }
 
@@ -262,6 +288,7 @@ const generate = () => {
     `    objectType: ObjectTypes.${entity.objectType},`,
     `    whereTypeName: ${JSON.stringify(entity.whereTypeName)},`,
     `    defaultFields: [${entity.defaultFields.map((f) => JSON.stringify(f)).join(', ')}],`,
+    ...(entity.order ? [`    order: { typeName: ${JSON.stringify(entity.order.typeName)}, fields: [${entity.order.fields.map((f) => JSON.stringify(f)).join(', ')}] },`] : []),
     `    fields: [${entity.fields.map((f) => serializeField(f, operatorSets)).join(', ')}],`,
     `    edges: [${entity.edges.map(serializeEdge).join(', ')}],`,
     '  },',
@@ -311,6 +338,7 @@ const generate = () => {
     '  objectType: ObjectTypes',
     '  whereTypeName: string',
     '  defaultFields: string[]',
+    '  order?: { typeName: string; fields: string[] }',
     '  fields: TReportField[]',
     '  edges: TReportEdge[]',
     '}',

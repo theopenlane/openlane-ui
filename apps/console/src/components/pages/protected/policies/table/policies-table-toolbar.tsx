@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { FileText, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
+import { FileText, Import, LoaderCircle, SearchIcon } from 'lucide-react'
 import { ExportExportFormat } from '@repo/codegen/src/schema'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreatePolicyDialog from '@/components/pages/protected/policies/create/form/bulk-csv-create-policy-dialog.tsx'
+import CreatePolicyButton from '@/components/pages/protected/policies/create-policy-button'
 import { hasPermission } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -15,7 +16,6 @@ import { BulkEditPoliciesDialog } from '../bulk-edit/bulk-edit-policies'
 import { Button } from '@repo/ui/button'
 import CreatePolicyUploadDialog from '../create/form/create-policy-upload-dialog'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
-import Link from 'next/link'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -206,13 +206,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.INTERNAL_POLICY} />
               )}
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.INTERNAL_POLICY} />}
-              {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
-                <Link href="/policies/create">
-                  <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
-                    Create
-                  </Button>
-                </Link>
-              )}
+              <CreatePolicyButton />
             </>
           )}
         </div>

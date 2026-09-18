@@ -13,6 +13,7 @@ import { ResponsibilityCell } from '@/components/shared/crud-base/columns/respon
 import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { toHumanLabel } from '@/utils/strings'
+import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 
 const renderVendorIdentityCell = (row: EntitiesNodeNonNull, label: string) => {
   const logo = getVendorLogoUrl(row.logoFile)
@@ -117,7 +118,15 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
       accessorKey: 'internalOwner',
       header: 'Internal Owner',
       size: 160,
-      cell: ({ row }) => <ResponsibilityCell userMap={userMap} user={row.original.internalOwnerUser} group={row.original.internalOwnerGroup} stringValue={row.original.internalOwner} />,
+      cell: ({ row }) => (
+        <ResponsibilityCell
+          userMap={userMap}
+          user={row.original.internalOwnerUser}
+          personnel={row.original.internalOwnerIdentityHolder}
+          group={row.original.internalOwnerGroup}
+          stringValue={row.original.internalOwner}
+        />
+      ),
     },
     { accessorKey: 'lastReviewedAt', header: 'Last Reviewed At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     {
@@ -138,7 +147,15 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
       accessorKey: 'reviewedBy',
       header: 'Reviewed By',
       size: 160,
-      cell: ({ row }) => <ResponsibilityCell userMap={userMap} user={row.original.reviewedByUser} group={row.original.reviewedByGroup} stringValue={row.original.reviewedBy} />,
+      cell: ({ row }) => (
+        <ResponsibilityCell
+          userMap={userMap}
+          user={row.original.reviewedByUser}
+          personnel={row.original.reviewedByIdentityHolder}
+          group={row.original.reviewedByGroup}
+          stringValue={row.original.reviewedBy}
+        />
+      ),
     },
     { accessorKey: 'riskRating', header: 'Risk Rating', size: 120 },
     { accessorKey: 'riskScore', header: 'Risk Score', size: 100 },
@@ -155,16 +172,7 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
       accessorKey: 'statusPageURL',
       header: 'Status Page URL',
       size: 200,
-      cell: ({ cell }) => {
-        const url = cell.getValue() as string
-        return url ? (
-          <a href={url.startsWith('http') ? url : `https://${url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-            {url}
-          </a>
-        ) : (
-          ''
-        )
-      },
+      cell: ({ row }) => <ExternalLinkValue value={row.original.statusPageURL} />,
     },
     { accessorKey: 'terminationNoticeDays', header: 'Termination Notice Days', size: 100 },
     { accessorKey: 'tier', header: 'Tier', size: 100, cell: ({ cell }) => toHumanLabel(cell.getValue() as string) },

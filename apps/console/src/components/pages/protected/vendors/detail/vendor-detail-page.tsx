@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { useNavigationGuard } from 'next-navigation-guard'
+import { useNavigationGuard } from 'nextjs-nav-guard'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useEntity, useGetEntityAssociations, useUpdateEntity, useDeleteEntity } from '@/lib/graphql-hooks/entity'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -41,8 +41,8 @@ type VendorFormValues = EditVendorFormData
 
 const normalizeData = (data: EntityQuery['entity']) =>
   normalizeEntityData(data, {
-    internalOwner: { user: data?.internalOwnerUser, group: data?.internalOwnerGroup, stringValue: data?.internalOwner },
-    reviewedBy: { user: data?.reviewedByUser, group: data?.reviewedByGroup, stringValue: data?.reviewedBy },
+    internalOwner: { personnel: data?.internalOwnerIdentityHolder, user: data?.internalOwnerUser, group: data?.internalOwnerGroup, stringValue: data?.internalOwner },
+    reviewedBy: { personnel: data?.reviewedByIdentityHolder, user: data?.reviewedByUser, group: data?.reviewedByGroup, stringValue: data?.reviewedBy },
   })
 
 const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
@@ -76,7 +76,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Registry', href: '/registry/vendors' },
+      { label: 'Registry', href: '/registry' },
       { label: 'Vendors', href: '/registry/vendors' },
       { label: data?.entity?.displayName || data?.entity?.name || '', isLoading },
     ])

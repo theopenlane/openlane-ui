@@ -26,6 +26,7 @@ import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 import Github from '@/assets/Github'
 import { recordLastLoginMethod, getLastLoginMethod } from '@/lib/auth/utils/last-login-method'
 import { LastUsedBadge } from './last-used-badge'
+import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
 
 type WebfingerResponse = {
   success: boolean
@@ -130,7 +131,7 @@ export const LoginPage = () => {
 
       if (response.ok && data.success && data.redirect_uri) {
         recordLastLoginMethod(UserAuthProvider.OIDC)
-        window.location.href = data.redirect_uri
+        startSsoRedirect(data.redirect_uri)
         return true
       }
 
@@ -523,11 +524,7 @@ export const LoginPage = () => {
                   </>
                 }
 
-                <span
-                  onClick={() => !signInLoading}
-                  className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block cursor-pointer select-none"
-                  style={{ opacity: signInLoading ? 0.5 : 1 }}
-                ></span>
+                <span className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block select-none" style={{ opacity: signInLoading ? 0.5 : 1 }}></span>
               </div>
             </>
           )}
