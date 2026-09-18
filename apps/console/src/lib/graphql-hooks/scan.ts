@@ -11,6 +11,9 @@ import {
   type DeleteScanMutationVariables,
   type ScanQuery,
   type ScanQueryVariables,
+  type ScanStatusQuery,
+  type ScanStatusQueryVariables,
+  ScanScanStatus,
   type CreateBulkCsvScanMutation,
   type CreateBulkCsvScanMutationVariables,
   type UpdateBulkScanMutation,
@@ -30,6 +33,7 @@ import {
   UPDATE_SCAN,
   DELETE_SCAN,
   SCAN,
+  SCAN_STATUS,
   CREATE_CSV_BULK_SCAN,
   BULK_EDIT_SCAN,
   BULK_DELETE_SCAN,
@@ -117,6 +121,22 @@ export const useScan = (scanId?: ScanQueryVariables['scanId']) => {
       return result as ScanQuery
     },
     enabled: !!scanId,
+  })
+}
+
+const SCAN_STATUS_POLL_INTERVAL_MS = 3000
+
+const isTerminalScanStatus = (status?: ScanScanStatus) => status === ScanScanStatus.COMPLETED || status === ScanScanStatus.FAILED
+
+export const useScanStatus = (scanId?: ScanStatusQueryVariables['scanId']) => {
+  const { client } = useGraphQLClient()
+  return useQuery<ScanStatusQuery, ClientError>({
+    queryKey: ['scans', scanId, 'status'],
+    queryFn: async (): Promise<ScanStatusQuery> => client.request(SCAN_STATUS, { scanId }),
+    enabled: !!scanId,
+    placeholderData: undefined,
+    refetchInterval: (query) => (query.state.status === 'error' || isTerminalScanStatus(query.state.data?.scan?.status) ? false : SCAN_STATUS_POLL_INTERVAL_MS),
+    refetchIntervalInBackground: true,
   })
 }
 

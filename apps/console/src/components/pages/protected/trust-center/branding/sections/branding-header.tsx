@@ -4,6 +4,7 @@ import UrlInput from '../../shared/url-input'
 import { buildPreviewUrl } from '../helpers/preview-url'
 
 interface BrandingHeaderProps {
+  pullAction?: React.ReactNode
   cnameRecord?: string | null
   hasChanges?: boolean | null
   onPreview: () => void
@@ -11,13 +12,14 @@ interface BrandingHeaderProps {
   onPublish: () => void
 }
 
-export const BrandingHeader = ({ cnameRecord, hasChanges, onPreview, onRevert, onPublish }: BrandingHeaderProps) => {
+export const BrandingHeader = ({ pullAction, cnameRecord, hasChanges, onPreview, onRevert, onPublish }: BrandingHeaderProps) => {
   const url = buildPreviewUrl(cnameRecord)
   return (
     <div className="flex items-center gap-5 w-full">
       <Button onClick={onPreview} type="button" variant="secondary" icon={<Eye size={16} />}>
         Preview
       </Button>
+      {pullAction}
       {hasChanges && (
         <Button onClick={onRevert} type="button" variant="secondary" icon={<RotateCcw size={16} />}>
           Revert Changes

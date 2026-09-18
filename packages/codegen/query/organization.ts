@@ -186,6 +186,17 @@ export const GET_ORGANIZATION_SETTING = gql`
   }
 `
 
+export const GET_ORGANIZATION_DOMAINS = gql`
+  query GetOrganizationDomains($organizationId: ID!) {
+    organization(id: $organizationId) {
+      setting {
+        id
+        domains
+      }
+    }
+  }
+`
+
 export const GET_BILLING_EMAIL = gql`
   query GetBillingEmail($organizationId: ID!) {
     organization(id: $organizationId) {

@@ -4,7 +4,7 @@ import { type TrustCenterPreviewSetting, type TrustCenterSetting, useGetTrustCen
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
 import { PageHeading } from '@repo/ui/page-heading'
-import { use, useEffect, useMemo, useState } from 'react'
+import { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { type UpdateTrustCenterSettingsArgs, useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNavigationGuard } from 'nextjs-nav-guard'
@@ -18,6 +18,7 @@ import { FormProvider } from 'react-hook-form'
 import { type BrandFormValues, DEFAULT_BRAND_COLOR, useBrandForm } from './brand-schema'
 import { TrustCenterSkeleton } from '../skeleton/trust-center-skeleton'
 import { BrandingCompanyInfoSection } from './sections/branding-company-info-section'
+import { BrandingDomainPull } from './sections/branding-domain-pull'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
 
@@ -42,6 +43,9 @@ const BrandPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'preview' | 'published'>('preview')
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false)
+  const [pulledBrandingCount, setPulledBrandingCount] = useState(0)
+
+  const handleBrandingPulled = useCallback(() => setPulledBrandingCount((count) => count + 1), [])
 
   const methods = useBrandForm()
 
@@ -83,7 +87,7 @@ const BrandPage: React.FC = () => {
       }, 0)
       return () => clearTimeout(timeoutId)
     }
-  }, [previewSetting, reset, methods])
+  }, [previewSetting, pulledBrandingCount, reset, methods])
 
   useEffect(() => {
     setCrumbs([
@@ -228,6 +232,7 @@ const BrandPage: React.FC = () => {
             onPreview={handleSubmit((v) => onSubmit(v, 'preview'))}
             onRevert={handleRevert}
             onPublish={() => setIsConfirmationDialogOpen(true)}
+            pullAction={<BrandingDomainPull isReadOnly={isReadOnly} onPulled={handleBrandingPulled} />}
           />
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'preview' | 'published')} className="w-full">
             <TabsList className="grid w-full max-w-[400px] grid-cols-2">

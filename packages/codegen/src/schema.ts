@@ -5697,6 +5697,14 @@ export interface GetOrganizationSettingQuery {
   }
 }
 
+export type GetOrganizationDomainsQueryVariables = Exact<{
+  organizationId: string
+}>
+
+export interface GetOrganizationDomainsQuery {
+  organization: { setting: { id: string; domains: Array<string> | null } | null }
+}
+
 export type GetBillingEmailQueryVariables = Exact<{
   organizationId: string
 }>
@@ -7374,6 +7382,14 @@ export interface ScanQuery {
     reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
     reviewedByGroup: { id: string; displayName: string } | null
   }
+}
+
+export type ScanStatusQueryVariables = Exact<{
+  scanId: string
+}>
+
+export interface ScanStatusQuery {
+  scan: { id: string; status: Types.ScanScanStatus; metadata: any }
 }
 
 export type CreateScanMutationVariables = Exact<{

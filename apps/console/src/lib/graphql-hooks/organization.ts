@@ -9,6 +9,7 @@ import {
   GET_INVITES,
   GET_ORGANIZATION_BILLING,
   GET_ORGANIZATION_SETTING,
+  GET_ORGANIZATION_DOMAINS,
   GET_BILLING_EMAIL,
   CREATE_ORGANIZATION,
   CREATE_BULK_INVITE,
@@ -30,6 +31,8 @@ import {
   type GetOrganizationBillingQueryVariables,
   type GetOrganizationSettingQuery,
   type GetOrganizationSettingQueryVariables,
+  type GetOrganizationDomainsQuery,
+  type GetOrganizationDomainsQueryVariables,
   type GetBillingEmailQuery,
   type GetBillingEmailQueryVariables,
   type CreateOrganizationMutation,
@@ -161,6 +164,16 @@ export const useGetOrganizationSetting = (organizationId: string | undefined) =>
   return useQuery<GetOrganizationSettingQuery, GetOrganizationSettingQueryVariables>({
     queryKey: ['organizationSetting', organizationId],
     queryFn: async () => client.request(GET_ORGANIZATION_SETTING, { organizationId }),
+    enabled: !!organizationId,
+  })
+}
+
+export const useGetOrganizationDomains = (organizationId: string | undefined) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetOrganizationDomainsQuery, GetOrganizationDomainsQueryVariables>({
+    queryKey: ['organizationDomains', organizationId],
+    queryFn: async () => client.request(GET_ORGANIZATION_DOMAINS, { organizationId }),
     enabled: !!organizationId,
   })
 }
