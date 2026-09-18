@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { DOCUMENT_FOLDER_FIELD, PRIMARY_DOCUMENT_FIELD } from '@/lib/integrations/flow'
+import { PRIMARY_DOCUMENT_FIELD } from '@/lib/integrations/flow'
 import { latestFinalizedIntegrationForProvider, readIntegrationUserInput } from '@/lib/integrations/utils'
 import { clearPendingIntegrationPrompt, readPendingIntegrationPrompt, writePendingIntegrationPrompt } from '@/lib/integrations/pending-integration-prompt'
 import { type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
@@ -21,11 +21,7 @@ const isPromptNeeded = (kind: IntegrationPromptKind, integration: IntegrationNod
     return !integration.primaryDirectory
   }
 
-  const userInput = readIntegrationUserInput(integration)
-  const isPrimary = userInput[PRIMARY_DOCUMENT_FIELD] === true
-  const isFolderConfigured = DOCUMENT_FOLDER_FIELD in userInput
-
-  return !isPrimary || !isFolderConfigured
+  return readIntegrationUserInput(integration)[PRIMARY_DOCUMENT_FIELD] !== true
 }
 
 export function useIntegrationPostConnectPrompt({ provider, canManage, supportsPrimaryDirectory, supportsDocumentSync, installedInstances }: UseIntegrationPostConnectPromptOptions) {

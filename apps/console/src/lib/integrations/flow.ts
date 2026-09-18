@@ -4,7 +4,6 @@ import { type IntegrationConfigurationResult, type IntegrationProvider, type Sta
 
 export const PRIMARY_DIRECTORY_FIELD = 'primaryDirectory'
 export const PRIMARY_DOCUMENT_FIELD = 'primary'
-export const DOCUMENT_FOLDER_FIELD = 'folderId'
 
 type StartIntegrationOptions = {
   credentialRef?: string
@@ -39,7 +38,7 @@ export function providerSupportsPrimaryDirectory(provider?: IntegrationProvider)
 
 export function providerSupportsDocumentSync(provider?: IntegrationProvider): boolean {
   const properties = resolveSchemaRoot(provider?.userInputSchema)?.properties
-  return Boolean(properties && PRIMARY_DOCUMENT_FIELD in properties && DOCUMENT_FOLDER_FIELD in properties)
+  return Boolean(properties && PRIMARY_DOCUMENT_FIELD in properties)
 }
 
 export function providerSupportsInstalledConfiguration(provider?: IntegrationProvider): boolean {
