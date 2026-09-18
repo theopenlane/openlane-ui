@@ -9,6 +9,7 @@ import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { ReviewStatusIconLabel } from '@/components/shared/enum-mapper/review-enum'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { EntityVendorTier, type ReviewReviewStatus, type ReviewWhereInput } from '@repo/codegen/src/schema'
 
@@ -103,7 +104,7 @@ export const reviewHistoryColumns: ColumnDef<ReviewsNodeNonNull>[] = [
     accessorKey: 'status',
     header: 'Status',
     size: 130,
-    cell: ({ row }) => <span className="block truncate">{getEnumLabel(row.original.status as ReviewReviewStatus) || '—'}</span>,
+    cell: ({ row }) => <ReviewStatusIconLabel status={row.original.status as ReviewReviewStatus | null} />,
   },
   {
     accessorKey: 'tags',
