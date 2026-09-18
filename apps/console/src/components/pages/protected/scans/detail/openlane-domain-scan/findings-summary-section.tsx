@@ -64,7 +64,7 @@ const FindingsSummarySection: React.FC<Props> = ({ metadata }) => {
                 <ul className="space-y-1.5 mt-3">
                   {emailAuthIssues.map((issue) => (
                     <li key={issue.key} className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <PostureStatusIcon status={PostureStatus.Bad} className="shrink-0" />
+                      <PostureStatusIcon status={issue.status} className="shrink-0" />
                       {issue.label}: {issue.value}
                     </li>
                   ))}
@@ -89,7 +89,7 @@ const FindingsSummarySection: React.FC<Props> = ({ metadata }) => {
                 <ul className="space-y-1.5 mt-3">
                   {webPostureIssues.map((issue) => (
                     <li key={issue.key} className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <PostureStatusIcon status={PostureStatus.Bad} className="shrink-0" />
+                      <PostureStatusIcon status={issue.status} className="shrink-0" />
                       {issue.label}: {issue.value}
                     </li>
                   ))}
@@ -110,7 +110,7 @@ const FindingsSummarySection: React.FC<Props> = ({ metadata }) => {
               {agentReadiness.checklist.length > 0 && (
                 <ul className="space-y-1.5 mt-3">
                   {agentReadiness.checklist.map((item) => (
-                    <li key={item} className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <li key={`${index}-${item}`} className="flex items-center gap-1.5 text-sm text-muted-foreground">
                       <PostureStatusIcon status={PostureStatus.Bad} className="shrink-0" />
                       {item}
                     </li>

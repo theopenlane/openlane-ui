@@ -14,7 +14,7 @@ const Row: React.FC<{ row: PostureRow }> = ({ row }) => {
     <div className="rounded-lg border p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium">{row.label}</p>
-        <span className={`inline-flex items-center gap-1.5 text-sm text-right ${PostureStatusIconMapper[row.status].className}`}>
+        <span className={cn('inline-flex items-center gap-1.5 text-sm text-right', PostureStatusIconMapper[row.status].className)}>
           <PostureStatusIcon status={row.status} className="shrink-0" /> {row.value}
         </span>
       </div>
