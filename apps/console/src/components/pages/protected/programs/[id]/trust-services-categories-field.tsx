@@ -4,7 +4,7 @@ import React, { useMemo } from 'react'
 
 import { Badge } from '@repo/ui/badge'
 import { Label } from '@repo/ui/label'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/tooltip'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 import { programFrameworkControlsWhere } from '@/constants/standards'
 import { SOC_2_REQUIRED_CATEGORY, sortTrustServicesCategories } from '@/constants/trust-services-categories'
@@ -28,16 +28,15 @@ const TrustServicesCategoriesField = ({ programId, frameworkName, canManage }: T
       <div className="flex flex-1 min-w-0 flex-wrap items-center gap-2">
         {programCategories.map((category) =>
           category === SOC_2_REQUIRED_CATEGORY ? (
-            <Tooltip key={category}>
-              <TooltipTrigger asChild>
+            <SystemTooltip
+              key={category}
+              icon={
                 <Badge variant="outline" className="w-fit cursor-help">
                   {category}
                 </Badge>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs whitespace-normal">
-                {SOC_2_REQUIRED_CATEGORY} is included by default because it is required for every {frameworkName} program.
-              </TooltipContent>
-            </Tooltip>
+              }
+              content={`${SOC_2_REQUIRED_CATEGORY} is included by default because it is required for every ${frameworkName} program.`}
+            />
           ) : (
             <Badge key={category} variant="outline" className="w-fit">
               {category}
