@@ -8,7 +8,7 @@ import { uniqueName } from '../utils/unique'
 
 const programName = (slug: string) => uniqueName(`E2E Program ${slug}`)
 
-const trustServiceCategory = (page: Page, name: string) => page.locator(`#trust-service-category-${name.replace(/\s+/g, '-').toLowerCase()}`)
+const trustServiceCategory = (page: Page, name: string) => page.getByTestId(`trust-service-category-${name.replace(/\s+/g, '-').toLowerCase()}`)
 
 const selectProgramType = async (page: Page, label: string): Promise<void> => {
   const picker = page
@@ -127,7 +127,7 @@ test.describe('programs — generic program create', () => {
 test.describe('programs — SOC 2 wizard', () => {
   test('step 0 — deselecting all categories surfaces the no-controls warning, re-selecting clears it', async ({ page }) => {
     await page.goto('/programs/create/soc2')
-    await expect(page.getByRole('heading', { name: 'Add Trust Service Categories' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: 'Add Trust Services Categories' })).toBeVisible({ timeout: 15_000 })
 
     const warning = page.getByText(/No categories selected/i)
     await expect(warning).toBeHidden()
@@ -141,7 +141,7 @@ test.describe('programs — SOC 2 wizard', () => {
 
   test('Back from step 0 opens the Exit confirmation and returns to /programs/create', async ({ page }) => {
     await page.goto('/programs/create/soc2')
-    await expect(page.getByRole('heading', { name: 'Add Trust Service Categories' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: 'Add Trust Services Categories' })).toBeVisible({ timeout: 15_000 })
 
     await page.getByRole('button', { name: /^back$/i }).click()
     const dialog = page.getByRole('alertdialog', { name: /exit program creation/i })
@@ -154,7 +154,7 @@ test.describe('programs — SOC 2 wizard', () => {
 
   test('wizard advances Categories → Team setup → Access control via Continue', async ({ page }) => {
     await page.goto('/programs/create/soc2')
-    await expect(page.getByRole('heading', { name: 'Add Trust Service Categories' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: 'Add Trust Services Categories' })).toBeVisible({ timeout: 15_000 })
 
     await page.getByRole('button', { name: /^continue$/i }).click()
     await expect(page.getByRole('button', { name: /add teammates now/i })).toBeVisible({ timeout: 10_000 })
@@ -165,7 +165,7 @@ test.describe('programs — SOC 2 wizard', () => {
 
   test('step 1 — "Add teammates now" reveals the member and group selectors', async ({ page }) => {
     await page.goto('/programs/create/soc2')
-    await expect(page.getByRole('heading', { name: 'Add Trust Service Categories' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: 'Add Trust Services Categories' })).toBeVisible({ timeout: 15_000 })
     await page.getByRole('button', { name: /^continue$/i }).click()
 
     await page.getByRole('button', { name: /add teammates now/i }).click()
@@ -175,7 +175,7 @@ test.describe('programs — SOC 2 wizard', () => {
 
   test('step 2 — access control offers Ready to Start and Gap Analysis First', async ({ page }) => {
     await page.goto('/programs/create/soc2')
-    await expect(page.getByRole('heading', { name: 'Add Trust Service Categories' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: 'Add Trust Services Categories' })).toBeVisible({ timeout: 15_000 })
     await page.getByRole('button', { name: /^continue$/i }).click()
     await page.getByRole('button', { name: /^continue$/i }).click()
 
@@ -186,7 +186,7 @@ test.describe('programs — SOC 2 wizard', () => {
 
   test('happy path — completing all 3 steps creates a SOC 2 program and lands on its detail page', async ({ page }) => {
     await page.goto('/programs/create/soc2')
-    await expect(page.getByRole('heading', { name: 'Add Trust Service Categories' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: 'Add Trust Services Categories' })).toBeVisible({ timeout: 15_000 })
 
     await page.getByRole('button', { name: /^continue$/i }).click()
     await expect(page.getByRole('button', { name: /add teammates now/i })).toBeVisible({ timeout: 10_000 })
@@ -220,14 +220,14 @@ test.describe('programs — framework-based wizard', () => {
     await expect(page.getByText(/^Framework is required$/)).toBeVisible({ timeout: 10_000 })
   })
 
-  test('selecting the SOC 2 framework advances to the Trust Service Categories step', async ({ page }) => {
+  test('selecting the SOC 2 framework advances to the Trust Services Categories step', async ({ page }) => {
     await page.goto('/programs/create/framework-based')
     await expect(page.getByRole('heading', { name: 'Select a Framework' })).toBeVisible({ timeout: 15_000 })
 
     await pickFramework(page, 'SOC 2')
     await page.getByRole('button', { name: /^continue$/i }).click()
 
-    await expect(page.getByRole('heading', { name: 'Add Trust Service Categories' })).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('heading', { name: 'Add Trust Services Categories' })).toBeVisible({ timeout: 10_000 })
   })
 
   test('happy path — framework-based with SOC 2 creates a program and lands on its detail page', async ({ page }) => {
@@ -237,7 +237,7 @@ test.describe('programs — framework-based wizard', () => {
     await pickFramework(page, 'SOC 2')
     await page.getByRole('button', { name: /^continue$/i }).click()
 
-    await expect(page.getByRole('heading', { name: 'Add Trust Service Categories' })).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('heading', { name: 'Add Trust Services Categories' })).toBeVisible({ timeout: 10_000 })
     await page.getByRole('button', { name: /^continue$/i }).click()
 
     await expect(page.getByRole('button', { name: /add teammates now/i })).toBeVisible({ timeout: 10_000 })
@@ -324,7 +324,7 @@ test.describe('programs — advanced-setup wizard', () => {
     await page.getByRole('button', { name: /^continue$/i }).click()
 
     await expect(page.getByRole('heading', { name: 'Auditors' })).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByRole('heading', { name: 'Add Trust Service Categories' })).toBeHidden()
+    await expect(page.getByRole('heading', { name: 'Add Trust Services Categories' })).toBeHidden()
   })
 
   test('happy path — Advanced Setup with the "Other" type creates a program and lands on detail', async ({ page }) => {
@@ -396,7 +396,7 @@ test.describe('programs — advanced-setup SOC 2 categories step', () => {
     await page.getByPlaceholder('Search...').fill('SOC 2')
     await page.getByRole('option', { name: /SOC 2/ }).first().click()
     await page.getByRole('button', { name: /^continue$/i }).click()
-    await expect(page.getByRole('heading', { name: 'Add Trust Service Categories' })).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('heading', { name: 'Add Trust Services Categories' })).toBeVisible({ timeout: 10_000 })
   }
 
   test('toggling all categories off surfaces the no-controls warning, re-selecting clears it', async ({ page }) => {
