@@ -1,9 +1,15 @@
-import { toHumanLabel } from '@/utils/strings'
-import { type PostureStatus } from '@/components/shared/enum-mapper/scan-enum'
-
-export { type PostureStatus }
+import { pluralizeWithCount, toHumanLabel } from '@/utils/strings'
+import { isPostureIssue, type PostureStatus } from '@/components/shared/enum-mapper/scan-enum'
 
 export const OPENLANE_DOMAIN_SCAN_PERFORMER = 'openlane_domain_scan'
+
+const DETAIL_SEPARATOR = ' · '
+const UNKNOWN_GROUP_LABEL = 'Unknown'
+const FRAMEWORKS_ENTRY_KEY = 'frameworks'
+const SECONDS_PER_DAY = 86400
+const DMARC_FULL_PERCENTAGE = 100
+
+const joinDetails = (parts: Array<string | undefined | false>): string | undefined => parts.filter(Boolean).join(DETAIL_SEPARATOR) || undefined
 
 export type Vendor = { url?: string; name?: string; categories?: string[] }
 type System = { description?: string; system_name?: string }
@@ -138,7 +144,7 @@ const summarizeValue = (value: unknown): string => {
     return Object.values(value as Record<string, unknown>)
       .filter((v) => v !== null && v !== undefined && typeof v !== 'object')
       .map(String)
-      .join(' · ')
+      .join(DETAIL_SEPARATOR)
   }
   return String(value)
 }
@@ -151,7 +157,7 @@ const groupRecordsByField = (records: unknown[], groupField: string, valueField:
     }
     const rec = record as Record<string, unknown>
     const groupValue = rec[groupField]
-    const groupLabel = groupValue !== null && groupValue !== undefined && groupValue !== '' ? String(groupValue) : 'Unknown'
+    const groupLabel = groupValue !== null && groupValue !== undefined && groupValue !== '' ? String(groupValue) : UNKNOWN_GROUP_LABEL
     const value = summarizeValue(rec[valueField] ?? rec)
     if (!value) {
       return
@@ -217,7 +223,7 @@ export const getDiscoveryEntries = (metadata: ScanMetadata | null): DiscoveryEnt
 
   const frameworks = getFrameworks(metadata)
   if (frameworks.length) {
-    entries.push({ key: 'frameworks', label: 'Frameworks Identified', count: frameworks.length, items: frameworks })
+    entries.push({ key: FRAMEWORKS_ENTRY_KEY, label: 'Frameworks Identified', count: frameworks.length, items: frameworks })
   }
 
   return entries
@@ -257,30 +263,46 @@ export const hasCompanyInfo = (metadata: ScanMetadata | null): boolean => {
 
 export type PostureRow = { key: string; label: string; status: PostureStatus; value: string; detail?: string }
 
-const DMARC_FULL_PERCENTAGE = 100
+type PostureVerdict = Pick<PostureRow, 'status' | 'value' | 'detail'>
+
+const POSTURE_CHECKS = {
+  spf: 'SPF',
+  dmarc: 'DMARC',
+  dkim: 'DKIM',
+  mx: 'Mail exchangers',
+  security_txt: 'security.txt',
+  robots_txt: 'robots.txt',
+  llms_txt: 'llms.txt',
+  transport: 'HTTPS and HSTS',
+} as const
+
+type PostureCheck = keyof typeof POSTURE_CHECKS
+
+const postureRow = (key: PostureCheck, verdict: PostureVerdict): PostureRow => ({ key, label: POSTURE_CHECKS[key], ...verdict })
+
+const SPF_MISSING: PostureVerdict = { status: 'bad', value: 'Not published', detail: 'Nothing declares which servers may send mail as this domain.' }
+
+const SPF_NO_ALL: PostureVerdict = { status: 'warn', value: 'Published, no all mechanism', detail: 'Without a trailing all mechanism the record has no default.' }
+
+const SPF_POLICY_VERDICTS: Record<string, PostureVerdict> = {
+  hard_fail: { status: 'good', value: 'Published, hard fail (-all)', detail: 'No issues found.' },
+  soft_fail: { status: 'good', value: 'Published, soft fail (~all)', detail: 'No issues found.' },
+  neutral: { status: 'warn', value: 'Published, neutral (?all)', detail: 'A neutral qualifier asserts nothing about unlisted senders.' },
+  pass_all: { status: 'bad', value: 'Published, passes any sender (+all)', detail: 'Every server on the internet passes SPF for this domain.' },
+}
 
 const describeSPF = (auth: EmailAuth): PostureRow => {
   if (!auth.spf_record) {
-    return { key: 'spf', label: 'SPF', status: 'bad', value: 'Not published', detail: 'Nothing declares which servers may send mail as this domain.' }
+    return postureRow('spf', SPF_MISSING)
   }
-
-  switch (auth.spf_policy) {
-    case 'hard_fail':
-      return { key: 'spf', label: 'SPF', status: 'good', value: 'Published, hard fail (-all)', detail: 'No issues found.' }
-    case 'soft_fail':
-      return { key: 'spf', label: 'SPF', status: 'good', value: 'Published, soft fail (~all)', detail: 'No issues found.' }
-    case 'neutral':
-      return { key: 'spf', label: 'SPF', status: 'warn', value: 'Published, neutral (?all)', detail: 'A neutral qualifier asserts nothing about unlisted senders.' }
-    case 'pass_all':
-      return { key: 'spf', label: 'SPF', status: 'bad', value: 'Published, passes any sender (+all)', detail: 'Every server on the internet passes SPF for this domain.' }
-    default:
-      return { key: 'spf', label: 'SPF', status: 'warn', value: 'Published, no all mechanism', detail: 'Without a trailing all mechanism the record has no default.' }
-  }
+  return postureRow('spf', SPF_POLICY_VERDICTS[auth.spf_policy ?? ''] ?? SPF_NO_ALL)
 }
+
+const DMARC_MISSING: PostureVerdict = { status: 'bad', value: 'Not published', detail: 'Nothing tells receiving servers what to do with mail that fails authentication.' }
 
 const describeDMARC = (auth: EmailAuth): PostureRow => {
   if (!auth.dmarc_record || !auth.dmarc_policy) {
-    return { key: 'dmarc', label: 'DMARC', status: 'bad', value: 'Not published', detail: 'Nothing tells receiving servers what to do with mail that fails authentication.' }
+    return postureRow('dmarc', DMARC_MISSING)
   }
 
   const pct = auth.dmarc_percentage ?? DMARC_FULL_PERCENTAGE
@@ -302,26 +324,22 @@ const describeDMARC = (auth: EmailAuth): PostureRow => {
   const detail = details.join(' ') || undefined
 
   if (auth.dmarc_policy === 'none') {
-    return { key: 'dmarc', label: 'DMARC', status: 'warn', value: 'Monitoring only (p=none)', detail: detail ?? 'Failing mail is still delivered.' }
+    return postureRow('dmarc', { status: 'warn', value: 'Monitoring only (p=none)', detail: detail ?? 'Failing mail is still delivered.' })
   }
 
-  return {
-    key: 'dmarc',
-    label: 'DMARC',
-    status: sampled ? 'warn' : 'good',
-    value: `p=${auth.dmarc_policy}${sampled ? ` at ${pct}%` : ''}`,
-    detail,
-  }
+  return postureRow('dmarc', { status: sampled ? 'warn' : 'good', value: `p=${auth.dmarc_policy}${sampled ? ` at ${pct}%` : ''}`, detail })
 }
+
+const DKIM_MISSING: PostureVerdict = { status: 'info', value: 'No common selector found', detail: 'Only conventional selector names are probed, so this is suggestive rather than conclusive.' }
 
 const describeDKIM = (auth: EmailAuth): PostureRow => {
   const selectors = auth.dkim_selectors ?? []
 
   if (!selectors.length) {
-    return { key: 'dkim', label: 'DKIM', status: 'info', value: 'No common selector found', detail: 'Only conventional selector names are probed, so this is suggestive rather than conclusive.' }
+    return postureRow('dkim', DKIM_MISSING)
   }
 
-  return { key: 'dkim', label: 'DKIM', status: 'good', value: `${selectors.length} selector${selectors.length === 1 ? '' : 's'} published`, detail: selectors.join(', ') }
+  return postureRow('dkim', { status: 'good', value: `${pluralizeWithCount(selectors.length, 'selector')} published`, detail: selectors.join(', ') })
 }
 
 export const getEmailAuthRows = (metadata: ScanMetadata | null): PostureRow[] => {
@@ -333,10 +351,73 @@ export const getEmailAuthRows = (metadata: ScanMetadata | null): PostureRow[] =>
   const rows = [describeDMARC(auth), describeSPF(auth), describeDKIM(auth)]
 
   if (auth.mx_hosts?.length) {
-    rows.push({ key: 'mx', label: 'Mail exchangers', status: 'info', value: `${auth.mx_hosts.length} host${auth.mx_hosts.length === 1 ? '' : 's'}`, detail: auth.mx_hosts.join(', ') })
+    rows.push(postureRow('mx', { status: 'info', value: pluralizeWithCount(auth.mx_hosts.length, 'host'), detail: auth.mx_hosts.join(', ') }))
   }
 
   return rows
+}
+
+const SECURITY_TXT_MISSING: PostureVerdict = { status: 'warn', value: 'Not published', detail: 'A researcher who finds something has nowhere to send it.' }
+
+const describeSecurityTxt = (security?: SecurityTxt): PostureRow => {
+  if (!security?.present) {
+    return postureRow('security_txt', SECURITY_TXT_MISSING)
+  }
+
+  return postureRow('security_txt', {
+    status: security.expired ? 'warn' : 'good',
+    value: security.expired ? 'Published but expired' : 'Published',
+    detail: joinDetails([security.contacts?.length ? `Contact: ${security.contacts.join(', ')}` : '', security.policy ? `Policy: ${security.policy}` : '']),
+  })
+}
+
+const ROBOTS_TXT_MISSING: PostureVerdict = { status: 'info', value: 'Not published' }
+
+const describeRobotsTxt = (robots?: RobotsTxt): PostureRow => {
+  if (!robots?.present) {
+    return postureRow('robots_txt', ROBOTS_TXT_MISSING)
+  }
+
+  const signals = Object.entries(robots.content_signals ?? {})
+  const named = robots.named_ai_crawlers?.length ?? 0
+  const blocked = robots.disallowed_ai_crawlers?.length ?? 0
+
+  return postureRow('robots_txt', {
+    status: signals.length || blocked ? 'good' : 'info',
+    value: 'Published',
+    detail: joinDetails([
+      signals.length ? `Content-Signal: ${signals.map(([key, value]) => `${key}=${value}`).join(', ')}` : '',
+      named ? `${blocked} of ${named} named AI crawlers fully disallowed` : 'No AI crawlers named',
+    ]),
+  })
+}
+
+const LLMS_TXT_MISSING: PostureVerdict = { status: 'info', value: 'Not published' }
+
+const describeLLMsTxt = (llms?: LLMsTxt): PostureRow => {
+  if (!llms?.present) {
+    return postureRow('llms_txt', LLMS_TXT_MISSING)
+  }
+
+  return postureRow('llms_txt', {
+    status: 'good',
+    value: `Published${llms.full_present ? ', with llms-full.txt' : ''}`,
+    detail: joinDetails([llms.title, llms.section_count ? `${llms.section_count} sections` : '']),
+  })
+}
+
+const describeTransport = (transport: TransportSecurity): PostureRow => {
+  const days = transport.hsts_max_age ? Math.round(transport.hsts_max_age / SECONDS_PER_DAY) : 0
+
+  return postureRow('transport', {
+    status: transport.hsts && transport.redirects_to_https ? 'good' : 'warn',
+    value: transport.hsts ? `HSTS for ${pluralizeWithCount(days, 'day')}` : 'No HSTS header',
+    detail: joinDetails([
+      transport.redirects_to_https ? 'HTTP redirects to HTTPS' : 'Plain HTTP does not redirect to HTTPS',
+      transport.hsts_include_subdomains && 'includeSubDomains',
+      transport.hsts_preload && 'preload',
+    ]),
+  })
 }
 
 export const getWellKnownRows = (metadata: ScanMetadata | null): PostureRow[] => {
@@ -345,82 +426,21 @@ export const getWellKnownRows = (metadata: ScanMetadata | null): PostureRow[] =>
     return []
   }
 
-  const rows: PostureRow[] = []
-  const security = wellKnown.security_txt
+  const rows = [describeSecurityTxt(wellKnown.security_txt), describeRobotsTxt(wellKnown.robots_txt), describeLLMsTxt(wellKnown.llms_txt)]
 
-  if (security?.present) {
-    rows.push({
-      key: 'security_txt',
-      label: 'security.txt',
-      status: security.expired ? 'warn' : 'good',
-      value: security.expired ? 'Published but expired' : 'Published',
-      detail: [security.contacts?.length ? `Contact: ${security.contacts.join(', ')}` : '', security.policy ? `Policy: ${security.policy}` : ''].filter(Boolean).join(' · ') || undefined,
-    })
-  } else {
-    rows.push({ key: 'security_txt', label: 'security.txt', status: 'warn', value: 'Not published', detail: 'A researcher who finds something has nowhere to send it.' })
-  }
-
-  const robots = wellKnown.robots_txt
-
-  if (robots?.present) {
-    const signals = Object.entries(robots.content_signals ?? {})
-    const named = robots.named_ai_crawlers?.length ?? 0
-    const blocked = robots.disallowed_ai_crawlers?.length ?? 0
-    const detail = [
-      signals.length ? `Content-Signal: ${signals.map(([key, value]) => `${key}=${value}`).join(', ')}` : '',
-      named ? `${blocked} of ${named} named AI crawlers fully disallowed` : 'No AI crawlers named',
-    ]
-      .filter(Boolean)
-      .join(' · ')
-
-    rows.push({ key: 'robots_txt', label: 'robots.txt', status: signals.length || blocked ? 'good' : 'info', value: 'Published', detail })
-  } else {
-    rows.push({ key: 'robots_txt', label: 'robots.txt', status: 'info', value: 'Not published' })
-  }
-
-  const llms = wellKnown.llms_txt
-
-  rows.push({
-    key: 'llms_txt',
-    label: 'llms.txt',
-    status: llms?.present ? 'good' : 'info',
-    value: llms?.present ? `Published${llms.full_present ? ', with llms-full.txt' : ''}` : 'Not published',
-    detail: llms?.present ? [llms.title, llms.section_count ? `${llms.section_count} sections` : ''].filter(Boolean).join(' · ') || undefined : undefined,
-  })
-
-  const transport = wellKnown.transport
-
-  if (transport) {
-    const days = transport.hsts_max_age ? Math.round(transport.hsts_max_age / 86400) : 0
-    const detail = [
-      transport.redirects_to_https ? 'HTTP redirects to HTTPS' : 'Plain HTTP does not redirect to HTTPS',
-      transport.hsts_include_subdomains ? 'includeSubDomains' : '',
-      transport.hsts_preload ? 'preload' : '',
-    ]
-      .filter(Boolean)
-      .join(' · ')
-
-    rows.push({
-      key: 'transport',
-      label: 'HTTPS and HSTS',
-      status: transport.hsts && transport.redirects_to_https ? 'good' : 'warn',
-      value: transport.hsts ? `HSTS for ${days} day${days === 1 ? '' : 's'}` : 'No HSTS header',
-      detail,
-    })
+  if (wellKnown.transport) {
+    rows.push(describeTransport(wellKnown.transport))
   }
 
   return rows
 }
 
-// getEmailAuthIssues returns only the email authentication rows that need attention, so the
-// findings summary can count them without repeating the interpretation in describeDMARC and
-// its siblings. An "info" row is excluded: an unfound DKIM selector is inconclusive rather
-// than wrong, since only conventional selector names are probed
-export const getEmailAuthIssues = (metadata: ScanMetadata | null): PostureRow[] => getEmailAuthRows(metadata).filter((row) => row.status === 'warn' || row.status === 'bad')
+const issueRows = (rows: PostureRow[]): PostureRow[] => rows.filter((row) => isPostureIssue(row.status))
 
-export const hasEmailAuth = (metadata: ScanMetadata | null): boolean => getEmailAuthRows(metadata).length > 0
+export const getEmailAuthIssues = (metadata: ScanMetadata | null): PostureRow[] => issueRows(getEmailAuthRows(metadata))
 
-// getWebPostureIssues returns only the well-known file and transport rows that need attention
-export const getWebPostureIssues = (metadata: ScanMetadata | null): PostureRow[] => getWellKnownRows(metadata).filter((row) => row.status === 'warn' || row.status === 'bad')
+export const hasEmailAuth = (metadata: ScanMetadata | null): boolean => !!metadata?.email_auth
 
-export const hasWebPosture = (metadata: ScanMetadata | null): boolean => getWellKnownRows(metadata).length > 0
+export const getWebPostureIssues = (metadata: ScanMetadata | null): PostureRow[] => issueRows(getWellKnownRows(metadata))
+
+export const hasWebPosture = (metadata: ScanMetadata | null): boolean => !!metadata?.well_known

@@ -30,14 +30,6 @@ const agentReadinessDescription = (agentReadiness?: DomainScanAgentReadinessPayl
 }
 
 export const FindingsStep = ({ findings, selected, setSelected, agentReadiness, overrides, setOverrides }: FindingsStepProps) => {
-  if (findings.length === 0) {
-    return (
-      <SectionCard title="Review findings" description="Optional security observations detected">
-        <EmptyState message="No findings were included in this scan" />
-      </SectionCard>
-    )
-  }
-
   const categoryOrder: DomainScanFindingCategoryValue[] = [
     DomainScanFindingCategory.RISK,
     DomainScanFindingCategory.SECURITY_VIOLATION,

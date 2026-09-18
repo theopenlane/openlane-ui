@@ -35,6 +35,9 @@ export function ScanStatusBadge({ status }: { status: ScanScanStatus }) {
 // PostureStatus is the good/warn/bad/info verdict a domain scan derives for a posture row
 export type PostureStatus = 'good' | 'warn' | 'bad' | 'info'
 
+// isPostureIssue is true for statuses that should surface in a findings summary
+export const isPostureIssue = (status: PostureStatus): boolean => status === 'warn' || status === 'bad'
+
 export const PostureStatusIconMapper: Record<PostureStatus, { Icon: LucideIcon; className: string }> = {
   good: { Icon: CircleCheck, className: 'text-success' },
   warn: { Icon: CircleAlert, className: 'text-warning' },
