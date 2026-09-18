@@ -12,9 +12,10 @@ import LinkedObjectsSection from './linked-objects-section'
 import CompanySection from './openlane-domain-scan/company-section'
 import DiscoveredVendorsSection from './openlane-domain-scan/discovered-vendors-section'
 import FindingsSummarySection from './openlane-domain-scan/findings-summary-section'
+import { EmailAuthSection, WebPostureSection } from './openlane-domain-scan/posture-section'
 import DiscoverySection from './discovery-section'
 import RawMetadataSection from './raw-metadata-section'
-import { parseScanMetadata, hasFindingsSummary, hasCompanyInfo, getVendors, OPENLANE_DOMAIN_SCAN_PERFORMER } from './openlane-domain-scan/scan-metadata'
+import { parseScanMetadata, hasFindingsSummary, hasCompanyInfo, hasEmailAuth, hasWebPosture, getVendors, OPENLANE_DOMAIN_SCAN_PERFORMER } from './openlane-domain-scan/scan-metadata'
 
 type Props = {
   data: ScanDetailNode
@@ -86,6 +87,10 @@ const ScanDetailView: React.FC<Props> = ({ data }) => {
           {getVendors(metadata).length > 0 && <DiscoveredVendorsSection metadata={metadata} />}
         </>
       )}
+
+      {isDomainScanFormat && hasEmailAuth(metadata) && <EmailAuthSection metadata={metadata} />}
+
+      {isDomainScanFormat && hasWebPosture(metadata) && <WebPostureSection metadata={metadata} />}
 
       <DiscoverySection metadata={metadata} rawMetadata={data.metadata} />
 

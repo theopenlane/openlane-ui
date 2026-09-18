@@ -1,4 +1,5 @@
 import { logoUrlFromDomain } from '@/lib/image-utils'
+import { getComplianceDocumentLabel } from '@/components/shared/enum-mapper/scan-enum'
 import {
   DomainScanFindingCategory,
   type DomainItem,
@@ -231,8 +232,42 @@ export const findingsFromNotification = (data?: DomainScanNotificationData): Fin
       category: DomainScanFindingCategory.AGENT_READINESS,
     }))
 
-  return [...genericFindings, ...agentReadinessFindings]
+  const postureFindings: Finding[] = (data?.findings?.posture || [])
+    .filter((entry) => entry.check && entry.title)
+    .map((entry) => ({
+      id: makeRef('finding', canonicalizeEntityName(entry.domain ? `${entry.check}-${entry.domain}` : `${entry.check}`)),
+      title: entry.title as string,
+      description: entry.description,
+      severity: entry.severity,
+      category: EMAIL_AUTH_CHECKS.has(entry.check as string) ? DomainScanFindingCategory.EMAIL_AUTHENTICATION : DomainScanFindingCategory.WEB_POSTURE,
+      importCategory: (entry.check as string).toUpperCase(),
+      domain: entry.domain,
+    }))
+
+  const missingLinks = data?.findings?.missing_compliance_links?.trim()
+  const complianceLinkFindings: Finding[] = missingLinks
+    ? [
+        {
+          id: makeRef('finding', 'missing-compliance-links'),
+          title: 'Missing compliance documents',
+          description: complianceChecklistToMarkdown(missingLinks),
+          category: DomainScanFindingCategory.COMPLIANCE_LINKS,
+        },
+      ]
+    : []
+
+  return [...genericFindings, ...complianceLinkFindings, ...postureFindings, ...agentReadinessFindings]
 }
+
+const EMAIL_AUTH_CHECKS = new Set(['dmarc', 'spf', 'dkim'])
+
+const CHECKLIST_ITEM_REGEX = /^(- \[[ xX]\]\s*)(.+)$/
+
+const complianceChecklistToMarkdown = (checklist: string): string =>
+  checklist
+    .split('\n')
+    .map((line) => line.replace(CHECKLIST_ITEM_REGEX, (_, prefix, type) => `${prefix}${getComplianceDocumentLabel(type.trim())}`))
+    .join('\n')
 
 export const resolveScanIds = (data?: DomainScanNotificationData): string[] => (data?.scans || []).map((scan) => scan.internal_scan_id).filter((id): id is string => Boolean(id))
 

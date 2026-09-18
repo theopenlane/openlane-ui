@@ -22,6 +22,9 @@ export const DomainScanFindingCategory = {
   RISK: 'RISK',
   SECURITY_VIOLATION: 'SECURITY_VIOLATION',
   AGENT_READINESS: 'AGENT_READINESS',
+  COMPLIANCE_LINKS: 'COMPLIANCE_LINKS',
+  EMAIL_AUTHENTICATION: 'EMAIL_AUTHENTICATION',
+  WEB_POSTURE: 'WEB_POSTURE',
 } as const
 
 export type DomainScanFindingCategoryValue = (typeof DomainScanFindingCategory)[keyof typeof DomainScanFindingCategory]
@@ -32,6 +35,8 @@ export type Finding = {
   description?: string
   severity?: string
   category: DomainScanFindingCategoryValue
+  importCategory?: string
+  domain?: string
 }
 
 export type PlatformMode = 'single' | 'per-system'
@@ -112,6 +117,14 @@ export type DomainScanAgentReadinessPayload = {
   domain?: string
 }
 
+export type DomainScanPosturePayload = {
+  check?: string
+  title?: string
+  description?: string
+  severity?: string
+  domain?: string
+}
+
 export type DomainScanPlatformPayload = {
   name?: string
   description?: string
@@ -145,6 +158,8 @@ export type DomainScanNotificationData = {
     risks?: DomainScanFindingPayload[]
     security_violations?: DomainScanFindingPayload[]
     agent_readiness?: DomainScanAgentReadinessPayload[]
+    missing_compliance_links?: string
+    posture?: DomainScanPosturePayload[]
   }
 }
 

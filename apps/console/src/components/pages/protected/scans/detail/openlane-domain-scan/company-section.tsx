@@ -1,8 +1,9 @@
 'use client'
 
 import React from 'react'
-import { CircleCheck, CircleX, Link as LinkIcon } from 'lucide-react'
+import { Link as LinkIcon } from 'lucide-react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
+import { PostureStatus, PostureStatusIcon } from '@/components/shared/enum-mapper/scan-enum'
 import Github from '@/assets/Github'
 import Linkedin from '@/assets/Linkedin'
 import Discord from '@/assets/Discord'
@@ -58,11 +59,11 @@ const CompanySection: React.FC<Props> = ({ metadata }) => {
           <div className="flex items-center gap-1.5 text-sm">
             {company.isSoc2 ? (
               <>
-                <CircleCheck size={14} className="text-success" /> SOC 2 Compliant
+                <PostureStatusIcon status={PostureStatus.Good} /> SOC 2 Compliant
               </>
             ) : (
               <>
-                <CircleX size={14} className="text-destructive" /> Not SOC 2 Compliant
+                <PostureStatusIcon status={PostureStatus.Bad} /> Not SOC 2 Compliant
               </>
             )}
           </div>
