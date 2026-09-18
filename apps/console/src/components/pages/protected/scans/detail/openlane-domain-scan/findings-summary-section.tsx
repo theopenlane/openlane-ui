@@ -109,7 +109,7 @@ const FindingsSummarySection: React.FC<Props> = ({ metadata }) => {
               </div>
               {agentReadiness.checklist.length > 0 && (
                 <ul className="space-y-1.5 mt-3">
-                  {agentReadiness.checklist.map((item) => (
+                  {agentReadiness.checklist.map((item, index) => (
                     <li key={`${index}-${item}`} className="flex items-center gap-1.5 text-sm text-muted-foreground">
                       <PostureStatusIcon status={PostureStatus.Bad} className="shrink-0" />
                       {item}
