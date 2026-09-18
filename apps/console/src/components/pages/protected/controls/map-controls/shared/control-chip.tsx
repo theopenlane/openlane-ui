@@ -57,7 +57,8 @@ const ControlChip: React.FC<ControlChipProps> = ({
   const baseClasses = 'bg-secondary flex gap-1 items-center'
   const dragClass = draggable ? 'cursor-grab' : ''
   const borderClass = selected ? 'border-brand ring-1 ring-brand' : 'border-border'
-  const href = forceHref || (control.__typename === ObjectTypes.SUBCONTROL ? `/controls/${control.controlID}/${control.id}` : `/controls/${control.id}`)
+  const subcontrolHref = control.controlID ? `/controls/${control.controlID}/${control.id}` : null
+  const href = forceHref || (control.__typename === ObjectTypes.SUBCONTROL ? subcontrolHref : `/controls/${control.id}`)
 
   if (!control) {
     return
@@ -119,7 +120,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger asChild>{!disableHref && clickable ? <Link href={href}>{renderedBadge()}</Link> : <div>{renderedBadge()}</div>}</TooltipTrigger>
+        <TooltipTrigger asChild>{href && !disableHref && clickable ? <Link href={href}>{renderedBadge()}</Link> : <div>{renderedBadge()}</div>}</TooltipTrigger>
         {tooltipOpen && (
           <TooltipContent side="top" collisionPadding={64} portal>
             <ControlTooltipContent control={control} disableHref={disableHref} forceHref={forceHref} />
