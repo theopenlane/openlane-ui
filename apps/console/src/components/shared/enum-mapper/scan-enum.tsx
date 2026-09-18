@@ -2,6 +2,7 @@ import { CircleAlert, CircleCheck, CircleEllipsis, CircleX, Globe, Info, Server,
 import { ScanScanStatus, ScanScanType } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { toHumanLabel } from '@/utils/strings'
 
 export const ScanTypeIconMapper: Record<ScanScanType, React.ReactNode> = {
   [ScanScanType.DOMAIN]: <Globe height={16} width={16} />,
@@ -32,15 +33,22 @@ export function ScanStatusBadge({ status }: { status: ScanScanStatus }) {
   )
 }
 
-export type PostureStatus = 'good' | 'warn' | 'bad' | 'info'
+export const PostureStatus = {
+  Good: 'good',
+  Warn: 'warn',
+  Bad: 'bad',
+  Info: 'info',
+} as const
 
-export const isPostureIssue = (status: PostureStatus): boolean => status === 'warn' || status === 'bad'
+export type PostureStatus = (typeof PostureStatus)[keyof typeof PostureStatus]
+
+export const isPostureIssue = (status: PostureStatus): boolean => status === PostureStatus.Warn || status === PostureStatus.Bad
 
 export const PostureStatusIconMapper: Record<PostureStatus, { Icon: LucideIcon; className: string }> = {
-  good: { Icon: CircleCheck, className: 'text-success' },
-  warn: { Icon: CircleAlert, className: 'text-warning' },
-  bad: { Icon: CircleX, className: 'text-destructive' },
-  info: { Icon: Info, className: 'text-muted-foreground' },
+  [PostureStatus.Good]: { Icon: CircleCheck, className: 'text-success' },
+  [PostureStatus.Warn]: { Icon: CircleAlert, className: 'text-warning' },
+  [PostureStatus.Bad]: { Icon: CircleX, className: 'text-destructive' },
+  [PostureStatus.Info]: { Icon: Info, className: 'text-muted-foreground' },
 }
 
 export function PostureStatusIcon({ status, size = 14, className = '' }: { status: PostureStatus; size?: number; className?: string }) {
@@ -48,15 +56,9 @@ export function PostureStatusIcon({ status, size = 14, className = '' }: { statu
   return <Icon size={size} className={`${color} ${className}`.trim()} />
 }
 
-export const ComplianceDocumentTypeLabel: Record<string, string> = {
-  privacy_policy: 'Privacy Policy',
-  terms_of_service: 'Terms of Service',
-  trust_center: 'Trust Center',
+// document types whose label is an expansion toHumanLabel cannot derive
+const ComplianceDocumentTypeOverrides: Record<string, string> = {
   dpa: 'Data Privacy Agreement',
-  soc2_report: 'SOC 2 Report',
-  subprocessors: 'Subprocessors',
-  gdpr: 'GDPR',
-  cookie_policy: 'Cookie Policy',
 }
 
-export const getComplianceDocumentLabel = (type: string): string => ComplianceDocumentTypeLabel[type] ?? getEnumLabel(type)
+export const getComplianceDocumentLabel = (type: string): string => ComplianceDocumentTypeOverrides[type] ?? toHumanLabel(type)

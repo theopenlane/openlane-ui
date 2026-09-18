@@ -1,5 +1,5 @@
 import { pluralizeWithCount, toHumanLabel } from '@/utils/strings'
-import { isPostureIssue, type PostureStatus } from '@/components/shared/enum-mapper/scan-enum'
+import { isPostureIssue, PostureStatus } from '@/components/shared/enum-mapper/scan-enum'
 
 export const OPENLANE_DOMAIN_SCAN_PERFORMER = 'openlane_domain_scan'
 
@@ -277,15 +277,15 @@ type PostureCheck = keyof typeof POSTURE_CHECKS
 
 const postureRow = (key: PostureCheck, verdict: PostureVerdict): PostureRow => ({ key, label: POSTURE_CHECKS[key], ...verdict })
 
-const SPF_MISSING: PostureVerdict = { status: 'bad', value: 'Not published', detail: 'Nothing declares which servers may send mail as this domain.' }
+const SPF_MISSING: PostureVerdict = { status: PostureStatus.Bad, value: 'Not published', detail: 'Nothing declares which servers may send mail as this domain.' }
 
-const SPF_NO_ALL: PostureVerdict = { status: 'warn', value: 'Published, no all mechanism', detail: 'Without a trailing all mechanism the record has no default.' }
+const SPF_NO_ALL: PostureVerdict = { status: PostureStatus.Warn, value: 'Published, no all mechanism', detail: 'Without a trailing all mechanism the record has no default.' }
 
 const SPF_POLICY_VERDICTS: Record<string, PostureVerdict> = {
-  hard_fail: { status: 'good', value: 'Published, hard fail (-all)', detail: 'No issues found.' },
-  soft_fail: { status: 'good', value: 'Published, soft fail (~all)', detail: 'No issues found.' },
-  neutral: { status: 'warn', value: 'Published, neutral (?all)', detail: 'A neutral qualifier asserts nothing about unlisted senders.' },
-  pass_all: { status: 'bad', value: 'Published, passes any sender (+all)', detail: 'Every server on the internet passes SPF for this domain.' },
+  hard_fail: { status: PostureStatus.Good, value: 'Published, hard fail (-all)', detail: 'No issues found.' },
+  soft_fail: { status: PostureStatus.Good, value: 'Published, soft fail (~all)', detail: 'No issues found.' },
+  neutral: { status: PostureStatus.Warn, value: 'Published, neutral (?all)', detail: 'A neutral qualifier asserts nothing about unlisted senders.' },
+  pass_all: { status: PostureStatus.Bad, value: 'Published, passes any sender (+all)', detail: 'Every server on the internet passes SPF for this domain.' },
 }
 
 const describeSPF = (auth: EmailAuth): PostureRow => {
@@ -295,7 +295,7 @@ const describeSPF = (auth: EmailAuth): PostureRow => {
   return postureRow('spf', SPF_POLICY_VERDICTS[auth.spf_policy ?? ''] ?? SPF_NO_ALL)
 }
 
-const DMARC_MISSING: PostureVerdict = { status: 'bad', value: 'Not published', detail: 'Nothing tells receiving servers what to do with mail that fails authentication.' }
+const DMARC_MISSING: PostureVerdict = { status: PostureStatus.Bad, value: 'Not published', detail: 'Nothing tells receiving servers what to do with mail that fails authentication.' }
 
 const describeDMARC = (auth: EmailAuth): PostureRow => {
   if (!auth.dmarc_record || !auth.dmarc_policy) {
@@ -321,13 +321,17 @@ const describeDMARC = (auth: EmailAuth): PostureRow => {
   const detail = details.join(' ') || undefined
 
   if (auth.dmarc_policy === 'none') {
-    return postureRow('dmarc', { status: 'warn', value: 'Monitoring only (p=none)', detail: detail ?? 'Failing mail is still delivered.' })
+    return postureRow('dmarc', { status: PostureStatus.Warn, value: 'Monitoring only (p=none)', detail: detail ?? 'Failing mail is still delivered.' })
   }
 
-  return postureRow('dmarc', { status: sampled ? 'warn' : 'good', value: `p=${auth.dmarc_policy}${sampled ? ` at ${pct}%` : ''}`, detail })
+  return postureRow('dmarc', { status: sampled ? PostureStatus.Warn : PostureStatus.Good, value: `p=${auth.dmarc_policy}${sampled ? ` at ${pct}%` : ''}`, detail })
 }
 
-const DKIM_MISSING: PostureVerdict = { status: 'info', value: 'No common selector found', detail: 'Only conventional selector names are probed, so this is suggestive rather than conclusive.' }
+const DKIM_MISSING: PostureVerdict = {
+  status: PostureStatus.Info,
+  value: 'No common selector found',
+  detail: 'Only conventional selector names are probed, so this is suggestive rather than conclusive.',
+}
 
 const describeDKIM = (auth: EmailAuth): PostureRow => {
   const selectors = auth.dkim_selectors ?? []
@@ -336,7 +340,7 @@ const describeDKIM = (auth: EmailAuth): PostureRow => {
     return postureRow('dkim', DKIM_MISSING)
   }
 
-  return postureRow('dkim', { status: 'good', value: `${pluralizeWithCount(selectors.length, 'selector')} published`, detail: selectors.join(', ') })
+  return postureRow('dkim', { status: PostureStatus.Good, value: `${pluralizeWithCount(selectors.length, 'selector')} published`, detail: selectors.join(', ') })
 }
 
 export const getEmailAuthRows = (metadata: ScanMetadata | null): PostureRow[] => {
@@ -348,13 +352,13 @@ export const getEmailAuthRows = (metadata: ScanMetadata | null): PostureRow[] =>
   const rows = [describeDMARC(auth), describeSPF(auth), describeDKIM(auth)]
 
   if (auth.mx_hosts?.length) {
-    rows.push(postureRow('mx', { status: 'info', value: pluralizeWithCount(auth.mx_hosts.length, 'host'), detail: auth.mx_hosts.join(', ') }))
+    rows.push(postureRow('mx', { status: PostureStatus.Info, value: pluralizeWithCount(auth.mx_hosts.length, 'host'), detail: auth.mx_hosts.join(', ') }))
   }
 
   return rows
 }
 
-const SECURITY_TXT_MISSING: PostureVerdict = { status: 'warn', value: 'Not published', detail: 'A researcher who finds something has nowhere to send it.' }
+const SECURITY_TXT_MISSING: PostureVerdict = { status: PostureStatus.Warn, value: 'Not published', detail: 'A researcher who finds something has nowhere to send it.' }
 
 const describeSecurityTxt = (security?: SecurityTxt): PostureRow => {
   if (!security?.present) {
@@ -362,13 +366,13 @@ const describeSecurityTxt = (security?: SecurityTxt): PostureRow => {
   }
 
   return postureRow('security_txt', {
-    status: security.expired ? 'warn' : 'good',
+    status: security.expired ? PostureStatus.Warn : PostureStatus.Good,
     value: security.expired ? 'Published but expired' : 'Published',
     detail: joinDetails([security.contacts?.length ? `Contact: ${security.contacts.join(', ')}` : '', security.policy ? `Policy: ${security.policy}` : '']),
   })
 }
 
-const ROBOTS_TXT_MISSING: PostureVerdict = { status: 'info', value: 'Not published' }
+const ROBOTS_TXT_MISSING: PostureVerdict = { status: PostureStatus.Info, value: 'Not published' }
 
 const describeRobotsTxt = (robots?: RobotsTxt): PostureRow => {
   if (!robots?.present) {
@@ -380,7 +384,7 @@ const describeRobotsTxt = (robots?: RobotsTxt): PostureRow => {
   const blocked = robots.disallowed_ai_crawlers?.length ?? 0
 
   return postureRow('robots_txt', {
-    status: signals.length || blocked ? 'good' : 'info',
+    status: signals.length || blocked ? PostureStatus.Good : PostureStatus.Info,
     value: 'Published',
     detail: joinDetails([
       signals.length ? `Content-Signal: ${signals.map(([key, value]) => `${key}=${value}`).join(', ')}` : '',
@@ -389,7 +393,7 @@ const describeRobotsTxt = (robots?: RobotsTxt): PostureRow => {
   })
 }
 
-const LLMS_TXT_MISSING: PostureVerdict = { status: 'info', value: 'Not published' }
+const LLMS_TXT_MISSING: PostureVerdict = { status: PostureStatus.Info, value: 'Not published' }
 
 const describeLLMsTxt = (llms?: LLMsTxt): PostureRow => {
   if (!llms?.present) {
@@ -397,7 +401,7 @@ const describeLLMsTxt = (llms?: LLMsTxt): PostureRow => {
   }
 
   return postureRow('llms_txt', {
-    status: 'good',
+    status: PostureStatus.Good,
     value: `Published${llms.full_present ? ', with llms-full.txt' : ''}`,
     detail: joinDetails([llms.title, llms.section_count ? `${llms.section_count} sections` : '']),
   })
@@ -407,7 +411,7 @@ const describeTransport = (transport: TransportSecurity): PostureRow => {
   const days = transport.hsts_max_age ? Math.round(transport.hsts_max_age / SECONDS_PER_DAY) : 0
 
   return postureRow('transport', {
-    status: transport.hsts && transport.redirects_to_https ? 'good' : 'warn',
+    status: transport.hsts && transport.redirects_to_https ? PostureStatus.Good : PostureStatus.Warn,
     value: transport.hsts ? `HSTS for ${pluralizeWithCount(days, 'day')}` : 'No HSTS header',
     detail: joinDetails([
       transport.redirects_to_https ? 'HTTP redirects to HTTPS' : 'Plain HTTP does not redirect to HTTPS',
