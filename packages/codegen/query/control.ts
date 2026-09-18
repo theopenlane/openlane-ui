@@ -1129,3 +1129,29 @@ export const GET_TEMPLATE_CONTROLS_WITH_MAPPINGS = gql`
     }
   }
 `
+
+export const GET_CONTROL_CATEGORIES_BY_FRAMEWORK = gql`
+  query GetControlCategoriesByFramework($where: ControlWhereInput) {
+    controlCategoriesByFramework(where: $where) {
+      node {
+        name
+      }
+    }
+  }
+`
+
+export const GET_CONTROL_IDS = gql`
+  query GetControlIds($where: ControlWhereInput, $first: Int = 100, $after: Cursor) {
+    controls(where: $where, first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+`

@@ -2260,6 +2260,24 @@ export interface GetTemplateControlsWithMappingsQuery {
   }
 }
 
+export type GetControlCategoriesByFrameworkQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+}>
+
+export interface GetControlCategoriesByFrameworkQuery {
+  controlCategoriesByFramework: Array<{ node: { name: string } }> | null
+}
+
+export type GetControlIdsQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetControlIdsQuery {
+  controls: { pageInfo: { hasNextPage: boolean; endCursor: any }; edges: Array<{ node: { id: string } | null } | null> | null }
+}
+
 export type CustomTypeEnumFieldsFragment = { id: string; name: string; color: string | null; objectType: string; description: string | null; field: string; systemOwned: boolean | null }
 
 export type GetCustomTypeEnumsQueryVariables = Exact<{
