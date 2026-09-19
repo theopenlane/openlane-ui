@@ -19,3 +19,9 @@ export const pickCalendarDay = async (page: Page, date: Date): Promise<void> => 
   await expect(day).toBeVisible({ timeout: 20_000 })
   await day.click()
 }
+
+export const pickCalendarRange = async (page: Page, from: Date, to: Date): Promise<void> => {
+  await page.getByRole('button', { name: 'Pick date range' }).click()
+  await pickCalendarDay(page, from)
+  await pickCalendarDay(page, to)
+}

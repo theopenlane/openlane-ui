@@ -7,6 +7,7 @@ import { TaskFilterIcons } from '@/components/shared/enum-mapper/task-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 import { TASK_TERMINAL_STATUSES } from '@/lib/suggested-tasks/types'
+import { overdueTaskQuickFilter } from '@/components/pages/protected/tasks/util/task'
 
 export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: { value: string; label: string }[], taskKindOptions: { value: string; label: string }[], hasProgramAccess: boolean) =>
   defineFilterFields<TaskWhereInput>()([
@@ -83,13 +84,7 @@ export const getTaskQuickFilters = (userId: string | undefined, showMyTasks: boo
     getCondition: () => ({ assigneeID: userId }),
     isActive: showMyTasks,
   },
-  {
-    label: 'Overdue',
-    key: 'overdue',
-    type: 'custom',
-    getCondition: () => ({ dueLT: toDayStartIso(new Date()), statusNotIn: TASK_TERMINAL_STATUSES }),
-    isActive: false,
-  },
+  overdueTaskQuickFilter(false),
   {
     label: 'Due This Week',
     key: 'dueThisWeek',

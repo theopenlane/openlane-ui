@@ -2260,6 +2260,24 @@ export interface GetTemplateControlsWithMappingsQuery {
   }
 }
 
+export type GetControlCategoriesByFrameworkQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+}>
+
+export interface GetControlCategoriesByFrameworkQuery {
+  controlCategoriesByFramework: Array<{ node: { name: string } }> | null
+}
+
+export type GetControlIdsQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetControlIdsQuery {
+  controls: { pageInfo: { hasNextPage: boolean; endCursor: any }; edges: Array<{ node: { id: string } | null } | null> | null }
+}
+
 export type CustomTypeEnumFieldsFragment = { id: string; name: string; color: string | null; objectType: string; description: string | null; field: string; systemOwned: boolean | null }
 
 export type GetCustomTypeEnumsQueryVariables = Exact<{
@@ -3206,13 +3224,14 @@ export interface GetEntityFilesPaginatedQuery {
       pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
       edges: Array<{
         node: {
+          name: string | null
           providedFileName: string
           providedFileSize: number | null
           providedFileExtension: string
           id: string
           uri: string | null
           presignedURL: string | null
-          categoryType: string | null
+          categoryName: string | null
           createdAt: any
         } | null
       } | null> | null
@@ -3224,6 +3243,7 @@ export type UpdateEntityWithFilesMutationVariables = Exact<{
   updateEntityId: string
   input: Types.UpdateEntityInput
   entityFiles?: Array<any> | any | null | undefined
+  entityFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
   logoFile?: any
 }>
 
@@ -3703,6 +3723,7 @@ export type GetFilesQueryVariables = Exact<{
   last?: number | null | undefined
   before?: any
   after?: any
+  withEvidence?: boolean
 }>
 
 export interface GetFilesQuery {
@@ -3711,6 +3732,7 @@ export interface GetFilesQuery {
     edges: Array<{
       node: {
         id: string
+        name: string | null
         providedFileName: string
         providedFileSize: number | null
         providedFileExtension: string
@@ -3718,6 +3740,10 @@ export interface GetFilesQuery {
         presignedURL: string | null
         categoryName: string | null
         createdAt: any
+        evidence?: Array<{
+          controls: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null } | null } | null> | null }
+          subcontrols: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null; controlID: string } | null } | null> | null }
+        }> | null
       } | null
     } | null> | null
   }
@@ -4553,10 +4579,11 @@ export interface GetIdentityHolderFilesPaginatedQuery {
       pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
       edges: Array<{
         node: {
+          name: string | null
           providedFileName: string
           providedFileSize: number | null
           providedFileExtension: string
-          categoryType: string | null
+          categoryName: string | null
           createdAt: any
           id: string
           uri: string | null
@@ -4571,6 +4598,7 @@ export type UpdateIdentityHolderWithFilesMutationVariables = Exact<{
   updateIdentityHolderId: string
   input: Types.UpdateIdentityHolderInput
   identityHolderFiles?: Array<any> | any | null | undefined
+  identityHolderFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
 }>
 
 export interface UpdateIdentityHolderWithFilesMutation {
@@ -6976,6 +7004,7 @@ export type UpdateReviewMutationVariables = Exact<{
   updateReviewId: string
   input: Types.UpdateReviewInput
   reviewFiles?: Array<any> | any | null | undefined
+  reviewFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
 }>
 
 export interface UpdateReviewMutation {
@@ -7049,7 +7078,16 @@ export interface GetReviewFilesPaginatedQuery {
       totalCount: number
       pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
       edges: Array<{
-        node: { providedFileName: string; providedFileSize: number | null; providedFileExtension: string; id: string; uri: string | null; presignedURL: string | null } | null
+        node: {
+          name: string | null
+          providedFileName: string
+          providedFileSize: number | null
+          providedFileExtension: string
+          categoryName: string | null
+          id: string
+          uri: string | null
+          presignedURL: string | null
+        } | null
       } | null> | null
     }
   }
@@ -9808,7 +9846,8 @@ export interface VulnerabilitiesWithFilterQuery {
     totalCount: number
     edges: Array<{
       node: {
-        assignedToUserID: string | null
+        assignedTo: string | null
+        reviewedBy: string | null
         blocking: boolean | null
         category: string | null
         createdAt: any
@@ -9861,6 +9900,12 @@ export interface VulnerabilitiesWithFilterQuery {
         vector: string | null
         vulnerabilityStatusName: string | null
         vulnerableVersionRange: string | null
+        assignedToUser: { id: string; displayName: string } | null
+        assignedToGroup: { id: string; displayName: string } | null
+        assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
+        reviewedByUser: { id: string; displayName: string } | null
+        reviewedByGroup: { id: string; displayName: string } | null
+        reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
         internalOwnerUser: { id: string; displayName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
@@ -9877,7 +9922,8 @@ export type VulnerabilityQueryVariables = Exact<{
 
 export interface VulnerabilityQuery {
   vulnerability: {
-    assignedToUserID: string | null
+    assignedTo: string | null
+    reviewedBy: string | null
     blocking: boolean | null
     category: string | null
     createdAt: any
@@ -9931,6 +9977,12 @@ export interface VulnerabilityQuery {
     vector: string | null
     vulnerabilityStatusName: string | null
     vulnerableVersionRange: string | null
+    assignedToUser: { id: string; displayName: string } | null
+    assignedToGroup: { id: string; displayName: string } | null
+    assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
+    reviewedByUser: { id: string; displayName: string } | null
+    reviewedByGroup: { id: string; displayName: string } | null
+    reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerUser: { id: string; displayName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null

@@ -192,6 +192,20 @@ describe('toHumanLabel', () => {
   it('title-cases non-acronym words and collapses extra whitespace', () => {
     expect(toHumanLabel('  vendor   RISK  review ')).toBe('Vendor Risk Review')
   })
+
+  it('separates a number from a known acronym', () => {
+    expect(toHumanLabel('soc2_report')).toBe('SOC 2 Report')
+    expect(toHumanLabel('iso27001')).toBe('ISO 27001')
+  })
+
+  it('leaves a number attached to a non-acronym word', () => {
+    expect(toHumanLabel('phase2_review')).toBe('Phase2 Review')
+  })
+
+  it('keeps joining words lowercase unless they lead the label', () => {
+    expect(toHumanLabel('terms_of_service')).toBe('Terms of Service')
+    expect(toHumanLabel('of_interest')).toBe('Of Interest')
+  })
 })
 
 /**

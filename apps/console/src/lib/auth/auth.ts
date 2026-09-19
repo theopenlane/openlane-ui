@@ -8,6 +8,7 @@ import { type JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
 import { checkWebfinger, getTokenFromOpenlaneAPI, type OAuthUserRequest } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
+import { refreshSessionToken } from './utils/refresh-session-token'
 import { secureFetch } from './utils/secure-fetch'
 import { cookies } from 'next/headers'
 import { allowedLoginDomains } from '@repo/dally/auth'
@@ -186,10 +187,7 @@ export const config = {
         })
 
         try {
-          const decoded = jwtDecode<JwtPayload>(user.accessToken)
-          if (decoded.exp) {
-            token.expiresAt = decoded.exp * 1000 // Save as ms timestamp
-          }
+          jwtDecode<JwtPayload>(user.accessToken)
         } catch (err) {
           console.error('❌ Failed to decode access token on login:', err)
           return null
@@ -199,15 +197,6 @@ export const config = {
           accessToken: account.access_token,
           refreshToken: account.refresh_token,
         })
-
-        try {
-          const decoded = jwtDecode<JwtPayload>(account.access_token)
-          if (decoded.exp) {
-            token.expiresAt = decoded.exp * 1000
-          }
-        } catch (err) {
-          console.error('❌ Failed to decode access token from account:', err)
-        }
       }
 
       if (profile) {
@@ -215,12 +204,11 @@ export const config = {
         token.email = profile.email ?? token.email
       }
 
-      // Handle session update
       if (trigger === 'update') {
-        return { ...token, ...session?.user }
+        return refreshSessionToken({ ...token, ...session?.user })
       }
 
-      return token
+      return refreshSessionToken(token)
     },
     async session({ session, token }) {
       try {

@@ -7,9 +7,9 @@ import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
-import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip'
+import { RelatedControlsCell } from '@/components/shared/crud-base/columns/related-controls-cell'
+import { ReviewStatusIconLabel } from '@/components/shared/enum-mapper/review-enum'
 import { TruncatedCell } from '@repo/ui/data-table'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type ReviewReviewStatus } from '@repo/codegen/src/schema'
 
 export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ReviewsNodeNonNull>[] => {
@@ -17,7 +17,7 @@ export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems 
     createSelectColumn<ReviewsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
     { accessorKey: 'title', header: 'Title', size: 200, cell: ({ cell }) => cell.getValue() || '' },
-    { accessorKey: 'status', header: 'Status', size: 130, cell: ({ cell }) => getEnumLabel(cell.getValue() as ReviewReviewStatus) || '-' },
+    { accessorKey: 'status', header: 'Status', size: 130, cell: ({ cell }) => <ReviewStatusIconLabel status={cell.getValue() as ReviewReviewStatus | null} /> },
     { accessorKey: 'category', header: 'Category', size: 120 },
     { accessorKey: 'classification', header: 'Classification', size: 130 },
     { accessorKey: 'source', header: 'Source', size: 120 },
@@ -50,26 +50,7 @@ export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems 
     {
       accessorKey: 'relatedControls',
       header: 'Related Controls',
-      cell: ({ row }) => {
-        const controlEdges = row.original?.controls?.edges || []
-        const subcontrolEdges = row.original?.subcontrols?.edges || []
-        const allControls = [...controlEdges, ...subcontrolEdges]
-        return (
-          <div role="presentation" className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
-            {allControls.map((control, index) => (
-              <ControlChip
-                key={index}
-                control={{
-                  id: control?.node?.id ?? '',
-                  refCode: control?.node?.refCode ?? '',
-                  referenceFramework: control?.node?.referenceFramework ?? '',
-                  __typename: control?.node?.__typename,
-                }}
-              />
-            ))}
-          </div>
-        )
-      },
+      cell: ({ row }) => <RelatedControlsCell controlEdges={row.original?.controls?.edges} subcontrolEdges={row.original?.subcontrols?.edges} />,
       minSize: 100,
       size: 180,
     },

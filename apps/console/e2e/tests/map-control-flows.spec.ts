@@ -22,7 +22,7 @@ test.afterAll(async () => {
 
 const openMapControl = async (page: Page) => {
   await page.goto(`/controls/${sharedControlId}/map-control`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-  await expect(page.getByRole('button', { name: 'Save Changes' })).toBeVisible({ timeout: 60_000 })
+  await expect(page.getByRole('button', { name: /^Save( Changes)?$/ })).toBeVisible({ timeout: 60_000 })
 }
 
 const cardTrigger = (page: Page, title: 'From' | 'To') =>
@@ -71,7 +71,7 @@ test.describe('subcontrols — map control submission', () => {
 
     try {
       await page.goto(`/controls/${sharedControlId}/${subcontrolId}/map-control`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-      await expect(page.getByRole('button', { name: 'Save Changes' })).toBeVisible({ timeout: 60_000 })
+      await expect(page.getByRole('button', { name: /^Save( Changes)?$/ })).toBeVisible({ timeout: 60_000 })
 
       await expandCard(page, 'To')
       await page.getByPlaceholder('Search by keyword').fill(targetRef)
@@ -79,7 +79,7 @@ test.describe('subcontrols — map control submission', () => {
 
       await dropIntoZone(page, targetRef)
 
-      await page.getByRole('button', { name: 'Save Changes' }).click()
+      await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
       await expect(page).not.toHaveURL(/\/map-control$/, { timeout: 60_000 })
 
       mappingId = await findMappingIdByTarget(ownerApi, targetId)

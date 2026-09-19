@@ -7,6 +7,7 @@ import { createTask, readField, type ApiSession, getOwnerApi } from '../utils/ap
 import { bulkEditAndSave, selectFirstMatchingRow } from '../utils/mutations'
 import { openCreateTaskDialog } from '../utils/tasks'
 import { uniqueName } from '../utils/unique'
+import { slideoutEdit } from '../utils/slideout'
 
 const taskTitle = (slug: string) => uniqueName(`E2E Task ${slug}`)
 
@@ -227,7 +228,7 @@ test.describe('tasks — detail sheet (seeded)', () => {
     await expect(markComplete).toBeDisabled({ timeout: 15_000 })
   })
 
-  test('inline-editing a seeded task title persists the change', async ({ page }) => {
+  test('saving a detail-sheet edit on an uncategorised task is blocked by the required category', async ({ page }) => {
     const original = taskTitle('edit')
     const id = await createTask(ownerApi, original)
 
@@ -235,13 +236,12 @@ test.describe('tasks — detail sheet (seeded)', () => {
     const sheet = page.getByRole('dialog')
     await expect(sheet.getByText(original).first()).toBeVisible({ timeout: 20_000 })
 
-    const updated = `${original} edited`
-    await sheet.getByText(original).first().dblclick()
-    const input = sheet.getByRole('textbox').first()
-    await input.fill(updated)
-    await input.press('Enter')
+    await slideoutEdit(sheet).click()
+    await sheet.getByLabel('Title').fill(`${original} edited`)
+    await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
-    await expect(page.getByText(/task updated/i).first()).toBeVisible({ timeout: 15_000 })
+    await expect(sheet.getByText('Invalid category')).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByText(/task updated/i)).toHaveCount(0)
   })
 
   test('the Completed quick filter activates from the Filter menu', async ({ page }) => {

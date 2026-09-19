@@ -1,14 +1,9 @@
-import { CalendarClock, Circle, CircleCheck, CircleDot, CircleOff, FolderPen, Key, ScanEye, Shapes, ShieldCheck, Timer, UserRoundCheck, UserRoundPen, type LucideIcon } from 'lucide-react'
+import { CalendarClock, CircleDot, FolderPen, Key, Shapes, ShieldCheck, UserRoundCheck, UserRoundPen, type LucideIcon } from 'lucide-react'
 import { TaskTaskStatus } from '@repo/codegen/src/schema.ts'
-import React from 'react'
+import type React from 'react'
+import { CommonStatusIcons } from '@/components/shared/enum-mapper/common-status-enum'
 
-export const TaskStatusIconMapper: Record<TaskTaskStatus, React.ReactNode> = {
-  [TaskTaskStatus.COMPLETED]: <CircleCheck height={16} width={16} className="text-completed" />,
-  [TaskTaskStatus.IN_PROGRESS]: <Timer height={16} width={16} className="text-in-progress" />,
-  [TaskTaskStatus.IN_REVIEW]: <ScanEye height={16} width={16} className="text-in-review" />,
-  [TaskTaskStatus.OPEN]: <Circle height={16} width={16} className="text-open" />,
-  [TaskTaskStatus.WONT_DO]: <CircleOff height={16} width={16} className="text-wont-do" />,
-}
+export const TaskStatusIconMapper: Record<TaskTaskStatus, React.ReactNode> = CommonStatusIcons
 
 export const TaskStatusDotMapper: Record<TaskTaskStatus, string> = {
   [TaskTaskStatus.COMPLETED]: 'bg-completed',

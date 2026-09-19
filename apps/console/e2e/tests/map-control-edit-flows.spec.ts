@@ -24,7 +24,7 @@ test.afterAll(async () => {
 
 const openEditMapping = async (page: Page, mappedControlId: string) => {
   await page.goto(`/controls/${fromControlId}/edit-map-control?mappedControlId=${mappedControlId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-  await expect(page.getByRole('button', { name: 'Save Changes' })).toBeVisible({ timeout: 60_000 })
+  await expect(page.getByRole('button', { name: /^Save( Changes)?$/ })).toBeVisible({ timeout: 60_000 })
 }
 
 test.describe('controls — edit an existing control mapping', () => {
@@ -57,7 +57,7 @@ test.describe('controls — edit an existing control mapping', () => {
         .click()
       await page.getByRole('option', { name: 'Superset', exact: true }).click()
       await page.getByPlaceholder('Add description...').fill(description)
-      await page.getByRole('button', { name: 'Save Changes' }).click()
+      await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
       await expect(toast(page, 'Map Control updated!')).toBeVisible({ timeout: 60_000 })
 
@@ -97,7 +97,7 @@ test.describe('controls — edit an existing control mapping', () => {
     try {
       await page.goto(`/controls/${fromControlId}/${subcontrolId}/edit-map-control?mappedControlId=${mappedControlId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
-      await expect(page.getByRole('button', { name: 'Save Changes' })).toBeVisible({ timeout: 60_000 })
+      await expect(page.getByRole('button', { name: /^Save( Changes)?$/ })).toBeVisible({ timeout: 60_000 })
       await expect(page.getByText('From', { exact: true })).toBeVisible({ timeout: 30_000 })
       await expect(page.getByText('To', { exact: true })).toBeVisible({ timeout: 30_000 })
     } finally {

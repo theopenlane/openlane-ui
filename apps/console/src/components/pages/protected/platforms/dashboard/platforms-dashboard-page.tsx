@@ -55,7 +55,7 @@ const PlatformsDashboardPage: React.FC = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Registry', href: '/registry/platforms' },
+      { label: 'Registry', href: '/registry' },
       { label: 'Platforms', href: '/registry/platforms' },
     ])
   }, [setCrumbs])

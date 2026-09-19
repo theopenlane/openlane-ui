@@ -22,8 +22,8 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
 import AcceptRiskDialog from '@/components/pages/protected/exposure/triage/accept-risk-dialog'
 import { buildDismissVulnerabilityInput } from '@/components/pages/protected/exposure/vulnerability-dismiss-reasons'
+import { useVulnerabilityReviewer } from '../hooks/use-vulnerability-review'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useQueryClient } from '@tanstack/react-query'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -46,7 +46,6 @@ const TableComponent = ({
 }: TTableProps<VulnerabilityWhereInput>) => {
   const { replace } = useSmartRouter()
   const sheetNav = useSheetNavigation()
-  const queryClient = useQueryClient()
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
   const [createTaskRow, setCreateTaskRow] = useState<VulnerabilitiesNodeNonNull | null>(null)
@@ -56,6 +55,7 @@ const TableComponent = ({
   const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
   const canEditVulnerability = canEdit(permission?.roles, session)
   const { mutateAsync: updateVulnerability, isPending: isDismissing } = useUpdateVulnerability()
+  const { reviewedByInput, markReviewed } = useVulnerabilityReviewer()
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -89,6 +89,8 @@ const TableComponent = ({
       if (item.internalOwnerUserID) ids.add(item.internalOwnerUserID)
       if (item.createdBy && isUlid(item.createdBy)) ids.add(item.createdBy)
       if (item.updatedBy && isUlid(item.updatedBy)) ids.add(item.updatedBy)
+      if (item.assignedToUser?.id) ids.add(item.assignedToUser.id)
+      if (item.reviewedByUser?.id) ids.add(item.reviewedByUser.id)
     })
     return Array.from(ids)
   }, [items])
@@ -141,7 +143,7 @@ const TableComponent = ({
   const handleConfirmDismiss = async (reason: string, comment: string) => {
     if (!dismissRow) return
     try {
-      await updateVulnerability({ updateVulnerabilityId: dismissRow.id, input: buildDismissVulnerabilityInput(reason, comment) })
+      await updateVulnerability({ updateVulnerabilityId: dismissRow.id, input: { ...buildDismissVulnerabilityInput(reason, comment), ...reviewedByInput } })
       successNotification({ title: 'Vulnerability Updated', description: 'Risk accepted' })
       setDismissRow(null)
     } catch (error) {
@@ -224,7 +226,11 @@ const TableComponent = ({
         onClose={() => setTrackRemediationRow(null)}
         initialData={trackRemediationRow ? { vulnerabilityIDs: [trackRemediationRow.id] } : undefined}
         defaultTitle={trackRemediationRow ? `${trackRemediationRow.displayName ?? trackRemediationRow.displayID ?? trackRemediationRow.externalID ?? ''} Remediation`.trim() : undefined}
-        onSuccess={() => queryClient.invalidateQueries({ queryKey: ['vulnerabilities'] })}
+        onSuccess={() => {
+          const remediated = trackRemediationRow
+          setTrackRemediationRow(null)
+          if (remediated) markReviewed(remediated.id, { currentReviewerUserID: remediated.reviewedByUser?.id, canEdit: canEditVulnerability })
+        }}
       />
       <AcceptRiskDialog
         isOpen={!!dismissRow}

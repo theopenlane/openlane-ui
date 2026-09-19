@@ -2,11 +2,12 @@ import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { createEvidence, createControl, createProgram, linkControlEvidence, readField, type ApiSession, getOwnerApi } from '../utils/api'
-import { bulkEditAndSave, selectFirstMatchingRow } from '../utils/mutations'
+import { createEvidence, createControl, createProgram, linkControlEvidence, readEvidenceFiles, readField, uploadEvidenceFile, type ApiSession, getOwnerApi } from '../utils/api'
+import { bulkEditAndSave, expectMutationOk, selectFirstMatchingRow, toast } from '../utils/mutations'
 import { deleteFirstComment, editFirstComment, postComment } from '../utils/comments'
 import { uploadFiles, SAMPLE_PDF, SAMPLE_DISALLOWED } from '../utils/files'
 import { saveEvidenceAsDraft } from '../utils/evidence'
+import { slideoutEdit, slideoutMenuAction, slideoutReady } from '../utils/slideout'
 import { uniqueName } from '../utils/unique'
 
 let ownerApi: ApiSession
@@ -60,15 +61,16 @@ test.describe('evidence — delete', () => {
     const id = await createEvidence(ownerApi, name)
 
     await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('button', { name: 'Delete evidence' })).toBeVisible({ timeout: 20_000 })
+    const sheet = page.getByRole('dialog')
+    await slideoutReady(sheet)
 
-    await page.getByRole('button', { name: 'Delete evidence' }).click()
+    await slideoutMenuAction(page, sheet, /^Delete$/)
     await page
       .getByRole('alertdialog')
       .getByRole('button', { name: /^delete$/i })
       .click()
 
-    await expect(page.getByRole('button', { name: 'Delete evidence' })).toHaveCount(0, { timeout: 15_000 })
+    await expect(sheet).toBeHidden({ timeout: 30_000 })
   })
 })
 
@@ -80,7 +82,7 @@ test.describe('evidence — linking (seeded)', () => {
     await linkControlEvidence(ownerApi, controlId, evidenceId)
 
     await page.goto(`/evidence?id=${evidenceId}`, { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('button', { name: 'Delete evidence' })).toBeVisible({ timeout: 20_000 })
+    await slideoutReady(page.getByRole('dialog'))
 
     await expect(page.getByText(refCode).first()).toBeVisible({ timeout: 15_000 })
   })
@@ -146,9 +148,10 @@ test.describe('evidence — detail + bulk actions (seeded)', () => {
     const id = await createEvidence(ownerApi, uniqueEvidenceName())
 
     await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('button', { name: 'Delete evidence' })).toBeVisible({ timeout: 20_000 })
+    const sheet = page.getByRole('dialog')
+    await slideoutReady(sheet)
 
-    await page.getByRole('button', { name: /^Copy link$/ }).click()
+    await slideoutMenuAction(page, sheet, /^Copy link$/)
     await expect(page.getByText(/link copied to clipboard/i).first()).toBeVisible({ timeout: 10_000 })
   })
 })
@@ -161,14 +164,14 @@ test.describe('evidence — detail edit + renew (seeded)', () => {
     await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
     const sheet = page.getByRole('dialog')
 
-    await expect(page.getByRole('button', { name: 'Edit evidence' })).toBeVisible({ timeout: 20_000 })
-    await page.getByRole('button', { name: 'Edit evidence' }).click()
+    await expect(slideoutEdit(sheet)).toBeVisible({ timeout: 20_000 })
+    await slideoutEdit(sheet).click()
 
     const nameInput = sheet.locator('input[name="name"]')
     await expect(nameInput).toBeVisible({ timeout: 15_000 })
     await nameInput.fill(uniqueEvidenceName())
 
-    await page.getByRole('button', { name: /^Save Changes$/ }).click()
+    await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
     await expect(page.getByText(/^Evidence Updated$/).first()).toBeVisible({ timeout: 20_000 })
   })
 
@@ -178,8 +181,9 @@ test.describe('evidence — detail edit + renew (seeded)', () => {
 
     await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
-    await expect(page.getByRole('button', { name: /^Renew$/ })).toBeVisible({ timeout: 20_000 })
-    await page.getByRole('button', { name: /^Renew$/ }).click()
+    const sheet = page.getByRole('dialog')
+    await slideoutReady(sheet)
+    await slideoutMenuAction(page, sheet, /^Renew$/)
 
     await expect(page.getByRole('heading', { name: 'Renew Evidence' })).toBeVisible({ timeout: 10_000 })
   })
@@ -265,7 +269,7 @@ test.describe('evidence — comments (seeded)', () => {
     const id = await createEvidence(ownerApi, uniqueEvidenceName())
 
     await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    await expect(page.getByRole('button', { name: 'Delete evidence' })).toBeVisible({ timeout: 20_000 })
+    await slideoutReady(page.getByRole('dialog'))
 
     await expect(page.getByText('Latest Comment', { exact: true })).toBeVisible({ timeout: 15_000 })
     await page.getByRole('button', { name: /View & Add Comments/ }).click()
@@ -275,17 +279,19 @@ test.describe('evidence — comments (seeded)', () => {
 })
 
 test.describe('evidence — file attachments (seeded)', () => {
-  test('the detail sheet Provided files section exposes the File Upload dialog', async ({ page }) => {
+  test('the detail sheet Provided files section exposes the Add Files dialog', async ({ page }) => {
     test.slow()
     const id = await createEvidence(ownerApi, uniqueEvidenceName())
 
     await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    await expect(page.getByRole('button', { name: 'Delete evidence' })).toBeVisible({ timeout: 20_000 })
+    await slideoutReady(page.getByRole('dialog'))
 
     await expect(page.getByText('Provided files', { exact: true })).toBeVisible({ timeout: 15_000 })
-    await page.getByRole('button', { name: /^File Upload$/ }).click()
+    await page.getByRole('button', { name: /^Add Files$/ }).click()
 
-    await expect(page.getByRole('heading', { name: 'Control Evidence Upload' })).toBeVisible({ timeout: 10_000 })
+    const upload = page.getByRole('dialog').filter({ hasText: 'Add Evidence Files' }).first()
+    await expect(upload).toBeVisible({ timeout: 15_000 })
+    await expect(upload.getByRole('tab', { name: 'Upload' })).toBeVisible({ timeout: 10_000 })
   })
 })
 
@@ -296,7 +302,7 @@ test.describe('evidence — inline edit (seeded)', () => {
 
     await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
     const sheet = page.getByRole('dialog')
-    await expect(page.getByRole('button', { name: 'Delete evidence' })).toBeVisible({ timeout: 20_000 })
+    await slideoutReady(page.getByRole('dialog'))
 
     const textarea = sheet.locator('#description')
     await expect(async () => {
@@ -387,8 +393,8 @@ test.describe('evidence — collection procedure panel (ISS-2584)', () => {
     await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
     const sheet = page.getByRole('dialog')
-    await expect(sheet.getByRole('button', { name: 'Edit evidence' })).toBeVisible({ timeout: 30_000 })
-    await sheet.getByRole('button', { name: 'Edit evidence' }).click()
+    await expect(slideoutEdit(sheet)).toBeVisible({ timeout: 30_000 })
+    await slideoutEdit(sheet).click()
 
     await expect(sheet.getByText('Collection procedure', { exact: true })).toBeVisible({ timeout: 20_000 })
   })
@@ -402,16 +408,16 @@ test.describe('evidence — editing saves without re-submitting (ISS-2724)', () 
 
     await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
     const sheet = page.getByRole('dialog')
-    await expect(sheet.getByRole('button', { name: 'Edit evidence' })).toBeVisible({ timeout: 30_000 })
+    await expect(slideoutEdit(sheet)).toBeVisible({ timeout: 30_000 })
 
     const statusBefore = await sheet
       .getByText(/^(Draft|Requested|Submitted|In Review|Ready|Approved|Rejected|Needs Renewal|Missing Artifact)$/)
       .first()
       .textContent()
 
-    await sheet.getByRole('button', { name: 'Edit evidence' }).click()
+    await slideoutEdit(sheet).click()
 
-    const save = sheet.getByRole('button', { name: /^Save Changes$/ })
+    const save = sheet.getByRole('button', { name: /^Save( Changes)?$/ })
     await expect(save).toBeVisible({ timeout: 20_000 })
 
     const description = sheet.getByRole('textbox').first()
@@ -435,8 +441,8 @@ test.describe('evidence — view opens read-only (ISS-2723)', () => {
     const sheet = page.getByRole('dialog')
     await expect(sheet).toBeVisible({ timeout: 30_000 })
 
-    await expect(sheet.getByRole('button', { name: 'Edit evidence' })).toBeVisible({ timeout: 20_000 })
-    await expect(sheet.getByRole('button', { name: /^Save Changes$/ })).toHaveCount(0)
+    await expect(slideoutEdit(sheet)).toBeVisible({ timeout: 20_000 })
+    await expect(sheet.getByRole('button', { name: /^Save( Changes)?$/ })).toHaveCount(0)
   })
 
   test('editing then reopening a different record does not carry edit mode over', async ({ page }) => {
@@ -446,13 +452,13 @@ test.describe('evidence — view opens read-only (ISS-2723)', () => {
 
     await page.goto(`/evidence?id=${firstId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
     const sheet = page.getByRole('dialog')
-    await expect(sheet.getByRole('button', { name: 'Edit evidence' })).toBeVisible({ timeout: 30_000 })
-    await sheet.getByRole('button', { name: 'Edit evidence' }).click()
-    await expect(sheet.getByRole('button', { name: /^Save Changes$/ })).toBeVisible({ timeout: 20_000 })
+    await expect(slideoutEdit(sheet)).toBeVisible({ timeout: 30_000 })
+    await slideoutEdit(sheet).click()
+    await expect(sheet.getByRole('button', { name: /^Save( Changes)?$/ })).toBeVisible({ timeout: 20_000 })
 
     await page.goto(`/evidence?id=${secondId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    await expect(sheet.getByRole('button', { name: 'Edit evidence' })).toBeVisible({ timeout: 30_000 })
-    await expect(sheet.getByRole('button', { name: /^Save Changes$/ })).toHaveCount(0)
+    await expect(slideoutEdit(sheet)).toBeVisible({ timeout: 30_000 })
+    await expect(sheet.getByRole('button', { name: /^Save( Changes)?$/ })).toHaveCount(0)
   })
 })
 
@@ -503,12 +509,79 @@ test.describe('evidence — comments round-trip', () => {
     const edited = `${body} edited`
 
     await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    await expect(page.getByRole('button', { name: 'Delete evidence' })).toBeVisible({ timeout: 30_000 })
+    await slideoutReady(page.getByRole('dialog'))
     await page.getByRole('button', { name: /View & Add Comments/ }).click()
     await expect(page.getByText(/Newest at top/).first()).toBeVisible({ timeout: 30_000 })
 
     await postComment(page, page, 'UpdateEvidence', body)
     await editFirstComment(page, 'UpdateEvidenceComment', edited)
     await deleteFirstComment(page, 'DeleteNote', edited)
+  })
+})
+
+test.describe('evidence — add existing files (ISS-2936)', () => {
+  test('a file already attached to another evidence record is linked through the Existing Files tab', async ({ page }) => {
+    test.slow()
+    const fileName = uniqueName('E2E Shared Evidence File')
+    const source = await createEvidence(ownerApi, uniqueEvidenceName())
+    await uploadEvidenceFile(ownerApi, source, fileName)
+
+    const target = await createEvidence(ownerApi, uniqueEvidenceName())
+
+    await page.goto(`/evidence?id=${target}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const addFiles = page.getByRole('button', { name: /^Add Files$/ })
+    await expect(addFiles).toBeVisible({ timeout: 60_000 })
+
+    await addFiles.click()
+    const dialog = page.getByRole('dialog').filter({ hasText: 'Add Evidence Files' }).first()
+    await expect(dialog).toBeVisible({ timeout: 15_000 })
+
+    const add = dialog.getByRole('button', { name: /^Add$/ })
+    await expect(add).toBeDisabled()
+
+    await dialog.getByRole('tab', { name: 'Existing Files' }).click()
+    await dialog.getByPlaceholder('Search files...').fill(fileName)
+
+    const row = dialog.getByRole('row').filter({ hasText: fileName }).first()
+    await expect(row).toBeVisible({ timeout: 30_000 })
+    await row.getByRole('checkbox').first().check()
+
+    await expect(add).toBeEnabled({ timeout: 15_000 })
+    await expectMutationOk(page, 'UpdateEvidence', async () => {
+      await add.click()
+    })
+
+    await expect(toast(page, 'Evidence files added')).toBeVisible({ timeout: 30_000 })
+
+    await expect.poll(async () => (await readEvidenceFiles(ownerApi, target)).map((file) => file.name), { timeout: 60_000 }).toContain(fileName)
+
+    const linked = (await readEvidenceFiles(ownerApi, target)).find((file) => file.name === fileName)
+    if (!linked) throw new Error(`linked file ${fileName} is not readable back from evidence ${target}`)
+
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('row').filter({ hasText: linked.providedFileName }).first()).toBeVisible({ timeout: 60_000 })
+  })
+
+  test('a file already linked to this evidence is not offered again', async ({ page }) => {
+    test.slow()
+    const fileName = uniqueName('E2E Linked Evidence File')
+    const id = await createEvidence(ownerApi, uniqueEvidenceName())
+    await uploadEvidenceFile(ownerApi, id, fileName)
+
+    await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const addFiles = page.getByRole('button', { name: /^Add Files$/ })
+    await expect(addFiles).toBeVisible({ timeout: 60_000 })
+
+    await addFiles.click()
+    const dialog = page.getByRole('dialog').filter({ hasText: 'Add Evidence Files' }).first()
+    await expect(dialog).toBeVisible({ timeout: 15_000 })
+
+    await dialog.getByRole('tab', { name: 'Existing Files' }).click()
+    await dialog.getByPlaceholder('Search files...').fill(fileName)
+
+    await expect(async () => {
+      await expect(dialog.getByText('No results', { exact: true })).toBeVisible({ timeout: 10_000 })
+      await expect(dialog.getByRole('row').filter({ hasText: fileName })).toHaveCount(0)
+    }).toPass({ timeout: 60_000 })
   })
 })

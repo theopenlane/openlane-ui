@@ -104,7 +104,7 @@ test.describe('procedures — link control via dialog', () => {
     await expect(controlRow).toBeVisible({ timeout: 15_000 })
     await controlRow.getByRole('checkbox').first().check()
 
-    await dialog.getByRole('button', { name: /^Save Changes$/ }).click()
+    await dialog.getByRole('button', { name: /^Save( Changes)?$/ }).click()
     await expect(dialog).toBeHidden({ timeout: 20_000 })
   })
 })
@@ -182,7 +182,7 @@ test.describe('procedures — detail page UI (seeded)', () => {
     await page.getByRole('button', { name: /^Edit$/ }).click()
 
     await expect(page.getByRole('button', { name: /^Cancel$/ })).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByRole('button', { name: /^save changes$/i })).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('button', { name: /^save( changes)?$/i })).toBeVisible({ timeout: 10_000 })
   })
 
   test('Manage Permissions opens the permission sheet', async ({ page }) => {

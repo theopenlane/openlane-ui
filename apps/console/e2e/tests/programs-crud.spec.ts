@@ -2,8 +2,9 @@ import { type Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { createProgram, createControl, gql, type ApiSession, getOwnerApi } from '../utils/api'
+import { createProgram, createControl, deleteProgram, gql, type ApiSession, getOwnerApi } from '../utils/api'
 import { uniqueName, uniqueRef } from '../utils/unique'
+import { expectMutationOk, toast } from '../utils/mutations'
 
 let ownerApi: ApiSession
 const uniqueProgramName = () => uniqueName('E2E ProgCRUD')
@@ -70,7 +71,7 @@ test.describe('programs — detail (seeded)', () => {
       .getByRole('button', { name: /^Edit$/ })
       .first()
       .click()
-    await expect(page.getByRole('button', { name: /^Save Changes$/ }).first()).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('button', { name: /^Save( Changes)?$/ }).first()).toBeVisible({ timeout: 10_000 })
     await expect(page.getByRole('button', { name: /^Cancel$/ }).first()).toBeVisible()
   })
 })
@@ -205,7 +206,7 @@ test.describe('programs — detail editing (seeded)', () => {
     await dialog.getByPlaceholder('SecureSphere Compliance').fill(firm)
     await dialog.getByPlaceholder('Amy Shields').fill('Amy Shields')
     await dialog.getByPlaceholder('amy.shields@securesphere.io').fill('amy.shields@securesphere.io')
-    await dialog.getByRole('button', { name: /^Save Changes$/ }).click()
+    await dialog.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(page.getByText(firm).first()).toBeVisible({ timeout: 15_000 })
   })
@@ -221,7 +222,7 @@ test.describe('programs — detail editing (seeded)', () => {
     await page.getByRole('button', { name: /^Set auditor$/ }).click()
     await dialog.getByPlaceholder('SecureSphere Compliance').fill(`E2E Firm ${RUN_ID}`)
     await dialog.getByPlaceholder('amy.shields@securesphere.io').fill('amy.shields@securesphere.io')
-    await dialog.getByRole('button', { name: /^Save Changes$/ }).click()
+    await dialog.getByRole('button', { name: /^Save( Changes)?$/ }).click()
     await expect(dialog).toBeHidden({ timeout: 15_000 })
 
     await page.getByRole('button', { name: /^Ready for Auditor$/ }).click()
@@ -242,7 +243,7 @@ test.describe('programs — detail editing (seeded)', () => {
       .getByRole('button', { name: /^Edit$/ })
       .last()
       .click()
-    await expect(page.getByRole('button', { name: /^Save Changes$/ }).first()).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('button', { name: /^Save( Changes)?$/ }).first()).toBeVisible({ timeout: 10_000 })
     await expect(page.getByRole('button', { name: /^Cancel$/ }).first()).toBeVisible()
   })
 })
@@ -255,7 +256,7 @@ test.describe('programs — timeline & readiness (seeded)', () => {
       .getByRole('button', { name: /^Edit$/ })
       .last()
       .click()
-    await expect(page.getByRole('button', { name: /^Save Changes$/ }).first()).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('button', { name: /^Save( Changes)?$/ }).first()).toBeVisible({ timeout: 10_000 })
   }
 
   test('a fresh program renders the read-only timeline with a Not Started status', async ({ page }) => {
@@ -279,7 +280,7 @@ test.describe('programs — timeline & readiness (seeded)', () => {
     await page.getByRole('option', { name: 'In Progress' }).click()
 
     await page
-      .getByRole('button', { name: /^Save Changes$/ })
+      .getByRole('button', { name: /^Save( Changes)?$/ })
       .first()
       .click()
 
@@ -300,7 +301,7 @@ test.describe('programs — timeline & readiness (seeded)', () => {
       .first()
       .click()
 
-    await expect(page.getByRole('button', { name: /^Save Changes$/ })).toBeHidden({ timeout: 10_000 })
+    await expect(page.getByRole('button', { name: /^Save( Changes)?$/ })).toBeHidden({ timeout: 10_000 })
     await expect(page.getByText('Not Started').first()).toBeVisible({ timeout: 10_000 })
   })
 
@@ -320,7 +321,7 @@ test.describe('programs — timeline & readiness (seeded)', () => {
       .click()
 
     await page
-      .getByRole('button', { name: /^Save Changes$/ })
+      .getByRole('button', { name: /^Save( Changes)?$/ })
       .first()
       .click()
     await expect(page.getByRole('main').getByText('End date must be in the future').first()).toBeVisible({ timeout: 10_000 })
@@ -543,5 +544,61 @@ test.describe('programs — settings groups + import (seeded)', () => {
 
     await dialog.getByRole('button', { name: /^Import \(\d+\)$/ }).click()
     await expect(page.getByText(/Controls Imported|successfully imported/i).first()).toBeVisible({ timeout: 20_000 })
+  })
+})
+
+test.describe('programs — Trust Services Categories slideout (ISS-2990)', () => {
+  test('adding a category to a SOC 2 program imports that category’s controls', async ({ page }) => {
+    test.slow()
+    const id = await createProgram(ownerApi, uniqueProgramName(), { frameworkName: 'SOC 2' })
+
+    try {
+      await page.goto(`/programs/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      await expect(page.getByText('Trust Services Categories', { exact: true })).toBeVisible({ timeout: 60_000 })
+
+      const addCategories = page.getByRole('button', { name: 'Add categories' })
+      await expect(addCategories).toBeEnabled({ timeout: 60_000 })
+      await addCategories.click()
+
+      const slideout = page.getByRole('dialog').filter({ hasText: 'SOC 2 Trust Services Categories' }).first()
+      await expect(slideout).toBeVisible({ timeout: 30_000 })
+
+      const update = slideout.getByRole('button', { name: /^Update program$/ })
+      await expect(update).toBeDisabled()
+
+      await slideout.getByTestId('trust-service-category-security').click()
+      await expect(update).toBeEnabled({ timeout: 15_000 })
+
+      await expectMutationOk(page, 'CreateControlsByClone', async () => {
+        await update.click()
+      })
+
+      await expect(toast(page, 'Program updated')).toBeVisible({ timeout: 60_000 })
+      await expect(page.getByText('Trust Services Categories', { exact: true })).toBeVisible({ timeout: 30_000 })
+      await expect(page.getByText('Security', { exact: true }).first()).toBeVisible({ timeout: 60_000 })
+    } finally {
+      await deleteProgram(ownerApi, id)
+    }
+  })
+
+  test('the required category is locked once its controls are imported', async ({ page }) => {
+    test.slow()
+    const id = await createProgram(ownerApi, uniqueProgramName(), { frameworkName: 'SOC 2' })
+
+    try {
+      await page.goto(`/programs/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      const addCategories = page.getByRole('button', { name: 'Add categories' })
+      await expect(addCategories).toBeEnabled({ timeout: 60_000 })
+      await addCategories.click()
+
+      const slideout = page.getByRole('dialog').filter({ hasText: 'SOC 2 Trust Services Categories' }).first()
+      await expect(slideout).toBeVisible({ timeout: 30_000 })
+
+      await expect(slideout.getByText('Required', { exact: true })).toBeVisible({ timeout: 15_000 })
+      await expect(slideout.getByTestId('trust-service-category-security')).toBeEnabled()
+      await expect(slideout.getByTestId('trust-service-category-availability')).toBeEnabled()
+    } finally {
+      await deleteProgram(ownerApi, id)
+    }
   })
 })

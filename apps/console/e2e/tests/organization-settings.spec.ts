@@ -185,7 +185,7 @@ test.describe('organization-settings — read-only flows (owner)', () => {
     await expect(nameInput).toBeVisible({ timeout: 15_000 })
     await nameInput.fill('a')
 
-    await page.getByRole('button', { name: /Save Changes/ }).click()
+    await page.getByRole('button', { name: /Save( Changes)?/ }).click()
     await expect(page.getByText(/Display name must be at least 2 characters/i)).toBeVisible({ timeout: 10_000 })
   })
 

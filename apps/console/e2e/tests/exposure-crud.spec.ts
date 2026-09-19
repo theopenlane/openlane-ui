@@ -1,8 +1,9 @@
 import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { createRisk, type ApiSession, getOwnerApi } from '../utils/api'
-import { uniqueName } from '../utils/unique'
+import { createIdentityHolder, createRisk, createVulnerability, deleteVulnerability, type ApiSession, getOwnerApi } from '../utils/api'
+import { uniqueName, uniqueRef } from '../utils/unique'
 import { expectMutationOk } from '../utils/mutations'
+import { responsibilityValue, setResponsibilityEmail, setResponsibilityOption } from '../utils/responsibility'
 
 let ownerApi: ApiSession
 const uniqueRiskName = () => uniqueName('E2E RiskCRUD')
@@ -109,7 +110,7 @@ test.describe('exposure — risk detail (seeded)', () => {
 
     await editButton.click()
     await expect(page.getByRole('button', { name: /^Cancel$/ })).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByRole('button', { name: /^Save Changes$/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /^Save( Changes)?$/ })).toBeVisible()
   })
 
   test('the Mitigation tab surfaces the Action Plans section', async ({ page }) => {
@@ -603,5 +604,79 @@ test.describe('reviews — create submits', () => {
       .first()
       .fill(title)
     await expect(page.getByRole('row').filter({ hasText: title }).first()).toBeVisible({ timeout: 60_000 })
+  })
+})
+
+test.describe('exposure — vulnerability assignment (ISS-3013)', () => {
+  test('the Assignee field records a personnel option and keeps it across a reload', async ({ page }) => {
+    test.slow()
+    const person = uniqueName('E2E VulnOwner')
+    const email = `${person.replace(/[^a-z0-9]/gi, '').toLowerCase()}@e2e-openlane.dev`
+    await createIdentityHolder(ownerApi, person, email)
+
+    const displayName = uniqueName('E2E Vulnerability assignee')
+    const id = await createVulnerability(ownerApi, displayName, uniqueRef('CVE-E2E-ASSIGN'))
+
+    try {
+      await page.goto(`/exposure/vulnerabilities?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      const sheet = page.getByRole('dialog')
+      await expect(sheet).toBeVisible({ timeout: 60_000 })
+
+      await expect(responsibilityValue(sheet, 'Assignee')).toContainText('Not set', { timeout: 30_000 })
+      await setResponsibilityOption(page, sheet, 'Assignee', person, person, 'UpdateVulnerability')
+      await expect(responsibilityValue(sheet, 'Assignee')).toContainText(person, { timeout: 30_000 })
+
+      await page.reload({ waitUntil: 'domcontentloaded' })
+      await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60_000 })
+      await expect(responsibilityValue(page.getByRole('dialog'), 'Assignee')).toContainText(person, { timeout: 60_000 })
+    } finally {
+      await deleteVulnerability(ownerApi, id)
+    }
+  })
+
+  test('the Reviewed By field accepts a custom email and keeps it across a reload', async ({ page }) => {
+    test.slow()
+    const displayName = uniqueName('E2E Vulnerability reviewer')
+    const id = await createVulnerability(ownerApi, displayName, uniqueRef('CVE-E2E-REVIEW'))
+    const email = `reviewer-${Date.now().toString(36)}@e2e-openlane.dev`
+
+    try {
+      await page.goto(`/exposure/vulnerabilities?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      const sheet = page.getByRole('dialog')
+      await expect(sheet).toBeVisible({ timeout: 60_000 })
+
+      await setResponsibilityEmail(page, sheet, 'Reviewed By', email, 'UpdateVulnerability')
+      await expect(responsibilityValue(sheet, 'Reviewed By')).toContainText(email, { timeout: 30_000 })
+
+      await page.reload({ waitUntil: 'domcontentloaded' })
+      await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60_000 })
+      await expect(responsibilityValue(page.getByRole('dialog'), 'Reviewed By')).toContainText(email, { timeout: 60_000 })
+    } finally {
+      await deleteVulnerability(ownerApi, id)
+    }
+  })
+
+  test('an invalid custom value is rejected before it reaches the backend', async ({ page }) => {
+    test.slow()
+    const displayName = uniqueName('E2E Vulnerability bad assignee')
+    const id = await createVulnerability(ownerApi, displayName, uniqueRef('CVE-E2E-BADASSIGN'))
+
+    try {
+      await page.goto(`/exposure/vulnerabilities?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      const sheet = page.getByRole('dialog')
+      await expect(sheet).toBeVisible({ timeout: 60_000 })
+
+      await responsibilityValue(sheet, 'Assignee').click()
+      const search = page.getByPlaceholder('Search users, groups, personnel, or type a name/email...')
+      await expect(search).toBeVisible({ timeout: 15_000 })
+      await search.fill('not-an-email')
+
+      await page.getByRole('option').filter({ hasText: 'Use "not-an-email" as custom email' }).first().click()
+
+      await expect(page.getByText('Invalid email', { exact: true })).toBeVisible({ timeout: 15_000 })
+      await expect(responsibilityValue(sheet, 'Assignee')).not.toContainText('not-an-email')
+    } finally {
+      await deleteVulnerability(ownerApi, id)
+    }
   })
 })

@@ -33,7 +33,7 @@ test('editing an email template name persists after returning to and reloading t
     const nameInput = page.getByPlaceholder('e.g. Welcome Email')
     await expect(nameInput).toHaveValue(originalName, { timeout: 20_000 })
     await nameInput.fill(updatedName)
-    await page.getByRole('button', { name: 'Save Changes' }).click()
+    await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
     await expect(page.getByText('Email template updated', { exact: true })).toBeVisible({ timeout: 20_000 })
     await page.waitForURL(/\/automation\/email-templates(?:\?|$)/, { timeout: 20_000 })
 

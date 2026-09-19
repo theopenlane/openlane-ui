@@ -105,16 +105,19 @@ export const useGetGroupNames = ({ where, enabled = true }: { where?: GroupWhere
   return { ...queryResult, groups, isLoading: queryResult.isPending }
 }
 
-export const useGroupSelect = () => {
-  const { data, ...rest } = useGetAllGroups({})
+export const useGroupSelect = ({ enabled = true }: { enabled?: boolean } = {}) => {
+  const { data, ...rest } = useGetAllGroups({ enabled })
 
-  const groupOptions =
-    data?.groups?.edges
-      ?.filter((edge) => !!edge?.node)
-      ?.map((edge) => ({
-        label: edge?.node?.displayName || '',
-        value: edge?.node?.id || '',
-      })) ?? []
+  const groupOptions = useMemo(
+    () =>
+      data?.groups?.edges
+        ?.filter((edge) => !!edge?.node)
+        ?.map((edge) => ({
+          label: edge?.node?.displayName || '',
+          value: edge?.node?.id || '',
+        })) ?? [],
+    [data],
+  )
 
   return { groupOptions, ...rest }
 }

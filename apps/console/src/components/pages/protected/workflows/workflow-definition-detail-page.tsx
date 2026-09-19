@@ -29,7 +29,7 @@ const WorkflowDefinitionDetailPage = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/workflows' },
+      { label: 'Automation', href: '/automation' },
       { label: 'Workflows', href: '/automation/workflows' },
       { label: definition?.workflowDefinition?.name, isLoading },
     ])

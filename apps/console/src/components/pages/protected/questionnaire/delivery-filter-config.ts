@@ -23,6 +23,12 @@ export const deliveryFilterFields = defineFilterFields<AssessmentResponseWhereIn
     type: 'dateRange',
     icon: FilterIcons[QuestionnaireFilterIconName.DueDate],
   },
+  {
+    key: 'hasCampaign',
+    label: 'Has Campaign',
+    type: 'boolean',
+    icon: FilterIcons[QuestionnaireFilterIconName.Campaign],
+  },
 ])
 
 export const mapDeliveryFilterKey = (key: string, value: unknown): AssessmentResponseWhereInput => {

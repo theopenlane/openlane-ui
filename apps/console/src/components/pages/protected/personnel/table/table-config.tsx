@@ -15,7 +15,7 @@ export const formId = 'edit' + ObjectNames.IDENTITY_HOLDER
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Registry', href: '/registry/personnel' },
+  { label: 'Registry', href: '/registry' },
   { label: 'Personnel', href: '/registry/personnel' },
 ]
 

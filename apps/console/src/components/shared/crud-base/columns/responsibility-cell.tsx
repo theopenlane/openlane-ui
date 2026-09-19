@@ -13,7 +13,7 @@ type ResponsibilityCellProps = {
 
 export const ResponsibilityCell = ({ userMap, user, group, personnel, stringValue }: ResponsibilityCellProps) => {
   if (user?.id) {
-    return <UserCell user={userMap[user.id]} />
+    return <UserCell user={userMap[user.id] ?? user} />
   }
 
   if (group?.id) {

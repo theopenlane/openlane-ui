@@ -155,7 +155,7 @@ const GroupsPage = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'User Management', href: '/user-management/groups' },
+      { label: 'User Management', href: '/user-management' },
       { label: 'Groups', href: '/user-management/groups' },
     ])
   }, [setCrumbs])

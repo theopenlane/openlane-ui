@@ -3,7 +3,6 @@
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
-
 import {
   type VulnerabilitiesNodeNonNull,
   useVulnerability,
@@ -42,6 +41,18 @@ const normalizeData = (data: VulnerabilitiesNodeNonNull) =>
       user: data.internalOwnerUser,
       group: data.internalOwnerGroup,
       stringValue: data.internalOwner,
+    },
+    assignedTo: {
+      personnel: data.assignedToIdentityHolder,
+      user: data.assignedToUser,
+      group: data.assignedToGroup,
+      stringValue: data.assignedTo,
+    },
+    reviewedBy: {
+      personnel: data.reviewedByIdentityHolder,
+      user: data.reviewedByUser,
+      group: data.reviewedByGroup,
+      stringValue: data.reviewedBy,
     },
   })
 
@@ -161,7 +172,7 @@ const VulnerabilityPage: React.FC = () => {
     deleteMutation,
     normalizeData,
     buildPayload: async (data): Promise<CreateVulnerabilityInput | UpdateVulnerabilityInput> => {
-      const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, internalOwner, ...rest } = data
+      const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, internalOwner, assignedTo, reviewedBy, ...rest } = data
       const associationPayload = buildAssociationPayload(
         VULNERABILITY_ASSOCIATION_CONFIG.associationKeys,
         { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs },
@@ -175,6 +186,8 @@ const VulnerabilityPage: React.FC = () => {
         ...cleaned,
         ...associationPayload,
         ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
+        ...buildResponsibilityPayload('assignedTo', assignedTo, { mode: 'create' }),
+        ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: 'create' }),
       } as CreateVulnerabilityInput | UpdateVulnerabilityInput
     },
     getName,
@@ -210,7 +223,12 @@ const VulnerabilityPage: React.FC = () => {
       return result.updateBulkVulnerability
     },
     bulkEditFormSchema: bulkEditFieldSchema,
-    responsibilityFields: { internalOwner: { fieldBaseName: 'internalOwner' } },
+    bulkEditFieldLabels: { assignedTo: 'Assignee' },
+    responsibilityFields: {
+      internalOwner: { fieldBaseName: 'internalOwner' },
+      assignedTo: { fieldBaseName: 'assignedTo' },
+      reviewedBy: { fieldBaseName: 'reviewedBy' },
+    },
     enumOpts,
     defaultFilterValues: DEFAULT_FILTER_VALUES,
     beforeTable: (

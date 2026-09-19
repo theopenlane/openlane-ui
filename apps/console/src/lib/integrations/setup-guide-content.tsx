@@ -441,7 +441,7 @@ const PROVIDER_SETUP_GUIDES: Record<string, ProviderSetupGuideConfig> = {
     systemName: 'Google',
     openlaneSteps: [
       'Click Continue to Authorization to start the redirect to Google',
-      "Copy the target folder's ID from its Drive URL and enter it in the Folder ID field — leave blank to sync from the root of My Drive",
+      "Copy the target folder's ID from its Drive URL and enter it in the Folder ID field — a folder is required; every sync is scoped to it",
       'Optionally mark Google Drive as your Primary Document Manager so new policies default to Drive-managed documents',
     ],
   },

@@ -36,7 +36,7 @@ test.describe('registry — vendor detail', () => {
       const billing = page.getByLabel('Billing Model', { exact: true })
       await expect(billing).toBeEditable({ timeout: 30_000 })
       await billing.fill(billingModel)
-      await page.getByRole('button', { name: /^Save Changes$/ }).click()
+      await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
       await expect(page.getByText('Vendor updated', { exact: true }).first()).toBeVisible({ timeout: 30_000 })
 

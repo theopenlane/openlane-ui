@@ -1,4 +1,4 @@
-import { CalendarCheck, CalendarClock, CalendarPlus, FolderPen, History, LayoutTemplate, ListFilter, Tag, type LucideIcon } from 'lucide-react'
+import { CalendarCheck, CalendarClock, CalendarPlus, FolderPen, History, LayoutTemplate, ListFilter, Send, Tag, type LucideIcon } from 'lucide-react'
 
 export enum QuestionnaireFilterIconName {
   Title = 'Title',
@@ -10,6 +10,7 @@ export enum QuestionnaireFilterIconName {
   Tags = 'Tags',
   Type = 'Type',
   Template = 'Template',
+  Campaign = 'Campaign',
 }
 
 export const FilterIcons: Record<QuestionnaireFilterIconName, LucideIcon> = {
@@ -22,4 +23,5 @@ export const FilterIcons: Record<QuestionnaireFilterIconName, LucideIcon> = {
   [QuestionnaireFilterIconName.Tags]: Tag,
   [QuestionnaireFilterIconName.Type]: ListFilter,
   [QuestionnaireFilterIconName.Template]: LayoutTemplate,
+  [QuestionnaireFilterIconName.Campaign]: Send,
 }

@@ -58,6 +58,24 @@ const ACRONYMS = new Set([
   'scim',
 ])
 
+// joining words that stay lowercase in a title unless they lead it
+const SMALL_WORDS = new Set(['a', 'an', 'and', 'as', 'at', 'by', 'for', 'in', 'of', 'on', 'or', 'the', 'to'])
+
+const ACRONYM_WITH_NUMBER = /^([a-z]+)(\d+)$/
+
+const humanizeWord = (word: string, index: number): string => {
+  const lower = word.toLowerCase()
+  if (ACRONYMS.has(lower)) return word.toUpperCase()
+
+  // acronym followed by a version or number: soc2 → SOC 2, iso27001 → ISO 27001
+  const numbered = ACRONYM_WITH_NUMBER.exec(lower)
+  if (numbered && ACRONYMS.has(numbered[1])) return `${numbered[1].toUpperCase()} ${numbered[2]}`
+
+  if (index > 0 && SMALL_WORDS.has(lower)) return lower
+
+  return word.charAt(0).toUpperCase() + lower.slice(1)
+}
+
 export function toHumanLabel(input: string): string {
   if (!input) return ''
 
@@ -73,7 +91,7 @@ export function toHumanLabel(input: string): string {
     .trim()
 
   // Title-case each word, then fully uppercase known acronyms
-  return label.replace(/\b\w+\b/g, (word) => (ACRONYMS.has(word.toLowerCase()) ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()))
+  return label.split(' ').map(humanizeWord).join(' ')
 }
 
 export const isValidDomain = (domain: string): boolean => /^([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(domain)

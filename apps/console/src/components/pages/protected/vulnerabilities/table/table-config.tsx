@@ -152,6 +152,7 @@ export const visibilityFields = {
   scopeName: false,
   internalOwner: true,
   externalOwnerID: false,
+  reviewedBy: false,
   externalURI: false,
   summary: false,
   description: false,

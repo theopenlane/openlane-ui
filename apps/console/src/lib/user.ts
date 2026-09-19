@@ -1,4 +1,4 @@
-import { type AuthenticationResponseJSON, type RegistrationResponseJSON } from '@simplewebauthn/types'
+import { type AuthenticationResponseJSON, type RegistrationResponseJSON } from '@simplewebauthn/browser'
 import useSWR from 'swr'
 import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
 

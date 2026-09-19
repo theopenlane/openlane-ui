@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
-import { createCustomTypeEnum, createGroup, createRisk, deleteCustomTypeEnum, getOwnerApi, gql, type ApiSession } from '../utils/api'
+import { createCustomTypeEnum, createGroup, deleteCustomTypeEnum, getOwnerApi, gql, type ApiSession } from '../utils/api'
 import { uniqueName } from '../utils/unique'
 
 const deleteRisk = async (sess: ApiSession, id: string): Promise<void> => {
@@ -93,7 +93,7 @@ test.describe('exposure — risk create properties', () => {
       await openCreate(page)
       await page.getByLabel(/^Title$/).fill(name)
 
-      await page.getByText('Select stakeholder...', { exact: true }).click()
+      await page.getByText('Stakeholder', { exact: true }).locator('xpath=../following-sibling::*[1]').click()
       await expect(page.getByPlaceholder('Search groups...')).toBeVisible({ timeout: 20_000 })
       await page.getByPlaceholder('Search groups...').fill(stakeholderGroup)
       await page.getByRole('option', { name: stakeholderGroup }).first().click()

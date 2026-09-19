@@ -158,7 +158,7 @@ test.describe('policies — associations & flows', () => {
     await expect(controlRow).toBeVisible({ timeout: 15_000 })
     await controlRow.getByRole('checkbox').first().check()
 
-    await dialog.getByRole('button', { name: /^Save Changes$/ }).click()
+    await dialog.getByRole('button', { name: /^Save( Changes)?$/ }).click()
     await expect(dialog).toBeHidden({ timeout: 20_000 })
   })
 
@@ -178,19 +178,6 @@ test.describe('policies — associations & flows', () => {
     await proceduresTab.click()
     await expect(page.getByRole('heading', { name: /^Linked Procedures$/ })).toBeVisible({ timeout: 15_000 })
     await expect(page.getByText(procedureName, { exact: true })).toBeVisible({ timeout: 10_000 })
-  })
-
-  test('Create toolbar — "Procedure" navigates to the procedure create form', async ({ page }) => {
-    const name = uniquePolicyName()
-    const id = await createInternalPolicy(ownerApi, name)
-
-    await page.goto(`/policies/${id}/view`, { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
-
-    await page.getByRole('button', { name: /^Create$/ }).click()
-    await page.getByRole('button', { name: /^Procedure$/ }).click()
-
-    await page.waitForURL(/\/procedures\/create(\?|$)/, { timeout: 20_000 })
   })
 })
 
@@ -223,15 +210,14 @@ test.describe('policies — detail page UI (seeded)', () => {
     await expect(sheet.getByText(/^Group list$/)).toBeVisible({ timeout: 10_000 })
   })
 
-  test('Create toolbar — "Policy" navigates to the create form', async ({ page }) => {
+  test('Create policy navigates to the create form (ISS-2924)', async ({ page }) => {
     const name = uniquePolicyName()
     const id = await createInternalPolicy(ownerApi, name)
 
     await page.goto(`/policies/${id}/view`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
 
-    await page.getByRole('button', { name: /^Create$/ }).click()
-    await page.getByRole('button', { name: /^Policy$/ }).click()
+    await page.getByRole('link', { name: 'Create policy' }).click()
 
     await page.waitForURL(/\/policies\/create(\?|$)/, { timeout: 20_000 })
   })

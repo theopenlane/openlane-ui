@@ -45,8 +45,10 @@ test.describe('controls — control implementations (seeded control)', () => {
     await createImplementation(page)
 
     await openItemAction(page, 'Edit')
-    await expect(sheet(page).getByRole('button', { name: 'Save Changes' })).toBeVisible({ timeout: 30_000 })
-    await sheet(page).getByRole('button', { name: 'Save Changes' }).click()
+    await expect(sheet(page).getByRole('button', { name: /^Save( Changes)?$/ })).toBeVisible({ timeout: 30_000 })
+    await sheet(page)
+      .getByRole('button', { name: /^Save( Changes)?$/ })
+      .click()
     await expect(toast(page, 'Control Implementation updated')).toBeVisible({ timeout: 60_000 })
 
     await openItemAction(page, 'Delete')

@@ -57,6 +57,20 @@ export const getColumns = ({
       size: 120,
       cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="vulnerability" field="status" />,
     },
+    {
+      accessorKey: 'assignedTo',
+      header: 'Assignee',
+      size: 160,
+      cell: ({ row }) => (
+        <ResponsibilityCell
+          userMap={userMap}
+          user={row.original.assignedToUser}
+          personnel={row.original.assignedToIdentityHolder}
+          group={row.original.assignedToGroup}
+          stringValue={row.original.assignedTo}
+        />
+      ),
+    },
     { accessorKey: 'priority', header: 'Priority', size: 100 },
     { accessorKey: 'score', header: 'Score', size: 90 },
     { accessorKey: 'exploitability', header: 'Exploitability', size: 120 },
@@ -105,6 +119,20 @@ export const getColumns = ({
       ),
     },
     { accessorKey: 'externalOwnerID', header: 'External Owner', size: 140 },
+    {
+      accessorKey: 'reviewedBy',
+      header: 'Reviewed By',
+      size: 160,
+      cell: ({ row }) => (
+        <ResponsibilityCell
+          userMap={userMap}
+          user={row.original.reviewedByUser}
+          personnel={row.original.reviewedByIdentityHolder}
+          group={row.original.reviewedByGroup}
+          stringValue={row.original.reviewedBy}
+        />
+      ),
+    },
     { accessorKey: 'externalURI', header: 'External URI', size: 160 },
     { accessorKey: 'summary', header: 'Summary', size: 200, cell: ({ row }) => <TruncatedCell>{row.original.summary || '-'}</TruncatedCell> },
     { accessorKey: 'description', header: 'Description', size: 200, minSize: 150, cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string) || '' },

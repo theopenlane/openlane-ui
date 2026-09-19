@@ -7,7 +7,7 @@ import { getEnvironmentFilterField, getScopeFilterField } from '@/components/sha
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Registry', href: '/registry/platforms' },
+  { label: 'Registry', href: '/registry' },
   { label: 'Platforms', href: '/registry/platforms' },
 ]
 

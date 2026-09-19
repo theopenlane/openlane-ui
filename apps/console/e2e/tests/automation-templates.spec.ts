@@ -1,10 +1,11 @@
-import { format, subDays } from 'date-fns'
+import { subDays } from 'date-fns'
 import type { Locator, Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
 import { createCustomTypeEnum, deleteCustomTypeEnum, type ApiSession } from '../utils/api'
 import { createQuestionnaireTemplate, deleteQuestionnaireTemplate, getAutomationApi, getSystemOwnedQuestionnaireTemplate } from '../utils/api-automation'
 import { uniqueName } from '../utils/unique'
+import { pickCalendarRange } from '../utils/calendar'
 import { PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON } from '../utils/permission-gating'
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -19,16 +20,6 @@ const openTemplates = async (page: Page): Promise<void> => {
 const resetTemplateFilters = async (page: Page): Promise<void> => {
   await page.getByRole('button', { name: /^Filter(?: \d+)?$/ }).click()
   await page.getByRole('button', { name: 'Reset filters' }).click()
-}
-
-const calendarDayName = (date: Date): string => format(date, 'EEEE, MMMM do, yyyy')
-
-const chooseRangeDate = async (page: Page, endpoint: 'From' | 'To', date: Date): Promise<void> => {
-  await page
-    .getByText(endpoint, { exact: true })
-    .locator('..')
-    .getByRole('button', { name: calendarDayName(date) })
-    .click()
 }
 
 const openRowAction = async (page: Page, row: Locator, item: string): Promise<void> => {
@@ -201,10 +192,8 @@ test('system-owned and created-date filters change whether an organization templ
     await resetTemplateFilters(page)
     await page.getByRole('button', { name: /^Filter$/ }).click()
     await page.getByRole('menu').getByRole('button', { name: 'Created At' }).click()
-    await page.getByRole('button', { name: 'Pick date range' }).click()
     const yesterday = subDays(new Date(), 1)
-    await chooseRangeDate(page, 'From', yesterday)
-    await chooseRangeDate(page, 'To', yesterday)
+    await pickCalendarRange(page, yesterday, yesterday)
     await page.keyboard.press('Escape')
     await page.getByRole('button', { name: 'View Results' }).click()
     await expect(rowFor(page, name)).toHaveCount(0, { timeout: 20_000 })

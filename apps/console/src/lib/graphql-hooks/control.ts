@@ -34,6 +34,8 @@ import {
   UPDATE_CSV_BULK_CONTROL,
   GET_EXISTING_CONTROLS_FOR_ORGANIZATION,
   GET_AUDITOR_DASHBOARD_CONTROLS,
+  GET_CONTROL_CATEGORIES_BY_FRAMEWORK,
+  GET_CONTROL_IDS,
 } from '@repo/codegen/query/control'
 
 import {
@@ -93,12 +95,17 @@ import {
   type ControlReportsQueryVariables,
   type GetAuditorDashboardControlsQuery,
   type GetAuditorDashboardControlsQueryVariables,
+  type GetControlCategoriesByFrameworkQuery,
+  type GetControlCategoriesByFrameworkQueryVariables,
+  type GetControlIdsQuery,
+  type GetControlIdsQueryVariables,
   ControlReportOrderField,
   OrderDirection,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
-import { useEffect, useMemo } from 'react'
+import { ExportTooLargeError, fetchAllConnectionNodes } from '@/lib/graphql-hooks/fetch-all-connection-nodes'
+import { useCallback, useEffect, useMemo } from 'react'
 
 export type ControlByIdNode = GetControlByIdQuery['control']
 export type ControlEvidenceItem = NonNullable<NonNullable<NonNullable<NonNullable<NonNullable<ControlByIdNode>['evidence']>['edges']>[number]>['node']>
@@ -242,6 +249,8 @@ export const invalidateControlQueries = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({ queryKey: ['controls'] })
   queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
   queryClient.invalidateQueries({ queryKey: ['standards'] })
+  queryClient.invalidateQueries({ queryKey: ['controlCategories'] })
+  queryClient.invalidateQueries({ queryKey: ['controlSubcategories'] })
 }
 
 export const useUpdateControl = () => {
@@ -749,4 +758,47 @@ export const useTemplateControlsWithMappings = ({ where, enabled = true }: { whe
   const controls = useMemo(() => (data?.pages ?? []).flatMap((page) => (page.controls?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))), [data])
 
   return { ...rest, controls, isPending, isLoading: enabled && (isPending || hasNextPage || isFetchingNextPage) }
+}
+
+export const useGetControlCategoriesByFramework = ({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetControlCategoriesByFrameworkQuery, Error>({
+    queryKey: ['controlCategories', 'by-framework', where],
+    queryFn: () => client.request<GetControlCategoriesByFrameworkQuery, GetControlCategoriesByFrameworkQueryVariables>(GET_CONTROL_CATEGORIES_BY_FRAMEWORK, { where }),
+    enabled,
+  })
+
+  const categories = useMemo(() => Array.from(new Set((queryResult.data?.controlCategoriesByFramework ?? []).map((edge) => edge.node.name))), [queryResult.data])
+
+  return { ...queryResult, categories }
+}
+
+const CONTROL_IDS_PAGE_SIZE = 100
+
+type ControlIdNode = NonNullable<NonNullable<NonNullable<GetControlIdsQuery['controls']['edges']>[number]>['node']>
+
+export const useControlIdFetcher = () => {
+  const { client } = useGraphQLClient()
+
+  return useCallback(
+    async (where: ControlWhereInput) => {
+      try {
+        const nodes = await fetchAllConnectionNodes<ControlIdNode>(async (after) => {
+          const response = await client.request<GetControlIdsQuery, GetControlIdsQueryVariables>(GET_CONTROL_IDS, { where, first: CONTROL_IDS_PAGE_SIZE, after })
+
+          return response.controls
+        })
+
+        return nodes.map((node) => node.id)
+      } catch (error) {
+        if (error instanceof ExportTooLargeError) {
+          throw new Error('Too many controls matched. Narrow the selection and try again.', { cause: error })
+        }
+
+        throw error
+      }
+    },
+    [client],
+  )
 }
