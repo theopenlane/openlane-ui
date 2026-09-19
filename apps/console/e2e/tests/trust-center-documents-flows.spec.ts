@@ -92,7 +92,7 @@ test.describe('trust-center — document metadata (seeded demo org)', () => {
         .toBe(renamed)
 
       await titleField.click()
-      await detail.getByRole('button', { name: /^Save Changes$/ }).click()
+      await detail.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
       await expect(toast(page, 'Document Updated')).toBeVisible({ timeout: 60_000 })
 

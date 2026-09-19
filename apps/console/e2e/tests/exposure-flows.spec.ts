@@ -47,7 +47,7 @@ test('risk lifecycle persists full-form title and status edits before deletion',
   await status.click()
   await page.getByRole('option', { name: 'Mitigated', exact: true }).click()
   await expect(page.getByRole('option', { name: 'Mitigated', exact: true })).toBeHidden({ timeout: 10_000 })
-  await page.getByRole('button', { name: /^Save Changes$/ }).click()
+  await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
   await expect(page.getByText('Risk updated', { exact: true }).first()).toBeVisible({ timeout: 20_000 })
 

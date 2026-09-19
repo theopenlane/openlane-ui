@@ -355,7 +355,7 @@ test.describe('developers — edit API token', () => {
     await expect(dialog.getByPlaceholder(/^Enter token name$/)).toBeDisabled()
 
     await dialog.getByPlaceholder(/Enter a description/i).fill(`updated ${Date.now().toString(36)}`)
-    await dialog.getByRole('button', { name: /^Save Changes$/ }).click()
+    await dialog.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(page.getByText(/token updated successfully/i).first()).toBeVisible({ timeout: 15_000 })
 

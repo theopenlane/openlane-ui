@@ -158,7 +158,7 @@ test.describe('policies — associations & flows', () => {
     await expect(controlRow).toBeVisible({ timeout: 15_000 })
     await controlRow.getByRole('checkbox').first().check()
 
-    await dialog.getByRole('button', { name: /^Save Changes$/ }).click()
+    await dialog.getByRole('button', { name: /^Save( Changes)?$/ }).click()
     await expect(dialog).toBeHidden({ timeout: 20_000 })
   })
 

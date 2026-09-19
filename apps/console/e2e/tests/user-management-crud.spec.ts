@@ -46,7 +46,7 @@ test.describe('user-management — groups (seeded)', () => {
 
     const description = `Updated by e2e ${Date.now().toString(36)}`
     await page.locator('textarea[placeholder="Add a description"]').fill(description)
-    await page.getByRole('button', { name: /^Save Changes$/i }).click()
+    await page.getByRole('button', { name: /^Save( Changes)?$/i }).click()
 
     await expect(page.getByText(/group updated successfully/i).first()).toBeVisible({ timeout: 15_000 })
   })

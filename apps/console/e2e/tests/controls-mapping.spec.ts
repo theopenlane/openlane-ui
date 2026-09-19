@@ -32,8 +32,8 @@ test.describe('controls — map control', () => {
     test.slow()
     await openControlSubroute(page, 'map-control')
 
-    await expect(page.getByRole('button', { name: 'Save Changes' })).toBeVisible({ timeout: 60_000 })
-    await page.getByRole('button', { name: 'Save Changes' }).click()
+    await expect(page.getByRole('button', { name: /^Save( Changes)?$/ })).toBeVisible({ timeout: 60_000 })
+    await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(toast(page, 'From control is required').or(toast(page, 'To control is required'))).toBeVisible({ timeout: 30_000 })
     await expect(toast(page, 'Map Control created!')).toBeHidden()

@@ -43,7 +43,7 @@ test('asset lifecycle persists edited metadata through search before deletion', 
     .first()
     .click()
   await sheet.getByLabel('Identifier', { exact: true }).fill(identifier)
-  await sheet.getByRole('button', { name: /^Save Changes$/ }).click()
+  await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
   await expect(page.getByText('Asset Updated', { exact: true }).first()).toBeVisible({ timeout: 20_000 })
 

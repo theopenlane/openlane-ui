@@ -12,8 +12,6 @@ const openTasks = async (page: Page): Promise<void> => {
   await expect(page.getByRole('heading', { name: 'Tasks' })).toBeVisible({ timeout: 30_000 })
 }
 
-const calendarDayName = (date: Date): string => format(date, 'EEEE, MMMM do, yyyy')
-
 let ownerApi: ApiSession
 
 test.beforeAll(async () => {
@@ -91,7 +89,7 @@ test('editing every supported task field in the detail sheet persists after relo
     const tagsInput = sheet.getByPlaceholder('Add tag...')
     await tagsInput.fill(tag)
     await tagsInput.press('Enter')
-    await sheet.getByRole('button', { name: 'Save Changes' }).click()
+    await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
     await expect(page.getByText('Task Updated', { exact: true })).toBeVisible({ timeout: 20_000 })
 
     await page.reload({ waitUntil: 'domcontentloaded' })

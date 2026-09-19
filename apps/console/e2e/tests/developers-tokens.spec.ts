@@ -80,7 +80,7 @@ test('API token edit persists description, expiry, and implied permission scopes
     await dialog.getByRole('button', { name: /^Task\b/ }).click()
     await dialog.getByRole('checkbox', { name: 'task:write' }).check()
     await expect(dialog.getByRole('checkbox', { name: 'task:read' })).toBeChecked()
-    await dialog.getByRole('button', { name: 'Save Changes' }).click()
+    await dialog.getByRole('button', { name: /^Save( Changes)?$/ }).click()
     await expect(page.getByText('Token updated successfully!', { exact: true })).toBeVisible({ timeout: 20_000 })
 
     await page.reload({ waitUntil: 'domcontentloaded' })
@@ -219,7 +219,7 @@ test('personal access token edit persists description, expiry, and its authorize
     await organizations.click()
     await expect(page.getByRole('menuitemcheckbox', { name: new RegExp(escapeRegExp(organization.name)) })).toBeChecked()
     await page.keyboard.press('Escape')
-    await dialog.getByRole('button', { name: 'Save Changes' }).click()
+    await dialog.getByRole('button', { name: /^Save( Changes)?$/ }).click()
     await expect(page.getByText('Token updated successfully!', { exact: true })).toBeVisible({ timeout: 20_000 })
 
     await page.reload({ waitUntil: 'domcontentloaded' })

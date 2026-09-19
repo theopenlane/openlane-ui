@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
-import { createControl, createReview, deleteControl, deleteReview, getOwnerApi, type ApiSession } from '../utils/api'
+import { createControl, createReview, createVendor, deleteControl, deleteReview, getOwnerApi, type ApiSession } from '../utils/api'
 import { uniqueName } from '../utils/unique'
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -45,7 +45,7 @@ test.describe('exposure — review detail sheet', () => {
 
       await sheet.getByLabel('Category', { exact: true }).fill(category)
       await sheet.getByLabel('Reporter', { exact: true }).fill(reporter)
-      await sheet.getByRole('button', { name: /^Save Changes$/ }).click()
+      await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
       await expect(page.getByText('Review Updated', { exact: true }).first()).toBeVisible({ timeout: 30_000 })
 
@@ -127,6 +127,49 @@ test.describe('exposure — a review resolves to the sheet its subject calls for
       await expect(reopened.getByText('Reviewed Controls', { exact: true })).toBeVisible({ timeout: 60_000 })
     } finally {
       await deleteReview(ownerApi, reviewId)
+      await deleteControl(ownerApi, controlId)
+    }
+  })
+})
+
+test.describe('exposure — review Type filter (ISS-2748)', () => {
+  test('filtering by Control keeps a control review and drops a vendor review', async ({ page }) => {
+    test.slow()
+    const marker = uniqueName('E2E RevType')
+    const refCode = `${marker}-CTL`
+    const controlId = await createControl(ownerApi, refCode)
+    const vendorId = await createVendor(ownerApi, `${marker} vendor`)
+
+    const controlReviewTitle = `${marker} control review`
+    const vendorReviewTitle = `${marker} vendor review`
+    const controlReviewId = await createReview(ownerApi, controlReviewTitle, { controlIDs: [controlId] })
+    const vendorReviewId = await createReview(ownerApi, vendorReviewTitle, { entityIDs: [vendorId] })
+
+    try {
+      await page.goto('/exposure/reviews', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      await expect(page.getByRole('heading', { level: 2, name: /^Reviews$/ })).toBeVisible({ timeout: 30_000 })
+
+      await page.getByPlaceholder(/^Search$/).fill(marker)
+      await expect(page.getByRole('cell').filter({ hasText: controlReviewTitle }).first()).toBeVisible({ timeout: 30_000 })
+      await expect(page.getByRole('cell').filter({ hasText: vendorReviewTitle }).first()).toBeVisible({ timeout: 30_000 })
+
+      await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
+      const panel = page.getByRole('menu').last()
+      await panel.getByText('Type', { exact: true }).click()
+
+      const controlOption = panel
+        .getByRole('option')
+        .filter({ hasText: /^Control$/ })
+        .first()
+      await expect(controlOption).toBeVisible({ timeout: 15_000 })
+      await controlOption.click()
+      await page.getByRole('button', { name: /^View Results$/ }).click()
+
+      await expect(page.getByRole('cell').filter({ hasText: controlReviewTitle }).first()).toBeVisible({ timeout: 30_000 })
+      await expect(page.getByRole('cell').filter({ hasText: vendorReviewTitle })).toHaveCount(0, { timeout: 30_000 })
+    } finally {
+      await deleteReview(ownerApi, controlReviewId)
+      await deleteReview(ownerApi, vendorReviewId)
       await deleteControl(ownerApi, controlId)
     }
   })

@@ -224,7 +224,7 @@ for (const entity of ENTITIES) {
           const chosenStatus = (await statusOption.innerText()).trim()
           await statusOption.click()
 
-          const save = dialog.getByRole('button', { name: /^Save Changes$/ })
+          const save = dialog.getByRole('button', { name: /^Save( Changes)?$/ })
           await expect(save).toBeEnabled({ timeout: 15_000 })
           await save.click()
 
