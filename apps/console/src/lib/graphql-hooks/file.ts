@@ -9,21 +9,24 @@ type TGetFilesProps = {
   pagination?: TPagination
   where?: FileWhereInput
   orderBy?: FileOrder | FileOrder[]
+  withEvidence?: boolean
 }
 
-const getFilesQueryKey = (where: FileWhereInput | undefined, orderBy: TGetFilesProps['orderBy'], page: number | undefined, pageSize: number | undefined) => ['getFiles', where, orderBy, page, pageSize]
+type TFilesQueryKeyProps = Pick<TGetFilesProps, 'where' | 'orderBy'> & { page?: number; pageSize?: number; withEvidence: boolean }
 
-export const useGetFiles = ({ where, orderBy, pagination }: TGetFilesProps) => {
+const getFilesQueryKey = ({ where, orderBy, page, pageSize, withEvidence }: TFilesQueryKeyProps) => ['getFiles', where, orderBy, page, pageSize, withEvidence]
+
+export const useGetFiles = ({ where, orderBy, pagination, withEvidence = false }: TGetFilesProps) => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
 
   const page = pagination?.page
   const pageSize = pagination?.pageSize
 
-  const fetchFiles = useCallback((query: TPaginationQuery) => client.request<GetFilesQuery>(GET_FILES, { where, orderBy, ...query }), [client, where, orderBy])
+  const fetchFiles = useCallback((query: TPaginationQuery) => client.request<GetFilesQuery>(GET_FILES, { where, orderBy, withEvidence, ...query }), [client, where, orderBy, withEvidence])
 
   const queryResult = useQuery<GetFilesQuery>({
-    queryKey: getFilesQueryKey(where, orderBy, page, pageSize),
+    queryKey: getFilesQueryKey({ where, orderBy, page, pageSize, withEvidence }),
     queryFn: async () => fetchFiles(pagination?.query ?? {}),
   })
 
@@ -40,11 +43,11 @@ export const useGetFiles = ({ where, orderBy, pagination }: TGetFilesProps) => {
     }
 
     queryClient.prefetchQuery({
-      queryKey: getFilesQueryKey(where, orderBy, page + 1, pageSize),
+      queryKey: getFilesQueryKey({ where, orderBy, page: page + 1, pageSize, withEvidence }),
       queryFn: () => fetchFiles({ first: pageSize, after: nextCursor }),
       staleTime: 60 * 1000,
     })
-  }, [nextCursor, isPlaceholderData, where, orderBy, page, pageSize, fetchFiles, queryClient])
+  }, [nextCursor, isPlaceholderData, where, orderBy, page, pageSize, withEvidence, fetchFiles, queryClient])
 
   const paginationMeta = useMemo(
     () => ({

@@ -3637,6 +3637,7 @@ export type GetFilesQueryVariables = Exact<{
   last?: number | null | undefined
   before?: any
   after?: any
+  withEvidence?: boolean
 }>
 
 export interface GetFilesQuery {
@@ -3653,6 +3654,10 @@ export interface GetFilesQuery {
         presignedURL: string | null
         categoryName: string | null
         createdAt: any
+        evidence?: Array<{
+          controls: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null } | null } | null> | null }
+          subcontrols: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null; controlID: string } | null } | null> | null }
+        }> | null
       } | null
     } | null> | null
   }
