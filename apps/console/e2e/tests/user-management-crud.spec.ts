@@ -6,6 +6,7 @@ import { RUN_ID } from '../utils/constants'
 import { loginViaApi, createGroup, getSelf, addOrgMember, memberSeesOrg, roleOf, type ApiSession, getOwnerApi } from '../utils/api'
 import { expectMutationOk } from '../utils/mutations'
 import { registerAndVerify } from '../utils/registerUser'
+import { slideoutEdit, slideoutMenuAction, slideoutReady } from '../utils/slideout'
 
 let ownerApi: ApiSession
 let counter = 0
@@ -42,7 +43,9 @@ test.describe('user-management — groups (seeded)', () => {
     const id = await createGroup(ownerApi, uniqueGroupName())
 
     await page.goto(`/user-management/groups?id=${id}`, { waitUntil: 'domcontentloaded' })
-    await page.getByRole('button', { name: /^Edit Group$/i }).click()
+    const sheet = page.getByRole('dialog')
+    await slideoutReady(sheet)
+    await slideoutEdit(sheet).click()
 
     const description = `Updated by e2e ${Date.now().toString(36)}`
     await page.locator('textarea[placeholder="Add a description"]').fill(description)
@@ -55,11 +58,13 @@ test.describe('user-management — groups (seeded)', () => {
     const id = await createGroup(ownerApi, uniqueGroupName())
 
     await page.goto(`/user-management/groups?id=${id}`, { waitUntil: 'domcontentloaded' })
-    await page.getByRole('button', { name: /^Delete$/i }).click()
+    const sheet = page.getByRole('dialog')
+    await slideoutReady(sheet)
+    await slideoutMenuAction(page, sheet, /^Delete$/)
 
     await page.getByRole('button', { name: /^Delete this group$/i }).click()
 
-    await expect(page.getByText(/deleted successfully/i).first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/deleted successfully|has been successfully deleted/i).first()).toBeVisible({ timeout: 30_000 })
   })
 })
 

@@ -82,7 +82,7 @@ test('editing every supported task field in the detail sheet persists after relo
       .click()
     await page.getByRole('option', { name: 'In Progress', exact: true }).click()
 
-    await sheet.getByText('Task Type', { exact: true }).locator('..').getByRole('combobox').first().click()
+    await sheet.getByText('Task Type', { exact: true }).locator('..').getByRole('button').first().click()
     await page.getByPlaceholder('Search task type...').fill(taskType)
     await page.getByText(taskType, { exact: true }).click()
 

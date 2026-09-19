@@ -40,10 +40,16 @@ const uploadDocument = async (page: Page, operationName: string) => {
 }
 
 const markLastDocumentAsEvidence = async (page: Page, evidenceName: string) => {
-  await page
-    .getByRole('button', { name: /^Mark as evidence$/i })
-    .first()
-    .click()
+  const rowMenu = page.getByRole('button', { name: 'Document actions' }).first()
+  const directButton = page.getByRole('button', { name: /^Mark as evidence$/i }).first()
+  await expect(rowMenu.or(directButton).first()).toBeVisible({ timeout: 30_000 })
+
+  if (await rowMenu.isVisible().catch(() => false)) {
+    await rowMenu.click()
+    await page.getByRole('menuitem', { name: /^Mark as Evidence$/i }).click()
+  } else {
+    await directButton.click()
+  }
 
   const dialog = page.getByRole('dialog')
   await expect(dialog.getByRole('heading', { name: /^Mark as Evidence$/i })).toBeVisible({ timeout: 30_000 })

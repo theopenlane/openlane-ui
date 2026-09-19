@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import { createControl, createReview, createVendor, deleteControl, deleteReview, getOwnerApi, type ApiSession } from '../utils/api'
 import { uniqueName } from '../utils/unique'
+import { expectSlideoutMenuAction, slideoutMenuAction, slideoutReady } from '../utils/slideout'
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -18,7 +19,7 @@ const openReview = async (page: Page, id: string) => {
   await page.goto(`/exposure/reviews?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
   const sheet = page.getByRole('dialog')
   await expect(sheet).toBeVisible({ timeout: 60_000 })
-  await expect(sheet.getByRole('button', { name: /^Copy link$/ })).toBeVisible({ timeout: 30_000 })
+  await slideoutReady(sheet)
   return sheet
 }
 
@@ -65,13 +66,13 @@ test.describe('exposure — review detail sheet', () => {
 
     try {
       const sheet = await openReview(page, id)
-      await sheet.getByRole('button', { name: /^Delete$/ }).click()
+      await slideoutMenuAction(page, sheet, /^Delete$/)
 
       const confirmation = page.getByRole('alertdialog')
       await expect(confirmation.getByRole('heading', { name: /^Delete Review$/ })).toBeVisible({ timeout: 15_000 })
       await confirmation.getByRole('button', { name: /^Delete$/ }).click()
 
-      await expect(page.getByText(/deleted successfully\.$/).first()).toBeVisible({ timeout: 30_000 })
+      await expect(page.getByText(/has been successfully deleted/i).first()).toBeVisible({ timeout: 30_000 })
       deletedInUi = true
 
       await page.getByPlaceholder(/^Search$/).fill(title)
@@ -92,7 +93,7 @@ test.describe('exposure — a review resolves to the sheet its subject calls for
     try {
       const sheet = await openControlReview(page, reviewId)
       await expect(sheet.getByText(refCode, { exact: true }).first()).toBeVisible({ timeout: 30_000 })
-      await expect(sheet.getByRole('button', { name: /^Copy link$/ })).toHaveCount(0)
+      await expect(sheet.getByRole('button', { name: 'More actions' })).toHaveCount(0)
     } finally {
       await deleteReview(ownerApi, reviewId)
       await deleteControl(ownerApi, controlId)
@@ -105,7 +106,7 @@ test.describe('exposure — a review resolves to the sheet its subject calls for
 
     try {
       const sheet = await openReview(page, reviewId)
-      await expect(sheet.getByRole('button', { name: /^Copy link$/ })).toBeVisible({ timeout: 30_000 })
+      await expectSlideoutMenuAction(page, sheet, /^Copy link$/)
       await expect(sheet.getByText('Reviewed Controls', { exact: true })).toBeHidden()
     } finally {
       await deleteReview(ownerApi, reviewId)

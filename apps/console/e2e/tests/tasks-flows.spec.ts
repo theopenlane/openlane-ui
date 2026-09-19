@@ -3,6 +3,7 @@ import { createTask, getOwnerApi, gql, readField, type ApiSession } from '../uti
 import { uniqueName } from '../utils/unique'
 import { dragTo } from '../utils/dragdrop'
 import { toast } from '../utils/mutations'
+import { slideoutMenuAction } from '../utils/slideout'
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -36,10 +37,7 @@ test('a seeded task can be found by search and deleted from its detail sheet', a
 
   const sheet = page.getByRole('dialog')
   await expect(sheet).toBeVisible({ timeout: 20_000 })
-  await sheet.getByRole('button', { name: 'Action', exact: true }).click()
-  const actionMenu = page.getByRole('menu')
-  await expect(actionMenu).toBeVisible({ timeout: 15_000 })
-  await actionMenu.getByRole('button', { name: 'Delete', exact: true }).click()
+  await slideoutMenuAction(page, sheet, /^Delete$/)
 
   const confirmation = page.getByRole('alertdialog')
   await expect(confirmation.getByRole('heading', { name: /^Delete Task$/ })).toBeVisible({ timeout: 15_000 })

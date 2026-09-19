@@ -15,6 +15,7 @@ import {
   readTrustCenterSecurityContact,
 } from '../utils/api'
 import type { Locator, Page } from '@playwright/test'
+import { slideoutMenuAction, slideoutReady } from '../utils/slideout'
 
 const requireDemoOrg = () => test.skip(!readManifest().hasDemoSession, 'no demo-org session — trust center is unprovisioned in the e2e org')
 
@@ -244,7 +245,7 @@ test.describe('trust-center — documents (seeded demo org)', () => {
   const fillDocumentForm = async (page: Page, sheet: Locator, title: string) => {
     await sheet.getByPlaceholder('Document title').fill(title)
 
-    await sheet.getByRole('combobox').first().click()
+    await sheet.getByRole('button', { name: /Select or create category/ }).click()
     await page.getByPlaceholder('Search category...').fill(CATEGORY)
     await page
       .getByRole('option', { name: CATEGORY })
@@ -294,9 +295,9 @@ test.describe('trust-center — documents (seeded demo org)', () => {
 
     await row.click()
     const detail = page.getByRole('dialog')
-    await expect(detail.getByRole('button', { name: 'Delete document' })).toBeVisible({ timeout: 30_000 })
+    await slideoutReady(detail)
 
-    await detail.getByRole('button', { name: 'Delete document' }).click()
+    await slideoutMenuAction(page, detail, /^Delete$/)
     const dialog = page.getByRole('alertdialog')
     await expect(dialog.getByText('Delete Document')).toBeVisible({ timeout: 15_000 })
     await dialog.getByRole('button', { name: /^Delete$/ }).click()
@@ -549,7 +550,7 @@ test.describe('trust-center — document bulk actions and watermark', () => {
     await expect(sheet.getByPlaceholder('Document title')).toBeVisible({ timeout: 30_000 })
 
     await sheet.getByPlaceholder('Document title').fill(title)
-    await sheet.getByRole('combobox').first().click()
+    await sheet.getByRole('button', { name: /Select or create category/ }).click()
     await page.getByPlaceholder('Search category...').fill(CATEGORY)
     await page
       .getByRole('option', { name: CATEGORY })
@@ -588,12 +589,9 @@ test.describe('trust-center — document bulk actions and watermark', () => {
     await expect(dialog.getByText('Bulk Edit Documents')).toBeVisible({ timeout: 30_000 })
 
     await dialog.getByRole('combobox').first().click()
-    await page.getByRole('option').first().click()
-    await dialog
-      .getByRole('combobox')
-      .filter({ hasText: /^Select/ })
-      .last()
-      .click()
+    await page.getByRole('option', { name: 'Visibility', exact: true }).click()
+
+    await dialog.getByRole('combobox').filter({ hasText: 'Select visibility' }).click()
     await page.getByRole('option').first().click()
 
     await expectMutationOk(page, 'BulkUpdateTrustCenterDoc', async () => {
