@@ -29,6 +29,6 @@
     "eslint": "^10.10.0",
     "react": "19.3.0",
     "tsup": "^8.5.1",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.0"
   }
 }
