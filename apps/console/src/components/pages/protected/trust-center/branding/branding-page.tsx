@@ -232,7 +232,6 @@ const BrandPage: React.FC = () => {
             onPreview={handleSubmit((v) => onSubmit(v, 'preview'))}
             onRevert={handleRevert}
             onPublish={() => setIsConfirmationDialogOpen(true)}
-            pullAction={<BrandingDomainPull isReadOnly={isReadOnly} onPulled={handleBrandingPulled} />}
           />
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'preview' | 'published')} className="w-full">
             <TabsList className="grid w-full max-w-[400px] grid-cols-2">
@@ -243,7 +242,13 @@ const BrandPage: React.FC = () => {
           <BrandingCompanyInfoSection hasWarning={hasPreviewDifference?.companyInfo} isReadOnly={isReadOnly} setting={setting} />
           <BrandingTextSection hasWarning={hasPreviewDifference?.text} isReadOnly={isReadOnly} setting={setting} />
 
-          <BrandingThemeSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.theme} setting={setting} cnameRecord={cnameRecord} />
+          <BrandingThemeSection
+            isReadOnly={isReadOnly}
+            hasWarning={hasPreviewDifference?.theme}
+            setting={setting}
+            cnameRecord={cnameRecord}
+            pullAction={<BrandingDomainPull isReadOnly={isReadOnly} onPulled={handleBrandingPulled} />}
+          />
 
           <BrandingAssetsSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.assets} />
         </div>

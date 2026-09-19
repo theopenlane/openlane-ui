@@ -116,6 +116,7 @@ type WellKnown = {
 export type ScanMetadata = {
   url?: string
   branding?: ScanBranding
+  scan_group_id?: string
   external_scan_id?: string
   assets?: Record<string, unknown>
   systems?: System[]
@@ -265,6 +266,8 @@ export const getCompanyInfo = (metadata: ScanMetadata | null) => {
 export const getVendors = (metadata: ScanMetadata | null): Vendor[] => metadata?.vendors ?? []
 
 export const getScanBranding = (metadata: ScanMetadata | null): ScanBranding | null => metadata?.branding ?? null
+
+export const isGroupedDomainScan = (metadata: ScanMetadata | null): boolean => !!metadata?.scan_group_id
 
 export const hasFindingsSummary = (metadata: ScanMetadata | null): boolean =>
   (!!metadata?.findings && (!!metadata.findings.agent_readiness?.length || !!metadata.findings.missing_compliance_links)) || hasEmailAuth(metadata) || hasWebPosture(metadata)

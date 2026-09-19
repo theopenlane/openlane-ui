@@ -13,6 +13,8 @@ import {
   type ScanQueryVariables,
   type ScanStatusQuery,
   type ScanStatusQueryVariables,
+  type RecentDomainScansQuery,
+  type RecentDomainScansQueryVariables,
   ScanScanStatus,
   type CreateBulkCsvScanMutation,
   type CreateBulkCsvScanMutationVariables,
@@ -34,6 +36,7 @@ import {
   DELETE_SCAN,
   SCAN,
   SCAN_STATUS,
+  RECENT_DOMAIN_SCANS,
   CREATE_CSV_BULK_SCAN,
   BULK_EDIT_SCAN,
   BULK_DELETE_SCAN,
@@ -122,6 +125,28 @@ export const useScan = (scanId?: ScanQueryVariables['scanId']) => {
     },
     enabled: !!scanId,
   })
+}
+
+export type RecentDomainScanNode = NonNullable<NonNullable<NonNullable<RecentDomainScansQuery['scans']>['edges']>[number]>['node']
+
+const RECENT_DOMAIN_SCANS_POLL_INTERVAL_MS = 5000
+
+const hasActiveDomainScan = (data?: RecentDomainScansQuery) =>
+  (data?.scans?.edges ?? []).some((edge) => edge?.node?.status === ScanScanStatus.PENDING || edge?.node?.status === ScanScanStatus.PROCESSING)
+
+export const useRecentDomainScans = ({ where, first, enabled = true }: RecentDomainScansQueryVariables & { enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+  const queryResult = useQuery<RecentDomainScansQuery, ClientError>({
+    queryKey: ['scans', 'recent-domain', where, first],
+    queryFn: async (): Promise<RecentDomainScansQuery> => client.request(RECENT_DOMAIN_SCANS, { where, first }),
+    enabled,
+    placeholderData: undefined,
+    refetchInterval: (query) => (hasActiveDomainScan(query.state.data) ? RECENT_DOMAIN_SCANS_POLL_INTERVAL_MS : false),
+  })
+
+  const scans = (queryResult.data?.scans?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<RecentDomainScanNode> => !!node)
+
+  return { ...queryResult, scans }
 }
 
 const SCAN_STATUS_POLL_INTERVAL_MS = 3000

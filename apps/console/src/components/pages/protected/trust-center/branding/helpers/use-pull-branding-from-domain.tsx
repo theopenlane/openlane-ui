@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import Link from 'next/link'
 import { ScanScanStatus, ScanScanType } from '@repo/codegen/src/schema'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useCreateScan, useScanStatus } from '@/lib/graphql-hooks/scan'
@@ -10,6 +11,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { getScanBranding, OPENLANE_DOMAIN_SCAN_PERFORMER, parseScanMetadata } from '@/components/pages/protected/scans/detail/openlane-domain-scan/scan-metadata'
 
 const POLL_TIMEOUT_MS = 3 * 60 * 1000
+
+const BRANDING_THEME_HREF = '/trust-center/branding#theme'
 
 type RunningPull = { scanId: string; domain: string }
 
@@ -66,7 +69,18 @@ export const usePullBrandingFromDomain = (onPulled: () => void) => {
     }
 
     queryClient.invalidateQueries({ queryKey: TRUST_CENTER_QUERY_KEY, exact: true }).then(onPulled)
-    successNotification({ title: 'Branding pulled', description: `We finished reading ${runningPull.domain} — review your preview settings, then publish when you are happy with them.` })
+    successNotification({
+      title: 'Branding pulled',
+      description: (
+        <span>
+          {`We finished reading ${runningPull.domain}. `}
+          <Link href={BRANDING_THEME_HREF} className="text-brand font-medium underline">
+            Review your preview settings
+          </Link>
+          {', then publish when you are happy with them.'}
+        </span>
+      ),
+    })
   }, [runningPull, scan, queryClient, onPulled, successNotification, warningNotification, errorNotification])
 
   const pullBrandingFromDomain = useCallback(

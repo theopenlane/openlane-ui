@@ -7392,6 +7392,15 @@ export interface ScanStatusQuery {
   scan: { id: string; status: Types.ScanScanStatus; metadata: any }
 }
 
+export type RecentDomainScansQueryVariables = Exact<{
+  where?: Types.ScanWhereInput | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface RecentDomainScansQuery {
+  scans: { edges: Array<{ node: { id: string; createdAt: any; status: Types.ScanScanStatus; target: string; metadata: any } | null } | null> | null }
+}
+
 export type CreateScanMutationVariables = Exact<{
   input: Types.CreateScanInput
 }>
