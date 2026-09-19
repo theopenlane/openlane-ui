@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { createEvidence, createControl, createProgram, linkControlEvidence, readField, uploadEvidenceFile, type ApiSession, getOwnerApi } from '../utils/api'
+import { createEvidence, createControl, createProgram, linkControlEvidence, readEvidenceFiles, readField, uploadEvidenceFile, type ApiSession, getOwnerApi } from '../utils/api'
 import { bulkEditAndSave, expectMutationOk, selectFirstMatchingRow, toast } from '../utils/mutations'
 import { deleteFirstComment, editFirstComment, postComment } from '../utils/comments'
 import { uploadFiles, SAMPLE_PDF, SAMPLE_DISALLOWED } from '../utils/files'
@@ -546,7 +546,14 @@ test.describe('evidence — add existing files (ISS-2936)', () => {
     })
 
     await expect(toast(page, 'Evidence files added')).toBeVisible({ timeout: 30_000 })
-    await expect(page.getByRole('row').filter({ hasText: fileName }).first()).toBeVisible({ timeout: 30_000 })
+
+    await expect.poll(async () => (await readEvidenceFiles(ownerApi, target)).map((file) => file.name), { timeout: 60_000 }).toContain(fileName)
+
+    const linked = (await readEvidenceFiles(ownerApi, target)).find((file) => file.name === fileName)
+    if (!linked) throw new Error(`linked file ${fileName} is not readable back from evidence ${target}`)
+
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('row').filter({ hasText: linked.providedFileName }).first()).toBeVisible({ timeout: 60_000 })
   })
 
   test('a file already linked to this evidence is not offered again', async ({ page }) => {
@@ -566,6 +573,9 @@ test.describe('evidence — add existing files (ISS-2936)', () => {
     await dialog.getByRole('tab', { name: 'Existing Files' }).click()
     await dialog.getByPlaceholder('Search files...').fill(fileName)
 
-    await expect(dialog.getByRole('row').filter({ hasText: fileName })).toHaveCount(0, { timeout: 30_000 })
+    await expect(async () => {
+      await expect(dialog.getByText('No results', { exact: true })).toBeVisible({ timeout: 10_000 })
+      await expect(dialog.getByRole('row').filter({ hasText: fileName })).toHaveCount(0)
+    }).toPass({ timeout: 60_000 })
   })
 })

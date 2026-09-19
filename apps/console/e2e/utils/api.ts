@@ -491,6 +491,15 @@ export const uploadEvidenceFile = (sess: ApiSession, evidenceId: string, display
     displayName,
   })
 
+export const readEvidenceFiles = async (sess: ApiSession, evidenceId: string): Promise<UploadedFile[]> => {
+  const res = await gql<{ evidence: { files: { edges: Array<{ node: UploadedFile }> } } }>(
+    sess,
+    `query($id: ID!){ evidence(id: $id){ files { edges { node { id name providedFileName categoryName } } } } }`,
+    { id: evidenceId },
+  )
+  return (res.data?.evidence?.files?.edges ?? []).map((edge) => edge.node)
+}
+
 export const readEntityFiles = async (sess: ApiSession, entityId: string): Promise<UploadedFile[]> => {
   const res = await gql<{ entity: { files: { edges: Array<{ node: UploadedFile }> } } }>(
     sess,
