@@ -5,11 +5,11 @@ import { useCreateCustomDomain, useDeleteCustomDomain, useGetTrustCenter, useVal
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { use, useEffect, useState } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
 import { Copy, ExternalLink, InfoIcon, Pencil, Save, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import UrlInput, { isBlockedDomain } from '../shared/url-input'
+import UrlDisplay from '../shared/url-display'
 import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
@@ -179,21 +179,6 @@ const DomainSettingsPage = () => {
     }
   }
 
-  const handleCopyDefaultDomain = () => {
-    navigator.clipboard
-      .writeText(defaultDomain)
-      .then(() => {
-        successNotification({
-          title: 'Copied!',
-        })
-      })
-      .catch(() => {
-        errorNotification({
-          title: 'Copy failed',
-        })
-      })
-  }
-
   const handleCopyDefaultCname = () => {
     const domain = trustCenter.customDomain?.cnameRecord
     if (!domain) return
@@ -307,24 +292,7 @@ const DomainSettingsPage = () => {
                   This is the link you&apos;ll send to customers so they can verify your security and compliance in real time
                 </p>
               </div>
-              <div>
-                {trustCenter?.slug && (
-                  <div className="flex items-center gap-2 justify-between">
-                    <div className="flex items-center gap-3 border rounded-md justify-between py-1 px-3 w-full">
-                      <div className="flex items-center gap-2">
-                        <Label className="text-sm text-inverted-muted-foreground font-medium leading-6">Default:</Label>
-                        <span className="text-sm">{defaultDomain}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button onClick={handleCopyDefaultDomain} variant="secondary" className="flex items-center justify-center  gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
-                      <a href={defaultDomain} rel={'noreferrer'} target="_blank">
-                        <Button variant="secondary" className="flex items-center justify-center  gap-1" icon={<ExternalLink size={14} />} iconPosition="left"></Button>
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <div>{trustCenter?.slug && <UrlDisplay label="Default:" url={defaultDomain} className="w-full" />}</div>
               <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-3">
                 <div className="flex items-start gap-2">
                   <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />

@@ -18,7 +18,7 @@ export const BrandingCompanyInfoSection = ({ isReadOnly, setting, hasWarning }: 
   } = useFormContext<BrandFormValues>()
 
   return (
-    <Card>
+    <Card id="company-info" className="scroll-mt-20">
       <CardContent>
         {hasWarning && <SectionWarning />}
         <div className="flex flex-col gap-6">

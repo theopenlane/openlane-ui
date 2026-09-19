@@ -134,6 +134,32 @@ export const SCAN = gql`
   }
 `
 
+export const SCAN_STATUS = gql`
+  query ScanStatus($scanId: ID!) {
+    scan(id: $scanId) {
+      id
+      status
+      metadata
+    }
+  }
+`
+
+export const RECENT_DOMAIN_SCANS = gql`
+  query RecentDomainScans($where: ScanWhereInput, $first: Int) {
+    scans(where: $where, first: $first, orderBy: [{ field: created_at, direction: ASC }]) {
+      edges {
+        node {
+          id
+          createdAt
+          status
+          target
+          metadata
+        }
+      }
+    }
+  }
+`
+
 export const CREATE_SCAN = gql`
   mutation CreateScan($input: CreateScanInput!) {
     createScan(input: $input) {

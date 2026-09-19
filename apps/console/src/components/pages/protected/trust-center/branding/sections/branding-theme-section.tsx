@@ -21,6 +21,7 @@ interface BrandingThemeSectionProps {
   setting: TrustCenterSetting
   hasWarning?: boolean
   cnameRecord?: string | null
+  pullAction?: React.ReactNode
 }
 
 const ReadOnlyColor = ({ label, value }: { label: string; value?: string | null }) => {
@@ -36,7 +37,7 @@ const ReadOnlyColor = ({ label, value }: { label: string; value?: string | null 
   )
 }
 
-export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting, cnameRecord }: BrandingThemeSectionProps) => {
+export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting, cnameRecord, pullAction }: BrandingThemeSectionProps) => {
   const { watch, setValue } = useFormContext<BrandFormValues>()
 
   const themeMode = watch('themeMode')
@@ -57,13 +58,16 @@ export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting, cnameRec
   const showColorGenerator = !isReadOnly && !!colorGeneratorUrl && currentThemeMode === TrustCenterSettingTrustCenterThemeMode.ADVANCED
 
   return (
-    <Card>
+    <Card id="theme" className="scroll-mt-20">
       <CardContent>
         {hasWarning && <SectionWarning />}
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-1">
-            <p className="text-base font-medium">Theme</p>
-            <p className="text-sm text-inverted-muted-foreground">Control the visual appearance of your Trust Center.</p>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col gap-1">
+              <p className="text-base font-medium">Theme</p>
+              <p className="text-sm text-inverted-muted-foreground">Control the visual appearance of your Trust Center.</p>
+            </div>
+            {pullAction}
           </div>
 
           <div className="flex items-center justify-between gap-6">
