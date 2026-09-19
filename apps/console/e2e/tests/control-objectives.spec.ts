@@ -90,7 +90,7 @@ test.describe('controls — control objectives (seeded control)', () => {
 
     const renamed = `${name} revised`
     await sheet.getByRole('textbox').first().fill(renamed)
-    await sheet.getByRole('button', { name: 'Save Changes' }).click()
+    await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
     await expect.poll(async () => Boolean(await findObjectiveId(renamed)), { timeout: 60_000 }).toBe(true)
 
     await openObjectiveAction(page, 'Edit')

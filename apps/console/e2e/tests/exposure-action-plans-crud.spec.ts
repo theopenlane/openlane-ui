@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import { createActionPlan, createRisk, deleteActionPlan, getOwnerApi, gql, type ApiSession } from '../utils/api'
 import { uniqueName } from '../utils/unique'
+import { slideoutEdit, slideoutMenuAction } from '../utils/slideout'
 
 let ownerApi: ApiSession
 let riskId: string
@@ -62,11 +63,7 @@ test.describe('exposure — action plans on a risk', () => {
 
     try {
       const sheet = await openActionPlanSheet(page, id)
-      await sheet
-        .locator('button')
-        .filter({ hasText: /^Edit$/ })
-        .first()
-        .click()
+      await slideoutEdit(sheet).click()
 
       const primary = sheet.getByRole('textbox').first()
       await expect(primary).toBeEditable({ timeout: 30_000 })
@@ -87,11 +84,7 @@ test.describe('exposure — action plans on a risk', () => {
 
     try {
       const sheet = await openActionPlanSheet(page, id)
-      await sheet
-        .locator('button')
-        .filter({ hasText: /^Delete$/ })
-        .first()
-        .click()
+      await slideoutMenuAction(page, sheet, /^Delete$/)
 
       const confirmation = page.getByRole('alertdialog')
       await expect(confirmation).toBeVisible({ timeout: 20_000 })

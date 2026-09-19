@@ -2,9 +2,11 @@ import { type Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { createAsset, createContact, createVendor, createSystemDetail, gql, type ApiSession, getOwnerApi } from '../utils/api'
+import { createAsset, createContact, createIdentityHolder, createVendor, createSystemDetail, gql, type ApiSession, getOwnerApi } from '../utils/api'
 import { uniqueName } from '../utils/unique'
 import { expectMutationOk } from '../utils/mutations'
+import { responsibilityValue, setResponsibilityOption } from '../utils/responsibility'
+import { expectSlideoutMenuAction, slideoutEdit, slideoutMenuAction, slideoutReady } from '../utils/slideout'
 
 let ownerApi: ApiSession
 
@@ -48,8 +50,9 @@ test.describe('registry — assets', () => {
     const id = await createAsset(ownerApi, uniqueName('E2E Asset'))
 
     await page.goto(`/registry/assets?id=${id}`, { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('button', { name: /^Copy link$/ })).toBeVisible({ timeout: 20_000 })
-    await expect(page.getByRole('button', { name: /^Edit$/ }).first()).toBeVisible({ timeout: 15_000 })
+    const sheet = page.getByRole('dialog')
+    await expect(slideoutEdit(sheet)).toBeVisible({ timeout: 20_000 })
+    await expectSlideoutMenuAction(page, sheet, /^Copy link$/)
   })
 
   test('filter panel exposes an Asset Type filter', async ({ page }) => {
@@ -80,8 +83,9 @@ test.describe('registry — contacts', () => {
     const id = await createContact(ownerApi, uniqueName('E2E Contact'))
 
     await page.goto(`/registry/contacts?id=${id}`, { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('button', { name: /^Copy link$/ })).toBeVisible({ timeout: 20_000 })
-    await expect(page.getByRole('button', { name: /^Edit$/ }).first()).toBeVisible({ timeout: 15_000 })
+    const sheet = page.getByRole('dialog')
+    await expect(slideoutEdit(sheet)).toBeVisible({ timeout: 20_000 })
+    await expectSlideoutMenuAction(page, sheet, /^Copy link$/)
   })
 
   test('filter panel exposes a Status filter', async ({ page }) => {
@@ -195,17 +199,15 @@ test.describe('registry — entity CRUD', () => {
     const id = await createAsset(ownerApi, uniqueName('E2E Asset'))
 
     await page.goto(`/registry/assets?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    await expect(page.getByRole('button', { name: /^Edit$/ }).first()).toBeVisible({ timeout: 20_000 })
+    const sheet = page.getByRole('dialog')
+    await slideoutReady(sheet)
 
-    await page
-      .getByRole('button', { name: /^Delete$/ })
-      .first()
-      .click()
+    await slideoutMenuAction(page, sheet, /^Delete$/)
     const confirm = page.getByRole('alertdialog')
     await expect(confirm.getByText('Delete Asset')).toBeVisible({ timeout: 10_000 })
     await confirm.getByRole('button', { name: /^Delete$/ }).click()
 
-    await expect(page.getByText(/asset deleted successfully/i).first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/has been successfully deleted/i).first()).toBeVisible({ timeout: 30_000 })
   })
 
   test('creating a contact via the slideout shows the success confirmation', async ({ page }) => {
@@ -235,17 +237,15 @@ test.describe('registry — entity CRUD', () => {
     const id = await createContact(ownerApi, uniqueName('E2E Contact'))
 
     await page.goto(`/registry/contacts?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    await expect(page.getByRole('button', { name: /^Edit$/ }).first()).toBeVisible({ timeout: 20_000 })
+    const sheet = page.getByRole('dialog')
+    await slideoutReady(sheet)
 
-    await page
-      .getByRole('button', { name: /^Delete$/ })
-      .first()
-      .click()
+    await slideoutMenuAction(page, sheet, /^Delete$/)
     const confirm = page.getByRole('alertdialog')
     await expect(confirm.getByText('Delete Contact')).toBeVisible({ timeout: 10_000 })
     await confirm.getByRole('button', { name: /^Delete$/ }).click()
 
-    await expect(page.getByText(/contact deleted successfully/i).first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/has been successfully deleted/i).first()).toBeVisible({ timeout: 30_000 })
   })
 
   test('creating personnel via the slideout shows the success confirmation', async ({ page }) => {
@@ -305,7 +305,7 @@ test.describe('registry — entity CRUD', () => {
 
     const sheet = page.getByRole('dialog')
     await sheet.getByRole('textbox').first().fill(uniqueName('E2E Asset Edited'))
-    await sheet.getByRole('button', { name: /^Save Changes$/ }).click()
+    await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(page.getByText(/asset updated/i).first()).toBeVisible({ timeout: 15_000 })
   })
@@ -323,7 +323,7 @@ test.describe('registry — entity CRUD', () => {
     const sheet = page.getByRole('dialog')
     await sheet.getByRole('textbox').first().fill(uniqueName('E2E Contact Edited'))
     await sheet.getByRole('textbox', { name: 'Email', exact: true }).fill(`e2e-contact-${Date.now().toString(36)}@example.com`)
-    await sheet.getByRole('button', { name: /^Save Changes$/ }).click()
+    await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(page.getByText(/contact updated/i).first()).toBeVisible({ timeout: 15_000 })
   })
@@ -365,7 +365,7 @@ test.describe('registry — personnel + system-detail edit/delete', () => {
 
     await page.getByRole('button', { name: 'Edit personnel' }).click()
 
-    const save = page.getByRole('button', { name: /^Save Changes$/ })
+    const save = page.getByRole('button', { name: /^Save( Changes)?$/ })
     await expect(save).toBeVisible({ timeout: 15_000 })
 
     const fullName = page.getByRole('textbox').first()
@@ -392,7 +392,7 @@ test.describe('registry — personnel + system-detail edit/delete', () => {
 
     const sheet = page.getByRole('dialog')
     await sheet.getByRole('textbox').first().fill(uniqueName('E2E System Edited'))
-    await sheet.getByRole('button', { name: /^Save Changes$/ }).click()
+    await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(page.getByText(/systemdetail updated/i).first()).toBeVisible({ timeout: 15_000 })
   })
@@ -491,7 +491,7 @@ test.describe('registry — assets filter by type', () => {
     const panel = page.getByRole('menu').last()
     await panel.getByText('Asset Type', { exact: true }).click()
     const deviceOption = panel
-      .getByRole('listitem')
+      .getByRole('option')
       .filter({ hasText: /^Device$/ })
       .first()
     await expect(deviceOption).toBeVisible({ timeout: 10_000 })
@@ -549,8 +549,9 @@ test.describe('registry — system-detail view + delete', () => {
     await expect(row).toBeVisible({ timeout: 15_000 })
     await row.click()
 
-    await expect(page.getByRole('button', { name: /^Copy link$/ })).toBeVisible({ timeout: 20_000 })
-    await expect(page.getByRole('button', { name: /^Edit$/ }).first()).toBeVisible({ timeout: 15_000 })
+    const sheet = page.getByRole('dialog')
+    await expect(slideoutEdit(sheet)).toBeVisible({ timeout: 20_000 })
+    await expectSlideoutMenuAction(page, sheet, /^Copy link$/)
   })
 
   test('deleting a UI-created system detail from the detail sheet confirms and removes it', async ({ page }) => {
@@ -563,17 +564,15 @@ test.describe('registry — system-detail view + delete', () => {
     await expect(row).toBeVisible({ timeout: 15_000 })
     await row.click()
 
-    await expect(page.getByRole('button', { name: /^Edit$/ }).first()).toBeVisible({ timeout: 20_000 })
-    await page
-      .getByRole('button', { name: /^Delete$/ })
-      .first()
-      .click()
+    const sheet = page.getByRole('dialog')
+    await slideoutReady(sheet)
+    await slideoutMenuAction(page, sheet, /^Delete$/)
 
     const confirm = page.getByRole('alertdialog')
     await expect(confirm.getByText('Delete System Detail')).toBeVisible({ timeout: 10_000 })
     await confirm.getByRole('button', { name: /^Delete$/ }).click()
 
-    await expect(page.getByText(/system detail deleted successfully/i).first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/has been successfully deleted/i).first()).toBeVisible({ timeout: 30_000 })
   })
 })
 
@@ -794,5 +793,29 @@ test.describe('vendors — contacts and risk review forms', () => {
     } finally {
       await gql(ownerApi, `mutation($id: ID!){ deleteEntity(id: $id){ deletedID } }`, { id: vendorId })
     }
+  })
+})
+
+test.describe('registry — asset ownership by personnel (#2271)', () => {
+  test('the Internal Owner field records a personnel option and keeps it across a reload', async ({ page }) => {
+    test.slow()
+    const person = uniqueName('E2E AssetOwner')
+    const email = `${person.replace(/[^a-z0-9]/gi, '').toLowerCase()}@e2e-openlane.dev`
+    await createIdentityHolder(ownerApi, person, email)
+
+    const assetName = uniqueName('E2E Asset owner')
+    const assetId = await createAsset(ownerApi, assetName)
+
+    await page.goto(`/registry/assets?id=${assetId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const sheet = page.getByRole('dialog')
+    await expect(sheet).toBeVisible({ timeout: 60_000 })
+
+    await expect(responsibilityValue(sheet, 'Internal Owner')).toContainText('Not set', { timeout: 30_000 })
+    await setResponsibilityOption(page, sheet, 'Internal Owner', person, person, 'UpdateAsset')
+    await expect(responsibilityValue(sheet, 'Internal Owner')).toContainText(person, { timeout: 30_000 })
+
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60_000 })
+    await expect(responsibilityValue(page.getByRole('dialog'), 'Internal Owner')).toContainText(person, { timeout: 60_000 })
   })
 })

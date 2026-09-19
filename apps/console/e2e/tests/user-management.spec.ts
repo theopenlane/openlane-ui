@@ -95,14 +95,14 @@ test.describe('user management — members page', () => {
     await expect(page.getByRole('cell', { name: ownerEmail })).toBeVisible({ timeout: 15_000 })
   })
 
-  test('invite sheet — PanelRightClose icon closes the sheet', async ({ page }) => {
+  test('invite sheet — Escape closes the sheet', async ({ page }) => {
     await page.goto('/user-management/members')
     await page.getByRole('button', { name: /^invite member$/i }).click()
 
     const dialog = page.getByRole('dialog')
     await expect(dialog).toBeVisible({ timeout: 10_000 })
 
-    await dialog.getByLabel(/close detail sheet/i).click()
+    await page.keyboard.press('Escape')
 
     await expect(dialog).toBeHidden({ timeout: 10_000 })
   })

@@ -160,7 +160,7 @@ test('editing a questionnaire campaign due date persists after reload', async ({
     const dueRow = detailsSidebar.getByText('Due Date', { exact: true }).locator('../..')
     await expect(dueRow).toContainText(format(initialDate, 'MMMM d, yyyy'))
     await dueRow.getByText(format(initialDate, 'MMMM d, yyyy'), { exact: true }).click()
-    await dueRow.getByRole('button').click()
+    await dueRow.getByRole('button').first().click()
     await page.getByRole('button', { name: calendarDayName(updatedDate) }).click()
     await expect(page.getByText('Campaign updated', { exact: true })).toBeVisible({ timeout: 20_000 })
 

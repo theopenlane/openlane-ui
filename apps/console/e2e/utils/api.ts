@@ -105,7 +105,8 @@ export const createInternalPolicy = (sess: ApiSession, name: string): Promise<st
 
 export const createProcedure = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createProcedure', 'CreateProcedureInput', 'procedure', { name })
 
-export const createProgram = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createProgram', 'CreateProgramInput', 'program', { name })
+export const createProgram = (sess: ApiSession, name: string, extra: Record<string, unknown> = {}): Promise<string> =>
+  seedEntity(sess, 'createProgram', 'CreateProgramInput', 'program', { name, ...extra })
 
 export const createRisk = (sess: ApiSession, name: string, extra: Record<string, unknown> = {}): Promise<string> => seedEntity(sess, 'createRisk', 'CreateRiskInput', 'risk', { name, ...extra })
 
@@ -435,4 +436,75 @@ export const readTrustCenterSecurityContact = async (sess: ApiSession): Promise<
 
 export const deleteStandard = async (sess: ApiSession, id: string): Promise<void> => {
   await gql(sess, `mutation($id: ID!){ deleteStandard(id: $id){ deletedID } }`, { id })
+}
+
+interface UploadedFile {
+  id: string
+  name: string | null
+  providedFileName: string
+  categoryName: string | null
+}
+
+export const uploadFileTo = async (
+  sess: ApiSession,
+  args: { mutationField: string; inputType: string; payloadField: string; uploadField: string; metadataField: string; id: string; displayName: string; category?: string; contents?: string },
+): Promise<void> => {
+  const { mutationField, inputType, payloadField, uploadField, metadataField, id, displayName, category, contents } = args
+
+  const query = `mutation UploadFile($id: ID!, $input: ${inputType}!, $${uploadField}: [Upload!], $${metadataField}: [FileMetadataInput!]) {
+    ${mutationField}(id: $id, input: $input, ${uploadField}: $${uploadField}, ${metadataField}: $${metadataField}) { ${payloadField} { id } }
+  }`
+
+  const form = new FormData()
+  form.append(
+    'operations',
+    JSON.stringify({
+      query,
+      variables: { id, input: {}, [uploadField]: [null], [metadataField]: [category ? { name: displayName, metadata: { category } } : { name: displayName }] },
+    }),
+  )
+  form.append('map', JSON.stringify({ '0': [`variables.${uploadField}.0`] }))
+  form.append('0', new Blob([contents ?? `e2e upload for ${displayName}\n`], { type: 'text/plain' }), `${displayName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.txt`)
+
+  const res = await fetch(`${API_BASE}/query`, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${sess.accessToken}`,
+      [CSRF_HEADER]: CSRF_TOKEN,
+      cookie: `${SESSION_COOKIE}=${sess.session}; ${CSRF_COOKIE}=${CSRF_TOKEN}`,
+    },
+    body: form,
+  })
+
+  const body = (await res.json()) as { errors?: Array<{ message: string }> }
+  if (!res.ok || body.errors) throw new Error(`${mutationField} upload failed: ${res.status} ${JSON.stringify(body.errors)}`)
+}
+
+export const uploadEvidenceFile = (sess: ApiSession, evidenceId: string, displayName: string): Promise<void> =>
+  uploadFileTo(sess, {
+    mutationField: 'updateEvidence',
+    inputType: 'UpdateEvidenceInput',
+    payloadField: 'evidence',
+    uploadField: 'evidenceFiles',
+    metadataField: 'evidenceFilesMetadata',
+    id: evidenceId,
+    displayName,
+  })
+
+export const readEvidenceFiles = async (sess: ApiSession, evidenceId: string): Promise<UploadedFile[]> => {
+  const res = await gql<{ evidence: { files: { edges: Array<{ node: UploadedFile }> } } }>(
+    sess,
+    `query($id: ID!){ evidence(id: $id){ files { edges { node { id name providedFileName categoryName } } } } }`,
+    { id: evidenceId },
+  )
+  return (res.data?.evidence?.files?.edges ?? []).map((edge) => edge.node)
+}
+
+export const readEntityFiles = async (sess: ApiSession, entityId: string): Promise<UploadedFile[]> => {
+  const res = await gql<{ entity: { files: { edges: Array<{ node: UploadedFile }> } } }>(
+    sess,
+    `query($id: ID!){ entity(id: $id){ files { edges { node { id name providedFileName categoryName } } } } }`,
+    { id: entityId },
+  )
+  return (res.data?.entity?.files?.edges ?? []).map((edge) => edge.node)
 }

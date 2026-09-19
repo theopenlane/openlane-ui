@@ -72,7 +72,7 @@ test.describe('custom data — custom tags', () => {
     await sheet.getByPlaceholder('e.g. High Priority').fill(name)
     await sheet.getByPlaceholder('e.g. Critical, Urgent').fill('e2e-alias')
     await sheet.getByPlaceholder('Description...').fill('created by e2e')
-    await sheet.getByRole('button', { name: /^Save Changes$/ }).click()
+    await sheet.getByRole('button', { name: /^Create$/ }).click()
 
     await expect(page.getByText('Tag created', { exact: true }).first()).toBeVisible({ timeout: 20_000 })
 
@@ -87,7 +87,7 @@ test.describe('custom data — custom tags', () => {
     await expect(sheet.getByPlaceholder('e.g. High Priority')).toHaveValue(name, { timeout: 20_000 })
     await expect(sheet.getByPlaceholder('e.g. High Priority')).toBeDisabled()
     await sheet.getByPlaceholder('Description...').fill('updated by e2e')
-    await sheet.getByRole('button', { name: /^Save Changes$/ }).click()
+    await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(page.getByText('Tag updated', { exact: true }).first()).toBeVisible({ timeout: 20_000 })
 
@@ -148,7 +148,7 @@ test.describe('custom data — custom tags', () => {
 })
 
 test.describe('custom data — custom enums', () => {
-  test('an enum value is created and deleted from its edit sheet', async ({ page }) => {
+  test('an enum value is created, opened for edit, then deleted from its row action menu', async ({ page }) => {
     test.slow()
     const name = uniqueName('E2E Enum')
 
@@ -159,7 +159,7 @@ test.describe('custom data — custom enums', () => {
     await expect(sheet.getByText('Create Environment Enum')).toBeVisible({ timeout: 20_000 })
     await sheet.getByLabel('Name', { exact: true }).fill(name)
     await sheet.getByLabel('Description', { exact: true }).fill('created by e2e')
-    await sheet.getByRole('button', { name: /^Save Changes$/ }).click()
+    await sheet.getByRole('button', { name: /^Create$/ }).click()
 
     await expect(page.getByText('Enum created', { exact: true }).first()).toBeVisible({ timeout: 20_000 })
 
@@ -169,15 +169,20 @@ test.describe('custom data — custom enums', () => {
     await expect(row).toContainText('created by e2e')
 
     await openRowAction(page, row, `Enum actions for ${name}`, /^Edit Enum$/)
-
     await expect(sheet.getByText('Update Environment Enum')).toBeVisible({ timeout: 20_000 })
-    await sheet.getByRole('button', { name: /^Delete$/ }).click()
+
+    await expect(async () => {
+      await sheet.getByRole('button', { name: /^Cancel$/ }).click({ timeout: 5_000 })
+      await expect(sheet).toBeHidden({ timeout: 5_000 })
+    }).toPass({ timeout: 30_000 })
+
+    await openRowAction(page, row, `Enum actions for ${name}`, /^Delete Enum$/)
 
     const confirmation = page.getByRole('alertdialog')
     await expect(confirmation.getByRole('heading', { name: /^Delete Enum Value$/ })).toBeVisible({ timeout: 15_000 })
     await confirmation.getByRole('button', { name: /^Delete$/ }).click()
 
-    await expect(page.getByText('Enum deleted', { exact: true }).first()).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByText(/^Enum Deleted$/i).first()).toBeVisible({ timeout: 20_000 })
     await expect(rowFor(page, name)).toHaveCount(0, { timeout: 20_000 })
   })
 
@@ -197,7 +202,7 @@ test.describe('custom data — custom enums', () => {
       const sheet = page.getByRole('dialog')
       await expect(sheet.getByLabel('Name', { exact: true })).toBeDisabled({ timeout: 20_000 })
       await sheet.getByLabel('Description', { exact: true }).fill('updated by e2e')
-      await sheet.getByRole('button', { name: /^Save Changes$/ }).click()
+      await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
       await expect(page.getByText('Enum updated', { exact: true }).first()).toBeVisible({ timeout: 20_000 })
 

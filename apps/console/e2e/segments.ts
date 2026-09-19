@@ -108,6 +108,7 @@ export const SEGMENTS: Record<string, string[]> = {
     'new-routes.spec.ts',
     'notifications.spec.ts',
     'remaining-mutations.spec.ts',
+    'reports-custom-builder.spec.ts',
     'table-preferences.spec.ts',
   ],
 }

@@ -221,7 +221,7 @@ test('the workflow table Edit action opens the editor and persists the updated d
     await expect(page.getByLabel('Name')).toHaveValue(name, { timeout: 30_000 })
     await expect(page.getByLabel('Description')).toHaveValue(originalDescription)
     await page.getByLabel('Description').fill(updatedDescription)
-    await page.getByRole('button', { name: 'Save changes' }).click()
+    await page.getByRole('button', { name: /^save( changes)?$/i }).click()
     await page.waitForURL(/\/automation\/workflows(?:\?|$)/, { timeout: 30_000 })
 
     await page.getByPlaceholder('Search').fill(name)
@@ -298,7 +298,7 @@ test('the workflow editor saves details and settings that persist through reload
     await page.getByRole('switch', { name: 'Active' }).click()
     await page.getByRole('switch', { name: 'Default for schema' }).click()
 
-    await page.getByRole('button', { name: 'Save changes' }).click()
+    await page.getByRole('button', { name: /^save( changes)?$/i }).click()
     await expect(page.getByText('Workflow updated', { exact: true }).first()).toBeVisible({ timeout: 30_000 })
     await page.waitForURL(/\/automation\/workflows(?:\?|$)/, { timeout: 30_000 })
 

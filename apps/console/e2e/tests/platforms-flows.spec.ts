@@ -78,7 +78,7 @@ test.describe('registry — platform detail', () => {
       const field = page.getByPlaceholder('Briefly describe this platform...')
       await expect(field).toBeEditable({ timeout: 60_000 })
       await field.fill(description)
-      await page.getByRole('button', { name: /^Save Changes$/ }).click()
+      await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
       await expect(page.getByText('Platform updated', { exact: true }).first()).toBeVisible({ timeout: 60_000 })
 

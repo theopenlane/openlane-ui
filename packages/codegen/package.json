@@ -2,14 +2,14 @@
   "name": "@repo/codegen",
   "version": "0.0.0",
   "dependencies": {
-    "@graphql-tools/schema": "10.1.0",
+    "@graphql-tools/schema": "10.1.1",
     "graphql": "17.0.2",
     "graphql-request": "7.4.0",
     "typescript": "^6.0.3"
   },
   "devDependencies": {
     "@graphql-codegen/add": "7.1.0",
-    "@graphql-codegen/cli": "7.3.1",
+    "@graphql-codegen/cli": "7.4.1",
     "@graphql-codegen/introspection": "6.1.0",
     "@graphql-codegen/schema-ast": "6.1.0",
     "@graphql-codegen/typescript": "6.1.0",

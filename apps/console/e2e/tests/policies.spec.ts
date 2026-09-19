@@ -16,7 +16,7 @@ test.describe('policies — create + view', () => {
     const name = policyName('create')
     await page.getByLabel(/^Title$/).fill(name)
 
-    await page.getByRole('button', { name: /^save changes$/i }).click()
+    await page.getByRole('button', { name: /^save( changes)?$/i }).click()
 
     await page.waitForURL(/\/policies\/[^/]+\/view/, { timeout: 30_000 })
 
@@ -26,7 +26,7 @@ test.describe('policies — create + view', () => {
   test('required validation — submitting without a title stays on create and shows the inline error', async ({ page }) => {
     await page.goto('/policies/create')
     await dismissDraftRestore(page)
-    await page.getByRole('button', { name: /^save changes$/i }).click()
+    await page.getByRole('button', { name: /^save( changes)?$/i }).click()
 
     await expect(page).toHaveURL(/\/policies\/create(\?|$)/)
     await expect(page.getByText(/^Name is required$/)).toBeVisible()
@@ -39,7 +39,7 @@ test.describe('policies — create + view', () => {
       await page.goto('/policies/create')
       await dismissDraftRestore(page)
       await page.getByLabel(/^Title$/).fill(name)
-      await page.getByRole('button', { name: /^save changes$/i }).click()
+      await page.getByRole('button', { name: /^save( changes)?$/i }).click()
       await page.waitForURL(/\/policies\/[^/]+\/view/, { timeout: 30_000 })
     }
 
@@ -57,7 +57,7 @@ test.describe('policies — create + view', () => {
     await dismissDraftRestore(page)
     const name = policyName('table')
     await page.getByLabel(/^Title$/).fill(name)
-    await page.getByRole('button', { name: /^save changes$/i }).click()
+    await page.getByRole('button', { name: /^save( changes)?$/i }).click()
     await page.waitForURL(/\/policies\/[^/]+\/view/, { timeout: 30_000 })
 
     await page.goto('/policies')
@@ -74,7 +74,7 @@ test.describe('policies — create + view', () => {
     await dismissDraftRestore(page)
     const name = policyName('list')
     await page.getByLabel(/^Title$/).fill(name)
-    await page.getByRole('button', { name: /^save changes$/i }).click()
+    await page.getByRole('button', { name: /^save( changes)?$/i }).click()
     await page.waitForURL(/\/policies\/[^/]+\/view/, { timeout: 30_000 })
 
     await page.goto('/policies')
@@ -88,7 +88,7 @@ test.describe('policies — edit', () => {
     await dismissDraftRestore(page)
     const original = policyName('edit-orig')
     await page.getByLabel(/^Title$/).fill(original)
-    await page.getByRole('button', { name: /^save changes$/i }).click()
+    await page.getByRole('button', { name: /^save( changes)?$/i }).click()
     await page.waitForURL(/\/policies\/[^/]+\/view/, { timeout: 30_000 })
 
     const original_h1 = page.getByRole('heading', { level: 1, name: original })
@@ -117,7 +117,7 @@ test.describe('policies — edit', () => {
     await dismissDraftRestore(page)
     const name = policyName('status')
     await page.getByLabel(/^Title$/).fill(name)
-    await page.getByRole('button', { name: /^save changes$/i }).click()
+    await page.getByRole('button', { name: /^save( changes)?$/i }).click()
     await page.waitForURL(/\/policies\/[^/]+\/view/, { timeout: 30_000 })
 
     const statusTrigger = page.getByTestId('policy-status-trigger')
@@ -196,7 +196,7 @@ test.describe('policies — create form details', () => {
     await page.keyboard.type(marker)
     await expect(editor).toContainText(marker, { timeout: 10_000 })
 
-    await page.getByRole('button', { name: /^save changes$/i }).click()
+    await page.getByRole('button', { name: /^save( changes)?$/i }).click()
     await page.waitForURL(/\/policies\/[^/]+\/view/, { timeout: 30_000 })
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 15_000 })
     await expect(page.getByText(marker).first()).toBeVisible({ timeout: 15_000 })

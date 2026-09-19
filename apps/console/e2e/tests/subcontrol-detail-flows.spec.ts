@@ -52,7 +52,9 @@ test.describe('subcontrols — control objectives', () => {
 
     const renamed = `${name} revised`
     await sheet(page).getByRole('textbox').first().fill(renamed)
-    await sheet(page).getByRole('button', { name: 'Save Changes' }).click()
+    await sheet(page)
+      .getByRole('button', { name: /^Save( Changes)?$/ })
+      .click()
     await expect(toast(page, 'Control Objective updated')).toBeVisible({ timeout: 60_000 })
 
     await page.getByRole('button', { name: 'Objective actions' }).last().click()
@@ -100,8 +102,10 @@ test.describe('subcontrols — control implementations', () => {
 
     await page.getByRole('button', { name: 'Implementation actions' }).last().click()
     await page.getByRole('button', { name: 'Edit', exact: true }).click()
-    await expect(sheet(page).getByRole('button', { name: 'Save Changes' })).toBeVisible({ timeout: 30_000 })
-    await sheet(page).getByRole('button', { name: 'Save Changes' }).click()
+    await expect(sheet(page).getByRole('button', { name: /^Save( Changes)?$/ })).toBeVisible({ timeout: 30_000 })
+    await sheet(page)
+      .getByRole('button', { name: /^Save( Changes)?$/ })
+      .click()
     await expect(toast(page, 'Control Implementation updated')).toBeVisible({ timeout: 60_000 })
 
     await page.getByRole('button', { name: 'Implementation actions' }).last().click()
@@ -139,8 +143,8 @@ test.describe('subcontrols — map control', () => {
     test.slow()
     await openSubroute(page, 'map-control')
 
-    await expect(page.getByRole('button', { name: 'Save Changes' })).toBeVisible({ timeout: 60_000 })
-    await page.getByRole('button', { name: 'Save Changes' }).click()
+    await expect(page.getByRole('button', { name: /^Save( Changes)?$/ })).toBeVisible({ timeout: 60_000 })
+    await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(toast(page, 'From control is required').or(toast(page, 'To control is required'))).toBeVisible({ timeout: 30_000 })
     await expect(toast(page, 'Map Control created!')).toBeHidden()

@@ -1,6 +1,6 @@
-import { test } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 import { uniqueName } from '../utils/unique'
-import { bulkEditAndSave, selectFirstMatchingRow } from '../utils/mutations'
+import { bulkEditAndSave, expectMutationOk, selectFirstMatchingRow, toast } from '../utils/mutations'
 import {
   createActionPlan,
   createAsset,
@@ -11,7 +11,9 @@ import {
   createRemediation,
   createReview,
   createRisk,
+  createProgram,
   createSystemDetail,
+  createTask,
   createVendor,
   createVulnerability,
   getOwnerApi,
@@ -40,6 +42,7 @@ const CASES: BulkEditCase[] = [
   { slug: 'remediations', route: '/exposure/remediations', operationName: 'UpdateBulkRemediation', entityLabel: 'remediation', seed: (s, n) => createRemediation(s, n) },
   { slug: 'reviews', route: '/exposure/reviews', operationName: 'UpdateBulkReview', entityLabel: 'review', seed: (s, n) => createReview(s, n) },
   { slug: 'system-details', route: '/registry/system-details', operationName: 'UpdateBulkSystemDetail', entityLabel: 'system detail', seed: (s, n) => createSystemDetail(s, n) },
+  { slug: 'tasks', route: '/automation/tasks', operationName: 'UpdateBulkTask', entityLabel: 'task', seed: (s, n) => createTask(s, n) },
   { slug: 'vendors', route: '/registry/vendors', operationName: 'UpdateBulkEntity', entityLabel: 'vendor', seed: (s, n) => createVendor(s, n) },
   {
     slug: 'vulnerabilities',
@@ -115,5 +118,40 @@ test.describe('bulk edit — bespoke dialogs', () => {
     await selectFirstMatchingRow(page, name)
 
     await bulkEditAndSave({ page, operationName: 'UpdateBulkRisk' })
+  })
+})
+
+test.describe('bulk edit — assigning tasks to a program (ISS-2980)', () => {
+  test('a selected task is linked to a program through the association picker', async ({ page }) => {
+    test.slow()
+    const programName = uniqueName('E2E BulkEdit program')
+    await createProgram(ownerApi, programName)
+
+    const taskTitle = uniqueName('E2E BulkEdit task program')
+    await createTask(ownerApi, taskTitle)
+
+    await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await selectFirstMatchingRow(page, taskTitle)
+
+    await page.getByRole('button', { name: /^Bulk Edit/ }).click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible({ timeout: 30_000 })
+
+    await dialog.getByRole('combobox').first().click()
+    await page.getByRole('option', { name: 'Associate Programs', exact: true }).click()
+
+    await dialog.getByPlaceholder('Search programs').fill(programName)
+    const programRow = dialog.getByRole('row').filter({ hasText: programName }).first()
+    await expect(programRow).toBeVisible({ timeout: 30_000 })
+    await programRow.getByRole('checkbox').first().check()
+
+    const save = dialog.getByRole('button', { name: /^Save( Changes)?$/ })
+    await expect(save).toBeEnabled({ timeout: 30_000 })
+
+    await expectMutationOk(page, 'UpdateBulkTask', async () => {
+      await save.click()
+    })
+
+    await expect(toast(page, 'Successfully bulk updated selected task.')).toBeVisible({ timeout: 30_000 })
   })
 })
