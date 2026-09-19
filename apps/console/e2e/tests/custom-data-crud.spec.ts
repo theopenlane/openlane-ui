@@ -170,8 +170,11 @@ test.describe('custom data — custom enums', () => {
 
     await openRowAction(page, row, `Enum actions for ${name}`, /^Edit Enum$/)
     await expect(sheet.getByText('Update Environment Enum')).toBeVisible({ timeout: 20_000 })
-    await page.keyboard.press('Escape')
-    await expect(sheet).toBeHidden({ timeout: 20_000 })
+
+    await expect(async () => {
+      await sheet.getByRole('button', { name: /^Cancel$/ }).click({ timeout: 5_000 })
+      await expect(sheet).toBeHidden({ timeout: 5_000 })
+    }).toPass({ timeout: 30_000 })
 
     await openRowAction(page, row, `Enum actions for ${name}`, /^Delete Enum$/)
 

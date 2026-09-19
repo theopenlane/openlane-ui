@@ -34,7 +34,14 @@ test.describe('user-management — members table', () => {
     await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Members$/ })).toBeVisible({ timeout: 20_000 })
 
-    await expect(page.getByText(ownerEmail).first()).toBeVisible({ timeout: 15_000 })
+    const search = page.getByPlaceholder('Search').first()
+    const ownerRow = page.getByRole('row').filter({ hasText: ownerEmail }).first()
+
+    await expect(async () => {
+      await search.fill('')
+      await search.fill(ownerEmail.split('@')[0])
+      await expect(ownerRow).toBeVisible({ timeout: 10_000 })
+    }).toPass({ timeout: 60_000 })
   })
 })
 
@@ -166,8 +173,15 @@ test.describe('user-management — member row actions (throwaway member)', () =>
     }).toPass({ timeout: 45_000 })
 
     const dialog = page.getByRole('alertdialog')
-    await dialog.getByRole('combobox').first().click()
-    await page.getByRole('option', { name: 'Admin', exact: true }).click()
+    const adminOption = page.getByRole('option', { name: 'Admin', exact: true })
+
+    await expect(async () => {
+      if (!(await adminOption.isVisible().catch(() => false))) {
+        await dialog.getByRole('combobox').first().click({ timeout: 5_000 })
+      }
+      await adminOption.click({ timeout: 5_000 })
+      await expect(dialog.getByRole('combobox').first()).toContainText('Admin', { timeout: 5_000 })
+    }).toPass({ timeout: 45_000 })
 
     await expectMutationOk(page, 'UpdateUserRoleInOrg', async () => {
       await dialog.getByRole('button', { name: /^Change Role$/ }).click()
