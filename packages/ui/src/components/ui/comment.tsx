@@ -30,7 +30,7 @@ import { useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontr
 import { useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risk'
 import { useUpdateDiscussion } from 'console/src/lib/graphql-hooks/discussion'
 import { useNotification } from 'console/src/hooks/useNotification'
-import { useHasOrgFullAccess } from 'console/src/lib/authz/use-has-org-full-access'
+import { useHasOrgFullAccess } from 'console/src/lib/query-hooks/permissions'
 import { parseErrorMessage } from 'console/src/utils/graphQlErrorMatcher'
 import { useQueryClient } from '@tanstack/react-query'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
