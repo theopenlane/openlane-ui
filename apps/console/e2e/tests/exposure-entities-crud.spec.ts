@@ -3,6 +3,7 @@ import type { Locator, Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import { createFinding, createRemediation, createScan, createVulnerability, deleteFinding, deleteRemediation, deleteScan, deleteVulnerability, getOwnerApi, gql, type ApiSession } from '../utils/api'
 import { uniqueName, uniqueRef } from '../utils/unique'
+import { slideoutEdit, slideoutMenuAction } from '../utils/slideout'
 
 type EntityConfig = {
   slug: string
@@ -147,10 +148,7 @@ for (const entity of ENTITIES) {
 
         try {
           const sheet = await openDetailSheet(page, entity, id)
-          const editButton = sheet
-            .locator('button')
-            .filter({ hasText: /^Edit$/ })
-            .first()
+          const editButton = slideoutEdit(sheet)
           const primary = sheet.getByRole('textbox').first()
 
           await expect(async () => {
@@ -177,11 +175,7 @@ for (const entity of ENTITIES) {
 
         try {
           const sheet = await openDetailSheet(page, entity, id)
-          await sheet
-            .locator('button')
-            .filter({ hasText: /^Delete$/ })
-            .first()
-            .click()
+          await slideoutMenuAction(page, sheet, /^Delete$/)
 
           const confirmation = page.getByRole('alertdialog')
           await expect(confirmation).toBeVisible({ timeout: 20_000 })
@@ -224,7 +218,7 @@ for (const entity of ENTITIES) {
           const chosenStatus = (await statusOption.innerText()).trim()
           await statusOption.click()
 
-          const save = dialog.getByRole('button', { name: /^Save Changes$/ })
+          const save = dialog.getByRole('button', { name: /^Save( Changes)?$/ })
           await expect(save).toBeEnabled({ timeout: 15_000 })
           await save.click()
 

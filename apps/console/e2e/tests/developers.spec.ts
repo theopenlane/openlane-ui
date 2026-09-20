@@ -104,7 +104,7 @@ test.describe('developers — API token list + delete lifecycle', () => {
     await expect(success).toBeVisible({ timeout: 15_000 })
 
     await success.getByLabel(/I have copied the access token/i).check()
-    await success.getByRole('button', { name: /^close$/i }).click()
+    await success.getByRole('button', { name: /^done$/i }).click()
     await expect(success).toBeHidden({ timeout: 10_000 })
   }
 
@@ -182,7 +182,7 @@ const createApiTokenInList = async (page: Page, tokenName: string): Promise<void
   const success = page.getByRole('dialog', { name: /^token created$/i })
   await expect(success).toBeVisible({ timeout: 15_000 })
   await success.getByLabel(/I have copied the access token/i).check()
-  await success.getByRole('button', { name: /^close$/i }).click()
+  await success.getByRole('button', { name: /^done$/i }).click()
   await expect(success).toBeHidden({ timeout: 10_000 })
 }
 
@@ -275,7 +275,7 @@ test.describe('developers — API token custom expiration date', () => {
     await expect(success).toBeVisible({ timeout: 15_000 })
 
     await success.getByLabel(/I have copied the access token/i).check()
-    await success.getByRole('button', { name: /^close$/i }).click()
+    await success.getByRole('button', { name: /^done$/i }).click()
     await expect(success).toBeHidden({ timeout: 10_000 })
 
     await deleteTokenRow(page, tokenName, /delete api token/i)
@@ -355,7 +355,7 @@ test.describe('developers — edit API token', () => {
     await expect(dialog.getByPlaceholder(/^Enter token name$/)).toBeDisabled()
 
     await dialog.getByPlaceholder(/Enter a description/i).fill(`updated ${Date.now().toString(36)}`)
-    await dialog.getByRole('button', { name: /^Save Changes$/ }).click()
+    await dialog.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(page.getByText(/token updated successfully/i).first()).toBeVisible({ timeout: 15_000 })
 
@@ -383,7 +383,7 @@ test.describe('developers — personal access token list + delete lifecycle', ()
     const success = page.getByRole('dialog', { name: /^token created$/i })
     await expect(success).toBeVisible({ timeout: 15_000 })
     await success.getByLabel(/I have copied the access token/i).check()
-    await success.getByRole('button', { name: /^close$/i }).click()
+    await success.getByRole('button', { name: /^done$/i }).click()
     await expect(success).toBeHidden({ timeout: 10_000 })
   }
 
@@ -459,7 +459,7 @@ test.describe('developers — personal access token generated value + copy', () 
     expect(clipboard).toBe(tokenValue)
 
     await success.getByLabel(/I have copied the access token/i).check()
-    await success.getByRole('button', { name: /^close$/i }).click()
+    await success.getByRole('button', { name: /^done$/i }).click()
   })
 })
 
@@ -486,7 +486,7 @@ test.describe('developers — API token view all scopes modal', () => {
     const success = page.getByRole('dialog', { name: /^token created$/i })
     await expect(success).toBeVisible({ timeout: 15_000 })
     await success.getByLabel(/I have copied the access token/i).check()
-    await success.getByRole('button', { name: /^close$/i }).click()
+    await success.getByRole('button', { name: /^done$/i }).click()
     await expect(success).toBeHidden({ timeout: 10_000 })
 
     const row = page.getByRole('main').getByRole('row').filter({ hasText: tokenName })

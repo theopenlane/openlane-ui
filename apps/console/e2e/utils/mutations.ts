@@ -165,7 +165,7 @@ export const bulkEditAndSave = async ({ page, field, operationName, chooseValue,
 
   expect(chosen, 'no bulk-edit field offered a settable value').not.toBeNull()
 
-  const save = dialog.getByRole('button', { name: /^Save Changes$/ })
+  const save = dialog.getByRole('button', { name: /^Save( Changes)?$/ })
   await expect(save).toBeEnabled({ timeout: 30_000 })
 
   await expectMutationOk(page, operationName, async () => {

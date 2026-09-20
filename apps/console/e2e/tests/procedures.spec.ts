@@ -137,7 +137,7 @@ test.describe('procedures — list + create', () => {
     await page.goto('/policies/create')
     const linkedPolicy = policyName('proc-link')
     await page.getByLabel(/^Title$/).fill(linkedPolicy)
-    await page.getByRole('button', { name: /^save changes$/i }).click()
+    await page.getByRole('button', { name: /^save( changes)?$/i }).click()
     await page.waitForURL(/\/policies\/[^/]+\/view/, { timeout: 30_000 })
     const policyUrl = page.url()
 
@@ -160,7 +160,7 @@ test.describe('procedures — list + create', () => {
     await policyCheckbox.click()
     await expect(policyCheckbox).toBeChecked()
 
-    await procedureDialog.getByRole('button', { name: /^save changes$/i }).click()
+    await procedureDialog.getByRole('button', { name: /^save( changes)?$/i }).click()
     await expect(procedureDialog).toBeHidden({ timeout: 10_000 })
 
     await page.goto(policyUrl)

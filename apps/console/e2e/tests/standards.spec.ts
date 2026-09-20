@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
+import { expectSlideoutMenuAction, slideoutClose, slideoutMenuAction } from '../utils/slideout'
 
 test.describe('standards — list', () => {
   test('/standards renders the Standards Catalog heading for an owner', async ({ page }) => {
@@ -89,7 +90,7 @@ test.describe('standards — detail', () => {
 
     await firstControlRow.getByRole('cell').nth(2).click()
     await expect(page.getByRole('dialog').getByText('Properties', { exact: true })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('dialog').getByRole('button', { name: /Copy link/i })).toBeVisible()
+    await expectSlideoutMenuAction(page, page.getByRole('dialog'), /Copy link/i)
   })
 })
 
@@ -189,7 +190,7 @@ test.describe('standards — detail interactions', () => {
         break
       }
 
-      await sheet.getByLabel('Close detail sheet').click()
+      await slideoutClose(sheet).click()
       await expect(page).not.toHaveURL(/controlId=/, { timeout: 10_000 })
     }
 
@@ -209,9 +210,7 @@ test.describe('standards — detail interactions', () => {
     await firstControlRow.getByRole('cell').nth(2).click()
 
     const sheet = page.getByRole('dialog')
-    const copyButton = sheet.getByRole('button', { name: /Copy link/i })
-    await expect(copyButton).toBeVisible({ timeout: 15_000 })
-    await copyButton.click()
+    await slideoutMenuAction(page, sheet, /Copy link/i)
 
     await expect(page.getByText(/Link copied to clipboard/i).first()).toBeVisible({ timeout: 10_000 })
 
@@ -234,7 +233,7 @@ test.describe('standards — detail interactions', () => {
     await expect(sheet.getByText('Properties', { exact: true })).toBeVisible({ timeout: 15_000 })
     await expect(page).toHaveURL(/controlId=/)
 
-    await sheet.getByLabel('Close detail sheet').click()
+    await slideoutClose(sheet).click()
     await expect(page).not.toHaveURL(/controlId=/, { timeout: 10_000 })
   })
 })

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { Download, LoaderCircle, RefreshCw, SearchIcon, Stamp, Upload } from 'lucide-react'
+import { Download, Files, LoaderCircle, RefreshCw, SearchIcon, Stamp, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@repo/ui/table-types'
@@ -9,6 +9,7 @@ import { getEvidenceFilterableFields } from '@/components/pages/protected/eviden
 import { TableKeyEnum } from '@repo/ui/table-key'
 import Menu from '@/components/shared/menu/menu'
 import { BulkCSVCreateEvidenceDialog } from '../dialog/bulk-csv-create-evidence-dialog'
+import EvidenceAllFilesDialog from '../dialog/evidence-all-files-dialog'
 import { ExportEvidenceDialog } from '../dialog/export-evidence-dialog'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { useBulkDeleteEvidence } from '@/lib/graphql-hooks/evidence'
@@ -70,6 +71,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
   const { data: session } = useSession()
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
+  const [isAllFilesOpen, setIsAllFilesOpen] = useState(false)
   const isSearching = useDebounce(searching, 200)
   const { currentOrgId } = useOrganization()
   const { standardOptions, isSuccess: isStandardsSuccess } = useStandardsSelect({
@@ -209,10 +211,20 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
                       Bulk Upload
                     </MenuItem>
                     <ExportEvidenceDialog trigger={<MenuItem icon={<Download size={16} strokeWidth={2} />}>Export</MenuItem>} />
+                    <MenuItem
+                      icon={<Files size={16} strokeWidth={2} />}
+                      onSelect={() => {
+                        setIsAllFilesOpen(true)
+                        close()
+                      }}
+                    >
+                      View All Existing Files
+                    </MenuItem>
                   </>
                 )}
               />
               <BulkCSVCreateEvidenceDialog open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen} />
+              <EvidenceAllFilesDialog open={isAllFilesOpen} onOpenChange={setIsAllFilesOpen} />
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.EVIDENCE} />
               )}

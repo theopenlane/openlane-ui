@@ -2,8 +2,20 @@ import { test, expect, readManifest } from '../fixtures/auth'
 import { uniqueName } from '../utils/unique'
 import { SAMPLE_PDF, SAMPLE_PNG, uploadFiles } from '../utils/files'
 import { expectMutationOk } from '../utils/mutations'
-import { createStandard, deleteStandard, createSubprocessor, createSubscriber, createTrustCenterSubprocessor, getDemoApi, getTrustCenterId, readTrustCenterSecurityContact } from '../utils/api'
+import {
+  createCustomTypeEnum,
+  createStandard,
+  deleteCustomTypeEnum,
+  deleteStandard,
+  createSubprocessor,
+  createSubscriber,
+  createTrustCenterSubprocessor,
+  getDemoApi,
+  getTrustCenterId,
+  readTrustCenterSecurityContact,
+} from '../utils/api'
 import type { Locator, Page } from '@playwright/test'
+import { slideoutMenuAction, slideoutReady } from '../utils/slideout'
 
 const requireDemoOrg = () => test.skip(!readManifest().hasDemoSession, 'no demo-org session — trust center is unprovisioned in the e2e org')
 
@@ -24,7 +36,7 @@ const cardFor = (page: Page, text: string, actionName: string): Locator =>
 const editorPanel = (page: Page): Locator =>
   page
     .locator('div')
-    .filter({ has: page.getByRole('button', { name: 'Save Changes' }) })
+    .filter({ has: page.getByRole('button', { name: /^Save( Changes)?$/ }) })
     .filter({ has: page.getByRole('textbox') })
     .last()
 
@@ -129,7 +141,7 @@ test.describe('trust-center — updates content (seeded demo org)', () => {
 
     const edited = `${title} revised`
     await editor.getByRole('textbox').first().fill(edited)
-    await page.getByRole('button', { name: 'Save Changes' }).click()
+    await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(toast(page, 'Update saved')).toBeVisible({ timeout: 30_000 })
     await expect(page.getByText(edited, { exact: true })).toBeVisible({ timeout: 30_000 })
@@ -196,7 +208,7 @@ test.describe('trust-center — FAQ content (seeded demo org)', () => {
 
     const edited = `${question} (updated)`
     await editor.getByRole('textbox').first().fill(edited)
-    await page.getByRole('button', { name: 'Save Changes' }).click()
+    await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(toast(page, 'FAQ updated')).toBeVisible({ timeout: 30_000 })
     await expect(page.getByText(edited, { exact: true })).toBeVisible({ timeout: 30_000 })
@@ -233,7 +245,7 @@ test.describe('trust-center — documents (seeded demo org)', () => {
   const fillDocumentForm = async (page: Page, sheet: Locator, title: string) => {
     await sheet.getByPlaceholder('Document title').fill(title)
 
-    await sheet.getByRole('combobox').first().click()
+    await sheet.getByRole('button', { name: /Select or create category/ }).click()
     await page.getByPlaceholder('Search category...').fill(CATEGORY)
     await page
       .getByRole('option', { name: CATEGORY })
@@ -283,9 +295,9 @@ test.describe('trust-center — documents (seeded demo org)', () => {
 
     await row.click()
     const detail = page.getByRole('dialog')
-    await expect(detail.getByRole('button', { name: 'Delete document' })).toBeVisible({ timeout: 30_000 })
+    await slideoutReady(detail)
 
-    await detail.getByRole('button', { name: 'Delete document' }).click()
+    await slideoutMenuAction(page, detail, /^Delete$/)
     const dialog = page.getByRole('alertdialog')
     await expect(dialog.getByText('Delete Document')).toBeVisible({ timeout: 15_000 })
     await dialog.getByRole('button', { name: /^Delete$/ }).click()
@@ -454,7 +466,7 @@ test.describe('trust-center — customer logos (seeded demo org)', () => {
     await expect(page.getByText(`Edit ${name}`, { exact: true })).toBeVisible({ timeout: 15_000 })
 
     await page.getByPlaceholder('https://example.com').last().fill('https://e2e.example.com')
-    await page.getByRole('button', { name: 'Save Changes' }).click()
+    await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(toast(page, 'Customer updated')).toBeVisible({ timeout: 30_000 })
 
@@ -538,7 +550,7 @@ test.describe('trust-center — document bulk actions and watermark', () => {
     await expect(sheet.getByPlaceholder('Document title')).toBeVisible({ timeout: 30_000 })
 
     await sheet.getByPlaceholder('Document title').fill(title)
-    await sheet.getByRole('combobox').first().click()
+    await sheet.getByRole('button', { name: /Select or create category/ }).click()
     await page.getByPlaceholder('Search category...').fill(CATEGORY)
     await page
       .getByRole('option', { name: CATEGORY })
@@ -577,12 +589,9 @@ test.describe('trust-center — document bulk actions and watermark', () => {
     await expect(dialog.getByText('Bulk Edit Documents')).toBeVisible({ timeout: 30_000 })
 
     await dialog.getByRole('combobox').first().click()
-    await page.getByRole('option').first().click()
-    await dialog
-      .getByRole('combobox')
-      .filter({ hasText: /^Select/ })
-      .last()
-      .click()
+    await page.getByRole('option', { name: 'Visibility', exact: true }).click()
+
+    await dialog.getByRole('combobox').filter({ hasText: 'Select visibility' }).click()
     await page.getByRole('option').first().click()
 
     await expectMutationOk(page, 'BulkUpdateTrustCenterDoc', async () => {
@@ -748,7 +757,7 @@ test.describe('trust-center — subprocessor edit and delete', () => {
     await openTrustCenterPage(page, `/trust-center/subprocessors?id=${tcSubprocessorId}`)
 
     const sheet = page.getByRole('dialog')
-    const save = sheet.getByRole('button', { name: /^Save Changes$/ })
+    const save = sheet.getByRole('button', { name: /^Save( Changes)?$/ })
     await expect(save).toBeVisible({ timeout: 30_000 })
     await expect(sheet.getByText('Hosting').first()).toBeVisible({ timeout: 30_000 })
 
@@ -870,6 +879,59 @@ test.describe('trust-center — frameworks', () => {
       await expect(toast(page, 'Published')).toBeVisible({ timeout: 30_000 })
     } finally {
       await deleteStandard(demoApi, standardId)
+    }
+  })
+})
+
+test.describe('trust-center — FAQ categories (#2309)', () => {
+  test.use({ authProfile: 'demo' })
+
+  test('a FAQ published with a category keeps that category through an edit', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+
+    const demoApi = await getDemoApi()
+    const category = uniqueName('E2E FaqCategory').replace(/\s+/g, '-')
+    const enumId = await createCustomTypeEnum(demoApi, category, 'kind', 'trust_center_faq')
+
+    const question = uniqueName('E2E Categorised FAQ?')
+
+    try {
+      await openTrustCenterPage(page, '/trust-center/faqs')
+
+      await page.getByPlaceholder('Enter a frequently asked question').fill(question)
+      await page.getByPlaceholder('Provide the answer...').fill('Answered under a category.')
+
+      await page.getByRole('button', { name: /Select or create category/ }).click()
+      await page.getByPlaceholder('Search category...').fill(category)
+      await page.getByRole('option').filter({ hasText: category }).first().click()
+
+      await page.getByRole('button', { name: 'Publish FAQ' }).click()
+      await expect(toast(page, 'FAQ published')).toBeVisible({ timeout: 30_000 })
+      await expect(page.getByText(question, { exact: true })).toBeVisible({ timeout: 30_000 })
+
+      await expect(cardFor(page, question, 'Edit FAQ').getByText(category, { exact: true }).first()).toBeVisible({ timeout: 30_000 })
+
+      await cardFor(page, question, 'Edit FAQ').getByRole('button', { name: 'Edit FAQ' }).click()
+
+      const save = page.getByRole('button', { name: 'Save', exact: true })
+      await expect(save).toBeVisible({ timeout: 30_000 })
+
+      const editor = page
+        .locator('div')
+        .filter({ has: save })
+        .filter({ has: page.getByRole('textbox') })
+        .last()
+      await editor.getByRole('textbox').nth(1).fill('Answered under a category, revised.')
+
+      await save.click()
+      await expect(toast(page, 'FAQ updated')).toBeVisible({ timeout: 30_000 })
+
+      await expect(cardFor(page, question, 'Edit FAQ').getByText(category, { exact: true }).first()).toBeVisible({ timeout: 30_000 })
+
+      await deleteFaq(page, question)
+    } finally {
+      await deleteCustomTypeEnum(demoApi, enumId)
     }
   })
 })

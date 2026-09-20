@@ -3,6 +3,7 @@ import type { Locator, Page } from '@playwright/test'
 import { test, expect, readManifest } from '../fixtures/auth'
 import { SAMPLE_PDF, uploadFiles } from '../utils/files'
 import { uniqueName } from '../utils/unique'
+import { slideoutEdit, slideoutMenuAction } from '../utils/slideout'
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -23,7 +24,7 @@ const createDocument = async (page: Page, title: string): Promise<void> => {
   await expect(sheet.getByPlaceholder('Document title')).toBeVisible({ timeout: 30_000 })
   await sheet.getByPlaceholder('Document title').fill(title)
 
-  await sheet.getByRole('combobox').first().click()
+  await sheet.getByRole('button', { name: /Select or create category/ }).click()
   await page.getByPlaceholder('Search category...').fill(CATEGORY)
   await page
     .getByRole('option', { name: CATEGORY })
@@ -50,7 +51,7 @@ const deleteDocument = async (page: Page, title: string): Promise<void> => {
 
   await row.first().click()
   const detail = page.getByRole('dialog')
-  await detail.getByRole('button', { name: 'Delete document' }).click()
+  await slideoutMenuAction(page, detail, /^Delete$/)
   await page
     .getByRole('alertdialog')
     .getByRole('button', { name: /^Delete$/ })
@@ -78,7 +79,7 @@ test.describe('trust-center — document metadata (seeded demo org)', () => {
       await row.click()
 
       const detail = page.getByRole('dialog')
-      await detail.getByRole('button', { name: 'Edit document' }).click()
+      await slideoutEdit(detail).click()
       const titleField = detail.getByPlaceholder('Document title')
       await expect(titleField).toBeEditable({ timeout: 30_000 })
       await expect
@@ -92,7 +93,7 @@ test.describe('trust-center — document metadata (seeded demo org)', () => {
         .toBe(renamed)
 
       await titleField.click()
-      await detail.getByRole('button', { name: /^Save Changes$/ }).click()
+      await detail.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
       await expect(toast(page, 'Document Updated')).toBeVisible({ timeout: 60_000 })
 

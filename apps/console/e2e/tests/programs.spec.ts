@@ -65,7 +65,7 @@ test.describe('programs — generic program create', () => {
   test('happy path — fill name + program type, submit, land on the program detail page', async ({ page }) => {
     await page.goto('/programs/create/generic-program')
 
-    const programTypeTrigger = page.locator('button[role="combobox"]')
+    const programTypeTrigger = page.getByRole('button', { name: /Select Program Type/ })
     await programTypeTrigger.click()
 
     const programType = `E2E Type ${RUN_ID}`
@@ -73,7 +73,7 @@ test.describe('programs — generic program create', () => {
     await page.keyboard.press('Enter')
 
     await expect(page.getByPlaceholder(/search program type/i)).toBeHidden({ timeout: 10_000 })
-    await expect(programTypeTrigger).toContainText(programType)
+    await expect(page.getByRole('button', { name: programType })).toBeVisible({ timeout: 10_000 })
 
     const name = programName('create')
     await page.getByPlaceholder(/^Program Test$/).fill(name)
@@ -88,7 +88,7 @@ test.describe('programs — generic program create', () => {
   test('program detail breadcrumb includes the program name', async ({ page }) => {
     await page.goto('/programs/create/generic-program')
 
-    const programTypeTrigger = page.locator('button[role="combobox"]')
+    const programTypeTrigger = page.getByRole('button', { name: /Select Program Type/ })
     await programTypeTrigger.click()
     const programType = `E2E Type ${RUN_ID}`
     await page.getByPlaceholder(/search program type/i).fill(programType)
@@ -107,7 +107,7 @@ test.describe('programs — generic program create', () => {
   test('newly created program registers under the "Other" framework group on /programs', async ({ page }) => {
     await page.goto('/programs/create/generic-program')
 
-    const programTypeTrigger = page.locator('button[role="combobox"]')
+    const programTypeTrigger = page.getByRole('button', { name: /Select Program Type/ })
     await programTypeTrigger.click()
     const programType = `E2E Type ${RUN_ID}`
     await page.getByPlaceholder(/search program type/i).fill(programType)

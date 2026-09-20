@@ -38,7 +38,11 @@ const toChips = (edges: RelatedControlEdge[] | null | undefined, __typename: Map
   (edges ?? []).flatMap((edge) => (edge?.node ? [{ __typename, id: edge.node.id, refCode: edge.node.refCode, referenceFramework: edge.node.referenceFramework, controlID: edge.node.controlID }] : []))
 
 const RelatedControlsCellComponent: React.FC<RelatedControlsCellProps> = ({ controlEdges, subcontrolEdges }) => {
-  const chips = useMemo(() => [...toChips(controlEdges, ObjectTypes.CONTROL), ...toChips(subcontrolEdges, ObjectTypes.SUBCONTROL)], [controlEdges, subcontrolEdges])
+  const chips = useMemo(() => {
+    const all = [...toChips(controlEdges, ObjectTypes.CONTROL), ...toChips(subcontrolEdges, ObjectTypes.SUBCONTROL)]
+
+    return [...new Map(all.map((chip) => [chip.id, chip])).values()]
+  }, [controlEdges, subcontrolEdges])
 
   return <ControlChipList key={chips.map((chip) => chip.id).join()} items={chips} />
 }

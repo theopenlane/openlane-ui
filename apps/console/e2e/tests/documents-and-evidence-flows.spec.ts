@@ -4,7 +4,7 @@ import { test, expect } from '../fixtures/auth'
 import { uniqueName } from '../utils/unique'
 import { expectMutationOk } from '../utils/mutations'
 import { SAMPLE_PDF, SAMPLE_PNG, uploadFiles } from '../utils/files'
-import { createIdentityHolder, createPlatform, createVendor, deletePlatform, getOwnerApi, type ApiSession } from '../utils/api'
+import { createCustomTypeEnum, createIdentityHolder, createPlatform, createVendor, deleteCustomTypeEnum, deletePlatform, getOwnerApi, readEntityFiles, type ApiSession } from '../utils/api'
 
 let ownerApi: ApiSession
 
@@ -40,10 +40,16 @@ const uploadDocument = async (page: Page, operationName: string) => {
 }
 
 const markLastDocumentAsEvidence = async (page: Page, evidenceName: string) => {
-  await page
-    .getByRole('button', { name: /^Mark as evidence$/i })
-    .first()
-    .click()
+  const rowMenu = page.getByRole('button', { name: 'Document actions' }).first()
+  const directButton = page.getByRole('button', { name: /^Mark as evidence$/i }).first()
+  await expect(rowMenu.or(directButton).first()).toBeVisible({ timeout: 30_000 })
+
+  if (await rowMenu.isVisible().catch(() => false)) {
+    await rowMenu.click()
+    await page.getByRole('menuitem', { name: /^Mark as Evidence$/i }).click()
+  } else {
+    await directButton.click()
+  }
 
   const dialog = page.getByRole('dialog')
   await expect(dialog.getByRole('heading', { name: /^Mark as Evidence$/i })).toBeVisible({ timeout: 30_000 })
@@ -109,6 +115,59 @@ test.describe('platform diagrams', () => {
       await markLastDocumentAsEvidence(page, uniqueName('E2E Platform evidence'))
     } finally {
       await deletePlatform(ownerApi, id)
+    }
+  })
+})
+
+test.describe('vendor documents — name and category on upload (ISS-2938)', () => {
+  test('a custom Name replaces the original file name in the documents table', async ({ page }) => {
+    test.slow()
+    const vendorId = await createVendor(ownerApi, uniqueName('E2E Vendor named doc'))
+    const displayName = uniqueName('E2E Renamed Document')
+
+    await page.goto(`/registry/vendors/${vendorId}?tab=documents`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    const dialog = await openUploadDialog(page)
+    await uploadFiles(page, SAMPLE_PDF, dialog.locator('input[type="file"]').first())
+
+    await dialog.getByLabel('Name', { exact: true }).fill(displayName)
+
+    await expectMutationOk(page, 'UpdateEntityWithFiles', async () => {
+      await dialog.getByRole('button', { name: /^Upload$/ }).click()
+    })
+    await expect(page.getByText('Documents uploaded').first()).toBeVisible({ timeout: 60_000 })
+
+    await expect(page.getByRole('row').filter({ hasText: displayName }).first()).toBeVisible({ timeout: 60_000 })
+
+    const files = await readEntityFiles(ownerApi, vendorId)
+    expect(files.map((file) => file.name)).toContain(displayName)
+  })
+
+  test.fail('a chosen Category is stored on the uploaded file (core drops metadata.category today)', async ({ page }) => {
+    test.slow()
+    const vendorId = await createVendor(ownerApi, uniqueName('E2E Vendor categorised doc'))
+    const category = uniqueName('E2E DocCategory').replace(/\s+/g, '-')
+    const enumId = await createCustomTypeEnum(ownerApi, category, 'category')
+
+    try {
+      await page.goto(`/registry/vendors/${vendorId}?tab=documents`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+      const dialog = await openUploadDialog(page)
+      await uploadFiles(page, SAMPLE_PDF, dialog.locator('input[type="file"]').first())
+
+      await dialog.getByLabel('Category', { exact: true }).click()
+      await page.getByPlaceholder('Search or create...').fill(category)
+      await page.getByRole('option').filter({ hasText: category }).first().click()
+
+      await expectMutationOk(page, 'UpdateEntityWithFiles', async () => {
+        await dialog.getByRole('button', { name: /^Upload$/ }).click()
+      })
+      await expect(page.getByText('Documents uploaded').first()).toBeVisible({ timeout: 60_000 })
+
+      const files = await readEntityFiles(ownerApi, vendorId)
+      expect(files.map((file) => file.categoryName)).toContain(category)
+    } finally {
+      await deleteCustomTypeEnum(ownerApi, enumId)
     }
   })
 })

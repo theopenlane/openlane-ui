@@ -21,12 +21,15 @@ export const getFileDisplayName = (file: Pick<TFile, 'name' | 'providedFileName'
 
 export const getFileCategory = (file: Pick<TFile, 'categoryName'>): string | undefined => file.categoryName?.trim() || undefined
 
-export const fileNameColumn: ColumnDef<TFile> = {
+export const getFileNameColumn = <TRow extends Pick<TFile, 'name' | 'providedFileName'>>(overrides: Partial<ColumnDef<TRow>> = {}): ColumnDef<TRow> => ({
   accessorKey: 'name',
   header: 'Name',
   size: 280,
   cell: ({ row }) => <span className="block truncate">{getFileDisplayName(row.original)}</span>,
-}
+  ...overrides,
+})
+
+export const fileNameColumn: ColumnDef<TFile> = getFileNameColumn<TFile>()
 
 export const originalFileNameColumn: ColumnDef<TFile> = {
   accessorKey: 'providedFileName',

@@ -5,6 +5,7 @@ import { test, expect } from '../fixtures/auth'
 import type { ApiSession } from '../utils/api'
 import { createApiToken, createPersonalAccessToken, deleteApiToken, deletePersonalAccessToken, getAutomationApi, getOwnerOrganization } from '../utils/api-automation'
 import { uniqueName } from '../utils/unique'
+import { pickCalendarRange } from '../utils/calendar'
 
 test.use({ viewport: { width: 1440, height: 1400 } })
 
@@ -29,16 +30,6 @@ const applyNameFilter = async (page: Page, name: string): Promise<void> => {
   await page.getByRole('menu').getByRole('button', { name: 'Name' }).click()
   await page.getByPlaceholder('Enter Name').fill(name)
   await page.getByRole('button', { name: 'View Results' }).click()
-}
-
-const calendarDayName = (date: Date): RegExp => new RegExp(`${format(date, 'MMMM do')}, ${date.getFullYear()}$`, 'i')
-
-const chooseRangeDate = async (page: Page, endpoint: 'From' | 'To', date: Date): Promise<void> => {
-  await page
-    .getByText(endpoint, { exact: true })
-    .locator('..')
-    .getByRole('button', { name: calendarDayName(date) })
-    .click()
 }
 
 const openTokenEditor = async (page: Page, name: string) => {
@@ -80,7 +71,7 @@ test('API token edit persists description, expiry, and implied permission scopes
     await dialog.getByRole('button', { name: /^Task\b/ }).click()
     await dialog.getByRole('checkbox', { name: 'task:write' }).check()
     await expect(dialog.getByRole('checkbox', { name: 'task:read' })).toBeChecked()
-    await dialog.getByRole('button', { name: 'Save Changes' }).click()
+    await dialog.getByRole('button', { name: /^Save( Changes)?$/ }).click()
     await expect(page.getByText('Token updated successfully!', { exact: true })).toBeVisible({ timeout: 20_000 })
 
     await page.reload({ waitUntil: 'domcontentloaded' })
@@ -116,9 +107,7 @@ test('API token expiry range combines with name filtering and excludes an out-of
     await page.getByRole('menu').getByRole('button', { name: 'Name' }).click()
     await page.getByPlaceholder('Enter Name').fill(prefix)
     await page.getByRole('menu').getByRole('button', { name: 'Expires At' }).click()
-    await page.getByRole('button', { name: 'Pick date range' }).click()
-    await chooseRangeDate(page, 'From', filterDate)
-    await chooseRangeDate(page, 'To', filterDate)
+    await pickCalendarRange(page, filterDate, filterDate)
     await page.keyboard.press('Escape')
     await page.getByRole('button', { name: 'View Results' }).click()
 
@@ -181,9 +170,7 @@ test('personal access token expiry range combines with name filtering and exclud
     await page.getByRole('menu').getByRole('button', { name: 'Name' }).click()
     await page.getByPlaceholder('Enter Name').fill(prefix)
     await page.getByRole('menu').getByRole('button', { name: 'Expires At' }).click()
-    await page.getByRole('button', { name: 'Pick date range' }).click()
-    await chooseRangeDate(page, 'From', filterDate)
-    await chooseRangeDate(page, 'To', filterDate)
+    await pickCalendarRange(page, filterDate, filterDate)
     await page.keyboard.press('Escape')
     await page.getByRole('button', { name: 'View Results' }).click()
 
@@ -219,7 +206,7 @@ test('personal access token edit persists description, expiry, and its authorize
     await organizations.click()
     await expect(page.getByRole('menuitemcheckbox', { name: new RegExp(escapeRegExp(organization.name)) })).toBeChecked()
     await page.keyboard.press('Escape')
-    await dialog.getByRole('button', { name: 'Save Changes' }).click()
+    await dialog.getByRole('button', { name: /^Save( Changes)?$/ }).click()
     await expect(page.getByText('Token updated successfully!', { exact: true })).toBeVisible({ timeout: 20_000 })
 
     await page.reload({ waitUntil: 'domcontentloaded' })

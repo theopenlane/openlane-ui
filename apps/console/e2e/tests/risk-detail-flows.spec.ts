@@ -56,7 +56,7 @@ test.describe('exposure — risk properties sidebar', () => {
       await page.getByRole('button', { name: 'Edit risk', exact: true }).click()
 
       await setScore(page, 7)
-      await page.getByRole('button', { name: /^Save Changes$/ }).click()
+      await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
       await expect(page.getByText('Risk updated', { exact: true }).first()).toBeVisible({ timeout: 30_000 })
 
       await openRisk(page, id, name)

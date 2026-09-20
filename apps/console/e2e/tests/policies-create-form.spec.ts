@@ -74,7 +74,7 @@ test.describe('policies — create form metadata', () => {
       await page.getByText('Select type', { exact: true }).click()
       await page.getByRole('option', { name: policyKind }).first().click()
 
-      await page.getByRole('button', { name: /^Save Changes$/ }).click()
+      await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
       await expect(page.getByText('Policy Created', { exact: true }).first()).toBeVisible({ timeout: 60_000 })
       await expect(page).toHaveURL(/\/policies\/[^/]+\/view/, { timeout: 60_000 })
@@ -104,7 +104,7 @@ test.describe('policies — create form metadata', () => {
       await page.getByPlaceholder('Search...').fill(approverGroup)
       await page.getByRole('option', { name: approverGroup }).first().click()
 
-      await page.getByRole('button', { name: /^Save Changes$/ }).click()
+      await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
       await expect(page.getByText('Policy Created', { exact: true }).first()).toBeVisible({ timeout: 60_000 })
 
       policyId = await findPolicyIdByName(ownerApi, name)
@@ -129,7 +129,7 @@ test.describe('policies — create form metadata', () => {
       await tagInput.fill(tag)
       await tagInput.press('Enter')
 
-      await page.getByRole('button', { name: /^Save Changes$/ }).click()
+      await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
       await expect(page.getByText('Policy Created', { exact: true }).first()).toBeVisible({ timeout: 60_000 })
 
       policyId = await findPolicyIdByName(ownerApi, name)
@@ -150,7 +150,7 @@ test.describe('policies — create form metadata', () => {
       await chooseFromSelect(page, 'Approval Required', 'True')
 
       await page.getByRole('switch', { name: 'Create another policy' }).click()
-      await page.getByRole('button', { name: /^Save Changes$/ }).click()
+      await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
       await expect(page.getByText('Policy Created', { exact: true }).first()).toBeVisible({ timeout: 60_000 })
       await expect(page).toHaveURL(/\/policies\/create$/, { timeout: 30_000 })

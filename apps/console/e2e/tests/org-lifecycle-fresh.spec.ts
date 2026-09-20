@@ -21,7 +21,12 @@ const openGeneralSettings = async (page: Page, marker: ReturnType<Page['getByTex
     .toBe(true)
 }
 
-const orgNameField = (page: Page) => page.locator('form').filter({ hasText: 'Save Changes' }).getByRole('textbox').first()
+const orgNameField = (page: Page) =>
+  page
+    .locator('form')
+    .filter({ has: page.getByRole('button', { name: /^Save( Changes)?$/ }) })
+    .getByRole('textbox')
+    .first()
 
 const shortOrgName = (prefix: string): string => `${prefix} ${Date.now().toString(36)}`.slice(0, 32)
 
@@ -34,7 +39,7 @@ test.describe('organization settings — general settings on a fresh org', () =>
 
     const renamed = shortOrgName('E2E Renamed')
     await orgNameField(page).fill(renamed)
-    await page.getByRole('button', { name: /^Save Changes$/ }).click()
+    await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(page.getByText('Organization updated', { exact: true }).first()).toBeVisible({ timeout: 30_000 })
 
@@ -49,7 +54,7 @@ test.describe('organization settings — general settings on a fresh org', () =>
     await openGeneralSettings(page, page.getByText('Organization name'))
 
     await orgNameField(page).fill('x')
-    await page.getByRole('button', { name: /^Save Changes$/ }).click()
+    await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
     await expect(page.getByText(/at least 2/i).first()).toBeVisible({ timeout: 20_000 })
     await expect(page.getByText('Organization updated', { exact: true })).toHaveCount(0)
