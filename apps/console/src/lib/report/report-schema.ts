@@ -108,5 +108,3 @@ export const getColumnIndex = (entity: TReportEntity | undefined): Map<string, T
 
 export const resolveColumns = (index: Map<string, TReportColumn>, paths: string[]): TReportColumn[] =>
   paths.map((path) => index.get(path)).filter((column): column is TReportColumn => column !== undefined)
-
-export const filterableFields = (entity: TReportEntity): TReportField[] => entity.fields.filter((field) => getFieldOperators(field).length > 0)
