@@ -10,7 +10,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { getScanBranding, OPENLANE_DOMAIN_SCAN_PERFORMER, parseScanMetadata } from '@/components/pages/protected/scans/detail/openlane-domain-scan/scan-metadata'
 
-const POLL_TIMEOUT_MS = 3 * 60 * 1000
+const POLL_TIMEOUT_MS = 3 * 60 * 1000 // 3min
 
 const BRANDING_THEME_HREF = '/trust-center/branding#theme'
 
@@ -33,7 +33,7 @@ export const usePullBrandingFromDomain = (onPulled: () => void) => {
       setRunningPull(null)
       warningNotification({
         title: 'Still pulling branding',
-        description: `${runningPull.domain} is taking longer than expected. The scan keeps running — reload this page in a few minutes to see the result.`,
+        description: `${runningPull.domain} is taking longer than expected. The scan will keep running, feel free to navigate away and you'll receive a notification when it's ready.`,
       })
     }, POLL_TIMEOUT_MS)
 
@@ -54,7 +54,7 @@ export const usePullBrandingFromDomain = (onPulled: () => void) => {
     setRunningPull(null)
 
     if (scan.status === ScanScanStatus.FAILED) {
-      errorNotification({ title: 'Branding pull failed', description: `We could not read the branding of ${runningPull.domain}. Please try again.` })
+      errorNotification({ title: 'Branding pull failed', description: `We could not read the branding of ${runningPull.domain}. Please try again later.` })
       return
     }
 
@@ -74,7 +74,7 @@ export const usePullBrandingFromDomain = (onPulled: () => void) => {
       description: (
         <span>
           {`We finished reading ${runningPull.domain}. `}
-          <Link href={BRANDING_THEME_HREF} className="text-brand font-medium underline">
+          <Link href={BRANDING_THEME_HREF} className="text-primary font-medium underline">
             Review your preview settings
           </Link>
           {', then publish when you are happy with them.'}
@@ -95,7 +95,6 @@ export const usePullBrandingFromDomain = (onPulled: () => void) => {
             metadata: {
               brandDesignOnly: true,
               applyBrandDesignToPreview: true,
-              applyBrandDesignToLive: false,
             },
           },
         })
@@ -103,7 +102,7 @@ export const usePullBrandingFromDomain = (onPulled: () => void) => {
         setRunningPull({ scanId: response.createScan.scan.id, domain })
         return true
       } catch (error) {
-        errorNotification({ title: 'Could not start branding pull', description: parseErrorMessage(error) })
+        errorNotification({ title: 'Could not start branding pull. Please try again later.', description: parseErrorMessage(error) })
         return false
       }
     },

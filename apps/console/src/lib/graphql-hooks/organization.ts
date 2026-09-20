@@ -175,6 +175,7 @@ export const useGetOrganizationDomains = (organizationId: string | undefined) =>
     queryKey: ['organizationDomains', organizationId],
     queryFn: async () => client.request(GET_ORGANIZATION_DOMAINS, { organizationId }),
     enabled: !!organizationId,
+    staleTime: 0,
   })
 }
 

@@ -6,10 +6,10 @@ import { ScanScanStatus, ScanScanType } from '@repo/codegen/src/schema'
 import { useRecentDomainScans } from '@/lib/graphql-hooks/scan'
 import { isGroupedDomainScan, OPENLANE_DOMAIN_SCAN_PERFORMER, parseScanMetadata } from '@/components/pages/protected/scans/detail/openlane-domain-scan/scan-metadata'
 
-export const PULL_WINDOW_MS = 60 * 60 * 1000
+export const PULL_WINDOW_MS = 60 * 60 * 1000 // 1hr
 
-const RECENT_SCAN_LIMIT = 50
-const COUNTDOWN_TICK_MS = 30 * 1000
+const GROUPED_SCAN_FANOUT_HEADROOM = 50
+const COUNTDOWN_TICK_MS = 30 * 1000 // 30s
 
 export const useBrandingPullWindow = (enabled: boolean) => {
   const [windowStart, setWindowStart] = useState<string>()
@@ -30,7 +30,7 @@ export const useBrandingPullWindow = (enabled: boolean) => {
 
   const { scans, isLoading } = useRecentDomainScans({
     where: { scanType: ScanScanType.DOMAIN, performedBy: OPENLANE_DOMAIN_SCAN_PERFORMER, createdAtGT: windowStart },
-    first: RECENT_SCAN_LIMIT,
+    first: GROUPED_SCAN_FANOUT_HEADROOM,
     enabled: enabled && !!windowStart,
   })
 
@@ -42,7 +42,7 @@ export const useBrandingPullWindow = (enabled: boolean) => {
       .sort((a, b) => a.startedAt - b.startedAt)
 
     const running = requested.find((scan) => scan.status === ScanScanStatus.PROCESSING)
-    const windowAnchor = requested.find((scan) => scan.status !== ScanScanStatus.PENDING)
+    const windowAnchor = requested.findLast((scan) => scan.status !== ScanScanStatus.PENDING)
     const availableAt = windowAnchor ? windowAnchor.startedAt + PULL_WINDOW_MS : null
     const queued = requested.find((scan) => scan.status === ScanScanStatus.PENDING)
 

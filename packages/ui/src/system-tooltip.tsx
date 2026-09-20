@@ -8,6 +8,7 @@ type TProps = {
   disableHoverableContent?: boolean
   side?: 'bottom' | 'top' | 'right' | 'left' | undefined
   className?: string
+  portal?: boolean
 }
 
 const SystemTooltip: React.FC<TProps> = (props: TProps) => {
@@ -17,7 +18,7 @@ const SystemTooltip: React.FC<TProps> = (props: TProps) => {
         <TooltipTrigger type="button" asChild className={cn('bg-unset', props.className)}>
           {props.icon}
         </TooltipTrigger>
-        <TooltipContent className="max-w-xs whitespace-normal break-words" align="start" side={props.side || 'bottom'}>
+        <TooltipContent className="max-w-xs whitespace-normal break-words" align="start" side={props.side || 'bottom'} portal={props.portal}>
           {typeof props.content === 'string' ? <p>{props.content}</p> : props.content}
         </TooltipContent>
       </Tooltip>

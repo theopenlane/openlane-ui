@@ -129,7 +129,7 @@ export const useScan = (scanId?: ScanQueryVariables['scanId']) => {
 
 export type RecentDomainScanNode = NonNullable<NonNullable<NonNullable<RecentDomainScansQuery['scans']>['edges']>[number]>['node']
 
-const RECENT_DOMAIN_SCANS_POLL_INTERVAL_MS = 5000
+const RECENT_DOMAIN_SCANS_POLL_INTERVAL_MS = 5000 // 5s
 
 const hasActiveDomainScan = (data?: RecentDomainScansQuery) =>
   (data?.scans?.edges ?? []).some((edge) => edge?.node?.status === ScanScanStatus.PENDING || edge?.node?.status === ScanScanStatus.PROCESSING)
@@ -149,7 +149,7 @@ export const useRecentDomainScans = ({ where, first, enabled = true }: RecentDom
   return { ...queryResult, scans }
 }
 
-const SCAN_STATUS_POLL_INTERVAL_MS = 3000
+const SCAN_STATUS_POLL_INTERVAL_MS = 3000 // 3s
 
 const isTerminalScanStatus = (status?: ScanScanStatus) => status === ScanScanStatus.COMPLETED || status === ScanScanStatus.FAILED
 
