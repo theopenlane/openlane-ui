@@ -14,13 +14,34 @@ import {
   type ProcedureWhereInput,
   type TaskWhereInput,
 } from '@repo/codegen/src/schema'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
 import { controlOwnedByUsersWhere, groupContainsUsersWhere } from '@/lib/control-where'
 import { edgeNodes } from '@/utils/graphql-edges'
-import { useProgramWorkControls, useProgramWorkEvidences, useProgramWorkInternalPolicies, useProgramWorkProcedures, useProgramWorkTasks } from '@/lib/graphql-hooks/program-work'
+import {
+  useProgramWorkControlCount,
+  useProgramWorkControls,
+  useProgramWorkEvidenceCount,
+  useProgramWorkEvidences,
+  useProgramWorkInternalPolicies,
+  useProgramWorkInternalPolicyCount,
+  useProgramWorkProcedureCount,
+  useProgramWorkProcedures,
+  useProgramWorkTaskCount,
+  useProgramWorkTasks,
+} from '@/lib/graphql-hooks/program-work'
 import { getOverdueBefore, type TProgramWorkFilters } from './program-work-filters'
-import { toControlWorkItem, toEvidenceWorkItem, toPolicyWorkItem, toProcedureWorkItem, toTaskWorkItem, WorkObjectType, WORK_OBJECT_TYPE_ORDER, type TWorkItem } from './work-item'
+import {
+  toControlWorkItem,
+  toEvidenceWorkItem,
+  toPolicyWorkItem,
+  toProcedureWorkItem,
+  toTaskWorkItem,
+  WORK_OBJECT_TYPE_NAME,
+  WORK_OBJECT_TYPE_ORDER,
+  type TWorkItem,
+  type TWorkObjectType,
+} from './work-item'
 import { CONTROL_WORK_STATUS, EVIDENCE_WORK_STATUS, POLICY_WORK_STATUS, PROCEDURE_WORK_STATUS, sourceStatusesFor, TASK_WORK_STATUS, WORK_STATUS_ORDER } from './work-status'
 
 export const PROGRAM_WORK_FETCH_LIMIT = 100
@@ -31,24 +52,16 @@ const EVIDENCE_ORDER_BY = [{ field: EvidenceOrderField.created_at, direction: Or
 const POLICY_ORDER_BY = [{ field: InternalPolicyOrderField.created_at, direction: OrderDirection.ASC }]
 const PROCEDURE_ORDER_BY = [{ field: ProcedureOrderField.created_at, direction: OrderDirection.ASC }]
 
-export const WORK_OBJECT_TYPE_MODULE: Record<WorkObjectType, ObjectTypes> = {
-  [WorkObjectType.TASK]: ObjectTypes.TASK,
-  [WorkObjectType.CONTROL]: ObjectTypes.CONTROL,
-  [WorkObjectType.EVIDENCE]: ObjectTypes.EVIDENCE,
-  [WorkObjectType.POLICY]: ObjectTypes.INTERNAL_POLICY,
-  [WorkObjectType.PROCEDURE]: ObjectTypes.PROCEDURE,
-}
-
 export type TProgramWorkData = {
   items: TWorkItem[]
-  countsByType: Record<WorkObjectType, number>
+  countsByType: Record<TWorkObjectType, number>
   totalCount: number
-  availableObjectTypes: WorkObjectType[]
-  countedObjectTypes: WorkObjectType[]
+  availableObjectTypes: TWorkObjectType[]
   isLoading: boolean
   isFetching: boolean
   isError: boolean
   isTruncated: boolean
+  filteredCount: number
 }
 
 type TUseProgramWorkArgs = {
@@ -76,7 +89,7 @@ export const useProgramWork = ({ programId, filters, search }: TUseProgramWorkAr
   const { hasObjectType } = useModuleAccess()
   const overdueBefore = useMemo(() => getOverdueBefore(), [])
 
-  const availableObjectTypes = useMemo(() => WORK_OBJECT_TYPE_ORDER.filter((objectType) => hasObjectType(WORK_OBJECT_TYPE_MODULE[objectType])), [hasObjectType])
+  const availableObjectTypes = useMemo(() => WORK_OBJECT_TYPE_ORDER.filter((objectType) => hasObjectType(WORK_OBJECT_TYPE_NAME[objectType])), [hasObjectType])
 
   const taskStatuses = useMemo(() => sourceStatusesFor(TASK_WORK_STATUS, workStatusIn), [workStatusIn])
   const controlStatuses = useMemo(() => sourceStatusesFor(CONTROL_WORK_STATUS, workStatusIn), [workStatusIn])
@@ -84,14 +97,18 @@ export const useProgramWork = ({ programId, filters, search }: TUseProgramWorkAr
   const policyStatuses = useMemo(() => sourceStatusesFor(POLICY_WORK_STATUS, workStatusIn), [workStatusIn])
   const procedureStatuses = useMemo(() => sourceStatusesFor(PROCEDURE_WORK_STATUS, workStatusIn), [workStatusIn])
 
-  const isTypeEnabled = (objectType: WorkObjectType, statusCount: number) =>
-    !!programId && availableObjectTypes.includes(objectType) && objectTypeIn.includes(objectType) && statusCount > 0 && (!overdueOnly || objectType === WorkObjectType.TASK)
+  const isTypeAvailable = (objectType: TWorkObjectType) => !!programId && availableObjectTypes.includes(objectType)
 
-  const tasksEnabled = isTypeEnabled(WorkObjectType.TASK, taskStatuses.length)
-  const controlsEnabled = isTypeEnabled(WorkObjectType.CONTROL, controlStatuses.length)
-  const evidencesEnabled = isTypeEnabled(WorkObjectType.EVIDENCE, evidenceStatuses.length)
-  const policiesEnabled = isTypeEnabled(WorkObjectType.POLICY, policyStatuses.length)
-  const proceduresEnabled = isTypeEnabled(WorkObjectType.PROCEDURE, procedureStatuses.length)
+  const isTypeSelected = (objectType: TWorkObjectType) => objectTypeIn.length === 0 || objectTypeIn.includes(objectType)
+
+  const isTypeEnabled = (objectType: TWorkObjectType, statusCount: number) =>
+    isTypeAvailable(objectType) && isTypeSelected(objectType) && statusCount > 0 && (!overdueOnly || objectType === ObjectAssociationNodeEnum.TASK)
+
+  const tasksEnabled = isTypeEnabled(ObjectAssociationNodeEnum.TASK, taskStatuses.length)
+  const controlsEnabled = isTypeEnabled(ObjectAssociationNodeEnum.CONTROL, controlStatuses.length)
+  const evidencesEnabled = isTypeEnabled(ObjectAssociationNodeEnum.EVIDENCE, evidenceStatuses.length)
+  const policiesEnabled = isTypeEnabled(ObjectAssociationNodeEnum.POLICY, policyStatuses.length)
+  const proceduresEnabled = isTypeEnabled(ObjectAssociationNodeEnum.PROCEDURE, procedureStatuses.length)
 
   const taskWhere: TaskWhereInput = {
     hasProgramsWith: [{ id: programId }],
@@ -150,7 +167,15 @@ export const useProgramWork = ({ programId, filters, search }: TUseProgramWorkAr
     enabled: proceduresEnabled,
   })
 
-  const queries = [tasksQuery, controlsQuery, evidencesQuery, policiesQuery, proceduresQuery]
+  const programWhere = { hasProgramsWith: [{ id: programId }] }
+
+  const taskCountQuery = useProgramWorkTaskCount({ variables: { where: programWhere }, enabled: isTypeAvailable(ObjectAssociationNodeEnum.TASK) })
+  const controlCountQuery = useProgramWorkControlCount({ variables: { where: programWhere }, enabled: isTypeAvailable(ObjectAssociationNodeEnum.CONTROL) })
+  const evidenceCountQuery = useProgramWorkEvidenceCount({ variables: { where: programWhere }, enabled: isTypeAvailable(ObjectAssociationNodeEnum.EVIDENCE) })
+  const policyCountQuery = useProgramWorkInternalPolicyCount({ variables: { where: programWhere }, enabled: isTypeAvailable(ObjectAssociationNodeEnum.POLICY) })
+  const procedureCountQuery = useProgramWorkProcedureCount({ variables: { where: programWhere }, enabled: isTypeAvailable(ObjectAssociationNodeEnum.PROCEDURE) })
+
+  const queries = [tasksQuery, controlsQuery, evidencesQuery, policiesQuery, proceduresQuery, taskCountQuery, controlCountQuery, evidenceCountQuery, policyCountQuery, procedureCountQuery]
 
   const taskData = tasksEnabled ? tasksQuery.data : undefined
   const controlData = controlsEnabled ? controlsQuery.data : undefined
@@ -169,43 +194,35 @@ export const useProgramWork = ({ programId, filters, search }: TUseProgramWorkAr
     [taskItems, controlItems, evidenceItems, policyItems, procedureItems],
   )
 
-  const countsByType = useMemo<Record<WorkObjectType, number>>(
+  const countsByType = useMemo<Record<TWorkObjectType, number>>(
     () => ({
-      [WorkObjectType.TASK]: taskData?.tasks.totalCount ?? 0,
-      [WorkObjectType.CONTROL]: controlData?.controls.totalCount ?? 0,
-      [WorkObjectType.EVIDENCE]: evidenceData?.evidences.totalCount ?? 0,
-      [WorkObjectType.POLICY]: policyData?.internalPolicies.totalCount ?? 0,
-      [WorkObjectType.PROCEDURE]: procedureData?.procedures.totalCount ?? 0,
+      [ObjectAssociationNodeEnum.TASK]: taskCountQuery.data?.tasks.totalCount ?? 0,
+      [ObjectAssociationNodeEnum.CONTROL]: controlCountQuery.data?.controls.totalCount ?? 0,
+      [ObjectAssociationNodeEnum.EVIDENCE]: evidenceCountQuery.data?.evidences.totalCount ?? 0,
+      [ObjectAssociationNodeEnum.POLICY]: policyCountQuery.data?.internalPolicies.totalCount ?? 0,
+      [ObjectAssociationNodeEnum.PROCEDURE]: procedureCountQuery.data?.procedures.totalCount ?? 0,
     }),
-    [taskData, controlData, evidenceData, policyData, procedureData],
-  )
-
-  const countedObjectTypes = useMemo(
-    () =>
-      WORK_OBJECT_TYPE_ORDER.filter(
-        (objectType) =>
-          ({
-            [WorkObjectType.TASK]: tasksEnabled,
-            [WorkObjectType.CONTROL]: controlsEnabled,
-            [WorkObjectType.EVIDENCE]: evidencesEnabled,
-            [WorkObjectType.POLICY]: policiesEnabled,
-            [WorkObjectType.PROCEDURE]: proceduresEnabled,
-          })[objectType],
-      ),
-    [tasksEnabled, controlsEnabled, evidencesEnabled, policiesEnabled, proceduresEnabled],
+    [taskCountQuery.data, controlCountQuery.data, evidenceCountQuery.data, policyCountQuery.data, procedureCountQuery.data],
   )
 
   const totalCount = WORK_OBJECT_TYPE_ORDER.reduce((sum, objectType) => sum + countsByType[objectType], 0)
+
+  const filteredCount =
+    (taskData?.tasks.totalCount ?? 0) +
+    (controlData?.controls.totalCount ?? 0) +
+    (evidenceData?.evidences.totalCount ?? 0) +
+    (policyData?.internalPolicies.totalCount ?? 0) +
+    (procedureData?.procedures.totalCount ?? 0)
 
   return {
     items,
     countsByType,
     totalCount,
     availableObjectTypes,
-    countedObjectTypes,
     isLoading: queries.some((query) => query.isLoading),
     isFetching: queries.some((query) => query.isFetching),
     isError: queries.some((query) => query.isError),
-    isTruncated: totalCount > items.length,
+    isTruncated: filteredCount > items.length,
+    filteredCount,
   }
 }

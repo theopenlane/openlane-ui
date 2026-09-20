@@ -24,6 +24,7 @@ export const GET_PROGRAM_WORK_TASKS = gql`
               node {
                 id
                 refCode
+                referenceFramework
               }
             }
           }
@@ -96,6 +97,7 @@ export const GET_PROGRAM_WORK_EVIDENCES = gql`
               node {
                 id
                 refCode
+                referenceFramework
                 controlOwner {
                   id
                   displayName
@@ -132,6 +134,7 @@ export const GET_PROGRAM_WORK_INTERNAL_POLICIES = gql`
               node {
                 id
                 refCode
+                referenceFramework
               }
             }
           }
@@ -162,11 +165,52 @@ export const GET_PROGRAM_WORK_PROCEDURES = gql`
               node {
                 id
                 refCode
+                referenceFramework
               }
             }
           }
         }
       }
+    }
+  }
+`
+
+export const GET_PROGRAM_WORK_TASK_COUNT = gql`
+  query GetProgramWorkTaskCount($where: TaskWhereInput) {
+    tasks(where: $where) {
+      totalCount
+    }
+  }
+`
+
+export const GET_PROGRAM_WORK_CONTROL_COUNT = gql`
+  query GetProgramWorkControlCount($where: ControlWhereInput) {
+    controls(where: $where) {
+      totalCount
+    }
+  }
+`
+
+export const GET_PROGRAM_WORK_EVIDENCE_COUNT = gql`
+  query GetProgramWorkEvidenceCount($where: EvidenceWhereInput) {
+    evidences(where: $where) {
+      totalCount
+    }
+  }
+`
+
+export const GET_PROGRAM_WORK_INTERNAL_POLICY_COUNT = gql`
+  query GetProgramWorkInternalPolicyCount($where: InternalPolicyWhereInput) {
+    internalPolicies(where: $where) {
+      totalCount
+    }
+  }
+`
+
+export const GET_PROGRAM_WORK_PROCEDURE_COUNT = gql`
+  query GetProgramWorkProcedureCount($where: ProcedureWhereInput) {
+    procedures(where: $where) {
+      totalCount
     }
   }
 `

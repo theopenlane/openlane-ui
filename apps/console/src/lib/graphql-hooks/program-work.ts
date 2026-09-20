@@ -1,6 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_PROGRAM_WORK_TASKS, GET_PROGRAM_WORK_CONTROLS, GET_PROGRAM_WORK_EVIDENCES, GET_PROGRAM_WORK_INTERNAL_POLICIES, GET_PROGRAM_WORK_PROCEDURES } from '@repo/codegen/query/program-work'
+import {
+  GET_PROGRAM_WORK_TASKS,
+  GET_PROGRAM_WORK_CONTROLS,
+  GET_PROGRAM_WORK_EVIDENCES,
+  GET_PROGRAM_WORK_INTERNAL_POLICIES,
+  GET_PROGRAM_WORK_PROCEDURES,
+  GET_PROGRAM_WORK_TASK_COUNT,
+  GET_PROGRAM_WORK_CONTROL_COUNT,
+  GET_PROGRAM_WORK_EVIDENCE_COUNT,
+  GET_PROGRAM_WORK_INTERNAL_POLICY_COUNT,
+  GET_PROGRAM_WORK_PROCEDURE_COUNT,
+} from '@repo/codegen/query/program-work'
 import {
   type GetProgramWorkTasksQuery,
   type GetProgramWorkTasksQueryVariables,
@@ -12,6 +23,16 @@ import {
   type GetProgramWorkInternalPoliciesQueryVariables,
   type GetProgramWorkProceduresQuery,
   type GetProgramWorkProceduresQueryVariables,
+  type GetProgramWorkTaskCountQuery,
+  type GetProgramWorkTaskCountQueryVariables,
+  type GetProgramWorkControlCountQuery,
+  type GetProgramWorkControlCountQueryVariables,
+  type GetProgramWorkEvidenceCountQuery,
+  type GetProgramWorkEvidenceCountQueryVariables,
+  type GetProgramWorkInternalPolicyCountQuery,
+  type GetProgramWorkInternalPolicyCountQueryVariables,
+  type GetProgramWorkProcedureCountQuery,
+  type GetProgramWorkProcedureCountQueryVariables,
 } from '@repo/codegen/src/schema'
 
 type ConnectionNode<TConnection extends { edges?: Array<{ node?: unknown } | null> | null }> = NonNullable<NonNullable<NonNullable<TConnection['edges']>[number]>['node']>
@@ -77,6 +98,61 @@ export const useProgramWorkProcedures = ({ variables, enabled }: TProgramWorkQue
   return useQuery<GetProgramWorkProceduresQuery>({
     queryKey: ['procedures', 'programWork', variables],
     queryFn: async () => client.request(GET_PROGRAM_WORK_PROCEDURES, variables),
+    enabled,
+    placeholderData: undefined,
+  })
+}
+
+export const useProgramWorkTaskCount = ({ variables, enabled }: TProgramWorkQueryArgs<GetProgramWorkTaskCountQueryVariables>) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetProgramWorkTaskCountQuery>({
+    queryKey: ['tasks', 'programWorkCount', variables],
+    queryFn: async () => client.request(GET_PROGRAM_WORK_TASK_COUNT, variables),
+    enabled,
+    placeholderData: undefined,
+  })
+}
+
+export const useProgramWorkControlCount = ({ variables, enabled }: TProgramWorkQueryArgs<GetProgramWorkControlCountQueryVariables>) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetProgramWorkControlCountQuery>({
+    queryKey: ['controls', 'programWorkCount', variables],
+    queryFn: async () => client.request(GET_PROGRAM_WORK_CONTROL_COUNT, variables),
+    enabled,
+    placeholderData: undefined,
+  })
+}
+
+export const useProgramWorkEvidenceCount = ({ variables, enabled }: TProgramWorkQueryArgs<GetProgramWorkEvidenceCountQueryVariables>) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetProgramWorkEvidenceCountQuery>({
+    queryKey: ['evidences', 'programWorkCount', variables],
+    queryFn: async () => client.request(GET_PROGRAM_WORK_EVIDENCE_COUNT, variables),
+    enabled,
+    placeholderData: undefined,
+  })
+}
+
+export const useProgramWorkInternalPolicyCount = ({ variables, enabled }: TProgramWorkQueryArgs<GetProgramWorkInternalPolicyCountQueryVariables>) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetProgramWorkInternalPolicyCountQuery>({
+    queryKey: ['internalPolicies', 'programWorkCount', variables],
+    queryFn: async () => client.request(GET_PROGRAM_WORK_INTERNAL_POLICY_COUNT, variables),
+    enabled,
+    placeholderData: undefined,
+  })
+}
+
+export const useProgramWorkProcedureCount = ({ variables, enabled }: TProgramWorkQueryArgs<GetProgramWorkProcedureCountQueryVariables>) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetProgramWorkProcedureCountQuery>({
+    queryKey: ['procedures', 'programWorkCount', variables],
+    queryFn: async () => client.request(GET_PROGRAM_WORK_PROCEDURE_COUNT, variables),
     enabled,
     placeholderData: undefined,
   })

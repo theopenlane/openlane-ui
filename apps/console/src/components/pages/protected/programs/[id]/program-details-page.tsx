@@ -25,8 +25,6 @@ import { PROGRAMS_LIST_HREF } from '@/constants/programs'
 import { ProgramsPageSkeleton } from '../skeleton/programs-page-skeleton'
 import { useSession } from 'next-auth/react'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
-import { ProgramIconMapper } from '@/components/shared/enum-mapper/program-enum'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 const PROGRAM_TABS = ['overview', 'work'] as const
 type TProgramTabValue = (typeof PROGRAM_TABS)[number]
@@ -43,7 +41,7 @@ const ProgramDetailsPage: React.FC = () => {
   const searchParams = useSearchParams()
   const tabParam = searchParams.get(PROGRAM_TAB_QUERY_PARAM)
   const activeTab: TProgramTabValue = isProgramTab(tabParam) ? tabParam : PROGRAM_DEFAULT_TAB
-  const { data: basicInfoData, isLoading } = useGetProgramBasicInfo(id)
+  const { data: basicInfoData, isLoading, isError } = useGetProgramBasicInfo(id)
   const { data: permission } = useOrganizationRoles()
   const { data: objectPermission } = useAccountRoles(ObjectTypes.PROGRAM, id)
   const { data: session } = useSession()
@@ -112,6 +110,17 @@ const ProgramDetailsPage: React.FC = () => {
     return <ProgramsPageSkeleton />
   }
 
+  if (isError || !basicInfoData?.program) {
+    return (
+      <div className="py-16 text-center text-muted-foreground">
+        <p>Program not found.</p>
+        <Button variant="secondary" className="mt-4" onClick={() => router.push(PROGRAMS_LIST_HREF)}>
+          Back to Programs
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <>
       <PageHeading
@@ -119,12 +128,6 @@ const ProgramDetailsPage: React.FC = () => {
           <div className="flex justify-between items-center">
             <div className="flex gap-3 items-center min-w-0">
               <h1 className="truncate">{programName}</h1>
-              {basicInfoData?.program?.status && (
-                <span className="flex shrink-0 items-center gap-1.5 rounded-md border bg-card px-2 py-1 text-sm">
-                  {ProgramIconMapper[basicInfoData.program.status]}
-                  {getEnumLabel(basicInfoData.program.status)}
-                </span>
-              )}
             </div>
             <div className="flex gap-2.5 items-center">
               <Link href={`/programs/${id}/settings`}>

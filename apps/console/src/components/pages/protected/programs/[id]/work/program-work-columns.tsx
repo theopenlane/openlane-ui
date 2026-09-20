@@ -1,13 +1,12 @@
 'use client'
 
 import React from 'react'
-import Link from 'next/link'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 import { type TWorkItem } from './work-item'
-import { WorkAttentionCell, WorkOwnerCell, WorkRelationCell, WorkStatusCell, WorkTypeChip } from './work-cells'
+import { WorkAttentionCell, WorkItemLink, WorkOwnerCell, WorkRelationCell, WorkStatusCell, WorkTypeCell } from './work-cells'
 
 export const PROGRAM_WORK_COLUMNS: ColumnDef<TWorkItem>[] = [
   {
@@ -16,9 +15,7 @@ export const PROGRAM_WORK_COLUMNS: ColumnDef<TWorkItem>[] = [
     size: 240,
     cell: ({ row }) => (
       <TruncatedCell portal>
-        <Link href={row.original.href} prefetch={false} className="text-link hover:underline">
-          {row.original.item}
-        </Link>
+        <WorkItemLink item={row.original} />
       </TruncatedCell>
     ),
   },
@@ -26,7 +23,7 @@ export const PROGRAM_WORK_COLUMNS: ColumnDef<TWorkItem>[] = [
     accessorKey: 'objectType',
     header: 'Type',
     size: 135,
-    cell: ({ row }) => <WorkTypeChip objectType={row.original.objectType} />,
+    cell: ({ row }) => <WorkTypeCell objectType={row.original.objectType} />,
   },
   {
     accessorKey: 'workStatus',

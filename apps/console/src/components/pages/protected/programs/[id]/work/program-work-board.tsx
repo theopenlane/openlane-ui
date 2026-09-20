@@ -1,13 +1,12 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import Link from 'next/link'
 import { Card } from '@repo/ui/cardpanel'
 import { cn } from '@repo/ui/lib/utils'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
 import { type TWorkItem } from './work-item'
-import { OverdueBadge, WorkOwnerCell, WorkTypeChip } from './work-cells'
+import { OverdueBadge, WorkItemLink, WorkOwnerCell, WorkTypeChip } from './work-cells'
 import { WORK_STATUS_DOT_CLASS, WORK_STATUS_ORDER, type WorkStatus } from './work-status'
 
 type TProgramWorkBoardProps = {
@@ -19,9 +18,9 @@ type TProgramWorkBoardProps = {
 const WorkBoardCard = ({ item }: { item: TWorkItem }) => (
   <Card className="w-full p-4 space-y-3">
     <div className="space-y-1">
-      <Link href={item.href} prefetch={false} className="block font-semibold text-link hover:underline break-words">
-        {item.item}
-      </Link>
+      <div className="break-words">
+        <WorkItemLink item={item} />
+      </div>
       {item.secondary && <p className="text-sm text-muted-foreground break-words">{item.secondary}</p>}
     </div>
     <div className="flex flex-wrap items-center gap-2">

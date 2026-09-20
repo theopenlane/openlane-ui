@@ -1,27 +1,46 @@
 'use client'
 
 import React from 'react'
-import Link from 'next/link'
 import { Badge } from '@repo/ui/badge'
 import { cn } from '@repo/ui/lib/utils'
 import { TruncatedCell } from '@repo/ui/data-table'
+import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
+import { ControlChipList } from '@/components/shared/crud-base/columns/related-controls-cell'
+import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
+import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { PastDuePill } from '@/components/shared/past-due-badge/past-due-badge'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { WORK_OBJECT_TYPE_ICON, WORK_OBJECT_TYPE_ICON_CLASS, type TWorkItem, type TWorkOwner, type TWorkRelation, type WorkObjectType } from './work-item'
+import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum'
+import { workObjectTypeLabel, type TWorkItem, type TWorkObjectType, type TWorkOwner, type TWorkRelation } from './work-item'
 import { WORK_STATUS_DOT_CLASS, type WorkStatus } from './work-status'
 
 export const OverdueBadge = () => <PastDuePill label="Overdue" />
 
-export const WorkTypeChip = ({ objectType }: { objectType: WorkObjectType }) => {
-  const Icon = WORK_OBJECT_TYPE_ICON[objectType]
+const WorkTypeIcon = ({ objectType, size }: { objectType: TWorkObjectType; size: number }) => {
+  const { icon: Icon, color } = ObjectAssociationMap[objectType]
 
-  return (
-    <Badge variant="secondary" className="gap-1.5 font-normal">
-      <Icon size={12} className={cn('shrink-0', WORK_OBJECT_TYPE_ICON_CLASS[objectType])} />
-      <span>{getEnumLabel(objectType)}</span>
-    </Badge>
-  )
+  return <Icon size={size} className="shrink-0" style={{ color: `var(${color})` }} />
+}
+
+export const WorkTypeCell = ({ objectType }: { objectType: TWorkObjectType }) => (
+  <span className="flex items-center gap-2">
+    <WorkTypeIcon objectType={objectType} size={16} />
+    <span>{workObjectTypeLabel(objectType)}</span>
+  </span>
+)
+
+export const WorkTypeChip = ({ objectType }: { objectType: TWorkObjectType }) => (
+  <Badge variant="secondary" className="gap-1.5 font-normal">
+    <WorkTypeIcon objectType={objectType} size={12} />
+    <span>{workObjectTypeLabel(objectType)}</span>
+  </Badge>
+)
+
+export const WorkItemLink = ({ item }: { item: TWorkItem }) => {
+  const openObjectSheet = useOpenObjectSheet()
+
+  return <ObjectSheetLink id={item.id} kind={item.objectType} label={item.item} onOpenSheet={openObjectSheet} />
 }
 
 export const WorkStatusCell = ({ workStatus }: { workStatus: WorkStatus }) => (
@@ -36,7 +55,7 @@ export const WorkAttentionCell = ({ item }: { item: TWorkItem }) => {
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      {item.attention && <span className="text-sm">{item.attention}</span>}
+      {item.attention && <span>{item.attention}</span>}
       {item.isOverdue && <OverdueBadge />}
     </div>
   )
@@ -53,15 +72,17 @@ export const WorkOwnerCell = ({ owners }: { owners: TWorkOwner[] }) =>
   )
 
 export const WorkRelationCell = ({ relatedTo }: { relatedTo: TWorkRelation | null }) => {
+  const openObjectSheet = useOpenObjectSheet()
+
   if (!relatedTo) return <span className="text-muted-foreground">—</span>
 
-  if (!relatedTo.href) return <TruncatedCell portal>{relatedTo.label}</TruncatedCell>
+  if (relatedTo.kind === 'standard') return <StandardChip referenceFramework={relatedTo.referenceFramework ?? ''} />
+
+  if (relatedTo.kind === 'control') return <ControlChipList items={[relatedTo.control]} />
 
   return (
     <TruncatedCell portal>
-      <Link href={relatedTo.href} target="_blank" rel="noopener noreferrer" prefetch={false} className="text-link hover:underline">
-        {relatedTo.label}
-      </Link>
+      <ObjectSheetLink id={relatedTo.id} kind={relatedTo.objectType} label={relatedTo.label} onOpenSheet={openObjectSheet} />
     </TruncatedCell>
   )
 }

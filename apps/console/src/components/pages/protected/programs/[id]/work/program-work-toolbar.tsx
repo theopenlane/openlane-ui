@@ -13,7 +13,7 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { PROGRAM_WORK_MAPPED_COLUMNS } from './program-work-columns'
 import { getProgramWorkFilterFields, getProgramWorkQuickFilters } from './program-work-filters'
-import { type WorkObjectType } from './work-item'
+import { type TWorkObjectType } from './work-item'
 
 type TProgramWorkToolbarProps = {
   viewMode: TTableViewMode
@@ -24,7 +24,7 @@ type TProgramWorkToolbarProps = {
   onFilterChange: (where: WhereCondition) => void
   columnVisibility: VisibilityState
   setColumnVisibility: React.Dispatch<React.SetStateAction<VisibilityState>>
-  objectTypes: WorkObjectType[]
+  objectTypes: TWorkObjectType[]
   currentUserId?: string
 }
 
