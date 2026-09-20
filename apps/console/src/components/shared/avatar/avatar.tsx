@@ -1,13 +1,13 @@
 import { type Entity, type Group, type Organization, type User } from '@repo/codegen/src/schema'
 import { Avatar as AvatarComponent, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
-import { toBase64DataUri } from '@/lib/image-utils'
+import { toBase64DataUri } from '@/utils/toBase64DataUri'
 
 export type AvatarEntityLike = {
   displayName?: string | null
   avatarRemoteURL?: string | null
   gravatarLogoURL?: string | null
   logoURL?: string | null
-  avatarFile?: { base64?: string | null } | null
+  avatarFile?: { base64?: string | null; presignedURL?: string | null } | null
   logoFile?: { base64?: string | null } | null
 }
 
@@ -21,6 +21,7 @@ export const getAvatarImageSrc = (entity?: AvatarEntityLike | null): string | un
   if (!entity) return undefined
 
   if (entity.avatarFile?.base64) return toBase64DataUri(entity.avatarFile.base64)
+  if (entity.avatarFile?.presignedURL) return entity.avatarFile.presignedURL
   if (entity.logoFile?.base64) return toBase64DataUri(entity.logoFile.base64)
 
   return entity.avatarRemoteURL || entity.gravatarLogoURL || entity.logoURL || undefined
