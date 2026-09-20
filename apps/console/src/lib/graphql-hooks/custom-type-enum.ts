@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo } from 'react'
-import { useMutation, useQuery, useQueryClient, useInfiniteQuery, type InfiniteData, type UseQueryResult, type UseMutationResult } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery, type InfiniteData, type QueryClient, type UseQueryResult, type UseMutationResult } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { type Option } from '@repo/ui/multiple-selector'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -25,6 +25,18 @@ import { useSession } from 'next-auth/react'
 export type CustomTypeEnumOption = Option & { color?: string; description?: string }
 
 export const GLOBAL_ENUM_OBJECT_TYPE = ''
+
+export const invalidateCustomTypeEnums = (queryClient: QueryClient) => queryClient.invalidateQueries({ queryKey: ['customTypeEnums'] })
+
+export const invalidateCustomTypeEnumsForName = (queryClient: QueryClient, name?: string | null) => {
+  if (!name) return
+
+  const cached = queryClient.getQueryData<InfiniteData<GetCustomTypeEnumsPaginatedQuery['customTypeEnums']>>(['customTypeEnums', 'all'])
+  const alreadyKnown = cached?.pages.some((page) => page.edges?.some((edge) => edge?.node?.name.toLowerCase() === name.toLowerCase()))
+  if (alreadyKnown) return
+
+  invalidateCustomTypeEnums(queryClient)
+}
 
 const useFetchAllCustomTypeEnums = () => {
   const { client } = useGraphQLClient()
@@ -168,7 +180,7 @@ export const useCreateCustomTypeEnum = (): UseMutationResult<CreateCustomTypeEnu
   return useMutation({
     mutationFn: (input: CreateCustomTypeEnumInput) => client.request<CreateCustomTypeEnumMutation>(CREATE_CUSTOM_TYPE_ENUM, { input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customTypeEnums'] })
+      invalidateCustomTypeEnums(queryClient)
     },
   })
 }
@@ -180,7 +192,7 @@ export const useUpdateCustomTypeEnum = (): UseMutationResult<UpdateCustomTypeEnu
   return useMutation({
     mutationFn: ({ id, input }) => client.request<UpdateCustomTypeEnumMutation>(UPDATE_CUSTOM_TYPE_ENUM, { id, input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customTypeEnums'] })
+      invalidateCustomTypeEnums(queryClient)
     },
   })
 }
@@ -192,7 +204,7 @@ export const useDeleteCustomTypeEnum = (): UseMutationResult<DeleteCustomTypeEnu
   return useMutation({
     mutationFn: (id: string) => client.request<DeleteCustomTypeEnumMutation>(DELETE_CUSTOM_TYPE_ENUM, { id }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customTypeEnums'] })
+      invalidateCustomTypeEnums(queryClient)
     },
   })
 }
@@ -215,5 +227,5 @@ export const useCreatableEnumOptions = ({ objectType, field, isEditAllowed }: { 
       }
     : undefined
 
-  return { enumOptions, onCreateOption, ...rest }
+  return { enumOptions, onCreateOption, canCreate: resolvedEditAllowed, ...rest }
 }

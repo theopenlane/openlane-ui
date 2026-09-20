@@ -48,7 +48,7 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
   const { mutateAsync: bulkEditDocs } = useBulkUpdateTrustCenterDocs()
   const { errorNotification } = useNotification()
   const { notifyBulkUpdate } = useBulkUpdateFeedback()
-  const { enumOptions: categoryOptions, onCreateOption: createCategory } = useCreatableEnumOptions({
+  const { enumOptions: categoryOptions, canCreate: canCreateCategory } = useCreatableEnumOptions({
     objectType: objectToSnakeCase(ObjectTypes.TRUST_CENTER_DOC),
     field: 'kind',
   })
@@ -174,7 +174,7 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
                         <CreatableCustomTypeEnumSelect
                           value={field.value}
                           options={categoryOptions}
-                          onCreateOption={createCategory}
+                          allowCreate={canCreateCategory}
                           triggerClassName="w-60"
                           searchPlaceholder="Search category..."
                           placeholder="Select category"

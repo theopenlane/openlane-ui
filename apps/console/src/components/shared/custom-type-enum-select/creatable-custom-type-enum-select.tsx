@@ -1,6 +1,5 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
 import { type Ref, useMemo, useState } from 'react'
 import { Check, ChevronDown, Plus, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
@@ -17,6 +16,7 @@ interface CreatableCustomTypeEnumSelectProps {
   options: CustomTypeEnumOption[]
   onValueChange: (value: string) => void | Promise<void>
   onCreateOption?: (value: string) => Promise<void>
+  allowCreate?: boolean
   clearable?: boolean
   placeholder?: string
   searchPlaceholder?: string
@@ -33,6 +33,7 @@ export const CreatableCustomTypeEnumSelect = ({
   options,
   onValueChange,
   onCreateOption,
+  allowCreate,
   clearable = false,
   placeholder = 'Select',
   searchPlaceholder = 'Search...',
@@ -47,6 +48,8 @@ export const CreatableCustomTypeEnumSelect = ({
   const [createdOptions, setCreatedOptions] = useState<CustomTypeEnumOption[]>([])
   const { errorNotification } = useNotification()
 
+  const canCreate = allowCreate ?? !!onCreateOption
+
   const allOptions = useMemo(() => {
     const combined = [...options, ...createdOptions]
     const seen = new Set<string>()
@@ -60,9 +63,9 @@ export const CreatableCustomTypeEnumSelect = ({
   const trimmedSearch = searchValue.trim()
 
   const showCreateOption = useMemo(() => {
-    if (!onCreateOption || !trimmedSearch) return false
+    if (!canCreate || !trimmedSearch) return false
     return !allOptions.some((option) => option.label.toLowerCase() === trimmedSearch.toLowerCase() || option.value.toLowerCase() === trimmedSearch.toLowerCase())
-  }, [allOptions, onCreateOption, trimmedSearch])
+  }, [allOptions, canCreate, trimmedSearch])
 
   const handleSelectValue = async (nextValue: string) => {
     setOpen(false)
@@ -71,8 +74,7 @@ export const CreatableCustomTypeEnumSelect = ({
   }
 
   const handleCreateValue = async () => {
-    if (!onCreateOption) return
-    if (!trimmedSearch) return
+    if (!showCreateOption) return
 
     const newOption: CustomTypeEnumOption = {
       label: trimmedSearch,
@@ -83,7 +85,7 @@ export const CreatableCustomTypeEnumSelect = ({
     setSearchValue('')
 
     try {
-      await onCreateOption(trimmedSearch)
+      await onCreateOption?.(trimmedSearch)
       setCreatedOptions((previous) => [...previous, newOption])
       await Promise.resolve(onValueChange(trimmedSearch))
     } catch (error) {
@@ -92,7 +94,7 @@ export const CreatableCustomTypeEnumSelect = ({
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover modal open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
           id={triggerId}
@@ -107,29 +109,15 @@ export const CreatableCustomTypeEnumSelect = ({
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
-      <PopoverContent ref={contentRef} className={cn('min-w-(--radix-popover-trigger-width) w-auto p-0', contentClassName)} align="start">
-        <Command
-          onKeyDown={(event) => {
-            if ((event.key === 'Enter' || event.key === 'Tab') && showCreateOption) {
-              event.preventDefault()
-              handleCreateValue()
-            }
-          }}
-        >
+      <PopoverContent ref={contentRef} className={cn('min-w-(--radix-popover-trigger-width) w-auto p-0 flex flex-col', contentClassName)} align="start">
+        <Command>
           <CommandInput className="text-muted-foreground" placeholder={searchPlaceholder} value={searchValue} onValueChange={setSearchValue} />
           <CommandList>
-            <CommandEmpty className="p-0">
-              {showCreateOption && (
-                <div
-                  className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
-                  {...activatable(handleCreateValue)}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  <span>Create &quot;{trimmedSearch}&quot;</span>
-                </div>
-              )}
-              {!showCreateOption && <div className="p-4 text-center text-sm text-muted-foreground">No results found.</div>}
-            </CommandEmpty>
+            {!showCreateOption && (
+              <CommandEmpty className="p-0">
+                <div className="p-4 text-center text-sm text-muted-foreground">No results found.</div>
+              </CommandEmpty>
+            )}
             <CommandGroup>
               {clearable && value && (
                 <CommandItem value="None" onSelect={() => handleSelectValue('')}>
@@ -150,6 +138,14 @@ export const CreatableCustomTypeEnumSelect = ({
                 </CommandItem>
               ))}
             </CommandGroup>
+            {showCreateOption && (
+              <CommandGroup forceMount value="create-option-group" className="border-t">
+                <CommandItem forceMount value="create-option" onSelect={handleCreateValue} className="cursor-pointer">
+                  <Plus className="mr-2 h-4 w-4" />
+                  <span>Create &quot;{trimmedSearch}&quot;</span>
+                </CommandItem>
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>

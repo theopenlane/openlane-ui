@@ -27,6 +27,7 @@ import {
   BULK_DELETE_TRUST_CENTER_DOC,
   BULK_UPDATE_TRUST_CENTER_DOC,
 } from '@repo/codegen/query/trust-center-doc'
+import { invalidateCustomTypeEnumsForName } from '@/lib/graphql-hooks/custom-type-enum'
 
 type UseGetTrustCenterDocsArgs = {
   where?: GetTrustCenterDocsQueryVariables['where']
@@ -73,10 +74,11 @@ export const useCreateTrustCenterDoc = () => {
         query: CREATE_TRUST_CENTER_DOC,
         variables,
       }),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ['trustCenter', 'docs'],
       })
+      invalidateCustomTypeEnumsForName(queryClient, variables.input.trustCenterDocKindName)
     },
   })
 }
@@ -101,10 +103,11 @@ export const useUpdateTrustCenterDoc = () => {
       }
       return client.request<UpdateTrustCenterDocMutation, UpdateTrustCenterDocMutationVariables>(UPDATE_TRUST_CENTER_DOC, variables)
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ['trustCenter', 'docs'],
       })
+      invalidateCustomTypeEnumsForName(queryClient, variables.input.trustCenterDocKindName)
     },
   })
 }
@@ -161,8 +164,9 @@ export const useBulkUpdateTrustCenterDocs = () => {
 
   return useMutation<BulkUpdateTrustCenterDocMutation, unknown, BulkUpdateTrustCenterDocMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_UPDATE_TRUST_CENTER_DOC, variables),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['trustCenter', 'docs'] })
+      invalidateCustomTypeEnumsForName(queryClient, variables.input.trustCenterDocKindName)
     },
   })
 }

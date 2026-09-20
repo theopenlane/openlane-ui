@@ -26,6 +26,7 @@ import {
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { useCallback } from 'react'
+import { invalidateCustomTypeEnumsForName } from '@/lib/graphql-hooks/custom-type-enum'
 
 type UseGetTrustCenterSubprocessorsArgs = {
   where?: GetTrustCenterSubprocessorsQueryVariables['where']
@@ -74,9 +75,10 @@ export const useCreateTrustCenterSubprocessor = () => {
   return useMutation<CreateTrustCenterSubprocessorMutation, unknown, CreateTrustCenterSubprocessorMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_TRUST_CENTER_SUBPROCESSOR, variables),
 
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['trustCenterSubprocessors'] })
       queryClient.invalidateQueries({ queryKey: ['subprocessors'] })
+      invalidateCustomTypeEnumsForName(queryClient, variables.input.trustCenterSubprocessorKindName)
     },
   })
 }
@@ -87,8 +89,9 @@ export const useUpdateTrustCenterSubprocessor = () => {
   return useMutation<UpdateTrustCenterSubprocessorMutation, unknown, UpdateTrustCenterSubprocessorMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_TRUST_CENTER_SUBPROCESSOR, variables),
 
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['trustCenterSubprocessors'] })
+      invalidateCustomTypeEnumsForName(queryClient, variables.input.trustCenterSubprocessorKindName)
     },
   })
 }

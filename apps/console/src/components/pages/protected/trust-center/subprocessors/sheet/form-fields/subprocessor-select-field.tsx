@@ -92,7 +92,7 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, select
 
           <FormControl>
             {isEditing ? (
-              <Popover open={open} onOpenChange={setOpen}>
+              <Popover modal open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                   <div className="flex text-sm h-10 px-3 justify-between border bg-input rounded-md items-center cursor-pointer w-full">
                     <div className="flex items-center gap-2 truncate">
@@ -106,7 +106,7 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, select
                   </div>
                 </PopoverTrigger>
 
-                <PopoverContent className="p-0 border w-(--radix-popover-trigger-width) min-w-(--radix-popover-trigger-width)" align="start">
+                <PopoverContent className="p-0 border w-(--radix-popover-trigger-width) min-w-(--radix-popover-trigger-width) flex flex-col" align="start">
                   <Command shouldFilter={false}>
                     <CommandInput placeholder="Search subprocessors..." value={keyword} onValueChange={setKeyword} />
 
