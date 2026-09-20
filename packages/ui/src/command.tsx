@@ -9,7 +9,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { Dialog, DialogContent } from '@repo/ui/dialog'
 
 const Command = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive> & { ref?: React.Ref<React.ElementRef<typeof CommandPrimitive>> }) => (
-  <CommandPrimitive ref={ref} className={cn('flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground', className)} {...props} />
+  <CommandPrimitive ref={ref} className={cn('flex h-full w-full min-h-0 flex-col overflow-hidden rounded-md bg-popover text-popover-foreground', className)} {...props} />
 )
 
 const CommandDialog = ({ children, ...props }: DialogProps) => {
@@ -25,7 +25,7 @@ const CommandDialog = ({ children, ...props }: DialogProps) => {
 }
 
 const CommandInput = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & { ref?: React.Ref<React.ElementRef<typeof CommandPrimitive.Input>> }) => (
-  <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
+  <div className="flex shrink-0 items-center border-b px-3" cmdk-input-wrapper="">
     <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
     <CommandPrimitive.Input
       ref={ref}
@@ -36,7 +36,7 @@ const CommandInput = ({ className, ref, ...props }: React.ComponentPropsWithoutR
 )
 
 const CommandList = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.List> & { ref?: React.Ref<React.ElementRef<typeof CommandPrimitive.List>> }) => (
-  <CommandPrimitive.List ref={ref} className={cn('max-h-[300px] overflow-y-auto overflow-x-hidden', className)} {...props} />
+  <CommandPrimitive.List ref={ref} className={cn('max-h-[300px] min-h-0 overflow-y-auto overflow-x-hidden', className)} {...props} />
 )
 
 const CommandEmpty = ({ ref, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty> & { ref?: React.Ref<React.ElementRef<typeof CommandPrimitive.Empty>> }) => (
