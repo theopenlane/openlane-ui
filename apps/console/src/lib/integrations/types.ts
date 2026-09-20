@@ -1,6 +1,12 @@
-import { type GetIntegrationsQuery } from '@repo/codegen/src/schema'
+import { type GetIntegrationsQuery, type IntegrationIntegrationStatus } from '@repo/codegen/src/schema'
 
-export type IntegrationStatusFilter = 'All' | 'Coming Soon' | 'Installed' | 'Not Installed'
+export const INTEGRATIONS_TABS = { browse: 'browse', installed: 'installed' } as const
+
+export type IntegrationsTab = (typeof INTEGRATIONS_TABS)[keyof typeof INTEGRATIONS_TABS]
+
+export type IntegrationStatusFilter = 'All' | 'Coming Soon' | 'Not Installed'
+
+export type IntegrationHealthFilter = 'All' | IntegrationIntegrationStatus
 
 export type IntegrationMetadata = {
   externalName?: string
