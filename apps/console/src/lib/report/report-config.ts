@@ -1,7 +1,7 @@
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import { OrderDirection } from '@repo/codegen/src/schema'
 import { toHumanLabel } from '@/utils/strings'
-import { defaultFilters, isFilterComplete, type TReportCombinator, type TReportFilter } from './report-filters'
+import { filterableFieldsByName, isFilterComplete, type TReportCombinator, type TReportFilter } from './report-filters'
 import { getColumnIndex, getEntity, getFieldOperators, pathEdgeName, type TReportOrder, type TReportSort } from './report-schema'
 
 export type TReportQueryConfig = {
@@ -20,7 +20,7 @@ export const emptyReportConfig = (): TReportQueryConfig => ({ entityName: '', co
 export const reportConfigForEntity = (entity: TReportEntity): TReportQueryConfig => ({
   entityName: entity.queryName,
   columnPaths: entity.defaultFields,
-  filters: defaultFilters(entity),
+  filters: [],
   combinator: 'and',
   sort: DEFAULT_REPORT_SORT,
   limit: null,
@@ -36,7 +36,7 @@ export const reconcileReportConfig = (config: TReportQueryConfig): TReportQueryC
   const columnPaths = config.columnPaths.filter((path) => columnIndex.has(path))
   if (columnPaths.length === 0) return null
 
-  const fieldsByName = new Map(entity.fields.map((field) => [field.name, field]))
+  const fieldsByName = filterableFieldsByName(entity)
 
   const filters = config.filters.filter((filter) => {
     const field = fieldsByName.get(filter.field)

@@ -16,7 +16,7 @@ import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access
 import { useReportExport, useReportQuery, type TReportRequest } from '@/lib/graphql-hooks/custom-report'
 import { buildReportQuery } from '@/lib/report/build-report-query'
 import { buildOrder, emptyReportConfig, reportConfigForEntity, type TReportQueryConfig } from '@/lib/report/report-config'
-import { buildWhere, isFilterComplete, type TReportCombinator, type TReportFilter } from '@/lib/report/report-filters'
+import { buildWhere, incompleteFilterCount, type TReportCombinator, type TReportFilter } from '@/lib/report/report-filters'
 import { EXPORT_FORMAT_LABELS, EXPORT_FORMATS } from '@/lib/report/report-export'
 import { rowsForPage } from '@/lib/report/report-rows'
 import { entityOptions, getColumnIndex, getEntity, resolveColumns, type TReportSort } from '@/lib/report/report-schema'
@@ -119,13 +119,7 @@ const CustomReportPage: React.FC = () => {
     return view === 'json' ? `${total}, showing ${rowsForPage(reportResult, pagination).length.toLocaleString()} on this page` : total
   }, [pagination, reportResult, view])
 
-  const incompleteFilters = useMemo(() => {
-    if (!entity) return 0
-
-    const fieldsByName = new Map(entity.fields.map((field) => [field.name, field]))
-
-    return filters.filter((filter) => !isFilterComplete(filter, fieldsByName.get(filter.field))).length
-  }, [entity, filters])
+  const incompleteFilters = useMemo(() => (entity ? incompleteFilterCount(filters, entity) : 0), [entity, filters])
 
   const preview = useMemo(() => {
     if (tab !== 'query' || !entity) return null
@@ -136,7 +130,7 @@ const CustomReportPage: React.FC = () => {
     const { query, variables } = buildReportQuery({
       entity,
       columns,
-      where: buildWhere(filters, entity.fields, combinator),
+      where: buildWhere(filters, entity, combinator),
       orderBy: buildOrder(sort),
       pageQuery: { first: limit ? Math.min(limit, EXPORT_PAGE_SIZE) : pagination.pageSize },
     })
@@ -158,7 +152,7 @@ const CustomReportPage: React.FC = () => {
         runId: runIdRef.current,
         entity: nextEntity,
         columns,
-        where: buildWhere(next.filters, nextEntity.fields, next.combinator),
+        where: buildWhere(next.filters, nextEntity, next.combinator),
         orderBy: buildOrder(next.sort),
         limit: next.limit,
       })

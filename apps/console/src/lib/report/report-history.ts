@@ -21,7 +21,7 @@ const querySignature = (config: TReportQueryConfig): string => {
   return JSON.stringify({
     entityName: config.entityName,
     columnPaths: config.columnPaths,
-    where: entity ? buildWhere(config.filters, entity.fields, config.combinator) : null,
+    where: entity ? buildWhere(config.filters, entity, config.combinator) : null,
     orderBy: buildOrder(config.sort),
     limit: config.limit,
   })
