@@ -9,16 +9,25 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { Badge } from '@repo/ui/badge'
 import { formatDate } from '@/utils/date'
+import { billingIntervalStyles } from './billing-settings.styles'
+
+type BillingInterval = 'month' | 'year'
 
 type Props = {
   stripeCustomerId: string | null | undefined
   activePriceIds: Set<string | Price>
   nextPhaseStart: Date | null
-  currentInterval: 'month' | 'year' | null
+  currentInterval: BillingInterval | null
   stripeStatus: string | null
 }
 
+const BILLING_INTERVALS: readonly { value: BillingInterval; label: string }[] = [
+  { value: 'month', label: 'Monthly' },
+  { value: 'year', label: 'Annual (15% off)' },
+]
+
 const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, currentInterval, stripeStatus }: Props) => {
+  const { toggle, option } = billingIntervalStyles()
   const { currentOrgId } = useOrganization()
   const { data } = useGetOrganizationBilling(currentOrgId)
   const { data: schedules = [] } = useSchedulesQuery(stripeCustomerId)
@@ -57,13 +66,13 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
   type Product = {
     billing: {
       prices: {
-        interval: 'month' | 'year'
+        interval: BillingInterval
         price_id: string
       }[]
     }
   }
 
-  const buildSwaps = useCallback((modules: Product[], addons: Product[], currentInterval: 'month' | 'year') => {
+  const buildSwaps = useCallback((modules: Product[], addons: Product[], currentInterval: BillingInterval) => {
     const allProducts = [...modules, ...addons]
 
     return allProducts
@@ -80,7 +89,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
 
   const swaps = useMemo(() => {
     if (!currentInterval) return []
-    return buildSwaps(modules, addons, currentInterval as 'month' | 'year')
+    return buildSwaps(modules, addons, currentInterval)
   }, [modules, addons, currentInterval, buildSwaps])
 
   const calcPhaseCost = (phase: SchedulePhase): number => {
@@ -271,25 +280,19 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
         </div>
         <div className="flex gap-3 items-center p-4 pt-5">
           <span className="font-medium text-base w-28">Billing interval</span>
-          <div className="border rounded-lg p-1 flex">
-            <button
-              disabled={updating || isSubscriptionCanceled || currentInterval === 'month'}
-              onClick={() => {
-                if (currentInterval !== 'month') setConfirmSwitchOpen(true)
-              }}
-              className={`px-3 rounded-lg text-xs font-medium bg-unset h-[30px] ${currentInterval === 'month' ? '!bg-primary text-btn-secondary-text' : 'text-text-informational'}`}
-            >
-              Monthly
-            </button>
-            <button
-              disabled={updating || isSubscriptionCanceled || currentInterval === 'year'}
-              onClick={() => {
-                if (currentInterval !== 'year') setConfirmSwitchOpen(true)
-              }}
-              className={`px-3 rounded-lg text-xs font-medium bg-unset h-[30px] ${currentInterval === 'year' ? '!bg-primary text-btn-secondary-text' : 'text-text-informational'}`}
-            >
-              Annual (15% off)
-            </button>
+          <div className={toggle()} role="group" aria-label="Billing interval">
+            {BILLING_INTERVALS.map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={currentInterval === value}
+                disabled={updating || isSubscriptionCanceled || currentInterval === value}
+                onClick={() => setConfirmSwitchOpen(true)}
+                className={option({ active: currentInterval === value })}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -303,19 +306,19 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
         title={currentInterval === 'month' ? 'Switch to annual billing?' : 'Switch to monthly billing?'}
         description={
           currentInterval === 'month' ? (
-            <div className="space-y-2">
-              <span>
+            <span className="block space-y-2">
+              <span className="block">
                 Your subscription will switch from <strong>monthly</strong> to <strong>annual</strong> billing.
               </span>
-              <span>The change takes effect at the end of your current billing period.</span>
-            </div>
+              <span className="block">The change takes effect at the end of your current billing period.</span>
+            </span>
           ) : (
-            <div className="space-y-2">
-              <span>
+            <span className="block space-y-2">
+              <span className="block">
                 Your subscription will switch from <strong>annual</strong> to <strong>monthly</strong> billing.
               </span>
-              <span>The change takes effect at the end of your current billing period.</span>
-            </div>
+              <span className="block">The change takes effect at the end of your current billing period.</span>
+            </span>
           )
         }
         confirmationText="Confirm"
