@@ -12,6 +12,23 @@ const billingSettingsStyles = tv({
   },
 })
 
+const billingIntervalStyles = tv({
+  slots: {
+    toggle: 'border rounded-lg p-1 flex',
+    option: 'px-3 rounded-lg text-xs font-medium h-[30px]',
+  },
+  variants: {
+    active: {
+      true: {
+        option: 'bg-primary text-btn-primary-text',
+      },
+      false: {
+        option: 'bg-transparent text-text-informational',
+      },
+    },
+  },
+})
+
 export type BillingSettingsVariants = VariantProps<typeof billingSettingsStyles>
 
-export { billingSettingsStyles }
+export { billingSettingsStyles, billingIntervalStyles }
