@@ -1,17 +1,19 @@
 'use client'
 import { PageHeading } from '@repo/ui/page-heading'
-import React, { use, useEffect, useMemo, useRef, useState } from 'react'
+import { Tabs, TabsContent } from '@repo/ui/tabs'
+import React, { use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import IntegrationsToolbar from './integrations-toolbar'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
-import { IntegrationsGrid } from './integrations-grid'
-import { type IntegrationStatusFilter } from '@/lib/integrations/types'
+import { BrowseIntegrationsGrid } from './browse-integrations-grid'
+import { InstalledIntegrationsGrid } from './installed-integrations-grid'
+import { INTEGRATIONS_TABS, type IntegrationHealthFilter, type IntegrationsTab, type IntegrationStatusFilter } from '@/lib/integrations/types'
 import { integrationDefinitionID, isFinalizedIntegration, installedIntegrationDisplayName, latestFinalizedIntegrationForProvider, toAvailableIntegration } from '@/lib/integrations/utils'
 import { providerSupportsPrimaryDirectory } from '@/lib/integrations/flow'
 import { readPendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { canEdit } from '@/lib/authz/utils'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -20,15 +22,23 @@ import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
 import { useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 
+const TAB_QUERY_PARAM = 'tab'
+const TAGS_QUERY_PARAM = 'tags'
+const INTEGRATION_CALLBACK_PARAMS = ['provider', 'status', 'message']
+
 const IntegrationsPage = () => {
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const queryClient = useQueryClient()
-  const [statusFilter, setStatusFilter] = useState<IntegrationStatusFilter>(() => (searchParams.get('status') === 'success' ? 'Installed' : 'All'))
+  const [statusFilter, setStatusFilter] = useState<IntegrationStatusFilter>('All')
+  const [healthFilter, setHealthFilter] = useState<IntegrationHealthFilter>('All')
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedTags, setSelectedTags] = useState<string[]>(() => {
-    const tagsParam = searchParams.get('tags')
-    return tagsParam ? tagsParam.split(',').filter(Boolean) : []
-  })
+
+  const tagsParam = searchParams.get(TAGS_QUERY_PARAM)
+  const selectedTags = useMemo(() => (tagsParam ? tagsParam.split(',').filter(Boolean) : []), [tagsParam])
+
+  const tabParam = searchParams.get(TAB_QUERY_PARAM)
+  const tab: IntegrationsTab = tabParam === INTEGRATIONS_TABS.installed || searchParams.get('status') === 'success' ? INTEGRATIONS_TABS.installed : INTEGRATIONS_TABS.browse
 
   const { data, isLoading: integrationsLoading } = useGetIntegrations({ where: {} })
   const { data: providersData, isLoading: providersLoading } = useIntegrationProviders()
@@ -45,6 +55,36 @@ const IntegrationsPage = () => {
   const handledRef = useRef(false)
   const pendingLinkRef = useRef(readPendingVendorIntegrationLink())
   const linkAttemptedRef = useRef(false)
+
+  const replaceParams = useCallback(
+    (mutate: (params: URLSearchParams) => void) => {
+      const nextParams = new URLSearchParams(searchParams.toString())
+      mutate(nextParams)
+      const query = nextParams.toString()
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
+    },
+    [pathname, router, searchParams],
+  )
+
+  const handleTabChange = (nextTab: string) => {
+    replaceParams((params) => {
+      if (nextTab === INTEGRATIONS_TABS.installed) {
+        params.set(TAB_QUERY_PARAM, INTEGRATIONS_TABS.installed)
+      } else {
+        params.delete(TAB_QUERY_PARAM)
+      }
+    })
+  }
+
+  const setSelectedTags = (tags: string[]) => {
+    replaceParams((params) => {
+      if (tags.length > 0) {
+        params.set(TAGS_QUERY_PARAM, tags.join(','))
+      } else {
+        params.delete(TAGS_QUERY_PARAM)
+      }
+    })
+  }
 
   useEffect(() => {
     const provider = searchParams.get('provider')
@@ -64,8 +104,13 @@ const IntegrationsPage = () => {
       pendingLinkRef.current = null
     }
 
-    router.replace('/automation/integrations')
-  }, [queryClient, successNotification, errorNotification, router, searchParams])
+    replaceParams((params) => {
+      if (status === 'success') {
+        params.set(TAB_QUERY_PARAM, INTEGRATIONS_TABS.installed)
+      }
+      INTEGRATION_CALLBACK_PARAMS.forEach((param) => params.delete(param))
+    })
+  }, [queryClient, successNotification, errorNotification, replaceParams, searchParams])
 
   useEffect(() => {
     setCrumbs([
@@ -168,43 +213,37 @@ const IntegrationsPage = () => {
     return Array.from(tags).sort()
   }, [availableIntegrations])
 
-  const { comingSoonCount, notInstalledCount } = useMemo(() => {
-    const upcoming = availableIntegrations.filter((ai) => !ai.provider.active).length
-    const notInstalled = availableIntegrations.filter((ai) => ai.installedCount === 0).length
-    return { comingSoonCount: upcoming, notInstalledCount: notInstalled }
-  }, [availableIntegrations])
-
-  const allCount = availableIntegrations.length
-  const installedCount = installedIntegrations.length
-
   if (isLoading || integrationsLoading || providersLoading) {
     return <Loading />
   }
   return (
     <div>
       <PageHeading heading="Integrations" />
-      <IntegrationsToolbar
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        allCount={allCount}
-        comingSoonCount={comingSoonCount}
-        installedCount={installedCount}
-        notInstalledCount={notInstalledCount}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        allTags={allTags}
-        selectedTags={selectedTags}
-        setSelectedTags={setSelectedTags}
-      />
-      <IntegrationsGrid
-        installedIntegrations={installedIntegrations}
-        availableIntegrations={availableIntegrations}
-        statusFilter={statusFilter}
-        providers={providers}
-        searchQuery={searchQuery}
-        selectedTags={selectedTags}
-        canManage={canManage}
-      />
+      <Tabs value={tab} onValueChange={handleTabChange} variant="solid">
+        <IntegrationsToolbar installedCount={installedIntegrations.length} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <TabsContent value={INTEGRATIONS_TABS.browse}>
+          <BrowseIntegrationsGrid
+            availableIntegrations={availableIntegrations}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            searchQuery={searchQuery}
+            allTags={allTags}
+            selectedTags={selectedTags}
+            setSelectedTags={setSelectedTags}
+            canManage={canManage}
+          />
+        </TabsContent>
+        <TabsContent value={INTEGRATIONS_TABS.installed}>
+          <InstalledIntegrationsGrid
+            installedIntegrations={installedIntegrations}
+            healthFilter={healthFilter}
+            setHealthFilter={setHealthFilter}
+            providers={providers}
+            searchQuery={searchQuery}
+            canManage={canManage}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
