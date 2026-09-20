@@ -144,6 +144,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
     const listener = (e: CustomEvent) => {
       const cleaned = pickDeclaredFilterKeys(e.detail as TFilterState, declaredKeys, pageKey)
 
+      userEditedRef.current = true
+      setActiveQuickFilters((prev) => (prev.some((qf) => qf.isActive) ? prev.map((qf) => ({ ...qf, isActive: false })) : prev))
+      clearQuickFilters(pageKey, currentOrgId)
+
       setValues((prev) => {
         const isSame = JSON.stringify(prev) === JSON.stringify(cleaned)
         return isSame ? prev : cleaned

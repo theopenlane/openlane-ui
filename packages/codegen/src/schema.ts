@@ -6343,6 +6343,169 @@ export interface GetProcedureCommentsByIdQuery {
   procedure: { id: string; comments: { edges: Array<{ node: { id: string; createdAt: any; createdBy: string | null; text: string } | null } | null> | null } }
 }
 
+export type GetProgramWorkTasksQueryVariables = Exact<{
+  where?: Types.TaskWhereInput | null | undefined
+  first?: number | null | undefined
+  orderBy?: Array<Types.TaskOrder> | Types.TaskOrder | null | undefined
+}>
+
+export interface GetProgramWorkTasksQuery {
+  tasks: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        title: string
+        status: Types.TaskTaskStatus
+        due: string | null
+        createdAt: any
+        assignee: { id: string; displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
+        controls: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null } | null } | null> | null }
+        internalPolicies: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+        procedures: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+        evidence: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetProgramWorkControlsQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+  first?: number | null | undefined
+  orderBy?: Array<Types.ControlOrder> | Types.ControlOrder | null | undefined
+}>
+
+export interface GetProgramWorkControlsQuery {
+  controls: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        refCode: string
+        title: string | null
+        status: Types.ControlControlStatus | null
+        referenceFramework: string | null
+        createdAt: any
+        controlOwner: { id: string; displayName: string; logoURL: string | null; gravatarLogoURL: string | null } | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetProgramWorkEvidencesQueryVariables = Exact<{
+  where?: Types.EvidenceWhereInput | null | undefined
+  first?: number | null | undefined
+  orderBy?: Array<Types.EvidenceOrder> | Types.EvidenceOrder | null | undefined
+}>
+
+export interface GetProgramWorkEvidencesQuery {
+  evidences: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        name: string
+        status: Types.EvidenceEvidenceStatus | null
+        createdAt: any
+        controls: {
+          edges: Array<{
+            node: {
+              id: string
+              refCode: string
+              referenceFramework: string | null
+              controlOwner: { id: string; displayName: string; logoURL: string | null; gravatarLogoURL: string | null } | null
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetProgramWorkInternalPoliciesQueryVariables = Exact<{
+  where?: Types.InternalPolicyWhereInput | null | undefined
+  first?: number | null | undefined
+  orderBy?: Array<Types.InternalPolicyOrder> | Types.InternalPolicyOrder | null | undefined
+}>
+
+export interface GetProgramWorkInternalPoliciesQuery {
+  internalPolicies: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        name: string
+        status: Types.InternalPolicyDocumentStatus | null
+        createdAt: any
+        approver: { id: string; displayName: string; logoURL: string | null; gravatarLogoURL: string | null } | null
+        controls: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetProgramWorkProceduresQueryVariables = Exact<{
+  where?: Types.ProcedureWhereInput | null | undefined
+  first?: number | null | undefined
+  orderBy?: Array<Types.ProcedureOrder> | Types.ProcedureOrder | null | undefined
+}>
+
+export interface GetProgramWorkProceduresQuery {
+  procedures: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        name: string
+        status: Types.ProcedureDocumentStatus | null
+        createdAt: any
+        approver: { id: string; displayName: string; logoURL: string | null; gravatarLogoURL: string | null } | null
+        controls: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetProgramWorkTaskCountQueryVariables = Exact<{
+  where?: Types.TaskWhereInput | null | undefined
+}>
+
+export interface GetProgramWorkTaskCountQuery {
+  tasks: { totalCount: number }
+}
+
+export type GetProgramWorkControlCountQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+}>
+
+export interface GetProgramWorkControlCountQuery {
+  controls: { totalCount: number }
+}
+
+export type GetProgramWorkEvidenceCountQueryVariables = Exact<{
+  where?: Types.EvidenceWhereInput | null | undefined
+}>
+
+export interface GetProgramWorkEvidenceCountQuery {
+  evidences: { totalCount: number }
+}
+
+export type GetProgramWorkInternalPolicyCountQueryVariables = Exact<{
+  where?: Types.InternalPolicyWhereInput | null | undefined
+}>
+
+export interface GetProgramWorkInternalPolicyCountQuery {
+  internalPolicies: { totalCount: number }
+}
+
+export type GetProgramWorkProcedureCountQueryVariables = Exact<{
+  where?: Types.ProcedureWhereInput | null | undefined
+}>
+
+export interface GetProgramWorkProcedureCountQuery {
+  procedures: { totalCount: number }
+}
+
 export type CreateProgramWithMembersMutationVariables = Exact<{
   input: Types.CreateProgramWithMembersInput
 }>

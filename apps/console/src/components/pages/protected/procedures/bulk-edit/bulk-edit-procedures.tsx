@@ -16,6 +16,7 @@ import {
   type BulkEditProceduresDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditProcedures,
+  getAssociationSelectedCount,
   useModuleFilteredSelectOptions,
   checkHasFieldsToUpdate,
   collectBulkEditFieldInput,
@@ -23,7 +24,6 @@ import {
   bulkEditFieldsSchema,
   type BulkEditFieldsFormValues,
   InputType,
-  SelectOptionBulkEditProcedures,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { useBulkEditProcedure } from '@/lib/graphql-hooks/procedure'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
@@ -33,11 +33,14 @@ import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/b
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { BulkEditValueSelect } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-value-select'
 import { useBulkUpdateFeedback } from '@/components/shared/crud-base/use-bulk-update-feedback'
+import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-single-object-association'
+import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
 
 type BulkEditProceduresFormValues = BulkEditFieldsFormValues
 
 export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> = ({ selectedProcedures, setSelectedProcedures }) => {
   const [open, setOpen] = useState(false)
+  const [collapsedAssociations, setCollapsedAssociations] = useState<Record<string, boolean>>({})
   const { mutateAsync: bulkEditProcedures } = useBulkEditProcedure()
   const { errorNotification } = useNotification()
   const { notifyBulkUpdate } = useBulkUpdateFeedback()
@@ -73,7 +76,7 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
     name: 'fieldsArray',
-    rules: { maxLength: 4 },
+    rules: { maxLength: allOptionSelects.length },
   })
 
   useEffect(() => {
@@ -127,7 +130,10 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
     <Dialog
       open={open}
       onOpenChange={(value) => {
-        if (!value) replace([])
+        if (!value) {
+          replace([])
+          setCollapsedAssociations({})
+        }
         setOpen(value)
       }}
     >
@@ -138,90 +144,111 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
           </Button>
         </DialogTrigger>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-145">
+          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-3xl">
             <DialogHeader>
               <DialogTitle>Bulk edit</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col gap-4 mt-4">
               {fields.map((item, index) => {
+                const isObjectAssociation = item.selectedObject?.inputType === InputType.ObjectAssociation
                 return (
-                  <div key={item.id} className="flex justify-items items-start gap-2">
-                    <div className="flex flex-col items-start gap-2">
-                      <Select
-                        value={watchedFields[index]?.value || undefined}
-                        onValueChange={(value) => {
-                          const selectedOption = allOptionSelects.find((item) => item.selectOptionEnum === value)
-                          if (!selectedOption) return
-                          update(index, { value: selectedOption.selectOptionEnum, selectedObject: selectedOption, selectedValue: undefined })
-                        }}
-                      >
-                        <SelectTrigger className="w-48">
-                          <SelectValue placeholder="Select field..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.values(SelectOptionBulkEditProcedures).map((option) => (
-                            <SelectItem key={option} value={option} disabled={fields.some((f, i) => f.value === option && i !== index)}>
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                  <div key={item.id} className="flex flex-col gap-2">
+                    <div className="flex justify-items items-start gap-2">
+                      <div className="flex flex-col items-start gap-2">
+                        <Select
+                          value={watchedFields[index]?.value || undefined}
+                          onValueChange={(value) => {
+                            const selectedOption = allOptionSelects.find((item) => item.selectOptionEnum === value)
+                            if (!selectedOption) return
+                            update(index, { value: selectedOption.selectOptionEnum, selectedObject: selectedOption, selectedValue: undefined })
+                          }}
+                        >
+                          <SelectTrigger className="w-48">
+                            <SelectValue placeholder="Select field..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {allOptionSelects.map((option) => (
+                              <SelectItem key={option.selectOptionEnum} value={option.selectOptionEnum} disabled={fields.some((f, i) => f.value === option.selectOptionEnum && i !== index)}>
+                                {option.selectOptionEnum}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {item.selectedObject &&
+                        !isObjectAssociation &&
+                        (item.selectedObject.inputType === InputType.Select ? (
+                          <div className="flex flex-col items-center gap-2">
+                            {item.selectedObject.name === 'procedureKindName' ? (
+                              <CreatableCustomTypeEnumSelect
+                                value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                                options={item.selectedObject?.options || []}
+                                onCreateOption={createProcedureType}
+                                triggerClassName="w-60"
+                                placeholder={item.selectedObject?.placeholder ?? ''}
+                                searchPlaceholder="Search procedure type..."
+                                onValueChange={(value) =>
+                                  update(index, {
+                                    ...item,
+                                    selectedValue: value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              <BulkEditValueSelect
+                                selectedObject={item.selectedObject}
+                                value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                                onChange={(value) =>
+                                  update(index, {
+                                    ...item,
+                                    selectedValue: value,
+                                  })
+                                }
+                              />
+                            )}
+                          </div>
+                        ) : item.selectedObject.inputType === InputType.Tag ? (
+                          <BulkEditTagField control={form.control} name={`fieldsArray.${index}.selectedValue`} placeholder={item.selectedObject?.placeholder} />
+                        ) : (
+                          <div className="flex flex-col items-center gap-2">
+                            <Controller
+                              control={form.control}
+                              name={`fieldsArray.${index}.selectedValue`}
+                              render={({ field }) => <Input {...field} variant="medium" placeholder={item.selectedObject?.placeholder} className="w-full" />}
+                            />
+                          </div>
+                        ))}
+                      <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
                     </div>
-                    {item.selectedObject &&
-                      (item.selectedObject.inputType === InputType.Select ? (
-                        <div className="flex flex-col items-center gap-2">
-                          {item.selectedObject.name === 'procedureKindName' ? (
-                            <CreatableCustomTypeEnumSelect
-                              value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                              options={item.selectedObject?.options || []}
-                              onCreateOption={createProcedureType}
-                              triggerClassName="w-60"
-                              placeholder={item.selectedObject?.placeholder ?? ''}
-                              searchPlaceholder="Search procedure type..."
-                              onValueChange={(value) =>
-                                update(index, {
-                                  ...item,
-                                  selectedValue: value,
-                                })
-                              }
-                            />
-                          ) : (
-                            <BulkEditValueSelect
-                              selectedObject={item.selectedObject}
-                              value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                              onChange={(value) =>
-                                update(index, {
-                                  ...item,
-                                  selectedValue: value,
-                                })
-                              }
-                            />
-                          )}
-                        </div>
-                      ) : item.selectedObject.inputType === InputType.Tag ? (
-                        <BulkEditTagField control={form.control} name={`fieldsArray.${index}.selectedValue`} placeholder={item.selectedObject?.placeholder} />
-                      ) : (
-                        <div className="flex flex-col items-center gap-2">
-                          <Controller
-                            control={form.control}
-                            name={`fieldsArray.${index}.selectedValue`}
-                            render={({ field }) => <Input {...field} variant="medium" placeholder={item.selectedObject?.placeholder} className="w-full" />}
-                          />
-                        </div>
-                      ))}
-                    <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
+                    {isObjectAssociation && item.selectedObject?.objectType && (
+                      <BulkEditAssociationCollapsible
+                        isCollapsed={!!collapsedAssociations[item.id]}
+                        selectedCount={getAssociationSelectedCount(watchedFields[index]?.selectedAssociations)}
+                        displayLabel={item.selectedObject.selectOptionEnum}
+                        onToggle={() => setCollapsedAssociations((prev) => ({ ...prev, [item.id]: !prev[item.id] }))}
+                      >
+                        <BulkEditSingleObjectAssociation objectType={item.selectedObject.objectType} onChange={(map) => form.setValue(`fieldsArray.${index}.selectedAssociations`, map)} />
+                      </BulkEditAssociationCollapsible>
+                    )}
                   </div>
                 )
               })}
-              {fields.length < Object.keys(SelectOptionBulkEditProcedures).length ? (
+              {fields.length < allOptionSelects.length ? (
                 <Button
                   icon={<Plus />}
-                  onClick={() =>
+                  onClick={() => {
+                    setCollapsedAssociations((prev) => {
+                      const next = { ...prev }
+                      fields.forEach((f) => {
+                        if (f.selectedObject?.inputType === InputType.ObjectAssociation) next[f.id] = true
+                      })
+                      return next
+                    })
                     append({
                       value: undefined,
                       selectedValue: undefined,
                     })
-                  }
+                  }}
                   iconPosition="left"
                   variant="secondary"
                 >
@@ -235,6 +262,7 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
                 onClick={() => {
                   setOpen(false)
                   replace([])
+                  setCollapsedAssociations({})
                 }}
               ></CancelButton>
             </DialogFooter>

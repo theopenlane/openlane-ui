@@ -12,7 +12,7 @@ type TObjectSheetLinkProps = {
   onOpenSheet: (id: string, kind: ObjectAssociationNodeEnum) => void
 }
 
-const linkStyles = 'text-brand font-medium underline cursor-pointer'
+const linkStyles = 'text-blue-500 hover:underline cursor-pointer'
 
 const ObjectSheetLink: React.FC<TObjectSheetLinkProps> = ({ id, kind, label, onOpenSheet }) => {
   const href = getHrefForObjectType(kind, { id })
