@@ -26,15 +26,10 @@ const RISK_FIELDS = gql`
     reviewRequired
     dueDate
     riskDecision
-    dueDate
     stakeholderName
-    stakeholderUserID
-    stakeholderGroupID
-    stakeholderIdentityHolderID
     stakeholderUser {
       id
       displayName
-      email
     }
     stakeholderGroup {
       id
@@ -46,13 +41,9 @@ const RISK_FIELDS = gql`
       email
     }
     delegateName
-    delegateUserID
-    delegateGroupID
-    delegateIdentityHolderID
     delegateUser {
       id
       displayName
-      email
     }
     delegateGroup {
       id
@@ -78,13 +69,9 @@ const RISK_TABLE_FIELDS = gql`
     status
     businessCosts
     delegateName
-    delegateUserID
-    delegateGroupID
-    delegateIdentityHolderID
     delegateUser {
       id
       displayName
-      email
     }
     delegateGroup {
       id
@@ -113,13 +100,9 @@ const RISK_TABLE_FIELDS = gql`
     environmentName
     scopeName
     stakeholderName
-    stakeholderUserID
-    stakeholderGroupID
-    stakeholderIdentityHolderID
     stakeholderUser {
       id
       displayName
-      email
     }
     stakeholderGroup {
       id

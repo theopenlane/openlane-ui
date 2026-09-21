@@ -36,8 +36,8 @@ interface ResponsibilityFieldProps {
   layout?: 'vertical' | 'horizontal'
   labelClassName?: string
   userOnly?: boolean
-  groupOnly?: boolean
   allowPersonnel?: boolean
+  stringFieldName?: string
 }
 
 export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
@@ -55,8 +55,8 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   layout = 'vertical',
   labelClassName,
   userOnly = false,
-  groupOnly = false,
   allowPersonnel = true,
+  stringFieldName,
 }) => {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
@@ -64,11 +64,11 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
 
-  const { userOptions } = useUserSelect({})
-  const { groupOptions } = useGroupSelect()
+  const { userOptions } = useUserSelect({ enabled: open })
+  const { groupOptions } = useGroupSelect({ enabled: open })
   const { personnelOptions } = usePersonnelSelect({
     searchText,
-    enabled: open && !userOnly && !groupOnly && allowPersonnel,
+    enabled: open && !userOnly && allowPersonnel,
   })
   const { errorNotification } = useNotification()
 
@@ -108,17 +108,12 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
       return
     }
 
-    let selectionToUse = selection
-    if (groupOnly && selection?.type === 'group') {
-      selectionToUse = { ...selection, noClearOtherFields: true }
-    }
-
-    field.onChange(selectionToUse)
+    field.onChange(selection)
     setOpen(false)
     setSearchText('')
 
     if (!isEditing && !isCreate && handleUpdate) {
-      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selectionToUse, { allowPersonnel })
+      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selection, { allowPersonnel, stringFieldName })
       await handleUpdate(payload)
     }
 
@@ -173,12 +168,11 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                       sideOffset={4}
                     >
                       <Command shouldFilter={false}>
-                        {groupOnly && <CommandInput placeholder="Search groups..." value={searchText} onValueChange={setSearchText} />}
                         {userOnly && <CommandInput placeholder="Search users..." value={searchText} onValueChange={setSearchText} />}
-                        {!groupOnly && !userOnly && <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} />}
+                        {!userOnly && <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} />}
                         <CommandList className="max-h-[min(300px,var(--radix-popover-content-available-height,300px))]">
                           <CommandEmpty>No results found.</CommandEmpty>
-                          {currentValue && !groupOnly && !userOnly && (
+                          {currentValue && !userOnly && (
                             <CommandGroup heading="Actions">
                               <CommandItem value="clear-selection" onSelect={() => handleSelect(null, field)}>
                                 <X className="mr-2 h-4 w-4" />
@@ -186,15 +180,15 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                               </CommandItem>
                             </CommandGroup>
                           )}
-                          {currentValue && (groupOnly || userOnly) && (
+                          {currentValue && userOnly && (
                             <CommandGroup heading="Actions">
-                              <CommandItem value="clear-selection" onSelect={() => handleSelect({ type: groupOnly ? 'group' : 'user', value: '', displayName: '' }, field)}>
+                              <CommandItem value="clear-selection" onSelect={() => handleSelect({ type: 'user', value: '', displayName: '' }, field)}>
                                 <X className="mr-2 h-4 w-4" />
                                 <span>Clear selection</span>
                               </CommandItem>
                             </CommandGroup>
                           )}
-                          {!groupOnly && filteredUsers.length > 0 && (
+                          {filteredUsers.length > 0 && (
                             <CommandGroup heading="Users">
                               {filteredUsers.map((option) => (
                                 <CommandItem
@@ -228,7 +222,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                               ))}
                             </CommandGroup>
                           )}
-                          {!userOnly && !groupOnly && allowPersonnel && personnelOptions.length > 0 && (
+                          {!userOnly && allowPersonnel && personnelOptions.length > 0 && (
                             <CommandGroup heading="Personnel">
                               {personnelOptions.map((option) => (
                                 <PersonnelOptionItem
@@ -241,7 +235,6 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                             </CommandGroup>
                           )}
                           {!userOnly &&
-                            !groupOnly &&
                             searchText.trim() &&
                             !hasExactMatch &&
                             !personnelOptions.some((person) => person.label.toLowerCase() === normalizedSearchText || person.email?.toLowerCase() === normalizedSearchText) && (

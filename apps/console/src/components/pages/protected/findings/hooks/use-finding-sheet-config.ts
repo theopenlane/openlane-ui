@@ -101,7 +101,12 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
 
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
       const cleaned = Object.fromEntries(Object.entries({ ...rest, description }).filter(([, v]) => v !== '' && v !== undefined))
-      return { ...cleaned, ...edgeAssociationPayload, ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }) }
+      const internalOwnerPayload = isCreate
+        ? buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'create' })
+        : form.formState.dirtyFields.internalOwner
+          ? buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'update' })
+          : {}
+      return { ...cleaned, ...edgeAssociationPayload, ...internalOwnerPayload }
     },
     onSaved: async ({ formData, created, entityId: savedId }) => {
       const findingID = savedId ?? created?.createFinding?.finding?.id

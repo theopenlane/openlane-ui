@@ -18,6 +18,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Switch } from '@repo/ui/switch'
 import { RiskFrequency, type RiskRiskDecision } from '@repo/codegen/src/schema'
 import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { RISK_STAKEHOLDER, RISK_DELEGATE } from '../../risk-responsibility'
 
 const CreateRiskForm: React.FC = () => {
   const { mutateAsync: createRisk, isPending } = useCreateRisk()
@@ -48,8 +49,8 @@ const CreateRiskForm: React.FC = () => {
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           reviewFrequency: (values.reviewFrequency as RiskFrequency) || RiskFrequency.YEARLY,
           riskDecision: (values.riskDecision as RiskRiskDecision) || undefined,
-          ...buildResponsibilityPayload('stakeholder', stakeholder),
-          ...buildResponsibilityPayload('delegate', delegate),
+          ...buildResponsibilityPayload(RISK_STAKEHOLDER.fieldBaseName, stakeholder, { stringFieldName: RISK_STAKEHOLDER.stringFieldName }),
+          ...buildResponsibilityPayload(RISK_DELEGATE.fieldBaseName, delegate, { stringFieldName: RISK_DELEGATE.stringFieldName }),
         },
       })
 

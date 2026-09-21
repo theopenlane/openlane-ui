@@ -114,7 +114,6 @@ export const visibilityFields = {
   public: false,
   blocksProduction: true,
   externalID: false,
-  internalOwner: true,
   externalOwnerID: false,
   externalURI: false,
   source: true,

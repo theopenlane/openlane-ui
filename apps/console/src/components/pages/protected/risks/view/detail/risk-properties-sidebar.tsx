@@ -7,6 +7,7 @@ import { Card } from '@repo/ui/cardpanel'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { type UpdateRiskInput, type GetRiskByIdQuery, RiskRiskStatus, RiskFrequency, RiskRiskDecision, type RiskRiskLikelihood } from '@repo/codegen/src/schema'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
+import { RISK_STAKEHOLDER, RISK_DELEGATE } from '../../risk-responsibility'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
@@ -110,9 +111,23 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
       <Card className="p-4 bg-card rounded-xl shadow-xs">
         <h3 className="text-lg font-medium mb-4">Owners</h3>
         <div className="flex flex-col gap-3">
-          <ResponsibilityField name="stakeholder" fieldBaseName="stakeholder" label="Stakeholder" icon={<UserRound className={iconClass} />} {...sharedFieldProps} />
+          <ResponsibilityField
+            name="stakeholder"
+            fieldBaseName={RISK_STAKEHOLDER.fieldBaseName}
+            stringFieldName={RISK_STAKEHOLDER.stringFieldName}
+            label="Stakeholder"
+            icon={<UserRound className={iconClass} />}
+            {...sharedFieldProps}
+          />
 
-          <ResponsibilityField name="delegate" fieldBaseName="delegate" label="Delegate" icon={<UserRoundCheck className={iconClass} />} {...sharedFieldProps} />
+          <ResponsibilityField
+            name="delegate"
+            fieldBaseName={RISK_DELEGATE.fieldBaseName}
+            stringFieldName={RISK_DELEGATE.stringFieldName}
+            label="Delegate"
+            icon={<UserRoundCheck className={iconClass} />}
+            {...sharedFieldProps}
+          />
         </div>
       </Card>
       <Card className="p-4 bg-card rounded-xl shadow-xs">

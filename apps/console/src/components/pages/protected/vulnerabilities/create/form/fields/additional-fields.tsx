@@ -140,9 +140,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           <CardDescription className="p-0">Identifiers and classification for the vulnerability</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-4">
-            <ResponsibilityField name="internalOwner" fieldBaseName="internalOwner" label="Internal Owner" {...sharedFieldProps} />
-          </div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="cveID" label="CVE ID" {...sharedFieldProps} />
             <TextField name="category" label="Category" {...sharedFieldProps} />
@@ -240,6 +237,18 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <ResponsibilityField
+              name="internalOwner"
+              fieldBaseName="internalOwner"
+              label="Internal Owner"
+              tooltipContent="Who owns this vulnerability internally, independent of who is triaging it"
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleResponsibilityUpdate}
+            />
             <ResponsibilityField
               name="assignedTo"
               fieldBaseName="assignedTo"

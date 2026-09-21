@@ -1,6 +1,7 @@
 'use client'
 
-import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { normalizeVulnerabilityData } from '../vulnerability-responsibilities'
 import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import {
@@ -33,28 +34,6 @@ import { useSlaQuickFilters } from '@/hooks/useSla'
 import type { Value } from 'platejs'
 
 const DEFAULT_FILTER_VALUES = { open: true }
-
-const normalizeData = (data: VulnerabilitiesNodeNonNull) =>
-  normalizeEntityData(data, {
-    internalOwner: {
-      personnel: data.internalOwnerIdentityHolder,
-      user: data.internalOwnerUser,
-      group: data.internalOwnerGroup,
-      stringValue: data.internalOwner,
-    },
-    assignedTo: {
-      personnel: data.assignedToIdentityHolder,
-      user: data.assignedToUser,
-      group: data.assignedToGroup,
-      stringValue: data.assignedTo,
-    },
-    reviewedBy: {
-      personnel: data.reviewedByIdentityHolder,
-      user: data.reviewedByUser,
-      group: data.reviewedByGroup,
-      stringValue: data.reviewedBy,
-    },
-  })
 
 const VulnerabilityPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -170,7 +149,7 @@ const VulnerabilityPage: React.FC = () => {
     updateMutation,
     createMutation,
     deleteMutation,
-    normalizeData,
+    normalizeData: normalizeVulnerabilityData,
     buildPayload: async (data): Promise<CreateVulnerabilityInput | UpdateVulnerabilityInput> => {
       const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, internalOwner, assignedTo, reviewedBy, ...rest } = data
       const associationPayload = buildAssociationPayload(
@@ -185,7 +164,7 @@ const VulnerabilityPage: React.FC = () => {
       return {
         ...cleaned,
         ...associationPayload,
-        ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
+        ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'create' }),
         ...buildResponsibilityPayload('assignedTo', assignedTo, { mode: 'create' }),
         ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: 'create' }),
       } as CreateVulnerabilityInput | UpdateVulnerabilityInput
