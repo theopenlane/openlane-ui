@@ -4,6 +4,7 @@ import * as React from 'react'
 import * as SheetPrimitive from '@radix-ui/react-dialog'
 import { cn } from '../../lib/utils'
 import { guardInteractOutside } from '../../lib/dismissable-outside'
+import { PINNED_PANEL_WIDTH, PINNED_PANEL_WIDTH_VAR } from '../../lib/pinned-panel'
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
@@ -41,6 +42,7 @@ type TSheetContentProps = {
   /** render the dimming backdrop; disable for non-modal drawers that leave the page interactive */
   overlay?: boolean
   overlayClassName?: string
+  reserveWidth?: boolean
 }
 
 function SheetContent({
@@ -55,6 +57,7 @@ function SheetContent({
   edge,
   overlay = true,
   overlayClassName,
+  reserveWidth = false,
   ref,
   onInteractOutside,
   onOpenAutoFocus,
@@ -70,6 +73,8 @@ function SheetContent({
   const [width, setWidth] = React.useState<string | undefined>(defaultWidth)
   const isResizing = React.useRef(false)
 
+  const resizeOriginX = React.useRef(0)
+
   React.useEffect(() => {
     if (!resizable) return
     const handleMouseMove = (e: MouseEvent) => {
@@ -78,7 +83,7 @@ function SheetContent({
       }
 
       const x = e.clientX
-      let newWidth = side === 'right' ? window.innerWidth - x : x
+      let newWidth = side === 'right' ? resizeOriginX.current - x : x - resizeOriginX.current
       if (typeof minWidth === 'number' && newWidth < minWidth) {
         newWidth = minWidth
       }
@@ -95,10 +100,21 @@ function SheetContent({
     }
   }, [resizable, side, minWidth])
 
-  const onMouseDown = () => {
-    if (resizable) {
-      isResizing.current = true
+  React.useLayoutEffect(() => {
+    if (!reserveWidth || !width) return
+    const root = document.documentElement
+    root.style.setProperty(PINNED_PANEL_WIDTH_VAR, width)
+    return () => {
+      root.style.removeProperty(PINNED_PANEL_WIDTH_VAR)
     }
+  }, [reserveWidth, width])
+
+  const onMouseDown = () => {
+    if (!resizable) return
+    const bounds = localRef.current?.getBoundingClientRect()
+    if (!bounds) return
+    resizeOriginX.current = side === 'right' ? bounds.right : bounds.left
+    isResizing.current = true
   }
 
   const focusContentOnOpen = (event: Event) => {
@@ -106,15 +122,17 @@ function SheetContent({
     localRef.current?.focus({ preventScroll: true })
   }
 
-  const maxContentWidth = edge ? 'calc(100vw - 3rem)' : '100vw'
+  const reservedSpace = reserveWidth ? '0px' : PINNED_PANEL_WIDTH
+  const maxContentWidth = `calc(100vw - ${reservedSpace}${edge ? ' - 3rem' : ''})`
 
   return (
     <SheetPortal>
-      {overlay && <SheetOverlay className={overlayClassName} />}
+      {overlay && <SheetOverlay className={overlayClassName} style={{ marginRight: reservedSpace }} />}
       <SheetPrimitive.Content
         ref={localRef}
         style={{
           width,
+          marginRight: side === 'right' ? reservedSpace : undefined,
           minWidth: typeof minWidth === 'number' ? `min(${minWidth}px, ${maxContentWidth})` : minWidth,
           maxWidth: maxContentWidth,
         }}
