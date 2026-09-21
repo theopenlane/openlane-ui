@@ -22,13 +22,9 @@ export const GET_ALL_FINDINGS = gql`
           externalID
           externalOwnerID
           internalOwner
-          internalOwnerUserID
-          internalOwnerGroupID
-          internalOwnerIdentityHolderID
           internalOwnerUser {
             id
             displayName
-            email
           }
           internalOwnerGroup {
             id
@@ -111,13 +107,9 @@ export const FINDING = gql`
       externalID
       externalOwnerID
       internalOwner
-      internalOwnerUserID
-      internalOwnerGroupID
-      internalOwnerIdentityHolderID
       internalOwnerUser {
         id
         displayName
-        email
       }
       internalOwnerGroup {
         id

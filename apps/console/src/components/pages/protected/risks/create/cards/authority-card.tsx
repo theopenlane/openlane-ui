@@ -4,6 +4,7 @@ import React from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { Stamp, CircleArrowRight } from 'lucide-react'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
+import { RISK_STAKEHOLDER, RISK_DELEGATE } from '../../risk-responsibility'
 
 type TAuthorityCardProps = {
   inputClassName?: string
@@ -20,7 +21,17 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ inputClassName }) => {
           <span className="text-sm">Stakeholder</span>
         </div>
         <div className="w-50 min-w-0">
-          <ResponsibilityField name="stakeholder" fieldBaseName="stakeholder" label="" isCreate={true} internalEditing={null} setInternalEditing={() => {}} isEditing={false} isEditAllowed={true} />
+          <ResponsibilityField
+            name="stakeholder"
+            fieldBaseName={RISK_STAKEHOLDER.fieldBaseName}
+            stringFieldName={RISK_STAKEHOLDER.stringFieldName}
+            label=""
+            isCreate={true}
+            internalEditing={null}
+            setInternalEditing={() => {}}
+            isEditing={false}
+            isEditAllowed={true}
+          />
         </div>
 
         {/* Delegate */}
@@ -29,7 +40,17 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ inputClassName }) => {
           <span className="text-sm">Delegate</span>
         </div>
         <div className="w-50 min-w-0">
-          <ResponsibilityField name="delegate" fieldBaseName="delegate" label="" isCreate={true} internalEditing={null} setInternalEditing={() => {}} isEditing={false} isEditAllowed={true} />
+          <ResponsibilityField
+            name="delegate"
+            fieldBaseName={RISK_DELEGATE.fieldBaseName}
+            stringFieldName={RISK_DELEGATE.stringFieldName}
+            label=""
+            isCreate={true}
+            internalEditing={null}
+            setInternalEditing={() => {}}
+            isEditing={false}
+            isEditAllowed={true}
+          />
         </div>
       </div>
     </Card>

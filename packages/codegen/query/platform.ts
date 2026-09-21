@@ -24,24 +24,6 @@ export const GET_ALL_PLATFORMS = gql`
             displayName
             email
           }
-          internalOwner
-          internalOwnerUserID
-          internalOwnerGroupID
-          internalOwnerIdentityHolderID
-          internalOwnerUser {
-            id
-            displayName
-            email
-          }
-          internalOwnerGroup {
-            id
-            displayName
-          }
-          internalOwnerIdentityHolder {
-            id
-            fullName
-            email
-          }
           businessOwner
           businessOwnerUser {
             id

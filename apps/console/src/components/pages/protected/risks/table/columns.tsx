@@ -6,8 +6,7 @@ import RiskLabel from '@/components/pages/protected/risks/risk-label.tsx'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
-import DelegateCell from './delegate-cell'
-import StakeholderCell from './stakeholder-cell'
+import RiskResponsibilityCell from './risk-responsibility-cell'
 
 type Params = {
   userMap: Record<string, User>
@@ -15,9 +14,10 @@ type Params = {
   convertToReadOnly?: (value: string, depth: number) => React.ReactNode
   selectedRisks: { id: string }[]
   setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  isEditAllowed?: boolean
 }
 
-export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedRisks, setSelectedRisks }: Params) => {
+export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedRisks, setSelectedRisks, isEditAllowed = true }: Params) => {
   const columns: ColumnDef<RiskTableFieldsFragment>[] = [
     createSelectColumn<RiskTableFieldsFragment>(selectedRisks, setSelectedRisks),
     {
@@ -75,11 +75,9 @@ export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedR
       size: 90,
     },
     {
-      id: 'stakeholder',
-      accessorFn: (risk) =>
-        risk.stakeholderUser?.displayName ?? risk.stakeholderGroup?.displayName ?? risk.stakeholderIdentityHolder?.fullName ?? risk.stakeholderIdentityHolder?.email ?? risk.stakeholderName ?? '',
+      accessorKey: 'stakeholderName',
       header: 'Stakeholder',
-      cell: ({ row }) => <StakeholderCell risk={row.original} />,
+      cell: ({ row }) => <RiskResponsibilityCell risk={row.original} field="stakeholder" isEditAllowed={isEditAllowed} />,
       size: 120,
     },
     {
@@ -89,11 +87,10 @@ export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedR
       size: 200,
     },
     {
-      id: 'delegate',
-      accessorFn: (risk) => risk.delegateUser?.displayName ?? risk.delegateGroup?.displayName ?? risk.delegateIdentityHolder?.fullName ?? risk.delegateIdentityHolder?.email ?? risk.delegateName ?? '',
+      accessorKey: 'delegateName',
       header: 'Delegate',
       size: 160,
-      cell: ({ row }) => <DelegateCell risk={row.original} />,
+      cell: ({ row }) => <RiskResponsibilityCell risk={row.original} field="delegate" isEditAllowed={isEditAllowed} />,
     },
     {
       accessorKey: 'details',

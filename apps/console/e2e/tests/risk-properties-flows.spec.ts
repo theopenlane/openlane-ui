@@ -94,8 +94,9 @@ test.describe('exposure — risk create properties', () => {
       await page.getByLabel(/^Title$/).fill(name)
 
       await page.getByText('Stakeholder', { exact: true }).locator('xpath=../following-sibling::*[1]').click()
-      await expect(page.getByPlaceholder('Search groups...')).toBeVisible({ timeout: 20_000 })
-      await page.getByPlaceholder('Search groups...').fill(stakeholderGroup)
+      const ownerSearch = page.getByPlaceholder('Search users, groups, personnel, or type a name/email...')
+      await expect(ownerSearch).toBeVisible({ timeout: 20_000 })
+      await ownerSearch.fill(stakeholderGroup)
       await page.getByRole('option', { name: stakeholderGroup }).first().click()
 
       await expect(page.getByText('Select stakeholder...', { exact: true })).toHaveCount(0, { timeout: 20_000 })

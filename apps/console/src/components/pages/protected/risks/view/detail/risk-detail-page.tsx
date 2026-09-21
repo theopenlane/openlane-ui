@@ -1,6 +1,7 @@
 'use client'
 
 import { normalizeResponsibilityField, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { RISK_STAKEHOLDER, RISK_DELEGATE } from '../../risk-responsibility'
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -147,8 +148,10 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
       const { stakeholder: _stakeholder, delegate: _delegate, ...rest } = changedFields
       const input: UpdateRiskInput = {
         ...rest,
-        ...('stakeholder' in changedFields ? buildResponsibilityPayload('stakeholder', values.stakeholder, { mode: 'update' }) : {}),
-        ...('delegate' in changedFields ? buildResponsibilityPayload('delegate', values.delegate, { mode: 'update' }) : {}),
+        ...('stakeholder' in changedFields
+          ? buildResponsibilityPayload(RISK_STAKEHOLDER.fieldBaseName, values.stakeholder, { mode: 'update', stringFieldName: RISK_STAKEHOLDER.stringFieldName })
+          : {}),
+        ...('delegate' in changedFields ? buildResponsibilityPayload(RISK_DELEGATE.fieldBaseName, values.delegate, { mode: 'update', stringFieldName: RISK_DELEGATE.stringFieldName }) : {}),
         details,
         businessCosts,
         mitigation,
