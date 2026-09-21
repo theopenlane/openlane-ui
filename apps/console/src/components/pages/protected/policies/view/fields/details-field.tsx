@@ -38,10 +38,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, d
   const readonlyEditorKey = useMemo(() => JSON.stringify(policy.detailsJSON ?? policy.details), [policy.detailsJSON, policy.details])
 
   return isEditing ? (
-    <div className="w-full relative">
-      <label htmlFor="policy" className="block text-sm font-medium text-muted-foreground mb-1">
-        Policy
-      </label>
+    <div className="w-full relative mt-4">
       <Controller
         control={form.control}
         name="detailsJSON"
