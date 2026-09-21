@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { useDebounce } from '@uidotdev/usehooks'
 import { Building2, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
@@ -11,6 +10,7 @@ import { type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/sc
 import { useUpdateContact } from '@/lib/graphql-hooks/contact'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
+import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface LinkedVendorsProps {
@@ -24,18 +24,17 @@ const LinkedVendors: React.FC<LinkedVendorsProps> = ({ data, isEditAllowed }) =>
   const linkedIds = useMemo(() => new Set(linkedVendors.map((v) => v.id)), [linkedVendors])
 
   const [open, setOpen] = useState(false)
-  const [search, setSearch] = useState('')
-  const debouncedSearch = useDebounce(search, 300)
+  const { searchText, setSearchText, debouncedTerm, getIsSearching } = useAsyncCommandSearch()
 
   const { mutateAsync: updateContact, isPending } = useUpdateContact()
   const { successNotification, errorNotification } = useNotification()
 
-  const trimmedSearch = debouncedSearch.trim()
-  const { vendorNodes } = useVendorsWithFilter({
-    where: trimmedSearch ? { or: [{ displayNameContainsFold: trimmedSearch }, { nameContainsFold: trimmedSearch }] } : undefined,
+  const { vendorNodes, isFetching } = useVendorsWithFilter({
+    where: debouncedTerm ? { or: [{ displayNameContainsFold: debouncedTerm }, { nameContainsFold: debouncedTerm }] } : undefined,
     enabled: open,
   })
-  const availableVendors = vendorNodes.filter((v) => !linkedIds.has(v.id))
+  const isSearching = getIsSearching(isFetching)
+  const availableVendors = isSearching ? [] : vendorNodes.filter((v) => !linkedIds.has(v.id))
 
   const mutateLink = async (input: UpdateContactInput, successTitle: string, successDescription: string, onSuccess?: () => void) => {
     if (!contactId) return
@@ -51,7 +50,7 @@ const LinkedVendors: React.FC<LinkedVendorsProps> = ({ data, isEditAllowed }) =>
   const linkVendor = (vendorId: string) =>
     mutateLink({ addEntityIDs: [vendorId] }, 'Vendor linked', 'The vendor has been linked to this contact.', () => {
       setOpen(false)
-      setSearch('')
+      setSearchText('')
     })
 
   const unlinkVendor = (vendorId: string) => mutateLink({ removeEntityIDs: [vendorId] }, 'Vendor unlinked', 'The vendor has been unlinked from this contact.')
@@ -72,9 +71,9 @@ const LinkedVendors: React.FC<LinkedVendorsProps> = ({ data, isEditAllowed }) =>
             </PopoverTrigger>
             <PopoverContent align="end" className="w-72 p-0">
               <Command shouldFilter={false}>
-                <CommandInput placeholder="Search vendors..." value={search} onValueChange={setSearch} />
+                <CommandInput placeholder="Search vendors..." value={searchText} onValueChange={setSearchText} searching={isSearching} />
                 <CommandList>
-                  <CommandEmpty>No vendors found.</CommandEmpty>
+                  <CommandEmpty>{isSearching ? 'Searching...' : 'No vendors found.'}</CommandEmpty>
                   {availableVendors.length > 0 && (
                     <CommandGroup>
                       {availableVendors.map((v) => (

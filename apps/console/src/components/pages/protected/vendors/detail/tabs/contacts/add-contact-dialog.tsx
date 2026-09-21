@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useDebounce } from '@uidotdev/usehooks'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -11,6 +10,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useNotification } from '@/hooks/useNotification'
+import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { useQueryClient, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { CREATE_CONTACT } from '@repo/codegen/query/contact'
@@ -42,8 +42,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const [mode, setMode] = useState<DialogMode>(initialMode)
-  const [searchText, setSearchText] = useState('')
-  const debouncedSearch = useDebounce(searchText.trim(), 300)
+  const { searchText, setSearchText, debouncedTerm, getIsSearching } = useAsyncCommandSearch()
   const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(() => new Set())
 
   const { form } = useContactFormSchema(vendorName)
@@ -57,12 +56,14 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
 
   const { mutateAsync: updateEntity, isPending: isLinking } = useUpdateEntity()
 
-  const { contacts: searchResults, isLoading: isSearching } = useContacts({
-    where: debouncedSearch ? { fullNameContainsFold: debouncedSearch } : undefined,
+  const { contacts: searchResults, isFetching: isFetchingContacts } = useContacts({
+    where: debouncedTerm ? { fullNameContainsFold: debouncedTerm } : undefined,
     enabled: mode === 'link',
   })
 
-  const { suggestedContacts } = useSuggestedContacts({ vendorId, search: debouncedSearch, enabled: mode === 'link' })
+  const { suggestedContacts, isFetching: isFetchingSuggested } = useSuggestedContacts({ vendorId, search: debouncedTerm, enabled: mode === 'link' })
+
+  const isSearching = getIsSearching(isFetchingContacts, isFetchingSuggested)
 
   const didPreselectRef = useRef(false)
   useEffect(() => {
@@ -76,6 +77,9 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
     const suggestedIds = new Set(suggestedContacts.map((c) => c.id))
     return searchResults.filter((c) => !existingContactIds.includes(c.id) && !suggestedIds.has(c.id))
   }, [searchResults, suggestedContacts, existingContactIds])
+
+  const visibleSuggestedContacts = isSearching ? [] : suggestedContacts
+  const visibleAvailableContacts = isSearching ? [] : availableContacts
 
   const handleSubmit = async (data: AddContactFormData) => {
     try {
@@ -297,12 +301,14 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
 
           <TabsContent value="link">
             <Command shouldFilter={false} className="overflow-visible border rounded-md">
-              <CommandInput placeholder="Search contacts by name..." value={searchText} onValueChange={setSearchText} />
+              <CommandInput placeholder="Search contacts by name..." value={searchText} onValueChange={setSearchText} searching={isSearching} />
               <CommandList className="max-h-62.5">
                 <CommandEmpty>{isSearching ? 'Searching...' : 'No contacts found.'}</CommandEmpty>
-                {suggestedContacts.length > 0 && <CommandGroup heading="Suggested — matching email domain">{suggestedContacts.map((contact) => renderContactItem(contact, true))}</CommandGroup>}
-                {availableContacts.length > 0 && (
-                  <CommandGroup heading={suggestedContacts.length > 0 ? 'All contacts' : undefined}>{availableContacts.map((contact) => renderContactItem(contact))}</CommandGroup>
+                {visibleSuggestedContacts.length > 0 && (
+                  <CommandGroup heading="Suggested — matching email domain">{visibleSuggestedContacts.map((contact) => renderContactItem(contact, true))}</CommandGroup>
+                )}
+                {visibleAvailableContacts.length > 0 && (
+                  <CommandGroup heading={visibleSuggestedContacts.length > 0 ? 'All contacts' : undefined}>{visibleAvailableContacts.map((contact) => renderContactItem(contact))}</CommandGroup>
                 )}
               </CommandList>
             </Command>

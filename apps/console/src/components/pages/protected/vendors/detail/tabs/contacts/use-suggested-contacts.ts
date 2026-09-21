@@ -13,10 +13,10 @@ interface UseSuggestedContactsArgs {
 }
 
 export const useSuggestedContacts = ({ vendorId, search, enabled = true }: UseSuggestedContactsArgs) => {
-  const { data: vendorData } = useEntity(enabled ? vendorId : undefined)
+  const { data: vendorData, isFetching: isFetchingVendor } = useEntity(enabled ? vendorId : undefined)
   const vendorDomains = useMemo(() => (vendorData?.entity?.domains ?? []).map((d) => d.toLowerCase().trim()).filter(Boolean), [vendorData])
 
-  const { contacts } = useContacts({
+  const { contacts, isFetching } = useContacts({
     where: vendorDomains.length
       ? {
           and: [{ or: vendorDomains.map((d) => ({ emailHasSuffix: `@${d}` })) }, { not: { hasEntitiesWith: [{ id: vendorId }] } }, ...(search ? [{ fullNameContainsFold: search }] : [])],
@@ -26,5 +26,5 @@ export const useSuggestedContacts = ({ vendorId, search, enabled = true }: UseSu
     first: SUGGESTED_CONTACTS_LIMIT,
   })
 
-  return { suggestedContacts: vendorDomains.length ? contacts : [] }
+  return { suggestedContacts: vendorDomains.length ? contacts : [], isFetching: isFetchingVendor || isFetching }
 }

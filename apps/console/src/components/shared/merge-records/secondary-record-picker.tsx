@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { useDebounce } from '@uidotdev/usehooks'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { Button } from '@repo/ui/button'
-import { ChevronsUpDown, Loader2 } from 'lucide-react'
+import { ChevronsUpDown } from 'lucide-react'
 import type { MergeSearchHookResult } from './types'
+import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 
 type Props = {
   placeholder: string
@@ -19,10 +19,10 @@ type Props = {
 
 export const SecondaryRecordPicker = ({ placeholder, excludeId, selectedId, selectedLabel, onSelect, useSearchRecords }: Props) => {
   const [open, setOpen] = useState(false)
-  const [search, setSearch] = useState('')
-  const debouncedSearch = useDebounce(search, 200)
-  const { options, isLoading } = useSearchRecords(debouncedSearch, excludeId)
-  const visibleOptions = useMemo(() => options.filter((o) => o.label != null && o.label.trim() !== ''), [options])
+  const { searchText, setSearchText, debouncedTerm, getIsSearching } = useAsyncCommandSearch({ delay: 200 })
+  const { options, isFetching } = useSearchRecords(debouncedTerm, excludeId)
+  const isSearching = getIsSearching(isFetching)
+  const visibleOptions = useMemo(() => (isSearching ? [] : options.filter((o) => o.label != null && o.label.trim() !== '')), [isSearching, options])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -34,34 +34,27 @@ export const SecondaryRecordPicker = ({ placeholder, excludeId, selectedId, sele
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] min-w-[320px] p-0" align="start">
         <Command shouldFilter={false}>
-          <CommandInput placeholder="Search by name or email…" value={search} onValueChange={setSearch} />
+          <CommandInput placeholder="Search by name or email…" value={searchText} onValueChange={setSearchText} searching={isSearching} />
           <CommandList>
-            {isLoading ? (
-              <div className="flex items-center justify-center py-6">
-                <Loader2 size={16} className="animate-spin text-muted-foreground" />
-              </div>
-            ) : visibleOptions.length === 0 ? (
-              <CommandEmpty>No matches found.</CommandEmpty>
-            ) : (
-              <CommandGroup>
-                {visibleOptions.map((option) => (
-                  <CommandItem
-                    key={option.id}
-                    value={option.id}
-                    onSelect={() => {
-                      onSelect(option.id, option.label)
-                      setOpen(false)
-                      setSearch('')
-                    }}
-                  >
-                    <div className="flex flex-col">
-                      <span>{option.label}</span>
-                      {option.sublabel && <span className="text-xs text-muted-foreground">{option.sublabel}</span>}
-                    </div>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            )}
+            <CommandEmpty>{isSearching ? 'Searching...' : 'No matches found.'}</CommandEmpty>
+            <CommandGroup>
+              {visibleOptions.map((option) => (
+                <CommandItem
+                  key={option.id}
+                  value={option.id}
+                  onSelect={() => {
+                    onSelect(option.id, option.label)
+                    setOpen(false)
+                    setSearchText('')
+                  }}
+                >
+                  <div className="flex flex-col">
+                    <span>{option.label}</span>
+                    {option.sublabel && <span className="text-xs text-muted-foreground">{option.sublabel}</span>}
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
           </CommandList>
         </Command>
       </PopoverContent>

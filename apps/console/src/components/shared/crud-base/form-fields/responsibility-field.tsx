@@ -15,6 +15,7 @@ import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
+import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { type ResponsibilitySelection, buildResponsibilityInlineUpdate } from './responsibility-field-utils'
 import { PersonnelOptionItem } from './personnel-option-item'
 import { ResponsibilitySelectionLabel } from './responsibility-type-icon'
@@ -60,15 +61,17 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
 }) => {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
-  const [searchText, setSearchText] = useState('')
+  const { searchText, setSearchText, term, debouncedTerm, getIsSearching } = useAsyncCommandSearch()
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
 
+  const personnelEnabled = !userOnly && !groupOnly && allowPersonnel
+
   const { userOptions } = useUserSelect({})
   const { groupOptions } = useGroupSelect()
-  const { personnelOptions } = usePersonnelSelect({
-    searchText,
-    enabled: open && !userOnly && !groupOnly && allowPersonnel,
+  const { personnelOptions, isFetching: isFetchingPersonnel } = usePersonnelSelect({
+    searchText: debouncedTerm,
+    enabled: open && personnelEnabled,
   })
   const { errorNotification } = useNotification()
 
@@ -129,7 +132,9 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
 
   const placeholderText = label ? `Select ${label.toLowerCase()}...` : 'Select owner...'
 
-  const normalizedSearchText = searchText.toLowerCase()
+  const isSearching = personnelEnabled && getIsSearching(isFetchingPersonnel)
+  const visiblePersonnel = isSearching ? [] : personnelOptions
+  const normalizedSearchText = term.toLowerCase()
 
   const filteredUsers = useMemo(() => userOptions.filter((u) => u.label.toLowerCase().includes(normalizedSearchText)), [userOptions, normalizedSearchText])
 
@@ -146,7 +151,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
       name={name}
       render={({ field }) => {
         const currentValue = field.value as ResponsibilitySelection
-        const customEmailLabel = `Use "${searchText.trim()}" as custom email`
+        const customEmailLabel = `Use "${term}" as custom email`
 
         return (
           <FormItem className={layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : ''}>
@@ -173,11 +178,13 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                       sideOffset={4}
                     >
                       <Command shouldFilter={false}>
-                        {groupOnly && <CommandInput placeholder="Search groups..." value={searchText} onValueChange={setSearchText} />}
-                        {userOnly && <CommandInput placeholder="Search users..." value={searchText} onValueChange={setSearchText} />}
-                        {!groupOnly && !userOnly && <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} />}
+                        {groupOnly && <CommandInput placeholder="Search groups..." value={searchText} onValueChange={setSearchText} searching={isSearching} />}
+                        {userOnly && <CommandInput placeholder="Search users..." value={searchText} onValueChange={setSearchText} searching={isSearching} />}
+                        {!groupOnly && !userOnly && (
+                          <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} searching={isSearching} />
+                        )}
                         <CommandList className="max-h-[min(300px,var(--radix-popover-content-available-height,300px))]">
-                          <CommandEmpty>No results found.</CommandEmpty>
+                          <CommandEmpty>{isSearching ? 'Searching...' : 'No results found.'}</CommandEmpty>
                           {currentValue && !groupOnly && !userOnly && (
                             <CommandGroup heading="Actions">
                               <CommandItem value="clear-selection" onSelect={() => handleSelect(null, field)}>
@@ -228,9 +235,9 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                               ))}
                             </CommandGroup>
                           )}
-                          {!userOnly && !groupOnly && allowPersonnel && personnelOptions.length > 0 && (
+                          {!userOnly && !groupOnly && allowPersonnel && visiblePersonnel.length > 0 && (
                             <CommandGroup heading="Personnel">
-                              {personnelOptions.map((option) => (
+                              {visiblePersonnel.map((option) => (
                                 <PersonnelOptionItem
                                   key={`personnel-${option.value}`}
                                   option={option}
@@ -242,11 +249,12 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                           )}
                           {!userOnly &&
                             !groupOnly &&
-                            searchText.trim() &&
+                            term &&
+                            !isSearching &&
                             !hasExactMatch &&
-                            !personnelOptions.some((person) => person.label.toLowerCase() === normalizedSearchText || person.email?.toLowerCase() === normalizedSearchText) && (
+                            !visiblePersonnel.some((person) => person.label.toLowerCase() === normalizedSearchText || person.email?.toLowerCase() === normalizedSearchText) && (
                               <CommandGroup heading="Custom">
-                                <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() }, field)}>
+                                <CommandItem value={`custom-${term}`} onSelect={() => handleSelect({ type: 'string', value: term, displayName: term }, field)}>
                                   <Type className="mr-2 h-4 w-4" />
                                   <span className="truncate" title={customEmailLabel}>
                                     {customEmailLabel}

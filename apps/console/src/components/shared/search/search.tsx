@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useDebounce } from '@uidotdev/usehooks'
 import { Clock8, LoaderCircle, Search, SearchIcon } from 'lucide-react'
 
 import { Button } from '@repo/ui/button'
@@ -23,6 +22,9 @@ import { useSearchHistory } from './useSearchHistory'
 import { getHrefForSearchEntityType } from '@/utils/getHrefForObjectType'
 import { splitTextByQuery } from './search-utils'
 import { useNotification } from '@/hooks/useNotification'
+import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+
+const MIN_SEARCH_LENGTH = 3
 
 const highlightQueryMatch = (text: string, query: string) => {
   const parts = splitTextByQuery(text, query)
@@ -75,7 +77,7 @@ const getVisibleSnippets = (result: SearchContextResult) => {
 export const GlobalSearch = () => {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState('')
+  const { searchText: query, setSearchText: setQuery, debouncedTerm: debouncedQuery, hasMinLength, getIsSearching } = useAsyncCommandSearch({ minLength: MIN_SEARCH_LENGTH })
   const cmdInputRef = useRef<HTMLInputElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [selectedType, setSelectedType] = useState<string>('All')
@@ -86,19 +88,19 @@ export const GlobalSearch = () => {
   const { errorNotification } = useNotification()
   const { push } = useRouter()
 
-  const debouncedQuery = useDebounce(query, 300)
-
   const { isFetching, pages, contextGroups } = useSearch(debouncedQuery)
+
+  const isSearching = getIsSearching(isFetching)
 
   const close = () => setOpen(false)
 
   const selectOptionsWithCounts = useMemo(() => {
-    if (query.length < 3) {
+    if (!hasMinLength) {
       return generateSelectOptions([], [])
     }
 
     return generateSelectOptions(contextGroups, pages)
-  }, [contextGroups, pages, query])
+  }, [contextGroups, pages, hasMinLength])
 
   const selectedTypeValue = selectOptionsWithCounts.some((option) => option.value === selectedType) ? selectedType : 'All'
 
@@ -191,7 +193,7 @@ export const GlobalSearch = () => {
           <Input
             ref={inputRef}
             placeholder="Search..."
-            icon={isFetching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+            icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             value={query}
             onChange={(e) => setQuery(e.currentTarget.value)}
             className="!border-none !h-9 pr-14 cursor-pointer bg-transparent"
@@ -234,20 +236,30 @@ export const GlobalSearch = () => {
         </div>
         <Command className="bg-panel">
           <div className="hidden" />
-          {selectedCount === 0
-            ? renderNoResults()
-            : renderSearchResults({
-                contextGroups,
-                handleOrganizationSwitch,
-                setQuery,
-                query,
-                selectedType: selectedTypeValue,
-                pages,
-                close,
-              })}
+          {isSearching
+            ? renderSearching()
+            : selectedCount === 0
+              ? renderNoResults()
+              : renderSearchResults({
+                  contextGroups,
+                  handleOrganizationSwitch,
+                  setQuery,
+                  query,
+                  selectedType: selectedTypeValue,
+                  pages,
+                  close,
+                })}
         </Command>
       </DialogContent>
     </Dialog>
+  )
+}
+
+const renderSearching = () => {
+  return (
+    <CommandList>
+      <CommandEmpty>Searching...</CommandEmpty>
+    </CommandList>
   )
 }
 
@@ -289,7 +301,7 @@ const renderRouteResults = (routes: { name: string; route: string }[], query: st
 interface SearchProps {
   contextGroups: SearchContextGroup[]
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
-  setQuery?: React.Dispatch<React.SetStateAction<string>>
+  setQuery?: (value: string) => void
   query: string
   selectedType: string
   pages: RoutePage[]
@@ -339,7 +351,7 @@ interface SearchContextResultItemProps {
   query: string
   close: () => void
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
-  setQuery?: React.Dispatch<React.SetStateAction<string>>
+  setQuery?: (value: string) => void
 }
 
 const SearchContextResultItem = ({ result, sectionType, query, close, handleOrganizationSwitch, setQuery }: SearchContextResultItemProps) => {
