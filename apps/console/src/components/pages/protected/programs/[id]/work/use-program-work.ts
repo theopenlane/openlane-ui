@@ -97,51 +97,59 @@ export const useProgramWork = ({ programId, filters, search }: TUseProgramWorkAr
   const policyStatuses = useMemo(() => sourceStatusesFor(POLICY_WORK_STATUS, workStatusIn), [workStatusIn])
   const procedureStatuses = useMemo(() => sourceStatusesFor(PROCEDURE_WORK_STATUS, workStatusIn), [workStatusIn])
 
-  const isTypeAvailable = (objectType: TWorkObjectType) => !!programId && availableObjectTypes.includes(objectType)
+  const isTypeCounted = (objectType: TWorkObjectType, statuses: readonly string[]) => !!programId && availableObjectTypes.includes(objectType) && statuses.length > 0
 
   const isTypeSelected = (objectType: TWorkObjectType) => objectTypeIn.length === 0 || objectTypeIn.includes(objectType)
 
-  const isTypeEnabled = (objectType: TWorkObjectType, statusCount: number) =>
-    isTypeAvailable(objectType) && isTypeSelected(objectType) && statusCount > 0 && (!overdueOnly || objectType === ObjectAssociationNodeEnum.TASK)
+  const isTypeListed = (objectType: TWorkObjectType, isCounted: boolean) => isCounted && isTypeSelected(objectType) && (!overdueOnly || objectType === ObjectAssociationNodeEnum.TASK)
 
-  const tasksEnabled = isTypeEnabled(ObjectAssociationNodeEnum.TASK, taskStatuses.length)
-  const controlsEnabled = isTypeEnabled(ObjectAssociationNodeEnum.CONTROL, controlStatuses.length)
-  const evidencesEnabled = isTypeEnabled(ObjectAssociationNodeEnum.EVIDENCE, evidenceStatuses.length)
-  const policiesEnabled = isTypeEnabled(ObjectAssociationNodeEnum.POLICY, policyStatuses.length)
-  const proceduresEnabled = isTypeEnabled(ObjectAssociationNodeEnum.PROCEDURE, procedureStatuses.length)
+  const tasksCounted = isTypeCounted(ObjectAssociationNodeEnum.TASK, taskStatuses)
+  const controlsCounted = isTypeCounted(ObjectAssociationNodeEnum.CONTROL, controlStatuses)
+  const evidencesCounted = isTypeCounted(ObjectAssociationNodeEnum.EVIDENCE, evidenceStatuses)
+  const policiesCounted = isTypeCounted(ObjectAssociationNodeEnum.POLICY, policyStatuses)
+  const proceduresCounted = isTypeCounted(ObjectAssociationNodeEnum.PROCEDURE, procedureStatuses)
+
+  const tasksEnabled = isTypeListed(ObjectAssociationNodeEnum.TASK, tasksCounted)
+  const controlsEnabled = isTypeListed(ObjectAssociationNodeEnum.CONTROL, controlsCounted)
+  const evidencesEnabled = isTypeListed(ObjectAssociationNodeEnum.EVIDENCE, evidencesCounted)
+  const policiesEnabled = isTypeListed(ObjectAssociationNodeEnum.POLICY, policiesCounted)
+  const proceduresEnabled = isTypeListed(ObjectAssociationNodeEnum.PROCEDURE, proceduresCounted)
+
+  const programWhere = { hasProgramsWith: [{ id: programId }] }
+
+  const taskCountWhere: TaskWhereInput = { ...programWhere, statusIn: taskStatuses }
+  const controlCountWhere: ControlWhereInput = { ...programWhere, statusIn: controlStatuses }
+  const evidenceCountWhere: EvidenceWhereInput = { ...programWhere, statusIn: evidenceStatuses }
+  const policyCountWhere: InternalPolicyWhereInput = { ...programWhere, statusIn: policyStatuses }
+  const procedureCountWhere: ProcedureWhereInput = { ...programWhere, statusIn: procedureStatuses }
 
   const taskWhere: TaskWhereInput = {
-    hasProgramsWith: [{ id: programId }],
-    statusIn: taskStatuses,
+    ...taskCountWhere,
     ...(ownerIDIn.length > 0 ? { assigneeIDIn: ownerIDIn } : {}),
     ...(overdueOnly ? { dueLT: overdueBefore } : {}),
     ...(search ? { titleContainsFold: search } : {}),
   }
 
   const controlWhere: ControlWhereInput = {
-    hasProgramsWith: [{ id: programId }],
-    statusIn: controlStatuses,
+    ...controlCountWhere,
     ...(ownerIDIn.length > 0 ? controlOwnedByUsersWhere(ownerIDIn) : {}),
     ...(search ? { or: [{ refCodeContainsFold: search }, { titleContainsFold: search }] } : {}),
   }
 
   const evidenceWhere: EvidenceWhereInput = {
-    hasProgramsWith: [{ id: programId }],
-    statusIn: evidenceStatuses,
+    ...evidenceCountWhere,
     ...(ownerIDIn.length > 0 ? { hasControlsWith: [controlOwnedByUsersWhere(ownerIDIn)] } : {}),
     ...(search ? { nameContainsFold: search } : {}),
   }
 
   const policyWhere: InternalPolicyWhereInput = {
-    hasProgramsWith: [{ id: programId }],
-    statusIn: policyStatuses,
+    ...policyCountWhere,
     ...(ownerIDIn.length > 0 ? { hasApproverWith: [groupContainsUsersWhere(ownerIDIn)] } : {}),
     ...(search ? { nameContainsFold: search } : {}),
   }
 
   const procedureWhere: ProcedureWhereInput = {
-    hasProgramsWith: [{ id: programId }],
-    statusIn: procedureStatuses,
+    ...procedureCountWhere,
     ...(ownerIDIn.length > 0 ? { hasApproverWith: [groupContainsUsersWhere(ownerIDIn)] } : {}),
     ...(search ? { nameContainsFold: search } : {}),
   }
@@ -167,13 +175,11 @@ export const useProgramWork = ({ programId, filters, search }: TUseProgramWorkAr
     enabled: proceduresEnabled,
   })
 
-  const programWhere = { hasProgramsWith: [{ id: programId }] }
-
-  const taskCountQuery = useProgramWorkTaskCount({ variables: { where: programWhere }, enabled: isTypeAvailable(ObjectAssociationNodeEnum.TASK) })
-  const controlCountQuery = useProgramWorkControlCount({ variables: { where: programWhere }, enabled: isTypeAvailable(ObjectAssociationNodeEnum.CONTROL) })
-  const evidenceCountQuery = useProgramWorkEvidenceCount({ variables: { where: programWhere }, enabled: isTypeAvailable(ObjectAssociationNodeEnum.EVIDENCE) })
-  const policyCountQuery = useProgramWorkInternalPolicyCount({ variables: { where: programWhere }, enabled: isTypeAvailable(ObjectAssociationNodeEnum.POLICY) })
-  const procedureCountQuery = useProgramWorkProcedureCount({ variables: { where: programWhere }, enabled: isTypeAvailable(ObjectAssociationNodeEnum.PROCEDURE) })
+  const taskCountQuery = useProgramWorkTaskCount({ variables: { where: taskCountWhere }, enabled: tasksCounted })
+  const controlCountQuery = useProgramWorkControlCount({ variables: { where: controlCountWhere }, enabled: controlsCounted })
+  const evidenceCountQuery = useProgramWorkEvidenceCount({ variables: { where: evidenceCountWhere }, enabled: evidencesCounted })
+  const policyCountQuery = useProgramWorkInternalPolicyCount({ variables: { where: policyCountWhere }, enabled: policiesCounted })
+  const procedureCountQuery = useProgramWorkProcedureCount({ variables: { where: procedureCountWhere }, enabled: proceduresCounted })
 
   const queries = [tasksQuery, controlsQuery, evidencesQuery, policiesQuery, proceduresQuery, taskCountQuery, controlCountQuery, evidenceCountQuery, policyCountQuery, procedureCountQuery]
 
