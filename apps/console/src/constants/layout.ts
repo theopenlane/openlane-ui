@@ -1,4 +1,5 @@
 export const GLOBAL_BANNER_HEIGHT_VAR = '--global-banner-height'
 export const TOP_BANNER_HEIGHT_VAR = '--top-banner-height'
+export const MAIN_SCROLLBAR_HEIGHT_VAR = '--main-scrollbar-height'
 export const ONBOARDING_FOOTER_HEIGHT_VAR = '--onboarding-footer-height'
 export const DEVREV_BANNER_CONTAINER_ID = 'devrev-banner-container'

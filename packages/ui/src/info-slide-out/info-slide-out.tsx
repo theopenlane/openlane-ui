@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { ExternalLink, InfoIcon, X } from 'lucide-react'
+import { ExternalLink, InfoIcon, Pin, PinOff, X } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../sheet/sheet'
 import { Button } from '../button/button'
 
@@ -24,7 +24,11 @@ type InfoSlideOutProps = {
   overlayClassName?: string
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  pinned?: boolean
+  onPinnedChange?: (pinned: boolean) => void
 }
+
+const preventDefault = (event: Event) => event.preventDefault()
 
 export function InfoSlideOut({
   title,
@@ -42,6 +46,8 @@ export function InfoSlideOut({
   overlayClassName,
   open: controlledOpen,
   onOpenChange,
+  pinned = false,
+  onPinnedChange,
 }: InfoSlideOutProps) {
   const [internalOpen, setInternalOpen] = React.useState(false)
   const isControlled = controlledOpen !== undefined
@@ -52,6 +58,9 @@ export function InfoSlideOut({
   }
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
+
+  const isPinned = pinned && !modal
+  const keepOpen = isPinned ? preventDefault : undefined
 
   return (
     <Sheet open={open} onOpenChange={setOpen} modal={modal}>
@@ -70,6 +79,10 @@ export function InfoSlideOut({
         edge={edgeHandle}
         overlay={overlay}
         overlayClassName={overlayClassName}
+        reserveWidth={isPinned}
+        className={isPinned ? 'z-40' : undefined}
+        onInteractOutside={keepOpen}
+        onEscapeKeyDown={keepOpen}
         onClick={(e) => e.stopPropagation()}
         header={
           <SheetHeader>
@@ -81,7 +94,18 @@ export function InfoSlideOut({
                   {subtitle ? <span className="text-xs text-muted-foreground">{subtitle}</span> : null}
                 </div>
               </div>
-              {!hideClose && <Button variant="secondary" size="icon-sm" icon={<X size={16} />} descriptiveTooltipText="Close" onClick={handleClose} />}
+              <div className="flex items-center gap-1 shrink-0">
+                {onPinnedChange && !modal && (
+                  <Button
+                    variant="secondary"
+                    size="icon-sm"
+                    icon={isPinned ? <PinOff size={16} /> : <Pin size={16} />}
+                    descriptiveTooltipText={isPinned ? 'Unpin panel' : 'Keep panel open while you navigate'}
+                    onClick={() => onPinnedChange(!isPinned)}
+                  />
+                )}
+                {(!hideClose || (isPinned && !edgeHandle)) && <Button variant="secondary" size="icon-sm" icon={<X size={16} />} descriptiveTooltipText="Close" onClick={handleClose} />}
+              </div>
             </div>
           </SheetHeader>
         }

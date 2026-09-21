@@ -23,7 +23,7 @@ import { SheetNavigationProvider } from '@/providers/sheet-navigation-provider'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ImpersonationBanner from '@/components/shared/impersonation-banner/impersonation-banner'
-import { GLOBAL_BANNER_HEIGHT_VAR, TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
+import { GLOBAL_BANNER_HEIGHT_VAR, MAIN_SCROLLBAR_HEIGHT_VAR, TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { ONBOARDING_ROUTE } from '@/constants'
 import { DashboardContentOffsetProvider } from '@/providers/DashboardContentOffsetContext'
 import { DocsHelpTopicProvider } from '@/components/shared/docs-help/docs-help-context'
@@ -69,6 +69,27 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
 
   const isSidebarHidden = pathname === ONBOARDING_ROUTE || sessionData?.user?.isOnboarding
   const contentMarginLeft = isSidebarHidden ? 8 : primaryWidth + secondaryWidth + 4
+
+  const mainRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const scroller = mainRef.current
+    if (!scroller) return
+    const root = document.documentElement
+
+    const publishScrollbarHeight = () => {
+      root.style.setProperty(MAIN_SCROLLBAR_HEIGHT_VAR, `${scroller.offsetHeight - scroller.clientHeight}px`)
+    }
+
+    publishScrollbarHeight()
+    const observer = new ResizeObserver(publishScrollbarHeight)
+    observer.observe(scroller)
+
+    return () => {
+      observer.disconnect()
+      root.style.removeProperty(MAIN_SCROLLBAR_HEIGHT_VAR)
+    }
+  }, [])
 
   const bannerRef = useRef<HTMLDivElement>(null)
   const bannerHeight = useElementHeight(bannerRef)
@@ -147,7 +168,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
               <Header />
 
               <div className={base()}>
-                <main className={main()} data-scroll-container="main">
+                <main ref={mainRef} className={main()} data-scroll-container="main">
                   <DashboardContentOffsetProvider value={{ marginLeft: contentMarginLeft, marginRight: 8 }}>{error ?? children}</DashboardContentOffsetProvider>
                 </main>
                 <ChatBot />
