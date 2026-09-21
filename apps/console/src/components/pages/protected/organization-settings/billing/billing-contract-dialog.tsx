@@ -1,21 +1,25 @@
 'use client'
-import { activatable } from '@repo/ui/lib/a11y'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { type Libraries, useLoadScript } from '@react-google-maps/api'
+import React, { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { useOrganization } from '@/hooks/useOrganization'
-import useClickOutside from '@/hooks/useClickOutside'
 import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { type PlaceAddress } from '@/hooks/usePlacesAutocomplete'
+import { AddressAutocompleteInput } from '@/components/shared/address-autocomplete-input/address-autocomplete-input'
 
-const libraries: Libraries = ['places']
-
-const PREDICTION_DEBOUNCE_MS = 250
+const emptyAddress: PlaceAddress = {
+  line1: '',
+  line2: '',
+  city: '',
+  state: '',
+  postalCode: '',
+  country: '',
+}
 
 const BillingContactDialog = () => {
   const queryClient = useQueryClient()
@@ -25,110 +29,7 @@ const BillingContactDialog = () => {
   const { successNotification, errorNotification } = useNotification()
   const [open, setOpen] = useState(false)
   const [fullName, setFullName] = useState('')
-  const [predictions, setPredictions] = useState<google.maps.places.PlacePrediction[]>([])
-  const [showPredictions, setShowPredictions] = useState<boolean>(false)
-  const wrapperRef = useClickOutside(() => setShowPredictions(false))
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-    libraries,
-  })
-  const [address, setAddress] = useState({
-    line1: '',
-    line2: '',
-    city: '',
-    state: '',
-    postalCode: '',
-    country: '',
-  })
-
-  const inputRef = useRef<HTMLInputElement | null>(null)
-  const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null)
-  const requestIdRef = useRef(0)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const fetchSuggestions = useCallback(
-    async (input: string) => {
-      if (!isLoaded || !input.trim()) {
-        setPredictions([])
-        return
-      }
-
-      if (!sessionTokenRef.current) {
-        sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
-      }
-
-      const requestId = ++requestIdRef.current
-
-      try {
-        const { suggestions } = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
-          input,
-          includedPrimaryTypes: ['geocode'],
-          sessionToken: sessionTokenRef.current,
-        })
-
-        if (requestId !== requestIdRef.current) return
-
-        setPredictions(suggestions.map((suggestion) => suggestion.placePrediction).filter((prediction): prediction is google.maps.places.PlacePrediction => !!prediction))
-      } catch {
-        if (requestId === requestIdRef.current) {
-          setPredictions([])
-        }
-      }
-    },
-    [isLoaded],
-  )
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setShowPredictions(true)
-
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current)
-    }
-    debounceRef.current = setTimeout(() => fetchSuggestions(value), PREDICTION_DEBOUNCE_MS)
-  }
-
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current)
-      }
-    }
-  }, [])
-
-  const handleSelectPrediction = async (prediction: google.maps.places.PlacePrediction) => {
-    setPredictions([])
-    setShowPredictions(false)
-
-    try {
-      const place = prediction.toPlace()
-      await place.fetchFields({ fields: ['addressComponents'] })
-
-      const components = place.addressComponents ?? []
-      const component = (type: string, short = false) => {
-        const match = components.find((item) => item.types.includes(type))
-        return (short ? match?.shortText : match?.longText) ?? ''
-      }
-
-      const street = [component('street_number'), component('route')].filter(Boolean).join(' ')
-
-      setAddress({
-        line1: street || prediction.mainText?.text || prediction.text.text,
-        line2: '',
-        city: component('locality') || component('postal_town') || component('sublocality_level_1'),
-        state: component('administrative_area_level_1', true),
-        postalCode: component('postal_code'),
-        country: component('country'),
-      })
-    } catch {
-      errorNotification({
-        title: 'Error',
-        description: 'Could not load the details for the selected address, please fill it in manually.',
-      })
-    } finally {
-      sessionTokenRef.current = null
-    }
-  }
+  const [address, setAddress] = useState<PlaceAddress>(emptyAddress)
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
@@ -166,7 +67,7 @@ const BillingContactDialog = () => {
     if (!setting) {
       return
     }
-    setAddress(setting.organization.setting?.billingAddress)
+    setAddress({ ...emptyAddress, ...setting.organization.setting?.billingAddress })
 
     setFullName(setting.organization.setting?.billingContact || '')
     return () => {}
@@ -175,7 +76,7 @@ const BillingContactDialog = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen} aria-describedby={undefined}>
       <DialogTrigger asChild>
-        <h1 className="text-brand text-sm font-medium cursor-pointer">Edit</h1>
+        <h1 className="text-primary text-sm font-medium cursor-pointer">Edit</h1>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[455px]">
         <DialogHeader>
@@ -189,27 +90,18 @@ const BillingContactDialog = () => {
           </div>
           <div className="relative">
             <Label htmlFor="line1">Address Line 1</Label>
-            <div ref={wrapperRef} className="relative w-full">
-              <Input
-                ref={inputRef}
-                id="line1"
-                value={address.line1}
-                onChange={(e) => {
-                  handleAddressChange(e)
-                  handleInputChange(e)
-                }}
-                placeholder="Start typing an address..."
-              />
-              {showPredictions && predictions.length > 0 && (
-                <div className="absolute z-10 bg-panel border rounded-sm shadow-md w-full">
-                  {predictions.map((prediction) => (
-                    <p key={prediction.placeId} {...activatable(() => handleSelectPrediction(prediction))} className="p-2 cursor-pointer">
-                      {prediction.text.text}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </div>
+            <AddressAutocompleteInput
+              id="line1"
+              value={address.line1}
+              onChange={(line1) => setAddress((prev) => ({ ...prev, line1 }))}
+              onAddressResolved={setAddress}
+              onResolveError={() =>
+                errorNotification({
+                  title: 'Error',
+                  description: 'Could not load the details for the selected address, please fill it in manually.',
+                })
+              }
+            />
           </div>
 
           <div>

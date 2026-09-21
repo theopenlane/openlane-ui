@@ -21,12 +21,12 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
 
 const ContactPage: React.FC = () => {
-  const { form } = useFormSchema()
-  const { data: session } = useSession()
-
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
+
+  const { form } = useFormSchema({ isCreate })
+  const { data: session } = useSession()
   const [isMergeOpen, setIsMergeOpen] = useState(false)
   const { data, isLoading } = useContact(id || undefined)
 

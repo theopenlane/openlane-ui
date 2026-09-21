@@ -18,7 +18,7 @@ type ContactCreateSheetProps = {
 const statusOptions = enumToOptions(ContactUserStatus)
 
 const ContactCreateSheet: React.FC<ContactCreateSheetProps> = ({ open, onOpenChange }) => {
-  const { form } = useFormSchema()
+  const { form } = useFormSchema({ isCreate: true })
   const { tagOptions } = useGetTags()
   const baseCreateMutation = useCreateContact()
 

@@ -28,6 +28,8 @@ interface SelectFieldProps<TUpdateInput> {
   icon?: React.ReactNode
   layout?: 'vertical' | 'horizontal'
   labelClassName?: string
+  triggerClassName?: string
+  placeholder?: string
   renderValue?: (value: string) => React.ReactNode
 }
 
@@ -48,6 +50,8 @@ export const SelectField = <TUpdateInput,>({
   icon,
   layout = 'vertical',
   labelClassName,
+  triggerClassName,
+  placeholder = 'Select',
   renderValue,
 }: SelectFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
@@ -73,7 +77,7 @@ export const SelectField = <TUpdateInput,>({
             {shouldShowInput ? (
               onCreateOption ? (
                 <CreatableCustomTypeEnumSelect
-                  value={field.value}
+                  value={field.value ?? undefined}
                   options={options}
                   onCreateOption={onCreateOption}
                   useCustomDisplay={useCustomDisplay}
@@ -88,7 +92,7 @@ export const SelectField = <TUpdateInput,>({
                 />
               ) : (
                 <Select
-                  value={field.value}
+                  value={field.value ?? undefined}
                   onValueChange={async (val) => {
                     field.onChange(val)
                     if (!isEditing && !isCreate && handleUpdate) {
@@ -98,12 +102,12 @@ export const SelectField = <TUpdateInput,>({
                   }}
                 >
                   <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue>
+                    <SelectTrigger className={cn('w-full', triggerClassName)}>
+                      <SelectValue placeholder={placeholder}>
                         {useCustomDisplay ? (
-                          <CustomTypeEnumValue value={field.value} options={options} placeholder="Select" />
+                          <CustomTypeEnumValue value={field.value} options={options} placeholder={field.value} />
                         ) : (
-                          <span>{options.find((opt) => opt.value === field.value)?.label || 'Select'}</span>
+                          <span>{options.find((opt) => opt.value === field.value)?.label ?? field.value}</span>
                         )}
                       </SelectValue>
                     </SelectTrigger>
