@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 
 import { type IntegrationHealthFilter, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
 import { getInstalledIntegrationConfig, matchesIntegrationSearch } from '@/lib/integrations/utils'
-import { buildIntegrationHealthOptions } from '@/lib/integrations/health'
+import { buildIntegrationHealthOptions, matchesIntegrationHealthFilter } from '@/lib/integrations/health'
 import InstalledIntegrationCard from './installed-integration-card'
 import InstalledIntegrationsFilters from './installed-integrations-filters'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
@@ -39,10 +39,7 @@ export const InstalledIntegrationsGrid = ({ installedIntegrations, healthFilter,
 
   const healthOptions = useMemo(() => buildIntegrationHealthOptions(searchMatches, healthFilter), [searchMatches, healthFilter])
 
-  const filteredInstalledIntegrations = useMemo(
-    () => (healthFilter === 'All' ? searchMatches : searchMatches.filter((integration) => integration.status === healthFilter)),
-    [searchMatches, healthFilter],
-  )
+  const filteredInstalledIntegrations = useMemo(() => searchMatches.filter((integration) => matchesIntegrationHealthFilter(integration.status, healthFilter)), [searchMatches, healthFilter])
 
   return (
     <div className="flex flex-col gap-5">

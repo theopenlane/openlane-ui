@@ -6,7 +6,7 @@ export type IntegrationsTab = (typeof INTEGRATIONS_TABS)[keyof typeof INTEGRATIO
 
 export type IntegrationStatusFilter = 'All' | 'Coming Soon' | 'Not Installed'
 
-export type IntegrationHealthFilter = 'All' | IntegrationIntegrationStatus
+export type IntegrationHealthFilter = 'All' | 'Unhealthy' | IntegrationIntegrationStatus
 
 export type IntegrationMetadata = {
   externalName?: string

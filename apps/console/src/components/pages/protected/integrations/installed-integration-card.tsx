@@ -74,7 +74,14 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
             {integration.primaryDirectory ? <Badge variant="blue">Primary Directory</Badge> : null}
             {isPrimaryDocument ? <Badge variant="blue">Primary Document</Badge> : null}
             {healthStatus.summary ? (
-              <SystemTooltip icon={<Badge variant={healthStatus.variant}>{healthStatus.label}</Badge>} content={<span className="whitespace-pre-line">{healthStatus.summary}</span>} />
+              <SystemTooltip
+                icon={
+                  <span className="inline-flex">
+                    <Badge variant={healthStatus.variant}>{healthStatus.label}</Badge>
+                  </span>
+                }
+                content={<span className="whitespace-pre-line">{healthStatus.summary}</span>}
+              />
             ) : (
               <Badge variant={healthStatus.variant}>{healthStatus.label}</Badge>
             )}

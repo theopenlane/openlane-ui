@@ -1,10 +1,12 @@
 import React, { useId } from 'react'
 import { Button } from '@repo/ui/button'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 export type TIntegrationFilterChip<TValue extends string> = {
   value: TValue
   label: string
   count?: number
+  tooltip?: string
 }
 
 type IntegrationFilterChipsProps<TValue extends string> = {
@@ -23,11 +25,15 @@ const IntegrationFilterChips = <TValue extends string>({ label, chips, isSelecte
       <span id={labelId} className="text-sm text-muted-foreground">
         {label}:
       </span>
-      {chips.map(({ value, label: chipLabel, count }) => (
-        <Button key={value} type="button" size="sm" variant="tag" aria-pressed={isSelected(value)} className={isSelected(value) ? 'is-active' : ''} onClick={() => onSelect(value)}>
-          {count === undefined ? chipLabel : `${chipLabel} (${count})`}
-        </Button>
-      ))}
+      {chips.map(({ value, label: chipLabel, count, tooltip }) => {
+        const chip = (
+          <Button key={value} type="button" size="sm" variant="tag" aria-pressed={isSelected(value)} className={isSelected(value) ? 'is-active' : ''} onClick={() => onSelect(value)}>
+            {count === undefined ? chipLabel : `${chipLabel} (${count})`}
+          </Button>
+        )
+
+        return tooltip ? <SystemTooltip key={value} content={tooltip} icon={<span className="inline-flex">{chip}</span>} /> : chip
+      })}
       {onClear && (
         <Button type="button" variant="transparent" size="sm" className="text-xs text-muted-foreground underline-offset-2 hover:underline" onClick={onClear}>
           Clear
