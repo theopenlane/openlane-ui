@@ -1,3 +1,5 @@
+import { responsibilityFieldSchema, buildResponsibilityPayload, type ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { RISK_STAKEHOLDER, RISK_DELEGATE } from '@/components/pages/protected/risks/risk-responsibility'
 import { z } from 'zod'
 import { EvidenceFrequency, type Group } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -63,6 +65,7 @@ export interface SelectOptionSelectedObject<T extends string = string> {
   clearable?: boolean
   allowedObjectTypes?: readonly ObjectTypeObjects[]
   objectType?: ObjectTypeObjects
+  stringFieldName?: string
 }
 
 export enum SelectOptionBulkEditControls {
@@ -132,6 +135,7 @@ export type SelectOptionBulkEdit =
 
 export enum InputType {
   Select = 'SELECT',
+  Responsibility = 'RESPONSIBILITY',
   Input = 'INPUT',
   Date = 'DATETIME',
   Tag = 'TAG',
@@ -143,6 +147,7 @@ export interface FieldItem {
   value: string | undefined
   selectedObject?: SelectOptionSelectedObject
   selectedValue?: string | string[] | undefined
+  selectedResponsibility?: ResponsibilitySelection
   selectedDate?: Date | null
   selectedAssociations?: TObjectAssociationMap
 }
@@ -173,6 +178,7 @@ export const fieldItemSchema = z.object({
     })
     .optional(),
   selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
+  selectedResponsibility: responsibilityFieldSchema,
   selectedDate: z.date().nullable().optional(),
   selectedAssociations: z.record(z.string(), z.array(z.string())).optional(),
 })
@@ -195,8 +201,9 @@ export const isClearableSelect = (selectedObject?: Pick<SelectOptionSelectedObje
 }
 
 type BulkEditFieldLike = {
-  selectedObject?: { name: string; inputType: InputType; clearable?: boolean } | undefined
+  selectedObject?: { name: string; inputType: InputType; clearable?: boolean; stringFieldName?: string } | undefined
   selectedValue?: string | string[] | undefined
+  selectedResponsibility?: ResponsibilitySelection
   selectedDate?: Date | null | undefined
   selectedAssociations?: Record<string, string[]> | undefined
   value?: string | undefined
@@ -233,6 +240,11 @@ export const collectBulkEditFieldInput = (field: BulkEditFieldLike, input: Recor
 
   const key = field.selectedObject?.name
   if (!key) return
+
+  if (field.selectedObject?.inputType === InputType.Responsibility && field.selectedResponsibility !== undefined) {
+    Object.assign(input, buildResponsibilityPayload(key, field.selectedResponsibility, { mode: 'update', stringFieldName: field.selectedObject.stringFieldName }))
+    return
+  }
 
   if (field.selectedValue && field.value) {
     input[key] = field.selectedValue
@@ -299,15 +311,15 @@ export const getAssociationSelectedCount = (selectedAssociations?: Record<string
 
 export type BulkEditGroup = Pick<Group, 'id' | 'name' | 'displayName'>
 
-export const getAllSelectOptionsForBulkEditRisks = (groups: BulkEditGroup[], typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject[] => {
+export const getAllSelectOptionsForBulkEditRisks = (typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskDelegate,
-      name: 'delegateID',
-      inputType: InputType.Select,
+      name: RISK_DELEGATE.fieldBaseName,
+      stringFieldName: RISK_DELEGATE.stringFieldName,
+      inputType: InputType.Responsibility,
       clearable: true,
       placeholder: 'Select delegate',
-      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
     {
       selectOptionEnum: SelectOptionBulkEditRisks.Status,
@@ -332,11 +344,11 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: BulkEditGroup[], typ
     },
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskStakeholder,
-      name: 'stakeholderID',
-      inputType: InputType.Select,
+      name: RISK_STAKEHOLDER.fieldBaseName,
+      stringFieldName: RISK_STAKEHOLDER.stringFieldName,
+      inputType: InputType.Responsibility,
       clearable: true,
       placeholder: 'Select stakeholder',
-      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskCategory,

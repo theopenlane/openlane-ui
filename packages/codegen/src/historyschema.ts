@@ -3798,6 +3798,7 @@ export interface FindingsWithFilterQuery {
         exploitability: number | null
         externalID: string | null
         externalOwnerID: string | null
+        internalOwner: string | null
         externalURI: string | null
         findingClass: string | null
         id: string
@@ -3831,6 +3832,9 @@ export interface FindingsWithFilterQuery {
         updatedBy: string | null
         validated: boolean | null
         vector: string | null
+        internalOwnerUser: { id: string; displayName: string } | null
+        internalOwnerGroup: { id: string; displayName: string } | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
       } | null
     } | null> | null
@@ -3859,6 +3863,7 @@ export interface FindingQuery {
     exploitability: number | null
     externalID: string | null
     externalOwnerID: string | null
+    internalOwner: string | null
     externalURI: string | null
     findingClass: string | null
     id: string
@@ -3892,6 +3897,9 @@ export interface FindingQuery {
     updatedBy: string | null
     validated: boolean | null
     vector: string | null
+    internalOwnerUser: { id: string; displayName: string } | null
+    internalOwnerGroup: { id: string; displayName: string } | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     integrations: { totalCount: number }
     remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
   }
@@ -5928,18 +5936,18 @@ export interface PlatformQuery {
     businessPurpose: string | null
     dataFlowSummary: string | null
     trustBoundaryDescription: string | null
-    platformOwnerID: string | null
     businessOwner: string | null
     technicalOwner: string | null
+    platformOwnerID: string | null
     internalOwner: string | null
     securityOwner: string | null
-    platformOwner: { id: string; displayName: string; email: string } | null
     businessOwnerUser: { id: string; displayName: string; email: string } | null
     businessOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     businessOwnerGroup: { id: string; name: string } | null
     technicalOwnerUser: { id: string; displayName: string; email: string } | null
     technicalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     technicalOwnerGroup: { id: string; name: string } | null
+    platformOwner: { id: string; displayName: string; email: string } | null
     internalOwnerUser: { id: string; displayName: string; email: string } | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; name: string } | null
@@ -7028,9 +7036,15 @@ export type RiskFieldsFragment = {
   reviewRequired: boolean | null
   dueDate: string | null
   riskDecision: Types.RiskRiskDecision | null
+  stakeholderName: string | null
+  delegateName: string | null
   createdAt: any
-  stakeholder: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
-  delegate: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
+  stakeholderUser: { id: string; displayName: string } | null
+  stakeholderGroup: { id: string; displayName: string } | null
+  stakeholderIdentityHolder: { id: string; fullName: string; email: string } | null
+  delegateUser: { id: string; displayName: string } | null
+  delegateGroup: { id: string; displayName: string } | null
+  delegateIdentityHolder: { id: string; fullName: string; email: string } | null
 }
 
 export type RiskTableFieldsFragment = {
@@ -7042,6 +7056,7 @@ export type RiskTableFieldsFragment = {
   score: number | null
   status: Types.RiskRiskStatus | null
   businessCosts: string | null
+  delegateName: string | null
   details: string | null
   impact: Types.RiskRiskImpact | null
   lastReviewedAt: string | null
@@ -7059,8 +7074,13 @@ export type RiskTableFieldsFragment = {
   riskDecision: Types.RiskRiskDecision | null
   environmentName: string | null
   scopeName: string | null
-  delegate: { displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
-  stakeholder: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
+  stakeholderName: string | null
+  delegateUser: { id: string; displayName: string } | null
+  delegateGroup: { id: string; displayName: string } | null
+  delegateIdentityHolder: { id: string; fullName: string; email: string } | null
+  stakeholderUser: { id: string; displayName: string } | null
+  stakeholderGroup: { id: string; displayName: string } | null
+  stakeholderIdentityHolder: { id: string; fullName: string; email: string } | null
 }
 
 export type GetRiskByIdQueryVariables = Exact<{
@@ -7093,9 +7113,15 @@ export interface GetRiskByIdQuery {
     reviewRequired: boolean | null
     dueDate: string | null
     riskDecision: Types.RiskRiskDecision | null
+    stakeholderName: string | null
+    delegateName: string | null
     createdAt: any
-    stakeholder: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
-    delegate: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
+    stakeholderUser: { id: string; displayName: string } | null
+    stakeholderGroup: { id: string; displayName: string } | null
+    stakeholderIdentityHolder: { id: string; fullName: string; email: string } | null
+    delegateUser: { id: string; displayName: string } | null
+    delegateGroup: { id: string; displayName: string } | null
+    delegateIdentityHolder: { id: string; fullName: string; email: string } | null
   }
 }
 
@@ -7122,6 +7148,7 @@ export interface GetAllRisksQuery {
         score: number | null
         status: Types.RiskRiskStatus | null
         businessCosts: string | null
+        delegateName: string | null
         details: string | null
         impact: Types.RiskRiskImpact | null
         lastReviewedAt: string | null
@@ -7139,8 +7166,13 @@ export interface GetAllRisksQuery {
         riskDecision: Types.RiskRiskDecision | null
         environmentName: string | null
         scopeName: string | null
-        delegate: { displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
-        stakeholder: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
+        stakeholderName: string | null
+        delegateUser: { id: string; displayName: string } | null
+        delegateGroup: { id: string; displayName: string } | null
+        delegateIdentityHolder: { id: string; fullName: string; email: string } | null
+        stakeholderUser: { id: string; displayName: string } | null
+        stakeholderGroup: { id: string; displayName: string } | null
+        stakeholderIdentityHolder: { id: string; fullName: string; email: string } | null
       } | null
     } | null> | null
   }
@@ -9734,6 +9766,7 @@ export interface VulnerabilitiesWithFilterQuery {
         exploitability: number | null
         externalID: string
         externalOwnerID: string | null
+        internalOwner: string | null
         externalURI: string | null
         firstPatchedVersion: string | null
         id: string
@@ -9772,6 +9805,9 @@ export interface VulnerabilitiesWithFilterQuery {
         reviewedByUser: { id: string; displayName: string } | null
         reviewedByGroup: { id: string; displayName: string } | null
         reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
+        internalOwnerUser: { id: string; displayName: string } | null
+        internalOwnerGroup: { id: string; displayName: string } | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
       } | null
     } | null> | null
@@ -9804,6 +9840,7 @@ export interface VulnerabilityQuery {
     exploitability: number | null
     externalID: string
     externalOwnerID: string | null
+    internalOwner: string | null
     externalURI: string | null
     firstPatchedVersion: string | null
     id: string
@@ -9842,6 +9879,9 @@ export interface VulnerabilityQuery {
     reviewedByUser: { id: string; displayName: string } | null
     reviewedByGroup: { id: string; displayName: string } | null
     reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
+    internalOwnerUser: { id: string; displayName: string } | null
+    internalOwnerGroup: { id: string; displayName: string } | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     integrations: { totalCount: number }
     remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
   }

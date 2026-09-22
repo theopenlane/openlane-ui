@@ -1,10 +1,10 @@
 'use client'
 
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { activatable } from '@repo/ui/lib/a11y'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
-import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
@@ -237,6 +237,18 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <ResponsibilityField
+              name="internalOwner"
+              fieldBaseName="internalOwner"
+              label="Internal Owner"
+              tooltipContent="Who owns this vulnerability internally, independent of who is triaging it"
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleResponsibilityUpdate}
+            />
             <ResponsibilityField
               name="assignedTo"
               fieldBaseName="assignedTo"

@@ -1,5 +1,7 @@
 'use client'
 
+import { ResponsibilityPicker } from '@/components/shared/crud-base/form-fields/responsibility-picker'
+
 import React, { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form'
@@ -7,7 +9,6 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, Dialo
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
@@ -48,11 +49,6 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
     resolver: zodResolver(bulkEditFieldsSchema),
     defaultValues: defaultObject,
   })
-  const { data } = useGetAllGroups({ where: {} })
-  const groups = useMemo(() => {
-    if (!data) return
-    return data?.groups?.edges?.map((edge) => edge?.node) || []
-  }, [data])
   const {
     enumOptions: typeOptions,
     onCreateOption: createRiskType,
@@ -72,9 +68,9 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
   })
 
   const unfilteredOptionSelects = useMemo(() => {
-    if (!groups || !isTypesSuccess || !isCategoriesSuccess) return []
-    return getAllSelectOptionsForBulkEditRisks(groups?.filter((g): g is NonNullable<typeof g> => Boolean(g)) ?? [], typeOptions, categoryOptions)
-  }, [groups, typeOptions, categoryOptions, isCategoriesSuccess, isTypesSuccess])
+    if (!isTypesSuccess || !isCategoriesSuccess) return []
+    return getAllSelectOptionsForBulkEditRisks(typeOptions, categoryOptions)
+  }, [typeOptions, categoryOptions, isCategoriesSuccess, isTypesSuccess])
   const allOptionSelects = useModuleFilteredSelectOptions(unfilteredOptionSelects)
 
   const { control, handleSubmit } = form
@@ -186,7 +182,13 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                       </div>
                       {item.selectedObject &&
                         !isObjectAssociation &&
-                        (item.selectedObject.inputType === InputType.Select ? (
+                        (item.selectedObject.inputType === InputType.Responsibility ? (
+                          <Controller
+                            control={control}
+                            name={`fieldsArray.${index}.selectedResponsibility`}
+                            render={({ field }) => <ResponsibilityPicker value={field.value} onChange={field.onChange} />}
+                          />
+                        ) : item.selectedObject.inputType === InputType.Select ? (
                           <div className="flex flex-col items-center gap-2">
                             {item.selectedObject.name === 'riskKindName' || item.selectedObject.name === 'riskCategoryName' ? (
                               <CreatableCustomTypeEnumSelect

@@ -36,7 +36,7 @@ const StatCard: React.FC<{ label: string; value: React.ReactNode; sub?: React.Re
 
 const TriageDetail: React.FC<Props> = ({ vuln }) => {
   const { data: associations } = useGetVulnerabilityAssociations(vuln.id)
-  const { assignee, reviewedBy } = useMemo(() => getVulnerabilityResponsibilities(vuln), [vuln])
+  const { internalOwner, assignee, reviewedBy } = useMemo(() => getVulnerabilityResponsibilities(vuln), [vuln])
   const sheetNav = useSheetNavigation()
 
   const severityLabel = getSeverityLabel(vuln)
@@ -114,6 +114,7 @@ const TriageDetail: React.FC<Props> = ({ vuln }) => {
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <ResponsibilityValue label="Internal Owner" selection={internalOwner} />
         <ResponsibilityValue label="Assignee" selection={assignee} />
         <ResponsibilityValue label="Reviewed by" selection={reviewedBy} />
       </div>

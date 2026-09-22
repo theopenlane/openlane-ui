@@ -57,7 +57,7 @@ const RiskTable: React.FC = () => {
     updatedBy: false,
     createdAt: false,
     createdBy: false,
-    delegate: false,
+    delegateName: false,
   }
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.RISK, defaultVisibility))
@@ -102,16 +102,21 @@ const RiskTable: React.FC = () => {
 
   const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
-  const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap, tokenMap, convertToReadOnly, selectedRisks, setSelectedRisks }), [userMap, tokenMap, convertToReadOnly, selectedRisks])
+  const isEditAllowed = canEdit(permission?.roles, session)
+
+  const { columns, mappedColumns } = useMemo(
+    () => getRiskColumns({ userMap, tokenMap, convertToReadOnly, selectedRisks, setSelectedRisks, isEditAllowed }),
+    [userMap, tokenMap, convertToReadOnly, selectedRisks, isEditAllowed],
+  )
 
   useEffect(() => {
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles, session),
+        select: isEditAllowed,
       }))
     }
-  }, [permission?.roles, session])
+  }, [permission?.roles, isEditAllowed])
 
   useEffect(() => {
     setCrumbs([

@@ -39,6 +39,7 @@ interface ResponsibilityFieldProps {
   userOnly?: boolean
   groupOnly?: boolean
   allowPersonnel?: boolean
+  stringFieldName?: string
 }
 
 export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
@@ -58,6 +59,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   userOnly = false,
   groupOnly = false,
   allowPersonnel = true,
+  stringFieldName,
 }) => {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
@@ -67,8 +69,8 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
 
   const personnelEnabled = !userOnly && !groupOnly && allowPersonnel
 
-  const { userOptions } = useUserSelect({})
-  const { groupOptions } = useGroupSelect()
+  const { userOptions } = useUserSelect({ enabled: open })
+  const { groupOptions } = useGroupSelect({ enabled: open })
   const { personnelOptions, isFetching: isFetchingPersonnel } = usePersonnelSelect({
     searchText: debouncedTerm,
     enabled: open && personnelEnabled,
@@ -121,7 +123,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
     setSearchText('')
 
     if (!isEditing && !isCreate && handleUpdate) {
-      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selectionToUse, { allowPersonnel })
+      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selectionToUse, { allowPersonnel, stringFieldName })
       await handleUpdate(payload)
     }
 

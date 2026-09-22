@@ -1,18 +1,29 @@
 'use client'
 
-import { useCallback } from 'react'
-import type React from 'react'
-import useFormSchema from './use-form-schema'
-import { type FindingsNodeNonNull, useFinding, useUpdateFinding, useCreateFinding, useGetFindingAssociations, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
-import { getFieldsToRender } from '../table/table-config'
-import { type FindingSheetConfig, type FindingFieldProps, type EnumOptions, objectType } from '../table/types'
-import { type CreateFindingInput, type UpdateFindingInput, type GetFindingAssociationsQuery } from '@repo/codegen/src/schema'
-import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { buildResponsibilityPayload, normalizeEntityData } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useControlLinksForFinding } from '@/components/shared/object-association/finding-control-links'
-import { omitAssociationKeys, useFindingAssociationSplit } from './use-finding-association-split'
-import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { useInitialAssociations } from '@/hooks/useInitialAssociations'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { type FindingsNodeNonNull, useBulkDeleteFinding, useCreateFinding, useFinding, useGetFindingAssociations, useUpdateFinding } from '@/lib/graphql-hooks/finding'
+import { type CreateFindingInput, type GetFindingAssociationsQuery, type UpdateFindingInput } from '@repo/codegen/src/schema'
 import type { Value } from 'platejs'
+import type React from 'react'
+import { useCallback } from 'react'
+import { getFieldsToRender } from '../table/table-config'
+import { type EnumOptions, type FindingFieldProps, type FindingSheetConfig, objectType } from '../table/types'
+import { omitAssociationKeys, useFindingAssociationSplit } from './use-finding-association-split'
+import useFormSchema from './use-form-schema'
+
+const normalizeData = (data: FindingsNodeNonNull) =>
+  normalizeEntityData(data, {
+    internalOwner: {
+      personnel: data.internalOwnerIdentityHolder,
+      user: data.internalOwnerUser,
+      group: data.internalOwnerGroup,
+      stringValue: data.internalOwner,
+    },
+  })
 
 export const useFindingSheetConfig = (entityId: string | null | undefined, isCreate = false, riskScoresAction?: React.ReactNode): Omit<FindingSheetConfig, 'onClose'> & { enumOpts: EnumOptions } => {
   const { form } = useFormSchema()
@@ -83,13 +94,19 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
     updateMutation,
     createMutation,
     deleteMutation,
+    normalizeData,
     buildPayload: async (formData) => {
-      const rest = omitAssociationKeys(formData)
+      const { internalOwner, ...rest } = omitAssociationKeys(formData)
       const { entityInput: edgeAssociationPayload } = splitAssociations(formData)
 
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
       const cleaned = Object.fromEntries(Object.entries({ ...rest, description }).filter(([, v]) => v !== '' && v !== undefined))
-      return { ...cleaned, ...edgeAssociationPayload }
+      const internalOwnerPayload = isCreate
+        ? buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'create' })
+        : form.formState.dirtyFields.internalOwner
+          ? buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'update' })
+          : {}
+      return { ...cleaned, ...edgeAssociationPayload, ...internalOwnerPayload }
     },
     onSaved: async ({ formData, created, entityId: savedId }) => {
       const findingID = savedId ?? created?.createFinding?.finding?.id

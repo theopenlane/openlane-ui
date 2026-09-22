@@ -74,6 +74,7 @@ const FindingPage: React.FC = () => {
       return result.updateBulkFinding
     },
     bulkEditFormSchema: bulkEditFieldSchema,
+    responsibilityFields: { internalOwner: { fieldBaseName: 'internalOwner' } },
     enumOpts,
     defaultFilterValues: DEFAULT_FILTER_VALUES,
     beforeTable: (

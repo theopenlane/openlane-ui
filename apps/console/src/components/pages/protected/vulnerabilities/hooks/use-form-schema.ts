@@ -1,11 +1,12 @@
 'use client'
 import { z } from 'zod'
+import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type Value } from 'platejs'
-import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 const formSchema = z.object({
+  internalOwner: responsibilityFieldSchema,
   displayName: z.string().optional(),
   externalID: z.string().min(1, 'External ID is required'),
   description: z.custom<Value | string>().optional(),
@@ -59,6 +60,7 @@ const formSchema = z.object({
 })
 
 export const bulkEditFieldSchema = z.object({
+  internalOwner: responsibilityFieldSchema,
   severity: z.string().optional(),
   vulnerabilityStatusName: z.string().optional().nullable(),
   priority: z.string().optional(),

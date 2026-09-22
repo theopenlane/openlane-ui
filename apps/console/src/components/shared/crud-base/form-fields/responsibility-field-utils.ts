@@ -1,16 +1,11 @@
 import { z } from 'zod'
-import { isValidEmail } from '@/lib/validators'
 
 export const responsibilityFieldSchema = z
   .object({
     type: z.enum(['user', 'group', 'personnel', 'string']),
     value: z.string(),
     displayName: z.string().optional(),
-    noClearOtherFields: z.boolean().optional(), // for types that are update but do not have other fields to clear, like delegate in risks
-  })
-  .refine((data) => data.type !== 'string' || isValidEmail(data.value), {
-    message: 'Must be a valid email address',
-    path: ['value'],
+    noClearOtherFields: z.boolean().optional(),
   })
   .optional()
   .nullable()
@@ -60,9 +55,9 @@ export function normalizeResponsibilityField(input: ResponsibilityFieldInput): R
     }
   }
 
-  if (input.personnel?.id || input.personnelID) {
-    const id = input.personnel?.id || input.personnelID!
-    return { type: 'personnel', value: id, displayName: input.personnel?.fullName || input.personnel?.email || id }
+  const personnelID = input.personnel?.id || input.personnelID
+  if (personnelID) {
+    return { type: 'personnel', value: personnelID, displayName: input.personnel?.fullName || input.personnel?.email || personnelID }
   }
 
   if (input.stringValue) {
@@ -84,27 +79,43 @@ export function normalizeEntityData<T extends object>(data: T | null | undefined
 
 type ResponsibilityPayloadMode = 'create' | 'update'
 
+export type ResponsibilityInputKeys<B extends string, S extends string> =
+  `${B}UserID` | `${B}GroupID` | `${B}IdentityHolderID` | S | `clear${Capitalize<B>}User` | `clear${Capitalize<B>}Group` | `clear${Capitalize<B>}IdentityHolder` | `clear${Capitalize<S>}`
+
+export interface ResponsibilityTarget {
+  fieldBaseName: string
+  stringFieldName: string
+}
+
+export const responsibilityTargetFor =
+  <TInput>() =>
+  <const B extends string, const S extends string = B>(fieldBaseName: ResponsibilityInputKeys<B, S> extends keyof TInput ? B : never, stringFieldName?: S): ResponsibilityTarget => ({
+    fieldBaseName,
+    stringFieldName: stringFieldName ?? fieldBaseName,
+  })
+
 interface ResponsibilityPayloadOptions {
   mode?: ResponsibilityPayloadMode
   allowPersonnel?: boolean
+  stringFieldName?: string
 }
 
-function getClearFieldNames(fieldBaseName: string): { clearUser: string; clearGroup: string; clearString: string; clearPersonnel: string } {
+function getClearFieldNames(fieldBaseName: string, stringFieldName: string): { clearUser: string; clearGroup: string; clearString: string; clearPersonnel: string } {
   return {
     clearPersonnel: `clear${capitalize(fieldBaseName)}IdentityHolder`,
     clearUser: `clear${capitalize(fieldBaseName)}User`,
     clearGroup: `clear${capitalize(fieldBaseName)}Group`,
-    clearString: `clear${capitalize(fieldBaseName)}`,
+    clearString: `clear${capitalize(stringFieldName)}`,
   }
 }
 
 export function buildResponsibilityPayload(
   fieldBaseName: string,
   selection: ResponsibilitySelection,
-  { mode = 'create', allowPersonnel = true }: ResponsibilityPayloadOptions = {},
+  { mode = 'create', allowPersonnel = true, stringFieldName = fieldBaseName }: ResponsibilityPayloadOptions = {},
 ): Record<string, string | boolean | undefined> {
   if (mode === 'update') {
-    const { clearUser, clearGroup, clearString, clearPersonnel } = getClearFieldNames(fieldBaseName)
+    const { clearUser, clearGroup, clearString, clearPersonnel } = getClearFieldNames(fieldBaseName, stringFieldName)
     const clearPersonnelFields = allowPersonnel ? { [clearPersonnel]: true } : {}
 
     if (!selection) {
@@ -116,7 +127,6 @@ export function buildResponsibilityPayload(
       }
     }
 
-    // clear just the single field, used by group and user only fields
     if (selection.value === '') {
       return {
         [clearString]: true,
@@ -146,7 +156,7 @@ export function buildResponsibilityPayload(
         return { [`${fieldBaseName}IdentityHolderID`]: selection.value, [clearUser]: true, [clearGroup]: true, [clearString]: true }
       case 'string':
         return {
-          [fieldBaseName]: selection.value,
+          [stringFieldName]: selection.value,
           ...clearPersonnelFields,
           [clearUser]: true,
           [clearGroup]: true,
@@ -172,7 +182,7 @@ export function buildResponsibilityPayload(
     case 'personnel':
       return { [`${fieldBaseName}IdentityHolderID`]: selection.value }
     case 'string':
-      return { [fieldBaseName]: selection.value }
+      return { [stringFieldName]: selection.value }
     default:
       return {}
   }
@@ -181,9 +191,9 @@ export function buildResponsibilityPayload(
 export function buildResponsibilityInlineUpdate(
   fieldBaseName: string,
   selection: ResponsibilitySelection,
-  { allowPersonnel = true }: ResponsibilityPayloadOptions = {},
+  { allowPersonnel = true, stringFieldName }: ResponsibilityPayloadOptions = {},
 ): Record<string, string | boolean | undefined> {
-  return buildResponsibilityPayload(fieldBaseName, selection, { mode: 'update', allowPersonnel })
+  return buildResponsibilityPayload(fieldBaseName, selection, { mode: 'update', allowPersonnel, stringFieldName })
 }
 
 function capitalize(str: string): string {

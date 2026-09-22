@@ -25,7 +25,7 @@ import { ResponsibilityPicker } from '../form-fields/responsibility-picker'
 import { useBulkUpdateFeedback } from '../use-bulk-update-feedback'
 import { type BulkUpdatePayload } from '../types'
 
-export type ResponsibilityFieldsMap = Record<string, { fieldBaseName: string; allowPersonnel?: boolean }>
+export type ResponsibilityFieldsMap = Record<string, { fieldBaseName: string; allowPersonnel?: boolean; stringFieldName?: string }>
 
 export interface BulkEditFieldOption {
   label: string
@@ -149,7 +149,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
       if (respConfig && field.selectedResponsibility !== undefined) {
         const selection = field.selectedResponsibility
         const baseName = respConfig.fieldBaseName
-        Object.assign(input as object, buildResponsibilityPayload(baseName, selection, { mode: 'update', allowPersonnel: respConfig.allowPersonnel }))
+        Object.assign(input as object, buildResponsibilityPayload(baseName, selection, { mode: 'update', allowPersonnel: respConfig.allowPersonnel, stringFieldName: respConfig.stringFieldName }))
         return
       }
 

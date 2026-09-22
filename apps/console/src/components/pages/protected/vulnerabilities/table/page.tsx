@@ -1,8 +1,9 @@
 'use client'
 
+import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { normalizeVulnerabilityData } from '../vulnerability-responsibilities'
 import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
-
 import {
   type VulnerabilitiesNodeNonNull,
   useVulnerability,
@@ -25,7 +26,6 @@ import { type CreateVulnerabilityInput, type UpdateVulnerabilityInput, type GetV
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
-import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { VULNERABILITY_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
@@ -149,8 +149,9 @@ const VulnerabilityPage: React.FC = () => {
     updateMutation,
     createMutation,
     deleteMutation,
+    normalizeData: normalizeVulnerabilityData,
     buildPayload: async (data): Promise<CreateVulnerabilityInput | UpdateVulnerabilityInput> => {
-      const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, assignedTo, reviewedBy, ...rest } = data
+      const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, internalOwner, assignedTo, reviewedBy, ...rest } = data
       const associationPayload = buildAssociationPayload(
         VULNERABILITY_ASSOCIATION_CONFIG.associationKeys,
         { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs },
@@ -163,6 +164,7 @@ const VulnerabilityPage: React.FC = () => {
       return {
         ...cleaned,
         ...associationPayload,
+        ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'create' }),
         ...buildResponsibilityPayload('assignedTo', assignedTo, { mode: 'create' }),
         ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: 'create' }),
       } as CreateVulnerabilityInput | UpdateVulnerabilityInput
@@ -201,7 +203,11 @@ const VulnerabilityPage: React.FC = () => {
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     bulkEditFieldLabels: { assignedTo: 'Assignee' },
-    responsibilityFields: { assignedTo: { fieldBaseName: 'assignedTo' }, reviewedBy: { fieldBaseName: 'reviewedBy' } },
+    responsibilityFields: {
+      internalOwner: { fieldBaseName: 'internalOwner' },
+      assignedTo: { fieldBaseName: 'assignedTo' },
+      reviewedBy: { fieldBaseName: 'reviewedBy' },
+    },
     enumOpts,
     defaultFilterValues: DEFAULT_FILTER_VALUES,
     beforeTable: (

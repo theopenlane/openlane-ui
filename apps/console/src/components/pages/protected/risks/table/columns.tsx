@@ -1,13 +1,12 @@
 import { type ColumnDef } from '@repo/ui/table-types'
-import { type Group, type RiskRiskStatus, type RiskTableFieldsFragment, type User } from '@repo/codegen/src/schema.ts'
+import { type RiskRiskStatus, type RiskTableFieldsFragment, type User } from '@repo/codegen/src/schema.ts'
 import { type AuthorToken } from '@/lib/authors'
 import React from 'react'
 import RiskLabel from '@/components/pages/protected/risks/risk-label.tsx'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
-import DelegateCell from './delegate-cell'
-import StakeholderCell from './stakeholder-cell'
+import RiskResponsibilityCell from './risk-responsibility-cell'
 
 type Params = {
   userMap: Record<string, User>
@@ -15,9 +14,10 @@ type Params = {
   convertToReadOnly?: (value: string, depth: number) => React.ReactNode
   selectedRisks: { id: string }[]
   setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  isEditAllowed?: boolean
 }
 
-export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedRisks, setSelectedRisks }: Params) => {
+export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedRisks, setSelectedRisks, isEditAllowed = true }: Params) => {
   const columns: ColumnDef<RiskTableFieldsFragment>[] = [
     createSelectColumn<RiskTableFieldsFragment>(selectedRisks, setSelectedRisks),
     {
@@ -75,16 +75,9 @@ export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedR
       size: 90,
     },
     {
-      accessorKey: 'stakeholder',
+      accessorKey: 'stakeholderName',
       header: 'Stakeholder',
-      meta: {
-        exportPrefix: 'stakeholder.displayName',
-      },
-      cell: ({ row }) => {
-        const stakeholder = row.original.stakeholder
-        const riskId = row.original.id
-        return <StakeholderCell stakeholder={stakeholder as Group | null} riskId={riskId} />
-      },
+      cell: ({ row }) => <RiskResponsibilityCell risk={row.original} field="stakeholder" isEditAllowed={isEditAllowed} />,
       size: 120,
     },
     {
@@ -94,17 +87,10 @@ export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedR
       size: 200,
     },
     {
-      accessorKey: 'delegate',
+      accessorKey: 'delegateName',
       header: 'Delegate',
-      meta: {
-        exportPrefix: 'delegate.displayName',
-      },
       size: 160,
-      cell: ({ row }) => {
-        const delegate = row.original.delegate
-        const riskId = row.original.id
-        return <DelegateCell delegate={delegate as Group | null} riskId={riskId} />
-      },
+      cell: ({ row }) => <RiskResponsibilityCell risk={row.original} field="delegate" isEditAllowed={isEditAllowed} />,
     },
     {
       accessorKey: 'details',

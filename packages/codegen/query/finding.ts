@@ -21,6 +21,20 @@ export const GET_ALL_FINDINGS = gql`
           exploitability
           externalID
           externalOwnerID
+          internalOwner
+          internalOwnerUser {
+            id
+            displayName
+          }
+          internalOwnerGroup {
+            id
+            displayName
+          }
+          internalOwnerIdentityHolder {
+            id
+            fullName
+            email
+          }
           externalURI
           findingClass
           id
@@ -92,6 +106,20 @@ export const FINDING = gql`
       exploitability
       externalID
       externalOwnerID
+      internalOwner
+      internalOwnerUser {
+        id
+        displayName
+      }
+      internalOwnerGroup {
+        id
+        displayName
+      }
+      internalOwnerIdentityHolder {
+        id
+        fullName
+        email
+      }
       externalURI
       findingClass
       id

@@ -4,6 +4,7 @@ import React from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { Stamp, CircleArrowRight } from 'lucide-react'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
+import { RISK_STAKEHOLDER, RISK_DELEGATE } from '../../risk-responsibility'
 
 type TAuthorityCardProps = {
   inputClassName?: string
@@ -22,14 +23,14 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ inputClassName }) => {
         <div className="w-50 min-w-0">
           <ResponsibilityField
             name="stakeholder"
-            fieldBaseName="stakeholder"
+            fieldBaseName={RISK_STAKEHOLDER.fieldBaseName}
+            stringFieldName={RISK_STAKEHOLDER.stringFieldName}
             label=""
             isCreate={true}
             internalEditing={null}
             setInternalEditing={() => {}}
             isEditing={false}
             isEditAllowed={true}
-            groupOnly={true}
           />
         </div>
 
@@ -41,9 +42,9 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ inputClassName }) => {
         <div className="w-50 min-w-0">
           <ResponsibilityField
             name="delegate"
-            fieldBaseName="delegate"
+            fieldBaseName={RISK_DELEGATE.fieldBaseName}
+            stringFieldName={RISK_DELEGATE.stringFieldName}
             label=""
-            groupOnly={true}
             isCreate={true}
             internalEditing={null}
             setInternalEditing={() => {}}
