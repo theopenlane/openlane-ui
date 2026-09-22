@@ -398,3 +398,5 @@ function normalizeIntegrationStatus(status?: string | null): string {
 
   return status.trim().toUpperCase()
 }
+
+export const matchesIntegrationSearch = (fields: Array<string | null | undefined>, query: string): boolean => fields.filter(Boolean).join(' ').toLowerCase().includes(query.trim().toLowerCase())

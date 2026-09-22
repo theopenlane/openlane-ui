@@ -17,6 +17,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import CopyableText from '@/components/shared/copyable-text/copyable-text'
+import { OrganizationDomains } from './organization-domains'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
@@ -118,11 +119,13 @@ const OrganizationNameForm = () => {
   return (
     <>
       <Panel>
-        <PanelHeader
-          heading="Organization name"
-          subheading="This is the name of your organization, which will hold your data and other configuration. This would typically be the name of the company you work for or represent."
-          noBorder
-        />
+        <PanelHeader heading="Organization Settings" noBorder />
+        <div className="space-y-0.5">
+          <h3 className="text-sm font-medium">Name</h3>
+          <p className="text-sm text-muted-foreground">
+            This is the name of your organization, which will hold your data and other configuration. This would typically be the name of the company you work for or represent.
+          </p>
+        </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
@@ -143,6 +146,7 @@ const OrganizationNameForm = () => {
             />
           </form>
         </Form>
+        <OrganizationDomains />
         {currentOrgId && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <div className="flex items-center gap-3">

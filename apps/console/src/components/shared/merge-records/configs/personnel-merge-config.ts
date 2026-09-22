@@ -61,7 +61,7 @@ const useSearchPersonnel = (search: string, excludeId: string) => {
     return base
   }, [search, excludeId])
 
-  const { identityHoldersNodes, isLoading } = useIdentityHoldersWithFilter({
+  const { identityHoldersNodes, isFetching } = useIdentityHoldersWithFilter({
     where: where as Parameters<typeof useIdentityHoldersWithFilter>[0]['where'],
     pagination: { query: { first: 10 }, page: 1, pageSize: 10 },
   })
@@ -76,7 +76,7 @@ const useSearchPersonnel = (search: string, excludeId: string) => {
     [identityHoldersNodes],
   )
 
-  return { options, isLoading }
+  return { options, isFetching }
 }
 
 const personnelPreSaveExtras = ({ primary, secondary }: { primary: Personnel; secondary: Personnel }): MergePreSaveExtrasResult<UpdateIdentityHolderInput> => {

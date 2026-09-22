@@ -15,6 +15,7 @@ import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
+import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { type ResponsibilitySelection, buildResponsibilityInlineUpdate } from './responsibility-field-utils'
 import { PersonnelOptionItem } from './personnel-option-item'
 import { ResponsibilitySelectionLabel } from './responsibility-type-icon'
@@ -36,6 +37,7 @@ interface ResponsibilityFieldProps {
   layout?: 'vertical' | 'horizontal'
   labelClassName?: string
   userOnly?: boolean
+  groupOnly?: boolean
   allowPersonnel?: boolean
   stringFieldName?: string
 }
@@ -55,20 +57,23 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   layout = 'vertical',
   labelClassName,
   userOnly = false,
+  groupOnly = false,
   allowPersonnel = true,
   stringFieldName,
 }) => {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
-  const [searchText, setSearchText] = useState('')
+  const { searchText, setSearchText, term, debouncedTerm, getIsSearching } = useAsyncCommandSearch()
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
 
+  const personnelEnabled = !userOnly && !groupOnly && allowPersonnel
+
   const { userOptions } = useUserSelect({ enabled: open })
   const { groupOptions } = useGroupSelect({ enabled: open })
-  const { personnelOptions } = usePersonnelSelect({
-    searchText,
-    enabled: open && !userOnly && allowPersonnel,
+  const { personnelOptions, isFetching: isFetchingPersonnel } = usePersonnelSelect({
+    searchText: debouncedTerm,
+    enabled: open && personnelEnabled,
   })
   const { errorNotification } = useNotification()
 
@@ -108,12 +113,17 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
       return
     }
 
-    field.onChange(selection)
+    let selectionToUse = selection
+    if (groupOnly && selection?.type === 'group') {
+      selectionToUse = { ...selection, noClearOtherFields: true }
+    }
+
+    field.onChange(selectionToUse)
     setOpen(false)
     setSearchText('')
 
     if (!isEditing && !isCreate && handleUpdate) {
-      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selection, { allowPersonnel, stringFieldName })
+      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selectionToUse, { allowPersonnel, stringFieldName })
       await handleUpdate(payload)
     }
 
@@ -124,7 +134,9 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
 
   const placeholderText = label ? `Select ${label.toLowerCase()}...` : 'Select owner...'
 
-  const normalizedSearchText = searchText.toLowerCase()
+  const isSearching = personnelEnabled && getIsSearching(isFetchingPersonnel)
+  const visiblePersonnel = isSearching ? [] : personnelOptions
+  const normalizedSearchText = term.toLowerCase()
 
   const filteredUsers = useMemo(() => userOptions.filter((u) => u.label.toLowerCase().includes(normalizedSearchText)), [userOptions, normalizedSearchText])
 
@@ -141,7 +153,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
       name={name}
       render={({ field }) => {
         const currentValue = field.value as ResponsibilitySelection
-        const customEmailLabel = `Use "${searchText.trim()}" as custom email`
+        const customEmailLabel = `Use "${term}" as custom email`
 
         return (
           <FormItem className={layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : ''}>
@@ -168,11 +180,14 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                       sideOffset={4}
                     >
                       <Command shouldFilter={false}>
-                        {userOnly && <CommandInput placeholder="Search users..." value={searchText} onValueChange={setSearchText} />}
-                        {!userOnly && <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} />}
+                        {groupOnly && <CommandInput placeholder="Search groups..." value={searchText} onValueChange={setSearchText} searching={isSearching} />}
+                        {userOnly && <CommandInput placeholder="Search users..." value={searchText} onValueChange={setSearchText} searching={isSearching} />}
+                        {!groupOnly && !userOnly && (
+                          <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} searching={isSearching} />
+                        )}
                         <CommandList className="max-h-[min(300px,var(--radix-popover-content-available-height,300px))]">
-                          <CommandEmpty>No results found.</CommandEmpty>
-                          {currentValue && !userOnly && (
+                          <CommandEmpty>{isSearching ? 'Searching...' : 'No results found.'}</CommandEmpty>
+                          {currentValue && !groupOnly && !userOnly && (
                             <CommandGroup heading="Actions">
                               <CommandItem value="clear-selection" onSelect={() => handleSelect(null, field)}>
                                 <X className="mr-2 h-4 w-4" />
@@ -180,15 +195,15 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                               </CommandItem>
                             </CommandGroup>
                           )}
-                          {currentValue && userOnly && (
+                          {currentValue && (groupOnly || userOnly) && (
                             <CommandGroup heading="Actions">
-                              <CommandItem value="clear-selection" onSelect={() => handleSelect({ type: 'user', value: '', displayName: '' }, field)}>
+                              <CommandItem value="clear-selection" onSelect={() => handleSelect({ type: groupOnly ? 'group' : 'user', value: '', displayName: '' }, field)}>
                                 <X className="mr-2 h-4 w-4" />
                                 <span>Clear selection</span>
                               </CommandItem>
                             </CommandGroup>
                           )}
-                          {filteredUsers.length > 0 && (
+                          {!groupOnly && filteredUsers.length > 0 && (
                             <CommandGroup heading="Users">
                               {filteredUsers.map((option) => (
                                 <CommandItem
@@ -222,9 +237,9 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                               ))}
                             </CommandGroup>
                           )}
-                          {!userOnly && allowPersonnel && personnelOptions.length > 0 && (
+                          {!userOnly && !groupOnly && allowPersonnel && visiblePersonnel.length > 0 && (
                             <CommandGroup heading="Personnel">
-                              {personnelOptions.map((option) => (
+                              {visiblePersonnel.map((option) => (
                                 <PersonnelOptionItem
                                   key={`personnel-${option.value}`}
                                   option={option}
@@ -235,11 +250,13 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                             </CommandGroup>
                           )}
                           {!userOnly &&
-                            searchText.trim() &&
+                            !groupOnly &&
+                            term &&
+                            !isSearching &&
                             !hasExactMatch &&
-                            !personnelOptions.some((person) => person.label.toLowerCase() === normalizedSearchText || person.email?.toLowerCase() === normalizedSearchText) && (
+                            !visiblePersonnel.some((person) => person.label.toLowerCase() === normalizedSearchText || person.email?.toLowerCase() === normalizedSearchText) && (
                               <CommandGroup heading="Custom">
-                                <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() }, field)}>
+                                <CommandItem value={`custom-${term}`} onSelect={() => handleSelect({ type: 'string', value: term, displayName: term }, field)}>
                                   <Type className="mr-2 h-4 w-4" />
                                   <span className="truncate" title={customEmailLabel}>
                                     {customEmailLabel}

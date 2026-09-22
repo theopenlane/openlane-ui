@@ -34,6 +34,7 @@ import {
   BULK_EDIT_TRUST_CENTER_FAQ,
   BULK_DELETE_TRUST_CENTER_FAQ,
 } from '@repo/codegen/query/trust-center-faq'
+import { invalidateCustomTypeEnumsForName } from '@/lib/graphql-hooks/custom-type-enum'
 
 type GetAllTrustCenterFaqsArgs = {
   where?: TrustCenterFaQsWithFilterQueryVariables['where']
@@ -69,8 +70,9 @@ export const useCreateTrustCenterFaq = () => {
   const queryClient = useQueryClient()
   return useMutation<CreateTrustCenterFaqMutation, unknown, CreateTrustCenterFaqMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_TRUST_CENTER_FAQ, variables),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['trustCenterFaqs'] })
+      invalidateCustomTypeEnumsForName(queryClient, variables.input.trustCenterFaqKindName)
     },
   })
 }
@@ -80,8 +82,9 @@ export const useUpdateTrustCenterFaq = () => {
   const queryClient = useQueryClient()
   return useMutation<UpdateTrustCenterFaqMutation, unknown, UpdateTrustCenterFaqMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_TRUST_CENTER_FAQ, variables),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['trustCenterFaqs'] })
+      invalidateCustomTypeEnumsForName(queryClient, variables.input.trustCenterFaqKindName)
     },
   })
 }

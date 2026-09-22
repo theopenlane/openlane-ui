@@ -46,7 +46,7 @@ const useSearchContacts = (search: string, excludeId: string) => {
     return base
   }, [search, excludeId])
 
-  const { contactsNodes, isLoading } = useContactsWithFilter({
+  const { contactsNodes, isFetching } = useContactsWithFilter({
     where: where as Parameters<typeof useContactsWithFilter>[0]['where'],
     pagination: { query: { first: 10 }, page: 1, pageSize: 10 },
   })
@@ -61,7 +61,7 @@ const useSearchContacts = (search: string, excludeId: string) => {
     [contactsNodes],
   )
 
-  return { options, isLoading }
+  return { options, isFetching }
 }
 
 export const contactMergeConfig: MergeConfig<Contact, UpdateContactInput, 'Contact'> = {

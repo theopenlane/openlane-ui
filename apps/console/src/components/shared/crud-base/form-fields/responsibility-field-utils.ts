@@ -5,6 +5,7 @@ export const responsibilityFieldSchema = z
     type: z.enum(['user', 'group', 'personnel', 'string']),
     value: z.string(),
     displayName: z.string().optional(),
+    noClearOtherFields: z.boolean().optional(),
   })
   .optional()
   .nullable()
@@ -132,6 +133,10 @@ export function buildResponsibilityPayload(
       }
     }
 
+    if (selection.noClearOtherFields) {
+      return { [`${fieldBaseName}ID`]: selection.value }
+    }
+
     switch (selection.type) {
       case 'user':
         return {
@@ -163,6 +168,10 @@ export function buildResponsibilityPayload(
 
   if (!selection) {
     return {}
+  }
+
+  if (selection.noClearOtherFields) {
+    return { [`${fieldBaseName}ID`]: selection.value }
   }
 
   switch (selection.type) {

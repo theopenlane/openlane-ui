@@ -1,14 +1,34 @@
 import { test, expect } from '../fixtures/auth'
 
 test.describe('automation — integrations marketplace (owner)', () => {
-  test('the marketplace renders every status filter button', async ({ page }) => {
+  test('the marketplace renders both tabs and every browse status filter', async ({ page }) => {
     await page.goto('/automation/integrations', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Integrations$/ })).toBeVisible({ timeout: 20_000 })
 
+    await expect(page.getByRole('tab', { name: /^Browse Integrations$/ })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('tab', { name: /^Installed \(\d+\)$/ })).toBeVisible()
+
     await expect(page.getByRole('button', { name: /^All \(\d+\)$/ })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('button', { name: /^Installed \(\d+\)$/ })).toBeVisible()
     await expect(page.getByRole('button', { name: /^Not Installed \(\d+\)$/ })).toBeVisible()
     await expect(page.getByRole('button', { name: /^Coming Soon \(\d+\)$/ })).toBeVisible()
+  })
+
+  test('switching to the Installed tab puts the tab in the URL and swaps the filter row', async ({ page }) => {
+    test.slow()
+    await page.goto('/automation/integrations', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Integrations$/ })).toBeVisible({ timeout: 20_000 })
+
+    const installedTab = page.getByRole('tab', { name: /^Installed \(\d+\)$/ })
+    await expect(installedTab).toBeVisible({ timeout: 15_000 })
+    await installedTab.click()
+
+    await expect(page).toHaveURL(/[?&]tab=installed(&|$)/, { timeout: 10_000 })
+    await expect(installedTab).toHaveAttribute('aria-selected', 'true')
+    await expect(page.getByRole('button', { name: /^Coming Soon \(\d+\)$/ })).toHaveCount(0)
+
+    await page.getByRole('tab', { name: /^Browse Integrations$/ }).click()
+    await expect(page).not.toHaveURL(/[?&]tab=installed(&|$)/, { timeout: 10_000 })
+    await expect(page.getByRole('button', { name: /^Coming Soon \(\d+\)$/ })).toBeVisible({ timeout: 10_000 })
   })
 
   test('selecting the Coming Soon status filter marks it active', async ({ page }) => {
@@ -32,7 +52,7 @@ test.describe('automation — integrations marketplace (owner)', () => {
     await expect(page.getByRole('button', { name: /^All \(\d+\)$/ })).toBeVisible({ timeout: 15_000 })
 
     await page.getByPlaceholder('Search integrations...').fill('zzz-nonexistent-provider-zzz')
-    await expect(page.getByText('No integrations match your search.')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText('No integrations match your filters')).toBeVisible({ timeout: 10_000 })
   })
 
   test('navigating an integration card opens its definition detail page (read-only)', async ({ page }) => {

@@ -68,7 +68,7 @@ const useSearchVendors = (search: string, excludeId: string) => {
     return base
   }, [search, excludeId])
 
-  const { vendorNodes, isLoading } = useVendorsWithFilter({
+  const { vendorNodes, isFetching } = useVendorsWithFilter({
     where: where as NonNullable<Parameters<typeof useVendorsWithFilter>[0]>['where'],
     pagination: { query: { first: 10 }, page: 1, pageSize: 10 },
   })
@@ -83,7 +83,7 @@ const useSearchVendors = (search: string, excludeId: string) => {
     [vendorNodes],
   )
 
-  return { options, isLoading }
+  return { options, isFetching }
 }
 
 export const vendorMergeConfig: MergeConfig<Vendor, UpdateEntityInput, 'Entity'> = {

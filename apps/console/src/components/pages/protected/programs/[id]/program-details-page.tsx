@@ -1,19 +1,16 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { PageHeading } from '@repo/ui/page-heading'
 import { useGetProgramBasicInfo, useUpdateProgram, useDeleteProgram } from '@/lib/graphql-hooks/program'
-import StatsCards from '@/components/shared/stats-cards/stats-cards'
-import BasicInformation from '@/components/pages/protected/programs/[id]/basic-info'
-import ProgramAuditor from '@/components/pages/protected/programs/[id]/program-auditor'
-import ProgramTaskTable from '@/components/pages/protected/programs/[id]/program-tasks-table/program-tasks-table'
-import { ControlsSummaryCard } from '@/components/pages/protected/programs/[id]/controls-summary-card'
-import { Cog, FolderOpen, CirclePlus, CopyPlus, Archive, ArchiveRestore, Trash2 } from 'lucide-react'
+import ProgramOverviewTab from '@/components/pages/protected/programs/[id]/program-overview-tab'
+import ProgramWorkView from '@/components/pages/protected/programs/[id]/work/program-work-view'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Cog, FolderOpen, CirclePlus, CopyPlus, Archive, ArchiveRestore, Trash2, LayoutList, LayoutDashboard } from 'lucide-react'
 import { hasPermission, canEdit, canDelete } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
-import TimelineReadiness from '@/components/pages/protected/programs/[id]/timeline-readiness'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import Link from 'next/link'
@@ -27,12 +24,24 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { PROGRAMS_LIST_HREF } from '@/constants/programs'
 import { ProgramsPageSkeleton } from '../skeleton/programs-page-skeleton'
 import { useSession } from 'next-auth/react'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
+
+const PROGRAM_TABS = ['overview', 'work'] as const
+type TProgramTabValue = (typeof PROGRAM_TABS)[number]
+const PROGRAM_DEFAULT_TAB: TProgramTabValue = 'overview'
+const PROGRAM_TAB_QUERY_PARAM = 'tab'
+
+const isProgramTab = (value: string | null): value is TProgramTabValue => PROGRAM_TABS.includes(value as TProgramTabValue)
 
 const ProgramDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
 
   const router = useRouter()
-  const { data: basicInfoData, isLoading } = useGetProgramBasicInfo(id)
+  const { replace: replaceParams } = useSmartRouter()
+  const searchParams = useSearchParams()
+  const tabParam = searchParams.get(PROGRAM_TAB_QUERY_PARAM)
+  const activeTab: TProgramTabValue = isProgramTab(tabParam) ? tabParam : PROGRAM_DEFAULT_TAB
+  const { data: basicInfoData, isLoading, isError } = useGetProgramBasicInfo(id)
   const { data: permission } = useOrganizationRoles()
   const { data: objectPermission } = useAccountRoles(ObjectTypes.PROGRAM, id)
   const { data: session } = useSession()
@@ -63,6 +72,15 @@ const ProgramDetailsPage: React.FC = () => {
     }
   }
 
+  const handleTabChange = useCallback(
+    (value: string) => {
+      if (!isProgramTab(value)) return
+
+      replaceParams({ [PROGRAM_TAB_QUERY_PARAM]: value === PROGRAM_DEFAULT_TAB ? null : value })
+    },
+    [replaceParams],
+  )
+
   const handleDelete = async () => {
     try {
       await deleteProgram({ deleteProgramId: id })
@@ -92,13 +110,24 @@ const ProgramDetailsPage: React.FC = () => {
     return <ProgramsPageSkeleton />
   }
 
+  if (isError || !basicInfoData?.program) {
+    return (
+      <div className="py-16 text-center text-muted-foreground">
+        <p>Program not found.</p>
+        <Button variant="secondary" className="mt-4" onClick={() => router.push(PROGRAMS_LIST_HREF)}>
+          Back to Programs
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <>
       <PageHeading
         heading={
           <div className="flex justify-between items-center">
-            <div className="flex gap-4 items-center">
-              <h1>Overview</h1>
+            <div className="flex gap-3 items-center min-w-0">
+              <h1 className="truncate">{programName}</h1>
             </div>
             <div className="flex gap-2.5 items-center">
               <Link href={`/programs/${id}/settings`}>
@@ -163,31 +192,27 @@ const ProgramDetailsPage: React.FC = () => {
         }
       />
 
-      <div className="flex flex-col gap-7">
-        <div className="flex gap-7 w-full">
-          {basicInfoData?.program ? (
-            <>
-              <BasicInformation />
-              <div className="flex flex-col gap-7 flex-1">
-                <TimelineReadiness />
-                <ProgramAuditor
-                  programStatus={basicInfoData.program.status}
-                  firm={basicInfoData.program.auditFirm}
-                  name={basicInfoData.program.auditor}
-                  email={basicInfoData.program.auditorEmail}
-                  isReady={basicInfoData.program.auditorReady}
-                />
-              </div>
-            </>
-          ) : (
-            <div>No program info available</div>
-          )}
+      <Tabs value={activeTab} onValueChange={handleTabChange} variant="underline">
+        <div className="relative pb-1 mb-1">
+          <TabsList className="w-auto flex justify-start">
+            <TabsTrigger value="overview" className="inline-flex flex-none items-center text-muted-foreground data-[state=active]:text-foreground">
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              <span>Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="work" className="inline-flex flex-none items-center text-muted-foreground data-[state=active]:text-foreground">
+              <LayoutList className="mr-2 h-4 w-4" />
+              <span>Work</span>
+            </TabsTrigger>
+          </TabsList>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0.5 left-0.5 h-px shadow-[inset_0_-1px_0_0_var(--color-border)]" />
         </div>
-
-        <StatsCards />
-        <ProgramTaskTable />
-        <ControlsSummaryCard />
-      </div>
+        <TabsContent value="overview" className="mt-6">
+          <ProgramOverviewTab program={basicInfoData?.program} />
+        </TabsContent>
+        <TabsContent value="work" className="mt-6">
+          <ProgramWorkView programId={id} />
+        </TabsContent>
+      </Tabs>
 
       <ConfirmationDialog
         open={statusDialogOpen}

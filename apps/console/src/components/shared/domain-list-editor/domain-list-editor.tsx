@@ -2,12 +2,14 @@ import React from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { Plus, Trash2 } from 'lucide-react'
+import { cn } from '@repo/ui/lib/utils'
 
 type DomainListEditorProps = {
   domains: string[]
-  newDomain: string
-  onNewDomainChange: (value: string) => void
+  newDomain?: string
+  onNewDomainChange?: (value: string) => void
   onAdd?: () => void
+  emptyText?: string
   onRemove?: (domain: string) => void
   error?: string | null
   isPending?: boolean
@@ -22,6 +24,7 @@ export const DomainListEditor = ({
   newDomain,
   onNewDomainChange,
   onAdd,
+  emptyText,
   onRemove,
   error,
   isPending,
@@ -32,35 +35,37 @@ export const DomainListEditor = ({
 }: DomainListEditorProps) => {
   return (
     <div>
-      <div className="flex items-center gap-2">
-        <Input
-          variant="medium"
-          aria-label={inputLabel}
-          placeholder={placeholder}
-          value={newDomain}
-          onChange={(e) => onNewDomainChange(e.target.value)}
-          onKeyDown={
-            addOnEnter
-              ? (e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    onAdd?.()
+      {onAdd && (
+        <div className="flex items-center gap-2">
+          <Input
+            variant="medium"
+            aria-label={inputLabel}
+            placeholder={placeholder}
+            value={newDomain ?? ''}
+            onChange={(e) => onNewDomainChange?.(e.target.value)}
+            onKeyDown={
+              addOnEnter
+                ? (e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      onAdd()
+                    }
                   }
-                }
-              : undefined
-          }
-        />
-        {onAdd && (
+                : undefined
+            }
+          />
           <Button type="button" variant="secondary" icon={<Plus />} iconPosition="left" loading={isPending} onClick={onAdd}>
             {addLabel}
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
 
+      {domains.length === 0 && emptyText && <p className="text-sm text-muted-foreground">{emptyText}</p>}
+
       {domains.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-4">
+        <div className={cn('flex flex-wrap gap-2', onAdd && 'mt-4')}>
           {domains.map((domain) => (
             <div key={domain} className="flex items-center gap-1 bg-btn-secondary px-2 py-0.5 rounded-sm border border-muted text-sm font-mono">
               {domain}

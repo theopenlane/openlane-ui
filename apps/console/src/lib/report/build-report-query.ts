@@ -1,5 +1,7 @@
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import type { TPaginationQuery } from '@repo/ui/pagination-types'
+import { mergeWhere } from '@/lib/merge-where'
+import { excludeSystemOwnedWhere } from './report-filters'
 import type { TReportColumn, TReportOrder } from './report-schema'
 
 export const REPORT_OPERATION_NAME = 'CustomReport'
@@ -77,8 +79,10 @@ export const buildReportQuery = ({ entity, columns, where, orderBy, pageQuery }:
   const definitions: string[] = []
   const args: string[] = []
 
-  if (where) {
-    variables.where = where
+  const scopedWhere = mergeWhere<Record<string, unknown>>([excludeSystemOwnedWhere(entity), where])
+
+  if (Object.keys(scopedWhere).length > 0) {
+    variables.where = scopedWhere
     definitions.push(`$where: ${schemaName(entity.whereTypeName)}`)
     args.push('where: $where')
   }

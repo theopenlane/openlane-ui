@@ -2,7 +2,7 @@
 
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
-import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { objectToSnakeCase } from '@/utils/strings'
 import type { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Label } from '@repo/ui/label'
@@ -22,13 +22,12 @@ export const CategoryField = ({ objectType, isEditing, canCreate, clearable = fa
     watch,
   } = useFormContext<{ category?: string }>()
 
-  const { enumOptions, onCreateOption, isLoading } = useCreatableEnumOptions({
-    objectType: objectToSnakeCase(objectType),
-    field: 'kind',
-    isEditAllowed: canCreate,
+  const { enumOptions, isLoading } = useGetCustomTypeEnums({
+    where: { objectType: objectToSnakeCase(objectType), field: 'kind' },
   })
 
   const selectedValue = watch('category')
+  const isInitialLoad = isLoading && enumOptions.length === 0
 
   return (
     <div className="flex flex-col gap-2">
@@ -43,11 +42,11 @@ export const CategoryField = ({ objectType, isEditing, canCreate, clearable = fa
               <CreatableCustomTypeEnumSelect
                 value={field.value}
                 options={enumOptions}
-                onCreateOption={onCreateOption}
+                allowCreate={canCreate}
                 clearable={clearable}
-                placeholder={isLoading ? 'Loading...' : 'Select or create category...'}
+                placeholder={isInitialLoad ? 'Loading...' : 'Select or create category...'}
                 searchPlaceholder="Search category..."
-                disabled={isLoading}
+                disabled={isInitialLoad}
                 onValueChange={field.onChange}
               />
             )}
@@ -57,7 +56,7 @@ export const CategoryField = ({ objectType, isEditing, canCreate, clearable = fa
         </>
       ) : (
         <div className="mt-1">
-          <CustomTypeEnumValue value={selectedValue || ''} options={enumOptions} placeholder="—" />
+          <CustomTypeEnumValue value={selectedValue || ''} options={enumOptions} placeholder={selectedValue || '—'} />
         </div>
       )}
     </div>

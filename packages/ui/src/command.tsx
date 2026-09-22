@@ -3,13 +3,13 @@
 import * as React from 'react'
 import { type DialogProps } from '@radix-ui/react-dialog'
 import { Command as CommandPrimitive } from 'cmdk'
-import { Search } from 'lucide-react'
+import { LoaderCircle, Search } from 'lucide-react'
 
 import { cn } from '@repo/ui/lib/utils'
 import { Dialog, DialogContent } from '@repo/ui/dialog'
 
 const Command = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive> & { ref?: React.Ref<React.ElementRef<typeof CommandPrimitive>> }) => (
-  <CommandPrimitive ref={ref} className={cn('flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground', className)} {...props} />
+  <CommandPrimitive ref={ref} className={cn('flex h-full w-full min-h-0 flex-col overflow-hidden rounded-md bg-popover text-popover-foreground', className)} {...props} />
 )
 
 const CommandDialog = ({ children, ...props }: DialogProps) => {
@@ -24,9 +24,14 @@ const CommandDialog = ({ children, ...props }: DialogProps) => {
   )
 }
 
-const CommandInput = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & { ref?: React.Ref<React.ElementRef<typeof CommandPrimitive.Input>> }) => (
-  <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-    <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+const CommandInput = ({
+  className,
+  searching,
+  ref,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & { searching?: boolean; ref?: React.Ref<React.ElementRef<typeof CommandPrimitive.Input>> }) => (
+  <div className="flex shrink-0 items-center border-b px-3" cmdk-input-wrapper="">
+    {searching ? <LoaderCircle className="mr-2 h-4 w-4 shrink-0 animate-spin text-muted-foreground" /> : <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />}
     <CommandPrimitive.Input
       ref={ref}
       className={cn('flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50', className)}
@@ -36,7 +41,7 @@ const CommandInput = ({ className, ref, ...props }: React.ComponentPropsWithoutR
 )
 
 const CommandList = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.List> & { ref?: React.Ref<React.ElementRef<typeof CommandPrimitive.List>> }) => (
-  <CommandPrimitive.List ref={ref} className={cn('max-h-[300px] overflow-y-auto overflow-x-hidden', className)} {...props} />
+  <CommandPrimitive.List ref={ref} className={cn('max-h-[300px] min-h-0 overflow-y-auto overflow-x-hidden', className)} {...props} />
 )
 
 const CommandEmpty = ({ ref, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty> & { ref?: React.Ref<React.ElementRef<typeof CommandPrimitive.Empty>> }) => (

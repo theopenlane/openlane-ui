@@ -837,6 +837,30 @@
   background-color: #888780;
 }
 
+@utility pinned-panel-scroll-gutter {
+  scroll-timeline-name: --pinned-panel-scroll;
+  scroll-timeline-axis: inline;
+
+  &::after {
+    content: '';
+    display: block;
+    height: 0;
+    margin-left: 100%;
+    width: var(--pinned-panel-width, 0px);
+  }
+}
+
+@keyframes pinned-panel-follow-scroll {
+  to {
+    translate: calc(-1 * var(--pinned-panel-width, 0px)) 0;
+  }
+}
+
+@utility follows-pinned-panel-scroll {
+  animation: pinned-panel-follow-scroll linear both;
+  animation-timeline: --pinned-panel-scroll;
+}
+
 /* ─────────────────────────────────────────────────────────
    Radix / shadcn animations
 ────────────────────────────────────────────────────────── */
@@ -984,4 +1008,5 @@ body[data-row-dragging] * {
 @theme {
   --editor-z-fixed-toolbar: 60;
   --editor-z-floating-toolbar: 70;
+  --z-page-sticky-bar: 65;
 }

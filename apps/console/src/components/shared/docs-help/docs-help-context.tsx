@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, use, useCallback, useEffect, useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
+import { getDocsHelpPinned, setDocsHelpPinned } from '@/lib/storage/docs-help-pinned'
 
 export type DocsHelpTopic = { title: string; query: string; prefer?: string; intro?: string }
 
@@ -11,6 +12,8 @@ type DocsHelpDrawerState = {
   open: boolean
   setOpen: (open: boolean) => void
   modal: boolean
+  pinned: boolean
+  setPinned: (pinned: boolean) => void
   // a one-off topic pushed by an in-page action, cleared when the drawer closes
   ephemeralTopic: DocsHelpTopic | null
   setEphemeralTopic: (topic: DocsHelpTopic | null) => void
@@ -20,6 +23,8 @@ const DocsHelpDrawerContext = createContext<DocsHelpDrawerState>({
   open: false,
   setOpen: () => {},
   modal: false,
+  pinned: false,
+  setPinned: () => {},
   ephemeralTopic: null,
   setEphemeralTopic: () => {},
 })
@@ -30,14 +35,31 @@ export const DocsHelpTopicProvider = ({ children }: { children: ReactNode }) => 
   const [topic, setTopic] = useState<DocsHelpTopic | null>(null)
   const [open, setOpen] = useState(false)
   const [modal, setModal] = useState(false)
+  const [pinned, setPinned] = useState(false)
   const [ephemeralTopic, setEphemeralTopic] = useState<DocsHelpTopic | null>(null)
 
-  const openDrawer = useCallback((next: boolean) => {
-    if (next) setModal(modalLayerIsOpen())
-    setOpen(next)
+  const pinDrawer = useCallback((next: boolean) => {
+    setPinned(next)
+    setDocsHelpPinned(next)
+    if (next) setOpen(true)
   }, [])
 
-  const drawer = useMemo(() => ({ open, setOpen: openDrawer, modal, ephemeralTopic, setEphemeralTopic }), [open, openDrawer, modal, ephemeralTopic])
+  useEffect(() => {
+    if (!getDocsHelpPinned()) return
+    setPinned(true)
+    setOpen(true)
+  }, [])
+
+  const openDrawer = useCallback(
+    (next: boolean) => {
+      if (!next) pinDrawer(false)
+      if (next) setModal(modalLayerIsOpen())
+      setOpen(next)
+    },
+    [pinDrawer],
+  )
+
+  const drawer = useMemo(() => ({ open, setOpen: openDrawer, modal, pinned, setPinned: pinDrawer, ephemeralTopic, setEphemeralTopic }), [open, openDrawer, modal, pinned, pinDrawer, ephemeralTopic])
 
   return (
     <DocsHelpTopicSetterContext value={setTopic}>
@@ -51,9 +73,9 @@ export const DocsHelpTopicProvider = ({ children }: { children: ReactNode }) => 
 export const useDocsHelpTopic = () => use(DocsHelpTopicContext)
 
 // open/close the global docs drawer from anywhere, e.g. an in-page docs link
-export function useDocsHelpDrawer() {
-  const { open, setOpen, modal } = use(DocsHelpDrawerContext)
-  return { open, setOpen, modal }
+export const useDocsHelpDrawer = () => {
+  const { open, setOpen, modal, pinned, setPinned } = use(DocsHelpDrawerContext)
+  return { open, setOpen, modal, pinned, setPinned }
 }
 
 // open the docs drawer on a specific topic (one-off, cleared on close)

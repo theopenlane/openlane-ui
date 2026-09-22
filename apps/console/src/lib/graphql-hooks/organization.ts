@@ -9,6 +9,7 @@ import {
   GET_INVITES,
   GET_ORGANIZATION_BILLING,
   GET_ORGANIZATION_SETTING,
+  GET_ORGANIZATION_DOMAINS,
   GET_BILLING_EMAIL,
   CREATE_ORGANIZATION,
   CREATE_BULK_INVITE,
@@ -30,6 +31,8 @@ import {
   type GetOrganizationBillingQueryVariables,
   type GetOrganizationSettingQuery,
   type GetOrganizationSettingQueryVariables,
+  type GetOrganizationDomainsQuery,
+  type GetOrganizationDomainsQueryVariables,
   type GetBillingEmailQuery,
   type GetBillingEmailQueryVariables,
   type CreateOrganizationMutation,
@@ -55,7 +58,7 @@ import {
   type MutationLeaveOrganizationArgs,
   OrgMembershipRole,
 } from '@repo/codegen/src/schema'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, type QueryClient } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { useMemo } from 'react'
@@ -163,6 +166,22 @@ export const useGetOrganizationSetting = (organizationId: string | undefined) =>
     queryFn: async () => client.request(GET_ORGANIZATION_SETTING, { organizationId }),
     enabled: !!organizationId,
   })
+}
+
+export const invalidateOrganizationSettingQueries = (queryClient: QueryClient, organizationId?: string) =>
+  Promise.all([queryClient.invalidateQueries({ queryKey: ['organizationSetting', organizationId] }), queryClient.invalidateQueries({ queryKey: ['organizationDomains', organizationId] })])
+
+export const useGetOrganizationDomains = (organizationId: string | undefined) => {
+  const { client } = useGraphQLClient()
+
+  const query = useQuery<GetOrganizationDomainsQuery, GetOrganizationDomainsQueryVariables>({
+    queryKey: ['organizationDomains', organizationId],
+    queryFn: async () => client.request(GET_ORGANIZATION_DOMAINS, { organizationId }),
+    enabled: !!organizationId,
+    staleTime: 0,
+  })
+
+  return { ...query, isLoadingDomains: !!organizationId && query.isPending }
 }
 
 export const useGetBillingEmail = (organizationId: string | undefined) => {

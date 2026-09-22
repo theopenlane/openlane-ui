@@ -27,3 +27,14 @@ export const formatUrlForDisplay = (url?: string | null) => {
   const withoutScheme = normalized.startsWith('https://') ? normalized.slice('https://'.length) : normalized
   return withoutScheme.includes('?') || withoutScheme.includes('#') ? withoutScheme : withoutScheme.replace(TRAILING_SLASHES, '')
 }
+
+export const toHostname = (url?: string | null) => {
+  const normalized = normalizeUrl(url)
+  if (!normalized) return ''
+
+  try {
+    return new URL(normalized).hostname.toLowerCase()
+  } catch {
+    return ''
+  }
+}

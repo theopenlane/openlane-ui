@@ -1,7 +1,7 @@
 import React, { useState, useRef, type ReactNode, useEffect } from 'react'
 import { PanelRight, PanelRightClose } from 'lucide-react'
 import { Button } from '@repo/ui/button'
-import { TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
+import { MAIN_SCROLLBAR_HEIGHT_VAR, TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 
 type TSlideBarLayoutProps = {
   sidebarTitle?: string
@@ -39,6 +39,8 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
   const [width, setWidth] = useState<number>(minWidth || DEFAULT_WIDTH)
   const resizingRef = useRef(false)
   const resizeTargetRef = useRef<HTMLDivElement>(null)
+  const railRef = useRef<HTMLDivElement>(null)
+  const resizeOriginX = useRef(0)
 
   useEffect(() => {
     if (slideOpen) {
@@ -57,7 +59,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
         return
       }
 
-      const newWidth = window.innerWidth - e.clientX
+      const newWidth = resizeOriginX.current - e.clientX
       if (newWidth > minWidthRef.current && newWidth < window.innerWidth * MAX_RATIO) {
         setWidth(newWidth)
       }
@@ -84,6 +86,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
     const resizeTarget = resizeTargetRef.current
     const onMouseDown = (e: MouseEvent) => {
       e.preventDefault()
+      resizeOriginX.current = railRef.current?.getBoundingClientRect().right ?? window.innerWidth
       startResizeHandler()
     }
 
@@ -109,7 +112,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
         {children}
       </div>
 
-      <div className="fixed flex items-center space-x-2 z-30" style={{ top: `calc(5rem + var(${TOP_BANNER_HEIGHT_VAR}, 0px))`, right: `${FLOATING_MARGIN}px` }}>
+      <div className="fixed flex items-center space-x-2 z-30 follows-pinned-panel-scroll" style={{ top: `calc(5rem + var(${TOP_BANNER_HEIGHT_VAR}, 0px))`, right: `${FLOATING_MARGIN}px` }}>
         <Button
           type="button"
           descriptiveTooltipText={open ? 'Close slide bar' : 'Open slide bar'}
@@ -122,13 +125,15 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
         {menu}
       </div>
       <div
-        className="fixed right-0 mb-[8px] rounded-md bottom-0 border-l shadow-xl transform transition-transform duration-300 z-20 bg-secondary"
+        ref={railRef}
+        className="fixed right-0 rounded-md bottom-0 border-l shadow-xl transform transition-transform duration-300 z-20 bg-secondary follows-pinned-panel-scroll"
         style={{
           top: `calc(4rem + var(${TOP_BANNER_HEIGHT_VAR}, 0px))`,
           marginTop: `max(0px, calc(4px - var(${TOP_BANNER_HEIGHT_VAR}, 0px)))`,
           width: open ? `${width}px` : 0,
           transform: open ? 'translateX(0)' : 'translateX(100%)',
           marginRight: open ? '8px' : '0',
+          marginBottom: `calc(8px + var(${MAIN_SCROLLBAR_HEIGHT_VAR}, 0px))`,
         }}
       >
         {sidebarTitle ? (

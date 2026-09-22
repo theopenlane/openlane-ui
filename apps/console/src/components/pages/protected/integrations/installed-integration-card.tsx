@@ -12,19 +12,13 @@ import { type IntegrationHealth, type IntegrationMetadata, type IntegrationNode,
 import { getInstalledIntegrationConfig, installedIntegrationDisplayName, readIntegrationUserInput, resolveConnectionEntry, resolveCredentialEntry, resolveManageUrl } from '@/lib/integrations/utils'
 import { PRIMARY_DOCUMENT_FIELD, providerHasUserInputSchema } from '@/lib/integrations/flow'
 import { useDisconnectIntegration, useIntegrationHealthCheck } from '@/lib/query-hooks/integrations'
-import { IntegrationIntegrationStatus } from '@repo/codegen/src/schema'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { integrationHealthBadge } from '@/lib/integrations/health'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import IntegrationCardIcons from './integration-card-icons'
 import IntegrationConfigurationDialog from './integration-configuration-dialog'
-
-type TIntegrationHealthBadge = {
-  label: string
-  summary?: string
-  variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'green'
-}
 
 type InstalledIntegrationCardProps = {
   integration: IntegrationNode
@@ -58,7 +52,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
 
   const disconnectMutation = useDisconnectIntegration()
   const healthCheck = useIntegrationHealthCheck()
-  const healthStatus = resolveHealthStatus(integration.status, health, healthCheck.isPending)
+  const healthStatus = integrationHealthBadge(integration.status, health, healthCheck.isPending)
 
   const { userMap, tokenMap } = useAuthorMaps([integration.createdBy])
 
@@ -79,9 +73,18 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
           <div className="flex items-center gap-2">
             {integration.primaryDirectory ? <Badge variant="blue">Primary Directory</Badge> : null}
             {isPrimaryDocument ? <Badge variant="blue">Primary Document</Badge> : null}
-            <Badge variant={healthStatus.variant} title={healthStatus.summary}>
-              {healthStatus.label}
-            </Badge>
+            {healthStatus.summary ? (
+              <SystemTooltip
+                icon={
+                  <span className="inline-flex">
+                    <Badge variant={healthStatus.variant}>{healthStatus.label}</Badge>
+                  </span>
+                }
+                content={<span className="whitespace-pre-line">{healthStatus.summary}</span>}
+              />
+            ) : (
+              <Badge variant={healthStatus.variant}>{healthStatus.label}</Badge>
+            )}
           </div>
         </div>
 
@@ -170,28 +173,3 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
 }
 
 export default InstalledIntegrationCard
-
-const resolveHealthStatus = (status: IntegrationIntegrationStatus, health: IntegrationHealth | undefined, isChecking: boolean): TIntegrationHealthBadge => {
-  if (isChecking) {
-    return { label: 'Checking', variant: 'secondary' }
-  }
-
-  switch (status) {
-    case IntegrationIntegrationStatus.CONNECTED:
-      return { label: 'Healthy', variant: 'green' }
-    case IntegrationIntegrationStatus.DEGRADED: {
-      const failing = Object.entries(health?.unhealthyOperations ?? {})
-        .map(([name, reason]) => `${name}: ${reason}`)
-        .join('\n')
-      return { label: 'Degraded', summary: failing || 'One or more operations are failing.', variant: 'destructive' }
-    }
-    case IntegrationIntegrationStatus.ERRORED:
-      return { label: 'Needs Attention', summary: health?.unhealthyReason || 'The integration has stopped syncing.', variant: 'destructive' }
-    case IntegrationIntegrationStatus.PENDING:
-      return { label: 'Pending', variant: 'outline' }
-    case IntegrationIntegrationStatus.DISABLED:
-      return { label: 'Disabled', variant: 'secondary' }
-    default:
-      return { label: getEnumLabel(status), variant: 'outline' }
-  }
-}

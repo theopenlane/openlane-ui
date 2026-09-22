@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, format, isPast, isToday, isTomorrow } from 'date-fns'
+import { differenceInCalendarDays, format, formatDistance, isPast, isToday, isTomorrow } from 'date-fns'
 import { tzOffset } from '@date-fns/tz'
 
 export const MS_PER_DAY = 24 * 60 * 60 * 1000
@@ -193,3 +193,8 @@ const formatDateTimeWithZone = (date: string | null | undefined, empty?: string)
 }
 
 export { formatDateTimeWithZone }
+
+export const formatDistanceUntil = (target: number, from: number, empty = '-') => {
+  if (!Number.isFinite(target) || !Number.isFinite(from) || target <= from) return empty
+  return formatDistance(target, from)
+}

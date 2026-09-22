@@ -10,6 +10,8 @@ import { docsHelpAvailable } from '@repo/dally/ai'
 import { DocsHelpContent } from './docs-help-content'
 import { docsHelpQuery } from './docs-help-query'
 import { useDocsHelpDrawer, useDocsHelpEphemeralTopic, useDocsHelpTopic, type DocsHelpTopic } from './docs-help-context'
+import type { DocsSection } from '@/types/docs-help'
+import { useRetainedWhileOpen } from '@/hooks/useRetainedWhileOpen'
 
 const INTROS = {
   dashboard: 'This is your Compliance Home dashboard. Use it to get a snapshot of your compliance posture and quickly access your most important work.',
@@ -65,6 +67,8 @@ const TAB_CLASSES =
 
 const CLOSE_ANIMATION_MS = 300
 
+type TDocsContext = { topic: DocsHelpTopic; section: DocsSection }
+
 const AnimatedBookText = ({ hovered, size = 14 }: { hovered: boolean; size?: number }) => (
   <motion.svg
     width={size}
@@ -105,7 +109,7 @@ const DocsTabButton = ({ onClick, label, className }: { onClick: () => void; lab
 
 export const DocsHelpTab = () => {
   // open state lives in context so in-page links can open the drawer too
-  const { open, setOpen, modal } = useDocsHelpDrawer()
+  const { open, setOpen, modal, pinned, setPinned } = useDocsHelpDrawer()
   const { ephemeralTopic, setEphemeralTopic } = useDocsHelpEphemeralTopic()
   const [showClosedTab, setShowClosedTab] = useState(true)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -116,9 +120,13 @@ export const DocsHelpTab = () => {
   useEffect(() => {
     if (!open) setEphemeralTopic(null)
   }, [open, setEphemeralTopic])
+  const visitedPathRef = useRef(pathname)
   useEffect(() => {
+    if (pinned) return
+    if (visitedPathRef.current === pathname) return
+    visitedPathRef.current = pathname
     setEphemeralTopic(null)
-  }, [pathname, setEphemeralTopic])
+  }, [pathname, pinned, setEphemeralTopic])
 
   const [body, setBody] = useState<HTMLElement | null>(null)
   useEffect(() => setBody(document.body), [])
@@ -135,7 +143,17 @@ export const DocsHelpTab = () => {
 
   useEffect(() => () => clearTimeout(closeTimerRef.current ?? undefined), [])
 
-  const topic = useMemo(() => ephemeralTopic ?? override ?? topicForPath(pathname ?? '/'), [ephemeralTopic, override, pathname])
+  const routeContext = useMemo<TDocsContext>(
+    () => ({ topic: override ?? topicForPath(pathname ?? '/'), section: pathname?.startsWith('/developers') ? 'developers' : 'platform' }),
+    [override, pathname],
+  )
+
+  const pinnedPath = useRetainedWhileOpen(!pinned, pathname)
+  const followsRoute = !pinned || pinnedPath === pathname
+  const pinnedContext = useRetainedWhileOpen(followsRoute, routeContext) ?? routeContext
+
+  const topic = ephemeralTopic ?? pinnedContext.topic
+  const section = ephemeralTopic ? routeContext.section : pinnedContext.section
 
   if (!docsHelpAvailable) return null
 
@@ -151,6 +169,8 @@ export const DocsHelpTab = () => {
       // be scrollable; the backdrop is transparent so it never dims what's behind
       modal={modal}
       overlayClassName="bg-transparent"
+      pinned={pinned}
+      onPinnedChange={setPinned}
       icon={<BookText size={20} className="self-center" />}
       trigger={(openPanel) =>
         showClosedTab && body
@@ -164,7 +184,7 @@ export const DocsHelpTab = () => {
       }
       edgeHandle={<DocsTabButton onClick={() => setOpen(false)} label="Close docs help" className={TAB_CLASSES} />}
     >
-      <DocsHelpContent key={topic.query} query={topic.query} prefer={topic.prefer} intro={topic.intro} section={pathname?.startsWith('/developers') ? 'developers' : 'platform'} enabled={open} />
+      <DocsHelpContent key={topic.query} query={topic.query} prefer={topic.prefer} intro={topic.intro} section={section} enabled={open} />
     </InfoSlideOut>
   )
 }

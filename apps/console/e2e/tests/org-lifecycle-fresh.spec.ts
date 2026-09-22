@@ -35,7 +35,7 @@ test.describe('organization settings — general settings on a fresh org', () =>
     test.slow()
     await seedLoggedInUser(page, 'org-rename')
 
-    await openGeneralSettings(page, page.getByText('Organization name'))
+    await openGeneralSettings(page, page.getByRole('heading', { name: 'Name', exact: true }))
 
     const renamed = shortOrgName('E2E Renamed')
     await orgNameField(page).fill(renamed)
@@ -51,7 +51,7 @@ test.describe('organization settings — general settings on a fresh org', () =>
     test.slow()
     await seedLoggedInUser(page, 'org-rename-invalid')
 
-    await openGeneralSettings(page, page.getByText('Organization name'))
+    await openGeneralSettings(page, page.getByRole('heading', { name: 'Name', exact: true }))
 
     await orgNameField(page).fill('x')
     await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()

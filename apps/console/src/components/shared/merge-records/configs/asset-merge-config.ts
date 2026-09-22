@@ -66,7 +66,7 @@ const useSearchAssets = (search: string, excludeId: string) => {
     return base
   }, [search, excludeId])
 
-  const { assetsNodes, isLoading } = useAssetsWithFilter({
+  const { assetsNodes, isFetching } = useAssetsWithFilter({
     where: where as Parameters<typeof useAssetsWithFilter>[0]['where'],
     pagination: { query: { first: 10 }, page: 1, pageSize: 10 },
   })
@@ -81,7 +81,7 @@ const useSearchAssets = (search: string, excludeId: string) => {
     [assetsNodes],
   )
 
-  return { options, isLoading }
+  return { options, isFetching }
 }
 
 export const assetMergeConfig: MergeConfig<Asset, UpdateAssetInput, 'Asset'> = {

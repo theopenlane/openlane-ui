@@ -31,11 +31,13 @@ import {
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 
+export const TRUST_CENTER_QUERY_KEY = ['trustCenter'] as const
+
 export const useGetTrustCenter = () => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery({
-    queryKey: ['trustCenter'],
+    queryKey: TRUST_CENTER_QUERY_KEY,
     queryFn: async () => client.request<GetTrustCenterQuery>(GET_ALL_TRUST_CENTERS),
   })
 
@@ -72,7 +74,7 @@ export const useUpdateTrustCenterSetting = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['trustCenter'],
+        queryKey: TRUST_CENTER_QUERY_KEY,
       })
     },
   })
@@ -87,7 +89,7 @@ export const useCreateCustomDomain = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['trustCenter'],
+        queryKey: TRUST_CENTER_QUERY_KEY,
       })
     },
   })
@@ -102,7 +104,7 @@ export function useDeleteCustomDomain() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['trustCenter'],
+        queryKey: TRUST_CENTER_QUERY_KEY,
       })
     },
   })
@@ -117,7 +119,7 @@ export function useValidateCustomDomain() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['trustCenter'],
+        queryKey: TRUST_CENTER_QUERY_KEY,
       })
     },
   })
@@ -149,7 +151,7 @@ export const useUpdateTrustCenterWatermarkConfig = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['trustCenter'],
+        queryKey: TRUST_CENTER_QUERY_KEY,
       })
     },
   })
@@ -183,7 +185,7 @@ export const useUpdateTrustCenter = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['trustCenter'],
+        queryKey: TRUST_CENTER_QUERY_KEY,
       })
     },
   })
