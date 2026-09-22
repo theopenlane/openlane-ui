@@ -59,10 +59,14 @@ const BrandPage: React.FC = () => {
     formState: { isDirty },
   } = methods
 
-  const navGuard = useNavigationGuard({ enabled: isDirty })
+  const [isFormSettled, setIsFormSettled] = useState(false)
+  const hasUnsavedChanges = isFormSettled && isDirty
+
+  const navGuard = useNavigationGuard({ enabled: hasUnsavedChanges })
 
   useEffect(() => {
     if (previewSetting) {
+      setIsFormSettled(false)
       const values = {
         title: previewSetting.title ?? '',
         overview: previewSetting.overview ?? '',
@@ -88,6 +92,7 @@ const BrandPage: React.FC = () => {
       const timeoutId = setTimeout(() => {
         const currentValues = methods.getValues()
         reset(currentValues)
+        setIsFormSettled(true)
       }, 0)
       return () => clearTimeout(timeoutId)
     }
@@ -221,7 +226,7 @@ const BrandPage: React.FC = () => {
           <BrandingHeader
             ref={stickyChromeRef}
             cnameRecord={cnameRecord}
-            hasUnsavedChanges={isDirty}
+            hasUnsavedChanges={hasUnsavedChanges}
             hasPreviewChanges={hasPreviewDifference.any}
             isPreviewAvailable={hasPreviewDifference.comparable}
             onPreview={handleSubmit((v) => onSubmit(v, 'preview'))}
