@@ -8,6 +8,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Badge } from '@repo/ui/badge'
 import { Check, X, Users } from 'lucide-react'
 import { useContacts } from '@/lib/graphql-hooks/contact'
+import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { cn } from '@repo/ui/lib/utils'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
 
@@ -20,13 +21,16 @@ interface ContactMultiSelectProps {
 const ContactMultiSelect: React.FC<ContactMultiSelectProps> = ({ label = 'Contacts' }) => {
   const form = useFormContext<EditVendorFormData>()
   const [open, setOpen] = useState(false)
-  const [searchText, setSearchText] = useState('')
   const [contactsCache, setContactsCache] = useState<Map<string, ContactInfo>>(() => new Map())
+  const { searchText, setSearchText, debouncedTerm, getIsSearching } = useAsyncCommandSearch()
 
-  const { contacts, isLoading } = useContacts({
-    where: searchText.trim() ? { fullNameContainsFold: searchText.trim() } : undefined,
+  const { contacts, isFetching } = useContacts({
+    where: debouncedTerm ? { fullNameContainsFold: debouncedTerm } : undefined,
     enabled: true,
   })
+
+  const isSearching = getIsSearching(isFetching)
+  const visibleContacts = isSearching ? [] : contacts
 
   const watchedContactIDs = form.watch('contactIDs')
   const selectedIds = useMemo(() => watchedContactIDs ?? [], [watchedContactIDs])
@@ -111,12 +115,12 @@ const ContactMultiSelect: React.FC<ContactMultiSelectProps> = ({ label = 'Contac
               </PopoverTrigger>
               <PopoverContent className="w-(--radix-popover-trigger-width) min-w-(--radix-popover-trigger-width) border bg-input! p-0" side="bottom" align="start" sideOffset={4}>
                 <Command shouldFilter={false}>
-                  <CommandInput placeholder="Search contacts..." value={searchText} onValueChange={setSearchText} />
+                  <CommandInput placeholder="Search contacts..." value={searchText} onValueChange={setSearchText} searching={isSearching} />
                   <CommandList>
-                    <CommandEmpty>{isLoading ? 'Loading...' : 'No contacts found.'}</CommandEmpty>
-                    {contacts.length > 0 && (
+                    <CommandEmpty>{isSearching ? 'Searching...' : 'No contacts found.'}</CommandEmpty>
+                    {visibleContacts.length > 0 && (
                       <CommandGroup>
-                        {contacts.map((contact) => {
+                        {visibleContacts.map((contact) => {
                           const isSelected = selectedIds.includes(contact.id)
                           return (
                             <CommandItem key={contact.id} value={contact.id} onSelect={() => toggleContact(contact)}>

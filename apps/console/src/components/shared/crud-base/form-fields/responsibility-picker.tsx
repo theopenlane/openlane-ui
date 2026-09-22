@@ -9,6 +9,7 @@ import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
+import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { type ResponsibilitySelection } from './responsibility-field-utils'
 import { PersonnelOptionItem } from './personnel-option-item'
 import { isValidEmail } from '@/lib/validators'
@@ -26,17 +27,19 @@ interface ResponsibilityPickerProps {
 
 export const ResponsibilityPicker: React.FC<ResponsibilityPickerProps> = ({ allowPersonnel = true, value, onChange, placeholder = 'Select owner...', triggerClassName, disabled = false }) => {
   const [open, setOpen] = useState(false)
-  const [searchText, setSearchText] = useState('')
+  const { searchText, setSearchText, term, debouncedTerm, getIsSearching } = useAsyncCommandSearch()
 
   const { userOptions } = useUserSelect({ enabled: open })
   const { groupOptions } = useGroupSelect({ enabled: open })
-  const { personnelOptions } = usePersonnelSelect({
-    searchText,
+  const { personnelOptions, isFetching: isFetchingPersonnel } = usePersonnelSelect({
+    searchText: debouncedTerm,
     enabled: open && allowPersonnel,
   })
   const { errorNotification } = useNotification()
 
-  const normalizedSearchText = searchText.toLowerCase()
+  const isSearching = allowPersonnel && getIsSearching(isFetchingPersonnel)
+  const visiblePersonnel = isSearching ? [] : personnelOptions
+  const normalizedSearchText = term.toLowerCase()
 
   const filteredUsers = useMemo(() => userOptions.filter((u) => u.label.toLowerCase().includes(normalizedSearchText)), [userOptions, normalizedSearchText])
 
@@ -47,7 +50,7 @@ export const ResponsibilityPicker: React.FC<ResponsibilityPickerProps> = ({ allo
     [filteredUsers, filteredGroups, normalizedSearchText],
   )
 
-  const customEmailLabel = `Use "${searchText.trim()}" as custom email`
+  const customEmailLabel = `Use "${term}" as custom email`
 
   const handleSelect = (selection: ResponsibilitySelection) => {
     if (selection?.type === 'string' && !isValidEmail(selection.value)) {
@@ -78,9 +81,9 @@ export const ResponsibilityPicker: React.FC<ResponsibilityPickerProps> = ({ allo
         sideOffset={4}
       >
         <Command shouldFilter={false}>
-          <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} />
+          <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} searching={isSearching} />
           <CommandList className="max-h-[min(300px,var(--radix-popover-content-available-height,300px))]">
-            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandEmpty>{isSearching ? 'Searching...' : 'No results found.'}</CommandEmpty>
             {value && (
               <CommandGroup heading="Actions">
                 <CommandItem value="clear-selection" onSelect={() => handleSelect(null)}>
@@ -115,9 +118,9 @@ export const ResponsibilityPicker: React.FC<ResponsibilityPickerProps> = ({ allo
                 ))}
               </CommandGroup>
             )}
-            {allowPersonnel && personnelOptions.length > 0 && (
+            {allowPersonnel && visiblePersonnel.length > 0 && (
               <CommandGroup heading="Personnel">
-                {personnelOptions.map((option) => (
+                {visiblePersonnel.map((option) => (
                   <PersonnelOptionItem
                     key={`personnel-${option.value}`}
                     option={option}
@@ -127,16 +130,19 @@ export const ResponsibilityPicker: React.FC<ResponsibilityPickerProps> = ({ allo
                 ))}
               </CommandGroup>
             )}
-            {searchText.trim() && !hasExactMatch && !personnelOptions.some((person) => person.label.toLowerCase() === normalizedSearchText || person.email?.toLowerCase() === normalizedSearchText) && (
-              <CommandGroup heading="Custom">
-                <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() })}>
-                  <Type className="mr-2 h-4 w-4" />
-                  <span className="truncate" title={customEmailLabel}>
-                    {customEmailLabel}
-                  </span>
-                </CommandItem>
-              </CommandGroup>
-            )}
+            {term &&
+              !isSearching &&
+              !hasExactMatch &&
+              !visiblePersonnel.some((person) => person.label.toLowerCase() === normalizedSearchText || person.email?.toLowerCase() === normalizedSearchText) && (
+                <CommandGroup heading="Custom">
+                  <CommandItem value={`custom-${term}`} onSelect={() => handleSelect({ type: 'string', value: term, displayName: term })}>
+                    <Type className="mr-2 h-4 w-4" />
+                    <span className="truncate" title={customEmailLabel}>
+                      {customEmailLabel}
+                    </span>
+                  </CommandItem>
+                </CommandGroup>
+              )}
           </CommandList>
         </Command>
       </PopoverContent>

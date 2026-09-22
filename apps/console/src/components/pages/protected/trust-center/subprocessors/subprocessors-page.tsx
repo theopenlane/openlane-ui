@@ -19,6 +19,7 @@ import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
+import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import useFileExport from '@/components/shared/export/use-file-export'
 import { EditTrustCenterSubprocessorSheet } from './sheet/edit-trust-center-subprocessor-sheet'
 import { EmbedSubprocessorSheet } from './sheet/embed-subprocessor-sheet'
@@ -60,6 +61,20 @@ const SubprocessorsPage = () => {
     }),
   )
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.TRUST_CENTER_SUBPROCESSORS)
+  const {
+    searchText,
+    setSearchText,
+    debouncedTerm: debouncedSearchTerm,
+    getIsSearching,
+  } = useAsyncCommandSearch({
+    controlled: {
+      value: searchTerm,
+      onValueChange: (value) => {
+        setSearchTerm(value)
+        resetPagination()
+      },
+    },
+  })
   const [filters, setFilters] = useState<TrustCenterSubprocessorWhereInput | null>(null)
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -131,15 +146,17 @@ const SubprocessorsPage = () => {
   }
 
   const where = {
-    ...(searchTerm ? { hasSubprocessorWith: [{ or: [{ nameContainsFold: searchTerm }, { descriptionContainsFold: searchTerm }] }] } : {}),
+    ...(debouncedSearchTerm ? { hasSubprocessorWith: [{ or: [{ nameContainsFold: debouncedSearchTerm }, { descriptionContainsFold: debouncedSearchTerm }] }] } : {}),
     ...(filters ?? {}),
   }
 
-  const { trustCenterSubprocessors, paginationMeta, isLoading } = useGetTrustCenterSubprocessors({
+  const { trustCenterSubprocessors, paginationMeta, isLoading, isFetching } = useGetTrustCenterSubprocessors({
     where,
     pagination,
     enabled: filters !== null,
   })
+
+  const searching = getIsSearching(isFetching && !!debouncedSearchTerm)
 
   const { paginationMeta: managedMeta } = useGetTrustCenterSubprocessors({
     where: {},
@@ -308,8 +325,9 @@ const SubprocessorsPage = () => {
             </div>
 
             <SubprocessorsTableToolbar
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
+              searching={searching}
+              searchTerm={searchText}
+              setSearchTerm={setSearchText}
               mappedColumns={mappedColumns}
               columnVisibility={columnVisibility}
               setColumnVisibility={setColumnVisibility}
@@ -328,7 +346,7 @@ const SubprocessorsPage = () => {
               pagination={pagination}
               onPaginationChange={setPagination}
               paginationMeta={paginationMeta}
-              loading={isLoading}
+              loading={filters === null || isLoading || searching}
               columnVisibility={columnVisibility}
               tableKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS}
             />

@@ -26,7 +26,7 @@ export type MergeSearchOption = { id: string; label: string; sublabel?: string }
 
 export type MergeSearchHookResult = {
   options: MergeSearchOption[]
-  isLoading: boolean
+  isFetching: boolean
 }
 
 export type MergeFetchHookResult<TRecord> = {

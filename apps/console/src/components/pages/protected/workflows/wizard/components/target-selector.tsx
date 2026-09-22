@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { useDebounce } from '@uidotdev/usehooks'
 import { Badge } from '@repo/ui/badge'
 import { Label } from '@repo/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
@@ -8,6 +7,7 @@ import { X, KeyRound } from 'lucide-react'
 import type { User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
+import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { useGetAllGroups, type GroupsNode } from '@/lib/graphql-hooks/group'
 import type { TargetSelectorProps } from '../types'
 import { buildTargetKey, formatResolverLabel } from '../utils'
@@ -22,11 +22,10 @@ const ResolverIcon = () => {
 
 export const TargetSelector = ({ targets, onAdd, onRemove, resolverKeys, getTargetLabel, error }: TargetSelectorProps) => {
   const [open, setOpen] = useState(false)
-  const [searchText, setSearchText] = useState('')
-  const debouncedSearch = useDebounce(searchText, 300)
+  const { searchText, setSearchText, term, debouncedTerm, getIsSearching } = useAsyncCommandSearch()
 
-  const searchWhere = debouncedSearch.trim() ? { hasUserWith: [{ displayNameContainsFold: debouncedSearch.trim() }] } : undefined
-  const { members, isLoading: isLoadingUsers } = useGetOrgMemberships({ where: searchWhere })
+  const searchWhere = debouncedTerm ? { hasUserWith: [{ displayNameContainsFold: debouncedTerm }] } : undefined
+  const { members, isFetching: isFetchingUsers } = useGetOrgMemberships({ where: searchWhere })
   const userMap = useMemo(() => {
     const map = new Map<string, User>()
     for (const m of members) {
@@ -36,8 +35,8 @@ export const TargetSelector = ({ targets, onAdd, onRemove, resolverKeys, getTarg
   }, [members])
   const userOptions = useMemo(() => Array.from(userMap.values()).map((u) => ({ label: u.displayName || '', value: u.id })), [userMap])
 
-  const groupSearchWhere = debouncedSearch.trim() ? { displayNameContainsFold: debouncedSearch.trim() } : undefined
-  const { groups, isLoading: isLoadingGroups } = useGetAllGroups({ where: groupSearchWhere })
+  const groupSearchWhere = debouncedTerm ? { displayNameContainsFold: debouncedTerm } : undefined
+  const { groups, isFetching: isFetchingGroups } = useGetAllGroups({ where: groupSearchWhere })
   const groupMap = useMemo(() => {
     const map = new Map<string, GroupsNode>()
     for (const g of groups) {
@@ -49,17 +48,17 @@ export const TargetSelector = ({ targets, onAdd, onRemove, resolverKeys, getTarg
 
   const selectedKeys = useMemo(() => new Set(targets.map(buildTargetKey)), [targets])
 
-  const filteredUsers = useMemo(() => userOptions.filter((u) => !selectedKeys.has(`USER:${u.value}`)), [userOptions, selectedKeys])
-  const filteredGroups = useMemo(() => groupOptions.filter((g) => !selectedKeys.has(`GROUP:${g.value}`)), [groupOptions, selectedKeys])
+  const isSearching = getIsSearching(isFetchingUsers, isFetchingGroups)
+
+  const filteredUsers = useMemo(() => (isSearching ? [] : userOptions.filter((u) => !selectedKeys.has(`USER:${u.value}`))), [isSearching, userOptions, selectedKeys])
+  const filteredGroups = useMemo(() => (isSearching ? [] : groupOptions.filter((g) => !selectedKeys.has(`GROUP:${g.value}`))), [isSearching, groupOptions, selectedKeys])
   const filteredResolvers = useMemo(() => {
-    const lowerSearch = debouncedSearch.trim().toLowerCase()
+    const lowerSearch = term.toLowerCase()
     return resolverKeys
       .map((key) => ({ label: formatResolverLabel(key), value: key }))
       .filter((r) => !selectedKeys.has(`RESOLVER:${r.value}`))
       .filter((r) => !lowerSearch || r.label.toLowerCase().includes(lowerSearch))
-  }, [resolverKeys, selectedKeys, debouncedSearch])
-
-  const isLoading = isLoadingUsers || isLoadingGroups
+  }, [resolverKeys, selectedKeys, term])
 
   return (
     <div className="space-y-3">
@@ -124,9 +123,9 @@ export const TargetSelector = ({ targets, onAdd, onRemove, resolverKeys, getTarg
           </PopoverTrigger>
           <PopoverContent className="w-(--radix-popover-trigger-width) min-w-(--radix-popover-trigger-width) border bg-input! p-0" side="bottom" align="start" sideOffset={4}>
             <Command shouldFilter={false}>
-              <CommandInput placeholder="Search users, groups, or resolvers..." value={searchText} onValueChange={setSearchText} />
+              <CommandInput placeholder="Search users, groups, or resolvers..." value={searchText} onValueChange={setSearchText} searching={isSearching} />
               <CommandList>
-                <CommandEmpty>{isLoading ? 'Loading...' : 'No results found.'}</CommandEmpty>
+                <CommandEmpty>{isSearching ? 'Searching...' : 'No results found.'}</CommandEmpty>
 
                 {filteredUsers.length > 0 && (
                   <CommandGroup heading="Users">

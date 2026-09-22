@@ -8,50 +8,63 @@ import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { cn } from '@repo/ui/lib/utils'
 import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
-import { useDebounce } from '@uidotdev/usehooks'
+import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 import { toBase64DataUri } from '@/lib/image-utils'
+
+const MIN_SEARCH_LENGTH = 2
+
+type SubprocessorOption = {
+  label: string
+  value: string
+  logo?: string | null
+}
+
+type SubprocessorSource = {
+  id?: string | null
+  name?: string | null
+  logoFile?: { base64?: string | null } | null
+  logoRemoteURL?: string | null
+}
+
+const toOption = (source?: SubprocessorSource | null): SubprocessorOption | null =>
+  source?.id
+    ? {
+        label: source.name ?? '',
+        value: source.id,
+        logo: (source.logoFile?.base64 ? toBase64DataUri(source.logoFile.base64) : null) || source.logoRemoteURL,
+      }
+    : null
 
 interface SubprocessorSelectFieldProps {
   isEditing: boolean
   createdSubprocessor?: CreateSubprocessorMutation['createSubprocessor']['subprocessor'] | null
-  selectedSubprocessor?: {
-    id?: string | null
-    name?: string | null
-    logoFile?: { base64?: string | null } | null
-    logoRemoteURL?: string | null
-  } | null
 }
 
-export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, selectedSubprocessor }: SubprocessorSelectFieldProps) => {
+export const SubprocessorSelectField = ({ isEditing, createdSubprocessor }: SubprocessorSelectFieldProps) => {
   const [open, setOpen] = useState(false)
-  const [keyword, setKeyword] = useState('')
+  const [pickedOption, setPickedOption] = useState<SubprocessorOption | null>(null)
 
-  const debouncedKeyword = useDebounce(keyword, 300)
-  const hasMinSearch = debouncedKeyword.length >= 2
+  const { searchText, setSearchText, debouncedTerm, hasMinLength, canQuery, getIsSearching } = useAsyncCommandSearch({ minLength: MIN_SEARCH_LENGTH })
 
-  const { subprocessors } = useGetSubprocessors({
+  const { subprocessors, isFetching } = useGetSubprocessors({
     where: {
       hasTrustCenterSubprocessors: false,
-      nameContainsFold: debouncedKeyword,
+      nameContainsFold: debouncedTerm,
     },
     pagination: {
       page: 1,
       pageSize: 10,
       query: { first: 10 },
     },
-    enabled: hasMinSearch,
+    enabled: canQuery,
   })
 
-  const subprocessorOptions = useMemo(
-    () =>
-      subprocessors?.map((sp) => ({
-        label: sp?.name ?? '',
-        value: sp?.id ?? '',
-        logo: (sp?.logoFile?.base64 ? toBase64DataUri(sp.logoFile.base64) : null) || sp?.logoRemoteURL,
-      })) ?? [],
-    [subprocessors],
-  )
+  const isSearching = getIsSearching(isFetching)
+
+  const subprocessorOptions = useMemo(() => subprocessors?.map(toOption).filter((option): option is SubprocessorOption => option !== null) ?? [], [subprocessors])
+
+  const visibleOptions = hasMinLength && !isSearching ? subprocessorOptions : []
 
   const {
     control,
@@ -63,24 +76,17 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, select
   const selectedValue = watch('subprocessorID')
 
   const selectedOption = useMemo(() => {
-    if (createdSubprocessor && selectedValue === createdSubprocessor.id) {
-      return {
-        label: createdSubprocessor.name,
-        value: createdSubprocessor.id,
-        logo: (createdSubprocessor.logoFile?.base64 ? toBase64DataUri(createdSubprocessor.logoFile.base64) : null) || createdSubprocessor.logoRemoteURL,
-      }
+    const created = toOption(createdSubprocessor)
+    if (created && selectedValue === created.value) {
+      return created
     }
 
-    if (selectedSubprocessor && selectedValue === selectedSubprocessor.id) {
-      return {
-        label: selectedSubprocessor.name ?? '',
-        value: selectedSubprocessor.id ?? '',
-        logo: (selectedSubprocessor.logoFile?.base64 ? toBase64DataUri(selectedSubprocessor.logoFile.base64) : null) || selectedSubprocessor.logoRemoteURL,
-      }
+    if (pickedOption && selectedValue === pickedOption.value) {
+      return pickedOption
     }
 
     return subprocessorOptions.find((opt) => opt.value === selectedValue)
-  }, [subprocessorOptions, selectedValue, createdSubprocessor, selectedSubprocessor])
+  }, [subprocessorOptions, selectedValue, createdSubprocessor, pickedOption])
 
   return (
     <FormField
@@ -108,17 +114,18 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, select
 
                 <PopoverContent className="p-0 border w-(--radix-popover-trigger-width) min-w-(--radix-popover-trigger-width) flex flex-col" align="start">
                   <Command shouldFilter={false}>
-                    <CommandInput placeholder="Search subprocessors..." value={keyword} onValueChange={setKeyword} />
+                    <CommandInput placeholder="Search subprocessors..." value={searchText} onValueChange={setSearchText} searching={isSearching} />
 
                     <CommandList>
-                      <CommandEmpty>{hasMinSearch ? 'No subprocessor found.' : 'Type at least 2 characters to search.'}</CommandEmpty>
+                      <CommandEmpty>{isSearching ? 'Searching...' : hasMinLength ? 'No subprocessor found.' : `Type at least ${MIN_SEARCH_LENGTH} characters to search.`}</CommandEmpty>
 
                       <CommandGroup>
-                        {subprocessorOptions.map((option) => (
+                        {visibleOptions.map((option) => (
                           <CommandItem
                             key={option.value}
-                            value={option.label}
+                            value={option.value}
                             onSelect={() => {
+                              setPickedOption(option)
                               setValue('subprocessorID', option.value)
                               setOpen(false)
                             }}
