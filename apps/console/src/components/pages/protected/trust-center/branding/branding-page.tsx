@@ -4,7 +4,7 @@ import { type TrustCenterPreviewSetting, type TrustCenterSetting, useGetTrustCen
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
 import { PageHeading } from '@repo/ui/page-heading'
-import { use, useEffect, useMemo, useState } from 'react'
+import { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { type UpdateTrustCenterSettingsArgs, useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNavigationGuard } from 'nextjs-nav-guard'
@@ -18,8 +18,11 @@ import { FormProvider } from 'react-hook-form'
 import { type BrandFormValues, DEFAULT_BRAND_COLOR, useBrandForm } from './brand-schema'
 import { TrustCenterSkeleton } from '../skeleton/trust-center-skeleton'
 import { BrandingCompanyInfoSection } from './sections/branding-company-info-section'
+import { BrandingDomainPull } from './sections/branding-domain-pull'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
+import { getBrandingPreviewDifference } from './helpers/preview-difference'
+import { useFixedToolbarOffset } from '@/hooks/useFixedToolbarOffset'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -40,8 +43,13 @@ const BrandPage: React.FC = () => {
   const setting: TrustCenterSetting = trustCenter?.setting
   const previewSetting: TrustCenterPreviewSetting = trustCenter?.previewSetting
 
+  const { stickyChromeRef, fixedToolbarOffset } = useFixedToolbarOffset()
+
   const [activeTab, setActiveTab] = useState<'preview' | 'published'>('preview')
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false)
+  const [pulledBrandingCount, setPulledBrandingCount] = useState(0)
+
+  const handleBrandingPulled = useCallback(() => setPulledBrandingCount((count) => count + 1), [])
 
   const methods = useBrandForm()
 
@@ -51,10 +59,14 @@ const BrandPage: React.FC = () => {
     formState: { isDirty },
   } = methods
 
-  const navGuard = useNavigationGuard({ enabled: isDirty })
+  const [isFormSettled, setIsFormSettled] = useState(false)
+  const hasUnsavedChanges = isFormSettled && isDirty
+
+  const navGuard = useNavigationGuard({ enabled: hasUnsavedChanges })
 
   useEffect(() => {
     if (previewSetting) {
+      setIsFormSettled(false)
       const values = {
         title: previewSetting.title ?? '',
         overview: previewSetting.overview ?? '',
@@ -80,10 +92,11 @@ const BrandPage: React.FC = () => {
       const timeoutId = setTimeout(() => {
         const currentValues = methods.getValues()
         reset(currentValues)
+        setIsFormSettled(true)
       }, 0)
       return () => clearTimeout(timeoutId)
     }
-  }, [previewSetting, reset, methods])
+  }, [previewSetting, pulledBrandingCount, reset, methods])
 
   useEffect(() => {
     setCrumbs([
@@ -93,19 +106,7 @@ const BrandPage: React.FC = () => {
     ])
   }, [setCrumbs])
 
-  const hasPreviewDifference = useMemo(() => {
-    if (!setting || !previewSetting) return null
-    const companyInfoDiff =
-      setting.companyName !== previewSetting.companyName ||
-      setting.companyDescription !== previewSetting.companyDescription ||
-      setting.companyDomain !== previewSetting.companyDomain ||
-      setting.statusPageURL !== previewSetting.statusPageURL
-    const textDiff = setting.title !== previewSetting.title || setting.overview !== previewSetting.overview || setting.securityContact !== previewSetting.securityContact
-    const themeDiff =
-      setting.themeMode !== previewSetting.themeMode || setting.font !== previewSetting.font || normalizeHexColor(setting.primaryColor) !== normalizeHexColor(previewSetting.primaryColor)
-    const assetDiff = setting.logoFile?.id !== previewSetting.logoFile?.id || setting.logoRemoteURL !== previewSetting.logoRemoteURL
-    return { companyInfo: companyInfoDiff, text: textDiff, theme: themeDiff, assets: assetDiff, any: textDiff || themeDiff || assetDiff || companyInfoDiff }
-  }, [setting, previewSetting])
+  const hasPreviewDifference = useMemo(() => getBrandingPreviewDifference(setting, previewSetting), [setting, previewSetting])
 
   const setColorOrClear = (value: string | null | undefined, colorKey: string, clearKey: string) => {
     const normalized = normalizeHexColor(value)
@@ -220,11 +221,14 @@ const BrandPage: React.FC = () => {
   return (
     <FormProvider {...methods}>
       <form onSubmit={(e) => e.preventDefault()} className="w-full flex justify-center py-4">
-        <div className="w-full max-w-[1200px] grid gap-6">
+        <div className="isolate w-full max-w-[1200px] grid gap-6" style={fixedToolbarOffset}>
           <PageHeading heading="Branding" />
           <BrandingHeader
+            ref={stickyChromeRef}
             cnameRecord={cnameRecord}
-            hasChanges={hasPreviewDifference?.any}
+            hasUnsavedChanges={hasUnsavedChanges}
+            hasPreviewChanges={hasPreviewDifference.any}
+            isPreviewAvailable={hasPreviewDifference.comparable}
             onPreview={handleSubmit((v) => onSubmit(v, 'preview'))}
             onRevert={handleRevert}
             onPublish={() => setIsConfirmationDialogOpen(true)}
@@ -235,12 +239,18 @@ const BrandPage: React.FC = () => {
               <TabsTrigger value="published">Published</TabsTrigger>
             </TabsList>
           </Tabs>
-          <BrandingCompanyInfoSection hasWarning={hasPreviewDifference?.companyInfo} isReadOnly={isReadOnly} setting={setting} />
-          <BrandingTextSection hasWarning={hasPreviewDifference?.text} isReadOnly={isReadOnly} setting={setting} />
+          <BrandingCompanyInfoSection hasWarning={hasPreviewDifference.companyInfo} isReadOnly={isReadOnly} setting={setting} />
+          <BrandingTextSection hasWarning={hasPreviewDifference.text} isReadOnly={isReadOnly} setting={setting} />
 
-          <BrandingThemeSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.theme} setting={setting} cnameRecord={cnameRecord} />
+          <BrandingThemeSection
+            isReadOnly={isReadOnly}
+            hasWarning={hasPreviewDifference.theme}
+            setting={setting}
+            cnameRecord={cnameRecord}
+            pullAction={<BrandingDomainPull isReadOnly={isReadOnly} onPulled={handleBrandingPulled} />}
+          />
 
-          <BrandingAssetsSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.assets} />
+          <BrandingAssetsSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference.assets} />
         </div>
 
         <ConfirmationDialog
