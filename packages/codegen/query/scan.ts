@@ -146,7 +146,7 @@ export const SCAN_STATUS = gql`
 
 export const RECENT_DOMAIN_SCANS = gql`
   query RecentDomainScans($where: ScanWhereInput, $first: Int) {
-    scans(where: $where, first: $first, orderBy: [{ field: created_at, direction: ASC }]) {
+    scans(where: $where, first: $first, orderBy: [{ field: created_at, direction: DESC }]) {
       edges {
         node {
           id

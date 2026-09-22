@@ -137,11 +137,11 @@ test.describe('organization-settings — billing (owner)', () => {
 })
 
 test.describe('organization-settings — general settings (owner)', () => {
-  test('shows the Organization name, Transfer ownership + Delete organization sections', async ({ page }) => {
+  test('shows the organization Name, Transfer ownership + Delete organization sections', async ({ page }) => {
     await page.goto('/organization-settings/general-settings', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^General$/ })).toBeVisible({ timeout: 20_000 })
 
-    await expect(page.getByText('Organization name').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: 'Name', exact: true }).first()).toBeVisible({ timeout: 15_000 })
     await expect(page.getByText('Transfer ownership').first()).toBeVisible()
     await expect(page.getByText('Delete organization').first()).toBeVisible()
   })
@@ -179,7 +179,7 @@ test.describe('organization-settings — authentication (owner)', () => {
 test.describe('organization-settings — read-only flows (owner)', () => {
   test('general settings org-name form shows a validation error on a too-short name (no mutation)', async ({ page }) => {
     await page.goto('/organization-settings/general-settings', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByText('Organization name').first()).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByRole('heading', { name: 'Name', exact: true }).first()).toBeVisible({ timeout: 20_000 })
 
     const nameInput = page.locator('input[name="displayName"]')
     await expect(nameInput).toBeVisible({ timeout: 15_000 })

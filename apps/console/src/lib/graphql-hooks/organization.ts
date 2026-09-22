@@ -58,7 +58,7 @@ import {
   type MutationLeaveOrganizationArgs,
   OrgMembershipRole,
 } from '@repo/codegen/src/schema'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, type QueryClient } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { useMemo } from 'react'
@@ -168,15 +168,20 @@ export const useGetOrganizationSetting = (organizationId: string | undefined) =>
   })
 }
 
+export const invalidateOrganizationSettingQueries = (queryClient: QueryClient, organizationId?: string) =>
+  Promise.all([queryClient.invalidateQueries({ queryKey: ['organizationSetting', organizationId] }), queryClient.invalidateQueries({ queryKey: ['organizationDomains', organizationId] })])
+
 export const useGetOrganizationDomains = (organizationId: string | undefined) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetOrganizationDomainsQuery, GetOrganizationDomainsQueryVariables>({
+  const query = useQuery<GetOrganizationDomainsQuery, GetOrganizationDomainsQueryVariables>({
     queryKey: ['organizationDomains', organizationId],
     queryFn: async () => client.request(GET_ORGANIZATION_DOMAINS, { organizationId }),
     enabled: !!organizationId,
     staleTime: 0,
   })
+
+  return { ...query, isLoadingDomains: !!organizationId && query.isPending }
 }
 
 export const useGetBillingEmail = (organizationId: string | undefined) => {

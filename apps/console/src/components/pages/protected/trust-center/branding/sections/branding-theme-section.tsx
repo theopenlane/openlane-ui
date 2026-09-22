@@ -13,8 +13,6 @@ import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
 import { buildPreviewUrl } from '../helpers/preview-url'
 import { BrandingPaletteImport } from './branding-palette-import'
-import { Button } from '@repo/ui/button'
-import { Palette } from 'lucide-react'
 
 interface BrandingThemeSectionProps {
   isReadOnly: boolean
@@ -55,7 +53,6 @@ export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting, cnameRec
 
   const currentThemeMode = isReadOnly ? setting?.themeMode : themeMode
   const colorGeneratorUrl = buildPreviewUrl(cnameRecord, { colorGen: 'true' })
-  const showColorGenerator = !isReadOnly && !!colorGeneratorUrl && currentThemeMode === TrustCenterSettingTrustCenterThemeMode.ADVANCED
 
   return (
     <Card id="theme" className="scroll-mt-20">
@@ -70,24 +67,16 @@ export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting, cnameRec
             {pullAction}
           </div>
 
-          <div className="flex items-center justify-between gap-6">
-            <div className="flex gap-6">
-              {[TrustCenterSettingTrustCenterThemeMode.EASY, TrustCenterSettingTrustCenterThemeMode.ADVANCED].map((mode) => (
-                <label key={mode} className={`flex items-center gap-1 ${isReadOnly ? 'cursor-default opacity-70' : 'cursor-pointer'}`}>
-                  <input type="radio" className="sr-only" checked={currentThemeMode === mode} onChange={() => !isReadOnly && handleUpdate('themeMode', mode)} disabled={isReadOnly} />
-                  <div className={`mr-3 flex h-5 w-5 items-center justify-center rounded-full border-2 ${currentThemeMode === mode ? 'border-primary' : 'border-border'}`}>
-                    {currentThemeMode === mode && <div className="h-2 w-2 rounded-full bg-primary" />}
-                  </div>
-                  <p className="text-sm font-medium">{mode === TrustCenterSettingTrustCenterThemeMode.EASY ? 'Easy' : 'Advanced'}</p>
-                </label>
-              ))}
-            </div>
-
-            {showColorGenerator && (
-              <Button type="button" variant="secondary" icon={<Palette size={16} />} onClick={() => window.open(colorGeneratorUrl, '_blank', 'noopener,noreferrer')}>
-                Generate Colors Live
-              </Button>
-            )}
+          <div className="flex gap-6">
+            {[TrustCenterSettingTrustCenterThemeMode.EASY, TrustCenterSettingTrustCenterThemeMode.ADVANCED].map((mode) => (
+              <label key={mode} className={`flex items-center gap-1 ${isReadOnly ? 'cursor-default opacity-70' : 'cursor-pointer'}`}>
+                <input type="radio" className="sr-only" checked={currentThemeMode === mode} onChange={() => !isReadOnly && handleUpdate('themeMode', mode)} disabled={isReadOnly} />
+                <div className={`mr-3 flex h-5 w-5 items-center justify-center rounded-full border-2 ${currentThemeMode === mode ? 'border-primary' : 'border-border'}`}>
+                  {currentThemeMode === mode && <div className="h-2 w-2 rounded-full bg-primary" />}
+                </div>
+                <p className="text-sm font-medium">{mode === TrustCenterSettingTrustCenterThemeMode.EASY ? 'Easy' : 'Advanced'}</p>
+              </label>
+            ))}
           </div>
 
           {currentThemeMode === TrustCenterSettingTrustCenterThemeMode.EASY ? (
@@ -105,7 +94,7 @@ export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting, cnameRec
             </div>
           ) : (
             <>
-              {!isReadOnly && <BrandingPaletteImport />}
+              {!isReadOnly && <BrandingPaletteImport colorGeneratorUrl={colorGeneratorUrl} />}
 
               <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-4">
                 <div className="col-span-2 space-y-1">

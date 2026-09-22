@@ -984,4 +984,5 @@ body[data-row-dragging] * {
 @theme {
   --editor-z-fixed-toolbar: 60;
   --editor-z-floating-toolbar: 70;
+  --z-page-sticky-bar: 65;
 }

@@ -131,8 +131,19 @@ export type RecentDomainScanNode = NonNullable<NonNullable<NonNullable<RecentDom
 
 const RECENT_DOMAIN_SCANS_POLL_INTERVAL_MS = 5000 // 5s
 
-const hasActiveDomainScan = (data?: RecentDomainScansQuery) =>
-  (data?.scans?.edges ?? []).some((edge) => edge?.node?.status === ScanScanStatus.PENDING || edge?.node?.status === ScanScanStatus.PROCESSING)
+export const STALE_ACTIVE_SCAN_MS = 10 * 60 * 1000 // 10min
+
+export const isActiveScanStatus = (status?: ScanScanStatus | null) => status === ScanScanStatus.PENDING || status === ScanScanStatus.PROCESSING
+
+export const isStaleActiveScan = (createdAt: string, now: number) => {
+  const startedAt = new Date(createdAt).getTime()
+  return Number.isNaN(startedAt) || now - startedAt > STALE_ACTIVE_SCAN_MS
+}
+
+const hasActiveDomainScan = (data?: RecentDomainScansQuery) => {
+  const now = Date.now()
+  return (data?.scans?.edges ?? []).some((edge) => !!edge?.node && isActiveScanStatus(edge.node.status) && !isStaleActiveScan(edge.node.createdAt, now))
+}
 
 export const useRecentDomainScans = ({ where, first, enabled = true }: RecentDomainScansQueryVariables & { enabled?: boolean }) => {
   const { client } = useGraphQLClient()
@@ -151,8 +162,6 @@ export const useRecentDomainScans = ({ where, first, enabled = true }: RecentDom
 
 const SCAN_STATUS_POLL_INTERVAL_MS = 3000 // 3s
 
-const isTerminalScanStatus = (status?: ScanScanStatus) => status === ScanScanStatus.COMPLETED || status === ScanScanStatus.FAILED
-
 export const useScanStatus = (scanId?: ScanStatusQueryVariables['scanId']) => {
   const { client } = useGraphQLClient()
   return useQuery<ScanStatusQuery, ClientError>({
@@ -160,8 +169,7 @@ export const useScanStatus = (scanId?: ScanStatusQueryVariables['scanId']) => {
     queryFn: async (): Promise<ScanStatusQuery> => client.request(SCAN_STATUS, { scanId }),
     enabled: !!scanId,
     placeholderData: undefined,
-    refetchInterval: (query) => (query.state.status === 'error' || isTerminalScanStatus(query.state.data?.scan?.status) ? false : SCAN_STATUS_POLL_INTERVAL_MS),
-    refetchIntervalInBackground: true,
+    refetchInterval: (query) => (query.state.status === 'error' || !isActiveScanStatus(query.state.data?.scan?.status) ? false : SCAN_STATUS_POLL_INTERVAL_MS),
   })
 }
 

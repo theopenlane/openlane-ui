@@ -10,7 +10,7 @@ import { type BrandFormValues } from '../brand-schema'
 
 export const useBrandingDomainOptions = (enabled: boolean) => {
   const { currentOrgId } = useOrganization()
-  const { data, isLoading } = useGetOrganizationDomains(enabled ? currentOrgId : undefined)
+  const { data, isLoadingDomains, refetch } = useGetOrganizationDomains(enabled ? currentOrgId : undefined)
   const { watch } = useFormContext<BrandFormValues>()
 
   const organizationDomains = data?.organization?.setting?.domains
@@ -18,5 +18,5 @@ export const useBrandingDomainOptions = (enabled: boolean) => {
 
   const domainOptions = useMemo(() => [...new Set([...(organizationDomains ?? []), companyDomain].map(toHostname).filter(isValidDomain))], [organizationDomains, companyDomain])
 
-  return { isLoading, domainOptions }
+  return { isLoadingDomains, domainOptions, refetchDomains: refetch }
 }

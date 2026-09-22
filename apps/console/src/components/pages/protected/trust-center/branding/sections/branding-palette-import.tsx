@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
-import { ClipboardPaste } from 'lucide-react'
+import { ClipboardPaste, Palette } from 'lucide-react'
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
 import { parseBrandingString } from '@/utils/brandingString'
 import { useNotification } from '@/hooks/useNotification'
@@ -14,7 +14,11 @@ import { type BrandFormValues } from '../brand-schema'
 const BRANDING_STRING_INPUT_ID = 'branding-palette-import'
 const BRANDING_STRING_ERROR_ID = 'branding-palette-import-error'
 
-export const BrandingPaletteImport = () => {
+interface BrandingPaletteImportProps {
+  colorGeneratorUrl?: string
+}
+
+export const BrandingPaletteImport = ({ colorGeneratorUrl }: BrandingPaletteImportProps) => {
   const { setValue } = useFormContext<BrandFormValues>()
   const { successNotification } = useNotification()
   const [brandingString, setBrandingString] = useState('')
@@ -79,6 +83,13 @@ export const BrandingPaletteImport = () => {
         <Button type="button" variant="secondary" icon={<ClipboardPaste size={16} />} onClick={handleApply} disabled={!brandingString.trim()}>
           Apply
         </Button>
+        {colorGeneratorUrl && (
+          <Button asChild variant="secondary" icon={<Palette size={16} />}>
+            <a href={colorGeneratorUrl} target="_blank" rel="noreferrer">
+              Generate palette
+            </a>
+          </Button>
+        )}
       </div>
     </div>
   )

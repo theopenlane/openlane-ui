@@ -5,12 +5,17 @@ import { Button } from '@repo/ui/button'
 import { Pencil } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useGetOrganizationSetting, useUpdateOrganizationSetting } from '@/lib/graphql-hooks/organization'
+import { invalidateOrganizationSettingQueries, useGetOrganizationSetting, useUpdateOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { DomainListEditor } from '@/components/shared/domain-list-editor/domain-list-editor'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
+import Skeleton from '@/components/shared/skeleton/skeleton'
 import { toHostname } from '@/utils/normalizeUrl'
 import { isValidDomain } from '@/utils/strings'
+
+const ADD_SUCCESS_DESCRIPTION = "Domain added. We're scanning it for branding — you'll get a notification when it's ready."
+const FIRST_DOMAIN_WARNING = 'Adding your first domain starts a branding scan and applies the detected theme to your live Trust Center.'
 
 const OrganizationDomains = () => {
   const { currentOrgId } = useOrganization()
@@ -33,8 +38,7 @@ const OrganizationDomains = () => {
         updateOrganizationSettingId: settingId,
         input: updated.length > 0 ? { domains: updated } : { clearDomains: true },
       })
-      await queryClient.invalidateQueries({ queryKey: ['organizationSetting', currentOrgId] })
-      await queryClient.invalidateQueries({ queryKey: ['organizationDomains', currentOrgId] })
+      await invalidateOrganizationSettingQueries(queryClient, currentOrgId)
       successNotification({ title: 'Success', description: successMessage })
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
@@ -42,11 +46,14 @@ const OrganizationDomains = () => {
   }
 
   const addDomain = async () => {
-    const candidate = toHostname(newDomain)
-    if (!candidate) return
+    if (isPending) return
 
-    if (!isValidDomain(candidate)) {
-      setInputError(`"${newDomain.trim()}" is not a valid domain.`)
+    const raw = newDomain.trim()
+    if (!raw) return
+
+    const candidate = toHostname(raw)
+    if (!candidate || !isValidDomain(candidate)) {
+      setInputError(`"${raw}" is not a valid domain.`)
       return
     }
 
@@ -55,11 +62,13 @@ const OrganizationDomains = () => {
       return
     }
 
-    await saveDomains([...domains, candidate], 'Domain added successfully.')
+    await saveDomains([...domains, candidate], ADD_SUCCESS_DESCRIPTION)
     setNewDomain('')
   }
 
   const removeDomain = async (domainToRemove: string) => {
+    if (isPending) return
+
     await saveDomains(
       domains.filter((domain) => domain !== domainToRemove),
       'Domain removed successfully.',
@@ -80,7 +89,7 @@ const OrganizationDomains = () => {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading domains...</p>
+        <Skeleton height={14} className="w-full max-w-[220px] rounded-md" />
       ) : isEditing ? (
         <div className="flex flex-col items-start gap-3 max-w-xl">
           <DomainListEditor
@@ -99,6 +108,7 @@ const OrganizationDomains = () => {
             addLabel="Add Domain"
             addOnEnter
           />
+          {domains.length === 0 && <p className="text-xs text-muted-foreground">{FIRST_DOMAIN_WARNING}</p>}
           <Button type="button" variant="secondary" onClick={stopEditing}>
             Done
           </Button>
@@ -106,7 +116,9 @@ const OrganizationDomains = () => {
       ) : (
         <div className="flex flex-wrap items-center gap-2">
           <DomainListEditor domains={domains} emptyText="No domains yet." />
-          <Button type="button" variant="secondary" icon={<Pencil size={14} />} aria-label="Edit domains" onClick={() => setIsEditing(true)} disabled={!settingId} />
+          <DisabledReasonTooltip reason={settingId ? null : 'Organization settings are still loading.'}>
+            <Button type="button" variant="secondary" icon={<Pencil size={14} />} aria-label="Edit domains" onClick={() => setIsEditing(true)} disabled={!settingId} />
+          </DisabledReasonTooltip>
         </div>
       )}
     </div>

@@ -33,9 +33,9 @@ const UrlDisplay = ({ label, url, emptyText = 'Not available yet', className }: 
       </div>
       <Button type="button" onClick={handleCopy} variant="secondary" disabled={!url} aria-label={`Copy ${label}`} icon={<Copy size={14} />} iconPosition="center" />
       {url ? (
-        <a href={url} rel="noreferrer" target="_blank" aria-label={`Open ${label}`}>
-          <Button type="button" variant="secondary" icon={<ExternalLink size={14} />} iconPosition="center" />
-        </a>
+        <Button asChild variant="secondary" icon={<ExternalLink size={14} />} iconPosition="center">
+          <a href={url} rel="noreferrer" target="_blank" aria-label={`Open ${label}`} />
+        </Button>
       ) : (
         <Button type="button" variant="secondary" disabled aria-label={`Open ${label}`} icon={<ExternalLink size={14} />} iconPosition="center" />
       )}
