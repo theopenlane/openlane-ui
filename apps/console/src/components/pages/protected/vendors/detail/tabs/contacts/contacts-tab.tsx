@@ -22,7 +22,7 @@ import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
 import { ContactUserStatus, type UpdateContactInput, type ContactWhereInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
+import { RecordImportDialog } from '@/components/shared/record-import/record-import-dialog'
 import { GenericBulkEditDialog } from '@/components/shared/crud-base/dialog/bulk-edit'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -239,7 +239,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
                   </>
                 )}
               />
-              {canEditVendor && <GenericBulkCSVCreateDialog entityType={ObjectTypes.CONTACT} onBulkCreate={handleBulkCreate} open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen} />}
+              {canEditVendor && <RecordImportDialog entityType={ObjectTypes.CONTACT} onImport={handleBulkCreate} open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen} />}
               <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.VENDOR_CONTACTS} />
               <TableFilter filterFields={CONTACT_FILTER_FIELDS} onFilterChange={setFilterWhere} pageKey={TableKeyEnum.VENDOR_CONTACTS} />
               {canEditVendor && (

@@ -207,7 +207,7 @@ test.describe('organization-settings — read-only flows (owner)', () => {
 })
 
 test.describe('organization-settings — subscribers (owner)', () => {
-  test('subscribers bulk-upload dialog opens with the CSV format callout', async ({ page }) => {
+  test('subscribers bulk-upload dialog opens on the import wizard upload step', async ({ page }) => {
     await page.goto('/organization-settings/subscribers', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Subscribers$/ })).toBeVisible({ timeout: 20_000 })
 
@@ -217,8 +217,8 @@ test.describe('organization-settings — subscribers (owner)', () => {
 
     const dialog = page.getByRole('dialog')
     await expect(dialog).toBeVisible({ timeout: 10_000 })
-    await expect(dialog.getByText('CSV Format')).toBeVisible()
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeDisabled()
+    await expect(dialog.getByText('What gets imported')).toBeVisible()
+    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
   })
 
   test('subscribers filter menu exposes the Email / Active / Verified fields', async ({ page }) => {

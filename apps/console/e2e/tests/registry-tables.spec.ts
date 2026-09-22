@@ -48,7 +48,7 @@ test.describe('registry — vendors table', () => {
     await expect(page.getByText('Export Started', { exact: true }).first()).toBeVisible({ timeout: 30_000 })
   })
 
-  test('Bulk Upload opens the CSV create dialog', async ({ page }) => {
+  test('Bulk Upload opens the import wizard on its upload step', async ({ page }) => {
     test.slow()
     await openVendors(page)
 
@@ -57,7 +57,7 @@ test.describe('registry — vendors table', () => {
 
     const dialog = page.getByRole('dialog')
     await expect(dialog).toBeVisible({ timeout: 15_000 })
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeDisabled()
+    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
   })
 
   test('sorting by Display Name reverses the order of a searched vendor pair', async ({ page }) => {

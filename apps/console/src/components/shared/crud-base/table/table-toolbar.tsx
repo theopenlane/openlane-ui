@@ -15,7 +15,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { Button } from '@repo/ui/button'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useRouter } from 'next/navigation'
-import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
+import { RecordImportDialog } from '@/components/shared/record-import/record-import-dialog'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { TableFilter } from '../../table-filter/table-filter'
@@ -240,10 +240,11 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                 />
 
                 {props.onBulkCreate && (
-                  <GenericBulkCSVCreateDialog
+                  <RecordImportDialog
                     entityType={props.entityType}
                     displayName={props.displayName}
-                    onBulkCreate={props.onBulkCreate}
+                    displayNamePlural={props.displayNamePlural}
+                    onImport={props.onBulkCreate}
                     open={isBulkUploadOpen}
                     onOpenChange={setIsBulkUploadOpen}
                   />

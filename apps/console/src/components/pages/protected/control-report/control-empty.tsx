@@ -35,7 +35,7 @@ export function ControlsEmptyActions() {
       title: 'Import Custom Controls',
       desc: 'Upload a CSV with your control ref codes, descriptions, status and more to bulk-create controls',
       Icon: UploadIcon,
-      dialog: <BulkCSVCreateControlDialog trigger={<div className={cn(buttonVariants({ variant: 'newSecondary' }))}>Upload</div>} />,
+      dialog: <BulkCSVCreateControlDialog trigger={<Button variant="secondary">Upload</Button>} />,
     },
     {
       id: 'import-specific',

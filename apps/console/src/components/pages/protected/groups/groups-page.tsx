@@ -27,7 +27,7 @@ import { type TFilterState } from '@/components/shared/table-filter/filter-stora
 import { mapGroupsFilterKey, useGroupsFilters } from './table/table-config'
 import { useOrgTablePagination, useOrgTableViewMode } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
+import { RecordImportDialog } from '@/components/shared/record-import/record-import-dialog'
 import Menu from '@/components/shared/menu/menu'
 import { useCreateBulkCSVGroup } from '@/lib/graphql-hooks/group'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -193,10 +193,10 @@ const GroupsPage = () => {
             )}
           />
           {isExportOpen && <ExportGroupsDialog open onOpenChange={setIsExportOpen} onExport={exportGroups} />}
-          <GenericBulkCSVCreateDialog
+          <RecordImportDialog
             entityType={ObjectTypes.GROUP}
             displayName="Group"
-            onBulkCreate={async (file: File) => {
+            onImport={async (file: File) => {
               await bulkCreateMutation.mutateAsync({ input: file })
             }}
             open={isBulkUploadOpen}

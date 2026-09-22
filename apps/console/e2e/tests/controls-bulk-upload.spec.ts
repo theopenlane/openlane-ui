@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
 import { inlineCsv } from '../utils/files'
-import { uploadCsvAndAssert } from '../utils/mutations'
+import { uploadCsvAndAssert, uploadCsvToSingleStepDialogAndAssert } from '../utils/mutations'
 import { createControl, getFirstStandardWithControl, getOwnerApi } from '../utils/api'
 import { uniqueRef } from '../utils/unique'
 
@@ -20,38 +20,45 @@ const openBulkDialog = async (page: Page, item: string) => {
   return dialog
 }
 
-const BULK_DIALOGS = [
-  { item: 'Upload From Standard', title: 'Bulk Upload From Standards' },
-  { item: 'Upload Custom Controls', title: 'Bulk Upload Custom Controls' },
-  { item: 'Upload Control Mappings', title: 'Bulk Upload Control Mappings' },
-]
-
 test.describe('controls — bulk upload dialogs', () => {
-  for (const { item, title } of BULK_DIALOGS) {
-    test(`"${item}" opens ${title} with the CSV format callout and a disabled Upload`, async ({ page }) => {
+  test('"Upload From Standard" opens the single-step standards dialog with a disabled Upload', async ({ page }) => {
+    test.slow()
+    await openControlsToolbar(page)
+
+    const dialog = await openBulkDialog(page, 'Upload From Standard')
+    await expect(dialog.getByRole('heading', { name: 'Bulk Upload From Standards' })).toBeVisible({ timeout: 15_000 })
+    await expect(dialog.getByText('CSV Format')).toBeVisible()
+    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeDisabled()
+  })
+
+  for (const { item, heading } of [
+    { item: 'Upload Custom Controls', heading: 'Import your controls' },
+    { item: 'Upload Control Mappings', heading: 'Import your control mappings' },
+  ]) {
+    test(`"${item}" opens the import wizard on the upload step`, async ({ page }) => {
       test.slow()
       await openControlsToolbar(page)
 
       const dialog = await openBulkDialog(page, item)
-      await expect(dialog.getByRole('heading', { name: title })).toBeVisible({ timeout: 15_000 })
-      await expect(dialog.getByText('CSV Format')).toBeVisible()
-      await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeDisabled()
+      await expect(dialog.getByRole('heading', { name: heading })).toBeVisible({ timeout: 15_000 })
+      await expect(dialog.getByText('What gets imported')).toBeVisible()
+      await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
     })
   }
 
-  test('attaching a CSV enables the Upload button on the custom-controls dialog', async ({ page }) => {
+  test('attaching a CSV enables Continue on the custom-controls wizard', async ({ page }) => {
     test.slow()
     await openControlsToolbar(page)
 
     const dialog = await openBulkDialog(page, 'Upload Custom Controls')
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeDisabled()
+    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
 
     await dialog.locator('input[type="file"]').first().setInputFiles(inlineCsv('controls.csv', 'ref_code,description\nE2E-BULK-1,seeded by e2e\n'))
 
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeEnabled({ timeout: 30_000 })
+    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeEnabled({ timeout: 30_000 })
   })
 
-  test('a non-CSV file is rejected by the custom-controls dialog', async ({ page }) => {
+  test('a non-CSV file is rejected by the custom-controls wizard', async ({ page }) => {
     test.slow()
     await openControlsToolbar(page)
 
@@ -61,7 +68,23 @@ test.describe('controls — bulk upload dialogs', () => {
       .first()
       .setInputFiles({ name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('not a csv', 'utf-8') })
 
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeDisabled({ timeout: 15_000 })
+    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled({ timeout: 15_000 })
+  })
+
+  test('a column with no matching field can be ignored and is left out of the import', async ({ page }) => {
+    test.slow()
+    await openControlsToolbar(page)
+
+    const dialog = await openBulkDialog(page, 'Upload Custom Controls')
+    await dialog.locator('input[type="file"]').first().setInputFiles(inlineCsv('controls.csv', 'Control ID,Description,Internal Notes From Ops\nCC6.1,seeded by e2e,ignore me\n'))
+
+    await dialog.getByRole('button', { name: /^Continue$/ }).click()
+    await expect(dialog.getByText('Import as', { exact: true })).toBeVisible({ timeout: 30_000 })
+    await expect(dialog.getByText('Internal Notes From Ops')).toBeVisible()
+    await expect(dialog.getByText('Ignore this column').first()).toBeVisible()
+
+    await dialog.getByRole('button', { name: /^Continue$/ }).click()
+    await expect(dialog.getByText(/Not imported: .*Internal Notes From Ops/)).toBeVisible({ timeout: 30_000 })
   })
 })
 
@@ -78,7 +101,7 @@ test.describe('controls — bulk upload submits', () => {
       fileName: 'controls.csv',
       rows: `RefCode,Description\n${refCode},seeded by e2e\n`,
       operationName: 'CreateBulkCSVControl',
-      expectToast: 'Controls Created',
+      expectToast: 'Controls imported',
     })
 
     await page.locator('.lucide-table').first().click()
@@ -103,7 +126,7 @@ test.describe('controls — mapping and clone CSV submit', () => {
       fileName: 'mappings.csv',
       rows: `FromControlIDs,ToControlIDs,MappingType\n"[\\"${fromId}\\"]","[\\"${toId}\\"]",EQUAL\n`,
       operationName: 'CreateBulkCSVMappedControl',
-      expectToast: 'Control Mappings Created',
+      expectToast: 'Control mappings imported',
     })
   })
 
@@ -116,7 +139,7 @@ test.describe('controls — mapping and clone CSV submit', () => {
     await openControlsToolbar(page)
     const dialog = await openBulkDialog(page, 'Upload From Standard')
 
-    await uploadCsvAndAssert({
+    await uploadCsvToSingleStepDialogAndAssert({
       page,
       dialog,
       fileName: 'from-standard.csv',

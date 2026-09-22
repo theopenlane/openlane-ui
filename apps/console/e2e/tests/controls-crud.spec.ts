@@ -498,8 +498,8 @@ test.describe('controls — CSV dialogs lifted out of the menu (#2041)', () => {
 
     const dialog = page.getByRole('dialog')
     await expect(dialog).toBeVisible({ timeout: 15_000 })
-    await expect(dialog.getByText(/^Bulk Upload /)).toBeVisible({ timeout: 10_000 })
-    await expect(dialog.getByText('CSV Format')).toBeVisible()
+    await expect(dialog.getByRole('heading', { name: 'Import your controls' })).toBeVisible({ timeout: 10_000 })
+    await expect(dialog.getByText('What gets imported')).toBeVisible()
 
     await expect(page.getByText('Upload Custom Controls', { exact: true })).toHaveCount(0)
     await expect(dialog).toBeVisible()

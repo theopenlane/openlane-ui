@@ -148,11 +148,16 @@ test.describe('organization settings — subscribers', () => {
         .first()
         .setInputFiles(inlineCsv('subscribers.csv', `email\n${email}\n`))
 
-      const upload = dialog.getByRole('button', { name: /^Upload$/ })
-      await expect(upload).toBeEnabled({ timeout: 15_000 })
-      await upload.click()
+      const nextStep = dialog.getByRole('button', { name: /^Continue$/ })
+      await expect(nextStep).toBeEnabled({ timeout: 15_000 })
+      await nextStep.click()
 
-      await expect(page.getByText('Subscribers Created', { exact: true }).first()).toBeVisible({ timeout: 30_000 })
+      await expect(dialog.getByText('Import as', { exact: true })).toBeVisible({ timeout: 30_000 })
+      await nextStep.click()
+
+      await dialog.getByRole('button', { name: /^Import / }).click()
+
+      await expect(page.getByText('Subscribers imported', { exact: true }).first()).toBeVisible({ timeout: 30_000 })
 
       await openSubscribers(page)
       await page.getByPlaceholder('Search').fill(email)

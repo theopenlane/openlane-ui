@@ -49,7 +49,7 @@ test.describe('procedures — table toolbar', () => {
     expect((await exportQueued).ok()).toBe(true)
   })
 
-  test('Bulk upload opens its CSV dialog and a CSV enables Upload', async ({ page }) => {
+  test('Bulk upload opens the import wizard and a CSV enables Continue', async ({ page }) => {
     test.slow()
     await openProcedures(page)
 
@@ -57,12 +57,12 @@ test.describe('procedures — table toolbar', () => {
     await page.getByText('Bulk upload', { exact: true }).click()
 
     const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading', { name: /^Bulk upload$/ })).toBeVisible({ timeout: 30_000 })
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeDisabled()
+    await expect(dialog.getByRole('heading', { name: /^Import your procedures$/ })).toBeVisible({ timeout: 30_000 })
+    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
 
     await dialog.locator('input[type="file"]').first().setInputFiles(inlineCsv('procedures.csv', 'name,details\nE2E-PROC-1,seeded by e2e\n'))
 
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeEnabled({ timeout: 30_000 })
+    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeEnabled({ timeout: 30_000 })
   })
 
   test('Import existing document opens the import dialog', async ({ page }) => {
@@ -214,7 +214,7 @@ test.describe('procedures — bulk upload submits', () => {
     await page.getByText('Bulk upload', { exact: true }).click()
 
     const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading', { name: /^Bulk upload$/ })).toBeVisible({ timeout: 30_000 })
+    await expect(dialog.getByRole('heading', { name: /^Import your procedures$/ })).toBeVisible({ timeout: 30_000 })
 
     await uploadCsvAndAssert({
       page,
@@ -222,7 +222,7 @@ test.describe('procedures — bulk upload submits', () => {
       fileName: 'procedures.csv',
       rows: `Name,Details\n${name},seeded by e2e\n`,
       operationName: 'CreateBulkCSVProcedure',
-      expectToast: 'Procedure Created',
+      expectToast: 'Procedures imported',
     })
 
     await page.keyboard.press('Escape')

@@ -1,116 +1,29 @@
 'use client'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { Upload } from 'lucide-react'
-import React, { cloneElement, useState } from 'react'
-import { Button } from '@repo/ui/button'
-import FileUpload from '@/components/shared/file-upload/file-upload'
-import { useNotification } from '@/hooks/useNotification'
-import { useControllableOpen } from '@/hooks/useControllableOpen'
-import { exportCSV } from '@/lib/export'
-import { IMPORT_CONTROL_DOCS_URL } from '@/constants/docs'
+import React from 'react'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { RecordImportDialog } from '@/components/shared/record-import/record-import-dialog'
 import { useCreateBulkCSVMappedControl } from '@/lib/graphql-hooks/control'
-import { type TUploadedFile } from '../evidence/upload/types/TUploadedFile'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { Callout } from '@/components/shared/callout/callout'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type BulkCsvCreateMappedControlDialogProps = {
-  trigger?: React.ReactElement<
-    Partial<{
-      onClick: React.MouseEventHandler
-      disabled: boolean
-      loading: boolean
-    }>
-  >
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
-const BulkCSVCreateMappedControlDialog: React.FC<BulkCsvCreateMappedControlDialogProps> = ({ trigger, open: openProp, onOpenChange }) => {
-  const [isOpen, setIsOpen, isControlled] = useControllableOpen({ open: openProp, onOpenChange })
-  const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
-  const { successNotification, errorNotification } = useNotification()
-  const { mutateAsync: createBulkMappedControl, isPending: isSubmitting } = useCreateBulkCSVMappedControl()
-
-  const handleFileUpload = async () => {
-    if (!uploadedFile) {
-      return
-    }
-
-    try {
-      await createBulkMappedControl({ input: uploadedFile.file ?? new File([], '') })
-      successNotification({
-        title: 'Control Mappings Created',
-        description: `Control mappings have been successfully created`,
-      })
-      setIsOpen(false)
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
-
-  const handleUploadedFile = (uploadedFile: TUploadedFile) => {
-    setUploadedFile(uploadedFile)
-  }
-
-  const handleCSVExport = async () => {
-    await exportCSV({ filename: 'mappedcontrol' })
-  }
+const BulkCSVCreateMappedControlDialog: React.FC<BulkCsvCreateMappedControlDialogProps> = ({ open, onOpenChange }) => {
+  const { mutateAsync: createBulkMappedControl } = useCreateBulkCSVMappedControl()
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      {trigger ? (
-        <DialogTrigger asChild className="bg-transparent self-start">
-          {/* eslint-disable-next-line @eslint-react/no-clone-element */}
-          {cloneElement(trigger, {
-            onClick: () => setIsOpen(true),
-            disabled: isSubmitting,
-          })}
-        </DialogTrigger>
-      ) : !isControlled ? (
-        <DialogTrigger asChild>
-          <Button icon={<Upload />} className="h-8 px-2! bg-transparent" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
-            Bulk Upload
-          </Button>
-        </DialogTrigger>
-      ) : null}
-
-      <DialogContent className="sm:max-w-[640px] bg-secondary">
-        <DialogHeader>
-          <DialogTitle>Bulk Upload Control Mappings</DialogTitle>
-        </DialogHeader>
-        <Callout title="CSV Format">
-          You can upload a csv containing control mappings. Please refer to our{' '}
-          <a href={`${IMPORT_CONTROL_DOCS_URL}`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
-            documentation
-          </a>{' '}
-          for column format. We also provide a{' '}
-          <button type="button" className="text-brand hover:underline cursor-pointer bg-transparent" onClick={() => handleCSVExport()}>
-            template csv file
-          </button>{' '}
-          for you to fill out.
-        </Callout>
-        <FileUpload
-          acceptedFileTypes={['text/csv']}
-          acceptedFileTypesShort={['CSV']}
-          maxFileSizeInMb={1}
-          onFileUpload={handleUploadedFile}
-          multipleFiles={false}
-          acceptedFilesClass="flex justify-between text-sm"
-        />
-        <div className="flex flex-col gap-2">
-          <Button className="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || !uploadedFile}>
-            {isSubmitting ? 'Uploading...' : 'Upload'}
-          </Button>
-          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
-        </div>
-      </DialogContent>
-    </Dialog>
+    <RecordImportDialog
+      entityType={ObjectTypes.MAPPED_CONTROL}
+      displayName="Control mapping"
+      displayNamePlural="Control mappings"
+      open={open}
+      onOpenChange={onOpenChange}
+      onImport={async (file) => {
+        await createBulkMappedControl({ input: file })
+      }}
+    />
   )
 }
 

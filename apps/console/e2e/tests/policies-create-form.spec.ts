@@ -186,7 +186,7 @@ test.describe('policies — table toolbar', () => {
     expect((await exportQueued).ok()).toBe(true)
   })
 
-  test('Bulk upload opens its CSV dialog and a CSV enables Upload', async ({ page }) => {
+  test('Bulk upload opens the import wizard and a CSV enables Continue', async ({ page }) => {
     test.slow()
     await openPolicies(page)
 
@@ -194,12 +194,12 @@ test.describe('policies — table toolbar', () => {
     await page.getByText('Bulk upload', { exact: true }).click()
 
     const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading', { name: /^Bulk upload$/ })).toBeVisible({ timeout: 30_000 })
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeDisabled()
+    await expect(dialog.getByRole('heading', { name: /^Import your policies$/ })).toBeVisible({ timeout: 30_000 })
+    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
 
     await dialog.locator('input[type="file"]').first().setInputFiles(inlineCsv('policies.csv', 'name,details\nE2E-POLICY-1,seeded by e2e\n'))
 
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeEnabled({ timeout: 30_000 })
+    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeEnabled({ timeout: 30_000 })
   })
 
   test('Import existing document opens the import dialog', async ({ page }) => {
@@ -223,7 +223,7 @@ test.describe('policies — bulk upload submits', () => {
     await page.getByText('Bulk upload', { exact: true }).click()
 
     const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading', { name: /^Bulk upload$/ })).toBeVisible({ timeout: 30_000 })
+    await expect(dialog.getByRole('heading', { name: /^Import your policies$/ })).toBeVisible({ timeout: 30_000 })
 
     await uploadCsvAndAssert({
       page,
@@ -231,7 +231,7 @@ test.describe('policies — bulk upload submits', () => {
       fileName: 'policies.csv',
       rows: `Name,Details\n${name},seeded by e2e\n`,
       operationName: 'CreateBulkCSVInternalPolicy',
-      expectToast: 'Policies Created',
+      expectToast: 'Policies imported',
     })
 
     await page.keyboard.press('Escape')

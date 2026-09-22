@@ -6,6 +6,7 @@ const { container, table, tableHeader, tableBody, tableFooter, tableRow, tableHe
 
 const Table = ({
   className,
+  containerClassName,
   striped,
   compact,
   variant,
@@ -13,10 +14,10 @@ const Table = ({
   stickyDialogHeader,
   ref,
   ...props
-}: React.HTMLAttributes<HTMLTableElement> & TableVariants & { ref?: React.Ref<HTMLDivElement> }) => {
+}: React.HTMLAttributes<HTMLTableElement> & TableVariants & { containerClassName?: string; ref?: React.Ref<HTMLDivElement> }) => {
   return (
-    <div className="relative">
-      <div ref={ref} className={cn(container({ stickyHeader, stickyDialogHeader }), 'relative')}>
+    <div className={cn('relative', containerClassName)}>
+      <div ref={ref} className={cn(container({ stickyHeader, stickyDialogHeader }), 'relative h-full')}>
         <table className={cn(table({ striped, compact, variant }), className)} {...props} />
       </div>
     </div>

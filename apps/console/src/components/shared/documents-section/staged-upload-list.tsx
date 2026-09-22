@@ -5,6 +5,7 @@ import { Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
+import { formatFileSize } from '@/utils/strings'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { FILE_CATEGORY_ENUM, type StagedUpload } from './staged-upload'
@@ -26,7 +27,7 @@ const StagedUploadList: React.FC<StagedUploadListProps> = ({ uploads, onChange, 
             <Label htmlFor={`${staged.id}-name`}>Name</Label>
             <Input id={`${staged.id}-name`} value={staged.name} placeholder={staged.file.name} onChange={(e) => onChange(staged.id, { name: e.currentTarget.value })} />
             <p className="truncate text-xs text-muted-foreground" title={staged.file.name}>
-              {staged.file.name} &middot; {Math.round(staged.file.size / 1024)} KB
+              {staged.file.name} &middot; {formatFileSize(staged.file.size)}
             </p>
           </div>
           <div className="flex flex-col gap-1.5 sm:w-56">

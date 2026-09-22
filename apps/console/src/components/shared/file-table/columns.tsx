@@ -1,6 +1,7 @@
 import { type ColumnDef } from '@repo/ui/table-types'
 import React from 'react'
 import { CustomTypeEnumOptionChip } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { formatFileSize } from '@/utils/strings'
 import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 
 export type TFile = {
@@ -56,7 +57,7 @@ export const fileSizeColumn: ColumnDef<TFile> = {
   header: 'Size',
   cell: ({ cell }) => {
     const size = cell.getValue() as number | null
-    return <div>{size ? (size / 1024).toFixed(2) : '0'} KB</div>
+    return <div>{formatFileSize(size ?? 0)}</div>
   },
 }
 

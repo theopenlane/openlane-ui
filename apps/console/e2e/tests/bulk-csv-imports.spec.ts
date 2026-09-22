@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import { createControl, createRisk, getOwnerApi, readField } from '../utils/api'
 import { uniqueName, uniqueRef } from '../utils/unique'
-import { uploadCsvAndAssert } from '../utils/mutations'
+import { uploadCsvAndAssert, uploadCsvToSingleStepDialogAndAssert } from '../utils/mutations'
 
 interface BulkCsvCase {
   slug: string
@@ -18,35 +18,35 @@ interface BulkCsvCase {
 const scanTarget = (name: string) => `${name.replace(/[^a-z0-9]/gi, '').toLowerCase()}.e2e-openlane.dev`
 
 const CASES: BulkCsvCase[] = [
-  { slug: 'assets', route: '/registry/assets', operationName: 'CreateBulkCSVAsset', toast: 'Assets Created', header: 'Name,Description', row: (n) => `${n},seeded by e2e` },
-  { slug: 'contacts', route: '/registry/contacts', operationName: 'CreateBulkCSVContact', toast: 'Contacts Created', header: 'FullName', row: (n) => n },
-  { slug: 'findings', route: '/exposure/findings', operationName: 'CreateBulkCSVFinding', toast: 'Findings Created', header: 'DisplayName', row: (n) => n },
+  { slug: 'assets', route: '/registry/assets', operationName: 'CreateBulkCSVAsset', toast: 'Assets imported', header: 'Name,Description', row: (n) => `${n},seeded by e2e` },
+  { slug: 'contacts', route: '/registry/contacts', operationName: 'CreateBulkCSVContact', toast: 'Contacts imported', header: 'FullName', row: (n) => n },
+  { slug: 'findings', route: '/exposure/findings', operationName: 'CreateBulkCSVFinding', toast: 'Findings imported', header: 'DisplayName', row: (n) => n },
   {
     slug: 'personnel',
     route: '/registry/personnel',
     operationName: 'CreateBulkCSVIdentityHolder',
-    toast: 'Personnels Created',
+    toast: 'Personnel imported',
     header: 'FullName,Email',
     row: (n) => `${n},${n.replace(/[^a-z0-9]/gi, '').toLowerCase()}@e2e-openlane.dev`,
   },
-  { slug: 'remediations', route: '/exposure/remediations', operationName: 'CreateBulkCSVRemediation', toast: 'Remediations Created', header: 'Title', row: (n) => n },
-  { slug: 'reviews', route: '/exposure/reviews', operationName: 'CreateBulkCsvReview', toast: 'Reviews Created', header: 'Title', row: (n) => n },
+  { slug: 'remediations', route: '/exposure/remediations', operationName: 'CreateBulkCSVRemediation', toast: 'Remediations imported', header: 'Title', row: (n) => n },
+  { slug: 'reviews', route: '/exposure/reviews', operationName: 'CreateBulkCsvReview', toast: 'Reviews imported', header: 'Title', row: (n) => n },
   {
     slug: 'scans',
     route: '/exposure/scans',
     operationName: 'CreateBulkCSVScan',
-    toast: 'Scans Created',
+    toast: 'Scans imported',
     header: 'Target',
     row: (n) => scanTarget(n),
     searchText: (n) => scanTarget(n),
   },
-  { slug: 'system-details', route: '/registry/system-details', operationName: 'CreateBulkCSVSystemDetail', toast: 'System Details Created', header: 'SystemName', row: (n) => n },
-  { slug: 'vendors', route: '/registry/vendors', operationName: 'CreateBulkCSVEntity', toast: 'Vendors Created', header: 'Name', row: (n) => n },
+  { slug: 'system-details', route: '/registry/system-details', operationName: 'CreateBulkCSVSystemDetail', toast: 'System Details imported', header: 'SystemName', row: (n) => n },
+  { slug: 'vendors', route: '/registry/vendors', operationName: 'CreateBulkCSVEntity', toast: 'Vendors imported', header: 'Name', row: (n) => n },
   {
     slug: 'vulnerabilities',
     route: '/exposure/vulnerabilities',
     operationName: 'CreateBulkCSVVulnerability',
-    toast: 'Vulnerabilities Created',
+    toast: 'Vulnerabilities imported',
     header: 'DisplayName,ExternalId',
     row: (n) => `${n},CVE-${Date.now().toString(36)}`,
   },
@@ -62,7 +62,7 @@ const openBulkUploadDialog = async (page: Page, route: string) => {
   await page.getByRole('button', { name: 'Bulk Upload' }).click()
 
   const dialog = page.getByRole('dialog')
-  await expect(dialog.getByRole('heading', { name: /^Bulk Upload/i })).toBeVisible({ timeout: 30_000 })
+  await expect(dialog.getByRole('heading', { name: /^Import your /i })).toBeVisible({ timeout: 30_000 })
   return dialog
 }
 
@@ -106,7 +106,7 @@ test.describe('bulk CSV imports — groups', () => {
       fileName: 'groups.csv',
       rows: `Name,Description\n${name},seeded by e2e\n`,
       operationName: 'CreateBulkCSVGroup',
-      expectToast: 'Groups Created',
+      expectToast: 'Groups imported',
     })
 
     await page
@@ -130,7 +130,7 @@ test.describe('bulk CSV imports — bespoke dialogs', () => {
       fileName: 'tasks.csv',
       rows: `Title,Details\n${title},seeded by e2e\n`,
       operationName: 'CreateBulkCSVTask',
-      expectToast: 'Tasks Created',
+      expectToast: 'Tasks imported',
     })
 
     await page
@@ -152,7 +152,7 @@ test.describe('bulk CSV imports — bespoke dialogs', () => {
       fileName: 'risks.csv',
       rows: `Name,Details\n${name},seeded by e2e\n`,
       operationName: 'CreateBulkCSVRisk',
-      expectToast: 'Risks Created',
+      expectToast: 'Risks imported',
     })
 
     await page
@@ -176,7 +176,7 @@ test.describe('bulk CSV imports — bespoke dialogs', () => {
       fileName: 'action-plans.csv',
       rows: `Name,Title\n${name},${name}\n`,
       operationName: 'CreateBulkCSVActionPlan',
-      expectToast: 'Action Plans Created',
+      expectToast: 'Action Plans imported',
     })
   })
 
@@ -195,7 +195,7 @@ test.describe('bulk CSV imports — bespoke dialogs', () => {
     const dialog = page.getByRole('dialog')
     await expect(dialog.getByRole('heading', { name: 'Bulk Update Controls' })).toBeVisible({ timeout: 30_000 })
 
-    await uploadCsvAndAssert({
+    await uploadCsvToSingleStepDialogAndAssert({
       page,
       dialog,
       fileName: 'controls-update.csv',

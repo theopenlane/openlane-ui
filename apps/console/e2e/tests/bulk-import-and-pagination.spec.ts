@@ -18,7 +18,7 @@ const openFirstStandard = async (page: Page) => {
 }
 
 test.describe('evidence — bulk CSV import', () => {
-  test('the Bulk Upload dialog opens with the CSV format callout and a disabled Upload', async ({ page }) => {
+  test('the Bulk Upload dialog opens on the upload step with Continue disabled', async ({ page }) => {
     test.slow()
     await openEvidence(page)
 
@@ -26,12 +26,12 @@ test.describe('evidence — bulk CSV import', () => {
     await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
 
     const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading', { name: /^Bulk Upload$/ })).toBeVisible({ timeout: 30_000 })
-    await expect(dialog.getByText('CSV Format', { exact: true })).toBeVisible()
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeDisabled()
+    await expect(dialog.getByRole('heading', { name: /^Import your evidence$/ })).toBeVisible({ timeout: 30_000 })
+    await expect(dialog.getByText('What gets imported')).toBeVisible()
+    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
   })
 
-  test('attaching a CSV enables the evidence Upload button', async ({ page }) => {
+  test('attaching a CSV enables the evidence Continue button', async ({ page }) => {
     test.slow()
     await openEvidence(page)
 
@@ -39,14 +39,14 @@ test.describe('evidence — bulk CSV import', () => {
     await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
 
     const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeDisabled({ timeout: 30_000 })
+    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled({ timeout: 30_000 })
 
     await dialog.locator('input[type="file"]').first().setInputFiles(inlineCsv('evidence.csv', 'name,description\nE2E-EVIDENCE-1,seeded by e2e\n'))
 
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeEnabled({ timeout: 30_000 })
+    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeEnabled({ timeout: 30_000 })
   })
 
-  test('a non-CSV file leaves the evidence Upload button disabled', async ({ page }) => {
+  test('a non-CSV file leaves the evidence Continue button disabled', async ({ page }) => {
     test.slow()
     await openEvidence(page)
 
@@ -59,7 +59,7 @@ test.describe('evidence — bulk CSV import', () => {
       .first()
       .setInputFiles({ name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('not a csv', 'utf-8') })
 
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeDisabled({ timeout: 30_000 })
+    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled({ timeout: 30_000 })
   })
 })
 
@@ -117,7 +117,7 @@ test.describe('evidence — bulk CSV import submits', () => {
     await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
 
     const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading', { name: /^Bulk Upload$/ })).toBeVisible({ timeout: 30_000 })
+    await expect(dialog.getByRole('heading', { name: /^Import your evidence$/ })).toBeVisible({ timeout: 30_000 })
 
     await uploadCsvAndAssert({
       page,
@@ -125,7 +125,7 @@ test.describe('evidence — bulk CSV import submits', () => {
       fileName: 'evidence.csv',
       rows: `Name,Description\n${name},seeded by e2e\n`,
       operationName: 'CreateBulkCSVEvidence',
-      expectToast: 'Evidence Created',
+      expectToast: 'Evidence imported',
     })
 
     await page

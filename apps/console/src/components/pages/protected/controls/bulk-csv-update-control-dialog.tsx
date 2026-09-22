@@ -80,7 +80,11 @@ const BulkCSVUpdateControlDialog: React.FC<BulkCSVUpdateControlDialogProps> = ({
   }
 
   const handleCSVExport = async () => {
-    await exportCSV({ filename: 'control' })
+    try {
+      await exportCSV({ filename: 'control' })
+    } catch {
+      errorNotification({ title: 'Error', description: 'The template CSV could not be downloaded. Please try again later.' })
+    }
   }
 
   return (

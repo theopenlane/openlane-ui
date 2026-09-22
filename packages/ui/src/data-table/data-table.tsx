@@ -972,7 +972,7 @@ const NoData = <TData extends RowData>({ loading, columns, noDataMarkup, noResul
           <TableRow key={rowIndex} variant="data">
             {visibleCols.map((col, colIndex) => (
               <TableCell key={colIndex} variant="data">
-                <div className="animate-custom-pulse bg-white/20 rounded-lg h-2.5 w-full" style={{ width: `${col.getSize()}px` }} />
+                <div className="animate-custom-pulse bg-muted-foreground/20 rounded-lg h-2.5 w-full" style={{ width: `${col.getSize()}px` }} />
               </TableCell>
             ))}
           </TableRow>

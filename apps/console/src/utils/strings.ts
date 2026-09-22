@@ -156,3 +156,15 @@ export const wordTokens = (value: string): string[] =>
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter(Boolean)
+
+export const normalizeFieldName = (value: string): string => value.toLowerCase().replace(/[^a-z0-9]/g, '')
+
+const BYTES_PER_KB = 1024
+
+export const formatFileSize = (bytes: number): string => {
+  if (bytes < BYTES_PER_KB) return `${bytes} B`
+  if (bytes < BYTES_PER_KB ** 2) return `${Math.round(bytes / BYTES_PER_KB)} KB`
+  if (bytes < BYTES_PER_KB ** 3) return `${(bytes / BYTES_PER_KB ** 2).toFixed(1)} MB`
+
+  return `${(bytes / BYTES_PER_KB ** 3).toFixed(1)} GB`
+}

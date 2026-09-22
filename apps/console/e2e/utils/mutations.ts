@@ -62,7 +62,7 @@ export interface UploadCsvArgs {
   expectToast?: string | RegExp
 }
 
-export const uploadCsvAndAssert = async ({ page, dialog, fileName, rows, operationName, expectToast }: UploadCsvArgs): Promise<void> => {
+export const uploadCsvToSingleStepDialogAndAssert = async ({ page, dialog, fileName, rows, operationName, expectToast }: UploadCsvArgs): Promise<void> => {
   const upload = dialog.getByRole('button', { name: /^Upload$/ })
   await expect(upload).toBeDisabled()
 
@@ -71,6 +71,28 @@ export const uploadCsvAndAssert = async ({ page, dialog, fileName, rows, operati
 
   await expectMutationOk(page, operationName, async () => {
     await upload.click()
+  })
+
+  if (expectToast) await expect(toast(page, expectToast)).toBeVisible({ timeout: 30_000 })
+}
+
+export const uploadCsvAndAssert = async ({ page, dialog, fileName, rows, operationName, expectToast }: UploadCsvArgs): Promise<void> => {
+  const nextStep = dialog.getByRole('button', { name: /^Continue$/ })
+  await expect(nextStep).toBeDisabled()
+
+  await dialog.locator('input[type="file"]').first().setInputFiles(inlineCsv(fileName, rows))
+  await expect(nextStep).toBeEnabled({ timeout: 30_000 })
+  await nextStep.click()
+
+  await expect(dialog.getByText('Import as', { exact: true })).toBeVisible({ timeout: 30_000 })
+  await expect(nextStep).toBeEnabled({ timeout: 30_000 })
+  await nextStep.click()
+
+  const startImport = dialog.getByRole('button', { name: /^Import / })
+  await expect(startImport).toBeEnabled({ timeout: 30_000 })
+
+  await expectMutationOk(page, operationName, async () => {
+    await startImport.click()
   })
 
   if (expectToast) await expect(toast(page, expectToast)).toBeVisible({ timeout: 30_000 })
