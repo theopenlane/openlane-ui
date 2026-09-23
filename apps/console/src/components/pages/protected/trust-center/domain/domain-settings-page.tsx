@@ -333,9 +333,6 @@ const DomainSettingsPage = () => {
                   <p id="hide-from-search-engines-description" className="text-sm text-inverted-muted-foreground font-medium leading-6">
                     Prevent search engines like Google from showing this default Trust Center URL in search results.
                   </p>
-                  <p id="hide-from-search-engines-hint" className="text-sm text-inverted-muted-foreground font-medium leading-6">
-                    Automatically turned on when a vanity domain is added. You can change this at any time.
-                  </p>
                 </div>
                 <Switch
                   id="hide-from-search-engines"
