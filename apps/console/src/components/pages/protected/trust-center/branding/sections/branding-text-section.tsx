@@ -1,7 +1,6 @@
 'use client'
 
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import SectionWarning from '../section-warning'
 import { Controller, useFormContext } from 'react-hook-form'
 import { type BrandFormValues } from '../brand-schema'
 import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
@@ -13,10 +12,10 @@ import { type Value } from 'platejs'
 interface BrandingTextSectionProps {
   isReadOnly: boolean
   setting: TrustCenterSetting
-  hasWarning?: boolean
+  warning?: React.ReactNode
 }
 
-export const BrandingTextSection = ({ isReadOnly, hasWarning, setting }: BrandingTextSectionProps) => {
+export const BrandingTextSection = ({ isReadOnly, warning, setting }: BrandingTextSectionProps) => {
   const {
     register,
     control,
@@ -27,7 +26,7 @@ export const BrandingTextSection = ({ isReadOnly, hasWarning, setting }: Brandin
   return (
     <Card>
       <CardContent>
-        {hasWarning && <SectionWarning />}
+        {warning}
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-1">
             <p className="text-base font-medium">Title and Overview</p>

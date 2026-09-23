@@ -22,7 +22,9 @@ import { BrandingDomainPull } from './sections/branding-domain-pull'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
 import { getBrandingPreviewDifference } from './helpers/preview-difference'
+import { UnpublishedChangesWarning } from './section-warning'
 import { useFixedToolbarOffset } from '@/hooks/useFixedToolbarOffset'
+import { buildPreviewUrl } from './helpers/preview-url'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -39,6 +41,7 @@ const BrandPage: React.FC = () => {
   const { data, isLoading, error } = useGetTrustCenter()
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
   const cnameRecord = trustCenter?.previewDomain?.cnameRecord
+  const previewUrl = buildPreviewUrl(cnameRecord)
 
   const setting: TrustCenterSetting = trustCenter?.setting
   const previewSetting: TrustCenterPreviewSetting = trustCenter?.previewSetting
@@ -107,6 +110,7 @@ const BrandPage: React.FC = () => {
   }, [setCrumbs])
 
   const hasPreviewDifference = useMemo(() => getBrandingPreviewDifference(setting, previewSetting), [setting, previewSetting])
+  const unpublishedWarning = <UnpublishedChangesWarning previewUrl={previewUrl} />
 
   const setColorOrClear = (value: string | null | undefined, colorKey: string, clearKey: string) => {
     const normalized = normalizeHexColor(value)
@@ -225,7 +229,7 @@ const BrandPage: React.FC = () => {
           <PageHeading heading="Branding" />
           <BrandingHeader
             ref={stickyChromeRef}
-            cnameRecord={cnameRecord}
+            previewUrl={previewUrl}
             hasUnsavedChanges={hasUnsavedChanges}
             hasPreviewChanges={hasPreviewDifference.any}
             isPreviewAvailable={hasPreviewDifference.comparable}
@@ -239,18 +243,18 @@ const BrandPage: React.FC = () => {
               <TabsTrigger value="published">Published</TabsTrigger>
             </TabsList>
           </Tabs>
-          <BrandingCompanyInfoSection hasWarning={hasPreviewDifference.companyInfo} isReadOnly={isReadOnly} setting={setting} />
-          <BrandingTextSection hasWarning={hasPreviewDifference.text} isReadOnly={isReadOnly} setting={setting} />
+          <BrandingCompanyInfoSection warning={hasPreviewDifference.companyInfo ? unpublishedWarning : null} isReadOnly={isReadOnly} setting={setting} />
+          <BrandingTextSection warning={hasPreviewDifference.text ? unpublishedWarning : null} isReadOnly={isReadOnly} setting={setting} />
 
           <BrandingThemeSection
             isReadOnly={isReadOnly}
-            hasWarning={hasPreviewDifference.theme}
+            warning={hasPreviewDifference.theme ? unpublishedWarning : null}
             setting={setting}
             cnameRecord={cnameRecord}
             pullAction={<BrandingDomainPull isReadOnly={isReadOnly} onPulled={handleBrandingPulled} />}
           />
 
-          <BrandingAssetsSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference.assets} />
+          <BrandingAssetsSection isReadOnly={isReadOnly} warning={hasPreviewDifference.assets ? unpublishedWarning : null} />
         </div>
 
         <ConfirmationDialog

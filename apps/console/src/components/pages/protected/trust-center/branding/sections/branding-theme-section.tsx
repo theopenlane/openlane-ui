@@ -1,7 +1,6 @@
 'use client'
 
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import SectionWarning from '../section-warning'
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
 import { ColorInput } from '@/components/shared/color-input/color-input'
 import { Label } from '@repo/ui/label'
@@ -17,7 +16,7 @@ import { BrandingPaletteImport } from './branding-palette-import'
 interface BrandingThemeSectionProps {
   isReadOnly: boolean
   setting: TrustCenterSetting
-  hasWarning?: boolean
+  warning?: React.ReactNode
   cnameRecord?: string | null
   pullAction?: React.ReactNode
 }
@@ -35,7 +34,7 @@ const ReadOnlyColor = ({ label, value }: { label: string; value?: string | null 
   )
 }
 
-export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting, cnameRecord, pullAction }: BrandingThemeSectionProps) => {
+export const BrandingThemeSection = ({ isReadOnly, warning, setting, cnameRecord, pullAction }: BrandingThemeSectionProps) => {
   const { watch, setValue } = useFormContext<BrandFormValues>()
 
   const themeMode = watch('themeMode')
@@ -57,7 +56,7 @@ export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting, cnameRec
   return (
     <Card id="theme" className="scroll-mt-20">
       <CardContent>
-        {hasWarning && <SectionWarning />}
+        {warning}
         <div className="flex flex-col gap-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col gap-1">

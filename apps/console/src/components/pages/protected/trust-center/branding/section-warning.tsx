@@ -3,12 +3,12 @@ import React from 'react'
 import { cn } from '@repo/ui/lib/utils'
 
 interface SectionWarningProps {
-  message?: React.ReactNode
+  message: React.ReactNode
   icon?: React.ReactNode
   className?: string
 }
 
-const SectionWarning = ({ message = 'You have unpublished changes for this setting', icon, className }: SectionWarningProps) => {
+const SectionWarning = ({ message, icon, className }: SectionWarningProps) => {
   return (
     <div className={cn('border border-document-draft-border bg-infobox rounded-md p-4 mb-6', className)}>
       <div className="flex items-start gap-2">
@@ -18,5 +18,25 @@ const SectionWarning = ({ message = 'You have unpublished changes for this setti
     </div>
   )
 }
+
+export const UnpublishedChangesWarning = ({ previewUrl }: { previewUrl: string }) => (
+  <SectionWarning
+    message={
+      <p className="text-sm">
+        You have unpublished changes for this setting.
+        {previewUrl && (
+          <>
+            {' '}
+            See{' '}
+            <a href={previewUrl} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">
+              Preview<span className="sr-only"> site (opens in a new tab)</span>
+            </a>
+            .
+          </>
+        )}
+      </p>
+    }
+  />
+)
 
 export default SectionWarning
