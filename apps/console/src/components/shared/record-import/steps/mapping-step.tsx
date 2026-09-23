@@ -114,7 +114,7 @@ export const MappingStep: React.FC<TMappingStepProps> = ({ entityLabel, entityLa
               <li key={issue.id} className="flex items-center gap-2">
                 <span>• {issue.message}</span>
                 {issue.columnIndex !== undefined && (
-                  <Button variant="transparent" size="sm" className="h-auto px-0 text-blue-500 hover:underline" onClick={() => focusIssue(issue.columnIndex)}>
+                  <Button variant="link" className="text-blue-500" onClick={() => focusIssue(issue.columnIndex)}>
                     Fix
                   </Button>
                 )}
@@ -131,7 +131,7 @@ export const MappingStep: React.FC<TMappingStepProps> = ({ entityLabel, entityLa
       <div className="rounded-lg border bg-card">
         <div className="flex flex-wrap items-center gap-2 border-b p-3">
           {COLUMN_FILTERS.map((value) => (
-            <Button key={value} variant="tag" size="sm" className={cn(filter === value && 'is-active')} onClick={() => setFilter(value)}>
+            <Button key={value} variant="tag" className={cn(filter === value && 'is-active')} onClick={() => setFilter(value)}>
               {value === 'all' ? 'All' : value.charAt(0).toUpperCase() + value.slice(1)} · {counts[value]}
             </Button>
           ))}

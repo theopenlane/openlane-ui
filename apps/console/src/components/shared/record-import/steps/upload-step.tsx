@@ -154,7 +154,7 @@ export const UploadStep: React.FC<TUploadStepProps> = ({ entityLabel, parsed, on
             </div>
           </li>
         </ul>
-        <Button variant="transparent" className="mt-4 px-0 text-blue-500 hover:underline" aria-expanded={isFieldReferenceOpen} aria-controls={fieldReferenceId} onClick={onToggleFieldReference}>
+        <Button variant="link" className="mt-4 text-blue-500" aria-expanded={isFieldReferenceOpen} aria-controls={fieldReferenceId} onClick={onToggleFieldReference}>
           {isFieldReferenceOpen ? `Hide the ${entityLabel} field reference` : `View the ${entityLabel} field reference`}
         </Button>
       </aside>

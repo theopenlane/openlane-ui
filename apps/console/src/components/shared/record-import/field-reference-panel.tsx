@@ -33,7 +33,6 @@ export const FieldReferencePanel: React.FC<TFieldReferencePanelProps> = ({ id, e
         </div>
         <Button
           variant="secondary"
-          size="sm"
           icon={<Download size={16} />}
           iconPosition="left"
           disabled={!exampleCsv}

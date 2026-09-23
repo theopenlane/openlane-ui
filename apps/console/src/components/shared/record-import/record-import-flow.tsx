@@ -114,8 +114,8 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <Button variant="transparent" className="px-0 text-muted-foreground" icon={<ArrowLeft size={16} />} iconPosition="left" onClick={() => router.push(returnHref)} disabled={isImporting}>
+      <div className="flex flex-col items-start gap-4">
+        <Button variant="secondary" icon={<ArrowLeft size={16} />} iconPosition="left" onClick={() => router.push(returnHref)} disabled={isImporting}>
           {backLabel}
         </Button>
         <PageHeading heading={`Import ${entityLabelPlural.toLowerCase()}`} subheading="Upload your file and we'll help you map the columns to Openlane fields." />

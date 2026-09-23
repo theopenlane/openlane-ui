@@ -51,7 +51,7 @@ export const ReviewStep: React.FC<TReviewStepProps> = ({ entityLabelPlural, pars
           <p className="text-sm">
             Preview — first {Math.min(PREVIEW_ROWS, parsed.rows.length)} of {pluralizeWithCount(parsed.rows.length, 'row')}
           </p>
-          <Button variant="outline" size="sm" icon={<Pencil size={14} />} iconPosition="left" onClick={onEditMapping}>
+          <Button variant="secondary" icon={<Pencil size={16} />} iconPosition="left" onClick={onEditMapping}>
             Edit mapping
           </Button>
         </div>
