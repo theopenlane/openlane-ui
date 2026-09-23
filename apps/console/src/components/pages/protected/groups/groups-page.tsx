@@ -27,9 +27,9 @@ import { type TFilterState } from '@/components/shared/table-filter/filter-stora
 import { mapGroupsFilterKey, useGroupsFilters } from './table/table-config'
 import { useOrgTablePagination, useOrgTableViewMode } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { RecordImportDialog } from '@/components/shared/record-import/record-import-dialog'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import Menu from '@/components/shared/menu/menu'
-import { useCreateBulkCSVGroup } from '@/lib/graphql-hooks/group'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ExportGroupsDialog from './components/dialogs/export-groups-dialog'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
@@ -41,7 +41,7 @@ const GroupsPage = () => {
   const [whereFilters, setWhereFilters] = useState<GroupWhereInput | null>(null)
   const [orderBy, setOrderBy] = useState<GetAllGroupsQueryVariables['orderBy']>()
   const [searchQuery, setSearchQuery] = useState('')
-  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
+  const openImport = useOpenImport()
   const [isExportOpen, setIsExportOpen] = useState(false)
   const { data: session } = useSession()
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
@@ -145,13 +145,6 @@ const GroupsPage = () => {
 
   const { exportGroups, isExporting } = useGroupsExport({ where: whereFilter, orderBy: orderByFilter, columnVisibility })
 
-  const baseBulkCreateMutation = useCreateBulkCSVGroup()
-
-  const bulkCreateMutation = {
-    isPending: baseBulkCreateMutation.isPending,
-    mutateAsync: async (params: { input: File }) => baseBulkCreateMutation.mutateAsync({ input: params.input }),
-  }
-
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -182,8 +175,8 @@ const GroupsPage = () => {
                 <MenuItem
                   icon={<Upload size={16} strokeWidth={2} />}
                   onSelect={() => {
-                    setIsBulkUploadOpen(true)
                     close()
+                    openImport(IMPORT_ROUTES[ObjectTypes.GROUP])
                   }}
                 >
                   Bulk Upload
@@ -193,15 +186,6 @@ const GroupsPage = () => {
             )}
           />
           {isExportOpen && <ExportGroupsDialog open onOpenChange={setIsExportOpen} onExport={exportGroups} />}
-          <RecordImportDialog
-            entityType={ObjectTypes.GROUP}
-            displayName="Group"
-            onImport={async (file: File) => {
-              await bulkCreateMutation.mutateAsync({ input: file })
-            }}
-            open={isBulkUploadOpen}
-            onOpenChange={setIsBulkUploadOpen}
-          />
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.GROUP} />
           )}

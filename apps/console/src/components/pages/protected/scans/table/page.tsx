@@ -2,7 +2,7 @@
 
 import React from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
-import { type ScansNodeNonNull, useScan, useCreateScan, useUpdateScan, useCreateBulkCSVScan, useBulkEditScan, useBulkDeleteScan } from '@/lib/graphql-hooks/scan'
+import { type ScansNodeNonNull, useScan, useCreateScan, useUpdateScan, useBulkEditScan, useBulkDeleteScan } from '@/lib/graphql-hooks/scan'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
@@ -39,7 +39,6 @@ const ScanPage: React.FC = () => {
   const baseUpdateMutation = useUpdateScan()
   const baseCreateMutation = useCreateScan()
   const baseBulkDeleteMutation = useBulkDeleteScan()
-  const baseBulkCreateMutation = useCreateBulkCSVScan()
   const baseBulkEditMutation = useBulkEditScan()
 
   const updateMutation = {
@@ -60,14 +59,6 @@ const ScanPage: React.FC = () => {
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
       return result.deleteBulkScan
-    },
-  }
-
-  const bulkCreateMutation = {
-    isPending: baseBulkCreateMutation.isPending,
-    mutateAsync: async (params: { input: File }) => {
-      const result = await baseBulkCreateMutation.mutateAsync({ input: params.input })
-      return result
     },
   }
 
@@ -146,9 +137,6 @@ const ScanPage: React.FC = () => {
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
       return deleteMutation.mutateAsync({ ids })
-    },
-    onBulkCreate: async (file: File) => {
-      await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateScanInput) => {
       const result = await bulkEditMutation.mutateAsync({ ids, input })

@@ -2,6 +2,7 @@ const LOGIN_PATH = '/login'
 const TFA_PATH = '/tfa'
 const AUTH_PATHS = [LOGIN_PATH, TFA_PATH]
 const DEFAULT_REDIRECT_PATH = '/'
+const REDIRECT_BASE_URL = 'https://openlane.local'
 
 const parseRedirectPath = (redirect: string): { path: string; pathname: string } | null => {
   const trimmedRedirect = redirect.trim()
@@ -11,7 +12,11 @@ const parseRedirectPath = (redirect: string): { path: string; pathname: string }
   }
 
   try {
-    const parsed = new URL(trimmedRedirect, 'https://openlane.local')
+    const parsed = new URL(trimmedRedirect, REDIRECT_BASE_URL)
+    if (parsed.origin !== REDIRECT_BASE_URL || parsed.pathname.startsWith('//')) {
+      return null
+    }
+
     return {
       path: `${parsed.pathname}${parsed.search}${parsed.hash}`,
       pathname: parsed.pathname,

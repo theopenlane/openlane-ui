@@ -5,10 +5,11 @@ import { ArrowRight, FileSpreadsheet, Scissors, Sparkles, X } from 'lucide-react
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Callout } from '@/components/shared/callout/callout'
+import Skeleton from '@/components/shared/skeleton/skeleton'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'
 import { useNotification } from '@/hooks/useNotification'
-import { formatFileSize, pluralizeWithCount } from '@/utils/strings'
+import { formatFileSize, formatList, pluralizeWithCount } from '@/utils/strings'
 import { MAX_IMPORT_FILE_SIZE_MB, parseDelimitedFile } from '../lib/delimited-file'
 import type { TDestinationField, TParsedDelimitedFile } from '../lib/types'
 
@@ -16,13 +17,24 @@ type TUploadStepProps = {
   entityLabel: string
   parsed: TParsedDelimitedFile | null
   onFileParsed: (parsed: TParsedDelimitedFile | null) => void
-  requiredFields: TDestinationField[]
-  onOpenFieldReference: () => void
+  requiredGroups: TDestinationField[][]
+  isLoadingFields: boolean
+  fieldReferenceId: string
+  isFieldReferenceOpen: boolean
+  onToggleFieldReference: () => void
 }
 
-export const UploadStep: React.FC<TUploadStepProps> = ({ entityLabel, parsed, onFileParsed, requiredFields, onOpenFieldReference }) => {
+export const UploadStep: React.FC<TUploadStepProps> = ({ entityLabel, parsed, onFileParsed, requiredGroups, isLoadingFields, fieldReferenceId, isFieldReferenceOpen, onToggleFieldReference }) => {
   const { errorNotification } = useNotification()
   const [isParsing, setIsParsing] = useState(false)
+
+  const requirements = requiredGroups.map((group) =>
+    formatList(
+      group.map((field) => field.label),
+      'disjunction',
+    ),
+  )
+  const requirementCount = requirements.length
 
   const handleUploadedFile = async (uploaded: TUploadedFile) => {
     if (!uploaded.file) return
@@ -36,7 +48,7 @@ export const UploadStep: React.FC<TUploadStepProps> = ({ entityLabel, parsed, on
       }
       onFileParsed(next)
     } catch {
-      errorNotification({ title: 'Could not read that file', description: 'The file could not be parsed as CSV. Please try again later.' })
+      errorNotification({ title: 'Could not read that file', description: 'Check that it is a CSV file and upload it again.' })
     } finally {
       setIsParsing(false)
     }
@@ -110,19 +122,28 @@ export const UploadStep: React.FC<TUploadStepProps> = ({ entityLabel, parsed, on
           <li className="flex gap-3">
             <Sparkles className="mt-0.5 shrink-0 text-primary" size={16} />
             <div>
-              <p>{requiredFields.length === 0 ? 'No required fields' : pluralizeWithCount(requiredFields.length, 'required field')}</p>
-              <p className="text-xs text-muted-foreground">
-                {requiredFields.length === 0
-                  ? `Every ${entityLabel.toLowerCase()} field is optional — map whichever columns you have.`
-                  : `${new Intl.ListFormat('en', { style: 'long', type: 'conjunction' }).format(requiredFields.map((field) => field.label))} must come from a column in your file. Everything else is optional.`}
-              </p>
+              {isLoadingFields ? (
+                <div role="status" aria-live="polite" aria-label="Loading required fields" className="flex flex-col gap-2">
+                  <Skeleton height={14} className="w-full max-w-[140px] rounded-md" />
+                  <Skeleton height={12} className="w-full max-w-[220px] rounded-md" />
+                </div>
+              ) : (
+                <>
+                  <p>{requirementCount === 0 ? 'No required fields' : pluralizeWithCount(requirementCount, 'required field')}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {requirementCount === 0
+                      ? `Every ${entityLabel.toLowerCase()} field is optional — map whichever columns you have.`
+                      : `${formatList(requirements)} must come from a column in your file. Everything else is optional.`}
+                  </p>
+                </>
+              )}
             </div>
           </li>
           <li className="flex gap-3">
             <ArrowRight className="mt-0.5 shrink-0 text-primary" size={16} />
             <div>
               <p>Automatic matching</p>
-              <p className="text-xs text-muted-foreground">Exact names, normalized names, and known aliases are matched for you.</p>
+              <p className="text-xs text-muted-foreground">Exact names, known aliases and names that differ only in wording are matched for you. Empty columns are skipped.</p>
             </div>
           </li>
           <li className="flex gap-3">
@@ -133,8 +154,8 @@ export const UploadStep: React.FC<TUploadStepProps> = ({ entityLabel, parsed, on
             </div>
           </li>
         </ul>
-        <Button variant="transparent" className="mt-4 px-0 text-blue-500 hover:underline" onClick={onOpenFieldReference}>
-          View the {entityLabel} field reference →
+        <Button variant="transparent" className="mt-4 px-0 text-blue-500 hover:underline" aria-expanded={isFieldReferenceOpen} aria-controls={fieldReferenceId} onClick={onToggleFieldReference}>
+          {isFieldReferenceOpen ? `Hide the ${entityLabel} field reference` : `View the ${entityLabel} field reference`}
         </Button>
       </aside>
     </div>

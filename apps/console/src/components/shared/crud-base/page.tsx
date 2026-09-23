@@ -136,7 +136,6 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
 
   // Bulk operations
   onBulkDelete: (ids: string[]) => Promise<BulkDeletePayload>
-  onBulkCreate?: (file: File) => Promise<void>
   onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<BulkUpdatePayload>
   bulkEditFormSchema?: ZodObject<ZodRawShape>
   bulkEditFieldLabels?: Record<string, string>
@@ -182,7 +181,6 @@ export function GenericTablePage<
     viewEditMode,
     createMode,
     onBulkDelete,
-    onBulkCreate,
     onBulkEdit,
   } = config
 
@@ -396,7 +394,6 @@ export function GenericTablePage<
         selectedItems={selectedItems}
         setSelectedItems={setSelectedItems}
         onBulkDelete={onBulkDelete}
-        onBulkCreate={onBulkCreate}
         onBulkEdit={onBulkEdit}
         bulkEditFormSchema={config.bulkEditFormSchema}
         bulkEditFieldLabels={config.bulkEditFieldLabels}

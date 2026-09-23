@@ -14,7 +14,7 @@ export const ImportStepNav: React.FC<TImportStepNavProps> = ({ current }) => {
 
   return (
     <nav aria-label="Import steps">
-      <ol className="flex items-center gap-3">
+      <ol className="flex flex-wrap items-center gap-3">
         {IMPORT_STEPS.map((step, index) => (
           <li key={step} className="flex items-center gap-3" aria-current={step === current ? 'step' : undefined}>
             {index > 0 && <span aria-hidden className="h-px w-8 bg-border sm:w-12" />}

@@ -2,11 +2,18 @@ import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
 import { inlineCsv } from '../utils/files'
-import { uploadCsvAndAssert } from '../utils/mutations'
+import { expectImportPage, uploadCsvAndAssert } from '../utils/mutations'
 
 const openEvidence = async (page: Page) => {
   await page.goto('/evidence', { waitUntil: 'domcontentloaded', timeout: 180_000 })
   await expect(page.getByRole('button', { name: 'Action', exact: true })).toBeVisible({ timeout: 60_000 })
+}
+
+const openEvidenceImport = async (page: Page) => {
+  await page.getByRole('button', { name: 'Action', exact: true }).click()
+  await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
+
+  return expectImportPage(page, '/evidence/import', /^Import evidence$/)
 }
 
 const openFirstStandard = async (page: Page) => {
@@ -18,48 +25,38 @@ const openFirstStandard = async (page: Page) => {
 }
 
 test.describe('evidence — bulk CSV import', () => {
-  test('the Bulk Upload dialog opens on the upload step with Continue disabled', async ({ page }) => {
+  test('Bulk Upload opens the import page on the upload step with Continue disabled', async ({ page }) => {
     test.slow()
     await openEvidence(page)
 
-    await page.getByRole('button', { name: 'Action', exact: true }).click()
-    await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
-
-    const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading', { name: /^Import your evidence$/ })).toBeVisible({ timeout: 30_000 })
-    await expect(dialog.getByText('What gets imported')).toBeVisible()
-    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
+    const scope = await openEvidenceImport(page)
+    await expect(scope.getByText('What gets imported')).toBeVisible()
+    await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
   })
 
   test('attaching a CSV enables the evidence Continue button', async ({ page }) => {
     test.slow()
     await openEvidence(page)
 
-    await page.getByRole('button', { name: 'Action', exact: true }).click()
-    await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
+    const scope = await openEvidenceImport(page)
+    await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeDisabled({ timeout: 30_000 })
 
-    const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled({ timeout: 30_000 })
+    await scope.locator('input[type="file"]').first().setInputFiles(inlineCsv('evidence.csv', 'name,description\nE2E-EVIDENCE-1,seeded by e2e\n'))
 
-    await dialog.locator('input[type="file"]').first().setInputFiles(inlineCsv('evidence.csv', 'name,description\nE2E-EVIDENCE-1,seeded by e2e\n'))
-
-    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeEnabled({ timeout: 30_000 })
+    await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeEnabled({ timeout: 30_000 })
   })
 
   test('a non-CSV file leaves the evidence Continue button disabled', async ({ page }) => {
     test.slow()
     await openEvidence(page)
 
-    await page.getByRole('button', { name: 'Action', exact: true }).click()
-    await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
-
-    const dialog = page.getByRole('dialog')
-    await dialog
+    const scope = await openEvidenceImport(page)
+    await scope
       .locator('input[type="file"]')
       .first()
       .setInputFiles({ name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('not a csv', 'utf-8') })
 
-    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled({ timeout: 30_000 })
+    await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeDisabled({ timeout: 30_000 })
   })
 })
 
@@ -113,19 +110,16 @@ test.describe('evidence — bulk CSV import submits', () => {
     const name = `E2E-EVIDENCE-BULK-${Date.now().toString(36)}`
     await openEvidence(page)
 
-    await page.getByRole('button', { name: 'Action', exact: true }).click()
-    await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
-
-    const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading', { name: /^Import your evidence$/ })).toBeVisible({ timeout: 30_000 })
+    const scope = await openEvidenceImport(page)
 
     await uploadCsvAndAssert({
       page,
-      dialog,
+      scope,
       fileName: 'evidence.csv',
       rows: `Name,Description\n${name},seeded by e2e\n`,
       operationName: 'CreateBulkCSVEvidence',
       expectToast: 'Evidence imported',
+      returnsTo: '/evidence',
     })
 
     await page

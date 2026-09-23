@@ -32,20 +32,28 @@ type TRequiredInputKeys<TInput> = { [K in keyof TInput]-?: object extends Pick<T
 
 type TStringInputKeys<TInput> = { [K in keyof TInput]-?: NonNullable<TInput[K]> extends string ? K : never }[keyof TInput]
 
+type TRequiredOneOf<TInput> = readonly [TStringInputKeys<TInput>, TStringInputKeys<TInput>, ...TStringInputKeys<TInput>[]]
+
 type TImportEntityDefinition<TInput> = {
   required: Record<TRequiredInputKeys<TInput>, true>
+  requiredOneOf?: readonly TRequiredOneOf<TInput>[]
+  primaryField?: TStringInputKeys<TInput>
   autoValues?: { [K in TStringInputKeys<TInput>]?: NonNullable<TInput[K]> }
   aliases?: Record<string, readonly string[]>
 }
 
 export type TImportEntityConfig = {
   requiredFields: string[]
+  requiredOneOf: string[][]
+  primaryField?: string
   autoValues: Record<string, string>
   aliases: Record<string, readonly string[]>
 }
 
-const defineImportEntity = <TInput>({ required, autoValues, aliases }: TImportEntityDefinition<TInput>): TImportEntityConfig => ({
+const defineImportEntity = <TInput>({ required, requiredOneOf, primaryField, autoValues, aliases }: TImportEntityDefinition<TInput>): TImportEntityConfig => ({
   requiredFields: Object.keys(required),
+  requiredOneOf: (requiredOneOf ?? []).map((group) => group.map(String)),
+  primaryField: primaryField === undefined ? undefined : String(primaryField),
   autoValues: Object.fromEntries(Object.entries(autoValues ?? {}).filter((entry): entry is [string, string] => typeof entry[1] === 'string')),
   aliases: aliases ?? {},
 })
@@ -53,7 +61,8 @@ const defineImportEntity = <TInput>({ required, autoValues, aliases }: TImportEn
 const SHARED_ALIASES: Record<string, readonly string[]> = {
   name: ['vendorname', 'companyname', 'organisationname', 'organizationname', 'displayname', 'fullname', 'accountname', 'label'],
   title: ['subject', 'heading'],
-  description: ['desc', 'details', 'notes', 'summary'],
+  description: ['desc', 'summary', 'details'],
+  details: ['description'],
   tags: ['labels', 'keywords'],
   status: ['state', 'currentstatus'],
   category: ['family'],
@@ -64,6 +73,7 @@ const SHARED_ALIASES: Record<string, readonly string[]> = {
   duedate: ['due', 'deadline', 'targetdate'],
   severity: ['risklevel'],
   externalid: ['sourceid', 'externalreference'],
+  lastreviewedat: ['reviewcompletedat', 'reviewdate', 'lastreviewdate'],
 }
 
 const CONTROL_ALIASES: Record<string, readonly string[]> = {
@@ -79,8 +89,13 @@ const IMPORT_ENTITIES: Partial<Record<ObjectTypes, TImportEntityConfig>> = {
   [ObjectTypes.ASSET]: defineImportEntity<CreateAssetInput>({ required: { name: true }, autoValues: { sourceType: AssetSourceType.IMPORTED } }),
   [ObjectTypes.CHECK_RESULT]: defineImportEntity<CreateCheckResultInput>({ required: { source: true } }),
   [ObjectTypes.CONTACT]: defineImportEntity<CreateContactInput>({ required: {} }),
-  [ObjectTypes.CONTROL]: defineImportEntity<CreateControlInput>({ required: { refCode: true }, autoValues: { source: ControlControlSource.IMPORTED }, aliases: CONTROL_ALIASES }),
-  [ObjectTypes.ENTITY]: defineImportEntity<CreateEntityInput>({ required: {} }),
+  [ObjectTypes.CONTROL]: defineImportEntity<CreateControlInput>({
+    required: { refCode: true },
+    primaryField: 'refCode',
+    autoValues: { source: ControlControlSource.IMPORTED },
+    aliases: CONTROL_ALIASES,
+  }),
+  [ObjectTypes.ENTITY]: defineImportEntity<CreateEntityInput>({ required: {}, requiredOneOf: [['name', 'displayName']] }),
   [ObjectTypes.EVIDENCE]: defineImportEntity<CreateEvidenceInput>({ required: { name: true } }),
   [ObjectTypes.FINDING]: defineImportEntity<CreateFindingInput>({ required: {} }),
   [ObjectTypes.GROUP]: defineImportEntity<CreateGroupInput>({ required: { name: true } }),
@@ -100,7 +115,7 @@ const IMPORT_ENTITIES: Partial<Record<ObjectTypes, TImportEntityConfig>> = {
   [ObjectTypes.VULNERABILITY]: defineImportEntity<CreateVulnerabilityInput>({ required: { externalID: true } }),
 }
 
-const EMPTY_ENTITY_CONFIG: TImportEntityConfig = { requiredFields: [], autoValues: {}, aliases: {} }
+const EMPTY_ENTITY_CONFIG: TImportEntityConfig = { requiredFields: [], requiredOneOf: [], autoValues: {}, aliases: {} }
 
 export const getImportEntityConfig = (entityType: ObjectTypes): TImportEntityConfig => IMPORT_ENTITIES[entityType] ?? EMPTY_ENTITY_CONFIG
 

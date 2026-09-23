@@ -10,15 +10,7 @@ import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
 import { EntityEntityStatus, EntityFrequency, EntityVendorTier, type UpdateEntityInput, type CreateEntityInput, type GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import {
-  useUpdateEntity,
-  useBulkDeleteEntity,
-  useCreateBulkCSVEntity,
-  useBulkEditEntity,
-  type EntitiesNodeNonNull,
-  useGetEntityAssociations,
-  useCreateEntityWithFiles,
-} from '@/lib/graphql-hooks/entity'
+import { useUpdateEntity, useBulkDeleteEntity, useBulkEditEntity, type EntitiesNodeNonNull, useGetEntityAssociations, useCreateEntityWithFiles } from '@/lib/graphql-hooks/entity'
 import { useEntity } from '@/lib/graphql-hooks/entity'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -81,7 +73,6 @@ const VendorPage: React.FC = () => {
   const baseUpdateMutation = useUpdateEntity()
   const baseCreateMutation = useCreateEntityWithFiles()
   const baseBulkDeleteMutation = useBulkDeleteEntity()
-  const baseBulkCreateMutation = useCreateBulkCSVEntity()
   const baseBulkEditMutation = useBulkEditEntity()
 
   const updateMutation = {
@@ -109,14 +100,6 @@ const VendorPage: React.FC = () => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
 
       return result.deleteBulkEntity
-    },
-  }
-
-  const bulkCreateMutation = {
-    isPending: baseBulkCreateMutation.isPending,
-    mutateAsync: async (params: { input: File }) => {
-      const result = await baseBulkCreateMutation.mutateAsync({ input: params.input, entityTypeName: 'vendor' })
-      return result
     },
   }
 
@@ -228,9 +211,6 @@ const VendorPage: React.FC = () => {
     createMode: { type: 'step-dialog', steps: vendorCreateSteps, title: 'Create Vendor' },
     onBulkDelete: async (ids: string[]) => {
       return deleteMutation.mutateAsync({ ids })
-    },
-    onBulkCreate: async (file: File) => {
-      await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateEntityInput) => {
       const result = await bulkEditMutation.mutateAsync({ ids, input })

@@ -6,7 +6,6 @@ import { getRisksFilterFields } from './table-config'
 import { type FilterField } from '@/types'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import Menu from '@/components/shared/menu/menu.tsx'
-import BulkCSVCreateRiskDialog from '@/components/pages/protected/risks/bulk-csv-create-risk-dialog.tsx'
 import { type VisibilityState } from '@repo/ui/table-types'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { hasPermission } from '@/lib/authz/utils.ts'
@@ -28,6 +27,9 @@ import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
 import MenuItem from '@/components/shared/menu/menu-item'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -68,10 +70,10 @@ const RisksTableToolbar: React.FC<TProps> = ({
   permission,
 }: TProps) => {
   const { data: session } = useSession()
+  const openImport = useOpenImport()
   const { programOptions, isSuccess: isProgramsSuccess, hasProgramAccess } = useProgramSelect()
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
-  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteRisks } = useBulkDeleteRisks()
 
@@ -189,8 +191,8 @@ const RisksTableToolbar: React.FC<TProps> = ({
                     <MenuItem
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
-                        setIsBulkUploadOpen(true)
                         close()
+                        openImport(IMPORT_ROUTES[ObjectTypes.RISK])
                       }}
                     >
                       Bulk Upload
@@ -200,7 +202,6 @@ const RisksTableToolbar: React.FC<TProps> = ({
                 </>
               )}
             />
-            {hasPermission(permission?.roles, AccessEnum.CanCreateRisk, session) && <BulkCSVCreateRiskDialog open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen} />}
             {mappedColumns && columnVisibility && setColumnVisibility && (
               <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.RISK} />
             )}

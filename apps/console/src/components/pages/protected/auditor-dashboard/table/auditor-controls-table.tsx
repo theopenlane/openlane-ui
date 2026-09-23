@@ -26,7 +26,6 @@ import ViewReviewSheet from '@/components/pages/protected/reviews/view-review-sh
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import RequestInfoSheet from './request-info-sheet'
 import { ExportEvidenceDialog } from '@/components/pages/protected/evidence/dialog/export-evidence-dialog'
-import { BulkCSVCreateEvidenceDialog } from '@/components/pages/protected/evidence/dialog/bulk-csv-create-evidence-dialog'
 import { getControlReview, getControlLastReviewed } from '../utils/control-status'
 import { getProgramScopedMappedControls } from '../utils/mapped-controls'
 import { getIncludeVars } from '@/components/shared/crud-base/columns/get-include-vars'
@@ -42,6 +41,9 @@ import {
   getAuditorDashboardFilterFields,
   getAuditorDashboardQuickFilters,
 } from './table-config'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type AuditorControlsTableProps = {
   programId: string
@@ -49,6 +51,7 @@ type AuditorControlsTableProps = {
 
 export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ programId }) => {
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS)
+  const openImport = useOpenImport()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, ControlOrderField, AUDITOR_DASHBOARD_DEFAULT_SORT)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -56,7 +59,6 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
   const [startReviewControlId, setStartReviewControlId] = useState<string | null>(null)
   const [openReviewId, setOpenReviewId] = useState<string | null>(null)
   const [requestInfoControl, setRequestInfoControl] = useState<{ id: string; refCode: string } | null>(null)
-  const [isBulkEvidenceRequestOpen, setIsBulkEvidenceRequestOpen] = useState<boolean>(false)
   const [isBulkDownloadEvidenceOpen, setIsBulkDownloadEvidenceOpen] = useState<boolean>(false)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, {}))
 
@@ -181,8 +183,8 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
                   type="button"
                   className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
                   onClick={() => {
-                    setIsBulkEvidenceRequestOpen(true)
                     close()
+                    openImport(IMPORT_ROUTES[ObjectTypes.EVIDENCE])
                   }}
                 >
                   <Upload size={16} strokeWidth={2} />
@@ -214,7 +216,6 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
               </>
             )}
           />
-          <BulkCSVCreateEvidenceDialog open={isBulkEvidenceRequestOpen} onOpenChange={setIsBulkEvidenceRequestOpen} />
           <ExportEvidenceDialog filters={exportFilters} open={isBulkDownloadEvidenceOpen} onOpenChange={setIsBulkDownloadEvidenceOpen} />
           {filterFields && (
             <TableFilter

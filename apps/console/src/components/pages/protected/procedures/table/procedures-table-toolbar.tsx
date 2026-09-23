@@ -3,7 +3,6 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { FileText, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
-import BulkCSVCreateProcedureDialog from '@/components/pages/protected/procedures/create/form/bulk-csv-create-procedure-dialog'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { hasPermission } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
@@ -26,6 +25,9 @@ import { type Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import MenuItem from '@/components/shared/menu/menu-item'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -67,10 +69,10 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
   permission,
 }) => {
   const isSearching = useDebounce(searching, 200)
+  const openImport = useOpenImport()
   const filters = useProceduresFilters()
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
-  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteProcedures } = useBulkDeleteProcedures()
   const { data: session } = useSession()
@@ -164,7 +166,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
+                    {hasPermission(permission?.roles, AccessEnum.CanCreateProcedure, session) && (
                       <>
                         <MenuItem
                           icon={<Import size={16} strokeWidth={2} />}
@@ -178,8 +180,8 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                         <MenuItem
                           icon={<Import size={16} strokeWidth={2} />}
                           onSelect={() => {
-                            setIsBulkUploadDialogOpen(true)
                             close()
+                            openImport(IMPORT_ROUTES[ObjectTypes.PROCEDURE])
                           }}
                         >
                           Bulk upload
@@ -197,12 +199,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                   </>
                 )}
               />
-              {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
-                <>
-                  <CreateProcedureUploadDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />
-                  <BulkCSVCreateProcedureDialog open={isBulkUploadDialogOpen} onOpenChange={setIsBulkUploadDialogOpen} />
-                </>
-              )}
+              {hasPermission(permission?.roles, AccessEnum.CanCreateProcedure, session) && <CreateProcedureUploadDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />}
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.PROCEDURE} />
               )}

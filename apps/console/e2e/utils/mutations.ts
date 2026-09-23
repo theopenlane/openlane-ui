@@ -53,16 +53,35 @@ export const openActionMenu = async (page: Page, item: string | RegExp): Promise
   return dialog
 }
 
-export interface UploadCsvArgs {
+interface CsvUpload {
   page: Page
-  dialog: Locator
   fileName: string
   rows: string
   operationName: string
   expectToast?: string | RegExp
 }
 
-export const uploadCsvToSingleStepDialogAndAssert = async ({ page, dialog, fileName, rows, operationName, expectToast }: UploadCsvArgs): Promise<void> => {
+export interface UploadCsvToDialogArgs extends CsvUpload {
+  dialog: Locator
+}
+
+export interface ImportCsvArgs extends CsvUpload {
+  scope: Locator | Page
+  returnsTo: string
+}
+
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+export const urlPattern = (path: string): RegExp => new RegExp(`^https?://[^/]+${escapeRegExp(path)}(?:[?&#]|$)`)
+
+export const expectImportPage = async (page: Page, importPath: string, heading: string | RegExp = /^Import /): Promise<Locator> => {
+  await expect(page).toHaveURL(urlPattern(importPath), { timeout: 30_000 })
+  const main = page.getByRole('main')
+  await expect(main.getByRole('heading', { level: 2, name: heading })).toBeVisible({ timeout: 30_000 })
+  return main
+}
+
+export const uploadCsvToSingleStepDialogAndAssert = async ({ page, dialog, fileName, rows, operationName, expectToast }: UploadCsvToDialogArgs): Promise<void> => {
   const upload = dialog.getByRole('button', { name: /^Upload$/ })
   await expect(upload).toBeDisabled()
 
@@ -76,19 +95,19 @@ export const uploadCsvToSingleStepDialogAndAssert = async ({ page, dialog, fileN
   if (expectToast) await expect(toast(page, expectToast)).toBeVisible({ timeout: 30_000 })
 }
 
-export const uploadCsvAndAssert = async ({ page, dialog, fileName, rows, operationName, expectToast }: UploadCsvArgs): Promise<void> => {
-  const nextStep = dialog.getByRole('button', { name: /^Continue$/ })
+export const uploadCsvAndAssert = async ({ page, scope, fileName, rows, operationName, expectToast, returnsTo }: ImportCsvArgs): Promise<void> => {
+  const nextStep = scope.getByRole('button', { name: /^Continue$/ })
   await expect(nextStep).toBeDisabled()
 
-  await dialog.locator('input[type="file"]').first().setInputFiles(inlineCsv(fileName, rows))
+  await scope.locator('input[type="file"]').first().setInputFiles(inlineCsv(fileName, rows))
   await expect(nextStep).toBeEnabled({ timeout: 30_000 })
   await nextStep.click()
 
-  await expect(dialog.getByText('Import as', { exact: true })).toBeVisible({ timeout: 30_000 })
+  await expect(scope.getByText('Import as', { exact: true })).toBeVisible({ timeout: 30_000 })
   await expect(nextStep).toBeEnabled({ timeout: 30_000 })
   await nextStep.click()
 
-  const startImport = dialog.getByRole('button', { name: /^Import / })
+  const startImport = scope.getByRole('button', { name: /^Import \d/ })
   await expect(startImport).toBeEnabled({ timeout: 30_000 })
 
   await expectMutationOk(page, operationName, async () => {
@@ -96,6 +115,7 @@ export const uploadCsvAndAssert = async ({ page, dialog, fileName, rows, operati
   })
 
   if (expectToast) await expect(toast(page, expectToast)).toBeVisible({ timeout: 30_000 })
+  await expect(page).toHaveURL(urlPattern(returnsTo), { timeout: 30_000 })
 }
 
 export const selectFirstMatchingRow = async (page: Page, name: string): Promise<Locator> => {

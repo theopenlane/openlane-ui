@@ -3,16 +3,7 @@
 import React, { useCallback, useRef } from 'react'
 import useFormSchema, { bulkEditFieldSchema, type ReviewFormData } from '../hooks/use-form-schema'
 
-import {
-  type ReviewsNodeNonNull,
-  useReview,
-  useCreateReview,
-  useUpdateReview,
-  useBulkDeleteReview,
-  useCreateBulkCSVReview,
-  useBulkEditReview,
-  useGetReviewAssociations,
-} from '@/lib/graphql-hooks/review'
+import { type ReviewsNodeNonNull, useReview, useCreateReview, useUpdateReview, useBulkDeleteReview, useBulkEditReview, useGetReviewAssociations } from '@/lib/graphql-hooks/review'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, mapReviewFilterKey, visibilityFields } from './table-config'
@@ -69,7 +60,6 @@ const ReviewPage: React.FC = () => {
   const baseUpdateMutation = useUpdateReview()
   const baseCreateMutation = useCreateReview()
   const baseBulkDeleteMutation = useBulkDeleteReview()
-  const baseBulkCreateMutation = useCreateBulkCSVReview()
   const bulkEditMutation = useBulkEditReview()
 
   const updateMutation = {
@@ -94,14 +84,6 @@ const ReviewPage: React.FC = () => {
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
       return result.deleteBulkReview
-    },
-  }
-
-  const bulkCreateMutation = {
-    isPending: baseBulkCreateMutation.isPending,
-    mutateAsync: async (params: { input: File }) => {
-      const result = await baseBulkCreateMutation.mutateAsync({ input: params.input })
-      return result
     },
   }
 
@@ -188,9 +170,6 @@ const ReviewPage: React.FC = () => {
     onBulkDelete: async (ids: string[]) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids })
       return result.deleteBulkReview
-    },
-    onBulkCreate: async (file: File) => {
-      await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateReviewInput) => {
       const result = await bulkEditMutation.mutateAsync({ ids, input })

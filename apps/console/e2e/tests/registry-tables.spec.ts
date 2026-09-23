@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import { createVendor, getOwnerApi, gql, type ApiSession } from '../utils/api'
 import { uniqueName } from '../utils/unique'
+import { expectImportPage } from '../utils/mutations'
 
 const deleteVendor = async (sess: ApiSession, id: string): Promise<void> => {
   await gql(sess, `mutation($id: ID!){ deleteEntity(id: $id){ deletedID } }`, { id })
@@ -48,16 +49,15 @@ test.describe('registry — vendors table', () => {
     await expect(page.getByText('Export Started', { exact: true }).first()).toBeVisible({ timeout: 30_000 })
   })
 
-  test('Bulk Upload opens the import wizard on its upload step', async ({ page }) => {
+  test('Bulk Upload opens the import page on its upload step', async ({ page }) => {
     test.slow()
     await openVendors(page)
 
     await openActionMenu(page)
     await page.getByText('Bulk Upload', { exact: true }).click()
 
-    const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible({ timeout: 15_000 })
-    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
+    const scope = await expectImportPage(page, '/registry/vendors/import', /^Import vendors$/)
+    await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
   })
 
   test('sorting by Display Name reverses the order of a searched vendor pair', async ({ page }) => {

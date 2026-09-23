@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import { createCustomTypeEnum, createGroup, createInternalPolicy, deleteCustomTypeEnum, getOwnerApi, gql, type ApiSession } from '../utils/api'
 import { inlineCsv } from '../utils/files'
-import { expectMutationOk, uploadCsvAndAssert } from '../utils/mutations'
+import { expectImportPage, expectMutationOk, uploadCsvAndAssert } from '../utils/mutations'
 import { uniqueName } from '../utils/unique'
 
 const deletePolicy = async (sess: ApiSession, id: string): Promise<void> => {
@@ -193,13 +193,12 @@ test.describe('policies — table toolbar', () => {
     await page.getByRole('button', { name: 'Action' }).click()
     await page.getByText('Bulk upload', { exact: true }).click()
 
-    const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading', { name: /^Import your policies$/ })).toBeVisible({ timeout: 30_000 })
-    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
+    const scope = await expectImportPage(page, '/policies/import', /^Import policies$/)
+    await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
 
-    await dialog.locator('input[type="file"]').first().setInputFiles(inlineCsv('policies.csv', 'name,details\nE2E-POLICY-1,seeded by e2e\n'))
+    await scope.locator('input[type="file"]').first().setInputFiles(inlineCsv('policies.csv', 'name,details\nE2E-POLICY-1,seeded by e2e\n'))
 
-    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeEnabled({ timeout: 30_000 })
+    await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeEnabled({ timeout: 30_000 })
   })
 
   test('Import existing document opens the import dialog', async ({ page }) => {
@@ -222,19 +221,18 @@ test.describe('policies — bulk upload submits', () => {
     await page.getByRole('button', { name: 'Action' }).click()
     await page.getByText('Bulk upload', { exact: true }).click()
 
-    const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading', { name: /^Import your policies$/ })).toBeVisible({ timeout: 30_000 })
+    const scope = await expectImportPage(page, '/policies/import', /^Import policies$/)
 
     await uploadCsvAndAssert({
       page,
-      dialog,
+      scope,
       fileName: 'policies.csv',
       rows: `Name,Details\n${name},seeded by e2e\n`,
       operationName: 'CreateBulkCSVInternalPolicy',
       expectToast: 'Policies imported',
+      returnsTo: '/policies',
     })
 
-    await page.keyboard.press('Escape')
     await page.reload({ waitUntil: 'domcontentloaded' })
     await page.locator('.lucide-table').first().click()
     await page.getByPlaceholder(/^Search$/).fill(name)

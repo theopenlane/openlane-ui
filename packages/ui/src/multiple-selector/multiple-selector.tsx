@@ -10,6 +10,7 @@ import { Badge } from '../badge/badge'
 export interface Option {
   value: string
   label: string
+  description?: string
   disable?: boolean
   /** fixed option that can't be removed. */
   fixed?: boolean

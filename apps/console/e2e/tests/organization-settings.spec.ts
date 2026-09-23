@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
+import { expectImportPage } from '../utils/mutations'
 
 const SUBROUTES: Array<{ path: string; heading: RegExp }> = [
   { path: '/organization-settings', heading: /^Organization Settings$/ },
@@ -207,7 +208,7 @@ test.describe('organization-settings — read-only flows (owner)', () => {
 })
 
 test.describe('organization-settings — subscribers (owner)', () => {
-  test('subscribers bulk-upload dialog opens on the import wizard upload step', async ({ page }) => {
+  test('subscribers bulk-upload opens the import page on its upload step', async ({ page }) => {
     await page.goto('/organization-settings/subscribers', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Subscribers$/ })).toBeVisible({ timeout: 20_000 })
 
@@ -215,10 +216,9 @@ test.describe('organization-settings — subscribers (owner)', () => {
     await page.getByRole('button', { name: 'Action' }).click()
     await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
 
-    const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible({ timeout: 10_000 })
-    await expect(dialog.getByText('What gets imported')).toBeVisible()
-    await expect(dialog.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
+    const scope = await expectImportPage(page, '/organization-settings/subscribers/import', /^Import subscribers$/)
+    await expect(scope.getByText('What gets imported')).toBeVisible()
+    await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
   })
 
   test('subscribers filter menu exposes the Email / Active / Verified fields', async ({ page }) => {

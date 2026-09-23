@@ -147,6 +147,8 @@ export const orgAbbreviation = (name?: string | null): string => {
 
 export const pluralize = (count: number, singular: string, plural?: string): string => (count === 1 ? singular : (plural ?? pluralizeTypeName(singular)))
 
+export const formatList = (items: string[], type: Intl.ListFormatType = 'conjunction'): string => new Intl.ListFormat('en', { style: 'long', type }).format(items)
+
 export const pluralizeWithCount = (count: number, singular: string, plural?: string): string => `${count} ${pluralize(count, singular, plural)}`
 
 // lowercased words, punctuation dropped: the shared basis for name matching,

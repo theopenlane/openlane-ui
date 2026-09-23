@@ -8,7 +8,6 @@ import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/col
 import { getEvidenceFilterableFields } from '@/components/pages/protected/evidence/table/table-config.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import Menu from '@/components/shared/menu/menu'
-import { BulkCSVCreateEvidenceDialog } from '../dialog/bulk-csv-create-evidence-dialog'
 import EvidenceAllFilesDialog from '../dialog/evidence-all-files-dialog'
 import { ExportEvidenceDialog } from '../dialog/export-evidence-dialog'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
@@ -26,6 +25,9 @@ import { getBulkActionFailureDescription } from '@/components/shared/crud-base/b
 import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
 import MenuItem from '@/components/shared/menu/menu-item'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -70,7 +72,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
   const { successNotification, errorNotification } = useNotification()
   const { data: session } = useSession()
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
-  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
+  const openImport = useOpenImport()
   const [isAllFilesOpen, setIsAllFilesOpen] = useState(false)
   const isSearching = useDebounce(searching, 200)
   const { currentOrgId } = useOrganization()
@@ -204,8 +206,8 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
                     <MenuItem
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
-                        setIsBulkUploadOpen(true)
                         close()
+                        openImport(IMPORT_ROUTES[ObjectTypes.EVIDENCE])
                       }}
                     >
                       Bulk Upload
@@ -223,7 +225,6 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
                   </>
                 )}
               />
-              <BulkCSVCreateEvidenceDialog open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen} />
               <EvidenceAllFilesDialog open={isAllFilesOpen} onOpenChange={setIsAllFilesOpen} />
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.EVIDENCE} />

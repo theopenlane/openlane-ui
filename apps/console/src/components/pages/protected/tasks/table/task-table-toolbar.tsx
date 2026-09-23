@@ -6,7 +6,6 @@ import CreateTaskDropdown from '@/components/pages/protected/tasks/create-task/d
 import { type FilterField } from '@/types'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { LoaderCircle, SearchIcon, Upload } from 'lucide-react'
-import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import Menu from '@/components/shared/menu/menu'
 import { type VisibilityState } from '@repo/ui/table-types'
@@ -31,6 +30,9 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 import MenuItem from '@/components/shared/menu/menu-item'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
@@ -61,7 +63,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
   const { programOptions, isSuccess, hasProgramAccess } = useProgramSelect()
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
-  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
+  const openImport = useOpenImport()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteTasks } = useBulkDeleteTask()
 
@@ -175,8 +177,8 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
                     <MenuItem
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
-                        setIsBulkUploadOpen(true)
                         close()
+                        openImport(IMPORT_ROUTES[ObjectTypes.TASK])
                       }}
                     >
                       Bulk Upload
@@ -185,7 +187,6 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
                   </>
                 )}
               />
-              <BulkCSVCreateTaskDialog open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen} />
               {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={TableKeyEnum.TASK} />
               )}

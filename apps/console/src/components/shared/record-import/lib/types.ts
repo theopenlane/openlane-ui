@@ -1,4 +1,4 @@
-export type TSuggestedConfidence = 'exact' | 'normalized' | 'alias' | 'pattern' | 'none'
+export type TSuggestedConfidence = 'exact' | 'normalized' | 'alias' | 'suggested' | 'pattern' | 'none'
 
 export type TMatchConfidence = TSuggestedConfidence | 'manual'
 
@@ -14,8 +14,17 @@ export type TParsedDelimitedFile = {
 export type TDestinationField = {
   name: string
   label: string
-  required: boolean
+  requirement?: 'required' | 'oneOf'
   autoValue?: string
+  description?: string
+  example?: string
+  fuzzyMatchable: boolean
+}
+
+export type TDestinationFieldSet = {
+  fields: TDestinationField[]
+  requiredGroups: TDestinationField[][]
+  primaryField?: string
 }
 
 export type TSourceColumn = {

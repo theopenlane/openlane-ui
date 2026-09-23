@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import { createControl, createRisk, getOwnerApi, readField } from '../utils/api'
 import { uniqueName, uniqueRef } from '../utils/unique'
-import { uploadCsvAndAssert, uploadCsvToSingleStepDialogAndAssert } from '../utils/mutations'
+import { expectImportPage, uploadCsvAndAssert, uploadCsvToSingleStepDialogAndAssert } from '../utils/mutations'
 
 interface BulkCsvCase {
   slug: string
@@ -52,7 +52,7 @@ const CASES: BulkCsvCase[] = [
   },
 ]
 
-const openBulkUploadDialog = async (page: Page, route: string) => {
+const openBulkUploadPage = async (page: Page, route: string, importPath = `${route}/import`) => {
   await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
   const action = page.getByRole('button', { name: 'Action', exact: true })
@@ -61,26 +61,25 @@ const openBulkUploadDialog = async (page: Page, route: string) => {
 
   await page.getByRole('button', { name: 'Bulk Upload' }).click()
 
-  const dialog = page.getByRole('dialog')
-  await expect(dialog.getByRole('heading', { name: /^Import your /i })).toBeVisible({ timeout: 30_000 })
-  return dialog
+  return expectImportPage(page, importPath)
 }
 
-test.describe('bulk CSV imports — every generic table dialog actually uploads', () => {
+test.describe('bulk CSV imports — every generic table import page actually uploads', () => {
   for (const entity of CASES) {
     test(`uploading a ${entity.slug} CSV creates the record it names`, async ({ page }) => {
       test.slow()
       const name = uniqueName(`E2E Bulk ${entity.slug}`)
 
-      const dialog = await openBulkUploadDialog(page, entity.route)
+      const scope = await openBulkUploadPage(page, entity.route)
 
       await uploadCsvAndAssert({
         page,
-        dialog,
+        scope,
         fileName: `${entity.slug}.csv`,
         rows: `${entity.header}\n${entity.row(name)}\n`,
         operationName: entity.operationName,
         expectToast: entity.toast,
+        returnsTo: entity.route,
       })
 
       const expected = entity.searchText ? entity.searchText(name) : name
@@ -98,15 +97,16 @@ test.describe('bulk CSV imports — groups', () => {
     test.slow()
     const name = uniqueName('E2E Bulk group')
 
-    const dialog = await openBulkUploadDialog(page, '/user-management/groups')
+    const scope = await openBulkUploadPage(page, '/user-management/groups')
 
     await uploadCsvAndAssert({
       page,
-      dialog,
+      scope,
       fileName: 'groups.csv',
       rows: `Name,Description\n${name},seeded by e2e\n`,
       operationName: 'CreateBulkCSVGroup',
       expectToast: 'Groups imported',
+      returnsTo: '/user-management/groups',
     })
 
     await page
@@ -117,20 +117,21 @@ test.describe('bulk CSV imports — groups', () => {
   })
 })
 
-test.describe('bulk CSV imports — bespoke dialogs', () => {
+test.describe('bulk CSV imports — bespoke import pages', () => {
   test('uploading a tasks CSV creates the task it names', async ({ page }) => {
     test.slow()
     const title = uniqueName('E2E Bulk task')
 
-    const dialog = await openBulkUploadDialog(page, '/automation/tasks')
+    const scope = await openBulkUploadPage(page, '/automation/tasks')
 
     await uploadCsvAndAssert({
       page,
-      dialog,
+      scope,
       fileName: 'tasks.csv',
       rows: `Title,Details\n${title},seeded by e2e\n`,
       operationName: 'CreateBulkCSVTask',
       expectToast: 'Tasks imported',
+      returnsTo: '/automation/tasks',
     })
 
     await page
@@ -144,15 +145,16 @@ test.describe('bulk CSV imports — bespoke dialogs', () => {
     test.slow()
     const name = uniqueName('E2E Bulk risk')
 
-    const dialog = await openBulkUploadDialog(page, '/exposure/risks')
+    const scope = await openBulkUploadPage(page, '/exposure/risks')
 
     await uploadCsvAndAssert({
       page,
-      dialog,
+      scope,
       fileName: 'risks.csv',
       rows: `Name,Details\n${name},seeded by e2e\n`,
       operationName: 'CreateBulkCSVRisk',
       expectToast: 'Risks imported',
+      returnsTo: '/exposure/risks',
     })
 
     await page
@@ -168,15 +170,16 @@ test.describe('bulk CSV imports — bespoke dialogs', () => {
     const riskId = await createRisk(ownerApi, uniqueName('E2E Bulk ap risk'))
     const name = uniqueName('E2E Bulk actionplan')
 
-    const dialog = await openBulkUploadDialog(page, `/exposure/risks/${riskId}?tab=mitigation`)
+    const scope = await openBulkUploadPage(page, `/exposure/risks/${riskId}?tab=mitigation`, '/exposure/risks/action-plans/import')
 
     await uploadCsvAndAssert({
       page,
-      dialog,
+      scope,
       fileName: 'action-plans.csv',
       rows: `Name,Title\n${name},${name}\n`,
       operationName: 'CreateBulkCSVActionPlan',
       expectToast: 'Action Plans imported',
+      returnsTo: `/exposure/risks/${riskId}?tab=mitigation`,
     })
   })
 

@@ -4,6 +4,7 @@ import { test, expect } from '../fixtures/auth'
 import { createSubscriber, deleteSubscriber, getOwnerApi, type ApiSession } from '../utils/api'
 import { EMAIL_DOMAIN } from '../utils/constants'
 import { inlineCsv } from '../utils/files'
+import { expectImportPage, urlPattern } from '../utils/mutations'
 import { uniqueRef } from '../utils/unique'
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -141,23 +142,23 @@ test.describe('organization settings — subscribers', () => {
       await page.getByRole('button', { name: 'Action' }).click()
       await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
 
-      const dialog = page.getByRole('dialog')
-      await expect(dialog).toBeVisible({ timeout: 15_000 })
-      await dialog
+      const scope = await expectImportPage(page, '/organization-settings/subscribers/import', /^Import subscribers$/)
+      await scope
         .locator('input[type="file"]')
         .first()
         .setInputFiles(inlineCsv('subscribers.csv', `email\n${email}\n`))
 
-      const nextStep = dialog.getByRole('button', { name: /^Continue$/ })
+      const nextStep = scope.getByRole('button', { name: /^Continue$/ })
       await expect(nextStep).toBeEnabled({ timeout: 15_000 })
       await nextStep.click()
 
-      await expect(dialog.getByText('Import as', { exact: true })).toBeVisible({ timeout: 30_000 })
+      await expect(scope.getByText('Import as', { exact: true })).toBeVisible({ timeout: 30_000 })
       await nextStep.click()
 
-      await dialog.getByRole('button', { name: /^Import / }).click()
+      await scope.getByRole('button', { name: /^Import \d/ }).click()
 
       await expect(page.getByText('Subscribers imported', { exact: true }).first()).toBeVisible({ timeout: 30_000 })
+      await expect(page).toHaveURL(urlPattern('/organization-settings/subscribers'), { timeout: 30_000 })
 
       await openSubscribers(page)
       await page.getByPlaceholder('Search').fill(email)

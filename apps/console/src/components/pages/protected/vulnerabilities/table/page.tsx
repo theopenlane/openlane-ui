@@ -8,7 +8,6 @@ import {
   useVulnerability,
   useCreateVulnerability,
   useUpdateVulnerability,
-  useCreateBulkCSVVulnerability,
   useBulkEditVulnerability,
   useBulkDeleteVulnerability,
   useGetVulnerabilityAssociations,
@@ -72,7 +71,6 @@ const VulnerabilityPage: React.FC = () => {
 
   const baseUpdateMutation = useUpdateVulnerability()
   const baseCreateMutation = useCreateVulnerability()
-  const baseBulkCreateMutation = useCreateBulkCSVVulnerability()
   const baseBulkDeleteMutation = useBulkDeleteVulnerability()
   const baseBulkEditMutation = useBulkEditVulnerability()
 
@@ -94,14 +92,6 @@ const VulnerabilityPage: React.FC = () => {
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
       return result.deleteBulkVulnerability
-    },
-  }
-
-  const bulkCreateMutation = {
-    isPending: baseBulkCreateMutation.isPending,
-    mutateAsync: async (params: { input: File }) => {
-      const result = await baseBulkCreateMutation.mutateAsync({ input: params.input })
-      return result
     },
   }
 
@@ -191,9 +181,6 @@ const VulnerabilityPage: React.FC = () => {
     onBulkDelete: async (ids: string[]) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids })
       return result.deleteBulkVulnerability
-    },
-    onBulkCreate: async (file: File) => {
-      await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateVulnerabilityInput) => {
       const result = await baseBulkEditMutation.mutateAsync({ ids, input })

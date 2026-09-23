@@ -5,7 +5,6 @@ import { ExportExportFormat } from '@repo/codegen/src/schema'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
-import BulkCSVCreatePolicyDialog from '@/components/pages/protected/policies/create/form/bulk-csv-create-policy-dialog.tsx'
 import CreatePolicyButton from '@/components/pages/protected/policies/create-policy-button'
 import { hasPermission } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
@@ -27,6 +26,9 @@ import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
 import MenuItem from '@/components/shared/menu/menu-item'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -66,10 +68,10 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   permission,
 }) => {
   const isSearching = useDebounce(searching, 200)
+  const openImport = useOpenImport()
   const filterFields = usePoliciesFilters()
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
-  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeletePolicies } = useBulkDeletePolicy()
   const { data: session } = useSession()
@@ -175,8 +177,8 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                         <MenuItem
                           icon={<Import size={16} strokeWidth={2} />}
                           onSelect={() => {
-                            setIsBulkUploadDialogOpen(true)
                             close()
+                            openImport(IMPORT_ROUTES[ObjectTypes.INTERNAL_POLICY])
                           }}
                         >
                           Bulk upload
@@ -195,12 +197,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 )}
               />
 
-              {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
-                <>
-                  <CreatePolicyUploadDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />
-                  <BulkCSVCreatePolicyDialog open={isBulkUploadDialogOpen} onOpenChange={setIsBulkUploadDialogOpen} />
-                </>
-              )}
+              {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && <CreatePolicyUploadDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />}
 
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.INTERNAL_POLICY} />

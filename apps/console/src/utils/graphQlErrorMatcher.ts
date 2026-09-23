@@ -172,8 +172,15 @@ const COMPLEXITY_PATTERN = /operation has complexity \d+, which exceeds the limi
 const describeComplexity = (message: string): string | undefined =>
   COMPLEXITY_PATTERN.test(message) ? 'This request is too large to process at once. Try including less related data and try again.' : undefined
 
+export class UserFacingError extends Error {
+  name = 'UserFacingError'
+}
+
 export const parseErrorMessage = (error: unknown): string => {
   const unknownMessage = 'Something went wrong. Please try again.'
+  if (error instanceof UserFacingError) {
+    return error.message
+  }
   if (findInvalidQueryInfo(error)) {
     return invalidRequestMessage
   }

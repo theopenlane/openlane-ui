@@ -11,14 +11,15 @@ import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import Menu from '@/components/shared/menu/menu'
 import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-dialog'
-import { BulkCSVCreateControlDialog } from '../controls/bulk-csv-create-control-dialog'
-import { BulkCSVCreateMappedControlDialog } from '../controls/bulk-csv-create-map-control-dialog'
 import { REPORT_FILTER_OPTIONS, type ReportFilterId } from './report-filter-options'
 import ReportFilterCheckbox from './report-filter-checkbox'
 import ReportToolbarAction from './report-toolbar-action'
 import ReportToolbarFilterLabel from './report-toolbar-filter-label'
 import { HIDE_BELOW_1300, HIDE_BELOW_1400, ICON_ONLY_BELOW_1300, TOOLBAR_CONTAINER } from '@/constants/toolbar'
 import MenuItem from '@/components/shared/menu/menu-item'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type ReportToolbarProps = {
   active: 'dashboard' | 'table'
@@ -68,10 +69,10 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
   const showActions = !hasNoControls
 
   const [reportPopoverOpen, setReportPopoverOpen] = useState(false)
+
+  const openImport = useOpenImport()
   const [programPopoverOpen, setProgramPopoverOpen] = useState(false)
   const [isCloneOpen, setIsCloneOpen] = useState(false)
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [isMapOpen, setIsMapOpen] = useState(false)
 
   const expandLabel = allExpanded ? 'Collapse all' : 'Expand all'
 
@@ -194,8 +195,8 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
                   <MenuItem
                     icon={<Upload size={16} strokeWidth={2} />}
                     onSelect={() => {
-                      setIsCreateOpen(true)
                       close()
+                      openImport(IMPORT_ROUTES[ObjectTypes.CONTROL])
                     }}
                   >
                     Upload Custom Controls
@@ -203,8 +204,8 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
                   <MenuItem
                     icon={<Upload size={16} strokeWidth={2} />}
                     onSelect={() => {
-                      setIsMapOpen(true)
                       close()
+                      openImport(IMPORT_ROUTES[ObjectTypes.MAPPED_CONTROL])
                     }}
                   >
                     Upload Control Mappings
@@ -213,8 +214,6 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
               )}
             />
             <BulkCSVCloneControlDialog open={isCloneOpen} onOpenChange={setIsCloneOpen} />
-            <BulkCSVCreateControlDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
-            <BulkCSVCreateMappedControlDialog open={isMapOpen} onOpenChange={setIsMapOpen} />
           </>
         ) : null}
         {createAllowed && showActions && (

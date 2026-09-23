@@ -2,12 +2,15 @@ import { Button } from '@repo/ui/button'
 import { Card, CardDescription, CardTitle } from '@repo/ui/cardpanel'
 import { LayersIcon, LibraryIcon, SquarePenIcon, UploadIcon } from 'lucide-react'
 import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-dialog'
-import { BulkCSVCreateControlDialog } from '../controls/bulk-csv-create-control-dialog'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import Link from 'next/link'
 import { cn } from '@repo/ui/lib/utils'
 import { buttonVariants } from '@repo/ui/components/ui/button.tsx'
 
 export function ControlsEmptyActions() {
+  const openImport = useOpenImport()
   const cards = [
     {
       id: 'import-standards',
@@ -35,7 +38,11 @@ export function ControlsEmptyActions() {
       title: 'Import Custom Controls',
       desc: 'Upload a CSV with your control ref codes, descriptions, status and more to bulk-create controls',
       Icon: UploadIcon,
-      dialog: <BulkCSVCreateControlDialog trigger={<Button variant="secondary">Upload</Button>} />,
+      dialog: (
+        <Button variant="secondary" onClick={() => openImport(IMPORT_ROUTES[ObjectTypes.CONTROL])}>
+          Upload
+        </Button>
+      ),
     },
     {
       id: 'import-specific',
