@@ -9411,7 +9411,6 @@ export interface GetTrustCenterQuery {
       node: {
         id: string
         slug: string | null
-        noindexDefaultDomain: boolean | null
         subprocessorURL: string | null
         pirschDomainID: string | null
         pirschAccessLink: string | null
@@ -9426,6 +9425,7 @@ export interface GetTrustCenterQuery {
           id: string
           title: string | null
           overview: string | null
+          noindexDefaultDomain: boolean | null
           primaryColor: string | null
           themeMode: Types.TrustCenterSettingTrustCenterThemeMode | null
           foregroundColor: string | null

@@ -15674,8 +15674,6 @@ export interface CreateTrustCenterInput {
   customDomainID?: InputMaybe<Scalars['ID']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   emailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** allow trustcenter to be indexed on google */
-  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** Pirsch access link */
   pirschAccessLink?: InputMaybe<Scalars['String']['input']>
@@ -15814,6 +15812,8 @@ export interface CreateTrustCenterSettingInput {
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
   notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   /** overview of the trust center */
@@ -69123,8 +69123,6 @@ export interface TrustCenter extends Node {
   editors: GroupConnection
   emailTemplates: EmailTemplateConnection
   id: Scalars['ID']['output']
-  /** allow trustcenter to be indexed on google */
-  noindexDefaultDomain?: Maybe<Scalars['Boolean']['output']>
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -71336,8 +71334,6 @@ export interface TrustCenterHistory extends Node {
   customDomainID?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
-  /** allow trustcenter to be indexed on google */
-  noindexDefaultDomain?: Maybe<Scalars['Boolean']['output']>
   operation: TrustCenterHistoryOpType
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['String']['output']>
@@ -71466,11 +71462,6 @@ export interface TrustCenterHistoryWhereInput {
   idIn?: InputMaybe<Array<Scalars['ID']['input']>>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** noindex_default_domain field predicates */
-  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
-  noindexDefaultDomainIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  noindexDefaultDomainNEQ?: InputMaybe<Scalars['Boolean']['input']>
-  noindexDefaultDomainNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TrustCenterHistoryWhereInput>
   /** operation field predicates */
   operation?: InputMaybe<TrustCenterHistoryOpType>
@@ -72399,6 +72390,8 @@ export interface TrustCenterSetting extends Node {
   ndaApproverGroup?: Maybe<Group>
   /** group whose members approve trust center NDA requests */
   ndaApproverGroupID?: Maybe<Scalars['ID']['output']>
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: Maybe<Scalars['Boolean']['output']>
   /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
   notifySubscribersOnSubprocessorChange?: Maybe<Scalars['Boolean']['output']>
   /** overview of the trust center */
@@ -72526,6 +72519,8 @@ export interface TrustCenterSettingHistory extends Node {
   ndaApprovalRequired?: Maybe<Scalars['Boolean']['output']>
   /** group whose members approve trust center NDA requests */
   ndaApproverGroupID?: Maybe<Scalars['String']['output']>
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: Maybe<Scalars['Boolean']['output']>
   /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
   notifySubscribersOnSubprocessorChange?: Maybe<Scalars['Boolean']['output']>
   operation: TrustCenterSettingHistoryOpType
@@ -72824,6 +72819,11 @@ export interface TrustCenterSettingHistoryWhereInput {
   ndaApproverGroupIDNEQ?: InputMaybe<Scalars['String']['input']>
   ndaApproverGroupIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   ndaApproverGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** noindex_default_domain field predicates */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TrustCenterSettingHistoryWhereInput>
   /** notify_subscribers_on_subprocessor_change field predicates */
   notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
@@ -73255,6 +73255,11 @@ export interface TrustCenterSettingWhereInput {
   ndaApproverGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ndaApproverGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ndaApproverGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** noindex_default_domain field predicates */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TrustCenterSettingWhereInput>
   /** notify_subscribers_on_subprocessor_change field predicates */
   notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
@@ -74609,11 +74614,6 @@ export interface TrustCenterWhereInput {
   idIn?: InputMaybe<Array<Scalars['ID']['input']>>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** noindex_default_domain field predicates */
-  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
-  noindexDefaultDomainIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  noindexDefaultDomainNEQ?: InputMaybe<Scalars['Boolean']['input']>
-  noindexDefaultDomainNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TrustCenterWhereInput>
   or?: InputMaybe<Array<TrustCenterWhereInput>>
   /** owner_id field predicates */
@@ -80538,7 +80538,6 @@ export interface UpdateTrustCenterInput {
   clearCustomDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
-  clearNoindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschAccessLink?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschDomainID?: InputMaybe<Scalars['Boolean']['input']>
@@ -80562,8 +80561,6 @@ export interface UpdateTrustCenterInput {
   customDomainID?: InputMaybe<Scalars['ID']['input']>
   /** delete a post from the trust center feed */
   deletePost?: InputMaybe<Scalars['ID']['input']>
-  /** allow trustcenter to be indexed on google */
-  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** Pirsch access link */
   pirschAccessLink?: InputMaybe<Scalars['String']['input']>
@@ -80677,6 +80674,7 @@ export interface UpdateTrustCenterSettingInput {
   clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearNdaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   clearNdaApproverGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearNoindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearNotifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   clearOverview?: InputMaybe<Scalars['Boolean']['input']>
   clearPrimaryColor?: InputMaybe<Scalars['Boolean']['input']>
@@ -80707,6 +80705,8 @@ export interface UpdateTrustCenterSettingInput {
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
   notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   /** overview of the trust center */

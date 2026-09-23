@@ -1,7 +1,7 @@
 'use client'
 
 import Loading from '@/app/(protected)/trust-center/domain/loading'
-import { useCreateCustomDomain, useDeleteCustomDomain, useGetTrustCenter, useUpdateTrustCenter, useValidateCustomDomain } from '@/lib/graphql-hooks/trust-center'
+import { useCreateCustomDomain, useDeleteCustomDomain, useGetTrustCenter, useUpdateTrustCenterSetting, useValidateCustomDomain } from '@/lib/graphql-hooks/trust-center'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { use, useEffect, useState } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
@@ -28,7 +28,7 @@ const DomainSettingsPage = () => {
   const [inputValue, setInputValue] = useState('')
   const [editing, setEditing] = useState(false)
   const [verificationCountDown, setVerificationCountDown] = useState(0)
-  const { mutateAsync: updateTrustCenter, isPending: isUpdatingTrustCenter } = useUpdateTrustCenter()
+  const { mutateAsync: updateTrustCenterSetting, isPending: isUpdatingTrustCenter } = useUpdateTrustCenterSetting()
   const { mutateAsync: deleteCustomDomain } = useDeleteCustomDomain()
   const { mutateAsync: createCustomDomain } = useCreateCustomDomain()
   const { mutateAsync: validateCustomDomain, isPending: isValidating } = useValidateCustomDomain()
@@ -77,13 +77,13 @@ const DomainSettingsPage = () => {
   const cnameName = cnameRecord ? cnameRecord.split('.').slice(0, -2).join('.') : ''
 
   const handleToggleNoIndex = async (isChecked: boolean) => {
-    if (!trustCenter?.id || !canEditTc || isUpdatingTrustCenter) {
+    if (!setting?.id || !canEditTc || isUpdatingTrustCenter) {
       return
     }
 
     try {
-      await updateTrustCenter({
-        updateTrustCenterId: trustCenter.id,
+      await updateTrustCenterSetting({
+        updateTrustCenterSettingId: setting.id,
         input: {
           noindexDefaultDomain: isChecked,
         },
@@ -333,7 +333,7 @@ const DomainSettingsPage = () => {
                 <Switch
                   id="hide-from-search-engines"
                   aria-describedby="hide-from-search-engines-description hide-from-search-engines-hint"
-                  checked={trustCenter.noindexDefaultDomain ?? false}
+                  checked={setting.noindexDefaultDomain ?? false}
                   onCheckedChange={handleToggleNoIndex}
                   disabled={!canEditTc || isUpdatingTrustCenter}
                   className="shrink-0"

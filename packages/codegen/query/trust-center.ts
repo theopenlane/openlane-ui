@@ -7,7 +7,6 @@ export const GET_ALL_TRUST_CENTERS = gql`
         node {
           id
           slug
-          noindexDefaultDomain
           subprocessorURL
           pirschDomainID
           pirschAccessLink
@@ -31,6 +30,7 @@ export const GET_ALL_TRUST_CENTERS = gql`
             id
             title
             overview
+            noindexDefaultDomain
             primaryColor
             themeMode
             foregroundColor
