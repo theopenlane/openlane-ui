@@ -47,6 +47,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
     isFetching,
     buildPayload,
     normalizeData,
+    createDefaultValues,
     formId = 'editForm',
     renderHeader,
     renderFields,
@@ -75,7 +76,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
       setIsFormInitialized(false)
 
       if (isCreate) {
-        reset({} as TFormData, { keepDefaultValues: false })
+        reset(createDefaultValues ?? ({} as TFormData), { keepDefaultValues: false })
       } else if (data) {
         const normalizedData = normalizeData ? normalizeData(data) : Object.fromEntries(Object.entries(data ?? {}).map(([key, value]) => [key, value === null ? undefined : value]))
         reset(normalizedData as TFormData, { keepDefaultValues: false, keepDirty: false })
@@ -86,7 +87,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
       })
       return () => cancelAnimationFrame(rafId)
     }
-  }, [data, isCreate, id, normalizeData, reset])
+  }, [data, isCreate, id, normalizeData, createDefaultValues, reset])
 
   const exitEditMode = () => {
     setIsEditing(false)

@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import useFormSchema, { bulkEditFieldSchema, CONTACT_CREATE_DEFAULT_VALUES } from '../hooks/use-form-schema'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 import { type ContactsNodeNonNull, useContact, useUpdateContact, useCreateContact, useBulkDeleteContact, useCreateBulkCSVContact, useBulkEditContact } from '@/lib/graphql-hooks/contact'
 import { useSearchParams } from 'next/navigation'
@@ -73,10 +73,7 @@ const ContactPage: React.FC = () => {
 
   const bulkEditMutation = baseBulkEditMutation
 
-  const statusOptions = Object.values(ContactUserStatus).map((value) => ({
-    value,
-    label: getEnumLabel(value as string),
-  }))
+  const statusOptions = enumToOptions(ContactUserStatus)
 
   const { tagOptions } = useGetTags()
 
@@ -93,6 +90,7 @@ const ContactPage: React.FC = () => {
     updateMutation,
     createMutation,
     deleteMutation,
+    createDefaultValues: CONTACT_CREATE_DEFAULT_VALUES,
     buildPayload: async (data) => {
       return { ...data }
     },

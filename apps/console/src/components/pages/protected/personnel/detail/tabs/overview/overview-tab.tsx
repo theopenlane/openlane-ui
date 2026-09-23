@@ -7,8 +7,8 @@ import { SelectField } from '@/components/shared/crud-base/form-fields/select-fi
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { Copy } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { PersonnelStatusIconMapper } from '@/components/shared/enum-mapper/personnel-enum'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { UserStatusLabel } from '@/components/shared/enum-mapper/user-status-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { formatPhoneNumber } from '@/utils/strings'
 import { IdentityHolderUserStatus, IdentityHolderIdentityHolderType, type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
@@ -135,12 +135,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ personnel, isEditing, canEdit
               options={statusOptions}
               useCustomDisplay={false}
               tooltipContent="The current status of this person"
-              renderValue={(value) => (
-                <div className="flex items-center space-x-2 text-sm">
-                  {PersonnelStatusIconMapper[value as IdentityHolderUserStatus]}
-                  <span>{getEnumLabel(value)}</span>
-                </div>
-              )}
+              renderValue={(value) => <UserStatusLabel status={value as IdentityHolderUserStatus} />}
               {...sharedFieldProps}
             />
             <CheckboxField name="isActive" label="Active" tooltipContent="Whether this person is currently active" {...sharedFieldProps} />

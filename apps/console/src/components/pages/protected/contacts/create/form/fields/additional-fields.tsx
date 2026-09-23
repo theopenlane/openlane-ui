@@ -4,7 +4,7 @@ import React from 'react'
 import { MapPin } from 'lucide-react'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
-import { type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
+import { type ContactQuery, type ContactUserStatus, type UpdateContactInput } from '@repo/codegen/src/schema'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { type EnumOptions } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
@@ -12,10 +12,13 @@ import { AddressAutocompleteInput } from '@/components/shared/address-autocomple
 import { formatPlaceAddress } from '@/hooks/usePlacesAutocomplete'
 import { formatPhoneNumber } from '@/utils/strings'
 import { useNotification } from '@/hooks/useNotification'
+import { UserStatusBadge } from '@/components/shared/enum-mapper/user-status-enum'
 import VendorSelectField from './vendor-select-field'
 import LinkedVendors from './linked-vendors'
 import VendorSuggestion from './vendor-suggestion'
 import Properties from './properties'
+
+const renderStatus = (value: string) => <UserStatusBadge status={value as ContactUserStatus} />
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -52,15 +55,23 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col gap-3 mb-4">
-        {isCreate && <p className="text-sm text-muted-foreground">Add the basics, then link this contact to a vendor if needed.</p>}
-        {isEditAllowed && (
+      <div className="flex flex-col gap-3">
+        {isCreate && (
           <p className="text-sm text-muted-foreground">
-            Required fields marked <span className="text-destructive">*</span>
+            Add the basics, then link this contact to a vendor if needed. Required fields marked <span className="text-destructive">*</span>
           </p>
         )}
-        <div className="w-[140px]">
-          <SelectField name="status" label="Status" options={enumOptions.statusOptions} placeholder="Select status" labelClassName="text-sm font-medium mb-0" {...sharedFieldProps} />
+        <div className="w-[160px]">
+          <SelectField
+            name="status"
+            label="Status"
+            options={enumOptions.statusOptions}
+            placeholder="Select status"
+            labelClassName="text-sm font-medium mb-0"
+            renderValue={renderStatus}
+            renderOption={renderStatus}
+            {...sharedFieldProps}
+          />
         </div>
       </div>
 

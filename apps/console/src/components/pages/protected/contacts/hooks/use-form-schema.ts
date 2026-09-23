@@ -1,7 +1,7 @@
 'use client'
 import { z } from 'zod'
 import { useMemo } from 'react'
-import { useForm } from 'react-hook-form'
+import { type DefaultValues, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ContactUserStatus } from '@repo/codegen/src/schema'
 import { isPlausiblePhoneNumber } from '@/lib/validators'
@@ -32,6 +32,8 @@ export const bulkEditFieldSchema = z.object({
 })
 
 export type ContactFormData = z.infer<ReturnType<typeof buildFormSchema>>
+
+export const CONTACT_CREATE_DEFAULT_VALUES: DefaultValues<ContactFormData> = { status: ContactUserStatus.ACTIVE }
 
 const useFormSchema = ({ isCreate = false }: { isCreate?: boolean } = {}) => {
   const schema = useMemo(() => buildFormSchema(isCreate), [isCreate])

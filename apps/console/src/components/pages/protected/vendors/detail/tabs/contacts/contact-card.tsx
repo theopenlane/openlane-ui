@@ -1,9 +1,9 @@
 import React from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { Copy, Check, CircleAlert } from 'lucide-react'
-import { type ContactUserStatus, type GetContactsQuery } from '@repo/codegen/src/schema'
+import { Copy } from 'lucide-react'
+import { type GetContactsQuery } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { UserStatusBadge } from '@/components/shared/enum-mapper/user-status-enum'
 
 type ContactNode = NonNullable<NonNullable<NonNullable<GetContactsQuery['contacts']['edges']>[number]>['node']>
 
@@ -23,17 +23,7 @@ const CopyButton: React.FC<{ value: string }> = ({ value }) => {
   )
 }
 
-const StatusCell: React.FC<{ status: ContactUserStatus }> = ({ status }) => {
-  const isActive = status === 'ACTIVE'
-  return (
-    <div className="flex items-center gap-1.5">
-      {isActive ? <Check size={14} className="text-success" /> : <CircleAlert size={14} className="text-muted-foreground" />}
-      <span>{getEnumLabel(status)}</span>
-    </div>
-  )
-}
-
-export { StatusCell, CopyButton }
+export { CopyButton }
 export type { ContactNode }
 
 const ContactCard: React.FC<{ contact: ContactNode; onClick?: () => void }> = ({ contact, onClick }) => (
@@ -67,7 +57,7 @@ const ContactCard: React.FC<{ contact: ContactNode; onClick?: () => void }> = ({
         </div>
         <div className="border-l border-border px-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Status</p>
-          <StatusCell status={contact.status} />
+          <UserStatusBadge status={contact.status} />
         </div>
       </div>
     </CardContent>

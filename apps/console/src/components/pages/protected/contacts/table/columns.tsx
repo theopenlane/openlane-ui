@@ -1,7 +1,7 @@
 import { type ColumnDef } from '@repo/ui/table-types'
 import { type ContactsNodeNonNull } from '@/lib/graphql-hooks/contact'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { UserStatusLabel } from '@/components/shared/enum-mapper/user-status-enum'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
@@ -21,10 +21,7 @@ export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems 
       accessorKey: 'status',
       header: 'Status',
       size: 120,
-      cell: ({ cell }) => {
-        const value = cell.getValue() as string
-        return <div>{value ? getEnumLabel(value) : '-'}</div>
-      },
+      cell: ({ row }) => (row.original.status ? <UserStatusLabel status={row.original.status} /> : <div>-</div>),
     },
     { accessorKey: 'tags', header: 'Tags', size: 180, cell: ({ row }) => <TagsCell tags={row.original.tags} /> },
     { accessorKey: 'createdAt', header: 'Created At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },

@@ -31,6 +31,7 @@ interface SelectFieldProps<TUpdateInput> {
   triggerClassName?: string
   placeholder?: string
   renderValue?: (value: string) => React.ReactNode
+  renderOption?: (value: string) => React.ReactNode
 }
 
 export const SelectField = <TUpdateInput,>({
@@ -53,6 +54,7 @@ export const SelectField = <TUpdateInput,>({
   triggerClassName,
   placeholder = 'Select',
   renderValue,
+  renderOption,
 }: SelectFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
   const rawValue = data?.[name]
@@ -104,7 +106,9 @@ export const SelectField = <TUpdateInput,>({
                   <FormControl>
                     <SelectTrigger className={cn('w-full', triggerClassName)}>
                       <SelectValue placeholder={placeholder}>
-                        {useCustomDisplay ? (
+                        {renderOption && field.value ? (
+                          renderOption(field.value)
+                        ) : useCustomDisplay ? (
                           <CustomTypeEnumValue value={field.value} options={options} placeholder={field.value} />
                         ) : (
                           <span>{options.find((opt) => opt.value === field.value)?.label ?? field.value}</span>
@@ -115,7 +119,7 @@ export const SelectField = <TUpdateInput,>({
                   <SelectContent>
                     {options.map((o) => (
                       <SelectItem key={o.value} value={o.value}>
-                        {useCustomDisplay ? <CustomTypeEnumOptionChip option={o} /> : <span>{o.label}</span>}
+                        {renderOption ? renderOption(o.value) : useCustomDisplay ? <CustomTypeEnumOptionChip option={o} /> : <span>{o.label}</span>}
                       </SelectItem>
                     ))}
                   </SelectContent>
