@@ -3503,6 +3503,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
       { name: 'customDomainID', kind: 'id', operatorSet: 7 },
       { name: 'id', kind: 'id', operatorSet: 8 },
+      { name: 'noindexDefaultDomain', kind: 'boolean', operatorSet: 12 },
       { name: 'pirschAccessLink', kind: 'string', operatorSet: 7 },
       { name: 'pirschDomainID', kind: 'string', operatorSet: 7 },
       { name: 'pirschIdentificationCode', kind: 'string', operatorSet: 7 },

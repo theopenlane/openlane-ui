@@ -1323,6 +1323,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
   ],
   TrustCenter: [
     { name: 'customDomainID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'noindexDefaultDomain', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'pirschAccessLink', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'pirschDomainID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },

@@ -9411,6 +9411,7 @@ export interface GetTrustCenterQuery {
       node: {
         id: string
         slug: string | null
+        noindexDefaultDomain: boolean | null
         subprocessorURL: string | null
         pirschDomainID: string | null
         pirschAccessLink: string | null

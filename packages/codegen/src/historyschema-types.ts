@@ -15674,6 +15674,8 @@ export interface CreateTrustCenterInput {
   customDomainID?: InputMaybe<Scalars['ID']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   emailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** Pirsch access link */
   pirschAccessLink?: InputMaybe<Scalars['String']['input']>
@@ -15733,6 +15735,8 @@ export interface CreateTrustCenterNdaRequestInput {
   reason?: InputMaybe<Scalars['String']['input']>
   /** timestamp when the NDA was signed */
   signedAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** status of the NDA request */
+  status?: InputMaybe<TrustCenterNdaRequestTrustCenterNdaRequestStatus>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   trustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -69119,6 +69123,8 @@ export interface TrustCenter extends Node {
   editors: GroupConnection
   emailTemplates: EmailTemplateConnection
   id: Scalars['ID']['output']
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: Maybe<Scalars['Boolean']['output']>
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -71330,6 +71336,8 @@ export interface TrustCenterHistory extends Node {
   customDomainID?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: Maybe<Scalars['Boolean']['output']>
   operation: TrustCenterHistoryOpType
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['String']['output']>
@@ -71458,6 +71466,11 @@ export interface TrustCenterHistoryWhereInput {
   idIn?: InputMaybe<Array<Scalars['ID']['input']>>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** noindex_default_domain field predicates */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TrustCenterHistoryWhereInput>
   /** operation field predicates */
   operation?: InputMaybe<TrustCenterHistoryOpType>
@@ -74596,6 +74609,11 @@ export interface TrustCenterWhereInput {
   idIn?: InputMaybe<Array<Scalars['ID']['input']>>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** noindex_default_domain field predicates */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TrustCenterWhereInput>
   or?: InputMaybe<Array<TrustCenterWhereInput>>
   /** owner_id field predicates */
@@ -80520,6 +80538,7 @@ export interface UpdateTrustCenterInput {
   clearCustomDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
+  clearNoindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschAccessLink?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschDomainID?: InputMaybe<Scalars['Boolean']['input']>
@@ -80543,6 +80562,8 @@ export interface UpdateTrustCenterInput {
   customDomainID?: InputMaybe<Scalars['ID']['input']>
   /** delete a post from the trust center feed */
   deletePost?: InputMaybe<Scalars['ID']['input']>
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** Pirsch access link */
   pirschAccessLink?: InputMaybe<Scalars['String']['input']>

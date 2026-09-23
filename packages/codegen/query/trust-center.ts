@@ -7,6 +7,7 @@ export const GET_ALL_TRUST_CENTERS = gql`
         node {
           id
           slug
+          noindexDefaultDomain
           subprocessorURL
           pirschDomainID
           pirschAccessLink
