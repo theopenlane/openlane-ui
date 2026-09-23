@@ -14,6 +14,7 @@ import UrlInput, { isBlockedDomain } from '../shared/url-input'
 import UrlDisplay from '../shared/url-display'
 import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
 import { normalizeUrl } from '@/utils/normalizeUrl'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -320,9 +321,15 @@ const DomainSettingsPage = () => {
               <div>{trustCenter?.slug && <UrlDisplay label="Default:" url={defaultDomain} className="w-full" />}</div>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-1">
-                  <Label htmlFor="hide-from-search-engines" className="text-base font-medium leading-6">
-                    Hide from search engines
-                  </Label>
+                  <span className="flex items-center gap-1.5">
+                    <Label htmlFor="hide-from-search-engines" className="text-base font-medium leading-6">
+                      Hide from search engines
+                    </Label>
+                    <SystemTooltip
+                      icon={<InfoIcon size={14} className="text-inverted-muted-foreground shrink-0" />}
+                      content="When on, your default Trust Center URL tells search engines not to index it. Your vanity domain is unaffected."
+                    />
+                  </span>
                   <p id="hide-from-search-engines-description" className="text-sm text-inverted-muted-foreground font-medium leading-6">
                     Prevent search engines like Google from showing this default Trust Center URL in search results.
                   </p>
