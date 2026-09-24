@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, format, formatDistance, isPast, isToday, isTomorrow } from 'date-fns'
+import { differenceInCalendarDays, format, formatDistance, isPast, isToday, isTomorrow, isValid, parseISO } from 'date-fns'
 import { tzOffset } from '@date-fns/tz'
 
 export const MS_PER_DAY = 24 * 60 * 60 * 1000
@@ -197,4 +197,16 @@ export { formatDateTimeWithZone }
 export const formatDistanceUntil = (target: number, from: number, empty = '-') => {
   if (!Number.isFinite(target) || !Number.isFinite(from) || target <= from) return empty
   return formatDistance(target, from)
+}
+
+const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
+export const toApiDateTime = (value?: string): string | undefined => {
+  if (!value) return undefined
+  const iso = parseISO(value)
+  const isDateOnly = DATE_ONLY_PATTERN.test(value)
+  if (isValid(iso)) return isDateOnly ? value : iso.toISOString()
+  if (isDateOnly) return undefined
+  const loose = new Date(value)
+  return isValid(loose) ? format(loose, 'yyyy-MM-dd') : undefined
 }

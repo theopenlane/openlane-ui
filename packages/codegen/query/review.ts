@@ -349,3 +349,13 @@ export const GET_PROGRAM_REVIEW_STATS = gql`
     }
   }
 `
+
+export const CREATE_BULK_REVIEW = gql`
+  mutation CreateBulkReview($input: [CreateReviewInput!]) {
+    createBulkReview(input: $input) {
+      reviews {
+        id
+      }
+    }
+  }
+`

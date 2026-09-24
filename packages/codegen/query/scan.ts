@@ -301,3 +301,71 @@ export const GET_SCAN_ASSOCIATIONS = gql`
     }
   }
 `
+
+export const CREATE_REPORT_SCAN = gql`
+  mutation CreateReportScan($input: CreateScanInput!, $scanFiles: [Upload!]) {
+    createScan(input: $input, scanFiles: $scanFiles) {
+      scan {
+        id
+        target
+      }
+    }
+  }
+`
+
+export const REPORT_SCAN_EXISTING_RECORDS = gql`
+  query ReportScanExistingRecords(
+    $platformNames: [String!]
+    $vendorNames: [String!]
+    $assetNames: [String!]
+    $groupNames: [String!]
+    $controlRefCodes: [String!]
+    $withPlatforms: Boolean!
+    $withVendors: Boolean!
+    $withAssets: Boolean!
+    $withGroups: Boolean!
+    $withControls: Boolean!
+    $first: Int
+  ) {
+    platforms(where: { nameIn: $platformNames }, first: $first) @include(if: $withPlatforms) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+    entities(where: { nameIn: $vendorNames }, first: $first) @include(if: $withVendors) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+    assets(where: { nameIn: $assetNames }, first: $first) @include(if: $withAssets) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+    groups(where: { nameIn: $groupNames }, first: $first) @include(if: $withGroups) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+    controls(where: { refCodeIn: $controlRefCodes, standardIDIsNil: true }, first: $first) @include(if: $withControls) {
+      edges {
+        node {
+          id
+          refCode
+        }
+      }
+    }
+  }
+`
