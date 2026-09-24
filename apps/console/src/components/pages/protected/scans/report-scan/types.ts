@@ -61,6 +61,7 @@ export type ReportAsset = {
   region?: string
   categories: string[]
   vendorName?: string
+  vendorId?: string
 }
 
 export type ReportGroup = {

@@ -1,6 +1,6 @@
 import { isRecord } from '@/utils/type-guards'
 import { SOC_2_REQUIRED_CATEGORY, sortTrustServicesCategories, trustServicesCategoryForCriteria, trustServicesCategoryForName } from '@/constants/trust-services-categories'
-import { canonicalizeLookupValue, sanitizeEntityName } from '../shared/name-utils'
+import { canonicalizeLookupValue, companyNameKeys, sanitizeEntityName } from '../shared/name-utils'
 import type { ParsedReport, ReportAsset, ReportControl, ReportFinding, ReportGroup, ReportPlatform, ReportProgram, ReportReview, ReportSystem, ReportVendor } from './types'
 
 type RawItem = Record<string, unknown>
@@ -71,6 +71,14 @@ const linkSystemsToPlatforms = (systems: RawSystem[], platforms: ReportPlatform[
     ...system,
     platformId: platforms.find((platform) => byName(platform) === canonicalizeLookupValue(platformName))?.id ?? platforms[0]?.id,
   }))
+
+const linkAssetsToVendors = (assets: ReportAsset[], vendors: ReportVendor[]): ReportAsset[] => {
+  const vendorKeys = vendors.map((vendor) => ({ id: vendor.id, keys: companyNameKeys(vendor.name, vendor.displayName) }))
+  return assets.map((asset) => {
+    const assetKeys = companyNameKeys(asset.vendorName)
+    return { ...asset, vendorId: vendorKeys.find(({ keys }) => keys.some((key) => assetKeys.includes(key)))?.id }
+  })
+}
 
 const parseVendor = (item: RawItem, id: string): ReportVendor | undefined => {
   const names = validatedName(item)
@@ -188,12 +196,13 @@ export const parseReport = (metadata: unknown): ParsedReport | undefined => {
 
   const controls = uniqueBy(withIds<ReportControl>('controls', sectionItems(report, 'controls'), parseControl), (control) => control.refCode)
   const platforms = uniqueBy(withIds<ReportPlatform>('platforms', sectionItems(report, 'platforms'), parsePlatform), byName)
+  const vendors = uniqueBy(withIds<ReportVendor>('vendors', sectionItems(report, 'entities'), parseVendor), byName)
 
   return {
     platforms,
     systems: linkSystemsToPlatforms(withIds<RawSystem>('systems', sectionItems(report, 'systemdetails'), parseSystem), platforms),
-    vendors: uniqueBy(withIds<ReportVendor>('vendors', sectionItems(report, 'entities'), parseVendor), byName),
-    assets: uniqueBy(withIds<ReportAsset>('assets', sectionItems(report, 'assets'), parseAsset), byName),
+    vendors,
+    assets: linkAssetsToVendors(uniqueBy(withIds<ReportAsset>('assets', sectionItems(report, 'assets'), parseAsset), byName), vendors),
     groups: uniqueBy(withIds<ReportGroup>('groups', sectionItems(report, 'groups'), parseGroup), byName),
     controls,
     reviews: withIds<ReportReview>('reviews', sectionItems(report, 'reviews'), parseReview),
