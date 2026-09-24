@@ -1,6 +1,6 @@
 import { type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
-import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
-import { domainScanReviewHref } from '@/constants/scan-routes'
+import { NotificationNotificationTopic, ScanScanType } from '@repo/codegen/src/schema'
+import { scanReviewHref } from '@/constants/scan-routes'
 import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 
 export const NOTIFICATIONS_PAGE_HREF = '/notifications'
@@ -26,7 +26,12 @@ export const getNotificationHref = (notification: Notification, returnTo?: strin
   if (isDomainScan && !hasUrl) {
     const scans: unknown = notification.data?.scans
     const singleScanId = isDomainScanEntryArray(scans) && scans.length === 1 ? scans[0].internal_scan_id : undefined
-    return domainScanReviewHref(singleScanId || notification.id, returnTo)
+    return scanReviewHref(ScanScanType.DOMAIN, singleScanId || notification.id, returnTo)
+  }
+
+  const reportScanId: unknown = notification.data?.scan_id
+  if (notification.topic === NotificationNotificationTopic.REPORT_SCAN && typeof reportScanId === 'string' && reportScanId) {
+    return scanReviewHref(ScanScanType.REPORT, reportScanId)
   }
 
   if (!hasUrl) {

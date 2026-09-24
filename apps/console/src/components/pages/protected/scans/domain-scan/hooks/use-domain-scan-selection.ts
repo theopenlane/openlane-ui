@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { makeRef, refValue, resolveVendorLogoUrl, withOverride } from '../notification-mappers'
-import { linkSetsFromRecord, linkSetsToRecord, type LinkMap } from '../selection-utils'
-import { loadDomainScanProgress, saveDomainScanProgress } from '../progress-storage'
+import { linkSetsFromRecord, linkSetsToRecord, type LinkMap } from '../../shared/selection-utils'
+import { type PersistedProgress } from '../progress-storage'
+import { loadScanProgress, saveScanProgress } from '../../shared/scan-progress-storage'
 import type { DomainScanReport } from './use-domain-scan-report'
-import { isStepId, type LinkableItem, type OverrideMap, type PlatformMode, type StepId, type SystemCandidate, type TextOverride } from '../types'
+import { isStepId, type OverrideMap, type PlatformMode, type StepId, type SystemCandidate, type TextOverride } from '../types'
+import type { LinkableItem } from '../../shared/types'
 
 const MANUAL_SYSTEM_PREFIX = 'manual-'
 
@@ -57,7 +59,7 @@ export const useDomainScanSelection = ({ report, stepVisibility, storageKey, cur
       return
     }
 
-    const saved = loadDomainScanProgress(storageKey)
+    const saved = loadScanProgress<PersistedProgress>(storageKey)
     if (!saved) {
       return
     }
@@ -166,7 +168,7 @@ export const useDomainScanSelection = ({ report, stepVisibility, storageKey, cur
   const persistProgress = useCallback(() => {
     if (!storageKey) return
 
-    saveDomainScanProgress(storageKey, {
+    saveScanProgress<PersistedProgress>(storageKey, {
       hasStarted,
       stepId: currentStepId,
       selectedVendorIds: Array.from(selectedVendorIds),
