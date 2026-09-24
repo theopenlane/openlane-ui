@@ -11,6 +11,7 @@ import {
   type SystemCandidate,
   type Vendor,
 } from './types'
+import { canonicalizeEntityName, canonicalizeLookupValue, sanitizeEntityName } from '../shared/name-utils'
 
 export const UNKNOWN_DOMAIN = 'Unknown domain'
 
@@ -21,16 +22,6 @@ const REF_SEPARATOR = ':'
 export const makeRef = (kind: RefKind, value: string) => `${kind}${REF_SEPARATOR}${value}`
 
 export const refValue = (ref: string) => ref.slice(ref.indexOf(REF_SEPARATOR) + 1)
-
-export const canonicalizeEntityName = (value: string) =>
-  value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-
-export const canonicalizeLookupValue = (value?: string | null) => value?.trim().toLowerCase() || ''
-
-export const sanitizeEntityName = (value: string) => value.replace(/[^a-zA-Z0-9\s-]/g, '').trim() || canonicalizeEntityName(value)
 
 export const extractHostFromURL = (value?: string) => {
   if (!value) {
