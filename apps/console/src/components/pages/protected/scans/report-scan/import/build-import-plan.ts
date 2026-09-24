@@ -3,7 +3,6 @@ import { existingNameKey, type ReportScanExistingIds } from '@/lib/graphql-hooks
 import { SOC_2_SYSTEM_STANDARD } from '@/constants/standards'
 import { SOC_2_FRAMEWORK_NAME, trustServicesCategoryForCriteria } from '@/constants/trust-services-categories'
 import { toApiDateTime } from '@/utils/date'
-import { sanitizeEntityName } from '../../shared/name-utils'
 import type { ParsedReport, ReportPlatformOverrides, ReportProgramChoice, ReportSelection, ReportSystemOverrides } from '../types'
 import { resolvePlatform, resolveSystem, selectedItems } from '../selection'
 import type { ReportScanImportPlan } from './run-report-import'
@@ -39,6 +38,8 @@ export const buildImportPlan = ({ report, scanId, selection, platformOverrides, 
   })
   const platformRefById = new Map(platforms.map((platform) => [platform.id, platform.ref]))
   const vendorRefs = selected.vendors.map((vendor) => existingNameKey(vendor.name))
+  const vendorRefById = new Map(report.vendors.map((vendor) => [vendor.id, existingNameKey(vendor.name)]))
+  const vendorRefOf = (vendorId?: string) => (vendorId ? vendorRefById.get(vendorId) : undefined)
   const assetRefs = selected.assets.map((asset) => existingNameKey(asset.name))
   const selectedControlRefs = new Set(selected.controls.map((control) => control.refCode))
   const selectedRefCodes = (refCodes: string[]) => refCodes.filter((refCode) => selectedControlRefs.has(refCode))
@@ -84,7 +85,7 @@ export const buildImportPlan = ({ report, scanId, selection, platformOverrides, 
       .filter((asset) => !existing.assets[existingNameKey(asset.name)])
       .map((asset) => ({
         ref: existingNameKey(asset.name),
-        vendorRef: asset.vendorName ? existingNameKey(sanitizeEntityName(asset.vendorName)) : undefined,
+        vendorRef: vendorRefOf(asset.vendorId),
         input: {
           name: asset.name,
           displayName: asset.displayName,
