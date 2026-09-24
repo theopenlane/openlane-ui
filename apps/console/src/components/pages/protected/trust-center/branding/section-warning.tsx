@@ -1,4 +1,4 @@
-import { InfoIcon } from 'lucide-react'
+import { ExternalLink, InfoIcon } from 'lucide-react'
 import React from 'react'
 import { cn } from '@repo/ui/lib/utils'
 
@@ -28,8 +28,9 @@ export const UnpublishedChangesWarning = ({ previewUrl }: { previewUrl: string }
           <>
             {' '}
             See{' '}
-            <a href={previewUrl} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">
-              Preview<span className="sr-only"> site (opens in a new tab)</span>
+            <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 align-middle text-blue-500 hover:underline">
+              Preview
+              <ExternalLink className="size-3.5 shrink-0" />
             </a>
             .
           </>
