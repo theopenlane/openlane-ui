@@ -1,7 +1,6 @@
 'use client'
 
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import SectionWarning from '../section-warning'
 import { AssetInputGroup } from './asset-input-group'
 import { useFormContext } from 'react-hook-form'
 import { type BrandFormValues } from '../brand-schema'
@@ -18,10 +17,10 @@ export enum InputTypeEnum {
 
 interface BrandingAssetsSectionProps {
   isReadOnly: boolean
-  hasWarning?: boolean
+  warning?: React.ReactNode
 }
 
-export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssetsSectionProps) => {
+export const BrandingAssetsSection = ({ isReadOnly, warning }: BrandingAssetsSectionProps) => {
   const { watch, setValue } = useFormContext<BrandFormValues>()
   const { data } = useGetTrustCenter()
   const [isImageValidSize, setIsImageValidSize] = useState<boolean | null>(null)
@@ -85,7 +84,7 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
   return (
     <Card>
       <CardContent>
-        {hasWarning && <SectionWarning />}
+        {warning}
 
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-1">

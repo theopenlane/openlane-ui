@@ -3,11 +3,10 @@ import { cn } from '@repo/ui/lib/utils'
 import { BookUp, Eye, RotateCcw } from 'lucide-react'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import UrlDisplay from '../../shared/url-display'
-import { buildPreviewUrl } from '../helpers/preview-url'
 
 interface BrandingHeaderProps {
   ref?: React.Ref<HTMLDivElement>
-  cnameRecord?: string | null
+  previewUrl: string
   hasUnsavedChanges: boolean
   hasPreviewChanges: boolean
   isPreviewAvailable: boolean
@@ -22,15 +21,13 @@ const PREVIEW_UNAVAILABLE = 'Preview settings are not available for this Trust C
 
 const SCROLL_GUTTER_COVER = "before:content-[''] before:absolute before:inset-x-0 before:bottom-full before:h-4 before:bg-secondary before:pointer-events-none"
 
-export const BrandingHeader = ({ ref, cnameRecord, hasUnsavedChanges, hasPreviewChanges, isPreviewAvailable, onPreview, onRevert, onPublish }: BrandingHeaderProps) => {
-  const url = buildPreviewUrl(cnameRecord)
-
+export const BrandingHeader = ({ ref, previewUrl, hasUnsavedChanges, hasPreviewChanges, isPreviewAvailable, onPreview, onRevert, onPublish }: BrandingHeaderProps) => {
   const savePreviewBlockedReason = !isPreviewAvailable ? PREVIEW_UNAVAILABLE : hasUnsavedChanges ? null : NOTHING_TO_SAVE
   const publishBlockedReason = !isPreviewAvailable ? PREVIEW_UNAVAILABLE : hasUnsavedChanges || hasPreviewChanges ? null : NOTHING_TO_PUBLISH
 
   return (
     <div ref={ref} className={cn('sticky top-0 z-(--z-page-sticky-bar) flex items-center gap-4 w-full bg-secondary py-3', SCROLL_GUTTER_COVER)}>
-      <UrlDisplay label="Preview URL:" url={url} emptyText="Preview URL not available yet" className="flex-1 min-w-0" />
+      <UrlDisplay label="Preview URL:" url={previewUrl} emptyText="Preview URL not available yet" className="flex-1 min-w-0" />
       {hasPreviewChanges && (
         <Button onClick={onRevert} type="button" variant="secondary" icon={<RotateCcw size={16} />}>
           Revert Changes
