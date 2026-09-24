@@ -1,4 +1,5 @@
 import React from 'react'
+import { cn } from '@repo/ui/lib/utils'
 
 interface TSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string
@@ -12,7 +13,7 @@ const Skeleton = ({ className = '', width, height, ...props }: TSkeletonProps) =
     ...(height ? { height: typeof height === 'number' ? `${height}px` : height } : {}),
   }
 
-  return <div style={style} className={`animate-custom-pulse bg-white/20 ${className || 'rounded-lg'}`} {...props} />
+  return <div style={style} className={cn('animate-custom-pulse bg-muted-foreground/20', className || 'rounded-lg')} {...props} />
 }
 
 export default Skeleton

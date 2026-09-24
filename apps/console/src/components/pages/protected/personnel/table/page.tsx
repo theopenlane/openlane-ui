@@ -17,7 +17,6 @@ import { normalizeEntityData, buildResponsibilityPayload } from '@/components/sh
 import {
   useUpdateIdentityHolder,
   useBulkDeleteIdentityHolder,
-  useCreateBulkCSVIdentityHolder,
   useBulkEditIdentityHolder,
   useIdentityHolder,
   useGetIdentityHolderAssociations,
@@ -87,7 +86,6 @@ const PersonnelPage: React.FC = () => {
   const baseUpdateMutation = useUpdateIdentityHolder()
   const baseCreateMutation = useCreateIdentityHolderWithFiles()
   const baseBulkDeleteMutation = useBulkDeleteIdentityHolder()
-  const baseBulkCreateMutation = useCreateBulkCSVIdentityHolder()
   const baseBulkEditMutation = useBulkEditIdentityHolder()
 
   const updateMutation = {
@@ -113,14 +111,6 @@ const PersonnelPage: React.FC = () => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
 
       return result.deleteBulkIdentityHolder
-    },
-  }
-
-  const bulkCreateMutation = {
-    isPending: baseBulkCreateMutation.isPending,
-    mutateAsync: async (params: { input: File }) => {
-      const result = await baseBulkCreateMutation.mutateAsync({ input: params.input })
-      return result
     },
   }
 
@@ -219,9 +209,6 @@ const PersonnelPage: React.FC = () => {
     viewEditMode: { type: 'full-page', route: '/registry/personnel' },
     onBulkDelete: async (ids: string[]) => {
       return deleteMutation.mutateAsync({ ids })
-    },
-    onBulkCreate: async (file: File) => {
-      await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateIdentityHolderInput) => {
       const result = await bulkEditMutation.mutateAsync({ ids, input })

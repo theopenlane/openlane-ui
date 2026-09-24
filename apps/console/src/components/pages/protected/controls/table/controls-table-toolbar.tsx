@@ -6,7 +6,6 @@ import { getControlsFilterFields } from './table-config'
 import { Input } from '@repo/ui/input'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import Menu from '@/components/shared/menu/menu.tsx'
-import { BulkCSVCreateControlDialog } from '@/components/pages/protected/controls/bulk-csv-create-control-dialog.tsx'
 import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import Link from 'next/link'
 import { type VisibilityState } from '@repo/ui/table-types'
@@ -21,7 +20,6 @@ import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { BulkCSVCloneControlDialog } from '../bulk-csv-clone-control-dialog'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
-import { BulkCSVCreateMappedControlDialog } from '../bulk-csv-create-map-control-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -38,6 +36,9 @@ import { type TQuickFilter } from '@/components/shared/table-filter/table-filter
 import { type Session } from 'next-auth'
 import MenuItem from '@/components/shared/menu/menu-item'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -77,6 +78,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   permission,
 }: TProps) => {
   const { data: session } = useSession()
+  const openImport = useOpenImport()
   const { programOptions, isSuccess: isProgramSuccess, hasProgramAccess } = useProgramSelect()
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
   const groups = useMemo(() => groupOptions || [], [groupOptions])
@@ -102,8 +104,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isCloneOpen, setIsCloneOpen] = useState(false)
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [isMapOpen, setIsMapOpen] = useState(false)
   const [isUpdateOpen, setIsUpdateOpen] = useState(false)
   const { currentOrgId } = useOrganization()
 
@@ -242,8 +242,8 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     <MenuItem
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
-                        setIsCreateOpen(true)
                         close()
+                        openImport(IMPORT_ROUTES[ObjectTypes.CONTROL])
                       }}
                     >
                       Upload Custom Controls
@@ -251,8 +251,8 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     <MenuItem
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
-                        setIsMapOpen(true)
                         close()
+                        openImport(IMPORT_ROUTES[ObjectTypes.MAPPED_CONTROL])
                       }}
                     >
                       Upload Control Mappings
@@ -271,8 +271,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                 )}
               />
               <BulkCSVCloneControlDialog open={isCloneOpen} onOpenChange={setIsCloneOpen} />
-              <BulkCSVCreateControlDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
-              <BulkCSVCreateMappedControlDialog open={isMapOpen} onOpenChange={setIsMapOpen} />
               <BulkCSVUpdateControlDialog open={isUpdateOpen} onOpenChange={setIsUpdateOpen} />
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.CONTROL} />

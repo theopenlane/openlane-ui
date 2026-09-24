@@ -1,9 +1,10 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import Papa from 'papaparse'
-import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import { InfoCard } from '@/components/shared/file-preview/preview-chrome'
+import { RecordPreviewTable } from '@/components/shared/record-preview/record-preview-table'
+import { parseDelimitedText } from '@/components/shared/record-import/lib/delimited-file'
+import { pluralizeWithCount } from '@/utils/strings'
 
 const MAX_PREVIEW_ROWS = 500
 const MAX_PREVIEW_COLUMNS = 50
@@ -26,19 +27,25 @@ const clampToLastLine = (text: string): { input: string; clipped: boolean } => {
 
 const buildGrid = (text: string): TCsvGrid | null => {
   const { input, clipped } = clampToLastLine(text)
-  const { data, meta, errors } = Papa.parse<string[]>(input, { skipEmptyLines: true, preview: MAX_PREVIEW_ROWS + 1 })
-  const [headerRow, ...rows] = data
-  if (!headerRow?.length) return null
+  const parsed = parseDelimitedText(input, { previewRows: MAX_PREVIEW_ROWS })
+  if (!parsed) return null
 
-  const widest = rows.reduce((columns, row) => Math.max(columns, row.length), headerRow.length)
+  const widest = parsed.rows.reduce((columns, row) => Math.max(columns, row.length), parsed.headers.length)
   const columnCount = Math.min(widest, MAX_PREVIEW_COLUMNS)
 
   return {
-    headers: Array.from({ length: columnCount }, (_, index) => headerRow[index]?.trim() || `Column ${index + 1}`),
-    rows,
-    truncated: clipped || meta.truncated || widest > columnCount,
-    malformed: errors.some((error) => error.type === 'Quotes'),
+    headers: Array.from({ length: columnCount }, (_, index) => parsed.headers[index] ?? `Column ${index + 1}`),
+    rows: parsed.rows,
+    truncated: clipped || parsed.truncated || widest > columnCount,
+    malformed: parsed.malformed,
   }
+}
+
+const summarize = (grid: TCsvGrid): string => {
+  const summary = `${pluralizeWithCount(grid.rows.length, 'row')} × ${pluralizeWithCount(grid.headers.length, 'column')}`
+  if (grid.truncated) return `${summary} shown — download the file to see the rest.`
+
+  return summary
 }
 
 const CsvPreview: React.FC<{ text: string }> = ({ text }) => {
@@ -46,53 +53,20 @@ const CsvPreview: React.FC<{ text: string }> = ({ text }) => {
 
   if (!grid) return <InfoCard tone="muted" message="This CSV file has no rows to preview." />
 
-  return <CsvGrid grid={grid} />
+  return (
+    <RecordPreviewTable
+      ariaLabel="CSV contents"
+      headers={grid.headers}
+      rows={grid.rows}
+      className="h-full max-h-[70vh] w-full rounded-md border bg-card"
+      caption={
+        <>
+          <p>{summarize(grid)}</p>
+          {grid.malformed && <p>Some rows could not be parsed cleanly — download the file to see the original.</p>}
+        </>
+      }
+    />
+  )
 }
-
-const summarize = (grid: TCsvGrid): string => {
-  const rows = `${grid.rows.length.toLocaleString()} ${grid.rows.length === 1 ? 'row' : 'rows'}`
-  const columns = `${grid.headers.length.toLocaleString()} ${grid.headers.length === 1 ? 'column' : 'columns'}`
-  if (grid.truncated) return `${rows} × ${columns} shown — download the file to see the rest.`
-
-  return `${rows} × ${columns}`
-}
-
-const CsvGrid = React.memo(({ grid }: { grid: TCsvGrid }) => (
-  <div className="flex h-full max-h-[70vh] w-full min-w-0 flex-col gap-2">
-    <div className="min-h-0 flex-1 overflow-auto rounded-md border bg-card">
-      <table aria-label="CSV contents" className="w-max min-w-full text-xs">
-        <TableHeader>
-          <TableRow compact>
-            {grid.headers.map((header, index) => (
-              <TableHead key={index} compact scope="col" className="whitespace-nowrap font-medium text-foreground" title={header}>
-                {header}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {grid.rows.map((row, rowIndex) => (
-            <TableRow key={rowIndex} compact>
-              {grid.headers.map((_, cellIndex) => {
-                const value = row[cellIndex] ?? ''
-                return (
-                  <TableCell key={cellIndex} compact className="max-w-80 truncate whitespace-nowrap" title={value}>
-                    {value}
-                  </TableCell>
-                )
-              })}
-            </TableRow>
-          ))}
-        </TableBody>
-      </table>
-    </div>
-    <div className="shrink-0 text-xs text-muted-foreground">
-      <p>{summarize(grid)}</p>
-      {grid.malformed && <p>Some rows could not be parsed cleanly — download the file to see the original.</p>}
-    </div>
-  </div>
-))
-
-CsvGrid.displayName = 'CsvGrid'
 
 export default CsvPreview

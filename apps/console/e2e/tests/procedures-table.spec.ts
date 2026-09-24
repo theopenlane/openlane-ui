@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test'
 import { test, expect, type Role } from '../fixtures/auth'
 import { createProcedure, getOwnerApi, gql, type ApiSession } from '../utils/api'
 import { inlineCsv } from '../utils/files'
-import { expectMutationOk, uploadCsvAndAssert } from '../utils/mutations'
+import { expectImportPage, expectMutationOk, uploadCsvAndAssert } from '../utils/mutations'
 import { uniqueName } from '../utils/unique'
 import { PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON } from '../utils/permission-gating'
 
@@ -49,20 +49,19 @@ test.describe('procedures — table toolbar', () => {
     expect((await exportQueued).ok()).toBe(true)
   })
 
-  test('Bulk upload opens its CSV dialog and a CSV enables Upload', async ({ page }) => {
+  test('Bulk upload opens the import wizard and a CSV enables Continue', async ({ page }) => {
     test.slow()
     await openProcedures(page)
 
     await openActionMenu(page)
     await page.getByText('Bulk upload', { exact: true }).click()
 
-    const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading', { name: /^Bulk upload$/ })).toBeVisible({ timeout: 30_000 })
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeDisabled()
+    const scope = await expectImportPage(page, 'procedure', /^Import procedures$/)
+    await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
 
-    await dialog.locator('input[type="file"]').first().setInputFiles(inlineCsv('procedures.csv', 'name,details\nE2E-PROC-1,seeded by e2e\n'))
+    await scope.locator('input[type="file"]').first().setInputFiles(inlineCsv('procedures.csv', 'name,details\nE2E-PROC-1,seeded by e2e\n'))
 
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeEnabled({ timeout: 30_000 })
+    await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeEnabled({ timeout: 30_000 })
   })
 
   test('Import existing document opens the import dialog', async ({ page }) => {
@@ -213,19 +212,18 @@ test.describe('procedures — bulk upload submits', () => {
     await openActionMenu(page)
     await page.getByText('Bulk upload', { exact: true }).click()
 
-    const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading', { name: /^Bulk upload$/ })).toBeVisible({ timeout: 30_000 })
+    const scope = await expectImportPage(page, 'procedure', /^Import procedures$/)
 
     await uploadCsvAndAssert({
       page,
-      dialog,
+      scope,
       fileName: 'procedures.csv',
       rows: `Name,Details\n${name},seeded by e2e\n`,
       operationName: 'CreateBulkCSVProcedure',
-      expectToast: 'Procedure Created',
+      expectToast: 'Procedures imported',
+      returnsTo: '/procedures',
     })
 
-    await page.keyboard.press('Escape')
     await page.reload({ waitUntil: 'domcontentloaded' })
     await page.getByPlaceholder(/^Search$/).fill(name)
     await expect(page.getByRole('row').filter({ hasText: name }).first()).toBeVisible({ timeout: 60_000 })

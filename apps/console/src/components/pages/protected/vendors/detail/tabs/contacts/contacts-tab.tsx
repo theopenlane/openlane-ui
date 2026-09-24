@@ -16,13 +16,14 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import Menu from '@/components/shared/menu/menu'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
-import { useContactsWithFilter, useCreateBulkCSVContact, useBulkEditContact } from '@/lib/graphql-hooks/contact'
+import { useContactsWithFilter, useBulkEditContact } from '@/lib/graphql-hooks/contact'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
 import { ContactUserStatus, type UpdateContactInput, type ContactWhereInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
+import { vendorContactsImportRoute } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { GenericBulkEditDialog } from '@/components/shared/crud-base/dialog/bulk-edit'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -82,7 +83,6 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
   const [selectedContacts, setSelectedContacts] = useState<{ id: string }[]>([])
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isBulkEditDialogOpen, setIsBulkEditDialogOpen] = useState(false)
-  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null)
   const [filterWhere, setFilterWhere] = useState<WhereCondition | null>(null)
   const { successNotification, errorNotification } = useNotification()
@@ -121,26 +121,11 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
   }
 
   const queryClient = useQueryClient()
-  const { mutateAsync: createBulkCSVContact } = useCreateBulkCSVContact()
+  const openImport = useOpenImport()
   const { mutateAsync: bulkEditContacts } = useBulkEditContact()
   const { mutateAsync: updateEntity } = useUpdateEntity()
 
   const columns = useMemo<ColumnDef<ContactNode>[]>(() => [createSelectColumn<ContactNode>(selectedContacts, setSelectedContacts), ...DATA_COLUMNS], [selectedContacts])
-
-  const handleBulkCreate = async (file: File) => {
-    try {
-      const result = await createBulkCSVContact({ input: file })
-      const newContactIds = result.createBulkCSVContact?.contacts?.map((c) => c.id) ?? []
-      if (newContactIds.length > 0) {
-        await updateEntity({ updateEntityId: vendorId, input: { addContactIDs: newContactIds } })
-        queryClient.invalidateQueries({ queryKey: ['contacts'] })
-      }
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({ title: 'Error', description: errorMessage })
-      throw error
-    }
-  }
 
   const handleBulkUnlink = async () => {
     if (selectedContacts.length === 0) return
@@ -228,8 +213,8 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
                       <MenuItem
                         icon={<Upload size={16} strokeWidth={2} />}
                         onSelect={() => {
-                          setIsBulkUploadOpen(true)
                           close()
+                          openImport(vendorContactsImportRoute(vendorId, vendorName))
                         }}
                       >
                         Bulk Upload
@@ -239,7 +224,6 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
                   </>
                 )}
               />
-              {canEditVendor && <GenericBulkCSVCreateDialog entityType={ObjectTypes.CONTACT} onBulkCreate={handleBulkCreate} open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen} />}
               <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.VENDOR_CONTACTS} />
               <TableFilter filterFields={CONTACT_FILTER_FIELDS} onFilterChange={setFilterWhere} pageKey={TableKeyEnum.VENDOR_CONTACTS} />
               {canEditVendor && (

@@ -1,39 +1,28 @@
 'use client'
 
+import { downloadFile } from '@/utils/downloadFile'
+
 type TExportCSV = {
   filename: string
 }
 
-interface HttpResponse<T> extends Response {
-  message?: T
+export const fetchExampleCSV = async ({ filename }: TExportCSV): Promise<string> => {
+  const response = await fetch('/api/export', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ filename }),
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch CSV')
+  }
+
+  return response.text()
 }
 
-export async function exportCSV<T>(arg: TExportCSV): Promise<void | { message: string }> {
-  try {
-    const fData: HttpResponse<T> = await fetch('/api/export', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(arg),
-    })
-
-    if (!fData.ok) {
-      return { message: 'Failed to fetch CSV' }
-    }
-
-    const blob = await fData.blob()
-    const url = window.URL.createObjectURL(blob)
-
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', `${arg.filename}.csv`)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-  } catch (error) {
-    console.error('Error exporting CSV:', error)
-    return { message: 'error' }
-  }
+export const exportCSV = async (arg: TExportCSV): Promise<void> => {
+  const text = await fetchExampleCSV(arg)
+  downloadFile([text], `${arg.filename}.csv`, 'text/csv')
 }

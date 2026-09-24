@@ -2,15 +2,7 @@
 
 import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from './hooks/use-form-schema'
-import {
-  type ActionPlansNodeNonNull,
-  useActionPlan,
-  useCreateActionPlan,
-  useUpdateActionPlan,
-  useBulkDeleteActionPlan,
-  useBulkEditActionPlan,
-  useCreateBulkCSVActionPlan,
-} from '@/lib/graphql-hooks/action-plan'
+import { type ActionPlansNodeNonNull, useActionPlan, useCreateActionPlan, useUpdateActionPlan, useBulkDeleteActionPlan, useBulkEditActionPlan } from '@/lib/graphql-hooks/action-plan'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table/table-config'
 import { type ActionPlanSheetConfig, type ActionPlanTablePageConfig, type ActionPlanFieldProps, objectType, objectName, tableKey, orderFieldEnum, defaultSorting } from './table/types'
@@ -44,7 +36,6 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
 
   const baseUpdateMutation = useUpdateActionPlan()
   const baseCreateMutation = useCreateActionPlan()
-  const baseBulkCreateMutation = useCreateBulkCSVActionPlan()
   const baseBulkDeleteMutation = useBulkDeleteActionPlan()
   const baseBulkEditMutation = useBulkEditActionPlan()
 
@@ -106,9 +97,6 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
     onBulkDelete: async (ids: string[]) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids })
       return result.deleteBulkActionPlan
-    },
-    onBulkCreate: async (file: File) => {
-      await baseBulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateActionPlanInput) => {
       const result = await baseBulkEditMutation.mutateAsync({ ids, input })

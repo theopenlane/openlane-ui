@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { bulkEditFieldSchema } from '../hooks/use-form-schema'
-import { useCreateBulkCSVFinding, useBulkEditFinding, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
+import { useBulkEditFinding, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFilterFields, visibilityFields } from './table-config'
@@ -36,14 +36,8 @@ const FindingPage: React.FC = () => {
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
 
-  const baseBulkCreateMutation = useCreateBulkCSVFinding()
   const baseBulkDeleteMutation = useBulkDeleteFinding()
   const baseBulkEditMutation = useBulkEditFinding()
-
-  const bulkCreateMutation = {
-    isPending: baseBulkCreateMutation.isPending,
-    mutateAsync: async (params: { input: File }) => baseBulkCreateMutation.mutateAsync({ input: params.input }),
-  }
 
   const tableConfig: FindingTablePageConfig = {
     objectType,
@@ -65,9 +59,6 @@ const FindingPage: React.FC = () => {
     onBulkDelete: async (ids: string[]) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids })
       return result.deleteBulkFinding
-    },
-    onBulkCreate: async (file: File) => {
-      await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateFindingInput) => {
       const result = await baseBulkEditMutation.mutateAsync({ ids, input })

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
@@ -10,7 +10,6 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import { type VisibilityState } from '@repo/ui/table-types'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { type TemplateWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
-import { BulkCSVCreateTemplateDialog } from '@/components/pages/protected/questionnaire/dialog/bulk-csv-create-template-dialog'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -19,6 +18,9 @@ import { type TQuickFilter } from '@/components/shared/table-filter/table-filter
 import { useSession } from 'next-auth/react'
 import MenuItem from '@/components/shared/menu/menu-item'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TTemplateTableToolbarProps = {
   creating: boolean
@@ -49,9 +51,9 @@ const TemplateTableToolbar: React.FC<TTemplateTableToolbarProps> = ({
   exportEnabled,
 }) => {
   const isSearching = useDebounce(searching, 200)
+  const openImport = useOpenImport()
   const { data: permission } = useOrganizationRoles()
   const { data: session } = useSession()
-  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const filterFields = useTemplateFilters()
 
   const quickFilters = useMemo<TQuickFilter[]>(
@@ -100,8 +102,8 @@ const TemplateTableToolbar: React.FC<TTemplateTableToolbarProps> = ({
                 <MenuItem
                   icon={<Upload size={16} strokeWidth={2} />}
                   onSelect={() => {
-                    setIsBulkUploadOpen(true)
                     close()
+                    openImport(IMPORT_ROUTES[ObjectTypes.TEMPLATE])
                   }}
                 >
                   Bulk Upload
@@ -110,7 +112,6 @@ const TemplateTableToolbar: React.FC<TTemplateTableToolbarProps> = ({
               </>
             )}
           />
-          <BulkCSVCreateTemplateDialog open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen} />
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.TEMPLATE} />
           )}

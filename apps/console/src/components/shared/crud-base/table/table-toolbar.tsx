@@ -15,7 +15,8 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { Button } from '@repo/ui/button'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useRouter } from 'next/navigation'
-import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
+import { canImportWith, getImportRoute } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { TableFilter } from '../../table-filter/table-filter'
@@ -57,7 +58,6 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   selectedItems: T[]
   setSelectedItems: React.Dispatch<React.SetStateAction<T[]>>
   onBulkDelete?: (ids: string[]) => Promise<BulkDeletePayload>
-  onBulkCreate?: (file: File) => Promise<void>
   onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<BulkUpdatePayload>
   bulkEditFormSchema?: ZodObject<ZodRawShape>
   storageKey: TableKeyValue
@@ -74,7 +74,6 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
 function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput>(props: GenericTableToolbarProps<T, TWhereInput, TUpdateInput>) {
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isBulkEditDialogOpen, setIsBulkEditDialogOpen] = useState(false)
-  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const { data: session } = useSession()
   const { available: mergeAvailable, active: mergeModeActive, setActive: setMergeModeActive } = useMergeMode()
   const { onBulkEdit } = props
@@ -86,6 +85,9 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
   const entityLabel = props.displayName ?? props.entityType.charAt(0).toUpperCase() + props.entityType.slice(1).toLowerCase()
   const entityLabelPlural = `${entityLabel}s`
   const shouldShowCreationButton = !props.hideCreate && (props.createPermission ? props.permission?.roles.includes(props.createPermission) : props.canEdit(props.permission?.roles, session))
+  const openImport = useOpenImport()
+  const importRoute = getImportRoute(props.entityType)
+  const canImport = importRoute ? canImportWith(importRoute.permission, props.permission?.roles, session ?? null) : false
 
   const openCreateSheet = () => {
     if (props.createMode?.type === 'full-page') {
@@ -223,12 +225,12 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                           Merge records
                         </MenuItem>
                       )}
-                      {props.onBulkCreate && (
+                      {importRoute && canImport && (
                         <MenuItem
                           icon={<Upload size={16} strokeWidth={2} />}
                           onSelect={() => {
-                            setIsBulkUploadOpen(true)
                             close()
+                            openImport(importRoute)
                           }}
                         >
                           Bulk Upload
@@ -238,16 +240,6 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                     </>
                   )}
                 />
-
-                {props.onBulkCreate && (
-                  <GenericBulkCSVCreateDialog
-                    entityType={props.entityType}
-                    displayName={props.displayName}
-                    onBulkCreate={props.onBulkCreate}
-                    open={isBulkUploadOpen}
-                    onOpenChange={setIsBulkUploadOpen}
-                  />
-                )}
 
                 {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                   <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={props.storageKey} />

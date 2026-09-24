@@ -1,4 +1,5 @@
 import { Card } from '@repo/ui/cardpanel'
+import { formatFileSize } from '@/utils/strings'
 import { FileText, Trash2 } from 'lucide-react'
 
 type TUploadedFileDetailsCard = {
@@ -22,7 +23,7 @@ const UploadedFileDetailsCard: React.FC<TUploadedFileDetailsCard> = ({ fileName,
           <div title={fileName} className="font-medium text-sm leading-5 truncate max-w-full">
             {fileName}
           </div>
-          {fileSize != null && <div className="text-xs font-normal leading-4 text-muted-foreground truncate">Size: {Math.round(fileSize / 1024)} KB</div>}
+          {fileSize != null && <div className="text-xs font-normal leading-4 text-muted-foreground truncate">Size: {formatFileSize(fileSize)}</div>}
         </div>
       </div>
     </Card>

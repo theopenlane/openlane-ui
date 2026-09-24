@@ -10,7 +10,6 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import { type VisibilityState } from '@repo/ui/table-types'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { type AssessmentWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
-import { BulkCSVCreateTemplateDialog } from '../dialog/bulk-csv-create-template-dialog'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -30,6 +29,9 @@ import { type Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import MenuItem from '@/components/shared/menu/menu-item'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
@@ -68,11 +70,11 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
   handleClearSelectedQuestionnaires,
 }) => {
   const isSearching = useDebounce(searching, 200)
+  const openImport = useOpenImport()
   const { data: permission } = useOrganizationRoles()
   const { data: session } = useSession()
   const canEditQuestionnaires = canEdit(permission?.roles, session)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
-  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteQuestionnaires } = useDeleteBulkAssessment()
 
@@ -195,8 +197,8 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
                     <MenuItem
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
-                        setIsBulkUploadOpen(true)
                         close()
+                        openImport(IMPORT_ROUTES[ObjectTypes.TEMPLATE])
                       }}
                     >
                       Bulk Upload
@@ -205,7 +207,6 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
                   </>
                 )}
               />
-              <BulkCSVCreateTemplateDialog open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen} />
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.QUESTIONNAIRE} />
               )}

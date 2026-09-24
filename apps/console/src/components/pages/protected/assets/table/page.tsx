@@ -4,7 +4,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { type AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useCreateBulkCSVAsset, useBulkEditAsset, useGetAssetAssociations } from '@/lib/graphql-hooks/asset'
+import { type AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useBulkEditAsset, useGetAssetAssociations } from '@/lib/graphql-hooks/asset'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
@@ -69,7 +69,6 @@ const AssetPage: React.FC = () => {
   const baseUpdateMutation = useUpdateAsset()
   const baseCreateMutation = useCreateAsset()
   const baseBulkDeleteMutation = useBulkDeleteAsset()
-  const baseBulkCreateMutation = useCreateBulkCSVAsset()
   const baseBulkEditMutation = useBulkEditAsset()
 
   const updateMutation = {
@@ -91,14 +90,6 @@ const AssetPage: React.FC = () => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
 
       return result.deleteBulkAsset
-    },
-  }
-
-  const bulkCreateMutation = {
-    isPending: baseBulkCreateMutation.isPending,
-    mutateAsync: async (params: { input: File }) => {
-      const result = await baseBulkCreateMutation.mutateAsync({ input: params.input })
-      return result
     },
   }
 
@@ -228,9 +219,6 @@ const AssetPage: React.FC = () => {
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
       return deleteMutation.mutateAsync({ ids })
-    },
-    onBulkCreate: async (file: File) => {
-      await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateAssetInput & { vendorIDs?: string[] }) => {
       const { vendorIDs, ...rest } = input

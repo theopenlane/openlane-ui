@@ -7,7 +7,6 @@ import {
   useRemediation,
   useCreateRemediation,
   useUpdateRemediation,
-  useCreateBulkCSVRemediation,
   useBulkEditRemediation,
   useBulkDeleteRemediation,
   useGetRemediationAssociations,
@@ -50,7 +49,6 @@ const RemediationPage: React.FC = () => {
 
   const baseUpdateMutation = useUpdateRemediation()
   const baseCreateMutation = useCreateRemediation()
-  const baseBulkCreateMutation = useCreateBulkCSVRemediation()
   const baseBulkDeleteMutation = useBulkDeleteRemediation()
   const baseBulkEditMutation = useBulkEditRemediation()
 
@@ -72,14 +70,6 @@ const RemediationPage: React.FC = () => {
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
       return result.deleteBulkRemediation
-    },
-  }
-
-  const bulkCreateMutation = {
-    isPending: baseBulkCreateMutation.isPending,
-    mutateAsync: async (params: { input: File }) => {
-      const result = await baseBulkCreateMutation.mutateAsync({ input: params.input })
-      return result
     },
   }
 
@@ -144,9 +134,6 @@ const RemediationPage: React.FC = () => {
     onBulkDelete: async (ids: string[]) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids })
       return result.deleteBulkRemediation
-    },
-    onBulkCreate: async (file: File) => {
-      await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateRemediationInput) => {
       const result = await baseBulkEditMutation.mutateAsync({ ids, input })

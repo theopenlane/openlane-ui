@@ -14,15 +14,7 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { usePlatformSelect } from '@/lib/graphql-hooks/platform'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { SystemDetailSystemSensitivityLevel, type CreateSystemDetailInput, type SystemDetailQuery, type UpdateSystemDetailInput } from '@repo/codegen/src/schema'
-import {
-  type SystemDetailsNodeNonNull,
-  useBulkDeleteSystemDetail,
-  useBulkEditSystemDetail,
-  useCreateBulkCSVSystemDetail,
-  useCreateSystemDetail,
-  useSystemDetail,
-  useUpdateSystemDetail,
-} from '@/lib/graphql-hooks/system-detail'
+import { type SystemDetailsNodeNonNull, useBulkDeleteSystemDetail, useBulkEditSystemDetail, useCreateSystemDetail, useSystemDetail, useUpdateSystemDetail } from '@/lib/graphql-hooks/system-detail'
 import { defaultSorting, exportType, objectName, objectType, orderFieldEnum, tableKey, type SystemDetailFieldProps, type SystemDetailSheetConfig, type SystemDetailTablePageConfig } from './types'
 import { getEdgeIds, buildAssociationPayload, getAssociationInput } from '@/components/shared/object-association/utils'
 import { SYSTEM_DETAIL_ASSOCIATION_KEYS } from '@/components/shared/object-association/association-configs'
@@ -70,7 +62,6 @@ const SystemDetailPage: React.FC = () => {
   const baseUpdateMutation = useUpdateSystemDetail()
   const baseCreateMutation = useCreateSystemDetail()
   const baseBulkDeleteMutation = useBulkDeleteSystemDetail()
-  const baseBulkCreateMutation = useCreateBulkCSVSystemDetail()
   const baseBulkEditMutation = useBulkEditSystemDetail()
 
   const updateMutation = {
@@ -91,14 +82,6 @@ const SystemDetailPage: React.FC = () => {
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
       return result.deleteBulkSystemDetail
-    },
-  }
-
-  const bulkCreateMutation = {
-    isPending: baseBulkCreateMutation.isPending,
-    mutateAsync: async (params: { input: File }) => {
-      const result = await baseBulkCreateMutation.mutateAsync({ input: params.input })
-      return result
     },
   }
 
@@ -167,9 +150,6 @@ const SystemDetailPage: React.FC = () => {
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
       return deleteMutation.mutateAsync({ ids })
-    },
-    onBulkCreate: async (file: File) => {
-      await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateSystemDetailInput & SystemDetailBulkEditAssociations) => {
       const { platformIDs, programIDs, ...rest } = input

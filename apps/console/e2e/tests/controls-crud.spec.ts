@@ -17,7 +17,7 @@ import {
   type ApiSession,
   getOwnerApi,
 } from '../utils/api'
-import { confirmDestructive, expectMutationOk } from '../utils/mutations'
+import { confirmDestructive, expectImportPage, expectMutationOk } from '../utils/mutations'
 
 let ownerApi: ApiSession
 const uniqueRefCode = () => uniqueRef('E2E-CTLCRUD')
@@ -488,7 +488,7 @@ test.describe('controls — report bulk assign to program (ISS-2523)', () => {
 })
 
 test.describe('controls — CSV dialogs lifted out of the menu (#2041)', () => {
-  test('Upload Custom Controls opens a dialog that outlives the dropdown', async ({ page }) => {
+  test('Upload Custom Controls opens an import page that outlives the dropdown', async ({ page }) => {
     test.slow()
     await page.goto('/controls', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('button', { name: /^Report on:/ })).toBeVisible({ timeout: 45_000 })
@@ -496,13 +496,11 @@ test.describe('controls — CSV dialogs lifted out of the menu (#2041)', () => {
     await page.getByRole('button', { name: 'Action' }).first().click()
     await page.getByText('Upload Custom Controls', { exact: true }).click()
 
-    const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible({ timeout: 15_000 })
-    await expect(dialog.getByText(/^Bulk Upload /)).toBeVisible({ timeout: 10_000 })
-    await expect(dialog.getByText('CSV Format')).toBeVisible()
+    const scope = await expectImportPage(page, 'control', /^Import controls$/)
+    await expect(scope.getByText('What gets imported')).toBeVisible()
 
     await expect(page.getByText('Upload Custom Controls', { exact: true })).toHaveCount(0)
-    await expect(dialog).toBeVisible()
+    await expect(scope.getByRole('heading', { level: 2, name: /^Import controls$/ })).toBeVisible()
   })
 })
 

@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
-import { type ContactsNodeNonNull, useContact, useUpdateContact, useCreateContact, useBulkDeleteContact, useCreateBulkCSVContact, useBulkEditContact } from '@/lib/graphql-hooks/contact'
+import { type ContactsNodeNonNull, useContact, useUpdateContact, useCreateContact, useBulkDeleteContact, useBulkEditContact } from '@/lib/graphql-hooks/contact'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -39,7 +39,6 @@ const ContactPage: React.FC = () => {
   const baseUpdateMutation = useUpdateContact()
   const baseCreateMutation = useCreateContact()
   const baseBulkDeleteMutation = useBulkDeleteContact()
-  const baseBulkCreateMutation = useCreateBulkCSVContact()
   const baseBulkEditMutation = useBulkEditContact()
 
   const updateMutation = {
@@ -60,14 +59,6 @@ const ContactPage: React.FC = () => {
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
       return result.deleteBulkContact
-    },
-  }
-
-  const bulkCreateMutation = {
-    isPending: baseBulkCreateMutation.isPending,
-    mutateAsync: async (params: { input: File }) => {
-      const result = await baseBulkCreateMutation.mutateAsync({ input: params.input })
-      return result
     },
   }
 
@@ -118,9 +109,6 @@ const ContactPage: React.FC = () => {
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
       return deleteMutation.mutateAsync({ ids })
-    },
-    onBulkCreate: async (file: File) => {
-      await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateContactInput) => {
       const result = await bulkEditMutation.mutateAsync({ ids, input })

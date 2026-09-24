@@ -95,7 +95,14 @@ export const SearchableSingleSelect = ({
                       setOpen(false)
                     }}
                   >
-                    <CustomTypeEnumOptionChip option={option} />
+                    {option.description ? (
+                      <span className="flex min-w-0 flex-col items-start gap-1">
+                        <CustomTypeEnumOptionChip option={option} />
+                        <span className="line-clamp-2 text-xs text-muted-foreground">{option.description}</span>
+                      </span>
+                    ) : (
+                      <CustomTypeEnumOptionChip option={option} />
+                    )}
                   </CommandItem>
                 ))}
               </CommandGroup>
