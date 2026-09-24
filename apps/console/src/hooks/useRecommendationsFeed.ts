@@ -13,6 +13,7 @@ const SUGGESTED_TASK_ORDER_BY = [{ field: TaskOrderField.priority, direction: Or
 export type RecommendationsFeedFilter = {
   source?: SuggestedTaskSourceValue
   excludeTerminal?: boolean
+  enabled?: boolean
 }
 
 export type RecommendationsFeed = {
@@ -22,13 +23,13 @@ export type RecommendationsFeed = {
   dismissSuggestion: (suggestionId: string) => void
 }
 
-export const useRecommendationsFeed = ({ source, excludeTerminal }: RecommendationsFeedFilter = {}): RecommendationsFeed => {
+export const useRecommendationsFeed = ({ source, excludeTerminal, enabled = true }: RecommendationsFeedFilter = {}): RecommendationsFeed => {
   const where = useMemo(
     () => ({ isSuggested: true, ...(source ? { source } : { sourceIn: SUGGESTED_TASK_SOURCES }), ...(excludeTerminal ? { statusNotIn: TASK_TERMINAL_STATUSES } : {}) }),
     [source, excludeTerminal],
   )
 
-  const { tasks, isLoading: isTasksLoading, error } = useTasksWithFilter({ where, orderBy: SUGGESTED_TASK_ORDER_BY })
+  const { tasks, isLoading: isTasksLoading, error } = useTasksWithFilter({ where, orderBy: SUGGESTED_TASK_ORDER_BY, enabled })
   const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({ where: TASK_KIND_ENUM_WHERE })
   const { mutate: updateTask } = useUpdateTask()
 
@@ -56,5 +57,5 @@ export const useRecommendationsFeed = ({ source, excludeTerminal }: Recommendati
     [updateTask],
   )
 
-  return { suggestions, isLoading: isTasksLoading, error: (error as Error) ?? null, dismissSuggestion }
+  return { suggestions, isLoading: enabled && isTasksLoading, error: (error as Error) ?? null, dismissSuggestion }
 }

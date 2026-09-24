@@ -1155,3 +1155,14 @@ export const GET_CONTROL_IDS = gql`
     }
   }
 `
+
+export const CREATE_BULK_CONTROL = gql`
+  mutation CreateBulkControl($input: [CreateControlInput!]) {
+    createBulkControl(input: $input) {
+      controls {
+        id
+        refCode
+      }
+    }
+  }
+`
