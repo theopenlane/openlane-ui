@@ -2401,6 +2401,14 @@ export interface GetControlIdsQuery {
   controls: { pageInfo: { hasNextPage: boolean; endCursor: any }; edges: Array<{ node: { id: string } | null } | null> | null }
 }
 
+export type CreateBulkControlMutationVariables = Exact<{
+  input?: Array<Types.CreateControlInput> | Types.CreateControlInput | null | undefined
+}>
+
+export interface CreateBulkControlMutation {
+  createBulkControl: { controls: Array<{ id: string; refCode: string }> | null }
+}
+
 export type CustomTypeEnumFieldsFragment = { id: string; name: string; color: string | null; objectType: string; description: string | null; field: string; systemOwned: boolean | null }
 
 export type GetCustomTypeEnumsQueryVariables = Exact<{
@@ -4498,6 +4506,14 @@ export interface GroupsExportQuery {
   }
 }
 
+export type CreateBulkGroupMutationVariables = Exact<{
+  input?: Array<Types.CreateGroupInput> | Types.CreateGroupInput | null | undefined
+}>
+
+export interface CreateBulkGroupMutation {
+  createBulkGroup: { groups: Array<{ id: string }> | null }
+}
+
 export type DirectoryMembershipConnectionFieldsFragment = {
   totalCount: number
   edges: Array<{
@@ -5364,6 +5380,14 @@ export type DeleteMappedControlMutationVariables = Exact<{
 
 export interface DeleteMappedControlMutation {
   deleteMappedControl: { deletedID: string }
+}
+
+export type CreateBulkMappedControlMutationVariables = Exact<{
+  input?: Array<Types.CreateMappedControlInput> | Types.CreateMappedControlInput | null | undefined
+}>
+
+export interface CreateBulkMappedControlMutation {
+  createBulkMappedControl: { mappedControls: Array<{ id: string }> | null }
 }
 
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
@@ -6348,6 +6372,14 @@ export type DeletePlatformMutationVariables = Exact<{
 
 export interface DeletePlatformMutation {
   deletePlatform: { deletedID: string }
+}
+
+export type CreateBulkPlatformMutationVariables = Exact<{
+  input?: Array<Types.CreatePlatformInput> | Types.CreatePlatformInput | null | undefined
+}>
+
+export interface CreateBulkPlatformMutation {
+  createBulkPlatform: { platforms: Array<{ id: string }> | null }
 }
 
 export type CreateProcedureMutationVariables = Exact<{
@@ -7673,6 +7705,14 @@ export interface GetProgramReviewStatsQuery {
   inProgress: { totalCount: number }
 }
 
+export type CreateBulkReviewMutationVariables = Exact<{
+  input?: Array<Types.CreateReviewInput> | Types.CreateReviewInput | null | undefined
+}>
+
+export interface CreateBulkReviewMutation {
+  createBulkReview: { reviews: Array<{ id: string }> | null }
+}
+
 export type RiskFieldsFragment = {
   id: string
   displayID: string
@@ -8221,6 +8261,37 @@ export interface GetScanAssociationsQuery {
     tasks: { totalCount: number; edges: Array<{ node: { id: string; title: string; displayID: string } | null } | null> | null }
     vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
+}
+
+export type CreateReportScanMutationVariables = Exact<{
+  input: Types.CreateScanInput
+  scanFiles?: Array<any> | any | null | undefined
+}>
+
+export interface CreateReportScanMutation {
+  createScan: { scan: { id: string; target: string } }
+}
+
+export type ReportScanExistingRecordsQueryVariables = Exact<{
+  platformNames?: Array<string> | string | null | undefined
+  vendorNames?: Array<string> | string | null | undefined
+  assetNames?: Array<string> | string | null | undefined
+  groupNames?: Array<string> | string | null | undefined
+  controlRefCodes?: Array<string> | string | null | undefined
+  withPlatforms: boolean
+  withVendors: boolean
+  withAssets: boolean
+  withGroups: boolean
+  withControls: boolean
+  first?: number | null | undefined
+}>
+
+export interface ReportScanExistingRecordsQuery {
+  platforms?: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+  entities?: { edges: Array<{ node: { id: string; name: string | null } | null } | null> | null }
+  assets?: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+  groups?: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+  controls?: { edges: Array<{ node: { id: string; refCode: string } | null } | null> | null }
 }
 
 export type SearchQueryVariables = Exact<{
@@ -9132,6 +9203,14 @@ export type UpdateBulkSystemDetailMutationVariables = Exact<{
 
 export interface UpdateBulkSystemDetailMutation {
   updateBulkSystemDetail: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
+}
+
+export type CreateBulkSystemDetailMutationVariables = Exact<{
+  input?: Array<Types.CreateSystemDetailInput> | Types.CreateSystemDetailInput | null | undefined
+}>
+
+export interface CreateBulkSystemDetailMutation {
+  createBulkSystemDetail: { systemDetails: Array<{ id: string }> | null }
 }
 
 export type GetTagsQueryVariables = Exact<{ [key: string]: never }>
