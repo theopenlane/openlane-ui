@@ -11127,6 +11127,8 @@ export interface CreateTrustCenterNdaRequestInput {
   reason?: InputMaybe<Scalars['String']['input']>
   /** timestamp when the NDA was signed */
   signedAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** status of the NDA request */
+  status?: InputMaybe<TrustCenterNdaRequestTrustCenterNdaRequestStatus>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   trustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -11204,6 +11206,8 @@ export interface CreateTrustCenterSettingInput {
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
   notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   /** overview of the trust center */
@@ -28391,6 +28395,8 @@ export interface MutationCreateSlaDefinitionArgs {
 
 export interface MutationCreateScanArgs {
   input: CreateScanInput
+  scanFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  scanFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
 }
 
 export interface MutationCreateStandardArgs {
@@ -29955,6 +29961,8 @@ export interface MutationUpdateSlaDefinitionArgs {
 export interface MutationUpdateScanArgs {
   id: Scalars['ID']['input']
   input: UpdateScanInput
+  scanFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  scanFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
 }
 
 export interface MutationUpdateStandardArgs {
@@ -30913,6 +30921,7 @@ export enum NotificationNotificationTopic {
   INTEGRATION = 'INTEGRATION',
   MENTION = 'MENTION',
   ORGANIZATION_READY = 'ORGANIZATION_READY',
+  REPORT_SCAN = 'REPORT_SCAN',
   STANDARD_UPDATE = 'STANDARD_UPDATE',
   TASK_ASSIGNMENT = 'TASK_ASSIGNMENT',
 }
@@ -43502,6 +43511,8 @@ export interface Scan extends Node {
   metadata?: Maybe<Scalars['Map']['output']>
   /** when the scan is scheduled to run next */
   nextScanRunAt?: Maybe<Scalars['DateTime']['output']>
+  /** how the scan was created, derived from the caller on create and never supplied as input */
+  origin: ScanScanOrigin
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -43757,12 +43768,21 @@ export interface ScanOrder {
 
 /** Properties by which Scan connections can be ordered. */
 export enum ScanOrderField {
+  ORIGIN = 'ORIGIN',
   SCAN_TYPE = 'SCAN_TYPE',
   STATUS = 'STATUS',
   created_at = 'created_at',
   next_scan_run_at = 'next_scan_run_at',
   scan_date = 'scan_date',
   updated_at = 'updated_at',
+}
+
+/** ScanScanOrigin is enum for the field origin */
+export enum ScanScanOrigin {
+  API = 'API',
+  INTEGRATION = 'INTEGRATION',
+  SYSTEM = 'SYSTEM',
+  USER = 'USER',
 }
 
 /** ScanScanStatus is enum for the field status */
@@ -43777,6 +43797,7 @@ export enum ScanScanStatus {
 export enum ScanScanType {
   DOMAIN = 'DOMAIN',
   PROVIDER = 'PROVIDER',
+  REPORT = 'REPORT',
   VENDOR = 'VENDOR',
   VULNERABILITY = 'VULNERABILITY',
 }
@@ -44007,6 +44028,11 @@ export interface ScanWhereInput {
   nextScanRunAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<ScanWhereInput>
   or?: InputMaybe<Array<ScanWhereInput>>
+  /** origin field predicates */
+  origin?: InputMaybe<ScanScanOrigin>
+  originIn?: InputMaybe<Array<ScanScanOrigin>>
+  originNEQ?: InputMaybe<ScanScanOrigin>
+  originNotIn?: InputMaybe<Array<ScanScanOrigin>>
   /** owner_id field predicates */
   ownerID?: InputMaybe<Scalars['ID']['input']>
   ownerIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -50048,6 +50074,8 @@ export interface TrustCenterSetting extends Node {
   ndaApproverGroup?: Maybe<Group>
   /** group whose members approve trust center NDA requests */
   ndaApproverGroupID?: Maybe<Scalars['ID']['output']>
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: Maybe<Scalars['Boolean']['output']>
   /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
   notifySubscribersOnSubprocessorChange?: Maybe<Scalars['Boolean']['output']>
   /** overview of the trust center */
@@ -50394,6 +50422,11 @@ export interface TrustCenterSettingWhereInput {
   ndaApproverGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ndaApproverGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ndaApproverGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** noindex_default_domain field predicates */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TrustCenterSettingWhereInput>
   /** notify_subscribers_on_subprocessor_change field predicates */
   notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
@@ -57314,6 +57347,7 @@ export interface UpdateTrustCenterSettingInput {
   clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearNdaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   clearNdaApproverGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearNoindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearNotifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   clearOverview?: InputMaybe<Scalars['Boolean']['input']>
   clearPrimaryColor?: InputMaybe<Scalars['Boolean']['input']>
@@ -57344,6 +57378,8 @@ export interface UpdateTrustCenterSettingInput {
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
   notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   /** overview of the trust center */

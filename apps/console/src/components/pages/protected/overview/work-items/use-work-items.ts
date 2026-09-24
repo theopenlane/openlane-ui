@@ -5,18 +5,18 @@ import type React from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { isToday } from 'date-fns'
-import { EvidenceEvidenceStatus, NotificationNotificationTopic, OrderDirection, TaskOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { EvidenceEvidenceStatus, NotificationNotificationTopic, OrderDirection, TaskOrderField } from '@repo/codegen/src/schema'
 import type { Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
-import { useTasksWithFilter, useUpdateTask } from '@/lib/graphql-hooks/task'
+import { useTasksWithFilter } from '@/lib/graphql-hooks/task'
 import { useGetEvidenceListLightInfinite } from '@/lib/graphql-hooks/evidence'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { controlOwnedByUserWhere } from '@/lib/control-where'
-import { useNotification } from '@/hooks/useNotification'
+import { useCompleteTask } from '@/hooks/useCompleteTask'
+import { withSuggestedTaskParam } from '@/constants/scan-routes'
 import { useOrgPersistedState } from '@/lib/storage/org-persisted-store'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { useRecommendationsFeed } from '@/hooks/useRecommendationsFeed'
 import { redirectToNotification } from '@/components/shared/SystemNotification/notification-redirect'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { isPastDate } from '@/utils/date'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { firstLineOf } from '@/lib/suggested-tasks/utils'
@@ -39,8 +39,7 @@ export const useWorkItems = () => {
   const { data: sessionData } = useSession()
   const userId = sessionData?.user?.userId
   const currentOrgId = sessionData?.user?.activeOrganizationId
-  const { successNotification, errorNotification } = useNotification()
-  const { mutateAsync: updateTask } = useUpdateTask()
+  const { completeTask } = useCompleteTask()
   const { notifications, markAsRead } = useNotificationsContext()
 
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
@@ -93,24 +92,12 @@ export const useWorkItems = () => {
   const openSuggestion = useCallback(
     (suggestion: SuggestedTask) => {
       if (suggestion.metadata.link) {
-        router.push(suggestion.metadata.link)
+        router.push(withSuggestedTaskParam(suggestion.metadata.link, suggestion.id))
         return
       }
       setSelectedSuggestionId(suggestion.id)
     },
     [router],
-  )
-
-  const completeTask = useCallback(
-    async (taskId: string) => {
-      try {
-        await updateTask({ updateTaskId: taskId, input: { status: TaskTaskStatus.COMPLETED } })
-        successNotification({ title: 'Task Updated', description: 'The task has been successfully marked as complete.' })
-      } catch (error) {
-        errorNotification({ title: 'Error', description: parseErrorMessage(error) })
-      }
-    },
-    [updateTask, successNotification, errorNotification],
   )
 
   const recommendationWorkItems: WorkItem[] = useMemo(() => {

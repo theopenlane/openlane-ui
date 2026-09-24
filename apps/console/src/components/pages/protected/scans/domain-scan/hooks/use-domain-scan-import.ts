@@ -8,7 +8,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useImportDomainScanReview, useUpdateScan } from '@/lib/graphql-hooks/scan'
 import { buildImportDomainScanReviewInput } from '../build-import-payload'
 import { resolveScanIds } from '../notification-mappers'
-import { clearDomainScanProgress } from '../progress-storage'
+import { clearScanProgress } from '../../shared/scan-progress-storage'
 import type { DomainScanReport } from './use-domain-scan-report'
 import type { DomainScanSelection } from './use-domain-scan-selection'
 
@@ -100,7 +100,7 @@ export const useDomainScanImport = ({ report, selection, storageKey }: UseDomain
     })
 
     if (storageKey) {
-      clearDomainScanProgress(storageKey)
+      clearScanProgress(storageKey)
     }
 
     router.push('/notifications')

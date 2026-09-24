@@ -1385,6 +1385,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'logoRemoteURL', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'ndaApprovalRequired', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'ndaApproverGroupID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'noindexDefaultDomain', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'notifySubscribersOnSubprocessorChange', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'overview', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'primaryColor', kind: 'string', list: false, nonNull: false, listItemNonNull: false },

@@ -152,6 +152,10 @@
     "name": "Domain Scan"
   },
   {
+    "route": "/exposure/scans/report-scan",
+    "name": "Report Scan"
+  },
+  {
     "route": "/exposure/triage",
     "name": "Triage"
   },
