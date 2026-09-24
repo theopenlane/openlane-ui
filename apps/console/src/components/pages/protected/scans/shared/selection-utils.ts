@@ -24,6 +24,13 @@ export const setAllSelected = (setState: React.Dispatch<React.SetStateAction<Set
   })
 }
 
+export const selectionCheckedState = (ids: string[], selected: Set<string>) => {
+  const selectedCount = ids.filter((id) => selected.has(id)).length
+  const allSelected = selectedCount === ids.length
+  const checkedState: boolean | 'indeterminate' = allSelected ? true : selectedCount > 0 ? 'indeterminate' : false
+  return { selectedCount, allSelected, checkedState }
+}
+
 export const toggleLinkValue = (setLinks: React.Dispatch<React.SetStateAction<LinkMap>>, targetId: string, itemId: string, defaultIds: string[] = []) => {
   setLinks((prev) => {
     const current = prev[targetId] ? new Set(prev[targetId]) : new Set(defaultIds)

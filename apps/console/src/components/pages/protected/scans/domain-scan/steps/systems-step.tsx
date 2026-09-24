@@ -3,10 +3,10 @@
 import React from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { SectionCard } from '../components/section-card'
-import { EmptyState } from '../components/empty-state'
+import { SectionCard } from '../../shared/section-card'
+import { EmptyState } from '../../shared/empty-state'
 import { SystemCandidateCard } from '../components/system-candidate-card'
-import { canonicalizeLookupValue } from '../notification-mappers'
+import { canonicalizeLookupValue } from '../../shared/name-utils'
 import type { OverrideMap, PlatformMode, SystemCandidate } from '../types'
 
 type SystemsStepProps = {
