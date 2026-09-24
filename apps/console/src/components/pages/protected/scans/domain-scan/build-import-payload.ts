@@ -7,7 +7,7 @@ import type {
   ImportDomainScanReviewVendorInput,
 } from '@repo/codegen/src/schema'
 import { refValue, withOverride } from './notification-mappers'
-import { resolveLinkedRefs, type LinkMap } from './selection-utils'
+import { resolveLinkedRefs, type LinkMap } from '../shared/selection-utils'
 import type { DomainItem, Finding, OverrideMap, PlatformCandidate, PlatformMode, SystemCandidate, Vendor } from './types'
 
 export type BuildImportPayloadArgs = {

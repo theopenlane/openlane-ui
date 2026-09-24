@@ -30123,6 +30123,8 @@ export interface MutationCreateSlaDefinitionArgs {
 
 export interface MutationCreateScanArgs {
   input: CreateScanInput
+  scanFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  scanFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
 }
 
 export interface MutationCreateStandardArgs {
@@ -31716,6 +31718,8 @@ export interface MutationUpdateSlaDefinitionArgs {
 export interface MutationUpdateScanArgs {
   id: Scalars['ID']['input']
   input: UpdateScanInput
+  scanFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  scanFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
 }
 
 export interface MutationUpdateStandardArgs {
@@ -32787,6 +32791,7 @@ export enum NotificationNotificationTopic {
   INTEGRATION = 'INTEGRATION',
   MENTION = 'MENTION',
   ORGANIZATION_READY = 'ORGANIZATION_READY',
+  REPORT_SCAN = 'REPORT_SCAN',
   STANDARD_UPDATE = 'STANDARD_UPDATE',
   TASK_ASSIGNMENT = 'TASK_ASSIGNMENT',
 }
@@ -44953,6 +44958,8 @@ export interface Scan extends Node {
   metadata?: Maybe<Scalars['Map']['output']>
   /** when the scan is scheduled to run next */
   nextScanRunAt?: Maybe<Scalars['DateTime']['output']>
+  /** how the scan was created, derived from the caller on create and never supplied as input */
+  origin: ScanScanOrigin
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -45223,6 +45230,7 @@ export interface ScanOrder {
 
 /** Properties by which Scan connections can be ordered. */
 export enum ScanOrderField {
+  ORIGIN = 'ORIGIN',
   SCAN_TYPE = 'SCAN_TYPE',
   STATUS = 'STATUS',
   created_at = 'created_at',
@@ -45230,6 +45238,14 @@ export enum ScanOrderField {
   next_scan_run_at = 'next_scan_run_at',
   scan_date = 'scan_date',
   updated_at = 'updated_at',
+}
+
+/** ScanScanOrigin is enum for the field origin */
+export enum ScanScanOrigin {
+  API = 'API',
+  INTEGRATION = 'INTEGRATION',
+  SYSTEM = 'SYSTEM',
+  USER = 'USER',
 }
 
 /** ScanScanStatus is enum for the field status */
@@ -45244,6 +45260,7 @@ export enum ScanScanStatus {
 export enum ScanScanType {
   DOMAIN = 'DOMAIN',
   PROVIDER = 'PROVIDER',
+  REPORT = 'REPORT',
   VENDOR = 'VENDOR',
   VULNERABILITY = 'VULNERABILITY',
 }
@@ -45513,6 +45530,11 @@ export interface ScanWhereInput {
   nextScanRunAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<ScanWhereInput>
   or?: InputMaybe<Array<ScanWhereInput>>
+  /** origin field predicates */
+  origin?: InputMaybe<ScanScanOrigin>
+  originIn?: InputMaybe<Array<ScanScanOrigin>>
+  originNEQ?: InputMaybe<ScanScanOrigin>
+  originNotIn?: InputMaybe<Array<ScanScanOrigin>>
   /** owner_id field predicates */
   ownerID?: InputMaybe<Scalars['ID']['input']>
   ownerIDContains?: InputMaybe<Scalars['ID']['input']>
