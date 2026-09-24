@@ -29,7 +29,9 @@ type ReviewsStepProps = {
 
 const matchesSearch = (review: ReportReview, term: string) => [review.title, review.summary, review.details, ...review.refCodes].some((value) => value?.toLowerCase().includes(term))
 
-const groupReviews = (reviews: ReportReview[], controlTitles: Map<string, string>): ReviewGroup[] => {
+type ControlLookup = Map<string, { title: string; position: number }>
+
+const groupReviews = (reviews: ReportReview[], controlsByRef: ControlLookup): ReviewGroup[] => {
   const groups = new Map<string, ReportReview[]>()
   reviews.forEach((review) => {
     const key = review.refCodes[0] ?? UNLINKED_GROUP_KEY
@@ -41,11 +43,15 @@ const groupReviews = (reviews: ReportReview[], controlTitles: Map<string, string
     }
   })
 
-  return [...groups.entries()].map(([refCode, groupReviews]) => ({
-    refCode,
-    title: refCode === UNLINKED_GROUP_KEY ? 'Not linked to a control' : (controlTitles.get(refCode) ?? refCode),
-    reviews: groupReviews,
-  }))
+  const positionOf = (refCode: string) => controlsByRef.get(refCode)?.position ?? Number.MAX_SAFE_INTEGER
+
+  return [...groups.entries()]
+    .sort(([a], [b]) => positionOf(a) - positionOf(b))
+    .map(([refCode, groupReviews]) => ({
+      refCode,
+      title: refCode === UNLINKED_GROUP_KEY ? 'Not linked to a control' : (controlsByRef.get(refCode)?.title ?? refCode),
+      reviews: groupReviews,
+    }))
 }
 
 type ReviewGroupRowProps = { group: ReviewGroup; selected: Set<string>; setSelected: ReviewsStepProps['setSelected']; defaultOpen: boolean; forceOpen: boolean }
@@ -88,9 +94,9 @@ const ReviewGroupRow = ({ group, selected, setSelected, defaultOpen, forceOpen }
 
 export const ReviewsStep = ({ reviews, controls, selected, setSelected }: ReviewsStepProps) => {
   const [search, setSearch] = useState('')
-  const controlTitles = useMemo(() => new Map(controls.map((control) => [control.refCode, control.title ?? control.refCode])), [controls])
+  const controlsByRef: ControlLookup = useMemo(() => new Map(controls.map((control, position) => [control.refCode, { title: control.title ?? control.refCode, position }])), [controls])
   const term = search.trim().toLowerCase()
-  const groups = useMemo(() => groupReviews(term ? reviews.filter((review) => matchesSearch(review, term)) : reviews, controlTitles), [reviews, term, controlTitles])
+  const groups = useMemo(() => groupReviews(term ? reviews.filter((review) => matchesSearch(review, term)) : reviews, controlsByRef), [reviews, term, controlsByRef])
   const { visible: visibleGroups, hiddenCount: hiddenGroupCount, expand } = useShowAll(groups, term ? groups.length : INITIAL_VISIBLE_GROUPS)
 
   return (
