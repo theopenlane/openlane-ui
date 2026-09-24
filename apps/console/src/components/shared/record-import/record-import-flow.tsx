@@ -9,7 +9,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { pluralize, pluralizeTypeName, pluralizeWithCount, toHumanLabel } from '@/utils/strings'
+import { pluralize, pluralizeWithCount } from '@/utils/strings'
 import { ImportStepNav } from './import-step-nav'
 import { FieldReferencePanel } from './field-reference-panel'
 import { UploadStep } from './steps/upload-step'
@@ -18,7 +18,7 @@ import { ReviewStep } from './steps/review-step'
 import { useRecordImport } from './lib/use-record-import'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
-import { RETURN_TO_PARAM, type TImportRoute } from './lib/import-routes'
+import { importDisplayNamePlural, RETURN_TO_PARAM, type TImportRoute } from './lib/import-routes'
 type TRecordImportFlowProps = {
   entityType: ObjectTypes
   route: TImportRoute
@@ -34,7 +34,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
   const [isFieldReferenceOpen, setIsFieldReferenceOpen] = useState(false)
 
   const entityLabel = route.displayName
-  const entityLabelPlural = route.displayNamePlural ?? toHumanLabel(pluralizeTypeName(entityLabel))
+  const entityLabelPlural = importDisplayNamePlural(route)
   const entityLabels = useMemo(() => [entityLabel, entityLabelPlural], [entityLabel, entityLabelPlural])
   const returnHref = sanitizeLoginRedirect(searchParams.get(RETURN_TO_PARAM), route.listHref)
   const backLabel = returnHref.split('?')[0] === route.listHref.split('?')[0] ? `Back to ${route.listLabel}` : 'Back'
@@ -54,7 +54,9 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
     requiredGroups,
     mapping,
     setColumnField,
+    setColumnValue,
     validation,
+    cellChecks,
     plan,
     toImportFile,
     exampleCsv,
@@ -113,7 +115,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-h-full flex-col gap-4">
       <div className="flex flex-col items-start gap-4">
         <Button variant="secondary" icon={<ArrowLeft size={16} />} iconPosition="left" onClick={() => router.push(returnHref)} disabled={isImporting}>
           {backLabel}
@@ -153,15 +155,17 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
               hasRequirements={requiredGroups.length > 0}
               mapping={mapping}
               validation={validation}
+              cellChecks={cellChecks}
               rowCount={rowCount}
               onColumnFieldChange={setColumnField}
+              onColumnValueChange={setColumnValue}
             />
           )}
           {step === 'review' && parsed && <ReviewStep entityLabelPlural={entityLabelPlural} parsed={parsed} columns={columns} mapping={mapping} plan={plan} onEditMapping={() => goToStep('map')} />}
         </>
       )}
 
-      <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-end gap-3 border-t bg-secondary py-4 pr-10 after:absolute after:inset-x-0 after:top-full after:h-8 after:bg-secondary">
+      <div className="sticky bottom-0 z-10 mt-auto flex flex-wrap items-center justify-end gap-3 border-t bg-secondary py-4 pr-10 after:absolute after:inset-x-0 after:top-full after:h-8 after:bg-secondary">
         <div className="mr-auto">
           {!isFirstStep && (
             <Button variant="outline" icon={<ArrowLeft size={16} />} iconPosition="left" onClick={goBack} disabled={isImporting}>

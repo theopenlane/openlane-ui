@@ -13,7 +13,7 @@ const openEvidenceImport = async (page: Page) => {
   await page.getByRole('button', { name: 'Action', exact: true }).click()
   await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
 
-  return expectImportPage(page, '/evidence/import', /^Import evidence$/)
+  return expectImportPage(page, 'evidence', /^Import evidence$/)
 }
 
 const openFirstStandard = async (page: Page) => {

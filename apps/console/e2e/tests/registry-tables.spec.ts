@@ -56,7 +56,7 @@ test.describe('registry — vendors table', () => {
     await openActionMenu(page)
     await page.getByText('Bulk Upload', { exact: true }).click()
 
-    const scope = await expectImportPage(page, '/registry/vendors/import', /^Import vendors$/)
+    const scope = await expectImportPage(page, 'entity', /^Import vendors$/)
     await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
   })
 

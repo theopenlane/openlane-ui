@@ -193,7 +193,7 @@ test.describe('policies — table toolbar', () => {
     await page.getByRole('button', { name: 'Action' }).click()
     await page.getByText('Bulk upload', { exact: true }).click()
 
-    const scope = await expectImportPage(page, '/policies/import', /^Import policies$/)
+    const scope = await expectImportPage(page, 'internalpolicy', /^Import policies$/)
     await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
 
     await scope.locator('input[type="file"]').first().setInputFiles(inlineCsv('policies.csv', 'name,details\nE2E-POLICY-1,seeded by e2e\n'))
@@ -221,7 +221,7 @@ test.describe('policies — bulk upload submits', () => {
     await page.getByRole('button', { name: 'Action' }).click()
     await page.getByText('Bulk upload', { exact: true }).click()
 
-    const scope = await expectImportPage(page, '/policies/import', /^Import policies$/)
+    const scope = await expectImportPage(page, 'internalpolicy', /^Import policies$/)
 
     await uploadCsvAndAssert({
       page,

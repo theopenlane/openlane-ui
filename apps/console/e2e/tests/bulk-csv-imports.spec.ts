@@ -52,7 +52,9 @@ const CASES: BulkCsvCase[] = [
   },
 ]
 
-const openBulkUploadPage = async (page: Page, route: string, importPath = `${route}/import`) => {
+const importTypeOf = (operationName: string): string => operationName.replace(/^CreateBulkCsv/i, '').toLowerCase()
+
+const openBulkUploadPage = async (page: Page, route: string, importType: string) => {
   await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
   const action = page.getByRole('button', { name: 'Action', exact: true })
@@ -61,7 +63,7 @@ const openBulkUploadPage = async (page: Page, route: string, importPath = `${rou
 
   await page.getByRole('button', { name: 'Bulk Upload' }).click()
 
-  return expectImportPage(page, importPath)
+  return expectImportPage(page, importType)
 }
 
 test.describe('bulk CSV imports — every generic table import page actually uploads', () => {
@@ -70,7 +72,7 @@ test.describe('bulk CSV imports — every generic table import page actually upl
       test.slow()
       const name = uniqueName(`E2E Bulk ${entity.slug}`)
 
-      const scope = await openBulkUploadPage(page, entity.route)
+      const scope = await openBulkUploadPage(page, entity.route, importTypeOf(entity.operationName))
 
       await uploadCsvAndAssert({
         page,
@@ -97,7 +99,7 @@ test.describe('bulk CSV imports — groups', () => {
     test.slow()
     const name = uniqueName('E2E Bulk group')
 
-    const scope = await openBulkUploadPage(page, '/user-management/groups')
+    const scope = await openBulkUploadPage(page, '/user-management/groups', 'group')
 
     await uploadCsvAndAssert({
       page,
@@ -122,7 +124,7 @@ test.describe('bulk CSV imports — bespoke import pages', () => {
     test.slow()
     const title = uniqueName('E2E Bulk task')
 
-    const scope = await openBulkUploadPage(page, '/automation/tasks')
+    const scope = await openBulkUploadPage(page, '/automation/tasks', 'task')
 
     await uploadCsvAndAssert({
       page,
@@ -145,7 +147,7 @@ test.describe('bulk CSV imports — bespoke import pages', () => {
     test.slow()
     const name = uniqueName('E2E Bulk risk')
 
-    const scope = await openBulkUploadPage(page, '/exposure/risks')
+    const scope = await openBulkUploadPage(page, '/exposure/risks', 'risk')
 
     await uploadCsvAndAssert({
       page,
@@ -170,7 +172,7 @@ test.describe('bulk CSV imports — bespoke import pages', () => {
     const riskId = await createRisk(ownerApi, uniqueName('E2E Bulk ap risk'))
     const name = uniqueName('E2E Bulk actionplan')
 
-    const scope = await openBulkUploadPage(page, `/exposure/risks/${riskId}?tab=mitigation`, '/exposure/risks/action-plans/import')
+    const scope = await openBulkUploadPage(page, `/exposure/risks/${riskId}?tab=mitigation`, 'actionplan')
 
     await uploadCsvAndAssert({
       page,

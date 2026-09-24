@@ -7,9 +7,10 @@ import { buildDestinationFields, type TImportFieldMetadata } from './destination
 import { isEmptyColumn, matchColumns } from './match-columns'
 import { toSourceColumns } from './delimited-file'
 import { validateMapping } from './validate-mapping'
+import { checkColumnCells, suggestedValueMap, type TColumnCellCheck } from './validate-cells'
 import { buildImportFile, buildImportPlan } from './build-import-file'
 import { useExampleCSV } from './use-example-csv'
-import type { TColumnMapping, TDestinationFieldSet, TParsedDelimitedFile } from './types'
+import type { TColumnMapping, TDestinationFieldSet, TParsedDelimitedFile, TValueMap } from './types'
 
 export const IMPORT_STEPS = ['upload', 'map', 'review'] as const
 export type TImportStep = (typeof IMPORT_STEPS)[number]
@@ -34,6 +35,7 @@ export const useRecordImport = ({ entityType, entityLabels }: { entityType: Obje
   const [stepIndex, setStepIndex] = useState(0)
   const [parsed, setParsed] = useState<TParsedDelimitedFile | null>(null)
   const [overrides, setOverrides] = useState<Record<number, string | null>>({})
+  const [valueMaps, setValueMaps] = useState<Record<number, TValueMap>>({})
 
   const { data: exampleCsv, filename: exampleFilename, isLoadingExample, isError: isExampleError } = useExampleCSV(entityType)
   const { data: metadata, isPending: isMetadataPending } = useImportFieldMetadata(entityType)
@@ -43,30 +45,55 @@ export const useRecordImport = ({ entityType, entityLabels }: { entityType: Obje
   const columns = useMemo(() => (parsed ? toSourceColumns(parsed) : []), [parsed])
   const suggestions = useMemo(() => matchColumns({ entityType, entityLabels, columns, fieldSet }), [entityType, entityLabels, columns, fieldSet])
 
-  const mapping = useMemo(() => {
-    const merged: Record<number, TColumnMapping> = {}
+  const assignments = useMemo(() => {
+    const assigned: Record<number, TColumnMapping> = {}
     columns.forEach(({ index }) => {
-      merged[index] = index in overrides ? { field: overrides[index], confidence: 'manual' } : (suggestions[index] ?? { field: null, confidence: 'none' })
+      assigned[index] = index in overrides ? { field: overrides[index], confidence: 'manual' } : (suggestions[index] ?? { field: null, confidence: 'none' })
     })
-
-    return merged
+    return assigned
   }, [columns, suggestions, overrides])
+
+  const cellChecks = useMemo(() => {
+    const fieldByName = new Map(fieldSet.fields.map((field) => [field.name, field]))
+    const rows = parsed?.rows ?? []
+    const checks = new Map<number, TColumnCellCheck>()
+    Object.entries(assignments).forEach(([index, { field }]) => {
+      const check = field ? checkColumnCells(rows, Number(index), fieldByName.get(field)) : null
+      if (check) checks.set(Number(index), check)
+    })
+    return checks
+  }, [assignments, fieldSet, parsed])
+
+  const mapping = useMemo(() => {
+    const merged: Record<number, TColumnMapping> = { ...assignments }
+    cellChecks.forEach((check, index) => {
+      if (check.mappableValues) merged[index] = { ...assignments[index], valueMap: { ...suggestedValueMap(check), ...valueMaps[index] } }
+    })
+    return merged
+  }, [assignments, cellChecks, valueMaps])
 
   const applyFile = useCallback((next: TParsedDelimitedFile | null) => {
     setParsed(next)
     setOverrides({})
+    setValueMaps({})
   }, [])
 
   const setColumnField = useCallback(
     (index: number, field: string | null) => {
       const column = columns[index]
       if (!column || isEmptyColumn(column)) return
+      if (assignments[index]?.field === field) return
       setOverrides((current) => ({ ...current, [index]: field }))
+      setValueMaps(({ [index]: _cleared, ...rest }) => rest)
     },
-    [columns],
+    [columns, assignments],
   )
 
-  const validation = useMemo(() => validateMapping({ columns, fieldSet, mapping, rows: parsed?.rows ?? [] }), [columns, fieldSet, mapping, parsed])
+  const setColumnValue = useCallback((index: number, value: string, target: string | null) => {
+    setValueMaps((current) => ({ ...current, [index]: { ...current[index], [value]: target } }))
+  }, [])
+
+  const validation = useMemo(() => validateMapping({ columns, fieldSet, mapping, rows: parsed?.rows ?? [], cellChecks }), [columns, fieldSet, mapping, parsed, cellChecks])
   const plan = useMemo(() => buildImportPlan({ columns, fields: fieldSet.fields, mapping }), [columns, fieldSet, mapping])
 
   const toImportFile = useCallback(() => (parsed ? buildImportFile(parsed, plan) : null), [parsed, plan])
@@ -89,7 +116,9 @@ export const useRecordImport = ({ entityType, entityLabels }: { entityType: Obje
     requiredGroups: fieldSet.requiredGroups,
     mapping,
     setColumnField,
+    setColumnValue,
     validation,
+    cellChecks,
     plan,
     toImportFile,
     exampleCsv,

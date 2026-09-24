@@ -77,8 +77,7 @@ const SHARED_ALIASES: Record<string, readonly string[]> = {
 }
 
 const CONTROL_ALIASES: Record<string, readonly string[]> = {
-  refcode: ['controlid', 'controlref', 'controlreference', 'controlcode', 'referencecode', 'reference', 'identifier', 'code'],
-  controlkindname: ['type', 'controltype', 'kind'],
+  refcode: ['controlid', 'controlids', 'controlnumber', 'controlref', 'controlreference', 'controlcode', 'referencecode', 'reference', 'identifier', 'code'],
   referenceframework: ['framework', 'standard'],
   implementationstatus: ['implementation'],
   mappedcategories: ['mappings'],

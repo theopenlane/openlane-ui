@@ -496,7 +496,7 @@ test.describe('controls — CSV dialogs lifted out of the menu (#2041)', () => {
     await page.getByRole('button', { name: 'Action' }).first().click()
     await page.getByText('Upload Custom Controls', { exact: true }).click()
 
-    const scope = await expectImportPage(page, '/controls/import', /^Import controls$/)
+    const scope = await expectImportPage(page, 'control', /^Import controls$/)
     await expect(scope.getByText('What gets imported')).toBeVisible()
 
     await expect(page.getByText('Upload Custom Controls', { exact: true })).toHaveCount(0)

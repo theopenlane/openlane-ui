@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import { Info, SearchIcon } from 'lucide-react'
+import { Info, ListChecks, SearchIcon } from 'lucide-react'
 import { Badge, type BadgeProps } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
@@ -13,6 +13,8 @@ import { pluralizeWithCount } from '@/utils/strings'
 import { isEmptyColumn } from '../lib/match-columns'
 import type { TColumnMapping, TDestinationField, TMatchConfidence, TSourceColumn } from '../lib/types'
 import type { TMappingValidation } from '../lib/validate-mapping'
+import type { TColumnCellCheck } from '../lib/validate-cells'
+import { ValueMappingPanel } from './value-mapping-panel'
 
 const MATCH_LABELS: Record<Exclude<TMatchConfidence, 'none'>, string> = {
   exact: 'Exact',
@@ -31,11 +33,13 @@ type TColumnFilter = (typeof COLUMN_FILTERS)[number]
 
 type TMatchBadge = { label: string; variant: BadgeProps['variant'] }
 
-const matchBadge = (column: TSourceColumn, columnMapping: TColumnMapping | undefined, isDuplicate: boolean): TMatchBadge => {
+const matchBadge = (column: TSourceColumn, columnMapping: TColumnMapping | undefined, isDuplicate: boolean, unresolvedValueCount: number): TMatchBadge => {
   if (isEmptyColumn(column)) return { label: 'Empty', variant: 'outline' }
   if (isDuplicate) return { label: 'Duplicate', variant: 'destructive' }
   if (!columnMapping?.field) return { label: columnMapping?.confidence === 'manual' ? 'Ignored' : 'No match', variant: 'outline' }
   if (columnMapping.confidence === 'none') return { label: 'No match', variant: 'outline' }
+  const remapped = Object.keys(columnMapping.valueMap ?? {}).length
+  if (remapped > 0 && unresolvedValueCount === 0) return { label: `Values mapped (${remapped})`, variant: 'green' }
   return { label: MATCH_LABELS[columnMapping.confidence], variant: columnMapping.confidence === 'suggested' ? 'blue' : 'green' }
 }
 
@@ -53,12 +57,27 @@ type TMappingStepProps = {
   hasRequirements: boolean
   mapping: Record<number, TColumnMapping>
   validation: TMappingValidation
+  cellChecks: ReadonlyMap<number, TColumnCellCheck>
   rowCount: number
   onColumnFieldChange: (index: number, field: string | null) => void
+  onColumnValueChange: (index: number, value: string, target: string | null) => void
 }
 
-export const MappingStep: React.FC<TMappingStepProps> = ({ entityLabel, entityLabelPlural, columns, fields, hasRequirements, mapping, validation, rowCount, onColumnFieldChange }) => {
+export const MappingStep: React.FC<TMappingStepProps> = ({
+  entityLabel,
+  entityLabelPlural,
+  columns,
+  fields,
+  hasRequirements,
+  mapping,
+  validation,
+  cellChecks,
+  rowCount,
+  onColumnFieldChange,
+  onColumnValueChange,
+}) => {
   const [filter, setFilter] = useState<TColumnFilter>('all')
+  const [expandedValueColumns, setExpandedValueColumns] = useState<ReadonlySet<number>>(() => new Set())
   const [search, setSearch] = useState('')
   const [highlightedColumn, setHighlightedColumn] = useState<number | null>(null)
 
@@ -91,8 +110,18 @@ export const MappingStep: React.FC<TMappingStepProps> = ({ entityLabel, entityLa
     document.getElementById(`import-column-${highlightedColumn}`)?.scrollIntoView({ block: 'center' })
   }, [highlightedColumn])
 
+  const toggleValueMapping = (columnIndex: number) =>
+    setExpandedValueColumns((current) => {
+      const next = new Set(current)
+      if (!next.delete(columnIndex)) next.add(columnIndex)
+      return next
+    })
+
+  const openValueMapping = (columnIndex: number) => setExpandedValueColumns((current) => new Set(current).add(columnIndex))
+
   const focusIssue = (columnIndex?: number) => {
     if (columnIndex === undefined) return
+    if (cellChecks.get(columnIndex)?.mappableValues) openValueMapping(columnIndex)
     setFilter('all')
     setSearch('')
     setHighlightedColumn(columnIndex)
@@ -165,8 +194,13 @@ export const MappingStep: React.FC<TMappingStepProps> = ({ entityLabel, entityLa
                   const columnMapping = mapping[column.index]
                   const hasIssue = validation.columnsWithIssues.has(column.index)
                   const isEmpty = isEmptyColumn(column)
-                  const badge = matchBadge(column, columnMapping, validation.duplicateColumns.has(column.index))
-                  const selectedDescription = columnMapping?.field ? fieldByName.get(columnMapping.field)?.description : undefined
+                  const badge = matchBadge(column, columnMapping, validation.duplicateColumns.has(column.index), validation.unresolvedValueCounts.get(column.index) ?? 0)
+                  const selectedField = columnMapping?.field ? fieldByName.get(columnMapping.field) : undefined
+                  const cellCheck = cellChecks.get(column.index)
+                  const canMapValues = Boolean(cellCheck?.mappableValues)
+                  const unmappedValueCount = validation.unresolvedValueCounts.get(column.index) ?? 0
+                  const isValueMappingOpen = canMapValues && expandedValueColumns.has(column.index)
+                  const valuePanelId = `import-column-values-${column.index}`
 
                   return (
                     <li
@@ -208,8 +242,21 @@ export const MappingStep: React.FC<TMappingStepProps> = ({ entityLabel, entityLa
                           ariaLabel={`Import "${column.header}" as a ${entityLabel} field`}
                           onChange={(value) => changeColumnField(column.index, value || null)}
                         />
-                        {selectedDescription && (
-                          <Button variant="icon" size="icon-sm" className="shrink-0 text-muted-foreground" descriptiveTooltipText={selectedDescription}>
+                        {canMapValues && (
+                          <Button
+                            variant="icon"
+                            size="icon-sm"
+                            className={cn('shrink-0', unmappedValueCount > 0 ? 'text-destructive' : 'text-muted-foreground')}
+                            descriptiveTooltipText={unmappedValueCount > 0 ? `Map ${pluralizeWithCount(unmappedValueCount, 'value')}` : 'Map values'}
+                            aria-expanded={isValueMappingOpen}
+                            aria-controls={isValueMappingOpen ? valuePanelId : undefined}
+                            onClick={() => toggleValueMapping(column.index)}
+                          >
+                            <ListChecks size={16} />
+                          </Button>
+                        )}
+                        {selectedField?.description && (
+                          <Button variant="icon" size="icon-sm" className="shrink-0 text-muted-foreground" descriptiveTooltipText={selectedField.description}>
                             <Info size={16} />
                           </Button>
                         )}
@@ -217,6 +264,15 @@ export const MappingStep: React.FC<TMappingStepProps> = ({ entityLabel, entityLa
                       <Badge variant={badge.variant} className="w-fit">
                         {badge.label}
                       </Badge>
+                      {isValueMappingOpen && selectedField && cellCheck && (
+                        <ValueMappingPanel
+                          id={valuePanelId}
+                          fieldLabel={selectedField.label}
+                          check={cellCheck}
+                          valueMap={columnMapping?.valueMap}
+                          onValueChange={(value, target) => onColumnValueChange(column.index, value, target)}
+                        />
+                      )}
                     </li>
                   )
                 })}

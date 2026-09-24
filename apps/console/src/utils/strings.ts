@@ -63,7 +63,11 @@ const SMALL_WORDS = new Set(['a', 'an', 'and', 'as', 'at', 'by', 'for', 'in', 'o
 
 const ACRONYM_WITH_NUMBER = /^([a-z]+)(\d+)$/
 
+const PLURAL_ACRONYM = /^[A-Z]{2,}s$/
+
 const humanizeWord = (word: string, index: number): string => {
+  if (PLURAL_ACRONYM.test(word)) return word
+
   const lower = word.toLowerCase()
   if (ACRONYMS.has(lower)) return word.toUpperCase()
 
@@ -83,7 +87,7 @@ export function toHumanLabel(input: string): string {
     // Replace underscores and dashes with spaces: api_key → api key
     .replace(/[_-]+/g, ' ')
     // Split acronym followed by normal word: APIToken → API Token
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .replace(/([A-Z]+)([A-Z](?!s(?:[A-Z]|\b))[a-z])/g, '$1 $2')
     // Split lower-to-upper: DomainDelete → Domain Delete
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     // Collapse multiple spaces
@@ -147,7 +151,20 @@ export const orgAbbreviation = (name?: string | null): string => {
 
 export const pluralize = (count: number, singular: string, plural?: string): string => (count === 1 ? singular : (plural ?? pluralizeTypeName(singular)))
 
-export const formatList = (items: string[], type: Intl.ListFormatType = 'conjunction'): string => new Intl.ListFormat('en', { style: 'long', type }).format(items)
+const listFormatters = new Map<Intl.ListFormatType, Intl.ListFormat>()
+
+export const formatList = (items: string[], type: Intl.ListFormatType = 'conjunction'): string => {
+  const cached = listFormatters.get(type)
+  if (cached) return cached.format(items)
+  const formatter = new Intl.ListFormat('en', { style: 'long', type })
+  listFormatters.set(type, formatter)
+  return formatter.format(items)
+}
+
+export const formatTruncatedList = (items: string[], total: number, max: number): string => {
+  const shown = items.slice(0, max)
+  return total > shown.length ? `${shown.join(', ')} and ${total - shown.length} more` : formatList(shown)
+}
 
 export const pluralizeWithCount = (count: number, singular: string, plural?: string): string => `${count} ${pluralize(count, singular, plural)}`
 

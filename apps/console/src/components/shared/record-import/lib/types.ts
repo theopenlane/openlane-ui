@@ -1,3 +1,5 @@
+import type { ImportFieldMeta } from '@repo/codegen/src/import-fields.generated'
+
 export type TSuggestedConfidence = 'exact' | 'normalized' | 'alias' | 'suggested' | 'pattern' | 'none'
 
 export type TMatchConfidence = TSuggestedConfidence | 'manual'
@@ -19,6 +21,7 @@ export type TDestinationField = {
   description?: string
   example?: string
   fuzzyMatchable: boolean
+  meta?: ImportFieldMeta
 }
 
 export type TDestinationFieldSet = {
@@ -34,9 +37,12 @@ export type TSourceColumn = {
   filledCount: number
 }
 
+export type TValueMap = Readonly<Record<string, string | null>>
+
 export type TColumnMapping = {
   field: string | null
   confidence: TMatchConfidence
+  valueMap?: TValueMap
 }
 
 export type TImportIssue = {

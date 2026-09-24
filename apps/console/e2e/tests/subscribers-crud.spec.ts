@@ -142,7 +142,7 @@ test.describe('organization settings — subscribers', () => {
       await page.getByRole('button', { name: 'Action' }).click()
       await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
 
-      const scope = await expectImportPage(page, '/organization-settings/subscribers/import', /^Import subscribers$/)
+      const scope = await expectImportPage(page, 'subscriber', /^Import subscribers$/)
       await scope
         .locator('input[type="file"]')
         .first()

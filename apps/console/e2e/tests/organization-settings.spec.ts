@@ -216,7 +216,7 @@ test.describe('organization-settings — subscribers (owner)', () => {
     await page.getByRole('button', { name: 'Action' }).click()
     await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
 
-    const scope = await expectImportPage(page, '/organization-settings/subscribers/import', /^Import subscribers$/)
+    const scope = await expectImportPage(page, 'subscriber', /^Import subscribers$/)
     await expect(scope.getByText('What gets imported')).toBeVisible()
     await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
   })

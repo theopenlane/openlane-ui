@@ -1,8 +1,10 @@
-import { formatList, pluralizeWithCount } from '@/utils/strings'
+import { formatList, formatTruncatedList, pluralizeWithCount } from '@/utils/strings'
 import type { TColumnMapping, TDestinationFieldSet, TImportIssue, TSourceColumn } from './types'
+import { unresolvedValues, type TColumnCellCheck } from './validate-cells'
 
 export type TMappingValidation = {
   blockingIssues: TImportIssue[]
+  unresolvedValueCounts: Map<number, number>
   columnsWithIssues: Set<number>
   duplicateColumns: Set<number>
   mappedColumnCount: number
@@ -10,13 +12,15 @@ export type TMappingValidation = {
 }
 
 const ROW_NUMBERS_SHOWN = 5
+const INVALID_VALUES_SHOWN = 3
 const HEADER_ROW_OFFSET = 2
 
-const describeRows = (rowIndexes: number[]): string => {
-  const shown = rowIndexes.slice(0, ROW_NUMBERS_SHOWN).map((index) => index + HEADER_ROW_OFFSET)
-  const remaining = rowIndexes.length - shown.length
-  return `${rowIndexes.length === 1 ? 'row' : 'rows'} ${shown.join(', ')}${remaining > 0 ? ` and ${remaining} more` : ''}`
-}
+const describeRows = (firstRowIndexes: number[], total: number): string =>
+  `${total === 1 ? 'row' : 'rows'} ${formatTruncatedList(
+    firstRowIndexes.map((index) => String(index + HEADER_ROW_OFFSET)),
+    total,
+    ROW_NUMBERS_SHOWN,
+  )} ${total === 1 ? 'has' : 'have'}`
 
 const rowsMissingAll = (rows: string[][], columns: TSourceColumn[]): number[] => {
   if (columns.some((column) => column.filledCount === rows.length)) return []
@@ -33,11 +37,13 @@ export const validateMapping = ({
   fieldSet,
   mapping,
   rows,
+  cellChecks,
 }: {
   columns: TSourceColumn[]
   fieldSet: TDestinationFieldSet
   mapping: Record<number, TColumnMapping>
   rows: string[][]
+  cellChecks: ReadonlyMap<number, TColumnCellCheck>
 }): TMappingValidation => {
   const { fields, requiredGroups } = fieldSet
   const columnsByField = new Map<string, TSourceColumn[]>()
@@ -75,18 +81,44 @@ export const validateMapping = ({
     if (blankRows.length > 0) {
       blockingIssues.push({
         id: `required-blank:${groupIndex}`,
-        message: `Every row needs a value for ${labels}, but ${describeRows(blankRows)} ${blankRows.length === 1 ? 'has' : 'have'} none.`,
+        message: `Every row needs a value for ${labels}, but ${describeRows(blankRows, blankRows.length)} none.`,
         columnIndex: mappedColumns[0].index,
       })
     }
   })
 
-  const labelByField = new Map(fields.map((field) => [field.name, field.label]))
+  const fieldByName = new Map(fields.map((field) => [field.name, field]))
   duplicatedEntries.forEach(([field, mapped]) => {
     blockingIssues.push({
       id: `duplicate:${field}`,
-      message: `"${labelByField.get(field) ?? field}" is mapped from ${pluralizeWithCount(mapped.length, 'column')}.`,
+      message: `"${fieldByName.get(field)?.label ?? field}" is mapped from ${pluralizeWithCount(mapped.length, 'column')}.`,
       columnIndex: mapped[1].index,
+    })
+  })
+
+  const unresolvedValueCounts = new Map<number, number>()
+  cellChecks.forEach((check, columnIndex) => {
+    const field = fieldByName.get(mapping[columnIndex]?.field ?? '')
+    const unresolved = unresolvedValues(check, mapping[columnIndex]?.valueMap)
+    unresolvedValueCounts.set(columnIndex, unresolved.length)
+    if (!field || unresolved.length === 0) return
+
+    const totalRows = unresolved.reduce((total, invalid) => total + invalid.rowIndexes.length, 0)
+    const firstRows = unresolved
+      .flatMap((invalid) => invalid.rowIndexes.slice(0, ROW_NUMBERS_SHOWN))
+      .sort((a, b) => a - b)
+      .slice(0, ROW_NUMBERS_SHOWN)
+    const values = formatTruncatedList(
+      unresolved.map((invalid) => (invalid.value ? `"${invalid.value}"` : 'a blank cell')),
+      unresolved.length,
+      INVALID_VALUES_SHOWN,
+    )
+    const remedy = check.mappableValues ? ' Map the values to fix it.' : check.tooManyToMap ? ' There are too many distinct values to map here, so fix them in the file.' : ''
+
+    blockingIssues.push({
+      id: `cells:${columnIndex}`,
+      message: `"${field.label}" expects ${check.expected}, but ${describeRows(firstRows, totalRows)} ${values}.${remedy}`,
+      columnIndex,
     })
   })
 
@@ -94,5 +126,5 @@ export const validateMapping = ({
 
   const columnsWithIssues = new Set([...duplicateColumns, ...blockingIssues.flatMap((issue) => (issue.columnIndex === undefined ? [] : [issue.columnIndex]))])
 
-  return { blockingIssues, columnsWithIssues, duplicateColumns, mappedColumnCount, ignoredColumnCount: columns.length - mappedColumnCount }
+  return { blockingIssues, unresolvedValueCounts, columnsWithIssues, duplicateColumns, mappedColumnCount, ignoredColumnCount: columns.length - mappedColumnCount }
 }

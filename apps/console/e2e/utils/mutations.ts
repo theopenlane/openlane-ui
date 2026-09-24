@@ -74,8 +74,10 @@ const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\
 
 export const urlPattern = (path: string): RegExp => new RegExp(`^https?://[^/]+${escapeRegExp(path)}(?:[?&#]|$)`)
 
-export const expectImportPage = async (page: Page, importPath: string, heading: string | RegExp = /^Import /): Promise<Locator> => {
-  await expect(page).toHaveURL(urlPattern(importPath), { timeout: 30_000 })
+export const importUrlPattern = (importType: string): RegExp => new RegExp(`^https?://[^/]+/import\\?(?:[^#]*&)?type=${escapeRegExp(importType)}(?:[&#]|$)`)
+
+export const expectImportPage = async (page: Page, importType: string, heading: string | RegExp = /^Import /): Promise<Locator> => {
+  await expect(page).toHaveURL(importUrlPattern(importType), { timeout: 30_000 })
   const main = page.getByRole('main')
   await expect(main.getByRole('heading', { level: 2, name: heading })).toBeVisible({ timeout: 30_000 })
   return main

@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { EyeOff, Pencil } from 'lucide-react'
+import { EyeOff, ListChecks, Pencil } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { RecordPreviewTable } from '@/components/shared/record-preview/record-preview-table'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { pluralizeWithCount } from '@/utils/strings'
+import { formatList, pluralizeWithCount } from '@/utils/strings'
 import type { TColumnMapping, TParsedDelimitedFile, TSourceColumn } from '../lib/types'
 import type { TImportPlan } from '../lib/build-import-file'
 
@@ -31,7 +31,7 @@ const SummaryCard: React.FC<{ title: string; value: string; hint: string }> = ({
 export const ReviewStep: React.FC<TReviewStepProps> = ({ entityLabelPlural, parsed, columns, mapping, plan, onEditMapping }) => {
   const previewRows = useMemo(() => parsed.rows.slice(0, PREVIEW_ROWS).map(plan.buildRow), [parsed, plan])
   const ignoredColumns = useMemo(() => columns.filter((column) => !mapping[column.index]?.field).map((column) => column.header), [columns, mapping])
-  const { autoFilledFields } = plan
+  const { autoFilledFields, remappedFields } = plan
 
   return (
     <div className="flex flex-col gap-4">
@@ -63,10 +63,20 @@ export const ReviewStep: React.FC<TReviewStepProps> = ({ entityLabelPlural, pars
           rows={previewRows}
           emptyMessage="Nothing will be imported with the current mapping."
           caption={
-            ignoredColumns.length > 0 && (
-              <span className="flex items-center gap-2">
-                <EyeOff size={14} />
-                Not imported: {ignoredColumns.join(', ')}
+            (ignoredColumns.length > 0 || remappedFields.length > 0) && (
+              <span className="flex flex-col gap-1">
+                {remappedFields.length > 0 && (
+                  <span className="flex items-center gap-2">
+                    <ListChecks size={14} />
+                    Values remapped: {formatList(remappedFields.map(({ label, count }) => `${label} (${pluralizeWithCount(count, 'value')})`))}
+                  </span>
+                )}
+                {ignoredColumns.length > 0 && (
+                  <span className="flex items-center gap-2">
+                    <EyeOff size={14} />
+                    Not imported: {formatList(ignoredColumns)}
+                  </span>
+                )}
               </span>
             )
           }

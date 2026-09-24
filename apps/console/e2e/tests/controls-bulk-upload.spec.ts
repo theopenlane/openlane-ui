@@ -22,18 +22,18 @@ const openBulkDialog = async (page: Page, item: string) => {
 
 interface ImportTarget {
   item: string
-  importPath: string
+  importType: string
   heading: RegExp
 }
 
-const CUSTOM_CONTROLS: ImportTarget = { item: 'Upload Custom Controls', importPath: '/controls/import', heading: /^Import controls$/ }
-const CONTROL_MAPPINGS: ImportTarget = { item: 'Upload Control Mappings', importPath: '/controls/mapped-controls/import', heading: /^Import control mappings$/ }
+const CUSTOM_CONTROLS: ImportTarget = { item: 'Upload Custom Controls', importType: 'control', heading: /^Import controls$/ }
+const CONTROL_MAPPINGS: ImportTarget = { item: 'Upload Control Mappings', importType: 'mappedcontrol', heading: /^Import control mappings$/ }
 
-const openImportPage = async (page: Page, { item, importPath, heading }: ImportTarget) => {
+const openImportPage = async (page: Page, { item, importType, heading }: ImportTarget) => {
   await page.getByRole('button', { name: 'Action' }).click()
   await page.getByRole('button', { name: new RegExp(item) }).click({ timeout: 30_000 })
 
-  return expectImportPage(page, importPath, heading)
+  return expectImportPage(page, importType, heading)
 }
 
 test.describe('controls — bulk upload dialogs and import pages', () => {
@@ -137,7 +137,7 @@ test.describe('controls — mapping and clone CSV submit', () => {
       page,
       scope,
       fileName: 'mappings.csv',
-      rows: `FromControlIDs,ToControlIDs,MappingType\n"[\\"${fromId}\\"]","[\\"${toId}\\"]",EQUAL\n`,
+      rows: `FromControlIDs,ToControlIDs,MappingType\n${fromId},${toId},EQUAL\n`,
       operationName: 'CreateBulkCSVMappedControl',
       expectToast: 'Control mappings imported',
       returnsTo: '/controls',

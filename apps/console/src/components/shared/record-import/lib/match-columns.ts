@@ -26,10 +26,15 @@ const singular = (token: string): string => {
   return trimmed.length >= MIN_SINGULAR_LENGTH ? trimmed : token
 }
 
-const tokenSetKey = (value: string): string =>
+const withoutLeadingEntityTokens = (tokens: string[], entityTokens: ReadonlySet<string>): string[] => {
+  const firstOwnToken = tokens.findIndex((token) => !entityTokens.has(singular(token)))
+  return firstOwnToken <= 0 ? tokens : tokens.slice(firstOwnToken)
+}
+
+const tokenSetKey = (value: string, entityTokens: ReadonlySet<string>): string =>
   [
     ...new Set(
-      wordTokens(toHumanLabel(value))
+      withoutLeadingEntityTokens(wordTokens(toHumanLabel(value)), entityTokens)
         .filter((token) => !FILLER_TOKENS.has(token))
         .map(singular),
     ),
@@ -41,12 +46,28 @@ type TCandidate = { field: string; confidence: TSuggestedConfidence }
 
 const RANK: Record<TSuggestedConfidence, number> = { exact: 0, normalized: 1, alias: 2, suggested: 3, pattern: 4, none: 5 }
 
+const CUSTOM_ENUM_FIELD = /^(.+?)(category|kind)name$/
+const CUSTOM_ENUM_ALIASES: Record<string, readonly string[]> = { category: ['category'], kind: ['type', 'kind'] }
+
+const customEnumAliases = (normalizedField: string): string[] => {
+  const match = CUSTOM_ENUM_FIELD.exec(normalizedField)
+  if (!match) return []
+  const [, prefix, suffix] = match
+  return CUSTOM_ENUM_ALIASES[suffix].flatMap((alias) => [alias, `${prefix}${alias}`])
+}
+
 const buildFieldIndex = ({ fields, primaryField }: TDestinationFieldSet, entityLabels: string[], aliases: Record<string, readonly string[]>) => {
   const exactHeaders = new Set<string>()
   const byNormalizedHeader = new Map<string, string>()
+  const byFuzzyNormalizedHeader = new Map<string, string>()
   const byAlias = new Map<string, string>()
   const fieldsByTokenKey = new Map<string, string[]>()
   const shapeMatchers: { field: string; matches: (column: TSourceColumn) => boolean }[] = []
+  const entityTokens = new Set(entityLabels.flatMap((label) => wordTokens(toHumanLabel(label))).map(singular))
+
+  const addAlias = (alias: string, field: string) => {
+    if (!byAlias.has(alias)) byAlias.set(alias, field)
+  }
 
   fields.forEach((field) => {
     const normalized = normalizeFieldName(field.name)
@@ -54,11 +75,11 @@ const buildFieldIndex = ({ fields, primaryField }: TDestinationFieldSet, entityL
     if (!byNormalizedHeader.has(normalized)) byNormalizedHeader.set(normalized, field.name)
     if (!field.fuzzyMatchable) return
 
-    aliases[normalized]?.forEach((alias) => {
-      if (!byAlias.has(alias)) byAlias.set(alias, field.name)
-    })
+    if (!byFuzzyNormalizedHeader.has(normalized)) byFuzzyNormalizedHeader.set(normalized, field.name)
+    aliases[normalized]?.forEach((alias) => addAlias(alias, field.name))
+    customEnumAliases(normalized).forEach((alias) => addAlias(alias, field.name))
 
-    const tokenKey = tokenSetKey(field.name)
+    const tokenKey = tokenSetKey(field.name, entityTokens)
     if (tokenKey) fieldsByTokenKey.set(tokenKey, [...(fieldsByTokenKey.get(tokenKey) ?? []), field.name])
 
     const matches = VALUE_SHAPE_MATCHERS.get(normalized)
@@ -68,7 +89,7 @@ const buildFieldIndex = ({ fields, primaryField }: TDestinationFieldSet, entityL
   const primary = fields.find((field) => field.name === primaryField && field.fuzzyMatchable)
   const entityNames = new Set(primary ? entityLabels.flatMap((label) => [label, pluralizeTypeName(label)]).map(normalizeFieldName) : [])
 
-  return { exactHeaders, byNormalizedHeader, byAlias, fieldsByTokenKey, shapeMatchers, primaryField: primary?.name, entityNames }
+  return { exactHeaders, byNormalizedHeader, byFuzzyNormalizedHeader, byAlias, fieldsByTokenKey, shapeMatchers, primaryField: primary?.name, entityNames, entityTokens }
 }
 
 type TFieldIndex = ReturnType<typeof buildFieldIndex>
@@ -86,7 +107,15 @@ const findCandidate = (column: TSourceColumn, index: TFieldIndex): TCandidate | 
 
   if (index.primaryField && index.entityNames.has(normalizedHeader)) return { field: index.primaryField, confidence: 'suggested' }
 
-  const tokenMatches = index.fieldsByTokenKey.get(tokenSetKey(column.header))
+  const headerTokens = wordTokens(toHumanLabel(column.header))
+  const ownTokens = withoutLeadingEntityTokens(headerTokens, index.entityTokens)
+  if (ownTokens.length > 0 && ownTokens.length < headerTokens.length) {
+    const ownHeader = ownTokens.join('')
+    const stripped = index.byFuzzyNormalizedHeader.get(ownHeader) ?? index.byAlias.get(ownHeader)
+    if (stripped) return { field: stripped, confidence: 'suggested' }
+  }
+
+  const tokenMatches = index.fieldsByTokenKey.get(tokenSetKey(column.header, index.entityTokens))
   if (tokenMatches?.length === 1) return { field: tokenMatches[0], confidence: 'suggested' }
 
   const shapeMatch = index.shapeMatchers.find((matcher) => matcher.matches(column))

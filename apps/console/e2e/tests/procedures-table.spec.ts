@@ -56,7 +56,7 @@ test.describe('procedures — table toolbar', () => {
     await openActionMenu(page)
     await page.getByText('Bulk upload', { exact: true }).click()
 
-    const scope = await expectImportPage(page, '/procedures/import', /^Import procedures$/)
+    const scope = await expectImportPage(page, 'procedure', /^Import procedures$/)
     await expect(scope.getByRole('button', { name: /^Continue$/ })).toBeDisabled()
 
     await scope.locator('input[type="file"]').first().setInputFiles(inlineCsv('procedures.csv', 'name,details\nE2E-PROC-1,seeded by e2e\n'))
@@ -212,7 +212,7 @@ test.describe('procedures — bulk upload submits', () => {
     await openActionMenu(page)
     await page.getByText('Bulk upload', { exact: true }).click()
 
-    const scope = await expectImportPage(page, '/procedures/import', /^Import procedures$/)
+    const scope = await expectImportPage(page, 'procedure', /^Import procedures$/)
 
     await uploadCsvAndAssert({
       page,

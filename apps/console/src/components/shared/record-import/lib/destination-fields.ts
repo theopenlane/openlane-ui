@@ -32,10 +32,12 @@ export const buildDestinationFields = (entityType: ObjectTypes, sampleCsv: strin
       description: meta?.description,
       example: exampleByName.get(normalized),
       fuzzyMatchable: Boolean(meta && !meta.list && FUZZY_MATCHABLE_KINDS.has(meta.kind)),
+      meta,
     }
   }
 
-  const declared = (sample?.headers ?? []).map(toField)
+  const isAdminOnly = (name: string) => metadataByName.get(normalizeFieldName(name))?.adminOnly === true
+  const declared = (sample?.headers ?? []).filter((header) => !isAdminOnly(header)).map(toField)
   const declaredNames = new Set(declared.map((field) => normalizeFieldName(field.name)))
   const undeclared = [...requiredGroupNames.flat(), ...Object.keys(autoValues)]
     .filter((field, index, all) => all.indexOf(field) === index && !declaredNames.has(normalizeFieldName(field)))
