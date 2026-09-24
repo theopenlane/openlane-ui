@@ -1,17 +1,20 @@
 'use client'
 
 import Loading from '@/app/(protected)/trust-center/domain/loading'
-import { useCreateCustomDomain, useDeleteCustomDomain, useGetTrustCenter, useValidateCustomDomain } from '@/lib/graphql-hooks/trust-center'
+import { useCreateCustomDomain, useDeleteCustomDomain, useGetTrustCenter, useUpdateTrustCenterSetting, useValidateCustomDomain } from '@/lib/graphql-hooks/trust-center'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { use, useEffect, useState } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
+import { Switch } from '@repo/ui/switch'
+import { Label } from '@repo/ui/label'
 import { Copy, ExternalLink, InfoIcon, Pencil, Save, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import UrlInput, { isBlockedDomain } from '../shared/url-input'
 import UrlDisplay from '../shared/url-display'
 import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
 import { normalizeUrl } from '@/utils/normalizeUrl'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -26,6 +29,7 @@ const DomainSettingsPage = () => {
   const [inputValue, setInputValue] = useState('')
   const [editing, setEditing] = useState(false)
   const [verificationCountDown, setVerificationCountDown] = useState(0)
+  const { mutateAsync: updateTrustCenterSetting, isPending: isUpdatingTrustCenter } = useUpdateTrustCenterSetting()
   const { mutateAsync: deleteCustomDomain } = useDeleteCustomDomain()
   const { mutateAsync: createCustomDomain } = useCreateCustomDomain()
   const { mutateAsync: validateCustomDomain, isPending: isValidating } = useValidateCustomDomain()
@@ -72,6 +76,28 @@ const DomainSettingsPage = () => {
 
   const cnameRecord = trustCenter?.customDomain?.cnameRecord
   const cnameName = cnameRecord ? cnameRecord.split('.').slice(0, -2).join('.') : ''
+
+  const handleToggleNoIndex = async (isChecked: boolean) => {
+    if (!setting?.id || !canEditTc || isUpdatingTrustCenter) {
+      return
+    }
+
+    try {
+      await updateTrustCenterSetting({
+        updateTrustCenterSettingId: setting.id,
+        input: {
+          noindexDefaultDomain: isChecked,
+        },
+      })
+      await refetch()
+      successNotification({ title: 'Search engine visibility updated' })
+    } catch {
+      errorNotification({
+        title: 'Update failed',
+        description: 'Search engine visibility could not be updated. Please try again.',
+      })
+    }
+  }
 
   const handleCancel = () => {
     setEditing(false)
@@ -293,6 +319,30 @@ const DomainSettingsPage = () => {
                 </p>
               </div>
               <div>{trustCenter?.slug && <UrlDisplay label="Default:" url={defaultDomain} className="w-full" />}</div>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-1">
+                  <span className="flex items-center gap-1.5">
+                    <Label htmlFor="hide-from-search-engines" className="text-base font-medium leading-6">
+                      Hide from search engines
+                    </Label>
+                    <SystemTooltip
+                      icon={<InfoIcon size={14} className="text-inverted-muted-foreground shrink-0" />}
+                      content="When on, your default Trust Center URL tells search engines not to index it. Your vanity domain is unaffected."
+                    />
+                  </span>
+                  <p id="hide-from-search-engines-description" className="text-sm text-inverted-muted-foreground font-medium leading-6">
+                    Prevent search engines like Google from showing this default Trust Center URL in search results.
+                  </p>
+                </div>
+                <Switch
+                  id="hide-from-search-engines"
+                  aria-describedby="hide-from-search-engines-description hide-from-search-engines-hint"
+                  checked={setting.noindexDefaultDomain ?? false}
+                  onCheckedChange={handleToggleNoIndex}
+                  disabled={!canEditTc || isUpdatingTrustCenter}
+                  className="shrink-0"
+                />
+              </div>
               <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-3">
                 <div className="flex items-start gap-2">
                   <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />
@@ -300,7 +350,7 @@ const DomainSettingsPage = () => {
                     <p className="text-sm">
                       Even if you set up a vanity domain, your default domain will remain accessible. Vanity domains let you host your Trust Center on your company&apos;s root domain—for example,
                       <span className="mx-1 font-medium text-text-header">trust.yourcompany.com</span>
-                      instead of trust.theopenlane.net/yourcompany{' '}
+                      instead of trust.theopenlane.net/yourcompany. When a vanity domain is added, the default domain is hidden from search engines by default.
                     </p>
                   </div>
                 </div>

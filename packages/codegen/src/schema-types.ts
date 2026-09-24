@@ -11127,6 +11127,8 @@ export interface CreateTrustCenterNdaRequestInput {
   reason?: InputMaybe<Scalars['String']['input']>
   /** timestamp when the NDA was signed */
   signedAt?: InputMaybe<Scalars['DateTime']['input']>
+  /** status of the NDA request */
+  status?: InputMaybe<TrustCenterNdaRequestTrustCenterNdaRequestStatus>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   trustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -11204,6 +11206,8 @@ export interface CreateTrustCenterSettingInput {
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
   notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   /** overview of the trust center */
@@ -50048,6 +50052,8 @@ export interface TrustCenterSetting extends Node {
   ndaApproverGroup?: Maybe<Group>
   /** group whose members approve trust center NDA requests */
   ndaApproverGroupID?: Maybe<Scalars['ID']['output']>
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: Maybe<Scalars['Boolean']['output']>
   /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
   notifySubscribersOnSubprocessorChange?: Maybe<Scalars['Boolean']['output']>
   /** overview of the trust center */
@@ -50394,6 +50400,11 @@ export interface TrustCenterSettingWhereInput {
   ndaApproverGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ndaApproverGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ndaApproverGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** noindex_default_domain field predicates */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  noindexDefaultDomainNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TrustCenterSettingWhereInput>
   /** notify_subscribers_on_subprocessor_change field predicates */
   notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
@@ -57314,6 +57325,7 @@ export interface UpdateTrustCenterSettingInput {
   clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearNdaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   clearNdaApproverGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearNoindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearNotifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   clearOverview?: InputMaybe<Scalars['Boolean']['input']>
   clearPrimaryColor?: InputMaybe<Scalars['Boolean']['input']>
@@ -57344,6 +57356,8 @@ export interface UpdateTrustCenterSettingInput {
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
+  /** allow trustcenter to be indexed on google */
+  noindexDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
   notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   /** overview of the trust center */

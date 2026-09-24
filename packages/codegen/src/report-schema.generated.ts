@@ -543,6 +543,7 @@ export const REPORT_EDGE_FIELDS: Record<string, TReportField[]> = {
     { name: 'logoRemoteURL', kind: 'string' },
     { name: 'ndaApprovalRequired', kind: 'boolean' },
     { name: 'ndaApproverGroupID', kind: 'id' },
+    { name: 'noindexDefaultDomain', kind: 'boolean' },
     { name: 'notifySubscribersOnSubprocessorChange', kind: 'boolean' },
     { name: 'overview', kind: 'string' },
     { name: 'primaryColor', kind: 'string' },
