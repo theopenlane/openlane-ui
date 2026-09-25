@@ -6,6 +6,7 @@ import { Button } from '@repo/ui/button'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { type ControlReportItem } from '@/lib/graphql-hooks/control'
 import { useDismissible } from '@/hooks/useDismissible'
+import { useSuggestionsEnabled } from '@/hooks/useSuggestionsEnabled'
 import { Callout } from '@/components/shared/callout/callout'
 import { DismissButton } from '@/components/shared/docs-help/suggestion-card'
 import { getOrgRelatedRefCodes, hasPolicyGap, isFrameworkControl } from './report-coverage'
@@ -31,6 +32,7 @@ const toGapControl = (control: ControlReportItem): TGapControl => ({
 
 const ReportCategoryHeader: React.FC<ReportCategoryHeaderProps> = ({ category, controls, isOpen, expandedControls, accentColor, onToggleOpen, onToggleCategorySubcontrols }) => {
   const [showResolveGaps, setShowResolveGaps] = useState(false)
+  const suggestionsEnabled = useSuggestionsEnabled()
   // partially covered controls can still have unmapped template suggestions, so every
   // framework control is checked and the ref codes it already has are filtered out
   const orgGapControls = useMemo(() => controls.filter(isFrameworkControl).map(toGapControl), [controls])
@@ -38,7 +40,7 @@ const ReportCategoryHeader: React.FC<ReportCategoryHeaderProps> = ({ category, c
   const hasCheapGap = orgGapControls.length + policyGapControls.length > 0
 
   const { dismissed: confirmedEmpty, dismiss: markEmpty, isResolved: isEmptyCheckResolved } = useDismissible(`resolve-gaps-empty:${category || 'General'}`)
-  const shouldCheck = hasCheapGap && isEmptyCheckResolved && !confirmedEmpty
+  const shouldCheck = suggestionsEnabled && hasCheapGap && isEmptyCheckResolved && !confirmedEmpty
 
   const gaps = useSectionGapGroups(shouldCheck ? orgGapControls : undefined, shouldCheck ? policyGapControls : undefined)
 
@@ -112,7 +114,7 @@ const ReportCategoryHeader: React.FC<ReportCategoryHeaderProps> = ({ category, c
           </Callout>
         )}
       </div>
-      {(shouldCheck || showResolveGaps) && !gaps.hasError && <ResolveGapsPanel open={showResolveGaps} onOpenChange={setShowResolveGaps} category={category} gaps={gaps} />}
+      {(shouldCheck || (showResolveGaps && suggestionsEnabled)) && !gaps.hasError && <ResolveGapsPanel open={showResolveGaps} onOpenChange={setShowResolveGaps} category={category} gaps={gaps} />}
     </div>
   )
 }

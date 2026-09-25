@@ -13,7 +13,7 @@ import { Input } from '@repo/ui/input'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { PlaceholderTextarea } from '@/components/shared/placeholder-textarea/placeholder-textarea'
 import { Loader2 } from 'lucide-react'
-import { docsHelpAvailable } from '@repo/dally/ai'
+import { useSuggestionsEnabled } from '@/hooks/useSuggestionsEnabled'
 import { ControlControlSource, ControlControlStatus, MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
 import { useAllOrgControls, useCreateControl, useGetControlMinifiedById, useTemplateControlsWithMappings } from '@/lib/graphql-hooks/control'
 import { TEMPLATE_CONTROLS_WHERE } from '@/constants/standards'
@@ -67,6 +67,7 @@ function useTemplateIndex(enabled: boolean) {
 const NO_ROWS: TExampleRow[] = []
 
 export function useResolvedSuggestions(frameworkControl: TCreateOrgControlsTarget | null, existingRefCodes: string[] | undefined, enabled: boolean) {
+  const suggestionsEnabled = useSuggestionsEnabled()
   const { dismissed } = useDismissedItems(frameworkControl ? dismissedKey(frameworkControl) : undefined)
   const {
     dismissed: settledAll,
@@ -76,7 +77,7 @@ export function useResolvedSuggestions(frameworkControl: TCreateOrgControlsTarge
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const organizationName = getOrganizationByID(currentOrgId ?? '')?.node?.displayName
 
-  const active = enabled && docsHelpAvailable && isSettledResolved && !settledAll
+  const active = enabled && suggestionsEnabled && isSettledResolved && !settledAll
   const { index: templateIndex, isLoading: isTemplatesLoading, isError: isTemplatesError } = useTemplateIndex(active)
   const templates = useMemo(
     () => (frameworkControl ? (templateIndex.get(templateIndexKey(frameworkControl.refCode, frameworkControl.referenceFramework)) ?? []) : []),
@@ -106,7 +107,7 @@ export function useResolvedSuggestions(frameworkControl: TCreateOrgControlsTarge
   // ref codes are prefixed from the controls the org already has, so rows built
   // before that list is in carry the org-name fallback prefix instead and a
   // row keeps the code it was first seeded with
-  return { rows: settledAll || isLoading ? NO_ROWS : rows, isLoading, isError }
+  return { rows: !suggestionsEnabled || settledAll || isLoading ? NO_ROWS : rows, isLoading, isError }
 }
 
 export const rowKey = (row: TExampleRow) => row.templateRefCode ?? row.refCode
@@ -153,7 +154,7 @@ export function CreateOrgControlsFromDocsButton({
   const [open, setOpen] = useState(false)
   const { rows, isLoading } = useResolvedSuggestions(frameworkControl, existingRefCodes, true)
 
-  if (!docsHelpAvailable || isLoading || rows.length === 0) return null
+  if (isLoading || rows.length === 0) return null
   return (
     <>
       <Button
@@ -191,6 +192,7 @@ type TUseCreateOrgControlsRowsProps = {
 )
 
 export function useCreateOrgControlsRows({ active, onOpenChange, onCreated, ...props }: TUseCreateOrgControlsRowsProps) {
+  const suggestionsEnabled = useSuggestionsEnabled()
   const multiMode = !!props.groups
   const frameworkControl = multiMode ? null : props.frameworkControl
   const { rows: fetchedRows, isLoading } = useResolvedSuggestions(frameworkControl, multiMode ? undefined : props.existingRefCodes, active && !multiMode)
@@ -254,7 +256,7 @@ export function useCreateOrgControlsRows({ active, onOpenChange, onCreated, ...p
     return [...automatic, ...requestedTitles.filter((control) => control.refCode && !seen.has(control.refCode))]
   }, [resolvedRows, requestedTitles])
 
-  const { data: suggestedTitles } = useDocsControlTitles(titleTargets, active && docsHelpAvailable)
+  const { data: suggestedTitles } = useDocsControlTitles(titleTargets, active && suggestionsEnabled)
 
   useEffect(() => {
     if (!suggestedTitles?.length) return
