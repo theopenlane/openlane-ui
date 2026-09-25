@@ -36,7 +36,7 @@ const StatCard = ({ label, count, icon, isLoading, isActive, onSelect, tooltip }
         <CardContent className="flex items-center gap-3 p-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border bg-homepage-card-item border-switch-bg-inactive">{icon}</div>
           <div className="min-w-0">
-            {isLoading ? <Skeleton className="h-7 w-10 rounded" /> : <p className="text-2xl font-semibold leading-tight">{count}</p>}
+            {isLoading ? <Skeleton className="my-[3px] h-6 w-12 rounded-full" /> : <p className="text-2xl font-semibold leading-tight">{count}</p>}
             <p className="text-sm text-muted-foreground truncate">{label}</p>
           </div>
         </CardContent>
