@@ -256125,6 +256125,46 @@
                 "defaultValue": null,
                 "isDeprecated": false,
                 "deprecationReason": null
+              },
+              {
+                "name": "scanFiles",
+                "description": null,
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "Upload",
+                      "kind": "SCALAR",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "scanFilesMetadata",
+                "description": null,
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "FileMetadataInput",
+                      "kind": "INPUT_OBJECT",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
               }
             ],
             "type": {
@@ -271356,6 +271396,46 @@
                 "defaultValue": null,
                 "isDeprecated": false,
                 "deprecationReason": null
+              },
+              {
+                "name": "scanFiles",
+                "description": null,
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "Upload",
+                      "kind": "SCALAR",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "scanFilesMetadata",
+                "description": null,
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "FileMetadataInput",
+                      "kind": "INPUT_OBJECT",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
               }
             ],
             "type": {
@@ -280948,6 +281028,12 @@
           },
           {
             "name": "ORGANIZATION_READY",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "REPORT_SCAN",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
@@ -399921,6 +400007,22 @@
             "deprecationReason": null
           },
           {
+            "name": "origin",
+            "description": "how the scan was created, derived from the caller on create and never supplied as input",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "name": "ScanScanOrigin",
+                "kind": "ENUM",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "owner",
             "description": null,
             "args": [],
@@ -401175,6 +401277,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "ORIGIN",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "SCAN_TYPE",
             "description": null,
             "isDeprecated": false,
@@ -401206,6 +401314,42 @@
           },
           {
             "name": "updated_at",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
+        "name": "ScanScanOrigin",
+        "description": "ScanScanOrigin is enum for the field origin",
+        "isOneOf": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "API",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "INTEGRATION",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "SYSTEM",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "USER",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
@@ -401266,6 +401410,12 @@
           },
           {
             "name": "PROVIDER",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "REPORT",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
@@ -403796,6 +403946,70 @@
                 "ofType": {
                   "name": "ScanWhereInput",
                   "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "origin",
+            "description": "origin field predicates",
+            "type": {
+              "kind": "ENUM",
+              "name": "ScanScanOrigin",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "originIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ScanScanOrigin",
+                  "kind": "ENUM",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "originNEQ",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "ScanScanOrigin",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "originNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ScanScanOrigin",
+                  "kind": "ENUM",
                   "ofType": null
                 }
               }

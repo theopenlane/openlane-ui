@@ -4,7 +4,7 @@ import Header from '@/components/shared/header/header'
 import { dashboardStyles } from './dashboard.styles'
 import ChatBot from '@/components/shared/chat/chat'
 import { CommandMenu } from '@/components/shared/search/command'
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { useElementHeight } from '@/hooks/useElementHeight'
 import SessionExpiredModal from '@/components/shared/session-expired-modal/session-expired-modal'
 import { useSession } from 'next-auth/react'
@@ -28,6 +28,7 @@ import { ONBOARDING_ROUTE } from '@/constants'
 import { DashboardContentOffsetProvider } from '@/providers/DashboardContentOffsetContext'
 import { DocsHelpTopicProvider } from '@/components/shared/docs-help/docs-help-context'
 import { DocsHelpTab } from '@/components/shared/docs-help/docs-help-tab'
+import { ReportScanUploadHost } from '@/components/shared/report-scan-upload/report-scan-upload-host'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -176,6 +177,9 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
               </div>
             </div>
             <DocsHelpTab />
+            <Suspense fallback={null}>
+              <ReportScanUploadHost />
+            </Suspense>
           </>
         </DocsHelpTopicProvider>
       </SheetNavigationProvider>

@@ -144,3 +144,13 @@ export const BULK_EDIT_SYSTEM_DETAIL = gql`
     }
   }
 `
+
+export const CREATE_BULK_SYSTEM_DETAIL = gql`
+  mutation CreateBulkSystemDetail($input: [CreateSystemDetailInput!]) {
+    createBulkSystemDetail(input: $input) {
+      systemDetails {
+        id
+      }
+    }
+  }
+`

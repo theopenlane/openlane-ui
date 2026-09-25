@@ -3,14 +3,14 @@
 import React, { useMemo } from 'react'
 import { defineStepper } from '@stepperize/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { PageHeading } from '@repo/ui/page-heading'
 import { resolveSystemTargets } from './build-import-payload'
 import { ScanFoundSummary } from './components/scan-found-summary'
-import { ScanSummarySidebar } from './components/scan-summary-sidebar'
+import { StepProgress } from '../shared/step-progress'
+import { ScanSummarySidebar } from '../shared/scan-summary-sidebar'
 import { AssetsStep } from './steps/assets-step'
-import { ConfirmStep } from './steps/confirm-step'
+import { ConfirmStep } from '../shared/confirm-step'
 import { FindingsStep } from './steps/findings-step'
 import { LinkStep } from './steps/link-step'
 import { PlatformStep } from './steps/platform-step'
@@ -22,7 +22,8 @@ import { useDomainScanSelection } from './hooks/use-domain-scan-selection'
 import { useDomainScanSummarySections } from './hooks/use-domain-scan-summary-sections'
 import { domainScanProgressStorageKey } from './progress-storage'
 import { domainScanStepVisibility } from './step-visibility'
-import { DOMAIN_SCAN_STEPS, type EditableStepId, type LinkableItem } from './types'
+import { DOMAIN_SCAN_STEPS, type EditableStepId } from './types'
+import type { LinkableItem } from '../shared/types'
 
 const EMPTY_LINKED_VENDOR_IDS: string[] = []
 
@@ -150,14 +151,7 @@ const DomainDiscoveryImportPage = () => {
 
       <div className={`mt-6 grid grid-cols-1 gap-6 ${isConfirmStep ? '' : 'lg:grid-cols-[2fr_1fr]'}`}>
         <div className="min-w-0">
-          <div className="mb-6 flex flex-col gap-3">
-            <Badge variant="primary" className="w-fit uppercase tracking-wide border-primary/24">
-              Step {stepper.index + 1} of {stepper.count} - {stepper.current.label}
-            </Badge>
-            <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-border">
-              <div className="absolute inset-y-0 left-0 rounded-full bg-primary transition-all" style={{ width: `${((stepper.index + 1) / stepper.count) * 100}%` }} />
-            </div>
-          </div>
+          <StepProgress label={`Step ${stepper.index + 1} of ${stepper.count} - ${stepper.current.label}`} progress={(stepper.index + 1) / stepper.count} />
 
           <div className="mb-6 flex items-center justify-between">
             <Button variant="secondary" onClick={handleFinishLater}>

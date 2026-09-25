@@ -6,11 +6,11 @@ import { Separator } from '@repo/ui/separator'
 import { SectionCard } from './section-card'
 import { EmptyState } from './empty-state'
 import { VendorLogo } from './vendor-logo'
-import type { DomainScanSummaryItem } from '../types'
+import type { ScanSummaryItem } from './types'
 
 type ConfirmGroupProps = {
   title: string
-  items: DomainScanSummaryItem[]
+  items: ScanSummaryItem[]
   onEdit: () => void
 }
 
