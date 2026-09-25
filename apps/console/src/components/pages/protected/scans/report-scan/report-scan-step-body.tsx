@@ -25,6 +25,8 @@ type ReportScanStepBodyProps = {
 }
 
 export const ReportScanStepBody = ({ stepId, report, state, existing, summarySections }: ReportScanStepBodyProps) => {
+  const reviewTitleOf = (reviewId?: string) => (reviewId ? report.reviews.find((review) => review.id === reviewId)?.title : undefined)
+
   switch (stepId) {
     case 'platforms':
       return (
@@ -137,16 +139,25 @@ export const ReportScanStepBody = ({ stepId, report, state, existing, summarySec
       return (
         <SelectableListStep
           title="Review findings"
-          description="The exceptions and deviations the auditor noted. Each one is linked to the controls it was raised against."
+          description="The exceptions and deviations the auditor noted. Each one is linked to the controls it was raised against and to the review whose test found it."
           noun="findings"
           items={report.findings}
           selected={state.selection.findings}
           setSelected={state.setSectionSelection('findings')}
-          renderRow={(finding) => ({
-            title: finding.description,
-            description: finding.refCodes.length > 0 ? `Controls: ${finding.refCodes.join(', ')}` : undefined,
-            badges: [finding.severity, finding.open === false ? 'Closed' : undefined].filter((badge): badge is string => !!badge),
-          })}
+          renderRow={(finding) => {
+            const reviewTitle = reviewTitleOf(finding.reviewId)
+            return {
+              title: finding.description,
+              description:
+                finding.refCodes.length > 0 || reviewTitle ? (
+                  <>
+                    {finding.refCodes.length > 0 ? <span className="block">Controls: {finding.refCodes.join(', ')}</span> : null}
+                    {reviewTitle ? <span className="block">Review: {reviewTitle}</span> : null}
+                  </>
+                ) : undefined,
+              badges: [finding.severity, finding.open === false ? 'Closed' : undefined].filter((badge): badge is string => !!badge),
+            }
+          }}
         />
       )
     case 'program':
