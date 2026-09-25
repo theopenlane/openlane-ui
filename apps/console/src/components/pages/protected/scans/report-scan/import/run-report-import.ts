@@ -54,7 +54,7 @@ export type ReportScanImportPlan = {
   controls: PlannedItem<CreateControlInput>[]
   controlMappings: { ref: string; toControlRefCodes: string[] }[]
   reviews: (PlannedItem<CreateReviewInput> & { controlRefs: string[] })[]
-  findings: (PlannedItem<CreateFindingInput> & { controlRefs: string[] })[]
+  findings: (PlannedItem<CreateFindingInput> & { controlRefs: string[]; reviewRef?: string })[]
 }
 
 export type ReportScanCreatedSection = 'vendors' | 'assets' | 'platforms' | 'systems' | 'groups' | 'controls' | 'reviews' | 'findings'
@@ -90,7 +90,8 @@ const resolveRefs = (refs: string[], known: Record<string, string>) => [...new S
 
 export const runReportScanImport = async (client: GraphQLClient, plan: ReportScanImportPlan, progress: ReportScanImportProgress, onProgress: () => void): Promise<ReportScanImportProgress> => {
   const known = (section: 'vendors' | 'assets' | 'platforms' | 'controls') => ({ ...plan.existing[section], ...progress.created[section] })
-  let stage = 'vendors'
+  const programIDs = () => (progress.programId ? [progress.programId] : undefined)
+  let stage = 'the program'
 
   const createSection = async <TItem extends { ref: string }, TInput>(
     section: ReportScanCreatedSection,
@@ -108,6 +109,19 @@ export const runReportScanImport = async (client: GraphQLClient, plan: ReportSca
   }
 
   try {
+    if (plan.program && !progress.programId) {
+      const programLinks = {
+        controlIDs: resolveRefs(plan.programControlRefs, known('controls')),
+        systemDetailIDs: Object.values(progress.created.systems),
+        reviewIDs: Object.values(progress.created.reviews),
+        findingIDs: Object.values(progress.created.findings),
+      }
+      const response = await client.request<CreateProgramWithMembersMutation>(CREATE_PROGRAM_WITH_MEMBERS, { input: { ...plan.program, program: { ...plan.program.program, ...programLinks } } })
+      progress.programId = response.createProgramWithMembers.program.id
+      onProgress()
+    }
+
+    stage = 'vendors'
     await createSection(
       'vendors',
       plan.vendors,
@@ -140,14 +154,6 @@ export const runReportScanImport = async (client: GraphQLClient, plan: ReportSca
       onProgress()
     }
 
-    stage = 'system details'
-    await createSection(
-      'systems',
-      plan.systems,
-      (system) => ({ ...system.input, platformIDs: resolveRefs(system.platformRef ? [system.platformRef] : [], known('platforms')) }),
-      async (input) => idsOf((await client.request<CreateBulkSystemDetailMutation>(CREATE_BULK_SYSTEM_DETAIL, { input })).createBulkSystemDetail.systemDetails),
-    )
-
     stage = 'groups'
     await createSection(
       'groups',
@@ -156,53 +162,21 @@ export const runReportScanImport = async (client: GraphQLClient, plan: ReportSca
       async (input) => idsOf((await client.request<CreateBulkGroupMutation>(CREATE_BULK_GROUP, { input })).createBulkGroup.groups),
     )
 
+    stage = 'system details'
+    await createSection(
+      'systems',
+      plan.systems,
+      (system) => ({ ...system.input, programIDs: programIDs(), platformIDs: resolveRefs(system.platformRef ? [system.platformRef] : [], known('platforms')) }),
+      async (input) => idsOf((await client.request<CreateBulkSystemDetailMutation>(CREATE_BULK_SYSTEM_DETAIL, { input })).createBulkSystemDetail.systemDetails),
+    )
+
     stage = 'controls'
     await createSection(
       'controls',
       plan.controls,
-      (control) => control.input,
+      (control) => ({ ...control.input, programIDs: programIDs() }),
       async (input) => idsOf((await client.request<CreateBulkControlMutation>(CREATE_BULK_CONTROL, { input })).createBulkControl.controls),
     )
-
-    stage = 'reviews'
-    await createSection(
-      'reviews',
-      plan.reviews,
-      (review) => ({ ...review.input, controlIDs: resolveRefs(review.controlRefs, known('controls')) }),
-      async (input) => idsOf((await client.request<CreateBulkReviewMutation>(CREATE_BULK_REVIEW, { input })).createBulkReview.reviews),
-    )
-
-    stage = 'findings'
-    await createSection(
-      'findings',
-      plan.findings,
-      (finding) => finding.input,
-      async (input) => idsOf((await client.request<CreateBulkFindingMutation>(CREATE_BULK_FINDING, { input })).createBulkFinding.findings),
-    )
-
-    stage = 'finding controls'
-    for (const batch of chunk(
-      plan.findings.filter((finding) => !progress.linkedFindings.includes(finding.ref)),
-      BULK_CREATE_BATCH_SIZE,
-    )) {
-      const input = batch.flatMap((finding) => resolveRefs(finding.controlRefs, known('controls')).map((controlID) => ({ findingID: progress.created.findings[finding.ref], controlID })))
-      if (input.length > 0) await client.request<CreateBulkFindingControlMutation>(CREATE_BULK_FINDING_CONTROL, { input })
-      progress.linkedFindings.push(...batch.map((finding) => finding.ref))
-      onProgress()
-    }
-
-    stage = 'the program'
-    if (plan.program && !progress.programId) {
-      const programLinks = {
-        controlIDs: resolveRefs(plan.programControlRefs, known('controls')),
-        systemDetailIDs: Object.values(progress.created.systems),
-        reviewIDs: Object.values(progress.created.reviews),
-        findingIDs: Object.values(progress.created.findings),
-      }
-      const response = await client.request<CreateProgramWithMembersMutation>(CREATE_PROGRAM_WITH_MEMBERS, { input: { ...plan.program, program: { ...plan.program.program, ...programLinks } } })
-      progress.programId = response.createProgramWithMembers.program.id
-      onProgress()
-    }
 
     stage = 'control mappings'
     for (const batch of chunk(
@@ -214,6 +188,33 @@ export const runReportScanImport = async (client: GraphQLClient, plan: ReportSca
       )
       if (input.length > 0) await client.request<CreateBulkMappedControlMutation>(CREATE_BULK_MAPPED_CONTROL, { input })
       progress.mappedControls.push(...batch.map((mapping) => mapping.ref))
+      onProgress()
+    }
+
+    stage = 'reviews'
+    await createSection(
+      'reviews',
+      plan.reviews,
+      (review) => ({ ...review.input, programIDs: programIDs(), controlIDs: resolveRefs(review.controlRefs, known('controls')) }),
+      async (input) => idsOf((await client.request<CreateBulkReviewMutation>(CREATE_BULK_REVIEW, { input })).createBulkReview.reviews),
+    )
+
+    stage = 'findings'
+    await createSection(
+      'findings',
+      plan.findings,
+      (finding) => ({ ...finding.input, programIDs: programIDs(), reviewIDs: resolveRefs(finding.reviewRef ? [finding.reviewRef] : [], progress.created.reviews) }),
+      async (input) => idsOf((await client.request<CreateBulkFindingMutation>(CREATE_BULK_FINDING, { input })).createBulkFinding.findings),
+    )
+
+    stage = 'finding controls'
+    for (const batch of chunk(
+      plan.findings.filter((finding) => !progress.linkedFindings.includes(finding.ref)),
+      BULK_CREATE_BATCH_SIZE,
+    )) {
+      const input = batch.flatMap((finding) => resolveRefs(finding.controlRefs, known('controls')).map((controlID) => ({ findingID: progress.created.findings[finding.ref], controlID })))
+      if (input.length > 0) await client.request<CreateBulkFindingControlMutation>(CREATE_BULK_FINDING_CONTROL, { input })
+      progress.linkedFindings.push(...batch.map((finding) => finding.ref))
       onProgress()
     }
 
