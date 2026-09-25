@@ -9023,8 +9023,8 @@ export interface GetTrustCenterDocsQuery {
               updatedAt: any
               watermarkingEnabled: boolean | null
               watermarkStatus: Types.TrustCenterDocWatermarkStatus | null
-              file: { presignedURL: string | null } | null
-              originalFile: { presignedURL: string | null } | null
+              file: { id: string; presignedURL: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType: string | null } | null
+              originalFile: { id: string; presignedURL: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType: string | null } | null
               standard: { shortName: string | null; id: string } | null
             } | null
           } | null> | null
@@ -9068,8 +9068,8 @@ export interface GetTruestCenterDocByIdQuery {
     watermarkingEnabled: boolean | null
     watermarkStatus: Types.TrustCenterDocWatermarkStatus | null
     standardID: string | null
-    file: { presignedURL: string | null; providedFileName: string; providedFileSize: number | null } | null
-    originalFile: { presignedURL: string | null; providedFileSize: number | null; providedFileName: string } | null
+    file: { id: string; presignedURL: string | null; providedFileName: string; providedFileSize: number | null; providedFileExtension: string; detectedMimeType: string | null } | null
+    originalFile: { id: string; presignedURL: string | null; providedFileName: string; providedFileSize: number | null; providedFileExtension: string; detectedMimeType: string | null } | null
   }
 }
 

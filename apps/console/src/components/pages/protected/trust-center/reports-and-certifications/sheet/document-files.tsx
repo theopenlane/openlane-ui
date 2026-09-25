@@ -8,7 +8,9 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 import { useGetTrustCenterDocById, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center-doc'
-import { type TDocumentFile, useGetFilesColumns } from './document-files-table-config'
+import { type TDocumentFile, getFilesColumns } from './document-files-table-config'
+import FilePreviewDialog from '@/components/shared/file-preview/file-preview-dialog'
+import { getTrustCenterDocAttachedFile } from '../trust-center-doc-file'
 import { DocumentUploadDialog } from './document-upload-dialog'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
@@ -21,6 +23,7 @@ export const DocumentFiles: React.FC<TDocumentFiles> = ({ documentId, editAllowe
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
   const [deleteFileInfo, setDeleteFileInfo] = useState<{ id: string | null; name: string | null }>({ id: null, name: null })
+  const [previewFile, setPreviewFile] = useState<TDocumentFile | null>(null)
   const { successNotification, errorNotification } = useNotification()
 
   const { mutateAsync: updateDocument } = useUpdateTrustCenterDoc()
@@ -52,34 +55,17 @@ export const DocumentFiles: React.FC<TDocumentFiles> = ({ documentId, editAllowe
     }
   }
 
-  const file: TDocumentFile[] = documentData?.trustCenterDoc?.file
-    ? [
-        {
-          id: documentData.trustCenterDoc.id,
-          providedFileName: documentData.trustCenterDoc.file.providedFileName,
-          providedFileSize: documentData.trustCenterDoc.file.providedFileSize,
-          presignedURL: documentData.trustCenterDoc.file.presignedURL ?? '',
-        },
-      ]
-    : documentData?.trustCenterDoc?.originalFile
-      ? [
-          {
-            id: documentData.trustCenterDoc.id,
-            providedFileName: documentData.trustCenterDoc.originalFile.providedFileName,
-            providedFileSize: documentData.trustCenterDoc.originalFile.providedFileSize,
-            presignedURL: documentData.trustCenterDoc.originalFile.presignedURL ?? '',
-          },
-        ]
-      : []
+  const attachedFile = documentData?.trustCenterDoc ? getTrustCenterDocAttachedFile(documentData.trustCenterDoc) : null
+  const files: TDocumentFile[] = attachedFile ? [attachedFile] : []
 
-  const columns = useGetFilesColumns({
-    onDelete: (file) => {
-      setDeleteDialogIsOpen(true)
-      setDeleteFileInfo({
-        id: file.id || null,
-        name: file.providedFileName,
-      })
-    },
+  const columns = getFilesColumns({
+    onPreview: setPreviewFile,
+    onDelete: editAllowed
+      ? (file) => {
+          setDeleteDialogIsOpen(true)
+          setDeleteFileInfo({ id: file.id, name: file.providedFileName })
+        }
+      : undefined,
   })
 
   return (
@@ -93,7 +79,9 @@ export const DocumentFiles: React.FC<TDocumentFiles> = ({ documentId, editAllowe
         )}
       </div>
 
-      <DataTable columns={columns} data={file} loading={!documentData} tableKey={TableKeyEnum.TRUST_CENTER_DOCUMENT_FILES} />
+      <DataTable columns={columns} data={files} loading={!documentData} tableKey={TableKeyEnum.TRUST_CENTER_DOCUMENT_FILES} />
+
+      <FilePreviewDialog file={previewFile} open={!!previewFile} onOpenChange={(open) => !open && setPreviewFile(null)} />
 
       <ConfirmationDialog
         open={deleteDialogIsOpen}
