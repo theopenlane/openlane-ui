@@ -40,7 +40,7 @@ const SummaryCard = ({ icon: Icon, label, count, isLoading, tooltipNames, totalC
           <Icon className="h-5 w-5 text-muted-foreground" />
         </div>
         <p className="mt-4 text-sm text-muted-foreground">{label}</p>
-        {isLoading ? <Skeleton className="mt-1 h-8 w-12 rounded" /> : <p className="text-3xl font-semibold">{count}</p>}
+        {isLoading ? <Skeleton className="my-1 h-7 w-12 rounded-full" /> : <p className="text-3xl font-semibold">{count}</p>}
       </CardContent>
     </Card>
   )
