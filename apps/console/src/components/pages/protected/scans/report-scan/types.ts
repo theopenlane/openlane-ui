@@ -105,6 +105,7 @@ export type ReportFinding = {
   source?: string
   reportedAt?: string
   refCodes: string[]
+  reviewId?: string
 }
 
 export type ReportProgram = {
