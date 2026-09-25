@@ -8,7 +8,7 @@ import { Form } from '@repo/ui/form'
 import { useQueryClient } from '@tanstack/react-query'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { type UseFormReturn, type FieldValues } from 'react-hook-form'
+import { type DefaultValues, type UseFormReturn, type FieldValues } from 'react-hook-form'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { canEdit, canDelete } from '@/lib/authz/utils'
 import { useObjectPermissionRoles } from './use-object-permission'
@@ -73,6 +73,7 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   buildPayload?: (data: TFormData) => Promise<TUpdateInput | TCreateInput>
   onSaved?: (params: { formData: TFormData; created: TCreateData | null; entityId: string | null }) => Promise<void>
   normalizeData?: (data: TData) => Partial<TFormData>
+  createDefaultValues?: NoInfer<DefaultValues<TFormData>>
   getName?: (data: TData) => string | null | undefined
 
   renderFields?: (props: RenderFieldsProps<TData, TUpdateInput>) => React.ReactNode
@@ -106,6 +107,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     buildPayload,
     onSaved,
     normalizeData,
+    createDefaultValues,
     formId: formIdOverride,
     renderHeader,
     renderFields,
@@ -152,7 +154,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
       setIsFormInitialized(false)
 
       if (isCreate) {
-        reset({} as TFormData, { keepDefaultValues: false })
+        reset(createDefaultValues ?? ({} as TFormData), { keepDefaultValues: false })
       } else if (data) {
         const normalizedData = normalizeData ? normalizeData(data) : Object.fromEntries(Object.entries(data ?? {}).map(([key, value]) => [key, value === null ? undefined : value]))
         reset(normalizedData as TFormData, { keepDefaultValues: false, keepDirty: false })
@@ -167,7 +169,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
 
     setIsOpen(false)
     setIsFormInitialized(false)
-  }, [data, isCreate, id, normalizeData, reset])
+  }, [data, isCreate, id, normalizeData, createDefaultValues, reset])
 
   const closeSheet = () => {
     setIsFormInitialized(false)

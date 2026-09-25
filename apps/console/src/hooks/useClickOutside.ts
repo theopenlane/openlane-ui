@@ -2,11 +2,16 @@ import { useEffect, useRef } from 'react'
 
 const useClickOutside = (callback: (event: MouseEvent) => void) => {
   const ref = useRef<HTMLDivElement | null>(null)
+  const callbackRef = useRef(callback)
+
+  useEffect(() => {
+    callbackRef.current = callback
+  }, [callback])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (ref.current && !ref.current.contains(event.target as Node)) {
-        callback(event)
+        callbackRef.current(event)
       }
     }
 
@@ -14,7 +19,7 @@ const useClickOutside = (callback: (event: MouseEvent) => void) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [callback])
+  }, [])
 
   return ref
 }

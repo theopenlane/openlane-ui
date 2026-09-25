@@ -6,8 +6,7 @@ import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbo
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { type IdentityHolderQuery, type UpdateIdentityHolderInput, type IdentityHolderUserStatus } from '@repo/codegen/src/schema'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
-import { PersonnelStatusIconMapper } from '@/components/shared/enum-mapper/personnel-enum'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { UserStatusLabel } from '@/components/shared/enum-mapper/user-status-enum'
 import { formatPhoneNumber } from '@/utils/strings'
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
 import { EmailAliasesField } from '../../../email-aliases-field'
@@ -106,12 +105,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
               options={enumOptions.statusOptions}
               useCustomDisplay={false}
               tooltipContent="The current status of this person"
-              renderValue={(value) => (
-                <div className="flex items-center space-x-2 text-sm">
-                  {PersonnelStatusIconMapper[value as IdentityHolderUserStatus]}
-                  <span>{getEnumLabel(value)}</span>
-                </div>
-              )}
+              renderValue={(value) => <UserStatusLabel status={value as IdentityHolderUserStatus} />}
               {...sharedFieldProps}
             />
             <CheckboxField name="isActive" label="Active" tooltipContent="Whether this person is currently active" {...sharedFieldProps} />

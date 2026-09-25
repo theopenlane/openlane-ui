@@ -3,7 +3,7 @@ import { type IdentityHoldersNodeNonNull } from '@/lib/graphql-hooks/identity-ho
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { type IdentityHolderUserStatus } from '@repo/codegen/src/schema.ts'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { PersonnelStatusBadge } from '@/components/shared/enum-mapper/personnel-enum'
+import { UserStatusBadge } from '@/components/shared/enum-mapper/user-status-enum'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
@@ -38,7 +38,7 @@ export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems 
       size: 150,
       cell: ({ cell }) => {
         const value = cell.getValue() as IdentityHolderUserStatus
-        return value ? <PersonnelStatusBadge status={value} /> : <div>-</div>
+        return value ? <UserStatusBadge status={value} /> : <div>-</div>
       },
     },
     {

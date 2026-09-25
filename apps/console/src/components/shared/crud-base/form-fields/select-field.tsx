@@ -28,7 +28,10 @@ interface SelectFieldProps<TUpdateInput> {
   icon?: React.ReactNode
   layout?: 'vertical' | 'horizontal'
   labelClassName?: string
+  triggerClassName?: string
+  placeholder?: string
   renderValue?: (value: string) => React.ReactNode
+  renderOption?: (value: string) => React.ReactNode
 }
 
 export const SelectField = <TUpdateInput,>({
@@ -48,7 +51,10 @@ export const SelectField = <TUpdateInput,>({
   icon,
   layout = 'vertical',
   labelClassName,
+  triggerClassName,
+  placeholder = 'Select',
   renderValue,
+  renderOption,
 }: SelectFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
   const rawValue = data?.[name]
@@ -73,7 +79,7 @@ export const SelectField = <TUpdateInput,>({
             {shouldShowInput ? (
               onCreateOption ? (
                 <CreatableCustomTypeEnumSelect
-                  value={field.value}
+                  value={field.value ?? undefined}
                   options={options}
                   onCreateOption={onCreateOption}
                   useCustomDisplay={useCustomDisplay}
@@ -88,7 +94,7 @@ export const SelectField = <TUpdateInput,>({
                 />
               ) : (
                 <Select
-                  value={field.value}
+                  value={field.value ?? undefined}
                   onValueChange={async (val) => {
                     field.onChange(val)
                     if (!isEditing && !isCreate && handleUpdate) {
@@ -98,12 +104,14 @@ export const SelectField = <TUpdateInput,>({
                   }}
                 >
                   <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue>
-                        {useCustomDisplay ? (
-                          <CustomTypeEnumValue value={field.value} options={options} placeholder="Select" />
+                    <SelectTrigger className={cn('w-full', triggerClassName)}>
+                      <SelectValue placeholder={placeholder}>
+                        {renderOption && field.value ? (
+                          renderOption(field.value)
+                        ) : useCustomDisplay ? (
+                          <CustomTypeEnumValue value={field.value} options={options} placeholder={field.value} />
                         ) : (
-                          <span>{options.find((opt) => opt.value === field.value)?.label || 'Select'}</span>
+                          <span>{options.find((opt) => opt.value === field.value)?.label ?? field.value}</span>
                         )}
                       </SelectValue>
                     </SelectTrigger>
@@ -111,7 +119,7 @@ export const SelectField = <TUpdateInput,>({
                   <SelectContent>
                     {options.map((o) => (
                       <SelectItem key={o.value} value={o.value}>
-                        {useCustomDisplay ? <CustomTypeEnumOptionChip option={o} /> : <span>{o.label}</span>}
+                        {renderOption ? renderOption(o.value) : useCustomDisplay ? <CustomTypeEnumOptionChip option={o} /> : <span>{o.label}</span>}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -6,7 +6,7 @@ import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useCreateContact } from '@/lib/graphql-hooks/contact'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
-import useFormSchema from '../hooks/use-form-schema'
+import useFormSchema, { CONTACT_CREATE_DEFAULT_VALUES } from '../hooks/use-form-schema'
 import { getFieldsToRender } from '../table/table-config'
 import { type ContactFieldProps, objectType } from '../table/types'
 
@@ -18,7 +18,7 @@ type ContactCreateSheetProps = {
 const statusOptions = enumToOptions(ContactUserStatus)
 
 const ContactCreateSheet: React.FC<ContactCreateSheetProps> = ({ open, onOpenChange }) => {
-  const { form } = useFormSchema()
+  const { form } = useFormSchema({ isCreate: true })
   const { tagOptions } = useGetTags()
   const baseCreateMutation = useCreateContact()
 
@@ -37,6 +37,7 @@ const ContactCreateSheet: React.FC<ContactCreateSheetProps> = ({ open, onOpenCha
       entityId={null}
       onClose={() => onOpenChange(false)}
       createMutation={createMutation}
+      createDefaultValues={CONTACT_CREATE_DEFAULT_VALUES}
       buildPayload={async (data) => ({ ...data })}
       renderFields={(props: ContactFieldProps) => getFieldsToRender(props, { statusOptions, tagOptions })}
     />

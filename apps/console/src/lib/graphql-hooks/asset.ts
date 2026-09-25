@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type AssetsWithFilterQuery,
@@ -58,9 +59,7 @@ export const useAssetsWithFilter = ({ where, orderBy, pagination, enabled = true
     enabled,
   })
 
-  const edges = queryResult.data?.assets?.edges ?? []
-
-  const assetsNodes: AssetsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as AssetsNodeNonNull)
+  const assetsNodes: AssetsNodeNonNull[] = useMemo(() => (queryResult.data?.assets?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node as AssetsNodeNonNull] : [])), [queryResult.data])
 
   return { ...queryResult, assetsNodes }
 }

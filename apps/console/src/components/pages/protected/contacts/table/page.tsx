@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import useFormSchema, { bulkEditFieldSchema, CONTACT_CREATE_DEFAULT_VALUES } from '../hooks/use-form-schema'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 import { type ContactsNodeNonNull, useContact, useUpdateContact, useCreateContact, useBulkDeleteContact, useBulkEditContact } from '@/lib/graphql-hooks/contact'
 import { useSearchParams } from 'next/navigation'
@@ -21,12 +21,12 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
 
 const ContactPage: React.FC = () => {
-  const { form } = useFormSchema()
-  const { data: session } = useSession()
-
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
+
+  const { form } = useFormSchema({ isCreate })
+  const { data: session } = useSession()
   const [isMergeOpen, setIsMergeOpen] = useState(false)
   const { data, isLoading } = useContact(id || undefined)
 
@@ -64,10 +64,7 @@ const ContactPage: React.FC = () => {
 
   const bulkEditMutation = baseBulkEditMutation
 
-  const statusOptions = Object.values(ContactUserStatus).map((value) => ({
-    value,
-    label: getEnumLabel(value as string),
-  }))
+  const statusOptions = enumToOptions(ContactUserStatus)
 
   const { tagOptions } = useGetTags()
 
@@ -84,6 +81,7 @@ const ContactPage: React.FC = () => {
     updateMutation,
     createMutation,
     deleteMutation,
+    createDefaultValues: CONTACT_CREATE_DEFAULT_VALUES,
     buildPayload: async (data) => {
       return { ...data }
     },

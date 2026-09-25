@@ -73,14 +73,16 @@ export const useEntitiesWithFilter = ({ where, orderBy, pagination, enabled = tr
     enabled,
   })
 
-  const edges = queryResult.data?.entities?.edges ?? []
-
-  const entitiesNodes: EntitiesNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as EntitiesNodeNonNull)
+  const entitiesNodes: EntitiesNodeNonNull[] = useMemo(() => (queryResult.data?.entities?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node as EntitiesNodeNonNull] : [])), [queryResult.data])
 
   return { ...queryResult, entitiesNodes }
 }
 
 export const VENDOR_ENTITY_TYPE_WHERE = { hasEntityTypeWith: [{ name: 'vendor' }] }
+
+export const vendorSearchWhere = (term: string) => (term ? { or: [{ displayNameContainsFold: term }, { nameContainsFold: term }] } : undefined)
+
+export const vendorDisplayName = (vendor: { id: string; name?: string | null; displayName?: string | null }) => vendor.displayName || vendor.name || vendor.id
 
 const VENDOR_WITH_CONTACTS_WHERE = { ...VENDOR_ENTITY_TYPE_WHERE, hasContacts: true }
 

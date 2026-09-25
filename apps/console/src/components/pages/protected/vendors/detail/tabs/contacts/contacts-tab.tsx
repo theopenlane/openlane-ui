@@ -34,7 +34,8 @@ import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { z } from 'zod'
 import type { WhereCondition } from '@/types'
-import ContactCard, { StatusCell, type ContactNode } from './contact-card'
+import ContactCard, { type ContactNode } from './contact-card'
+import { UserStatusLabel } from '@/components/shared/enum-mapper/user-status-enum'
 import AddContactDialog from './add-contact-dialog'
 import ContactDetailSheet from './contact-detail-sheet'
 import { useSuggestedContacts } from './use-suggested-contacts'
@@ -68,7 +69,7 @@ const DATA_COLUMNS: ColumnDef<ContactNode>[] = [
   { accessorKey: 'title', header: 'Title', size: 180, cell: ({ row }) => <span className="block truncate">{row.original.title ?? '-'}</span> },
   { accessorKey: 'phoneNumber', header: 'Phone', size: 150, cell: ({ row }) => <span>{row.original.phoneNumber ?? '-'}</span> },
   { accessorKey: 'address', header: 'Address', size: 200, cell: ({ row }) => <span className="truncate">{row.original.address ?? '-'}</span> },
-  { accessorKey: 'status', header: 'Status', size: 140, cell: ({ row }) => <StatusCell status={row.original.status} /> },
+  { accessorKey: 'status', header: 'Status', size: 140, cell: ({ row }) => <UserStatusLabel status={row.original.status} /> },
 ]
 
 const mappedColumns = getMappedColumns(DATA_COLUMNS)

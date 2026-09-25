@@ -4,25 +4,19 @@ import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { X } from 'lucide-react'
 import { Button } from '@repo/ui/button'
-import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
-import { getEmailDomain, isValidDomain } from '@/utils/strings'
 import { type ContactFormData } from '../../../hooks/use-form-schema'
+import { useVendorSuggestions } from '../../../hooks/use-vendor-suggestions'
 import { Callout } from '@/components/shared/callout/callout'
 
 const VendorSuggestion: React.FC = () => {
   const { watch, setValue } = useFormContext<ContactFormData>()
-  const email = watch('email')
   const entityIDs = watch('entityIDs') ?? []
-  const emailDomain = getEmailDomain(email)
-  const domain = emailDomain && isValidDomain(emailDomain) ? emailDomain : null
-
-  const { vendorNodes } = useVendorsWithFilter({ where: domain ? { domainsHas: domain } : undefined, enabled: !!domain })
-  const matches = domain ? vendorNodes : []
+  const { domain, matches } = useVendorSuggestions()
 
   if (matches.length === 0) return null
 
   const toggle = (id: string) => {
-    const next = entityIDs.includes(id) ? entityIDs.filter((x) => x !== id) : [...entityIDs, id]
+    const next = entityIDs.includes(id) ? [] : [id]
     setValue('entityIDs', next, { shouldDirty: true })
   }
 

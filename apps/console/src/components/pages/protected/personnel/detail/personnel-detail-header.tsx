@@ -11,7 +11,7 @@ import Menu from '@/components/shared/menu/menu'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { IdentityHolderUserStatus, type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
-import { PersonnelStatusBadge } from '@/components/shared/enum-mapper/personnel-enum'
+import { UserStatusBadge } from '@/components/shared/enum-mapper/user-status-enum'
 import { MergeMenuItem } from '@/components/shared/merge-records/merge-menu-item'
 import { personnelMergeConfig } from '@/components/shared/merge-records/configs/personnel-merge-config'
 import MenuItem from '@/components/shared/menu/menu-item'
@@ -119,7 +119,7 @@ const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({
             )}
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            {personnel.status && personnel.status !== IdentityHolderUserStatus.ACTIVE && personnel.status !== IdentityHolderUserStatus.INACTIVE && <PersonnelStatusBadge status={personnel.status} />}
+            {personnel.status && personnel.status !== IdentityHolderUserStatus.ACTIVE && personnel.status !== IdentityHolderUserStatus.INACTIVE && <UserStatusBadge status={personnel.status} />}
             {personnel.team && (
               <Badge variant="outline" className="text-muted-foreground">
                 {personnel.team}
