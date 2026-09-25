@@ -22,6 +22,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useFormContext, type FieldValues } from 'react-hook-form'
+import { FINDING_ASSIGNEE, FINDING_INTERNAL_OWNER, FINDING_REVIEWER } from '../../../finding-responsibility'
 import { type EnumCreateHandlers, type EnumOptions } from '../../../table/types'
 
 interface AdditionalFieldsProps {
@@ -86,9 +87,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           <CardDescription className="p-0">Identifiers and classification for the finding</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-4">
-            <ResponsibilityField name="internalOwner" fieldBaseName="internalOwner" label="Internal Owner" tooltipContent="Who owns this finding internally" {...sharedFieldProps} />
-          </div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField name="findingStatusName" label="Status" options={enumOptions.findingStatusOptions} onCreateOption={enumCreateHandlers?.findingStatusName} {...sharedFieldProps} />
             <TextField name="priority" label="Priority" {...sharedFieldProps} />
@@ -230,6 +228,26 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField name="environmentName" label="Environment" options={enumOptions.environmentOptions} onCreateOption={enumCreateHandlers?.environmentName} {...sharedFieldProps} />
             <SelectField name="scopeName" label="Scope" options={enumOptions.scopeOptions} onCreateOption={enumCreateHandlers?.scopeName} {...sharedFieldProps} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-md p-0">Assignment</CardTitle>
+          <CardDescription className="p-0">People responsible for triaging and reviewing this finding</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <ResponsibilityField
+              name="internalOwner"
+              {...FINDING_INTERNAL_OWNER}
+              label="Internal Owner"
+              tooltipContent="Who owns this finding internally, independent of who is triaging it"
+              {...sharedFieldProps}
+            />
+            <ResponsibilityField name="assignedTo" {...FINDING_ASSIGNEE} label="Assignee" tooltipContent="Who is responsible for remediating this finding" {...sharedFieldProps} />
+            <ResponsibilityField name="reviewedBy" {...FINDING_REVIEWER} label="Reviewed By" tooltipContent="Who reviewed this finding" {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
