@@ -44,6 +44,8 @@ const validatedName = (item: RawItem) => {
 
 type RawSystem = ReportSystem & { platformName?: string }
 
+type RawFinding = ReportFinding & { reviewExternalID?: string }
+
 const parsePlatform = (item: RawItem, id: string): ReportPlatform | undefined => {
   const name = text(item.name)
   if (!name) return undefined
@@ -78,6 +80,11 @@ const linkAssetsToVendors = (assets: ReportAsset[], vendors: ReportVendor[]): Re
     const assetKeys = companyNameKeys(asset.vendorName)
     return { ...asset, vendorId: vendorKeys.find(({ keys }) => keys.some((key) => assetKeys.includes(key)))?.id }
   })
+}
+
+const linkFindingsToReviews = (findings: RawFinding[], reviews: ReportReview[]): ReportFinding[] => {
+  const reviewIdByExternalId = new Map(reviews.flatMap((review) => (review.externalID ? [[review.externalID, review.id] as const] : [])))
+  return findings.map(({ reviewExternalID, ...finding }) => ({ ...finding, reviewId: reviewExternalID ? reviewIdByExternalId.get(reviewExternalID) : undefined }))
 }
 
 const parseVendor = (item: RawItem, id: string): ReportVendor | undefined => {
@@ -153,7 +160,7 @@ const parseReview = (item: RawItem, id: string): ReportReview | undefined => {
   }
 }
 
-const parseFinding = (item: RawItem, id: string): ReportFinding | undefined => {
+const parseFinding = (item: RawItem, id: string): RawFinding | undefined => {
   const description = text(item.description)
   if (!description) return undefined
   return {
@@ -164,6 +171,7 @@ const parseFinding = (item: RawItem, id: string): ReportFinding | undefined => {
     source: text(item.source),
     reportedAt: text(item.reported_at),
     refCodes: textList(item.refCodes),
+    reviewExternalID: text(item.reviewExternalID),
   }
 }
 
@@ -196,6 +204,7 @@ export const parseReport = (metadata: unknown): ParsedReport | undefined => {
 
   const controls = uniqueBy(withIds<ReportControl>('controls', sectionItems(report, 'controls'), parseControl), (control) => control.refCode)
   const platforms = uniqueBy(withIds<ReportPlatform>('platforms', sectionItems(report, 'platforms'), parsePlatform), byName)
+  const reviews = withIds<ReportReview>('reviews', sectionItems(report, 'reviews'), parseReview)
   const vendors = uniqueBy(withIds<ReportVendor>('vendors', sectionItems(report, 'entities'), parseVendor), byName)
 
   return {
@@ -205,8 +214,8 @@ export const parseReport = (metadata: unknown): ParsedReport | undefined => {
     assets: linkAssetsToVendors(uniqueBy(withIds<ReportAsset>('assets', sectionItems(report, 'assets'), parseAsset), byName), vendors),
     groups: uniqueBy(withIds<ReportGroup>('groups', sectionItems(report, 'groups'), parseGroup), byName),
     controls,
-    reviews: withIds<ReportReview>('reviews', sectionItems(report, 'reviews'), parseReview),
-    findings: withIds<ReportFinding>('findings', sectionItems(report, 'findings'), parseFinding),
+    reviews,
+    findings: linkFindingsToReviews(withIds<RawFinding>('findings', sectionItems(report, 'findings'), parseFinding), reviews),
     program: parseProgram(sectionItems(report, 'programs')[0]),
     reportedCategories: reportedCategoriesOf(controls, sectionItems(report, 'domains')),
   }
