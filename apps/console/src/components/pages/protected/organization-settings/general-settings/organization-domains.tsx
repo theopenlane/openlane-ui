@@ -117,7 +117,16 @@ const OrganizationDomains = () => {
         <div className="flex flex-wrap items-center gap-2">
           <DomainListEditor domains={domains} emptyText="No domains yet." />
           <DisabledReasonTooltip reason={settingId ? null : 'Organization settings are still loading.'}>
-            <Button type="button" variant="secondary" icon={<Pencil size={14} />} aria-label="Edit domains" onClick={() => setIsEditing(true)} disabled={!settingId} />
+            <Button
+              type="button"
+              variant="secondary"
+              size="icon-xs"
+              className="size-6.5"
+              icon={<Pencil />}
+              descriptiveTooltipText="Edit domains"
+              onClick={() => setIsEditing(true)}
+              disabled={!settingId}
+            />
           </DisabledReasonTooltip>
         </div>
       )}
