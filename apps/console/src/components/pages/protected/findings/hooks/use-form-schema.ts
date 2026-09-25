@@ -13,6 +13,8 @@ const numericField = z.preprocess((val) => {
 
 const formSchema = z.object({
   internalOwner: responsibilityFieldSchema,
+  assignedTo: responsibilityFieldSchema,
+  reviewedBy: responsibilityFieldSchema,
   displayName: z.string().optional(),
   description: z.custom<Value | string>().optional(),
   category: z.string().optional(),

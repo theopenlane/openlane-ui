@@ -3807,6 +3807,8 @@ export type FindingQueryVariables = Exact<{
 
 export interface FindingQuery {
   finding: {
+    assignedTo: string | null
+    reviewedBy: string | null
     assessmentID: string | null
     blocksProduction: boolean | null
     category: string | null
@@ -3856,6 +3858,12 @@ export interface FindingQuery {
     updatedBy: string | null
     validated: boolean | null
     vector: string | null
+    assignedToUser: { id: string; displayName: string } | null
+    assignedToGroup: { id: string; displayName: string } | null
+    assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
+    reviewedByUser: { id: string; displayName: string } | null
+    reviewedByGroup: { id: string; displayName: string } | null
+    reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null

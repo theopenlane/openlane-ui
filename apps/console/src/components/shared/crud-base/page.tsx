@@ -69,7 +69,17 @@ export interface TTableProps<TWhereInput> {
   rowHref?: (item: { id: string }) => string
 }
 
-export interface GenericTablePageConfig<TEntity extends { id: string }, TFormData extends FieldValues, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField extends string> {
+export interface GenericTablePageConfig<
+  TEntity extends { id: string },
+  TFormData extends FieldValues,
+  TUpdateInput,
+  TUpdateData,
+  TCreateInput,
+  TCreateData,
+  TWhereInput,
+  TOrderField extends string,
+  TSheetEntity = TEntity,
+> {
   // Entity configuration
   objectType: ObjectTypes
   objectName: ObjectNames
@@ -128,10 +138,10 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   }>
 
   // Sheet configuration
-  sheetConfig: Omit<GenericDetailsSheetConfig<TFormData, TEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData>, 'form' | 'onClose'>
+  sheetConfig: Omit<GenericDetailsSheetConfig<TFormData, TSheetEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData>, 'form' | 'onClose'>
 
   // View/Create mode configuration
-  viewEditMode?: ViewEditMode<TEntity, TUpdateInput>
+  viewEditMode?: ViewEditMode<TSheetEntity, TUpdateInput>
   createMode?: CreateMode
 
   // Bulk operations
@@ -158,7 +168,8 @@ export function GenericTablePage<
   TCreateData,
   TWhereInput extends object,
   TOrderField extends string,
->(config: GenericTablePageConfig<TEntity, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField>) {
+  TSheetEntity = TEntity,
+>(config: GenericTablePageConfig<TEntity, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField, TSheetEntity>) {
   const {
     objectType,
     displayName,
@@ -357,12 +368,14 @@ export function GenericTablePage<
 
     // Handle tabbed view/edit mode
     if (id && resolvedViewMode === 'tabbed' && viewEditMode?.type === 'tabbed') {
-      return <TabbedDetailView<TFormData, TEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData> key={id} onClose={handleCloseSheet} form={form} tabs={viewEditMode.tabs} {...sheetConfig} />
+      return (
+        <TabbedDetailView<TFormData, TSheetEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData> key={id} onClose={handleCloseSheet} form={form} tabs={viewEditMode.tabs} {...sheetConfig} />
+      )
     }
 
     // Default: slideout for both view/edit and create
     if (id || isCreate) {
-      return <GenericDetailsSheet<TFormData, TEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData> key={id || 'create'} onClose={handleCloseSheet} form={form} {...sheetConfig} />
+      return <GenericDetailsSheet<TFormData, TSheetEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData> key={id || 'create'} onClose={handleCloseSheet} form={form} {...sheetConfig} />
     }
 
     return null
