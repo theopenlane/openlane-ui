@@ -2,6 +2,7 @@ import type { ImportFieldMeta } from '@repo/codegen/src/import-fields.generated'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatList } from '@/utils/strings'
 import { isUlid } from '@/lib/validators'
+import { inferDateOrder, isAmbiguousDate, isCanonicalDate, normalizeLooseDate, type TDateOrder } from '@/utils/loose-date'
 import type { TDestinationField, TValueMap } from './types'
 
 export const MAX_MAPPABLE_VALUES = 50
@@ -15,20 +16,19 @@ export type TInvalidValue = {
 export type TColumnCellCheck = {
   expected: string
   invalidValues: TInvalidValue[]
+  conversions: Readonly<Record<string, string>>
+  convertedRowCount: number
+  dateOrder?: TDateOrder
   mappableValues?: readonly string[]
   tooManyToMap?: boolean
 }
 
-const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/
-const RFC3339 = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d+)?(Z|[+-](\d{2}):(\d{2}))$/
 const INTEGER = /^[+-]?(0|[1-9]\d*)$/
 const DECIMAL = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/
 const GO_BOOLEANS = new Set(['1', 't', 'T', 'TRUE', 'true', 'True', '0', 'f', 'F', 'FALSE', 'false', 'False'])
 const YES_NO = /^(yes|no)$/i
 const LIST_DELIMITERS = [';', '|', ',']
 const MIN_SUGGESTION_LENGTH = 3
-const MAX_HOUR = 23
-const MAX_MINUTE = 59
 
 export const toEnumToken = (value: string): string =>
   value
@@ -40,24 +40,6 @@ export const toEnumToken = (value: string): string =>
     .filter(Boolean)
     .join('_')
     .toUpperCase()
-
-const isValidCalendarDate = (value: string): boolean => {
-  const dateOnly = DATE_ONLY.exec(value)
-  if (!dateOnly) return false
-  const [, year, month, day] = dateOnly.map(Number)
-  const date = new Date(Date.UTC(year, month - 1, day))
-  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
-}
-
-const isValidTimestamp = (value: string): boolean => {
-  const match = RFC3339.exec(value)
-  if (!match) return false
-  const [, date, hour, minute, second, , , offsetHour, offsetMinute] = match
-  const withinRange = [hour, offsetHour ?? '0'].every((part) => Number(part) <= MAX_HOUR) && [minute, second, offsetMinute ?? '0'].every((part) => Number(part) <= MAX_MINUTE)
-  return withinRange && isValidCalendarDate(date)
-}
-
-const isValidDate = (value: string): boolean => isValidCalendarDate(value) || isValidTimestamp(value)
 
 const NOT_JSON = Symbol('not-json')
 
@@ -84,14 +66,24 @@ const splitListCell = (cell: string): string[] | null => {
   return (delimiter ? cell.split(delimiter) : [cell]).map((item) => item.trim()).filter(Boolean)
 }
 
-type TItemRule = { expected: string; isValid: (value: string) => boolean }
+type TItemRule = { expected: string; isValid: (value: string) => boolean; normalize?: (value: string) => string | null }
+
+const dateRule = (meta: ImportFieldMeta, order: TDateOrder): TItemRule => {
+  const timestamp = meta.timestamp === true
+  const referenceYear = new Date().getFullYear()
+  const isValid = (value: string) => isCanonicalDate(value, timestamp)
+  if (meta.list) return { expected: timestamp ? 'a timestamp like 2026-02-07T16:09:36Z' : 'a date like 2026-02-07 or 2026-02-07T16:09:36Z', isValid }
+  return {
+    expected: timestamp ? 'a date or time like 2026-02-07T16:09:36Z, 2/7/2026 4:09 PM or Feb 7, 2026' : 'a date like 2026-02-07, 2/7/2026 or Feb 7, 2026',
+    isValid,
+    normalize: (value) => normalizeLooseDate(value, { order, timestamp, referenceYear }),
+  }
+}
 
 const itemRule = (meta: ImportFieldMeta): TItemRule | null => {
   switch (meta.kind) {
     case 'id':
       return { expected: 'an Openlane ID (a 26-character ULID)', isValid: isUlid }
-    case 'date':
-      return meta.timestamp ? { expected: 'a timestamp like 2026-02-07T16:09:36Z', isValid: isValidTimestamp } : { expected: 'a date like 2026-02-07 or 2026-02-07T16:09:36Z', isValid: isValidDate }
     case 'boolean':
       return { expected: 'true, false, yes or no', isValid: (value) => GO_BOOLEANS.has(value) || YES_NO.test(value) }
     case 'number':
@@ -115,32 +107,51 @@ const suggestEnumValue = (value: string, enumValues: readonly string[]): string 
   return candidates.length === 1 ? candidates[0] : undefined
 }
 
-const checkCells = (rows: string[][], columnIndex: number, meta: ImportFieldMeta): TColumnCellCheck | null => {
-  const rule = itemRule(meta)
+const checkCells = (rows: string[][], columnIndex: number, meta: ImportFieldMeta, dateOrder: TDateOrder | undefined): TColumnCellCheck | null => {
+  const distinctDates = meta.kind === 'date' ? new Set(rows.map((row) => row[columnIndex]?.trim() ?? '')) : undefined
+  const order = distinctDates ? (dateOrder ?? inferDateOrder(distinctDates)) : undefined
+  const rule = order ? dateRule(meta, order) : itemRule(meta)
   if (!rule) return null
 
-  const isValidCell = (cell: string) => (meta.list ? splitListCell(cell) : [cell])?.every(rule.isValid) ?? false
+  const resolveCell = (cell: string): string | null => {
+    if (rule.normalize) return rule.normalize(cell)
+    return (meta.list ? splitListCell(cell) : [cell])?.every(rule.isValid) ? cell : null
+  }
   const blankIsInvalid = meta.timestamp === true && !meta.list
-  const validity = new Map<string, boolean>()
+  const resolved = new Map<string, string | null>()
   const invalid = new Map<string, number[]>()
+  const conversions = new Map<string, string>()
+  let convertedRowCount = 0
   rows.forEach((row, rowIndex) => {
     const cell = row[columnIndex]?.trim() ?? ''
     if (!cell && !blankIsInvalid) return
-    const isValid = cell !== '' && (validity.get(cell) ?? isValidCell(cell))
-    validity.set(cell, isValid)
-    if (isValid) return
+    let canonical = resolved.get(cell)
+    if (canonical === undefined) {
+      canonical = cell ? resolveCell(cell) : null
+      resolved.set(cell, canonical)
+    }
+    if (canonical !== null) {
+      if (canonical !== cell) {
+        conversions.set(cell, canonical)
+        convertedRowCount++
+      }
+      return
+    }
     const rowIndexes = invalid.get(cell)
     if (rowIndexes) rowIndexes.push(rowIndex)
     else invalid.set(cell, [rowIndex])
   })
 
-  if (invalid.size === 0) return null
+  if (invalid.size === 0 && conversions.size === 0) return null
 
   const isEnumColumn = meta.kind === 'enum' && !meta.list
   const mappableValues = isEnumColumn && invalid.size <= MAX_MAPPABLE_VALUES ? meta.enumValues : undefined
   return {
     expected: meta.list ? `${rule.expected} for every item in the list` : rule.expected,
     invalidValues: [...invalid].map(([value, rowIndexes]) => ({ value, rowIndexes, suggestion: mappableValues ? suggestEnumValue(value, mappableValues) : undefined })),
+    conversions: Object.fromEntries(conversions),
+    convertedRowCount,
+    dateOrder: rule.normalize && distinctDates && [...distinctDates].some(isAmbiguousDate) ? order : undefined,
     mappableValues,
     tooManyToMap: isEnumColumn && !mappableValues,
   }
@@ -148,17 +159,17 @@ const checkCells = (rows: string[][], columnIndex: number, meta: ImportFieldMeta
 
 const checkCache = new WeakMap<string[][], Map<string, TColumnCellCheck | null>>()
 
-export const checkColumnCells = (rows: string[][], columnIndex: number, field: TDestinationField | undefined): TColumnCellCheck | null => {
+export const checkColumnCells = (rows: string[][], columnIndex: number, field: TDestinationField | undefined, dateOrder?: TDateOrder): TColumnCellCheck | null => {
   if (!field?.meta) return null
 
   const byColumn = checkCache.get(rows) ?? new Map<string, TColumnCellCheck | null>()
   checkCache.set(rows, byColumn)
 
-  const key = `${columnIndex}:${field.name}`
+  const key = `${columnIndex}:${field.name}:${dateOrder ?? ''}`
   const cached = byColumn.get(key)
   if (cached !== undefined) return cached
 
-  const result = checkCells(rows, columnIndex, field.meta)
+  const result = checkCells(rows, columnIndex, field.meta, dateOrder)
   byColumn.set(key, result)
   return result
 }

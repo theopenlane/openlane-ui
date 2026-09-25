@@ -1,4 +1,5 @@
 import type { ImportFieldMeta } from '@repo/codegen/src/import-fields.generated'
+import type { TDateOrder } from '@/utils/loose-date'
 
 export type TSuggestedConfidence = 'exact' | 'normalized' | 'alias' | 'suggested' | 'pattern' | 'none'
 
@@ -43,6 +44,13 @@ export type TColumnMapping = {
   field: string | null
   confidence: TMatchConfidence
   valueMap?: TValueMap
+  conversion?: TCellConversion
+}
+
+export type TCellConversion = {
+  values: Readonly<Record<string, string>>
+  rowCount: number
+  dateOrder?: TDateOrder
 }
 
 export type TImportIssue = {
