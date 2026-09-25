@@ -175,6 +175,7 @@ export const buildImportPlan = ({ report, scanId, selection, platformOverrides, 
     findings: selected.findings.map((finding) => ({
       ref: finding.id,
       controlRefs: selectedRefCodes(finding.refCodes),
+      reviewRef: finding.reviewId,
       input: {
         displayName: findingDisplayName(finding.description),
         description: finding.description,
