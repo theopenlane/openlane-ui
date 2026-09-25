@@ -6,7 +6,7 @@ import { Lightbulb, Link2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { DismissButton, SuggestionCard, SuggestionRow } from '@/components/shared/docs-help/suggestion-card'
 import { useDismissible } from '@/hooks/useDismissible'
-import { docsHelpAvailable } from '@repo/dally/ai'
+import { useSuggestionsEnabled } from '@/hooks/useSuggestionsEnabled'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'
@@ -68,14 +68,16 @@ export function SuggestedControlMappings({
   // suggesting before the existing links are known produces false positives
   linkedControlsLoading?: boolean
 }) {
+  const suggestionsEnabled = useSuggestionsEnabled()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updatePolicy } = useUpdateInternalPolicy()
   const [busyId, setBusyId] = useState<string | null>(null)
 
   const { dismissed, dismiss, isResolved } = useDismissible(`suggested-control-mappings-dismissed:${policyId}`)
+  const active = suggestionsEnabled && isResolved && !dismissed
 
   // the matching Policy Hub template, if any, for its satisfies frontmatter
-  const { data: templates } = usePolicyTemplates(docsHelpAvailable && isResolved && !dismissed)
+  const { data: templates } = usePolicyTemplates(active)
   const template = policyName ? findPolicyTemplate(templates, policyName) : undefined
 
   const templateUrl = template?.downloadUrl
@@ -110,10 +112,10 @@ export function SuggestedControlMappings({
   // controls with the same ref codes, but a policy can't be mapped to those
   const { data: controlsData } = useGetAllControls({
     where: { refCodeIn: wantedRefCodes, systemOwned: false, isTrustCenterControl: false },
-    enabled: docsHelpAvailable && isResolved && !dismissed && wantedRefCodes.length > 0,
+    enabled: active && wantedRefCodes.length > 0,
   })
 
-  if (!docsHelpAvailable || dismissed || linkedControlsLoading) return null
+  if (!suggestionsEnabled || dismissed || linkedControlsLoading) return null
 
   const linked = new Set(linkedControlIds)
   const templateSet = new Set((templateRefCodes ?? []).map(normalizeRef))
