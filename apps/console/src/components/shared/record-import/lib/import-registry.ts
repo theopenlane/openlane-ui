@@ -25,8 +25,10 @@ import {
   type CreateSystemDetailInput,
   type CreateTaskInput,
   type CreateTemplateInput,
+  type CreateTrustCenterNdaRequestInput,
   type CreateVulnerabilityInput,
 } from '@repo/codegen/src/schema'
+import type { TDestinationField } from './types'
 
 type TRequiredInputKeys<TInput> = { [K in keyof TInput]-?: object extends Pick<TInput, K> ? never : K }[keyof TInput]
 
@@ -39,6 +41,7 @@ type TImportEntityDefinition<TInput> = {
   requiredOneOf?: readonly TRequiredOneOf<TInput>[]
   primaryField?: TStringInputKeys<TInput>
   autoValues?: { [K in TStringInputKeys<TInput>]?: NonNullable<TInput[K]> }
+  uniqueFields?: readonly TStringInputKeys<TInput>[]
   aliases?: Record<string, readonly string[]>
 }
 
@@ -47,14 +50,16 @@ export type TImportEntityConfig = {
   requiredOneOf: string[][]
   primaryField?: string
   autoValues: Record<string, string>
+  uniqueFields: string[]
   aliases: Record<string, readonly string[]>
 }
 
-const defineImportEntity = <TInput>({ required, requiredOneOf, primaryField, autoValues, aliases }: TImportEntityDefinition<TInput>): TImportEntityConfig => ({
+const defineImportEntity = <TInput>({ required, requiredOneOf, primaryField, autoValues, uniqueFields, aliases }: TImportEntityDefinition<TInput>): TImportEntityConfig => ({
   requiredFields: Object.keys(required),
   requiredOneOf: (requiredOneOf ?? []).map((group) => group.map(String)),
   primaryField: primaryField === undefined ? undefined : String(primaryField),
   autoValues: Object.fromEntries(Object.entries(autoValues ?? {}).filter((entry): entry is [string, string] => typeof entry[1] === 'string')),
+  uniqueFields: (uniqueFields ?? []).map(String),
   aliases: aliases ?? {},
 })
 
@@ -81,6 +86,13 @@ const CONTROL_ALIASES: Record<string, readonly string[]> = {
   referenceframework: ['framework', 'standard'],
   implementationstatus: ['implementation'],
   mappedcategories: ['mappings'],
+}
+
+const NDA_REQUEST_ALIASES: Record<string, readonly string[]> = {
+  firstname: ['first', 'givenname', 'forename'],
+  lastname: ['last', 'surname', 'familyname'],
+  companyname: ['company', 'organization', 'organisation', 'employer'],
+  signedat: ['signed', 'signedon', 'signeddate', 'datesigned', 'signaturedate', 'executedon', 'executiondate'],
 }
 
 const IMPORT_ENTITIES: Partial<Record<ObjectTypes, TImportEntityConfig>> = {
@@ -111,10 +123,24 @@ const IMPORT_ENTITIES: Partial<Record<ObjectTypes, TImportEntityConfig>> = {
   [ObjectTypes.SYSTEM_DETAIL]: defineImportEntity<CreateSystemDetailInput>({ required: { systemName: true } }),
   [ObjectTypes.TASK]: defineImportEntity<CreateTaskInput>({ required: { title: true } }),
   [ObjectTypes.TEMPLATE]: defineImportEntity<CreateTemplateInput>({ required: { jsonconfig: true, name: true } }),
+  [ObjectTypes.TRUST_CENTER_NDA_REQUEST]: defineImportEntity<CreateTrustCenterNdaRequestInput>({
+    required: { email: true, firstName: true, lastName: true },
+    primaryField: 'email',
+    uniqueFields: ['email'],
+    aliases: NDA_REQUEST_ALIASES,
+  }),
   [ObjectTypes.VULNERABILITY]: defineImportEntity<CreateVulnerabilityInput>({ required: { externalID: true } }),
 }
 
-const EMPTY_ENTITY_CONFIG: TImportEntityConfig = { requiredFields: [], requiredOneOf: [], autoValues: {}, aliases: {} }
+export const defineFixedImportField = <TInput>({ field, label, value, valueLabel }: { field: TStringInputKeys<TInput>; label: string; value: string; valueLabel: string }): TDestinationField => ({
+  name: String(field),
+  label,
+  autoValue: value,
+  autoValueLabel: valueLabel,
+  fuzzyMatchable: false,
+})
+
+const EMPTY_ENTITY_CONFIG: TImportEntityConfig = { requiredFields: [], requiredOneOf: [], autoValues: {}, uniqueFields: [], aliases: {} }
 
 export const getImportEntityConfig = (entityType: ObjectTypes): TImportEntityConfig => IMPORT_ENTITIES[entityType] ?? EMPTY_ENTITY_CONFIG
 

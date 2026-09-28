@@ -8,7 +8,7 @@ import { useCreateBulkCSVTask } from '@/lib/graphql-hooks/task'
 const TaskImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVTask()
 
-  return <RecordImportPage entityType={ObjectTypes.TASK} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.TASK} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default TaskImportPage

@@ -8,7 +8,7 @@ import { useCreateBulkCSVGroup } from '@/lib/graphql-hooks/group'
 const GroupImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVGroup()
 
-  return <RecordImportPage entityType={ObjectTypes.GROUP} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.GROUP} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default GroupImportPage

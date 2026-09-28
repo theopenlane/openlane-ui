@@ -8,7 +8,7 @@ import { useCreateBulkCSVEntity } from '@/lib/graphql-hooks/entity'
 const VendorImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVEntity()
 
-  return <RecordImportPage entityType={ObjectTypes.ENTITY} onImport={(input) => mutateAsync({ input, entityTypeName: 'vendor' })} />
+  return <RecordImportPage entityType={ObjectTypes.ENTITY} onImport={(mapped) => mutateAsync({ input: mapped.toFile(), entityTypeName: 'vendor' })} />
 }
 
 export default VendorImportPage

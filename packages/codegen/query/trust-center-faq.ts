@@ -87,16 +87,6 @@ export const UPDATE_TRUST_CENTER_FAQ_COMMENT = gql`
   }
 `
 
-export const CREATE_CSV_BULK_TRUST_CENTER_FAQ = gql`
-  mutation CreateBulkCSVTrustCenterFAQ($input: Upload!) {
-    createBulkCSVTrustCenterFAQ(input: $input) {
-      trustCenterFAQs {
-        id
-      }
-    }
-  }
-`
-
 export const BULK_DELETE_TRUST_CENTER_FAQ = gql`
   mutation DeleteBulkTrustCenterFAQ($ids: [ID!]!) {
     deleteBulkTrustCenterFAQ(ids: $ids) {
@@ -113,6 +103,16 @@ export const BULK_EDIT_TRUST_CENTER_FAQ = gql`
       updatedIDs
       notUpdatedIDs
       error
+    }
+  }
+`
+
+export const CREATE_BULK_TRUST_CENTER_FAQ = gql`
+  mutation CreateBulkTrustCenterFAQ($input: [CreateTrustCenterFAQInput!]) {
+    createBulkTrustCenterFAQ(input: $input) {
+      trustCenterFAQs {
+        id
+      }
     }
   }
 `

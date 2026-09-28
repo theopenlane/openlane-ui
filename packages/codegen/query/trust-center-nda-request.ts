@@ -106,3 +106,26 @@ export const DELETE_BULK_TRUST_CENTER_NDA_REQUEST = gql`
     }
   }
 `
+
+export const CREATE_CSV_BULK_TRUST_CENTER_NDA_REQUEST = gql`
+  mutation CreateBulkCSVTrustCenterNDARequest($input: Upload!) {
+    createBulkCSVTrustCenterNDARequest(input: $input) {
+      trustCenterNDARequests {
+        id
+      }
+    }
+  }
+`
+
+export const GET_TRUST_CENTER_NDA_REQUEST_EMAILS = gql`
+  query GetTrustCenterNDARequestEmails($where: TrustCenterNDARequestWhereInput, $first: Int) {
+    trustCenterNdaRequests(where: $where, first: $first) {
+      edges {
+        node {
+          id
+          email
+        }
+      }
+    }
+  }
+`
