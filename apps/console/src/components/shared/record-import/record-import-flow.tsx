@@ -27,11 +27,10 @@ type TRecordImportFlowProps = {
   destination?: TImportDestination
   fixedFields?: readonly TDestinationField[]
   automaticValues?: readonly TImportAutomaticValue[]
-  notice?: React.ReactNode
   onImport: (mapped: TMappedImport) => Promise<unknown>
 }
 
-export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType, route, destination, fixedFields, automaticValues, notice, onImport }) => {
+export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType, route, destination, fixedFields, automaticValues, onImport }) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { successNotification, errorNotification } = useNotification()
@@ -133,8 +132,6 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
       </div>
 
       <ImportStepNav current={step} />
-
-      {notice}
 
       {isDestinationError ? (
         <p className="py-10 text-center text-sm text-muted-foreground">The {toLowerLabel(entityLabel)} field reference could not be loaded, so columns cannot be mapped. Please try again later.</p>
