@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@repo/ui/button'
-import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
+import { readReturnTo } from '@/utils/return-to'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -14,7 +14,7 @@ import { isImpersonation } from '@/lib/authz/utils'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { type TAccessRole } from '@/types/authz'
 import { RecordImportFlow } from './record-import-flow'
-import { canImportWith, IMPORT_ROUTES, RETURN_TO_PARAM, type TImportableObjectType, type TImportRoute } from './lib/import-routes'
+import { canImportWith, IMPORT_ROUTES, type TImportableObjectType, type TImportRoute } from './lib/import-routes'
 import type { TDestinationField, TImportAutomaticValue, TImportDestination, TMappedImport } from './lib/types'
 
 export type TImportRoles = { roles: TAccessRole[] | undefined; isPending: boolean }
@@ -26,7 +26,6 @@ export type TRecordImportPageProps = {
   destination?: TImportDestination
   fixedFields?: readonly TDestinationField[]
   automaticValues?: readonly TImportAutomaticValue[]
-  notice?: React.ReactNode
   onImport: (mapped: TMappedImport) => Promise<unknown>
 }
 
@@ -40,7 +39,7 @@ export const RecordImportSkeleton: React.FC = () => (
 export const RecordImportUnavailable: React.FC<{ message: React.ReactNode; backHref: string; backLabel: string }> = ({ message, backHref, backLabel }) => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const returnHref = sanitizeLoginRedirect(searchParams.get(RETURN_TO_PARAM), backHref)
+  const returnHref = readReturnTo(searchParams, backHref)
 
   return (
     <div className="py-16 text-center text-muted-foreground">
@@ -52,7 +51,7 @@ export const RecordImportUnavailable: React.FC<{ message: React.ReactNode; backH
   )
 }
 
-export const RecordImportPage: React.FC<TRecordImportPageProps> = ({ entityType, route: routeOverride, roles, destination, fixedFields, automaticValues, notice, onImport }) => {
+export const RecordImportPage: React.FC<TRecordImportPageProps> = ({ entityType, route: routeOverride, roles, destination, fixedFields, automaticValues, onImport }) => {
   const route: TImportRoute = routeOverride ?? IMPORT_ROUTES[entityType]
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: session } = useSession()
@@ -79,7 +78,6 @@ export const RecordImportPage: React.FC<TRecordImportPageProps> = ({ entityType,
       destination={destination}
       fixedFields={fixedFields}
       automaticValues={automaticValues}
-      notice={notice}
       onImport={onImport}
     />
   )
