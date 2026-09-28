@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
+import { toLowerLabel } from '@/utils/strings'
 import { Download } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { RecordPreviewTable } from '@/components/shared/record-preview/record-preview-table'
@@ -29,7 +30,7 @@ export const FieldReferencePanel: React.FC<TFieldReferencePanelProps> = ({ id, e
           <h3 id={`${id}-heading`} className="text-sm font-medium">
             {entityLabel} field reference
           </h3>
-          <p className="text-xs text-muted-foreground">Every column the {entityLabel.toLowerCase()} importer accepts. You do not need to match this layout — map your own columns in the next step.</p>
+          <p className="text-xs text-muted-foreground">Every column the {toLowerLabel(entityLabel)} importer accepts. You do not need to match this layout — map your own columns in the next step.</p>
         </div>
         <Button
           variant="secondary"

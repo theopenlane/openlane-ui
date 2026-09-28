@@ -8,7 +8,7 @@ import { useCreateBulkCSVControl } from '@/lib/graphql-hooks/control'
 const ControlImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVControl()
 
-  return <RecordImportPage entityType={ObjectTypes.CONTROL} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.CONTROL} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default ControlImportPage

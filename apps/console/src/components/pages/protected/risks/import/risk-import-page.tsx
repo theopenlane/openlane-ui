@@ -8,7 +8,7 @@ import { useCreateBulkCSVRisk } from '@/lib/graphql-hooks/risk'
 const RiskImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVRisk()
 
-  return <RecordImportPage entityType={ObjectTypes.RISK} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.RISK} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default RiskImportPage

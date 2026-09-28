@@ -9,7 +9,7 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'
 import { useNotification } from '@/hooks/useNotification'
-import { formatFileSize, formatList, pluralizeWithCount } from '@/utils/strings'
+import { formatFileSize, formatList, pluralizeWithCount, toLowerLabel } from '@/utils/strings'
 import { MAX_IMPORT_FILE_SIZE_MB, parseDelimitedFile } from '../lib/delimited-file'
 import type { TDestinationField, TParsedDelimitedFile } from '../lib/types'
 
@@ -132,7 +132,7 @@ export const UploadStep: React.FC<TUploadStepProps> = ({ entityLabel, parsed, on
                   <p>{requirementCount === 0 ? 'No required fields' : pluralizeWithCount(requirementCount, 'required field')}</p>
                   <p className="text-xs text-muted-foreground">
                     {requirementCount === 0
-                      ? `Every ${entityLabel.toLowerCase()} field is optional — map whichever columns you have.`
+                      ? `Every ${toLowerLabel(entityLabel)} field is optional — map whichever columns you have.`
                       : `${formatList(requirements)} must come from a column in your file. Everything else is optional.`}
                   </p>
                 </>

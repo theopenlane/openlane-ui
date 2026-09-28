@@ -12,7 +12,7 @@ const PRIMARY_FIELD_FALLBACKS = ['name', 'title']
 
 export const buildDestinationFields = (entityType: ObjectTypes, sampleCsv: string, metadata: TImportFieldMetadata = {}): TDestinationFieldSet => {
   const sample = parseDelimitedText(sampleCsv, { previewRows: 1 })
-  const { requiredFields, requiredOneOf, primaryField, autoValues } = getImportEntityConfig(entityType)
+  const { requiredFields, requiredOneOf, primaryField, autoValues, uniqueFields } = getImportEntityConfig(entityType)
   const requiredGroupNames = [...requiredFields.map((field) => [field]), ...requiredOneOf]
   const requirementByName = new Map(requiredGroupNames.flatMap((group) => group.map((field) => [normalizeFieldName(field), group.length === 1 ? 'required' : 'oneOf'] as const)))
   const autoValueByName = new Map(Object.entries(autoValues).map(([field, value]) => [normalizeFieldName(field), value]))
@@ -46,10 +46,28 @@ export const buildDestinationFields = (entityType: ObjectTypes, sampleCsv: strin
   const fields = [...undeclared, ...declared].sort((a, b) => Number(Boolean(b.requirement)) - Number(Boolean(a.requirement)))
   const fieldByName = new Map(fields.map((field) => [normalizeFieldName(field.name), field]))
   const resolve = (name: string | undefined) => (name === undefined ? undefined : fieldByName.get(normalizeFieldName(name)))
+  const resolveAll = (names: string[]) => names.map(resolve).filter((field): field is TDestinationField => field !== undefined)
 
   return {
     fields,
-    requiredGroups: requiredGroupNames.map((group) => group.map(resolve).filter((field): field is TDestinationField => field !== undefined)),
+    fixedFields: [],
+    requiredGroups: requiredGroupNames.map(resolveAll).filter((group) => group.length > 0),
+    uniqueFields: resolveAll(uniqueFields),
     primaryField: [primaryField, ...PRIMARY_FIELD_FALLBACKS].map(resolve).find((field) => field !== undefined)?.name,
+  }
+}
+
+export const withFixedFields = (fieldSet: TDestinationFieldSet, fixedFields: readonly TDestinationField[]): TDestinationFieldSet => {
+  if (fixedFields.length === 0) return fieldSet
+
+  const fixedNames = new Set(fixedFields.map(({ name }) => normalizeFieldName(name)))
+  const isMappable = (field: TDestinationField) => !fixedNames.has(normalizeFieldName(field.name))
+
+  return {
+    fields: fieldSet.fields.filter(isMappable),
+    fixedFields: [...fieldSet.fixedFields, ...fixedFields],
+    requiredGroups: fieldSet.requiredGroups.filter((group) => group.every(isMappable)),
+    uniqueFields: fieldSet.uniqueFields.filter(isMappable),
+    primaryField: fieldSet.primaryField !== undefined && fixedNames.has(normalizeFieldName(fieldSet.primaryField)) ? undefined : fieldSet.primaryField,
   }
 }

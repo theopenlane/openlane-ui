@@ -8,7 +8,7 @@ import { useCreateBulkCSVIdentityHolder } from '@/lib/graphql-hooks/identity-hol
 const PersonnelImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVIdentityHolder()
 
-  return <RecordImportPage entityType={ObjectTypes.IDENTITY_HOLDER} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.IDENTITY_HOLDER} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default PersonnelImportPage

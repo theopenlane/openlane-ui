@@ -176,6 +176,14 @@ export const wordTokens = (value: string): string[] =>
     .split(/[^a-z0-9]+/)
     .filter(Boolean)
 
+const ACRONYM = /^[A-Z]{2,}s?$/
+
+export const toLowerLabel = (value: string): string =>
+  value
+    .split(' ')
+    .map((word) => (ACRONYM.test(word) ? word : word.toLowerCase()))
+    .join(' ')
+
 export const normalizeFieldName = (value: string): string => value.toLowerCase().replace(/[^a-z0-9]/g, '')
 
 const BYTES_PER_KB = 1024

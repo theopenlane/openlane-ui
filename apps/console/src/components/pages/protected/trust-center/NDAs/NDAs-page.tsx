@@ -2,7 +2,7 @@
 
 import React, { use, useEffect, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import { FileText, Loader2, Eye, RefreshCw, FileUp, Plus, InfoIcon } from 'lucide-react'
+import { FileText, Loader2, Eye, RefreshCw, FileUp, Plus, InfoIcon, Upload } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { NDAUploadDialog } from './components/NDA-upload-dialog'
 import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-nda-request.ts'
@@ -22,6 +22,9 @@ import { NdaApprovalGroupCard } from './components/nda-approval-group-card'
 import { ObjectTypes } from '@repo/codegen/src/type-names.ts'
 import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 
 const NDAsPage = () => {
   const { latestFile, isLoading, latestTemplate } = useGetTrustCenterNDAFiles()
@@ -29,6 +32,7 @@ const NDAsPage = () => {
   const { data: trustCenterData } = useGetTrustCenter()
   const { updateTrustCenterSetting, isPending: isUpdatingSetting } = useHandleUpdateSetting()
   const { data: session } = useSession()
+  const openImport = useOpenImport()
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
@@ -206,6 +210,13 @@ const NDAsPage = () => {
         <div className="mt-4 min-w-0">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-lg font-medium">NDA Requests</h3>
+            {canEditTc && (
+              <DisabledReasonTooltip reason={latestFile ? null : 'Upload your NDA document before importing signed NDAs.'}>
+                <Button variant="secondary" icon={<Upload size={16} />} iconPosition="left" disabled={!latestFile} onClick={() => openImport(IMPORT_ROUTES[ObjectTypes.TRUST_CENTER_NDA_REQUEST])}>
+                  Import Signed NDAs
+                </Button>
+              </DisabledReasonTooltip>
+            )}
           </div>
 
           <NdaRequestsTable requireApproval={ndaApprovalRequired} canRevoke={canEditNdaRequest} />
