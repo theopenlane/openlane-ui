@@ -211,7 +211,7 @@ const NDAsPage = () => {
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-lg font-medium">NDA Requests</h3>
             {canEditTc && (
-              <DisabledReasonTooltip reason={latestFile ? null : 'Upload your NDA document before importing signed NDAs.'}>
+              <DisabledReasonTooltip reason={latestFile ? null : 'Add your NDA Document first. Every NDA record is linked to it.'}>
                 <Button variant="secondary" icon={<Upload size={16} />} iconPosition="left" disabled={!latestFile} onClick={() => openImport(IMPORT_ROUTES[ObjectTypes.TRUST_CENTER_NDA_REQUEST])}>
                   Import Signed NDAs
                 </Button>

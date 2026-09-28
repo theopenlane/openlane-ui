@@ -3,7 +3,6 @@
 import React, { useMemo } from 'react'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { type CreateSubscriberInput } from '@repo/codegen/src/schema'
-import { Callout } from '@/components/shared/callout/callout'
 import { RecordImportPage, RecordImportSkeleton, RecordImportUnavailable } from '@/components/shared/record-import/record-import-page'
 import { trustCenterSubscribersImportRoute } from '@/components/shared/record-import/lib/import-routes'
 import { defineFixedImportField } from '@/components/shared/record-import/lib/import-registry'
@@ -52,15 +51,6 @@ const TrustCenterSubscribersImportPage: React.FC<{ trustCenterId: string }> = ({
       route={route}
       roles={{ roles: permission?.roles, isPending: isPermissionPending }}
       fixedFields={fixedFields}
-      notice={
-        <Callout variant="info" compact title="Before you import">
-          <ul className="list-disc space-y-1 pl-5">
-            <li>Every subscriber is added to {trustCenterName}, so your file does not need a trust center column.</li>
-            <li>Each new subscriber is emailed a link to confirm their subscription.</li>
-            <li>If any address is already an active subscriber, the whole import fails. Remove those rows first.</li>
-          </ul>
-        </Callout>
-      }
       onImport={(mapped) => mutateAsync({ input: mapped.toFile() })}
     />
   )

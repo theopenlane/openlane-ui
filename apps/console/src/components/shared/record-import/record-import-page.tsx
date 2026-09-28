@@ -26,7 +26,6 @@ export type TRecordImportPageProps = {
   destination?: TImportDestination
   fixedFields?: readonly TDestinationField[]
   automaticValues?: readonly TImportAutomaticValue[]
-  notice?: React.ReactNode
   onImport: (mapped: TMappedImport) => Promise<unknown>
 }
 
@@ -52,7 +51,7 @@ export const RecordImportUnavailable: React.FC<{ message: React.ReactNode; backH
   )
 }
 
-export const RecordImportPage: React.FC<TRecordImportPageProps> = ({ entityType, route: routeOverride, roles, destination, fixedFields, automaticValues, notice, onImport }) => {
+export const RecordImportPage: React.FC<TRecordImportPageProps> = ({ entityType, route: routeOverride, roles, destination, fixedFields, automaticValues, onImport }) => {
   const route: TImportRoute = routeOverride ?? IMPORT_ROUTES[entityType]
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: session } = useSession()
@@ -79,7 +78,6 @@ export const RecordImportPage: React.FC<TRecordImportPageProps> = ({ entityType,
       destination={destination}
       fixedFields={fixedFields}
       automaticValues={automaticValues}
-      notice={notice}
       onImport={onImport}
     />
   )
