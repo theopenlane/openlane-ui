@@ -60,7 +60,7 @@ const NdaImportPage: React.FC = () => {
   if (!latestFile) {
     return (
       <RecordImportUnavailable
-        message={<p>Upload your NDA document before importing signed NDAs — every signed NDA is recorded against it.</p>}
+        message={<p>Add your NDA Document on the NDAs page first. Openlane links every NDA record, including imported ones, to the NDA your visitors sign.</p>}
         backLabel={`Back to ${NDA_ROUTE.listLabel}`}
         backHref={NDA_ROUTE.listHref}
       />
