@@ -8,7 +8,7 @@ import { useCreateBulkCSVProcedure } from '@/lib/graphql-hooks/procedure'
 const ProcedureImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVProcedure()
 
-  return <RecordImportPage entityType={ObjectTypes.PROCEDURE} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.PROCEDURE} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default ProcedureImportPage

@@ -8,7 +8,7 @@ import { useCreateBulkCSVReview } from '@/lib/graphql-hooks/review'
 const ReviewImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVReview()
 
-  return <RecordImportPage entityType={ObjectTypes.REVIEW} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.REVIEW} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default ReviewImportPage

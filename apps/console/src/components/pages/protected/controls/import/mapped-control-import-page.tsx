@@ -8,7 +8,7 @@ import { useCreateBulkCSVMappedControl } from '@/lib/graphql-hooks/control'
 const MappedControlImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVMappedControl()
 
-  return <RecordImportPage entityType={ObjectTypes.MAPPED_CONTROL} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.MAPPED_CONTROL} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default MappedControlImportPage

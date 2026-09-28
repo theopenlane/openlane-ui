@@ -3,7 +3,7 @@ import { type Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { FeatureGate } from '@/lib/subscription-plan/feature-gate'
 import { ImportRunner } from '@/components/pages/protected/import/import-runner'
-import { IMPORT_TYPE_PARAM, IMPORT_VENDOR_PARAM, resolveImportTarget } from '@/components/shared/record-import/lib/import-routes'
+import { IMPORT_TYPE_PARAM, resolveImportTarget } from '@/components/shared/record-import/lib/import-routes'
 
 type TImportPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -13,7 +13,7 @@ const firstValue = (value: string | string[] | undefined): string | undefined =>
 
 const readImportTarget = async (searchParams: TImportPageProps['searchParams']) => {
   const params = await searchParams
-  return resolveImportTarget(firstValue(params[IMPORT_TYPE_PARAM]), firstValue(params[IMPORT_VENDOR_PARAM]))
+  return resolveImportTarget(firstValue(params[IMPORT_TYPE_PARAM]), (param) => firstValue(params[param]))
 }
 
 export const generateMetadata = async ({ searchParams }: TImportPageProps): Promise<Metadata> => ({ title: (await readImportTarget(searchParams))?.title ?? 'Import' })
@@ -24,7 +24,7 @@ const Page = async ({ searchParams }: TImportPageProps) => {
 
   return (
     <FeatureGate objectType={target.gate}>
-      <ImportRunner entityType={target.entityType} vendorId={target.vendorId} />
+      <ImportRunner entityType={target.entityType} scope={target.scope} />
     </FeatureGate>
   )
 }

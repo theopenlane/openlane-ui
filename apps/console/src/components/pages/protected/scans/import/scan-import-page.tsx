@@ -8,7 +8,7 @@ import { useCreateBulkCSVScan } from '@/lib/graphql-hooks/scan'
 const ScanImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVScan()
 
-  return <RecordImportPage entityType={ObjectTypes.SCAN} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.SCAN} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default ScanImportPage

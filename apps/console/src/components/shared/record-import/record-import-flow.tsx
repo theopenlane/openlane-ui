@@ -9,7 +9,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { pluralize, pluralizeWithCount } from '@/utils/strings'
+import { pluralize, pluralizeWithCount, toLowerLabel } from '@/utils/strings'
 import { ImportStepNav } from './import-step-nav'
 import { FieldReferencePanel } from './field-reference-panel'
 import { UploadStep } from './steps/upload-step'
@@ -19,13 +19,19 @@ import { useRecordImport } from './lib/use-record-import'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { readReturnTo } from '@/utils/return-to'
 import { importDisplayNamePlural, type TImportRoute } from './lib/import-routes'
+import type { TDestinationField, TImportAutomaticValue, TImportDestination, TMappedImport } from './lib/types'
+
 type TRecordImportFlowProps = {
   entityType: ObjectTypes
   route: TImportRoute
-  onImport: (file: File) => Promise<unknown>
+  destination?: TImportDestination
+  fixedFields?: readonly TDestinationField[]
+  automaticValues?: readonly TImportAutomaticValue[]
+  notice?: React.ReactNode
+  onImport: (mapped: TMappedImport) => Promise<unknown>
 }
 
-export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType, route, onImport }) => {
+export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType, route, destination, fixedFields, automaticValues, notice, onImport }) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { successNotification, errorNotification } = useNotification()
@@ -59,12 +65,14 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
     validation,
     cellChecks,
     plan,
-    toImportFile,
+    toMappedImport,
+    rowOrder,
+    moveRow,
     exampleCsv,
     exampleFilename,
     isLoadingFields,
-    isExampleError,
-  } = useRecordImport({ entityType, entityLabels })
+    isDestinationError,
+  } = useRecordImport({ entityType, entityLabels, destination, fixedFields })
 
   const navGuard = useNavigationGuard({ enabled: Boolean(parsed) && !isFinished })
 
@@ -73,7 +81,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
   }, [isFinished, returnHref, router])
 
   const rowCount = parsed?.rows.length ?? 0
-  const recordCount = (count: number) => `${count.toLocaleString()} ${pluralize(count, entityLabel, entityLabelPlural).toLowerCase()}`
+  const recordCount = (count: number) => `${count.toLocaleString()} ${toLowerLabel(pluralize(count, entityLabel, entityLabelPlural))}`
   const hasBlockingIssues = validation.blockingIssues.length > 0
   const canContinue = step === 'upload' ? Boolean(parsed) && rowCount > 0 && !isLoadingFields : !hasBlockingIssues
 
@@ -81,10 +89,10 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
     setIsImporting(true)
     try {
       await new Promise((resolve) => setTimeout(resolve, 0))
-      const file = toImportFile()
-      if (!file) return
+      const mapped = toMappedImport()
+      if (!mapped) return
 
-      await onImport(file)
+      await onImport(mapped)
       successNotification({
         title: `${entityLabelPlural} imported`,
         description: `${recordCount(rowCount)} imported from ${parsed?.fileName}.`,
@@ -100,7 +108,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
   const footerHint = () => {
     if (step === 'upload') {
       if (!parsed) return 'Choose a file to continue'
-      if (isLoadingFields) return `Loading the ${entityLabel.toLowerCase()} field reference…`
+      if (isLoadingFields) return `Loading the ${toLowerLabel(entityLabel)} field reference…`
       if (rowCount === 0) return 'Choose a file with at least one data row'
 
       return `Header row and ${pluralizeWithCount(rowCount, 'data row')} parsed`
@@ -121,13 +129,15 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
         <Button variant="secondary" icon={<ArrowLeft size={16} />} iconPosition="left" onClick={() => router.push(returnHref)} disabled={isImporting}>
           {backLabel}
         </Button>
-        <PageHeading heading={`Import ${entityLabelPlural.toLowerCase()}`} subheading="Upload your file and we'll help you map the columns to Openlane fields." />
+        <PageHeading heading={`Import ${toLowerLabel(entityLabelPlural)}`} subheading="Upload your file and we'll help you map the columns to Openlane fields." />
       </div>
 
       <ImportStepNav current={step} />
 
-      {isExampleError ? (
-        <p className="py-10 text-center text-sm text-muted-foreground">The {entityLabel.toLowerCase()} field reference could not be loaded, so columns cannot be mapped. Please try again later.</p>
+      {notice}
+
+      {isDestinationError ? (
+        <p className="py-10 text-center text-sm text-muted-foreground">The {toLowerLabel(entityLabel)} field reference could not be loaded, so columns cannot be mapped. Please try again later.</p>
       ) : (
         <>
           {step === 'upload' && (
@@ -163,7 +173,21 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
               onColumnDateOrderChange={setColumnDateOrder}
             />
           )}
-          {step === 'review' && parsed && <ReviewStep entityLabelPlural={entityLabelPlural} parsed={parsed} columns={columns} mapping={mapping} plan={plan} onEditMapping={() => goToStep('map')} />}
+          {step === 'review' && parsed && (
+            <ReviewStep
+              entityLabel={entityLabel}
+              entityLabelPlural={entityLabelPlural}
+              parsed={parsed}
+              rowOrder={rowOrder}
+              columns={columns}
+              mapping={mapping}
+              plan={plan}
+              automaticValues={automaticValues}
+              reorderable={Boolean(route.reorderable)}
+              onMoveRow={moveRow}
+              onEditMapping={() => goToStep('map')}
+            />
+          )}
         </>
       )}
 

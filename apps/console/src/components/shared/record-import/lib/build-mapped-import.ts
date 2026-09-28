@@ -1,6 +1,6 @@
 import { serializeCsv } from './delimited-file'
 import type { TDateOrder } from '@/utils/loose-date'
-import type { TCellConversion, TColumnMapping, TDestinationField, TParsedDelimitedFile, TSourceColumn, TValueMap } from './types'
+import type { TCellConversion, TColumnMapping, TDestinationField, TMappedImport, TSourceColumn, TValueMap } from './types'
 
 export type TImportPlan = {
   headers: string[]
@@ -11,7 +11,7 @@ export type TImportPlan = {
   buildRow: (row: string[]) => string[]
 }
 
-const readCell = (row: string[], sourceIndex: number, valueMap: TValueMap | undefined, conversion: TCellConversion | undefined): string => {
+export const readCell = (row: string[], sourceIndex: number, valueMap: TValueMap | undefined, conversion?: TCellConversion): string => {
   const raw = row[sourceIndex]?.trim() ?? ''
   if (valueMap && Object.hasOwn(valueMap, raw)) return valueMap[raw] ?? ''
   return conversion && Object.hasOwn(conversion.values, raw) ? conversion.values[raw] : raw
@@ -46,8 +46,11 @@ export const buildImportPlan = ({ columns, fields, mapping }: { columns: TSource
   }
 }
 
-export const buildImportFile = (parsed: TParsedDelimitedFile, plan: TImportPlan): File => {
-  const csv = serializeCsv(plan.headers, parsed.rows.map(plan.buildRow))
-
-  return new File([csv], `${parsed.fileName.replace(/\.[^.]+$/, '')}-mapped.csv`, { type: 'text/csv' })
-}
+export const buildMappedImport = (fileName: string, rows: string[][], plan: TImportPlan): TMappedImport => ({
+  toFile: () => new File([serializeCsv(plan.headers, rows.map(plan.buildRow))], `${fileName.replace(/\.[^.]+$/, '')}-mapped.csv`, { type: 'text/csv' }),
+  toRecords: () =>
+    rows.map((row) => {
+      const values = plan.buildRow(row)
+      return Object.fromEntries(plan.headers.map((header, position) => [header, values[position]]))
+    }),
+})

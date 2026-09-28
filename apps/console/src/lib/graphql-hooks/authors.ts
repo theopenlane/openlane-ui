@@ -7,6 +7,7 @@ import { toOrgUserList, useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens'
 import { type AuthorMaps, type AuthorToken, SUPPORT_SUBJECT_ID } from '@/lib/authors'
 import { isUlid } from '@/lib/validators'
+import { chunk } from '@/utils/async'
 
 export const useAuthorMaps = (ids: Array<string | null | undefined>) => {
   const authorIdsKey = Array.from(new Set(ids.filter((id): id is string => typeof id === 'string' && id.length > 0 && isUlid(id))))
@@ -41,8 +42,6 @@ export const useAuthorMaps = (ids: Array<string | null | undefined>) => {
 }
 
 const AUTHOR_LOOKUP_CHUNK_SIZE = 100
-
-const chunk = <T>(items: T[], size: number): T[][] => Array.from({ length: Math.ceil(items.length / size) }, (_, index) => items.slice(index * size, (index + 1) * size))
 
 export const useFetchAuthorMaps = () => {
   const { client } = useGraphQLClient()

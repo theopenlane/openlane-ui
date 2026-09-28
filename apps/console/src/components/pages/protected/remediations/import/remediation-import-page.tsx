@@ -8,7 +8,7 @@ import { useCreateBulkCSVRemediation } from '@/lib/graphql-hooks/remediation'
 const RemediationImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVRemediation()
 
-  return <RecordImportPage entityType={ObjectTypes.REMEDIATION} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.REMEDIATION} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default RemediationImportPage

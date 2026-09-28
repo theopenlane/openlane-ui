@@ -14,14 +14,13 @@ import {
   type DeleteTrustCenterFaqMutationVariables,
   type TrustCenterFaqQuery,
   type TrustCenterFaqQueryVariables,
-  type CreateBulkCsvTrustCenterFaqMutation,
-  type CreateBulkCsvTrustCenterFaqMutationVariables,
+  type CreateBulkTrustCenterFaqMutation,
+  type CreateBulkTrustCenterFaqMutationVariables,
   type UpdateBulkTrustCenterFaqMutation,
   type UpdateBulkTrustCenterFaqMutationVariables,
   type DeleteBulkTrustCenterFaqMutation,
   type DeleteBulkTrustCenterFaqMutationVariables,
 } from '@repo/codegen/src/schema'
-import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_TRUST_CENTER_FAQS,
@@ -30,7 +29,7 @@ import {
   UPDATE_TRUST_CENTER_FAQ_COMMENT,
   DELETE_TRUST_CENTER_FAQ,
   TRUST_CENTER_FAQ,
-  CREATE_CSV_BULK_TRUST_CENTER_FAQ,
+  CREATE_BULK_TRUST_CENTER_FAQ,
   BULK_EDIT_TRUST_CENTER_FAQ,
   BULK_DELETE_TRUST_CENTER_FAQ,
 } from '@repo/codegen/query/trust-center-faq'
@@ -123,12 +122,14 @@ export const useTrustCenterFaq = (trustCenterFAQId?: TrustCenterFaqQueryVariable
   })
 }
 
-export const useCreateBulkCSVTrustCenterFaq = () => {
-  const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsvTrustCenterFaqMutation, unknown, CreateBulkCsvTrustCenterFaqMutationVariables>({
-    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_TRUST_CENTER_FAQ, variables }),
-    onSuccess: () => {
+export const useCreateBulkTrustCenterFaq = () => {
+  const { client, queryClient } = useGraphQLClient()
+  return useMutation<CreateBulkTrustCenterFaqMutation, unknown, CreateBulkTrustCenterFaqMutationVariables>({
+    mutationFn: async (variables) => client.request(CREATE_BULK_TRUST_CENTER_FAQ, variables),
+    onSuccess: (_data, { input }) => {
       queryClient.invalidateQueries({ queryKey: ['trustCenterFaqs'] })
+      const categories = new Set([input ?? []].flat().map((faq) => faq.trustCenterFaqKindName))
+      categories.forEach((category) => invalidateCustomTypeEnumsForName(queryClient, category))
     },
   })
 }

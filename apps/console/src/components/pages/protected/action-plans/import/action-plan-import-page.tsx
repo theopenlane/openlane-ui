@@ -8,7 +8,7 @@ import { useCreateBulkCSVActionPlan } from '@/lib/graphql-hooks/action-plan'
 const ActionPlanImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVActionPlan()
 
-  return <RecordImportPage entityType={ObjectTypes.ACTION_PLAN} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.ACTION_PLAN} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default ActionPlanImportPage

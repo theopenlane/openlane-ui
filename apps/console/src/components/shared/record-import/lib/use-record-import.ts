@@ -1,17 +1,17 @@
 'use client'
 
 import { useCallback, useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { arrayMove } from '@dnd-kit/sortable'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
-import { buildDestinationFields, type TImportFieldMetadata } from './destination-fields'
 import { isEmptyColumn, matchColumns } from './match-columns'
 import { toSourceColumns } from './delimited-file'
 import { validateMapping } from './validate-mapping'
 import { checkColumnCells, suggestedValueMap, type TColumnCellCheck } from './validate-cells'
-import { buildImportFile, buildImportPlan } from './build-import-file'
-import { useExampleCSV } from './use-example-csv'
+import { buildImportPlan, buildMappedImport } from './build-mapped-import'
+import { withFixedFields } from './destination-fields'
+import { useImportDestination } from './use-import-destination'
 import type { TDateOrder } from '@/utils/loose-date'
-import type { TColumnMapping, TDestinationFieldSet, TParsedDelimitedFile, TValueMap } from './types'
+import type { TColumnMapping, TDestinationField, TDestinationFieldSet, TImportDestination, TParsedDelimitedFile, TValueMap } from './types'
 
 export const IMPORT_STEPS = ['upload', 'map', 'review'] as const
 export type TImportStep = (typeof IMPORT_STEPS)[number]
@@ -22,28 +22,26 @@ export const IMPORT_STEP_LABELS: Record<TImportStep, string> = {
   review: 'Review',
 }
 
-const EMPTY_FIELD_SET: TDestinationFieldSet = { fields: [], requiredGroups: [] }
+const EMPTY_FIELD_SET: TDestinationFieldSet = { fields: [], fixedFields: [], requiredGroups: [], uniqueFields: [] }
+const NO_FIXED_FIELDS: readonly TDestinationField[] = []
 
-const useImportFieldMetadata = (entityType: ObjectTypes) =>
-  useQuery({
-    queryKey: ['import-field-metadata'],
-    queryFn: async () => (await import('@repo/codegen/src/import-fields.generated')).IMPORT_FIELDS,
-    staleTime: Infinity,
-    select: (all): TImportFieldMetadata => all[entityType] ?? {},
-  })
+type TUseRecordImportArgs = {
+  entityType: ObjectTypes
+  entityLabels: string[]
+  destination?: TImportDestination
+  fixedFields?: readonly TDestinationField[]
+}
 
-export const useRecordImport = ({ entityType, entityLabels }: { entityType: ObjectTypes; entityLabels: string[] }) => {
+export const useRecordImport = ({ entityType, entityLabels, destination, fixedFields = NO_FIXED_FIELDS }: TUseRecordImportArgs) => {
   const [stepIndex, setStepIndex] = useState(0)
   const [parsed, setParsed] = useState<TParsedDelimitedFile | null>(null)
   const [overrides, setOverrides] = useState<Record<number, string | null>>({})
   const [valueMaps, setValueMaps] = useState<Record<number, TValueMap>>({})
   const [dateOrders, setDateOrders] = useState<Record<number, TDateOrder>>({})
+  const [rowOrder, setRowOrder] = useState<number[] | null>(null)
 
-  const { data: exampleCsv, filename: exampleFilename, isLoadingExample, isError: isExampleError } = useExampleCSV(entityType)
-  const { data: metadata, isPending: isMetadataPending } = useImportFieldMetadata(entityType)
-  const isMetadataSettled = !isMetadataPending
-
-  const fieldSet = useMemo(() => (exampleCsv && isMetadataSettled ? buildDestinationFields(entityType, exampleCsv, metadata) : EMPTY_FIELD_SET), [entityType, exampleCsv, isMetadataSettled, metadata])
+  const { destination: resolved, isLoading: isLoadingFields, isError: isDestinationError } = useImportDestination(entityType, destination)
+  const fieldSet = useMemo(() => (resolved ? withFixedFields(resolved.fieldSet, fixedFields) : EMPTY_FIELD_SET), [resolved, fixedFields])
   const columns = useMemo(() => (parsed ? toSourceColumns(parsed) : []), [parsed])
   const suggestions = useMemo(() => matchColumns({ entityType, entityLabels, columns, fieldSet }), [entityType, entityLabels, columns, fieldSet])
 
@@ -80,7 +78,13 @@ export const useRecordImport = ({ entityType, entityLabels }: { entityType: Obje
     setOverrides({})
     setValueMaps({})
     setDateOrders({})
+    setRowOrder(null)
   }, [])
+
+  const fileOrder = useMemo(() => (parsed?.rows ?? []).map((_, index) => index), [parsed])
+  const orderedRowIndexes = rowOrder ?? fileOrder
+
+  const moveRow = useCallback((from: number, to: number) => setRowOrder((current) => arrayMove(current ?? fileOrder, from, to)), [fileOrder])
 
   const setColumnField = useCallback(
     (index: number, field: string | null) => {
@@ -103,9 +107,19 @@ export const useRecordImport = ({ entityType, entityLabels }: { entityType: Obje
   }, [])
 
   const validation = useMemo(() => validateMapping({ columns, fieldSet, mapping, rows: parsed?.rows ?? [], cellChecks }), [columns, fieldSet, mapping, parsed, cellChecks])
-  const plan = useMemo(() => buildImportPlan({ columns, fields: fieldSet.fields, mapping }), [columns, fieldSet, mapping])
+  const plan = useMemo(() => buildImportPlan({ columns, fields: [...fieldSet.fields, ...fieldSet.fixedFields], mapping }), [columns, fieldSet, mapping])
 
-  const toImportFile = useCallback(() => (parsed ? buildImportFile(parsed, plan) : null), [parsed, plan])
+  const toMappedImport = useCallback(
+    () =>
+      parsed
+        ? buildMappedImport(
+            parsed.fileName,
+            orderedRowIndexes.map((index) => parsed.rows[index]),
+            plan,
+          )
+        : null,
+    [parsed, orderedRowIndexes, plan],
+  )
 
   const goToStep = useCallback((step: TImportStep) => setStepIndex(IMPORT_STEPS.indexOf(step)), [])
   const goNext = useCallback(() => setStepIndex((current) => Math.min(current + 1, IMPORT_STEPS.length - 1)), [])
@@ -130,10 +144,12 @@ export const useRecordImport = ({ entityType, entityLabels }: { entityType: Obje
     validation,
     cellChecks,
     plan,
-    toImportFile,
-    exampleCsv,
-    exampleFilename,
-    isLoadingFields: isLoadingExample || !isMetadataSettled,
-    isExampleError,
+    toMappedImport,
+    rowOrder: orderedRowIndexes,
+    moveRow,
+    exampleCsv: resolved?.exampleCsv,
+    exampleFilename: resolved?.exampleFilename ?? entityType.toLowerCase(),
+    isLoadingFields,
+    isDestinationError,
   }
 }
