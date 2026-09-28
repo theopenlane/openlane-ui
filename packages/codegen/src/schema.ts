@@ -9273,14 +9273,6 @@ export interface UpdateTrustCenterFaqCommentMutation {
   updateTrustCenterFAQComment: { trustCenterFAQ: { id: string } }
 }
 
-export type CreateBulkCsvTrustCenterFaqMutationVariables = Exact<{
-  input: any
-}>
-
-export interface CreateBulkCsvTrustCenterFaqMutation {
-  createBulkCSVTrustCenterFAQ: { trustCenterFAQs: Array<{ id: string }> | null }
-}
-
 export type DeleteBulkTrustCenterFaqMutationVariables = Exact<{
   ids: Array<string> | string
 }>
@@ -9296,6 +9288,14 @@ export type UpdateBulkTrustCenterFaqMutationVariables = Exact<{
 
 export interface UpdateBulkTrustCenterFaqMutation {
   updateBulkTrustCenterFAQ: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
+}
+
+export type CreateBulkTrustCenterFaqMutationVariables = Exact<{
+  input?: Array<Types.CreateTrustCenterFaqInput> | Types.CreateTrustCenterFaqInput | null | undefined
+}>
+
+export interface CreateBulkTrustCenterFaqMutation {
+  createBulkTrustCenterFAQ: { trustCenterFAQs: Array<{ id: string }> | null }
 }
 
 export type GetTrustCenterNdaFilesQueryVariables = Exact<{
@@ -9382,6 +9382,23 @@ export type DeleteBulkTrustCenterNdaRequestMutationVariables = Exact<{
 
 export interface DeleteBulkTrustCenterNdaRequestMutation {
   deleteBulkTrustCenterNDARequest: { deletedIDs: Array<string>; notDeletedIDs: Array<string>; error: string | null }
+}
+
+export type CreateBulkCsvTrustCenterNdaRequestMutationVariables = Exact<{
+  input: any
+}>
+
+export interface CreateBulkCsvTrustCenterNdaRequestMutation {
+  createBulkCSVTrustCenterNDARequest: { trustCenterNDARequests: Array<{ id: string }> | null }
+}
+
+export type GetTrustCenterNdaRequestEmailsQueryVariables = Exact<{
+  where?: Types.TrustCenterNdaRequestWhereInput | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface GetTrustCenterNdaRequestEmailsQuery {
+  trustCenterNdaRequests: { edges: Array<{ node: { id: string; email: string } | null } | null> | null }
 }
 
 export type GetTrustCenterSubprocessorsQueryVariables = Exact<{

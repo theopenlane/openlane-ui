@@ -8,7 +8,7 @@ import { useCreateBulkCSVSystemDetail } from '@/lib/graphql-hooks/system-detail'
 const SystemDetailImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVSystemDetail()
 
-  return <RecordImportPage entityType={ObjectTypes.SYSTEM_DETAIL} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.SYSTEM_DETAIL} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default SystemDetailImportPage

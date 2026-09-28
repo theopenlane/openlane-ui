@@ -1,20 +1,27 @@
+import { useCallback } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
+  CREATE_CSV_BULK_TRUST_CENTER_NDA_REQUEST,
   CREATE_TRUST_CENTER_NDA,
   DELETE_BULK_TRUST_CENTER_NDA_REQUEST,
   GET_NDA_REQUESTS_COUNT,
   GET_ALL_TRUST_CENTER_NDA_FILES,
   GET_ALL_TRUST_CENTER_NDA_REQUESTS,
+  GET_TRUST_CENTER_NDA_REQUEST_EMAILS,
   UPDATE_TRUST_CENTER_NDA,
   UPDATE_TRUST_CENTER_NDA_REQUEST,
 } from '@repo/codegen/query/trust-center-nda-request'
 import {
+  type CreateBulkCsvTrustCenterNdaRequestMutation,
+  type CreateBulkCsvTrustCenterNdaRequestMutationVariables,
   type CreateTrustCenterNdaMutation,
   type CreateTrustCenterNdaMutationVariables,
   type GetNdaRequestCountQuery,
   type GetNdaRequestCountQueryVariables,
   type GetTrustCenterNdaFilesQuery,
+  type GetTrustCenterNdaRequestEmailsQuery,
+  type GetTrustCenterNdaRequestEmailsQueryVariables,
   type GetTrustCenterNdaRequestsQuery,
   type GetTrustCenterNdaRequestsQueryVariables,
   OrderDirection,
@@ -35,6 +42,11 @@ import { startOfDay, subDays } from 'date-fns'
 import { STATS_WINDOW_DAYS } from '@/constants/stats'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
+import { chunk, mapWithConcurrency } from '@/utils/async'
+
+const NDA_REQUEST_EMAIL_LOOKUP_CHUNK_SIZE = 50
+const MAX_CONNECTION_RESULTS = 100
+const NDA_REQUEST_EMAIL_LOOKUP_CONCURRENCY = 4
 
 export const useGetTrustCenterNDAFiles = (enabled = true) => {
   const { client } = useGraphQLClient()
@@ -194,3 +206,32 @@ export const DEFAULT_NDA_REQUESTS_ORDER: TrustCenterNdaRequestOrder[] = [
     direction: OrderDirection.DESC,
   },
 ]
+
+export const useCreateBulkCSVTrustCenterNdaRequest = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvTrustCenterNdaRequestMutation, unknown, CreateBulkCsvTrustCenterNdaRequestMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_TRUST_CENTER_NDA_REQUEST, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trustCenter', 'ndaRequests'] })
+    },
+  })
+}
+
+export const useFindExistingNdaRequestEmails = () => {
+  const { client } = useGraphQLClient()
+
+  return useCallback(
+    async (trustCenterID: string, emails: string[]): Promise<string[]> => {
+      const pages = await mapWithConcurrency(chunk(emails, NDA_REQUEST_EMAIL_LOOKUP_CHUNK_SIZE), NDA_REQUEST_EMAIL_LOOKUP_CONCURRENCY, (emails) =>
+        client.request<GetTrustCenterNdaRequestEmailsQuery, GetTrustCenterNdaRequestEmailsQueryVariables>(GET_TRUST_CENTER_NDA_REQUEST_EMAILS, {
+          where: { trustCenterID, or: emails.map((email) => ({ emailEqualFold: email })) },
+          first: MAX_CONNECTION_RESULTS,
+        }),
+      )
+
+      return [...new Set(pages.flatMap((page) => page.trustCenterNdaRequests.edges?.flatMap((edge) => (edge?.node ? [edge.node.email] : [])) ?? []))]
+    },
+    [client],
+  )
+}

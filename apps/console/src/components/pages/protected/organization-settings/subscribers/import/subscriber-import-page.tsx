@@ -8,7 +8,7 @@ import { useCreateBulkCSVSubscriber } from '@/lib/graphql-hooks/subscriber'
 const SubscriberImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVSubscriber()
 
-  return <RecordImportPage entityType={ObjectTypes.SUBSCRIBER} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.SUBSCRIBER} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default SubscriberImportPage

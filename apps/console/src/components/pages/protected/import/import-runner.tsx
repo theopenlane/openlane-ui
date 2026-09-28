@@ -4,7 +4,7 @@ import React, { type ComponentType } from 'react'
 import dynamic from 'next/dynamic'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { RecordImportSkeleton } from '@/components/shared/record-import/record-import-page'
-import { type TImportableObjectType } from '@/components/shared/record-import/lib/import-routes'
+import { IMPORT_TRUST_CENTER_PARAM, IMPORT_VENDOR_PARAM, type TImportableObjectType, type TImportScope, type TImportScopeParam } from '@/components/shared/record-import/lib/import-routes'
 
 const loading = () => <RecordImportSkeleton />
 
@@ -29,18 +29,32 @@ const IMPORT_RUNNERS: Record<TImportableObjectType, ComponentType> = {
   [ObjectTypes.SYSTEM_DETAIL]: dynamic(() => import('@/components/pages/protected/system-details/import/system-detail-import-page'), { loading }),
   [ObjectTypes.TASK]: dynamic(() => import('@/components/pages/protected/tasks/import/task-import-page'), { loading }),
   [ObjectTypes.TEMPLATE]: dynamic(() => import('@/components/pages/protected/questionnaire/import/template-import-page'), { loading }),
+  [ObjectTypes.TRUST_CENTER_FAQ]: dynamic(() => import('@/components/pages/protected/trust-center/faqs/import/faq-import-page'), { loading }),
+  [ObjectTypes.TRUST_CENTER_NDA_REQUEST]: dynamic(() => import('@/components/pages/protected/trust-center/NDAs/import/nda-import-page'), { loading }),
   [ObjectTypes.VULNERABILITY]: dynamic(() => import('@/components/pages/protected/vulnerabilities/import/vulnerability-import-page'), { loading }),
 }
 
 const VendorContactsImportPage = dynamic(() => import('@/components/pages/protected/vendors/detail/tabs/contacts/vendor-contacts-import-page'), { loading })
+const TrustCenterSubscribersImportPage = dynamic(() => import('@/components/pages/protected/trust-center/subscribers/import/trust-center-subscribers-import-page'), { loading })
+
+const VendorContactsRunner: React.FC<{ id: string }> = ({ id }) => <VendorContactsImportPage vendorId={id} />
+const TrustCenterSubscribersRunner: React.FC<{ id: string }> = ({ id }) => <TrustCenterSubscribersImportPage trustCenterId={id} />
+
+const SCOPED_IMPORT_RUNNERS: Record<TImportScopeParam, ComponentType<{ id: string }>> = {
+  [IMPORT_VENDOR_PARAM]: VendorContactsRunner,
+  [IMPORT_TRUST_CENTER_PARAM]: TrustCenterSubscribersRunner,
+}
 
 type TImportRunnerProps = {
   entityType: TImportableObjectType
-  vendorId?: string
+  scope?: TImportScope
 }
 
-export const ImportRunner: React.FC<TImportRunnerProps> = ({ entityType, vendorId }) => {
-  if (vendorId) return <VendorContactsImportPage key={vendorId} vendorId={vendorId} />
+export const ImportRunner: React.FC<TImportRunnerProps> = ({ entityType, scope }) => {
+  if (scope) {
+    const ScopedRunner = SCOPED_IMPORT_RUNNERS[scope.param]
+    return <ScopedRunner key={`${scope.param}:${scope.id}`} id={scope.id} />
+  }
 
   const Runner = IMPORT_RUNNERS[entityType]
   return <Runner key={entityType} />
