@@ -2,7 +2,7 @@
 
 import { JSX } from 'react'
 import { CircleFlag } from 'react-circle-flags'
-import { countries } from 'country-data-list'
+import { findCountryByAlpha3 } from '../country-dropdown/country-list'
 
 const flagCache = new Map<string, JSX.Element>()
 
@@ -25,7 +25,7 @@ interface CountryFlagProps {
 export function CountryFlag({ value, size = 18, showLabel = false }: CountryFlagProps) {
   if (!value) return null
 
-  const country = countries.all.find((c) => c.alpha3 === value)
+  const country = findCountryByAlpha3(value)
   if (!country) return null
 
   const alpha2 = country.alpha2?.toLowerCase()

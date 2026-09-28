@@ -1,5 +1,5 @@
 import { type CreateTrustCenterFaqInput } from '@repo/codegen/src/schema'
-import { serializeCsv } from '@/components/shared/record-import/lib/delimited-file'
+import { staticImportDestination } from '@/components/shared/record-import/lib/destination-fields'
 import type { TDestinationField, TImportAutomaticValue, TImportDestination, TImportRecord } from '@/components/shared/record-import/lib/types'
 
 const FAQ_IMPORT_FIELDS = {
@@ -13,20 +13,14 @@ type TFaqImportField = keyof typeof FAQ_IMPORT_FIELDS
 
 const fields: TDestinationField[] = Object.entries(FAQ_IMPORT_FIELDS).map(([name, details]) => ({ name, fuzzyMatchable: true, ...details }))
 
-export const FAQ_IMPORT_DESTINATION: TImportDestination = {
-  fieldSet: {
+export const FAQ_IMPORT_DESTINATION: TImportDestination = staticImportDestination(
+  {
     fields,
-    fixedFields: [],
     requiredGroups: fields.filter((field) => field.requirement === 'required').map((field) => [field]),
-    uniqueFields: [],
     primaryField: 'Question',
   },
-  exampleCsv: serializeCsv(
-    fields.map((field) => field.name),
-    [fields.map((field) => field.example ?? '')],
-  ),
-  exampleFilename: 'trust-center-faqs',
-}
+  'trust-center-faqs',
+)
 
 const FAQ_AUTOMATIC = {
   trustCenterID: { label: 'Trust Center', value: 'Linked' },

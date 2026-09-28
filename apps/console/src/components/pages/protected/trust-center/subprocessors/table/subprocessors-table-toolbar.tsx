@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { ChevronDown, LoaderCircle, SearchIcon, Trash2 } from 'lucide-react'
+import { ChevronDown, LoaderCircle, SearchIcon, Trash2, Upload } from 'lucide-react'
 import { type VisibilityState } from '@repo/ui/table-types'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
@@ -17,11 +17,15 @@ import { useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust
 import { CreateSubprocessorSheet } from '../sheet/create-subprocessor-sheet'
 import { AddExistingDialog } from './add-existing-dialog'
 import Menu from '@/components/shared/menu/menu'
+import MenuItem from '@/components/shared/menu/menu-item'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 
 type TProps = {
   searching?: boolean
@@ -57,6 +61,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [createSheetOpen, setCreateSheetOpen] = useState(false)
   const [addExistingOpen, setAddExistingOpen] = useState(false)
+  const openImport = useOpenImport()
 
   const { mutate: deleteRows, isPending: isDeleting } = useBulkDeleteTrustCenterSubprocessors()
   const { successNotification, errorNotification } = useNotification()
@@ -158,6 +163,17 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
               closeOnSelect={true}
               content={(close) => (
                 <>
+                  {canCreateSubprocessor && (
+                    <MenuItem
+                      icon={<Upload size={16} strokeWidth={2} />}
+                      onSelect={() => {
+                        close()
+                        openImport(IMPORT_ROUTES[ObjectTypes.TRUST_CENTER_SUBPROCESSOR])
+                      }}
+                    >
+                      Bulk Upload
+                    </MenuItem>
+                  )}
                   <ExportMenuItem onExport={onExport} onSelected={close} disabled={!exportEnabled} />
                 </>
               )}

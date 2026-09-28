@@ -83,7 +83,7 @@ const parseJson = (value: string): unknown => {
 
 const isValidJson = (value: string): boolean => parseJson(value) !== NOT_JSON
 
-const splitListCell = (cell: string): string[] | null => {
+export const splitListCell = (cell: string): string[] | null => {
   const decoded = parseJson(cell)
   if (decoded !== NOT_JSON) {
     if (Array.isArray(decoded)) return decoded.map(String)

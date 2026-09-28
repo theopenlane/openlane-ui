@@ -78,6 +78,7 @@
     "./infinite-scroll": "./src/infinite-scroll/infinite-scroll.tsx",
     "./radio-group": "./src/radio-group/radio-group.tsx",
     "./country-dropdown": "./src/country-dropdown/country-dropdown.tsx",
+    "./country-list": "./src/country-dropdown/country-list.ts",
     "./country-flag": "./src/country-flag/country-flag.tsx",
     "./lib/markdown-joiner-transform": "./lib/markdown-joiner-transform.ts"
   },

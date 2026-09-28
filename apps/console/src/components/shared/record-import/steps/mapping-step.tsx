@@ -15,6 +15,7 @@ import type { TColumnMapping, TDestinationField, TMatchConfidence, TSourceColumn
 import type { TMappingValidation } from '../lib/validate-mapping'
 import type { TColumnCellCheck } from '../lib/validate-cells'
 import { ValueMappingPanel } from './value-mapping-panel'
+import { ImportIssuesCallout } from '../import-issues-callout'
 
 const MATCH_LABELS: Record<Exclude<TMatchConfidence, 'none'>, string> = {
   exact: 'Exact',
@@ -137,20 +138,7 @@ export const MappingStep: React.FC<TMappingStepProps> = ({
   return (
     <div className="flex flex-col gap-4">
       {validation.blockingIssues.length > 0 ? (
-        <Callout variant="danger" title={`${pluralizeWithCount(validation.blockingIssues.length, 'issue')} ${validation.blockingIssues.length === 1 ? 'blocks' : 'block'} this import`}>
-          <ul className="flex flex-col gap-1">
-            {validation.blockingIssues.map((issue) => (
-              <li key={issue.id} className="flex items-center gap-2">
-                <span>• {issue.message}</span>
-                {issue.columnIndex !== undefined && (
-                  <Button variant="link" className="text-blue-500" onClick={() => focusIssue(issue.columnIndex)}>
-                    Fix
-                  </Button>
-                )}
-              </li>
-            ))}
-          </ul>
-        </Callout>
+        <ImportIssuesCallout issues={validation.blockingIssues} onFix={focusIssue} />
       ) : (
         <Callout variant="success" compact>
           {hasRequirements ? `All required fields are mapped. ${importedSummary}` : `${entityLabelPlural} have no required fields. ${importedSummary}`}

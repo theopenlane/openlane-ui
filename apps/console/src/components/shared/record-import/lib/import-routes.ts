@@ -142,6 +142,14 @@ const IMPORT_ROUTE_DETAILS = {
     permission: 'edit',
     gate: ObjectTypes.TRUST_CENTER,
   },
+  [ObjectTypes.TRUST_CENTER_SUBPROCESSOR]: {
+    listHref: '/trust-center/subprocessors',
+    listLabel: 'Subprocessors',
+    section: IMPORT_SECTIONS.trustCenter,
+    displayName: 'Subprocessor',
+    permission: AccessEnum.CanCreateTrustCenterSubprocessor,
+    gate: ObjectTypes.TRUST_CENTER,
+  },
   [ObjectTypes.VULNERABILITY]: {
     listHref: '/exposure/vulnerabilities',
     listLabel: 'Vulnerabilities',
