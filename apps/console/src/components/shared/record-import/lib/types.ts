@@ -25,6 +25,7 @@ export type TDestinationField = {
   fuzzyMatchable: boolean
   meta?: ImportFieldMeta
   format?: 'url'
+  aliases?: readonly string[]
 }
 
 export type TDestinationFieldSet = {

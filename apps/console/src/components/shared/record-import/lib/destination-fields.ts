@@ -1,9 +1,9 @@
 import { normalizeFieldName, toHumanLabel } from '@/utils/strings'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import type { ImportFieldKind, ImportFieldMeta } from '@repo/codegen/src/import-fields.generated'
-import { parseDelimitedText } from './delimited-file'
+import { parseDelimitedText, serializeCsv } from './delimited-file'
 import { getImportEntityConfig } from './import-registry'
-import type { TDestinationField, TDestinationFieldSet } from './types'
+import type { TDestinationField, TDestinationFieldSet, TImportDestination } from './types'
 
 export type TImportFieldMetadata = Readonly<Record<string, ImportFieldMeta>>
 
@@ -71,3 +71,14 @@ export const withFixedFields = (fieldSet: TDestinationFieldSet, fixedFields: rea
     primaryField: fieldSet.primaryField !== undefined && fixedNames.has(normalizeFieldName(fieldSet.primaryField)) ? undefined : fieldSet.primaryField,
   }
 }
+
+export type TStaticFieldSet = Omit<TDestinationFieldSet, 'fixedFields' | 'uniqueFields'> & Partial<Pick<TDestinationFieldSet, 'uniqueFields'>>
+
+export const staticImportDestination = (fieldSet: TStaticFieldSet, exampleFilename: string): TImportDestination => ({
+  fieldSet: { fixedFields: [], uniqueFields: [], ...fieldSet },
+  exampleCsv: serializeCsv(
+    fieldSet.fields.map((field) => field.name),
+    [fieldSet.fields.map((field) => field.example ?? '')],
+  ),
+  exampleFilename,
+})

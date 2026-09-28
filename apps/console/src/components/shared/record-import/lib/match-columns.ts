@@ -77,6 +77,7 @@ const buildFieldIndex = ({ fields, primaryField }: TDestinationFieldSet, entityL
 
     if (!byFuzzyNormalizedHeader.has(normalized)) byFuzzyNormalizedHeader.set(normalized, field.name)
     aliases[normalized]?.forEach((alias) => addAlias(alias, field.name))
+    field.aliases?.forEach((alias) => addAlias(normalizeFieldName(alias), field.name))
     customEnumAliases(normalized).forEach((alias) => addAlias(alias, field.name))
 
     const tokenKey = tokenSetKey(field.name, entityTokens)

@@ -1,5 +1,5 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { CREATE_SUBPROCESSOR, UPDATE_SUBPROCESSOR, GET_SUBPROCESSORS, DELETE_BULK_SUBPROCESSORS } from '@repo/codegen/query/subprocessor'
+import { CREATE_SUBPROCESSOR, UPDATE_SUBPROCESSOR, GET_SUBPROCESSORS, DELETE_BULK_SUBPROCESSORS, GET_SUBPROCESSOR_CATALOG, CREATE_BULK_SUBPROCESSOR } from '@repo/codegen/query/subprocessor'
 import {
   type CreateSubprocessorMutation,
   type CreateSubprocessorMutationVariables,
@@ -9,11 +9,16 @@ import {
   type GetSubprocessorsQueryVariables,
   type DeleteBulkSubprocessorsMutation,
   type DeleteBulkControlMutationVariables,
+  type GetSubprocessorCatalogQuery,
+  type GetSubprocessorCatalogQueryVariables,
+  type CreateBulkSubprocessorMutation,
+  type CreateBulkSubprocessorMutationVariables,
   OrderDirection,
   SubprocessorOrderField,
 } from '@repo/codegen/src/schema'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
+import { fetchAllConnectionNodes } from './fetch-all-connection-nodes'
 
 import { type TPagination } from '@repo/ui/pagination-types'
 
@@ -122,5 +127,29 @@ export const useBulkDeleteSubprocessors = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subprocessors'] })
     },
+  })
+}
+
+const CATALOG_PAGE_SIZE = 100
+
+export const useSubprocessorCatalog = ({ enabled = true }: { enabled?: boolean } = {}) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery({
+    queryKey: ['subprocessors', 'catalog'],
+    queryFn: () =>
+      fetchAllConnectionNodes(async (after) => {
+        const data = await client.request<GetSubprocessorCatalogQuery, GetSubprocessorCatalogQueryVariables>(GET_SUBPROCESSOR_CATALOG, { first: CATALOG_PAGE_SIZE, after })
+        return data.subprocessors
+      }),
+    enabled,
+  })
+}
+
+export const useCreateBulkSubprocessor = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<CreateBulkSubprocessorMutation, unknown, CreateBulkSubprocessorMutationVariables>({
+    mutationFn: (variables) => client.request<CreateBulkSubprocessorMutation, CreateBulkSubprocessorMutationVariables>(CREATE_BULK_SUBPROCESSOR, variables),
   })
 }

@@ -3,7 +3,7 @@
 import React, { type ComponentType } from 'react'
 import dynamic from 'next/dynamic'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { RecordImportSkeleton } from '@/components/shared/record-import/record-import-page'
+import { RecordImportSkeleton } from '@/components/shared/record-import/import-page-gate'
 import { IMPORT_TRUST_CENTER_PARAM, IMPORT_VENDOR_PARAM, type TImportableObjectType, type TImportScope, type TImportScopeParam } from '@/components/shared/record-import/lib/import-routes'
 
 const loading = () => <RecordImportSkeleton />
@@ -31,6 +31,7 @@ const IMPORT_RUNNERS: Record<TImportableObjectType, ComponentType> = {
   [ObjectTypes.TEMPLATE]: dynamic(() => import('@/components/pages/protected/questionnaire/import/template-import-page'), { loading }),
   [ObjectTypes.TRUST_CENTER_FAQ]: dynamic(() => import('@/components/pages/protected/trust-center/faqs/import/faq-import-page'), { loading }),
   [ObjectTypes.TRUST_CENTER_NDA_REQUEST]: dynamic(() => import('@/components/pages/protected/trust-center/NDAs/import/nda-import-page'), { loading }),
+  [ObjectTypes.TRUST_CENTER_SUBPROCESSOR]: dynamic(() => import('@/components/pages/protected/trust-center/subprocessors/import/subprocessor-import-page'), { loading }),
   [ObjectTypes.VULNERABILITY]: dynamic(() => import('@/components/pages/protected/vulnerabilities/import/vulnerability-import-page'), { loading }),
 }
 

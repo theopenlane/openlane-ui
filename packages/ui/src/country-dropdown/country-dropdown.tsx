@@ -4,19 +4,10 @@ import { useState, useMemo, JSX } from 'react'
 import { Popover, PopoverTrigger, PopoverContent } from '../popover/popover'
 import { Command, CommandInput, CommandGroup, CommandItem, CommandList, CommandEmpty } from '../command'
 import { CircleFlag } from 'react-circle-flags'
-import { countries } from 'country-data-list'
 import { cn } from '../../lib/utils'
 import { Check, ChevronDown, Globe } from 'lucide-react'
 import { Checkbox } from '../checkbox/checkbox'
-
-interface Country {
-  alpha2: string
-  alpha3: string
-  name: string
-  emoji?: string
-  status: string
-  ioc: string
-}
+import { COUNTRY_LIST } from './country-list'
 
 interface CountryDropdownProps {
   value: string[]
@@ -24,6 +15,7 @@ interface CountryDropdownProps {
   disabled?: boolean
   placeholder?: string
   className?: string
+  ariaLabel?: string
 }
 
 const flagCache = new Map<string, JSX.Element>()
@@ -35,10 +27,7 @@ const getFlag = (alpha2: string) => {
   return flagCache.get(key)!
 }
 
-const rawList: Country[] = countries.all.filter((c: any) => c.emoji && c.name && c.status !== 'deleted' && c.ioc !== 'PRK')
-
-const COUNTRY_LIST: Country[] = Array.from(new Map(rawList.map((c) => [c.alpha3, c])).values())
-export function CountryDropdown({ value = [], onChange, disabled, placeholder = 'Select countries', className }: CountryDropdownProps) {
+export function CountryDropdown({ value = [], onChange, disabled, placeholder = 'Select countries', className, ariaLabel }: CountryDropdownProps) {
   const [search, setSearch] = useState('')
 
   const filtered = useMemo(() => {
@@ -52,6 +41,7 @@ export function CountryDropdown({ value = [], onChange, disabled, placeholder = 
     <Popover modal>
       <PopoverTrigger
         disabled={disabled}
+        aria-label={ariaLabel}
         className={cn(
           'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm',
           'disabled:opacity-50 disabled:cursor-not-allowed',

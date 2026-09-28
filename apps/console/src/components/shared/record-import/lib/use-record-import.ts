@@ -13,26 +13,26 @@ import { useImportDestination } from './use-import-destination'
 import type { TDateOrder } from '@/utils/loose-date'
 import type { TColumnMapping, TDestinationField, TDestinationFieldSet, TImportDestination, TParsedDelimitedFile, TValueMap } from './types'
 
-export const IMPORT_STEPS = ['upload', 'map', 'review'] as const
-export type TImportStep = (typeof IMPORT_STEPS)[number]
+export type TImportStepDescriptor<TId extends string = string> = { id: TId; label: string }
 
-export const IMPORT_STEP_LABELS: Record<TImportStep, string> = {
-  upload: 'Upload',
-  map: 'Map fields',
-  review: 'Review',
-}
+export const UPLOAD_STEP = { id: 'upload', label: 'Upload' } as const
+export const MAP_STEP = { id: 'map', label: 'Map fields' } as const
+export const REVIEW_STEP = { id: 'review', label: 'Review' } as const
+
+export const IMPORT_STEPS = [UPLOAD_STEP, MAP_STEP, REVIEW_STEP] as const
 
 const EMPTY_FIELD_SET: TDestinationFieldSet = { fields: [], fixedFields: [], requiredGroups: [], uniqueFields: [] }
 const NO_FIXED_FIELDS: readonly TDestinationField[] = []
 
-type TUseRecordImportArgs = {
+type TUseRecordImportArgs<TStepId extends string> = {
   entityType: ObjectTypes
   entityLabels: string[]
+  steps: readonly TImportStepDescriptor<TStepId>[]
   destination?: TImportDestination
   fixedFields?: readonly TDestinationField[]
 }
 
-export const useRecordImport = ({ entityType, entityLabels, destination, fixedFields = NO_FIXED_FIELDS }: TUseRecordImportArgs) => {
+export const useRecordImport = <TStepId extends string>({ entityType, entityLabels, steps, destination, fixedFields = NO_FIXED_FIELDS }: TUseRecordImportArgs<TStepId>) => {
   const [stepIndex, setStepIndex] = useState(0)
   const [parsed, setParsed] = useState<TParsedDelimitedFile | null>(null)
   const [overrides, setOverrides] = useState<Record<number, string | null>>({})
@@ -121,14 +121,21 @@ export const useRecordImport = ({ entityType, entityLabels, destination, fixedFi
     [parsed, orderedRowIndexes, plan],
   )
 
-  const goToStep = useCallback((step: TImportStep) => setStepIndex(IMPORT_STEPS.indexOf(step)), [])
-  const goNext = useCallback(() => setStepIndex((current) => Math.min(current + 1, IMPORT_STEPS.length - 1)), [])
+  const goToStep = useCallback(
+    (id: TStepId) => {
+      const index = steps.findIndex((step) => step.id === id)
+      if (index >= 0) setStepIndex(index)
+    },
+    [steps],
+  )
+  const goNext = useCallback(() => setStepIndex((current) => Math.min(current + 1, steps.length - 1)), [steps])
   const goBack = useCallback(() => setStepIndex((current) => Math.max(current - 1, 0)), [])
 
   return {
-    step: IMPORT_STEPS[stepIndex],
+    steps,
+    step: steps[stepIndex].id,
     isFirstStep: stepIndex === 0,
-    isLastStep: stepIndex === IMPORT_STEPS.length - 1,
+    isLastStep: stepIndex === steps.length - 1,
     goToStep,
     goNext,
     goBack,
@@ -153,3 +160,26 @@ export const useRecordImport = ({ entityType, entityLabels, destination, fixedFi
     isDestinationError,
   }
 }
+
+export type TRecordImportState<TStepId extends string = string> = ReturnType<typeof useRecordImport<TStepId>>
+
+export type TImportFlowState = Pick<TRecordImportState, 'steps' | 'step' | 'parsed' | 'isFirstStep' | 'isLastStep' | 'goNext' | 'goBack'>
+
+export type TImportSourceState = Pick<
+  TRecordImportState,
+  | 'step'
+  | 'parsed'
+  | 'applyFile'
+  | 'requiredGroups'
+  | 'isLoadingFields'
+  | 'fields'
+  | 'exampleCsv'
+  | 'exampleFilename'
+  | 'columns'
+  | 'mapping'
+  | 'validation'
+  | 'cellChecks'
+  | 'setColumnField'
+  | 'setColumnValue'
+  | 'setColumnDateOrder'
+>

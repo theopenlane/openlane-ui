@@ -59,3 +59,32 @@ export const DELETE_BULK_SUBPROCESSORS = gql`
     }
   }
 `
+
+export const GET_SUBPROCESSOR_CATALOG = gql`
+  query GetSubprocessorCatalog($first: Int, $after: Cursor) {
+    subprocessors(first: $first, after: $after, orderBy: [{ field: name, direction: ASC }]) {
+      edges {
+        node {
+          id
+          name
+          systemOwned
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`
+
+export const CREATE_BULK_SUBPROCESSOR = gql`
+  mutation CreateBulkSubprocessor($input: [CreateSubprocessorInput!]) {
+    createBulkSubprocessor(input: $input) {
+      subprocessors {
+        id
+        name
+      }
+    }
+  }
+`

@@ -1,25 +1,18 @@
 'use client'
 
-import React, { useEffect, useId, useMemo, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useNavigationGuard } from 'nextjs-nav-guard'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import React, { useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { PageHeading } from '@repo/ui/page-heading'
-import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { pluralize, pluralizeWithCount, toLowerLabel } from '@/utils/strings'
-import { ImportStepNav } from './import-step-nav'
-import { FieldReferencePanel } from './field-reference-panel'
-import { UploadStep } from './steps/upload-step'
-import { MappingStep } from './steps/mapping-step'
 import { ReviewStep } from './steps/review-step'
-import { useRecordImport } from './lib/use-record-import'
+import { IMPORT_STEPS, useRecordImport } from './lib/use-record-import'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
-import { readReturnTo } from '@/utils/return-to'
 import { importDisplayNamePlural, type TImportRoute } from './lib/import-routes'
+import { useImportExit } from './lib/use-import-exit'
 import type { TDestinationField, TImportAutomaticValue, TImportDestination, TMappedImport } from './lib/types'
+import { ImportFlowLayout } from './import-flow-layout'
+import { ImportSourceStep } from './import-source-step'
 
 type TRecordImportFlowProps = {
   entityType: ObjectTypes
@@ -31,53 +24,16 @@ type TRecordImportFlowProps = {
 }
 
 export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType, route, destination, fixedFields, automaticValues, onImport }) => {
-  const router = useRouter()
-  const searchParams = useSearchParams()
   const { successNotification, errorNotification } = useNotification()
   const [isImporting, setIsImporting] = useState(false)
-  const [isFinished, setIsFinished] = useState(false)
-  const [isFieldReferenceOpen, setIsFieldReferenceOpen] = useState(false)
 
   const entityLabel = route.displayName
   const entityLabelPlural = importDisplayNamePlural(route)
   const entityLabels = useMemo(() => [entityLabel, entityLabelPlural], [entityLabel, entityLabelPlural])
-  const returnHref = readReturnTo(searchParams, route.listHref)
-  const backLabel = returnHref.split('?')[0] === route.listHref.split('?')[0] ? `Back to ${route.listLabel}` : 'Back'
-  const fieldReferenceId = useId()
+  const exit = useImportExit(route)
 
-  const {
-    step,
-    isFirstStep,
-    isLastStep,
-    goToStep,
-    goNext,
-    goBack,
-    parsed,
-    applyFile,
-    columns,
-    fields,
-    requiredGroups,
-    mapping,
-    setColumnField,
-    setColumnValue,
-    setColumnDateOrder,
-    validation,
-    cellChecks,
-    plan,
-    toMappedImport,
-    rowOrder,
-    moveRow,
-    exampleCsv,
-    exampleFilename,
-    isLoadingFields,
-    isDestinationError,
-  } = useRecordImport({ entityType, entityLabels, destination, fixedFields })
-
-  const navGuard = useNavigationGuard({ enabled: Boolean(parsed) && !isFinished })
-
-  useEffect(() => {
-    if (isFinished) router.push(returnHref)
-  }, [isFinished, returnHref, router])
+  const state = useRecordImport({ entityType, entityLabels, steps: IMPORT_STEPS, destination, fixedFields })
+  const { step, goToStep, parsed, columns, mapping, validation, plan, toMappedImport, rowOrder, moveRow, isLoadingFields, isDestinationError } = state
 
   const rowCount = parsed?.rows.length ?? 0
   const recordCount = (count: number) => `${count.toLocaleString()} ${toLowerLabel(pluralize(count, entityLabel, entityLabelPlural))}`
@@ -96,7 +52,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
         title: `${entityLabelPlural} imported`,
         description: `${recordCount(rowCount)} imported from ${parsed?.fileName}.`,
       })
-      setIsFinished(true)
+      exit.finish()
     } catch (error) {
       errorNotification({ title: 'Import failed', description: parseErrorMessage(error) })
     } finally {
@@ -123,53 +79,24 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-4">
-      <div className="flex flex-col items-start gap-4">
-        <Button variant="secondary" icon={<ArrowLeft size={16} />} iconPosition="left" onClick={() => router.push(returnHref)} disabled={isImporting}>
-          {backLabel}
+    <ImportFlowLayout
+      heading={`Import ${toLowerLabel(entityLabelPlural)}`}
+      exit={exit}
+      state={state}
+      canContinue={canContinue}
+      isBusy={isImporting}
+      footerHint={footerHint()}
+      finalAction={
+        <Button variant="primary" onClick={handleImport} loading={isImporting} disabled={isImporting || exit.isFinished || !parsed || hasBlockingIssues}>
+          {isImporting ? 'Importing…' : `Import ${recordCount(rowCount)}`}
         </Button>
-        <PageHeading heading={`Import ${toLowerLabel(entityLabelPlural)}`} subheading="Upload your file and we'll help you map the columns to Openlane fields." />
-      </div>
-
-      <ImportStepNav current={step} />
-
+      }
+    >
       {isDestinationError ? (
         <p className="py-10 text-center text-sm text-muted-foreground">The {toLowerLabel(entityLabel)} field reference could not be loaded, so columns cannot be mapped. Please try again later.</p>
       ) : (
         <>
-          {step === 'upload' && (
-            <>
-              <UploadStep
-                entityLabel={entityLabel}
-                parsed={parsed}
-                onFileParsed={applyFile}
-                requiredGroups={requiredGroups}
-                isLoadingFields={isLoadingFields}
-                fieldReferenceId={fieldReferenceId}
-                isFieldReferenceOpen={isFieldReferenceOpen}
-                onToggleFieldReference={() => setIsFieldReferenceOpen((open) => !open)}
-              />
-              {isFieldReferenceOpen && (
-                <FieldReferencePanel id={fieldReferenceId} entityLabel={entityLabel} fields={fields} isLoading={isLoadingFields} exampleCsv={exampleCsv} exampleFilename={exampleFilename} />
-              )}
-            </>
-          )}
-          {step === 'map' && parsed && (
-            <MappingStep
-              entityLabel={entityLabel}
-              entityLabelPlural={entityLabelPlural}
-              columns={columns}
-              fields={fields}
-              hasRequirements={requiredGroups.length > 0}
-              mapping={mapping}
-              validation={validation}
-              cellChecks={cellChecks}
-              rowCount={rowCount}
-              onColumnFieldChange={setColumnField}
-              onColumnValueChange={setColumnValue}
-              onColumnDateOrderChange={setColumnDateOrder}
-            />
-          )}
+          <ImportSourceStep entityLabel={entityLabel} entityLabelPlural={entityLabelPlural} state={state} />
           {step === 'review' && parsed && (
             <ReviewStep
               entityLabel={entityLabel}
@@ -187,30 +114,6 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
           )}
         </>
       )}
-
-      <div className="sticky bottom-0 z-10 mt-auto flex flex-wrap items-center justify-end gap-3 border-t bg-secondary py-4 pr-10 after:absolute after:inset-x-0 after:top-full after:h-8 after:bg-secondary">
-        <div className="mr-auto">
-          {!isFirstStep && (
-            <Button variant="outline" icon={<ArrowLeft size={16} />} iconPosition="left" onClick={goBack} disabled={isImporting}>
-              Back
-            </Button>
-          )}
-        </div>
-        <span role="status" aria-live="polite" className="text-sm text-muted-foreground">
-          {footerHint()}
-        </span>
-        {isLastStep ? (
-          <Button variant="primary" onClick={handleImport} loading={isImporting} disabled={isImporting || isFinished || !parsed || hasBlockingIssues}>
-            {isImporting ? 'Importing…' : `Import ${recordCount(rowCount)}`}
-          </Button>
-        ) : (
-          <Button variant="primary" icon={<ArrowRight size={16} />} onClick={goNext} disabled={!canContinue}>
-            Continue
-          </Button>
-        )}
-      </div>
-
-      <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
-    </div>
+    </ImportFlowLayout>
   )
 }
