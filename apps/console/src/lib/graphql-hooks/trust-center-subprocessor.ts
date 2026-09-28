@@ -6,6 +6,8 @@ import {
   DELETE_BULK_TRUST_CENTER_SUBPROCESSORS,
   DELETE_TRUST_CENTER_SUBPROCESSOR,
   GET_ALL_TRUST_CENTER_SUBPROCESSOR_BY_ID,
+  GET_TRUST_CENTER_SUBPROCESSOR_LINKS,
+  CREATE_BULK_TRUST_CENTER_SUBPROCESSOR,
 } from '@repo/codegen/query/trust-center-subprocessor'
 
 import {
@@ -21,12 +23,17 @@ import {
   type DeleteTrustCenterSubprocessorMutationVariables,
   type GetTrustCenterSubprocessorByIdQuery,
   type GetTrustCenterSubprocessorByIdQueryVariables,
+  type GetTrustCenterSubprocessorLinksQuery,
+  type GetTrustCenterSubprocessorLinksQueryVariables,
+  type CreateBulkTrustCenterSubprocessorMutation,
+  type CreateBulkTrustCenterSubprocessorMutationVariables,
 } from '@repo/codegen/src/schema'
 
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, type QueryClient } from '@tanstack/react-query'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { useCallback } from 'react'
 import { invalidateCustomTypeEnumsForName } from '@/lib/graphql-hooks/custom-type-enum'
+import { fetchAllConnectionNodes } from './fetch-all-connection-nodes'
 
 type UseGetTrustCenterSubprocessorsArgs = {
   where?: GetTrustCenterSubprocessorsQueryVariables['where']
@@ -75,11 +82,7 @@ export const useCreateTrustCenterSubprocessor = () => {
   return useMutation<CreateTrustCenterSubprocessorMutation, unknown, CreateTrustCenterSubprocessorMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_TRUST_CENTER_SUBPROCESSOR, variables),
 
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['trustCenterSubprocessors'] })
-      queryClient.invalidateQueries({ queryKey: ['subprocessors'] })
-      invalidateCustomTypeEnumsForName(queryClient, variables.input.trustCenterSubprocessorKindName)
-    },
+    onSuccess: (_data, variables) => invalidateSubprocessorQueries(queryClient, [variables.input.trustCenterSubprocessorKindName]),
   })
 }
 
@@ -164,5 +167,35 @@ export const useGetTrustCenterSubprocessorByID = ({ trustCenterSubprocessorId, e
         trustCenterSubprocessorId,
       }),
     enabled: !!trustCenterSubprocessorId && enabled,
+  })
+}
+
+const LINKS_PAGE_SIZE = 100
+
+export const useTrustCenterSubprocessorLinks = ({ enabled = true }: { enabled?: boolean } = {}) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery({
+    queryKey: ['trustCenterSubprocessors', 'links'],
+    queryFn: () =>
+      fetchAllConnectionNodes(async (after) => {
+        const data = await client.request<GetTrustCenterSubprocessorLinksQuery, GetTrustCenterSubprocessorLinksQueryVariables>(GET_TRUST_CENTER_SUBPROCESSOR_LINKS, { first: LINKS_PAGE_SIZE, after })
+        return data.trustCenterSubprocessors
+      }),
+    enabled,
+  })
+}
+
+export const invalidateSubprocessorQueries = (queryClient: QueryClient, categoryNames: readonly (string | null | undefined)[] = []) => {
+  queryClient.invalidateQueries({ queryKey: ['trustCenterSubprocessors'] })
+  queryClient.invalidateQueries({ queryKey: ['subprocessors'] })
+  new Set(categoryNames).forEach((name) => invalidateCustomTypeEnumsForName(queryClient, name))
+}
+
+export const useCreateBulkTrustCenterSubprocessor = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<CreateBulkTrustCenterSubprocessorMutation, unknown, CreateBulkTrustCenterSubprocessorMutationVariables>({
+    mutationFn: (variables) => client.request<CreateBulkTrustCenterSubprocessorMutation, CreateBulkTrustCenterSubprocessorMutationVariables>(CREATE_BULK_TRUST_CENTER_SUBPROCESSOR, variables),
   })
 }

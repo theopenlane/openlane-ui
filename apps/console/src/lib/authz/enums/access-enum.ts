@@ -36,5 +36,6 @@ export enum AccessEnum {
   CanEditTrustCenterNdaRequest = 'can_edit_trust_center_nda_request',
   CanCreateRemediation = 'can_create_remediation',
   CanCreateTrustCenterSubprocessor = 'can_create_trust_center_subprocessor',
+  CanCreateSubprocessor = 'can_create_subprocessor',
   CanEditTrustCenterSubprocessor = 'can_edit_trust_center_subprocessor',
 }

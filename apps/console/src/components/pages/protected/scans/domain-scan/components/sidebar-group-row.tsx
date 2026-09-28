@@ -5,7 +5,7 @@ import React, { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { VendorLogo } from './vendor-logo'
+import { VendorLogo } from '@/components/shared/vendor-logo/vendor-logo'
 import type { DomainScanSummaryItem } from '../types'
 
 type SidebarGroupRowProps = {
