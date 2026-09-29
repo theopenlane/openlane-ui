@@ -13,12 +13,12 @@ import { Button } from '@repo/ui/button'
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { InfoIcon } from 'lucide-react'
-import { useOrganization } from '@/hooks/useOrganization'
-import { useCreateOrganization } from '@/lib/graphql-hooks/organization'
+import { useCreateOrganization, useGetOrganizationsForCurrentUser } from '@/lib/graphql-hooks/organization'
 import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { useQueryClient } from '@tanstack/react-query'
 import { ClientError } from 'graphql-request'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import Skeleton from '@/components/shared/skeleton/skeleton'
 
 const formSchema = z.object({
   name: z
@@ -38,8 +38,9 @@ export const CreateOrganizationForm = () => {
   const { push } = useRouter()
   const { errorNotification } = useNotification()
   const { data: session, update } = useSession()
-  const { allOrgs } = useOrganization()
-  const numOrgs = allOrgs.length
+  const { data, isLoadingOrganizations } = useGetOrganizationsForCurrentUser()
+  const isFirstOrg = data?.organizations.edges?.length === 1
+  const heading = isFirstOrg ? 'Create your first organization' : 'Create another organization'
   const { isPending, mutateAsync: createOrg } = useCreateOrganization()
 
   const { container } = createOrganizationStyles()
@@ -110,8 +111,8 @@ export const CreateOrganizationForm = () => {
     <div className={container()}>
       <Panel>
         <PanelHeader
-          heading={numOrgs === 1 ? 'Create your first organization' : 'Create another organization'}
-          subheading={numOrgs === 1 ? 'To get started create a organization for your business or department.' : null}
+          heading={isLoadingOrganizations ? <Skeleton height={20} className="w-full max-w-[280px] rounded-md" /> : heading}
+          subheading={!isLoadingOrganizations && isFirstOrg ? 'To get started create a organization for your business or department.' : null}
         />
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

@@ -12,9 +12,8 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { useNotification } from '@/hooks/useNotification'
-import { Loading } from '../loading/loading'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
+import { useGetOrganizationsForCurrentUser } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { type Organization } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
@@ -31,7 +30,7 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
   })
 
   const { currentOrgId } = useOrganization()
-  const { data } = useGetAllOrganizationsWithMembers({ userID: sessionData?.user.userId })
+  const { data } = useGetOrganizationsForCurrentUser()
   const orgs = data?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
   const { allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
@@ -106,8 +105,6 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
       }
     }
   }
-  if (!orgs) return <Loading />
-
   return (
     <div className={expanded ? 'w-full px-3' : ''}>
       <div>

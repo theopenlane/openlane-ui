@@ -6,7 +6,7 @@ import { Tag } from '@repo/ui/tag'
 import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useGetAllOrganizationsWithMembers, useLeaveOrganization } from '@/lib/graphql-hooks/organization'
+import { useGetOrganizationsForCurrentUser, useLeaveOrganization } from '@/lib/graphql-hooks/organization'
 import { type Organization, OrgMembershipRole } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -14,6 +14,8 @@ import { useState } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
+import { ExistingOrganizationsSkeleton } from './existing-organizations-skeleton'
 
 export const ExistingOrganizations = () => {
   const [showLeaveConfirmation, setShowLeaveConfirmation] = useState<string | null>(null)
@@ -25,15 +27,21 @@ export const ExistingOrganizations = () => {
 
   const { container, orgWrapper, orgInfo, orgSelect, orgTitle } = existingOrganizationsStyles()
 
-  const { data, isFetching, isError } = useGetAllOrganizationsWithMembers({ userID: sessionData?.user.userId })
+  const { data, isLoadingOrganizations, error } = useGetOrganizationsForCurrentUser()
+
+  useQueryErrorNotification({ error, description: 'Failed to load organizations' })
 
   const { push } = useRouter()
 
-  if (!data || isFetching || isError) {
+  if (isLoadingOrganizations) {
+    return <ExistingOrganizationsSkeleton />
+  }
+
+  if (!data) {
     return null
   }
 
-  const orgs = data?.organizations.edges?.filter((org) => !org?.node?.personalOrg) || []
+  const orgs = data.organizations.edges?.filter((org) => !org?.node?.personalOrg) || []
 
   if (orgs.length === 0) {
     return null
@@ -79,7 +87,7 @@ export const ExistingOrganizations = () => {
         title: 'Successfully left organization',
       })
 
-      const remainingOrgs = data?.organizations.edges?.filter((org) => org?.node?.id !== orgId) || []
+      const remainingOrgs = data.organizations.edges?.filter((org) => org?.node?.id !== orgId) || []
 
       const nextOrg = remainingOrgs[0]?.node?.id
 
