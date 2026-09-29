@@ -61,7 +61,7 @@ const StatCard = ({ icon: Icon, label, value, isLoading, chip }: StatCardProps) 
       </div>
       <p className="mt-4 text-sm text-muted-foreground">{label}</p>
       {isLoading ? (
-        <Skeleton className="mt-1 h-8 w-12 rounded" />
+        <Skeleton className="my-1 h-7 w-12 rounded-full" />
       ) : (
         <div className="flex items-center gap-2 mt-1">
           <p className="text-3xl font-semibold">{value}</p>
