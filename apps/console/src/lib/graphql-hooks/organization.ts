@@ -59,6 +59,7 @@ import {
   OrgMembershipRole,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery, type QueryClient } from '@tanstack/react-query'
+import { useSession } from 'next-auth/react'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { useMemo } from 'react'
@@ -92,17 +93,32 @@ export const useGetSingleOrganizationMembers = ({ organizationId, pagination }: 
   })
 }
 
-export const useGetAllOrganizationsWithMembers = (membersWhere: OrgMembershipWhereInput = {}) => {
+type TUseGetAllOrganizationsWithMembers = {
+  membersWhere: OrgMembershipWhereInput
+  enabled: boolean
+}
+
+const useGetAllOrganizationsWithMembers = ({ membersWhere, enabled }: TUseGetAllOrganizationsWithMembers) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllOrganizationsWithMembersQuery>({
     queryKey: ['organizationsWithMembers', membersWhere],
     queryFn: async () => client.request(GET_ALL_ORGANIZATIONS_WITH_MEMBERS, { membersWhere }),
+    enabled,
   })
 }
 
+export const useGetOrganizationsForCurrentUser = () => {
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user?.userId
+
+  const query = useGetAllOrganizationsWithMembers({ membersWhere: { userID: userId }, enabled: !!userId })
+
+  return { ...query, isLoadingOrganizations: !!userId && query.isPending }
+}
+
 export const useIsOwnerInAnyOrg = (userId?: string) => {
-  const { data, isLoading, isError } = useGetAllOrganizationsWithMembers({ hasUserWith: [{ id: userId }] })
+  const { data, isPending, isError } = useGetAllOrganizationsWithMembers({ membersWhere: { hasUserWith: [{ id: userId }] }, enabled: !!userId })
 
   const isOwner = useMemo(
     () => (data?.organizations?.edges ?? []).some((edge) => !edge?.node?.personalOrg && (edge?.node?.members?.edges ?? []).some((member) => member?.node?.role === OrgMembershipRole.OWNER)),
@@ -111,7 +127,7 @@ export const useIsOwnerInAnyOrg = (userId?: string) => {
 
   return {
     isOwner,
-    isLoading,
+    isLoading: isPending,
     isError,
   }
 }
