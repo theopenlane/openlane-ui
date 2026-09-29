@@ -217,6 +217,7 @@ test.describe('registry — entity CRUD', () => {
 
     const sheet = await openCreateSheet(page)
     await sheet.getByRole('textbox').first().fill(uniqueName('E2E Contact'))
+    await sheet.getByRole('textbox', { name: /^Email( \(required\))?$/ }).fill(`e2e-contact-${Date.now().toString(36)}@example.com`)
     await sheet.getByRole('button', { name: /^Create$/ }).click()
 
     await expect(page.getByText(/contact created/i).first()).toBeVisible({ timeout: 15_000 })
@@ -655,7 +656,7 @@ test.describe('registry — contact linked vendors (ISS-2459)', () => {
 
     const sheet = page.getByRole('dialog')
     await expect(sheet).toBeVisible({ timeout: 30_000 })
-    await expect(sheet.getByText('Linked Vendors', { exact: true })).toBeVisible({ timeout: 20_000 })
+    await expect(sheet.getByText('Linked vendors', { exact: true })).toBeVisible({ timeout: 20_000 })
 
     await expect(sheet.getByText('No vendors linked', { exact: true })).toBeVisible({ timeout: 15_000 })
   })
@@ -668,7 +669,7 @@ test.describe('registry — contact linked vendors (ISS-2459)', () => {
 
     await page.goto(`/registry/contacts?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
     const sheet = page.getByRole('dialog')
-    await expect(sheet.getByText('Linked Vendors', { exact: true })).toBeVisible({ timeout: 30_000 })
+    await expect(sheet.getByText('Linked vendors', { exact: true })).toBeVisible({ timeout: 30_000 })
 
     await sheet.getByRole('button', { name: /^Link Vendor$/ }).click()
 

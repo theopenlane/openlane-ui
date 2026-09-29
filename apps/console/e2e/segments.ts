@@ -39,7 +39,7 @@ export const SEGMENTS: Record<string, string[]> = {
     'procedures.spec.ts',
   ],
 
-  programs: ['programs-crud.spec.ts', 'programs-wizard.spec.ts', 'programs.spec.ts'],
+  programs: ['programs-crud.spec.ts', 'programs-wizard.spec.ts', 'programs-work.spec.ts', 'programs.spec.ts'],
 
   evidence: ['evidence-crud.spec.ts', 'evidence.spec.ts'],
 
@@ -82,7 +82,7 @@ export const SEGMENTS: Record<string, string[]> = {
     'vendors-flows.spec.ts',
   ],
 
-  'trust-center': ['trust-center-crud.spec.ts', 'trust-center-documents-flows.spec.ts', 'trust-center.spec.ts'],
+  'trust-center': ['trust-center-crud.spec.ts', 'trust-center-documents-flows.spec.ts', 'trust-center-settings-flows.spec.ts', 'trust-center.spec.ts'],
 
   admin: [
     'custom-data-crud.spec.ts',
@@ -90,6 +90,7 @@ export const SEGMENTS: Record<string, string[]> = {
     'developers.spec.ts',
     'exports-members-groups.spec.ts',
     'integrations-config-form.spec.ts',
+    'integrations-health-filter.spec.ts',
     'integrations.spec.ts',
     'org-authentication-domains.spec.ts',
     'organization-settings.spec.ts',
@@ -102,6 +103,7 @@ export const SEGMENTS: Record<string, string[]> = {
   platform: [
     'bulk-import-and-pagination.spec.ts',
     'cross-cutting.spec.ts',
+    'dashboard-setup-and-docs.spec.ts',
     'dashboard.spec.ts',
     'global-search.spec.ts',
     'journeys.spec.ts',

@@ -45,7 +45,7 @@ test.describe('programs — detail (seeded)', () => {
     const id = await createProgram(ownerApi, name)
 
     await page.goto(`/programs/${id}`, { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('heading', { name: 'Overview', exact: true })).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByRole('tab', { name: 'Overview', exact: true })).toBeVisible({ timeout: 20_000 })
     await expect(page.getByText(name).first()).toBeVisible({ timeout: 15_000 })
   })
 

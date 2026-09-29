@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test'
 import { test, expect, readManifest, type Role } from '../fixtures/auth'
 import { loginViaApi, createInternalPolicy, createProcedure, createRisk, createEvidence, createControl, createProgram } from '../utils/api'
 import { PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON } from '../utils/permission-gating'
+import { uniqueRef } from '../utils/unique'
 
 test.skip(!PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON)
 
@@ -343,7 +344,7 @@ test.describe('permissions — auditor evidence + review UI (ISS-2430/2431)', ()
     const { ownerEmail, password } = readManifest()
     const owner = await loginViaApi(ownerEmail, password)
     await createEvidence(owner, `E2E AuditCols ${Date.now().toString(36)}`)
-    auditControlId = await createControl(owner, `E2E-AUDITREV-${Date.now().toString(36)}`)
+    auditControlId = await createControl(owner, uniqueRef('E2E-AUDITREV'))
   })
 
   test.describe('auditor', () => {
