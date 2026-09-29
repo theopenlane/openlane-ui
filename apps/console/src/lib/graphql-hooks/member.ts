@@ -77,14 +77,14 @@ export const useCurrentUserRole = () => {
   const { data: sessionData } = useSession()
   const userId = sessionData?.user?.userId
 
-  const { members, isLoading } = useGetOrgMemberships({
+  const { members, isLoading, isPlaceholderData } = useGetOrgMemberships({
     where: { hasUserWith: [{ id: userId }] },
     enabled: !!userId,
   })
 
   return {
     role: members[0]?.role,
-    isLoading,
+    isLoading: isLoading || isPlaceholderData,
   }
 }
 

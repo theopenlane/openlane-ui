@@ -18,7 +18,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, BookText, Lightbulb, X } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { docsHelpAvailable } from '@repo/dally/ai'
+import { useSuggestionsEnabled } from '@/hooks/useSuggestionsEnabled'
 import { useGetProgramDashboard } from '@/lib/graphql-hooks/program'
 import { useAllPolicyNames } from '@/lib/graphql-hooks/internal-policy'
 import { useDocsHelpNavigate } from '@/components/shared/docs-help/docs-help-context'
@@ -84,19 +84,20 @@ export function usePolicyTemplates(enabled: boolean) {
 // Each missing policy can be created with AI or from a Policy Hub template
 export function SuggestedPolicyCoverage() {
   const navigateDocs = useDocsHelpNavigate()
+  const suggestionsEnabled = useSuggestionsEnabled()
   // per-org dismissal, persisted so the alert stays gone once waved away
   const { dismissed, dismiss: handleDismiss, isResolved } = useDismissible('policy-coverage-dismissed')
   const { isDismissed, dismiss: dismissTopic } = useDismissedItems('policy-coverage-covered')
-  const { data: mappingData, isPending: isMappingPending, isError: isMappingError } = useDocsPolicyMapping(docsHelpAvailable)
-  const { data: programsData, isPending: isProgramsPending, isError: isProgramsError } = useGetProgramDashboard({ enabled: docsHelpAvailable })
+  const { data: mappingData, isPending: isMappingPending, isError: isMappingError } = useDocsPolicyMapping(suggestionsEnabled)
+  const { data: programsData, isPending: isProgramsPending, isError: isProgramsError } = useGetProgramDashboard({ enabled: suggestionsEnabled })
   // held back until the page's own data is in, then paged through in the background
   const {
     policies: orgPolicies,
     isLoading: isPoliciesLoading,
     isError: isPoliciesError,
-  } = useAllPolicyNames({ enabled: docsHelpAvailable && isResolved && !dismissed && !!mappingData && !!programsData })
+  } = useAllPolicyNames({ enabled: suggestionsEnabled && isResolved && !dismissed && !!mappingData && !!programsData })
   const hasError = isMappingError || isProgramsError || isPoliciesError
-  const { data: templates } = usePolicyTemplates(docsHelpAvailable)
+  const { data: templates } = usePolicyTemplates(suggestionsEnabled)
 
   const { createFromTemplate, creatingTemplate } = useCreatePolicyFromTemplate()
   const [showAll, setShowAll] = useState(false)
@@ -105,7 +106,7 @@ export function SuggestedPolicyCoverage() {
     // until every query is in, everything reads as missing and the card would
     // flash a full list before emptying itself; a failed one never resolves into
     // an answer at all, so the card stays out rather than guessing
-    if (!isResolved || hasError || isMappingPending || isProgramsPending || isPoliciesLoading) return null
+    if (!suggestionsEnabled || !isResolved || hasError || isMappingPending || isProgramsPending || isPoliciesLoading) return null
     const mapping = mappingData?.mapping ?? []
 
     const orgFrameworks = [...new Set((programsData?.programs?.edges ?? []).map((e) => e?.node?.frameworkName).filter((f): f is string => !!f))]
@@ -113,7 +114,7 @@ export function SuggestedPolicyCoverage() {
     const missing = suggested.filter((row) => !isDismissed(row.policy) && !orgPolicies.some((policy) => policyCovers(policy, { name: row.policy })))
 
     return { orgFrameworks, total: suggested.length, missing }
-  }, [mappingData, programsData, isMappingPending, isProgramsPending, orgPolicies, isPoliciesLoading, isDismissed, isResolved, hasError])
+  }, [suggestionsEnabled, mappingData, programsData, isMappingPending, isProgramsPending, orgPolicies, isPoliciesLoading, isDismissed, isResolved, hasError])
 
   // nothing missing means nothing to check again, so retire the card rather than
   // paging every policy in the org on each visit
@@ -121,7 +122,7 @@ export function SuggestedPolicyCoverage() {
     if (coverage && coverage.total > 0 && coverage.missing.length === 0) handleDismiss()
   }, [coverage, handleDismiss])
 
-  if (!docsHelpAvailable || dismissed || !coverage || coverage.missing.length === 0) return null
+  if (!suggestionsEnabled || dismissed || !coverage || coverage.missing.length === 0) return null
 
   const covered = coverage.total - coverage.missing.length
   const COLLAPSED_COUNT = 6

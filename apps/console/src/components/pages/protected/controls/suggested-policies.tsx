@@ -7,7 +7,7 @@ import { parseDocBullets } from '@/lib/docs-help/parse'
 import { Lightbulb, Link2, Sparkles } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { docsHelpAvailable } from '@repo/dally/ai'
+import { useSuggestionsEnabled } from '@/hooks/useSuggestionsEnabled'
 import { useAllPolicyNames, useInternalPolicies, useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -62,11 +62,12 @@ function matchExistingPolicies(rows: Array<{ name: string; description: string }
 export type TSuggestedPoliciesResult = { data: TSuggestedPoliciesData | null; isLoading: boolean; isError: boolean }
 
 export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggestedPoliciesResult {
+  const suggestionsEnabled = useSuggestionsEnabled()
   const { dismissed, dismiss, isResolved } = useDismissible(`suggested-policies-dismissed:${control?.controlId ?? ''}`)
   const { isDismissed, dismiss: dismissOne } = useDismissedItems(control?.controlId ? `suggested-policy-covered:${control.controlId}` : undefined)
 
   // a dismissed control asks nothing of the docs or of the policy list
-  const active = docsHelpAvailable && isResolved && !dismissed
+  const active = suggestionsEnabled && isResolved && !dismissed
   const { section, target, isLoading: isSectionLoading, isError: isSectionError } = useControlDocsSection(active ? control : undefined, 'Policies')
   const enabled = active && !!section && !!control?.controlId
 
@@ -91,7 +92,7 @@ export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggested
 
   const controlId = control?.controlId
   const data = useMemo(
-    () => (!docsHelpAvailable || !controlId || !target || !suggestions ? null : { controlId, target, suggestions, dismissed, dismiss, dismissOne }),
+    () => (!controlId || !target || !suggestions ? null : { controlId, target, suggestions, dismissed, dismiss, dismissOne }),
     [controlId, target, suggestions, dismissed, dismiss, dismissOne],
   )
 
