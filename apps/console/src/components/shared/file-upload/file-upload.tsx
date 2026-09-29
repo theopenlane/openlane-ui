@@ -29,8 +29,8 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
       const validFiles = acceptedFiles.filter((file) => {
         if (file.size > MAX_FILE_SIZE) {
           errorNotification({
-            title: 'Error',
-            description: `exceeds the maximum file size of ${MAX_FILE_SIZE_IN_MB} MB.`,
+            title: 'File too large',
+            description: `${file.name} exceeds the maximum file size of ${MAX_FILE_SIZE_IN_MB} MB.`,
           })
           return false
         }
@@ -51,16 +51,14 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
           reader.onload = () => {
             const fileUrl = reader.result as string
 
-            const img = new Image()
-            img.onload = () => {
+            const stageFile = (dimensions?: { width: number; height: number }) => {
               const newFile: TUploadedFile = {
                 name: file.name,
                 size: file.size,
                 url: fileUrl,
                 type: 'file',
                 file: file,
-                width: img.naturalWidth,
-                height: img.naturalHeight,
+                ...dimensions,
               }
 
               if (!props.multipleFiles) {
@@ -69,6 +67,10 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
 
               props.onFileUpload(newFile)
             }
+
+            const img = new Image()
+            img.onload = () => stageFile({ width: img.naturalWidth, height: img.naturalHeight })
+            img.onerror = () => stageFile()
 
             img.src = fileUrl
           }

@@ -181,13 +181,13 @@ export const usePlatformDiagrams = (platformId?: PlatformQueryVariables['platfor
 
 export const useUploadPlatformDiagram = (platformId: string) => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<UpdatePlatformMutation, unknown, { file: File; diagramType: DiagramType }>({
-    mutationFn: ({ file, diagramType }) =>
+  return useMutation<UpdatePlatformMutation, unknown, { file: File; diagramType: DiagramType; replacedFileId?: string }>({
+    mutationFn: ({ file, diagramType, replacedFileId }) =>
       fetchGraphQLWithUpload({
         query: UPDATE_PLATFORM,
         variables: {
           updatePlatformId: platformId,
-          input: {},
+          input: replacedFileId ? { [DIAGRAM_FIELDS[diagramType].removeIDs]: [replacedFileId] } : {},
           [DIAGRAM_FIELDS[diagramType].connection]: [file],
         },
       }),
