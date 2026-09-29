@@ -13,11 +13,12 @@ import {
 } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
-import { type FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
+import { type FindingDetailNode, type FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
 import { type FindingFormData } from '../hooks/use-form-schema'
 
 type TFormData = FindingFormData
 type TData = FindingsNodeNonNull
+type TSheetData = FindingDetailNode
 type TUpdateInput = UpdateFindingInput
 type TUpdateData = UpdateFindingMutation
 type TCreateInput = CreateFindingInput
@@ -35,8 +36,8 @@ export const defaultSorting = [{ field: FindingOrderField.updated_at, direction:
 type FindingEnumKeys = 'environmentOptions' | 'scopeOptions' | 'findingStatusOptions'
 export type EnumOptions = EnumOptionsGeneric<FindingEnumKeys>
 
-export type FindingTablePageConfig = GenericTablePageConfig<TData, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField>
-export type FindingSheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
-export type FindingFieldProps = RenderFieldsProps<TData, TUpdateInput>
+export type FindingTablePageConfig = GenericTablePageConfig<TData, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField, TSheetData>
+export type FindingSheetConfig = GenericDetailsSheetConfig<TFormData, TSheetData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
+export type FindingFieldProps = RenderFieldsProps<TSheetData, TUpdateInput>
 
 export type { EnumCreateHandlers } from '@/components/shared/crud-base/page'

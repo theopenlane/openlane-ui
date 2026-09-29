@@ -48,6 +48,8 @@ export type FindingsNode = NonNullable<NonNullable<NonNullable<FindingsWithFilte
 
 export type FindingsNodeNonNull = NonNullable<FindingsNode>
 
+export type FindingDetailNode = NonNullable<FindingQuery['finding']>
+
 export const useFindingsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllFindingsArgs) => {
   const { client } = useGraphQLClient()
   const queryResult = useQuery<FindingsWithFilterQuery, unknown>({

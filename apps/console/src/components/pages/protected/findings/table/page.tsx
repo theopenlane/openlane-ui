@@ -10,6 +10,7 @@ import { type FindingTablePageConfig, objectType, objectName, tableKey, exportTy
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { type UpdateFindingInput } from '@repo/codegen/src/schema'
+import { FINDING_INTERNAL_OWNER } from '../finding-responsibility'
 import { useFindingSheetConfig } from '../hooks/use-finding-sheet-config'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
 import ViewFindingSheet from '../view-finding-sheet'
@@ -65,7 +66,7 @@ const FindingPage: React.FC = () => {
       return result.updateBulkFinding
     },
     bulkEditFormSchema: bulkEditFieldSchema,
-    responsibilityFields: { internalOwner: { fieldBaseName: 'internalOwner' } },
+    responsibilityFields: { internalOwner: FINDING_INTERNAL_OWNER },
     enumOpts,
     defaultFilterValues: DEFAULT_FILTER_VALUES,
     beforeTable: (

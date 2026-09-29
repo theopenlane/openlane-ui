@@ -1,28 +1,26 @@
 'use client'
 
-import { buildResponsibilityPayload, normalizeEntityData } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { buildResponsibilityPayload, normalizeEntityData, type ResponsibilitySelection, type ResponsibilityTarget } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useControlLinksForFinding } from '@/components/shared/object-association/finding-control-links'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
-import { type FindingsNodeNonNull, useBulkDeleteFinding, useCreateFinding, useFinding, useGetFindingAssociations, useUpdateFinding } from '@/lib/graphql-hooks/finding'
+import { type FindingDetailNode, useBulkDeleteFinding, useCreateFinding, useFinding, useGetFindingAssociations, useUpdateFinding } from '@/lib/graphql-hooks/finding'
 import { type CreateFindingInput, type GetFindingAssociationsQuery, type UpdateFindingInput } from '@repo/codegen/src/schema'
 import type { Value } from 'platejs'
 import type React from 'react'
 import { useCallback } from 'react'
+import { FINDING_ASSIGNEE, FINDING_INTERNAL_OWNER, FINDING_REVIEWER } from '../finding-responsibility'
 import { getFieldsToRender } from '../table/table-config'
 import { type EnumOptions, type FindingFieldProps, type FindingSheetConfig, objectType } from '../table/types'
 import { omitAssociationKeys, useFindingAssociationSplit } from './use-finding-association-split'
 import useFormSchema from './use-form-schema'
 
-const normalizeData = (data: FindingsNodeNonNull) =>
+const normalizeData = (data: FindingDetailNode) =>
   normalizeEntityData(data, {
-    internalOwner: {
-      personnel: data.internalOwnerIdentityHolder,
-      user: data.internalOwnerUser,
-      group: data.internalOwnerGroup,
-      stringValue: data.internalOwner,
-    },
+    internalOwner: { personnel: data.internalOwnerIdentityHolder, user: data.internalOwnerUser, group: data.internalOwnerGroup, stringValue: data.internalOwner },
+    assignedTo: { personnel: data.assignedToIdentityHolder, user: data.assignedToUser, group: data.assignedToGroup, stringValue: data.assignedTo },
+    reviewedBy: { personnel: data.reviewedByIdentityHolder, user: data.reviewedByUser, group: data.reviewedByGroup, stringValue: data.reviewedBy },
   })
 
 export const useFindingSheetConfig = (entityId: string | null | undefined, isCreate = false, riskScoresAction?: React.ReactNode): Omit<FindingSheetConfig, 'onClose'> & { enumOpts: EnumOptions } => {
@@ -81,7 +79,7 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
   const enumOpts = { environmentOptions, scopeOptions, findingStatusOptions }
   const enumCreateHandlers = { environmentName: createEnvironment, scopeName: createScope, findingStatusName: createFindingStatus }
 
-  const getName = (d: FindingsNodeNonNull) => d?.displayName || d?.displayID || d?.externalID
+  const getName = (d: FindingDetailNode) => d?.displayName || d?.displayID || d?.externalID
 
   return {
     enumOpts,
@@ -96,17 +94,23 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
     deleteMutation,
     normalizeData,
     buildPayload: async (formData) => {
-      const { internalOwner, ...rest } = omitAssociationKeys(formData)
+      const { internalOwner, assignedTo, reviewedBy, ...rest } = omitAssociationKeys(formData)
       const { entityInput: edgeAssociationPayload } = splitAssociations(formData)
 
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
       const cleaned = Object.fromEntries(Object.entries({ ...rest, description }).filter(([, v]) => v !== '' && v !== undefined))
-      const internalOwnerPayload = isCreate
-        ? buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'create' })
-        : form.formState.dirtyFields.internalOwner
-          ? buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'update' })
-          : {}
-      return { ...cleaned, ...edgeAssociationPayload, ...internalOwnerPayload }
+      const { dirtyFields } = form.formState
+      const responsibilityPayload = (target: ResponsibilityTarget, selection: ResponsibilitySelection, isDirty: boolean) => {
+        if (isCreate) return buildResponsibilityPayload(target.fieldBaseName, selection, { mode: 'create', stringFieldName: target.stringFieldName })
+        return isDirty ? buildResponsibilityPayload(target.fieldBaseName, selection, { mode: 'update', stringFieldName: target.stringFieldName }) : {}
+      }
+      return {
+        ...cleaned,
+        ...edgeAssociationPayload,
+        ...responsibilityPayload(FINDING_INTERNAL_OWNER, internalOwner, !!dirtyFields.internalOwner),
+        ...responsibilityPayload(FINDING_ASSIGNEE, assignedTo, !!dirtyFields.assignedTo),
+        ...responsibilityPayload(FINDING_REVIEWER, reviewedBy, !!dirtyFields.reviewedBy),
+      }
     },
     onSaved: async ({ formData, created, entityId: savedId }) => {
       const findingID = savedId ?? created?.createFinding?.finding?.id

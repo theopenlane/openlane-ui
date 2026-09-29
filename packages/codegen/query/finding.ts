@@ -91,6 +91,34 @@ export const GET_ALL_FINDINGS = gql`
 export const FINDING = gql`
   query Finding($findingId: ID!) {
     finding(id: $findingId) {
+      assignedTo
+      assignedToUser {
+        id
+        displayName
+      }
+      assignedToGroup {
+        id
+        displayName
+      }
+      assignedToIdentityHolder {
+        id
+        fullName
+        email
+      }
+      reviewedBy
+      reviewedByUser {
+        id
+        displayName
+      }
+      reviewedByGroup {
+        id
+        displayName
+      }
+      reviewedByIdentityHolder {
+        id
+        fullName
+        email
+      }
       assessmentID
       blocksProduction
       category
