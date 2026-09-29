@@ -143,13 +143,10 @@ export function schemaHasProperties(schema?: IntegrationSchemaNode): boolean {
   return Object.keys(resolveSchemaRoot(schema)?.properties ?? {}).length > 0
 }
 
-type IntegrationClientConfig = {
-  clientConfig?: Record<string, unknown>
-}
-
 export function readIntegrationUserInput(integration: Pick<IntegrationNode, 'config'>): Record<string, unknown> {
-  const config = integration.config as IntegrationClientConfig | null
-  return config?.clientConfig ?? {}
+  const properties = resolveSchemaRoot(integration.config as IntegrationSchemaNode | undefined)?.properties ?? {}
+
+  return Object.fromEntries(Object.entries(properties).flatMap(([key, property]) => (property.default === undefined ? [] : [[key, property.default]])))
 }
 
 export function integrationDefinitionID(integration: IntegrationProviderMatchFields, providers: IntegrationProvider[]): string | undefined {
