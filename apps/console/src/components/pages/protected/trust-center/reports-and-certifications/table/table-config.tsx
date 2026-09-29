@@ -3,9 +3,6 @@ import React, { useState } from 'react'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility, type TrustCenterDocWatermarkStatus, type TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 
-type GqlFile = {
-  presignedURL?: string | null
-}
 export type TTrustCenterDoc = {
   id: string
   title: string
@@ -15,8 +12,8 @@ export type TTrustCenterDoc = {
   createdAt: string
   updatedAt: string
   watermarkingEnabled?: boolean
-  file?: GqlFile | null
-  originalFile?: GqlFile | null
+  file?: TFileActionsRow | null
+  originalFile?: TFileActionsRow | null
   watermarkStatus: TrustCenterDocWatermarkStatus
   standardShortName: string
 }
@@ -25,6 +22,7 @@ type Params = {
   selectedDocs: { id: string }[]
   setSelectedDocs: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   hasNdaTemplate: boolean
+  onPreview: (file: TFileActionsRow) => void
 }
 
 const VisibilityCell = ({ visibility, hasNdaTemplate }: { visibility: string; hasNdaTemplate: boolean }) => {
@@ -66,7 +64,7 @@ const VisibilityCell = ({ visibility, hasNdaTemplate }: { visibility: string; ha
   )
 }
 
-export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs, hasNdaTemplate }: Params) => {
+export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs, hasNdaTemplate, onPreview }: Params) => {
   const columns: ColumnDef<TTrustCenterDoc>[] = [
     createSelectColumn<TTrustCenterDoc>(selectedDocs, setSelectedDocs),
     {
@@ -120,8 +118,8 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs, hasNda
       id: 'actions',
       header: '',
       cell: ({ row }) => {
-        const presignedURL = row.original.file?.presignedURL || row.original.originalFile?.presignedURL || ''
-        return <DocumentActions filePresignedURL={presignedURL} watermarkEnabled={row.original.watermarkingEnabled ?? false} documentId={row.original.id as string} />
+        const previewFile = getTrustCenterDocPreviewFile(row.original)
+        return <DocumentActions onPreview={previewFile ? () => onPreview(previewFile) : undefined} watermarkEnabled={row.original.watermarkingEnabled ?? false} documentId={row.original.id} />
       },
     },
   ]
@@ -163,6 +161,8 @@ import DocumentActions from '../../actions/documents-actions'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import StandardChip from '../../../standards/shared/standard-chip'
+import type { TFileActionsRow } from '@/components/shared/file-table/file-actions-column'
+import { getTrustCenterDocPreviewFile } from '../trust-center-doc-file'
 
 export const trustCenterDocsFilterFields = defineFilterFields<TrustCenterDocWhereInput>()([
   {

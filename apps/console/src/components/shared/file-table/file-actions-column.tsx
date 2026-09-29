@@ -6,7 +6,7 @@ import { activatable } from '@repo/ui/lib/a11y'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import type { ColumnDef } from '@repo/ui/table-types'
 import { fileDownload } from '@/components/shared/lib/export'
-import { canPreviewInDialog } from '@/components/shared/file-preview/preview-mime'
+import { canOpenFilePreviewDialog } from '@/components/shared/file-preview/preview-mime'
 import { useNotification } from '@/hooks/useNotification'
 
 export type TFileActionsRow = {
@@ -25,10 +25,10 @@ type TFileActionsCellProps<TRow extends TFileActionsRow> = {
 
 const FileActionsCell = <TRow extends TFileActionsRow>({ file, onPreview, trailingAction }: TFileActionsCellProps<TRow>) => {
   const { errorNotification } = useNotification()
-  const canPreview = !!onPreview && canPreviewInDialog(file) && !!file.presignedURL
+  const canPreview = !!onPreview && canOpenFilePreviewDialog(file)
 
   return (
-    <div role="presentation" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex items-center justify-end gap-3">
+    <div role="presentation" onClick={(e) => e.stopPropagation()} onAuxClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex items-center justify-end gap-3">
       {canPreview && (
         <SystemTooltip
           icon={

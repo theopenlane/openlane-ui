@@ -19,10 +19,18 @@ export const GET_ALL_TRUST_CENTER_DOCS = gql`
                 watermarkingEnabled
                 watermarkStatus
                 file {
+                  id
                   presignedURL
+                  providedFileName
+                  providedFileExtension
+                  detectedMimeType
                 }
                 originalFile {
+                  id
                   presignedURL
+                  providedFileName
+                  providedFileExtension
+                  detectedMimeType
                 }
                 standard {
                   shortName
@@ -71,14 +79,20 @@ export const GET_ALL_TRUST_CENTER_DOC_BY_ID = gql`
       visibility
       tags
       file {
+        id
         presignedURL
         providedFileName
         providedFileSize
+        providedFileExtension
+        detectedMimeType
       }
       originalFile {
+        id
         presignedURL
-        providedFileSize
         providedFileName
+        providedFileSize
+        providedFileExtension
+        detectedMimeType
       }
       watermarkingEnabled
       watermarkStatus

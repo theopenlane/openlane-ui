@@ -1,62 +1,44 @@
 import { activatable } from '@repo/ui/lib/a11y'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { Download, Trash2 } from 'lucide-react'
-import React from 'react'
-import { fileDownload } from '@/components/shared/lib/export'
-import { useNotification } from '@/hooks/useNotification'
+import { Trash2 } from 'lucide-react'
+import { getFileActionsColumn, type TFileActionsRow } from '@/components/shared/file-table/file-actions-column'
+import type { TFile } from '@/components/shared/file-table/columns'
+import { formatFileSize } from '@/utils/strings'
 
-export type TDocumentFile = {
-  id?: string
-  providedFileName: string
-  providedFileSize?: number | null
-  presignedURL: string
+export type TDocumentFile = TFileActionsRow & Pick<TFile, 'providedFileSize'>
+
+type TFilesColumnsParams = {
+  onPreview: (file: TDocumentFile) => void
+  onDelete?: (file: TDocumentFile) => void
 }
 
-/**
- * Returns table column definitions for document files.
- */
-export const useGetFilesColumns = ({ onDelete }: { onDelete: (file: TDocumentFile) => void }): ColumnDef<TDocumentFile>[] => {
-  const { errorNotification } = useNotification()
-
-  return [
-    {
-      accessorKey: 'providedFileName',
-      header: 'Filename',
+export const getFilesColumns = ({ onPreview, onDelete }: TFilesColumnsParams): ColumnDef<TDocumentFile>[] => [
+  {
+    accessorKey: 'providedFileName',
+    header: 'Filename',
+  },
+  {
+    accessorKey: 'providedFileSize',
+    header: 'Size',
+    cell: ({ row }) => {
+      const size = row.original.providedFileSize
+      return <span>{size == null ? '-' : formatFileSize(size)}</span>
     },
-    {
-      accessorKey: 'providedFileSize',
-      header: 'Size',
-      cell: ({ row }) => {
-        const bytes = row.original.providedFileSize ?? 0
-        const sizeInMB = (bytes / (1024 * 1024)).toFixed(2)
-        return <span>{sizeInMB} MB</span>
-      },
-    },
-    {
-      accessorKey: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => (
-        <div role="presentation" onClick={(e) => e.stopPropagation()} className="flex items-center gap-3">
+  },
+  getFileActionsColumn<TDocumentFile>({
+    onPreview,
+    trailingAction: onDelete
+      ? (file) => (
           <SystemTooltip
             icon={
-              <p className="flex items-center gap-1 cursor-pointer" {...activatable(() => fileDownload(row.original.presignedURL || '', row.original.providedFileName, errorNotification))}>
-                <Download size={16} />
-              </p>
-            }
-            content={<p>Download</p>}
-          />
-
-          <SystemTooltip
-            icon={
-              <p className="flex items-center gap-1 cursor-pointer" {...activatable(() => onDelete(row.original))}>
+              <p className="flex items-center gap-1 cursor-pointer" aria-label={`Delete ${file.providedFileName}`} {...activatable(() => onDelete(file))}>
                 <Trash2 size={16} />
               </p>
             }
             content={<p>Delete</p>}
           />
-        </div>
-      ),
-    },
-  ]
-}
+        )
+      : undefined,
+  }),
+]

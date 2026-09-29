@@ -21,6 +21,8 @@ import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { mapTrustCenterDocFilterKey } from './table/table-config'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import FilePreviewDialog from '@/components/shared/file-preview/file-preview-dialog'
+import type { TFileActionsRow } from '@/components/shared/file-table/file-actions-column'
 
 const ReportsAndCertificationsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.TRUST_CENTER_DOC)
@@ -28,6 +30,7 @@ const ReportsAndCertificationsPage = () => {
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS)
   const [filters, setFilters] = useState<TrustCenterDocWhereInput | null>(null)
   const [selectedDocs, setSelectedDocs] = useState<{ id: string }[]>([])
+  const [previewFile, setPreviewFile] = useState<TFileActionsRow | null>(null)
 
   const { setCrumbs } = use(BreadcrumbContext)
   const whereFilter = useMemo(() => {
@@ -70,15 +73,15 @@ const ReportsAndCertificationsPage = () => {
         createdAt: doc?.createdAt ?? '',
         updatedAt: doc?.updatedAt ?? '',
         watermarkingEnabled: doc?.watermarkingEnabled ?? false,
-        file: doc?.file ? { presignedURL: doc.file.presignedURL } : null,
-        originalFile: doc?.originalFile ? { presignedURL: doc.originalFile.presignedURL } : null,
+        file: doc?.file ?? null,
+        originalFile: doc?.originalFile ?? null,
         watermarkStatus: doc?.watermarkStatus ?? TrustCenterDocWatermarkStatus.DISABLED,
         standardShortName: doc?.standard?.shortName ?? '',
       })) ?? [],
     [docs],
   )
 
-  const { columns, mappedColumns } = useMemo(() => getTrustCenterDocColumns({ selectedDocs, setSelectedDocs, hasNdaTemplate }), [selectedDocs, hasNdaTemplate])
+  const { columns, mappedColumns } = useMemo(() => getTrustCenterDocColumns({ selectedDocs, setSelectedDocs, hasNdaTemplate, onPreview: setPreviewFile }), [selectedDocs, hasNdaTemplate])
 
   useEffect(() => {
     setCrumbs([
@@ -149,6 +152,8 @@ const ReportsAndCertificationsPage = () => {
           rowHref={(row) => `/trust-center/reports-and-certifications?id=${row.id}`}
           tableKey={TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS}
         />
+
+        <FilePreviewDialog file={previewFile} open={!!previewFile} onOpenChange={(open) => !open && setPreviewFile(null)} />
       </div>
     </>
   )

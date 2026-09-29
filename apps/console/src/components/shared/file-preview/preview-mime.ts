@@ -78,8 +78,10 @@ export const isPdfFile = (file: TPreviewFileShape): boolean => resolveFileKind(f
 export const isImageFile = (file: TPreviewFileShape): boolean => resolveFileKind(file) === 'image'
 export const isCsvFile = (file: TPreviewFileShape): boolean => resolveFileKind(file) === 'csv'
 
-export const canPreviewInDialog = (file: TPreviewFileShape): boolean => {
+const canPreviewInDialog = (file: TPreviewFileShape): boolean => {
   const kind = resolveFileKind(file)
 
   return kind !== null && KIND_CAPABILITIES[kind].inlineDialog
 }
+
+export const canOpenFilePreviewDialog = (file: TPreviewFileShape & Pick<TFile, 'presignedURL'>): boolean => !!file.presignedURL && canPreviewInDialog(file)

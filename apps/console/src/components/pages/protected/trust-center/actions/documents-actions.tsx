@@ -5,26 +5,23 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Droplet, Eye, MoreHorizontal, Trash2 } from 'lucide-react'
-import { useId, useEffect, useState } from 'react'
+import { useId, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@repo/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 
 type DocumentActionsProps = {
   documentId: string
   watermarkEnabled: boolean
-  filePresignedURL?: string
+  onPreview?: () => void
 }
 
-const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: DocumentActionsProps) => {
+const DocumentActions = ({ documentId, watermarkEnabled, onPreview }: DocumentActionsProps) => {
   const { mutateAsync: deleteDocument } = useDeleteTrustCenterDoc()
   const { mutateAsync: updateDocument } = useUpdateTrustCenterDoc()
   const { successNotification, errorNotification } = useNotification()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isWatermarkEnabled, setIsWatermarkEnabled] = useState(watermarkEnabled ?? false)
   const queryClient = useQueryClient()
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const watermarkId = useId()
 
   const handleDeleteDocument = async () => {
@@ -44,12 +41,6 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
     }
   }
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl)
-    }
-  }, [previewUrl])
-
   const handleToggleWatermarkEnabled = async (enabled: boolean) => {
     try {
       await updateDocument({ updateTrustCenterDocId: documentId, input: { watermarkingEnabled: enabled } })
@@ -66,44 +57,22 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
     }
   }
 
-  const openPreview = async (e: React.MouseEvent) => {
-    e.stopPropagation()
-    e.preventDefault()
-    if (!filePresignedURL) return
-
-    const res = await fetch(filePresignedURL)
-    if (!res.ok) return console.error('Fetch failed', res.status)
-
-    const blob = await res.blob()
-    const blobUrl = URL.createObjectURL(blob)
-    setPreviewUrl(blobUrl)
-    setIsPreviewOpen(true)
-  }
-
   return (
     <div className="flex items-center gap-2">
-      <Button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation()
-          openPreview(e)
-        }}
-        variant="secondary"
-        icon={<Eye size={16} strokeWidth={2} />}
-        iconPosition="left"
-      >
-        Preview
-      </Button>
-      <div role="presentation" onClick={(e) => e.stopPropagation()}>
-        <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-          <DialogContent className="w-[60vw] h-[60vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <DialogHeader>
-              <DialogTitle>Document Preview</DialogTitle>
-            </DialogHeader>
-            <iframe title="Document preview" src={previewUrl ?? undefined} className="w-full h-full" style={{ border: 'none' }} />
-          </DialogContent>
-        </Dialog>
-      </div>
+      {onPreview && (
+        <Button
+          type="button"
+          variant="secondary"
+          size="icon-sm"
+          icon={<Eye />}
+          descriptiveTooltipText="Preview"
+          onClick={(e) => {
+            e.stopPropagation()
+            onPreview()
+          }}
+          onAuxClick={(e) => e.stopPropagation()}
+        />
+      )}
 
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
