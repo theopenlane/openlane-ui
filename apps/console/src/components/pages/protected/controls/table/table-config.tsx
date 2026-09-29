@@ -473,6 +473,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, tokenMap, select
       size: 180,
       minSize: 180,
       meta: {
+        exportFields: ['procedures.name', 'internalPolicies.name', 'programs.name', 'risks.name', 'tasks.title'],
         gqlInclude: ['includeTasks', 'includeInternalPolicies', 'includeProcedures', 'includePrograms', 'includeRisks'] satisfies ControlIncludeVar[],
       },
       cell: ({ row }) => <AssociatedObjectsCell control={row.original} />,

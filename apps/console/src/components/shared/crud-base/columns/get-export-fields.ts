@@ -8,9 +8,11 @@ export const getExportFields = <T extends RowData>(columns: ColumnDef<T>[], visi
     if (!isColumnVisible(column, visibility)) continue
 
     const accessorKey = (column as { accessorKey?: string }).accessorKey
-    const field = column.meta?.exportPrefix ?? (typeof column.header === 'string' ? accessorKey : undefined)
+    const exportFields = column.meta?.exportFields ?? [column.meta?.exportPrefix ?? (typeof column.header === 'string' ? accessorKey : undefined)]
 
-    if (field) {
+    const filtered = exportFields.filter((field): field is string => Boolean(field))
+
+    for (const field of filtered) {
       fields.add(field)
     }
   }

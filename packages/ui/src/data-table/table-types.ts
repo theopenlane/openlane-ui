@@ -27,6 +27,7 @@ import {
 
 export type ColumnMetaShape = {
   exportPrefix?: string
+  exportFields?: string[]
   gqlInclude?: string[]
   className?: string
 }
