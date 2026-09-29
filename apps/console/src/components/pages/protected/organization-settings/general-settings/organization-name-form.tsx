@@ -132,7 +132,7 @@ const OrganizationNameForm = () => {
               control={form.control}
               name="displayName"
               render={({ field }) => (
-                <FormItem className="w-full">
+                <FormItem className="w-full space-y-0">
                   <div className="flex gap-4 items-center">
                     <FormControl className="flex-1">
                       <Input {...field} variant="medium" className="h-10" />
@@ -140,7 +140,7 @@ const OrganizationNameForm = () => {
 
                     <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving...' : isSuccess ? 'Saved' : 'Save'} />
                   </div>
-                  <FormMessage className="mt-1 text-sm text-error" />
+                  <FormMessage className="empty:hidden" />
                 </FormItem>
               )}
             />
@@ -148,7 +148,7 @@ const OrganizationNameForm = () => {
         </Form>
         <OrganizationDomains />
         {currentOrgId && (
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t pt-6">
             <div className="flex items-center gap-3">
               <span className="text-sm text-muted-foreground">Organization ID</span>
               <CopyableText value={currentOrgId} variant="chip" aria-label={`Copy organization ID ${currentOrgId}`} />
