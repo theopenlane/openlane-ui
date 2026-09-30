@@ -86,6 +86,7 @@ export enum AdditionalTableKeyEnum {
   VENDOR_REVIEWS = 'vendor-reviews',
   RISK_REVIEWS = 'risk-reviews',
   PERSONNEL_LINKED_ACCOUNTS = 'personnel-linked-accounts',
+  PERSONNEL_CAMPAIGNS = 'personnel-campaigns',
   PROGRAM_TASKS = 'program-tasks',
   PROGRAM_WORK = 'program-work',
   CONTROL_EVIDENCE = 'control-evidence',
