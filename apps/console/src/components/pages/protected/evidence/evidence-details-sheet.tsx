@@ -19,6 +19,7 @@ import { canDelete, canEdit } from '@/lib/authz/utils'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { EvidenceDetailsSheetSkeleton } from './skeleton/evidence-details-skeleton'
 import EvidenceFiles from './evidence-files'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -111,6 +112,7 @@ const EvidenceDetailsSheetContent: React.FC<TEvidenceDetailsSheetContent> = ({ c
 
   const { form } = useFormSchema(true)
   const { isDirty: isEvidenceDirty } = form.formState
+  const buildChangedInput = useChangedInput(form)
 
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -202,24 +204,27 @@ const EvidenceDetailsSheetContent: React.FC<TEvidenceDetailsSheetContent> = ({ c
 
     const associationInputs = getAssociationInput(initialAssociations, updatedAssociations)
 
-    const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, status: _status, creationDate, renewalDate, ...restFormData } = formData
-    const serializedDates = {
-      creationDate: creationDate?.toISOString(),
-      ...(form.formState.dirtyFields.renewalDate ? { renewalDate: renewalDate?.toISOString() } : {}),
-    }
-    const cleanFormData = { ...restFormData, ...serializedDates }
     const currentStatus = latestStatusRef.current ?? evidence?.status
 
     try {
-      const collectionProcedure = formData.collectionProcedure && typeof formData.collectionProcedure !== 'string' ? await convertToHtml(formData.collectionProcedure) : formData.collectionProcedure
+      const changedFields = await buildChangedInput(formData, async (values) => {
+        const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, status: _status, creationDate, renewalDate, ...restFormData } = values
+        const collectionProcedure = values.collectionProcedure && typeof values.collectionProcedure !== 'string' ? await convertToHtml(values.collectionProcedure) : values.collectionProcedure
+
+        return {
+          ...restFormData,
+          collectionProcedure,
+          creationDate: creationDate?.toISOString(),
+          ...(renewalDate ? { renewalDate: renewalDate.toISOString() } : { clearRenewalDate: true }),
+          clearURL: !values.url,
+        }
+      })
 
       await updateEvidence({
         updateEvidenceId: config.id,
         input: {
-          ...cleanFormData,
+          ...changedFields,
           ...associationInputs,
-          collectionProcedure,
-          clearURL: formData?.url === undefined,
           ...(currentStatus && currentStatus !== EvidenceEvidenceStatus.MISSING_ARTIFACT ? { status: currentStatus } : {}),
         },
       })

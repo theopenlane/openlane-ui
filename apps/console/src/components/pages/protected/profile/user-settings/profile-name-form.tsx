@@ -13,8 +13,10 @@ import { useNotification } from '@/hooks/useNotification'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { InfoIcon } from 'lucide-react'
 import { useGetCurrentUser, useUpdateUser } from '@/lib/graphql-hooks/user'
+import { type UpdateUserInput } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { useChangedInput } from '@/hooks/useChangedInput'
 
 const ProfileNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
@@ -52,17 +54,24 @@ const ProfileNameForm = () => {
     },
   })
 
+  const buildChangedInput = useChangedInput(form)
+
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      await updateUserName({
-        updateUserId: userId,
-        input: {
-          firstName: data.firstName,
-          lastName: data.lastName,
-          displayName: data.displayName,
-          email: data.email,
-        },
-      })
+      const input = await buildChangedInput(data, (values): UpdateUserInput => ({
+        firstName: values.firstName,
+        lastName: values.lastName,
+        displayName: values.displayName,
+        email: values.email,
+      }))
+
+      if (Object.keys(input).length === 0) {
+        form.reset()
+        return
+      }
+
+      await updateUserName({ updateUserId: userId, input })
+      form.reset(data)
       setIsSuccess(true)
       successNotification({ title: 'Profile updated successfully!' })
     } catch (error) {

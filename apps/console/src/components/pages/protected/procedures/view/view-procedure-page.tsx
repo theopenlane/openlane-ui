@@ -29,6 +29,7 @@ import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import { ASSOCIATION_REMOVAL_CONFIG, PROCEDURE_ASSOCIATION_SECTIONS, buildAssociationSections } from '@/components/shared/object-association/object-association-config'
 import Loading from '@/app/(protected)/procedures/[id]/view/loading'
@@ -51,6 +52,7 @@ const ViewProcedurePage: React.FC = () => {
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
   const procedure = data?.procedure
   const { form } = useFormSchema()
+  const buildChangedInput = useChangedInput(form)
   const [isEditing, setIsEditing] = useState(false)
   const [editingField, setEditingField] = useState<string | null>(null)
   const queryClient = useQueryClient()
@@ -144,42 +146,44 @@ const ViewProcedurePage: React.FC = () => {
       return
     }
     try {
-      const { revision, approverID, delegateID, details: _details, detailsJSON, ...restData } = data
-      const input: UpdateProcedureInput = {
-        ...restData,
-        tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+      const input = await buildChangedInput(data, async (values: EditProcedureMetadataFormData): Promise<UpdateProcedureInput> => {
+        const { revision, approverID, delegateID, details: _details, detailsJSON, ...restData } = values
+        const built: UpdateProcedureInput = {
+          ...restData,
+          tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+        }
+
+        if (detailsJSON !== undefined) {
+          built.detailsJSON = detailsJSON
+          built.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
+        }
+
+        if (approverID) {
+          built.approverID = approverID
+        } else if (procedure.approver?.id) {
+          built.clearApprover = true
+        }
+
+        if (delegateID) {
+          built.delegateID = delegateID
+        } else if (procedure.delegate?.id) {
+          built.clearDelegate = true
+        }
+
+        if (revision && revision !== (procedure?.revision ?? '')) {
+          built.revision = revision
+        }
+
+        return built
+      })
+
+      if (Object.keys(input).length === 0) {
+        form.reset()
+        setIsEditing(false)
+        return
       }
 
-      if (detailsJSON !== undefined) {
-        input.detailsJSON = detailsJSON
-        input.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
-      }
-
-      if (approverID) {
-        input.approverID = approverID
-      } else if (procedure.approver?.id) {
-        input.clearApprover = true
-      }
-
-      if (delegateID) {
-        input.delegateID = delegateID
-      } else if (procedure.delegate?.id) {
-        input.clearDelegate = true
-      }
-
-      if (revision && revision !== (procedure?.revision ?? '')) {
-        input.revision = revision
-      }
-
-      const formData: {
-        updateProcedureId: string
-        input: UpdateProcedureInput
-      } = {
-        updateProcedureId: procedure?.id,
-        input,
-      }
-
-      await updateProcedure(formData)
+      await updateProcedure({ updateProcedureId: procedure.id, input })
 
       successNotification({
         title: 'Procedure Updated',

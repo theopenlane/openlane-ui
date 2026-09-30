@@ -121,10 +121,7 @@ const ReviewPage: React.FC = () => {
     deleteMutation,
     buildPayload: async (data) => {
       const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, riskIDs, ...rest } = data
-      const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper, {
-        dirtyFields: form.formState.dirtyFields,
-        useClearFlags: !isCreate,
-      })
+      const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper, { useClearFlags: !isCreate })
       const associationPayload = buildAssociationPayload(
         REVIEW_ASSOCIATION_CONFIG.associationKeys,
         { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, riskIDs },

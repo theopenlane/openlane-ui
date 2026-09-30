@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { useTheme } from 'next-themes'
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
 import { EditorStatic } from '@repo/ui/components/ui/editor-static.tsx'
@@ -68,15 +68,27 @@ export function detectFormat(input: unknown): Detected {
   return 'text'
 }
 
+const SERIALIZED_HTML_CACHE_LIMIT = 8
+
 const usePlateEditor = () => {
   const { resolvedTheme } = useTheme()
   const themeForRender = resolvedTheme === 'light' || resolvedTheme === 'dark' ? resolvedTheme : undefined
+  const serializedHtmlCacheRef = useRef<Map<string, string> | null>(null)
 
   const convertToHtml = useCallback(async (data: Value) => {
     // Converts PlateJs data format into serializable html which we can save in database.
     // Theme is intentionally NOT applied so that serialized HTML preserves the author's literal color.
     if (!data || isPlateValueEmpty(data)) {
       return ''
+    }
+
+    const cache = (serializedHtmlCacheRef.current ??= new Map<string, string>())
+    const cacheKey = JSON.stringify(data)
+
+    const cached = cache.get(cacheKey)
+
+    if (cached !== undefined) {
+      return cached
     }
 
     const trimmed = trimPlateValue(data)
@@ -86,18 +98,24 @@ const usePlateEditor = () => {
       value: trimmed,
     })
 
-    const fmt = detectFormat(trimmed)
+    const html =
+      detectFormat(trimmed) === 'markdown' ? editor.api.markdown?.serialize?.() : await serializeHtml(editor, { editorComponent: EditorStatic, stripClassNames: false, stripDataAttributes: false })
 
-    switch (fmt) {
-      case 'markdown':
-        return editor.api.markdown?.serialize?.()
-      default:
-        return await serializeHtml(editor, {
-          editorComponent: EditorStatic,
-          stripClassNames: false,
-          stripDataAttributes: false,
-        })
+    if (typeof html !== 'string') {
+      return html
     }
+
+    if (cache.size >= SERIALIZED_HTML_CACHE_LIMIT) {
+      const oldestKey = cache.keys().next().value
+
+      if (oldestKey !== undefined) {
+        cache.delete(oldestKey)
+      }
+    }
+
+    cache.set(cacheKey, html)
+
+    return html
   }, [])
 
   // Converts html data into deserializable PlateJs value, and rendering read only static view
