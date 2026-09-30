@@ -2,12 +2,13 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
+import { TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus, type UpdateTrustCenterDocInput } from '@repo/codegen/src/schema'
 import { useCreateTrustCenterDoc, useDeleteTrustCenterDoc, useGetTrustCenterDocById, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center-doc'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useNotification } from '@/hooks/useNotification'
@@ -100,6 +101,7 @@ export const CreateDocumentSheet: React.FC = () => {
   })
 
   const { handleSubmit, reset, formState, control } = formMethods
+  const buildChangedInput = useChangedInput(formMethods)
   const visibilityValue = useWatch({ control, name: 'visibility' })
   const { isSubmitting } = formState
 
@@ -129,17 +131,22 @@ export const CreateDocumentSheet: React.FC = () => {
       if (!trustCenterID) throw new Error('Trust Center ID not found.')
 
       if (isEditMode) {
-        await updateDoc({
-          input: {
-            title: data.title,
-            trustCenterDocKindName: data.category,
-            visibility: data.visibility,
-            tags: data.tags ?? [],
-            ...(data.standardID ? { standardID: data.standardID } : { clearStandard: true }),
-          },
-          updateTrustCenterDocId: documentId ?? '',
-          trustCenterDocFile: data.file,
-        })
+        const input = await buildChangedInput(data, (values): UpdateTrustCenterDocInput => ({
+          title: values.title,
+          trustCenterDocKindName: values.category,
+          visibility: values.visibility,
+          tags: values.tags ?? [],
+          ...(values.standardID ? { standardID: values.standardID } : { clearStandard: true }),
+        }))
+
+        if (Object.keys(input).length > 0 || data.file) {
+          await updateDoc({
+            input,
+            updateTrustCenterDocId: documentId ?? '',
+            trustCenterDocFile: data.file,
+          })
+        }
+        reset({ ...data, file: undefined })
 
         successNotification({
           title: 'Document Updated',

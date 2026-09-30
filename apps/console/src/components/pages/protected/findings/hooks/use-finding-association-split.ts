@@ -11,7 +11,8 @@ const ASSOCIATION_KEY_SET = new Set<string>(ASSOCIATION_KEYS)
 export const omitAssociationKeys = <TFormData extends object>(formData: TFormData): Omit<TFormData, (typeof ASSOCIATION_KEYS)[number]> =>
   Object.fromEntries(Object.entries(formData).filter(([key]) => !ASSOCIATION_KEY_SET.has(key))) as Omit<TFormData, (typeof ASSOCIATION_KEYS)[number]>
 
-const pickAssociations = (formData: Record<string, unknown>): TObjectAssociationMap => Object.fromEntries(ASSOCIATION_KEYS.map((key) => [key, (formData[key] as string[] | undefined) ?? []]))
+const pickAssociations = (formData: Record<string, unknown>, previous: TObjectAssociationMap): TObjectAssociationMap =>
+  Object.fromEntries(ASSOCIATION_KEYS.map((key) => [key, (formData[key] as string[] | undefined) ?? previous[key] ?? []]))
 
 export const useFindingAssociationSplit = ({ isCreate, initialAssociationsRef }: { isCreate: boolean; initialAssociationsRef: { current: TObjectAssociationMap } }) => {
   const splitAssociations = useCallback(
@@ -29,7 +30,7 @@ export const useFindingAssociationSplit = ({ isCreate, initialAssociationsRef }:
 
   const commitBaseline = useCallback(
     (formData: Record<string, unknown>) => {
-      initialAssociationsRef.current = pickAssociations(formData)
+      initialAssociationsRef.current = pickAssociations(formData, initialAssociationsRef.current)
     },
     [initialAssociationsRef],
   )

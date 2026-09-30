@@ -23,6 +23,7 @@ import DetailHeaderActions from '@/components/shared/detail-header-actions/detai
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { PlatformPlatformStatus, type UpdatePlatformInput } from '@repo/codegen/src/schema'
 import PlatformAssetsTable from './platform-assets-table'
 import PlatformVendorsTable from './platform-vendors-table'
@@ -62,6 +63,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
   const { successNotification, errorNotification } = useNotification()
   const plateEditorHelper = usePlateEditor()
   const { form } = useFormSchema()
+  const buildChangedInput = useChangedInput(form)
 
   const { data, isLoading } = usePlatform(platformId)
   const { inScopeAssets, outOfScopeAssets, isPending: isAssetsPending, isSuccess: isAssetsLoaded, error: assetsError } = usePlatformAssets(platformId)
@@ -209,7 +211,14 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
 
   const onSubmit = async (data: EditPlatformFormData) => {
     try {
-      const input = await buildPayload(data)
+      const input = await buildChangedInput(data, buildPayload)
+
+      if (Object.keys(input).length === 0) {
+        form.reset()
+        setIsEditing(false)
+        return
+      }
+
       await updatePlatformMutation({ updatePlatformId: platformId, input })
       successNotification({ title: 'Platform updated', description: 'The platform was successfully updated.' })
       setIsEditing(false)

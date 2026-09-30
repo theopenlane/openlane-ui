@@ -21,6 +21,7 @@ import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import useVendorReviewFormSchema, { type VendorReviewFormData } from './use-vendor-review-form-schema'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import VendorReviewContextPanel from './vendor-review-context-panel'
 import VendorReviewFieldsPanel from './vendor-review-fields-panel'
 import VendorReviewFormActions, { type TVendorReviewAction } from './vendor-review-form-actions'
@@ -57,6 +58,7 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
 
   const [initialValues] = useState(() => buildVendorReviewDefaults(vendor, review))
   const { form } = useVendorReviewFormSchema(initialValues)
+  const buildChangedInput = useChangedInput(form)
   const savedDescription = review?.details ?? ''
   const reviewId = review?.id ?? createdReviewId ?? undefined
 
@@ -88,15 +90,18 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
     const completes = nextStatus === ReviewReviewStatus.COMPLETED
 
     try {
-      const descriptionHtml = await plateToHtmlOrNull(formData.description, plateEditorHelper)
       const existingReviewId = review?.id ?? createdReviewId
       let didCreate = false
 
       if (existingReviewId) {
+        const changedInput = await buildChangedInput(formData, async (values): Promise<UpdateReviewInput> => {
+          const details = await plateToHtmlOrNull(values.description, plateEditorHelper)
+          return { title: values.title, ...(details ? { details } : { clearDetails: true }) }
+        })
+
         const input: UpdateReviewInput = {
-          title: formData.title,
+          ...changedInput,
           ...(nextStatus ? { status: nextStatus } : {}),
-          ...(descriptionHtml ? { details: descriptionHtml } : savedDescription ? { clearDetails: true } : {}),
           ...(approves ? { approved: true, approvedAt: now } : action === 'draft' ? { approved: false, clearApprovedAt: true } : {}),
           ...(action === 'draft' ? { clearReviewedAt: true } : completes && !review?.reviewedAt ? { reviewedAt: now } : {}),
           ...(review?.environmentName || !vendor.environmentName ? {} : { environmentName: vendor.environmentName }),
@@ -105,6 +110,7 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
 
         await updateReview({ updateReviewId: existingReviewId, input })
       } else {
+        const details = await plateToHtmlOrNull(formData.description, plateEditorHelper)
         const input: CreateReviewInput = {
           title: formData.title,
           status: nextStatus ?? ReviewReviewStatus.IN_PROGRESS,
@@ -115,7 +121,7 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
           reviewerID: session?.user?.userId ?? undefined,
           ...(approves ? { approvedAt: now } : {}),
           ...(completes ? { reviewedAt: now } : {}),
-          ...(descriptionHtml ? { details: descriptionHtml } : {}),
+          ...(details ? { details } : {}),
           ...(formData.tier ? { classification: formData.tier } : {}),
           ...(vendor.environmentName ? { environmentName: vendor.environmentName } : {}),
           ...(vendor.scopeName ? { scopeName: vendor.scopeName } : {}),

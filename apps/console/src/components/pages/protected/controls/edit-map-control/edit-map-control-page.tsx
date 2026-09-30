@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Accordion } from '@radix-ui/react-accordion'
 
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import type { Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -73,6 +74,8 @@ const EditMapControlPage = () => {
     },
   })
 
+  const buildChangedInput = useChangedInput(form)
+
   const mappingType = useWatch({
     control: form.control,
     name: 'mappingType',
@@ -106,10 +109,6 @@ const EditMapControlPage = () => {
       removeFromSubcontrolIDs: fromSubcontrolDelta.remove,
       addToSubcontrolIDs: toSubcontrolDelta.add,
       removeToSubcontrolIDs: toSubcontrolDelta.remove,
-      mappingType: data.mappingType,
-      source: data.source,
-      confidence: data.confidence,
-      relation: data.relation,
     }
 
     return input
@@ -145,11 +144,16 @@ const EditMapControlPage = () => {
       return
     }
 
-    const input = generateUpdateMappedControlInput(data, mappedControlData?.mappedControl)
+    const changedScalars = await buildChangedInput(data, (values): UpdateMappedControlInput => ({
+      mappingType: values.mappingType,
+      source: values.source,
+      confidence: values.confidence,
+      relation: values.relation,
+    }))
 
     const variables: UpdateMappedControlMutationVariables = {
       updateMappedControlId: mappedControlId,
-      input,
+      input: { ...generateUpdateMappedControlInput(data, mappedControlData?.mappedControl), ...changedScalars },
     }
 
     try {

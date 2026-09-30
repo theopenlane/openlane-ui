@@ -93,11 +93,12 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
         controlObjectiveType: formData.controlObjectiveType,
         category: formData.category,
         subcategory: formData.subcategory,
-        RevisionBump: formData.RevisionBump,
       }
     },
     [plateEditorHelper],
   )
+
+  const buildUndiffedPayload = useCallback((formData: TFormData): Partial<UpdateControlObjectiveInput> => (formData.RevisionBump ? { RevisionBump: formData.RevisionBump } : {}), [])
 
   const renderFields = useCallback(
     ({ isEditing, data, isFormInitialized }: RenderFieldsProps<ControlObjectiveFieldsFragment, UpdateControlObjectiveInput>) => {
@@ -239,6 +240,7 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
       updateMutation={updateMutation}
       deleteMutation={deleteMutation}
       buildPayload={buildPayload}
+      buildUndiffedPayload={buildUndiffedPayload}
       normalizeData={normalizeData}
       getName={(data) => data.name}
       renderFields={renderFields}
