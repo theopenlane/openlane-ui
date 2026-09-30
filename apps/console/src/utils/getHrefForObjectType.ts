@@ -35,6 +35,7 @@ const SIMPLE_ROUTES: Record<string, (id: string) => string> = {
   identityHolders: (id) => `/registry/personnel/${id}`,
   scans: (id) => `/exposure/scans?id=${id}`,
   campaigns: (id) => `/automation/campaigns/${id}`,
+  assessments: (id) => `/automation/questionnaires/${id}`,
   findings: (id) => `/exposure/findings?id=${id}`,
   remediations: (id) => `/exposure/remediations?id=${id}`,
   reviews: (id) => `/exposure/reviews?id=${id}`,

@@ -35,7 +35,8 @@ import { SelectQuestionnaireDialog } from '../create/steps/questionnaire/select-
 import { getQuestionCount } from '../create/steps/questionnaire/questionnaire-metrics'
 import { useTemplateSelect } from '@/lib/graphql-hooks/template'
 import { TemplateTemplateKind } from '@repo/codegen/src/schema'
-import { CampaignStatusIconMapper } from '@/components/shared/enum-mapper/campaign-enum'
+import { CampaignStatusIcon } from '@/components/shared/enum-mapper/campaign-enum'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import CampaignRunsTable from './campaign-runs-table'
 import RecipientsTable from './recipients-table'
@@ -270,6 +271,7 @@ const CampaignDetailPage: React.FC = () => {
   }
 
   const status = campaign.status
+  const assessmentHref = campaign.assessmentID ? getHrefForObjectType('assessments', { id: campaign.assessmentID }) : null
   const launched = !!campaign.launchedAt
   const isDraft = status === CampaignCampaignStatus.DRAFT
   const isEditable = isDraft
@@ -499,14 +501,8 @@ const CampaignDetailPage: React.FC = () => {
                 </p>
               </div>
             </div>
-            {campaign.assessmentID && (
-              <Button
-                variant="secondary"
-                type="button"
-                className="w-full justify-center"
-                onClick={() => window.open(`/automation/questionnaires/${campaign.assessmentID}`, '_blank', 'noopener,noreferrer')}
-                icon={<ExternalLink />}
-              >
+            {assessmentHref && (
+              <Button variant="secondary" type="button" className="w-full justify-center" onClick={() => window.open(assessmentHref, '_blank', 'noopener,noreferrer')} icon={<ExternalLink />}>
                 View responses
               </Button>
             )}
@@ -535,7 +531,7 @@ const CampaignDetailPage: React.FC = () => {
           />
           {status && (
             <Badge variant="outline" className="flex items-center gap-1.5">
-              {CampaignStatusIconMapper[status]}
+              <CampaignStatusIcon status={status} />
               {getEnumLabel(status)}
             </Badge>
           )}

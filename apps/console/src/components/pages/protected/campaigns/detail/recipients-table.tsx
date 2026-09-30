@@ -16,18 +16,13 @@ import { Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ROW_ACTIONS_COLUMN_ID } from '@repo/ui/pinned-columns'
+import { AssessmentResponseStatusLabel } from '@/components/shared/enum-mapper/assessment-response-enum'
 
 type RecipientsTableProps = {
   campaignId: string
   onRecipientClick: (recipient: CampaignTargetsNodeNonNull) => void
   showDelivery?: boolean
   canRemove?: boolean
-}
-
-const getRecipientStatus = (recipient: CampaignTargetsNodeNonNull) => {
-  if (recipient.completedAt) return { label: 'Completed', color: 'bg-green-500' }
-  if (recipient.sentAt) return { label: 'Sent', color: 'bg-blue-500' }
-  return { label: 'Pending', color: 'bg-gray-500' }
 }
 
 const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipientClick, showDelivery = true, canRemove = false }) => {
@@ -91,15 +86,7 @@ const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipie
       {
         id: 'status',
         header: 'Status',
-        cell: ({ row }) => {
-          const s = getRecipientStatus(row.original)
-          return (
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${s.color}`} />
-              {s.label}
-            </div>
-          )
-        },
+        cell: ({ row }) => <AssessmentResponseStatusLabel status={row.original.status} />,
       },
       {
         accessorKey: 'sentAt',

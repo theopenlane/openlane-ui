@@ -657,10 +657,49 @@ export interface CampaignTargetsWithFilterQuery {
         id: string
         metadata: any
         sentAt: string | null
+        status: Types.CampaignTargetAssessmentResponseStatus
         updatedAt: any
         updatedBy: string | null
         userID: string | null
         workflowEligibleMarker: boolean | null
+      } | null
+    } | null> | null
+    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type CampaignTargetsWithCampaignQueryVariables = Exact<{
+  where?: Types.CampaignTargetWhereInput | null | undefined
+  orderBy?: Array<Types.CampaignTargetOrder> | Types.CampaignTargetOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface CampaignTargetsWithCampaignQuery {
+  campaignTargets: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        email: string
+        status: Types.CampaignTargetAssessmentResponseStatus
+        sentAt: string | null
+        completedAt: string | null
+        createdAt: any
+        campaign: {
+          id: string
+          name: string
+          description: string | null
+          campaignType: Types.CampaignCampaignType
+          status: Types.CampaignCampaignStatus
+          dueDate: string | null
+          isRecurring: boolean
+          recurrenceFrequency: Types.CampaignFrequency | null
+          recurrenceInterval: number | null
+          assessment: { id: string; name: string } | null
+        } | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }

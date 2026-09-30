@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
 import { formatDate } from '@/utils/date'
+import { AssessmentResponseStatusLabel } from '@/components/shared/enum-mapper/assessment-response-enum'
 
 interface RecipientDetailPanelProps {
   recipient: CampaignTargetsNodeNonNull
@@ -34,7 +35,9 @@ export const RecipientDetailPanel: React.FC<RecipientDetailPanelProps> = ({ reci
 
           <div>
             <span className="text-xs text-muted-foreground">Status</span>
-            <p className="text-sm">{recipient.completedAt ? 'Completed' : recipient.sentAt ? 'Sent' : 'Pending'}</p>
+            <div className="text-sm">
+              <AssessmentResponseStatusLabel status={recipient.status} />
+            </div>
           </div>
 
           {recipient.sentAt && (
