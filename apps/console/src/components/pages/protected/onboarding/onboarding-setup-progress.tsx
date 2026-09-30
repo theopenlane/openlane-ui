@@ -31,7 +31,7 @@ const statusLabel: Record<StepStatus, string> = {
 
 const bannerCopy: Record<SubmitStage, { title: string; description: string; scanning: boolean }> = {
   form: { title: 'Getting things ready', description: "We'll set up your workspace once you submit.", scanning: false },
-  transition: { title: 'Setting up your workspace', description: 'This only takes a few seconds.', scanning: true },
+  transition: { title: 'Setting up your workspace', description: 'This can take up to a minute.', scanning: true },
   ready: { title: 'Workspace ready', description: 'Your setup is ready for review.', scanning: false },
 }
 
