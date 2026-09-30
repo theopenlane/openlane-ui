@@ -31,6 +31,7 @@ import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { GROUP_PERMISSIONS_DOCS_URL } from '@/constants/docs'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -67,7 +68,7 @@ const GroupDetailsSheet = () => {
 
   const { mutateAsync: updateGroup, isPending: isSavingGroup } = useUpdateGroup()
 
-  const { control, handleSubmit, reset } = useForm<EditGroupFormData>({
+  const form = useForm<EditGroupFormData>({
     resolver: zodResolver(EditGroupSchema),
     defaultValues: {
       groupName: name || '',
@@ -76,6 +77,9 @@ const GroupDetailsSheet = () => {
       tags: tags?.map((tag) => ({ value: tag, label: tag })) || [],
     },
   })
+
+  const { control, handleSubmit, reset } = form
+  const buildChangedInput = useChangedInput(form)
 
   const handleCopyLink = () => {
     if (!selectedGroup) return
@@ -109,18 +113,23 @@ const GroupDetailsSheet = () => {
     if (!selectedGroup || !id) return
 
     try {
-      await updateGroup({
-        updateGroupId: id,
-        input: {
-          name: data.groupName,
-          displayName: data.groupName,
-          description: data.description,
-          tags: data.tags.map((t) => t.value),
-          updateGroupSettings: {
-            visibility: data.visibility === 'Public' ? GroupSettingVisibility.PUBLIC : GroupSettingVisibility.PRIVATE,
-          },
+      const input = await buildChangedInput(data, (values: EditGroupFormData) => ({
+        name: values.groupName,
+        displayName: values.groupName,
+        description: values.description,
+        tags: values.tags.map((t) => t.value),
+        updateGroupSettings: {
+          visibility: values.visibility === 'Public' ? GroupSettingVisibility.PUBLIC : GroupSettingVisibility.PRIVATE,
         },
-      })
+      }))
+
+      if (Object.keys(input).length === 0) {
+        reset()
+        setIsEditing(false)
+        return
+      }
+
+      await updateGroup({ updateGroupId: id, input })
 
       queryClient.invalidateQueries({
         predicate: (query) => {

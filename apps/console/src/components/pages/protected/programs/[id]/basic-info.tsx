@@ -16,7 +16,8 @@ import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { Textarea } from '@repo/ui/textarea'
 import { Pencil } from 'lucide-react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { useChangedInput } from '@/hooks/useChangedInput'
+import { ProgramProgramStatus, type UpdateProgramInput } from '@repo/codegen/src/schema'
 import { useGetOrgMemberships, useUserSelect } from '@/lib/graphql-hooks/member'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -89,6 +90,7 @@ const BasicInformation = () => {
       tags: program?.tags ?? [],
     },
   })
+  const buildChangedInput = useChangedInput(form)
 
   useEffect(() => {
     if (program) {
@@ -111,11 +113,7 @@ const BasicInformation = () => {
 
   const handleCancel = () => {
     if (program) {
-      form.reset({
-        name: program.name ?? '',
-        description: program.description ?? '',
-        tags: program.tags ?? [],
-      })
+      form.reset()
 
       setTagValues(
         (program.tags ?? []).map((tag) => ({
@@ -130,16 +128,21 @@ const BasicInformation = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await updateProgram({
-        updateProgramId: id,
-        input: {
-          name: values.name,
-          description: values.description ?? null,
-          tags: values.tags ?? [],
-          programOwnerID: values.programOwnerId || undefined,
-          frameworkName: values.frameworkName,
-        },
-      })
+      const input = await buildChangedInput(values, (formValues: FormValues): UpdateProgramInput => ({
+        name: formValues.name,
+        description: formValues.description ?? null,
+        tags: formValues.tags ?? [],
+        programOwnerID: formValues.programOwnerId || undefined,
+        frameworkName: formValues.frameworkName,
+      }))
+
+      if (Object.keys(input).length === 0) {
+        form.reset()
+        setIsEditing(false)
+        return
+      }
+
+      await updateProgram({ updateProgramId: id, input })
 
       successNotification({
         title: 'Program updated',

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -13,7 +14,7 @@ import { toBase64DataUri } from '@/lib/image-utils'
 
 import { useGetTrustCenterSubprocessorByID, useUpdateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { useUpdateSubprocessor } from '@/lib/graphql-hooks/subprocessor'
-import { type UpdateSubprocessorInput } from '@repo/codegen/src/schema'
+import { type UpdateSubprocessorInput, type UpdateTrustCenterSubprocessorInput } from '@repo/codegen/src/schema'
 
 import { CategoryField } from '../../shared/category-field'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -73,6 +74,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   })
 
   const { handleSubmit, reset, formState } = formMethods
+  const buildChangedInput = useChangedInput(formMethods)
   const { isSubmitting } = formState
 
   const isEditable = canEditOrg && !data?.trustCenterSubprocessor?.subprocessor?.systemOwned
@@ -125,50 +127,42 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
       const tc = data?.trustCenterSubprocessor
       const isSystemOwned = !!tc?.subprocessor?.systemOwned
 
-      if (!isSystemOwned) {
-        const subprocessorId = tc?.subprocessor?.id
+      const subprocessorId = tc?.subprocessor?.id
+      const stagedLogo = values.uploadMode === 'file' ? values.logoFile : undefined
+      const subprocessorInput =
+        !isSystemOwned && subprocessorId
+          ? await buildChangedInput(values, (formValues): UpdateSubprocessorInput => {
+              const description = (formValues.description ?? '').trim()
+              const logoUrl = (formValues.logoUrl ?? '').trim()
+              return {
+                name: formValues.name.trim(),
+                ...(description ? { description } : { clearDescription: true }),
+                ...(formValues.uploadMode === 'url'
+                  ? logoUrl
+                    ? { logoRemoteURL: logoUrl, clearLogoFile: true }
+                    : { clearLogoRemoteURL: true }
+                  : formValues.logoFile instanceof File
+                    ? { clearLogoRemoteURL: true }
+                    : {}),
+              }
+            })
+          : {}
+      const subprocessorChanged = !!subprocessorId && (Object.keys(subprocessorInput).length > 0 || !!stagedLogo)
 
-        if (subprocessorId) {
-          const trimmedName = values.name.trim()
-          const trimmedDescription = (values.description ?? '').trim()
-          const trimmedLogoUrl = (values.logoUrl ?? '').trim()
-
-          const input: UpdateSubprocessorInput = {
-            name: trimmedName,
-          }
-
-          if (trimmedDescription) {
-            input.description = trimmedDescription
-          } else {
-            input.clearDescription = true
-          }
-
-          if (values.uploadMode === 'url') {
-            if (trimmedLogoUrl) {
-              input.logoRemoteURL = trimmedLogoUrl
-              input.clearLogoFile = true
-            } else {
-              input.clearLogoRemoteURL = true
-            }
-          } else if (values.uploadMode === 'file' && values.logoFile instanceof File) {
-            input.clearLogoRemoteURL = true
-          }
-
-          await updateSubprocessor({
-            updateSubprocessorId: subprocessorId,
-            input,
-            logoFile: values.uploadMode === 'file' ? values.logoFile : undefined,
-          })
-        }
+      if (subprocessorChanged) {
+        await updateSubprocessor({ updateSubprocessorId: subprocessorId, input: subprocessorInput, logoFile: stagedLogo })
       }
 
-      await updateTCSubprocessor({
-        id: trustCenterSubprocessorId,
-        input: {
-          trustCenterSubprocessorKindName: values.category,
-          countries: values.countries,
-        },
+      const buildTrustCenterSubprocessorInput = (formValues: FormData): UpdateTrustCenterSubprocessorInput => ({
+        trustCenterSubprocessorKindName: formValues.category,
+        countries: formValues.countries,
       })
+      const changedTrustCenterInput = await buildChangedInput(values, buildTrustCenterSubprocessorInput)
+      const trustCenterInput = Object.keys(changedTrustCenterInput).length > 0 || !subprocessorChanged ? changedTrustCenterInput : buildTrustCenterSubprocessorInput(values)
+
+      if (Object.keys(trustCenterInput).length > 0) {
+        await updateTCSubprocessor({ id: trustCenterSubprocessorId, input: trustCenterInput })
+      }
 
       successNotification({
         title: 'Subprocessor Updated',

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { use, useEffect, useState } from 'react'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import useFormSchema from './hooks/use-form-schema'
 import { CircleHelp, Upload } from 'lucide-react'
 import { Button } from '@repo/ui/button'
@@ -19,7 +20,7 @@ import {
   type TrustCenterFaqsNodeNonNull,
 } from '@/lib/graphql-hooks/trust-center-faq'
 import { useQueryClient } from '@tanstack/react-query'
-import { type TrustCenterFaQsWithFilterQuery, OrderDirection, TrustCenterFaqOrderField } from '@repo/codegen/src/schema'
+import { type TrustCenterFaQsWithFilterQuery, type UpdateTrustCenterFaqInput, OrderDirection, TrustCenterFaqOrderField } from '@repo/codegen/src/schema'
 import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import type { FaqFormValues } from './hooks/use-form-schema'
@@ -66,6 +67,7 @@ export default function FaqsPage() {
   const { mutateAsync: reorderFaqs } = useReorderTrustCenterFaqs()
 
   const { form: editForm } = useFormSchema()
+  const buildChangedEditInput = useChangedInput(editForm)
 
   const handleCreateSubmit = async (values: FaqFormValues): Promise<boolean> => {
     const highestOrder = Math.max(0, ...orderedFaqs.map((f) => f.displayOrder ?? 0))
@@ -94,20 +96,25 @@ export default function FaqsPage() {
     if (!faq) return
 
     try {
-      await updateFaqComment({
-        updateTrustCenterFAQCommentId: faq.noteID,
-        input: { title: values.question, text: values.answer },
+      const commentInput = await buildChangedEditInput(values, (formValues) => ({ title: formValues.question, text: formValues.answer }))
+
+      if (Object.keys(commentInput).length > 0) {
+        await updateFaqComment({ updateTrustCenterFAQCommentId: faq.noteID, input: commentInput })
+      }
+
+      const buildFaqInput = (formValues: FaqFormValues): UpdateTrustCenterFaqInput => ({
+        referenceLink: formValues.referenceLink || undefined,
+        clearReferenceLink: !formValues.referenceLink || undefined,
+        trustCenterFaqKindName: formValues.category || undefined,
+        clearTrustCenterFaqKindName: !formValues.category || undefined,
+        clearTrustCenterFaqKind: !formValues.category || undefined,
       })
-      await updateFaq({
-        updateTrustCenterFAQId: editingFaqId,
-        input: {
-          referenceLink: values.referenceLink || undefined,
-          clearReferenceLink: !values.referenceLink || undefined,
-          trustCenterFaqKindName: values.category || undefined,
-          clearTrustCenterFaqKindName: !values.category || undefined,
-          clearTrustCenterFaqKind: !values.category || undefined,
-        },
-      })
+      const changedFaqInput = await buildChangedEditInput(values, buildFaqInput)
+      const faqInput = Object.keys(changedFaqInput).length > 0 || Object.keys(commentInput).length === 0 ? changedFaqInput : buildFaqInput(values)
+
+      if (Object.keys(faqInput).length > 0) {
+        await updateFaq({ updateTrustCenterFAQId: editingFaqId, input: faqInput })
+      }
       successNotification({ title: 'FAQ updated', description: 'The changes to your FAQ have been saved.' })
       setEditingFaqId(null)
       editForm.reset()

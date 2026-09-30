@@ -1,7 +1,9 @@
 'use client'
 
+import { type UpdateTagDefinitionInput } from '@repo/codegen/src/schema'
 import React, { useEffect, useState } from 'react'
 import { FormProvider, useForm, useController } from 'react-hook-form'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { LoaderCircle } from 'lucide-react'
@@ -65,18 +67,21 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
     },
   })
 
-  const { control, handleSubmit, reset, setValue } = formMethods
+  const { control, handleSubmit, reset } = formMethods
+  const buildChangedInput = useChangedInput(formMethods)
   const { field: colorField } = useController({ name: 'color', control })
 
   useEffect(() => {
     if (tagData?.tagDefinition) {
       const t = tagData.tagDefinition
-      setValue('name', t.name ?? '')
-      setValue('aliases', Array.isArray(t.aliases) ? t.aliases.join(', ') : (t.aliases ?? ''))
-      setValue('description', t.description ?? '')
-      setValue('color', normalizeHexColor(t.color) ?? DEFAULT_TAG_COLOR)
+      reset({
+        name: t.name ?? '',
+        aliases: Array.isArray(t.aliases) ? t.aliases.join(', ') : (t.aliases ?? ''),
+        description: t.description ?? '',
+        color: normalizeHexColor(t.color) ?? DEFAULT_TAG_COLOR,
+      })
     }
-  }, [tagData, setValue])
+  }, [tagData, reset])
 
   useEffect(() => {
     if (id || isCreate) {
@@ -103,14 +108,18 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
         .filter(Boolean)
 
       if (isEditMode && id) {
-        await updateTag({
-          updateTagDefinitionId: id,
-          input: {
-            description: data.description,
-            color: data.color,
-            aliases: formattedAliases,
-          },
-        })
+        const input = await buildChangedInput(data, (values): UpdateTagDefinitionInput => ({
+          description: values.description,
+          color: values.color,
+          aliases: values.aliases
+            ?.split(',')
+            .map((a) => a.trim())
+            .filter(Boolean),
+        }))
+
+        if (Object.keys(input).length > 0) {
+          await updateTag({ updateTagDefinitionId: id, input })
+        }
         successNotification({ title: 'Tag updated' })
       } else {
         await createTag({

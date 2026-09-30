@@ -85,10 +85,7 @@ const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose
         riskIDs: _riskIDs,
         ...rest
       } = formData
-      return await buildPayload(rest as ReviewFormData, plateEditorHelper, {
-        dirtyFields: form.formState.dirtyFields,
-        useClearFlags: true,
-      })
+      return await buildPayload(rest as ReviewFormData, plateEditorHelper, { useClearFlags: true })
     },
     getName,
     renderFields: (props: ReviewFieldProps) =>

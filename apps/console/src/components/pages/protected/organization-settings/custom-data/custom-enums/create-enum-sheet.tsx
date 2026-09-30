@@ -1,7 +1,9 @@
 'use client'
 
+import { type UpdateCustomTypeEnumInput } from '@repo/codegen/src/schema'
 import React, { useEffect, useState, useMemo } from 'react'
 import { FormProvider, useForm, useController, useWatch } from 'react-hook-form'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { LoaderCircle } from 'lucide-react'
@@ -85,6 +87,8 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
     },
   })
 
+  const buildChangedInput = useChangedInput(formMethods)
+
   const {
     control,
     handleSubmit,
@@ -138,9 +142,11 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
       const payload = { ...data, objectType: toApiObjectType(data.objectType) }
 
       if (isEditMode && id) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { name, objectType, field, ...input } = payload
-        await updateEnum({ id, input })
+        const input = await buildChangedInput(data, (values): UpdateCustomTypeEnumInput => ({ description: values.description, color: values.color }))
+
+        if (Object.keys(input).length > 0) {
+          await updateEnum({ id, input })
+        }
         successNotification({ title: 'Enum updated' })
       } else {
         await createEnum(payload)
