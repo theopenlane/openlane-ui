@@ -9,7 +9,7 @@ import { type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/sc
 import { useUpdateContact } from '@/lib/graphql-hooks/contact'
 import { useVendorsWithFilter, vendorDisplayName, vendorSearchWhere } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
-import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { useAsyncCommandSearch } from '@repo/ui/use-async-command-search'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface LinkedVendorsProps {

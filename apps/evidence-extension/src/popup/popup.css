@@ -1,0 +1,9 @@
+@import '@repo/ui/styles.css';
+
+@source '../**/*.{ts,tsx}';
+
+html,
+body {
+  width: 380px;
+  min-height: 200px;
+}

@@ -8,7 +8,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import { fileColumns, type TFile } from '@/components/pages/protected/controls/control-evidence-files/table/columns.tsx'
 import { EVIDENCE_FILES_SORT_FIELDS } from '@/components/pages/protected/controls/control-evidence-files/table/table-config.ts'
 import { EvidenceAddFilesDialog } from '@/components/pages/protected/evidence/evidence-add-files-dialog'
-import { Download, Trash2 } from 'lucide-react'
+import { Download, Fingerprint, Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { useNotification } from '@/hooks/useNotification'
@@ -18,6 +18,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import FilePreviewDialog from '@/components/shared/file-preview/file-preview-dialog'
 import { getFileActionsColumn } from '@/components/shared/file-table/file-actions-column'
+import { readCaptureProvenance, type TCaptureProvenance } from '@repo/evidence-capture/provenance'
+import { CaptureProvenanceDialog } from '@/components/pages/protected/evidence/capture-provenance-dialog'
 
 type TControlEvidenceFiles = {
   evidenceID: string
@@ -33,6 +35,7 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
   }>({ id: null, name: null })
   const [previewFile, setPreviewFile] = useState<TFile | null>(null)
   const [previewIsOpen, setPreviewIsOpen] = useState(false)
+  const [provenanceFileId, setProvenanceFileId] = useState<string | null>(null)
   const { successNotification, errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.EVIDENCE_FILES, FileOrderField, [
     {
@@ -42,6 +45,15 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
   ])
   const { files, isLoading: fetching, isError, pageInfo, totalCount } = useGetEvidenceWithFilesPaginated({ evidenceId: evidenceID, orderBy: orderBy, pagination: pagination })
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
+  const provenanceByFileId = new Map<string, TCaptureProvenance>()
+  files.forEach((file) => {
+    const provenance = file && readCaptureProvenance(file.metadata)
+    if (file && provenance) {
+      provenanceByFileId.set(file.id, provenance)
+    }
+  })
+  const provenanceFile = files.find((file) => file?.id === provenanceFileId)
+  const provenanceForDialog = provenanceFileId ? provenanceByFileId.get(provenanceFileId) : undefined
 
   const handleDownloadAll = async () => {
     for (const file of files) {
@@ -78,25 +90,38 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
   }
 
   const fileActionsColumn = getFileActionsColumn<TFile>({
+    size: provenanceByFileId.size > 0 ? 120 : undefined,
     onPreview: (file) => {
       setPreviewFile(file)
       setPreviewIsOpen(true)
     },
     trailingAction: (file) => (
-      <SystemTooltip
-        icon={
-          <p
-            className="flex items-center gap-1 cursor-pointer"
-            {...activatable(() => {
-              setDeleteDialogIsOpen(true)
-              setDeleteFileInfo({ id: file.id, name: file.providedFileName })
-            })}
-          >
-            <Trash2 size={16} />
-          </p>
-        }
-        content={<p>Delete</p>}
-      />
+      <>
+        {provenanceByFileId.has(file.id) && (
+          <SystemTooltip
+            icon={
+              <p className="flex items-center cursor-pointer" aria-label={`Capture provenance for ${file.providedFileName}`} {...activatable(() => setProvenanceFileId(file.id))}>
+                <Fingerprint size={16} />
+              </p>
+            }
+            content={<p>Capture provenance</p>}
+          />
+        )}
+        <SystemTooltip
+          icon={
+            <p
+              className="flex items-center gap-1 cursor-pointer"
+              {...activatable(() => {
+                setDeleteDialogIsOpen(true)
+                setDeleteFileInfo({ id: file.id, name: file.providedFileName })
+              })}
+            >
+              <Trash2 size={16} />
+            </p>
+          }
+          content={<p>Delete</p>}
+        />
+      </>
     ),
   })
 
@@ -144,6 +169,8 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
       />
 
       <FilePreviewDialog file={previewFile} open={previewIsOpen} onOpenChange={setPreviewIsOpen} />
+
+      {provenanceFile && provenanceForDialog && <CaptureProvenanceDialog key={provenanceFile.id} provenance={provenanceForDialog} file={provenanceFile} onClose={() => setProvenanceFileId(null)} />}
     </div>
   )
 }

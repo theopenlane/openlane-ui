@@ -15,7 +15,8 @@
     "./auth": "./src/index.ts",
     "./user": "./src/lib/user.ts",
     "./chat": "./src/lib/chat.ts",
-    "./ai": "./src/lib/ai.ts"
+    "./ai": "./src/lib/ai.ts",
+    "./graphql-body": "./src/lib/graphql-body.ts"
   },
   "peerDependencies": {
     "react": "^19.0.0"

@@ -229,6 +229,9 @@ export const GET_EVIDENCE_FILES_PAGINATED = gql`
             id
             uri
             presignedURL
+            metadata
+            md5Hash
+            createdAt
           }
         }
       }

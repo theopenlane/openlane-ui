@@ -32,6 +32,8 @@
     "./grid": "./src/grid/grid.tsx",
     "./kbd": "./src/kbd/kbd.tsx",
     "./logo": "./src/logo/logo.tsx",
+    "./logo-mark": "./src/logo/logo-mark.ts",
+    "./use-async-command-search": "./src/hooks/use-async-command-search.ts",
     "./input": "./src/input/input.tsx",
     "./info": "./src/info/info.tsx",
     "./info-slide-out": "./src/info-slide-out/info-slide-out.tsx",

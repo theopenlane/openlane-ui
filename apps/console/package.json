@@ -37,6 +37,7 @@
     "@react-google-maps/api": "^2.20.8",
     "@repo/codegen": "workspace:*",
     "@repo/dally": "workspace:*",
+    "@repo/evidence-capture": "workspace:*",
     "@repo/ui": "workspace:*",
     "@rjsf/core": "^6.10.0",
     "@rjsf/utils": "^6.10.0",

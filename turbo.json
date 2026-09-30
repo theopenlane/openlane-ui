@@ -29,6 +29,8 @@
         "API_REST_URL",
         "API_GQL_URL",
         "NEXT_PUBLIC_OPENLANE_URL",
+        "OPENLANE_CONSOLE_URL",
+        "OPENLANE_API_URL",
 
         // Auth Settings
         "AUTH_GITHUB_ID",
