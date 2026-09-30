@@ -54,9 +54,9 @@ export const useCampaignTargetsWithFilter = ({ where, orderBy, pagination, enabl
     enabled,
   })
 
-  const edges = queryResult.data?.campaignTargets?.edges ?? []
+  const edges = queryResult.data?.campaignTargets?.edges
 
-  const CampaignTargetsNodes: CampaignTargetsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as CampaignTargetsNodeNonNull)
+  const CampaignTargetsNodes = useMemo(() => (edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [edges])
 
   return { ...queryResult, CampaignTargetsNodes }
 }

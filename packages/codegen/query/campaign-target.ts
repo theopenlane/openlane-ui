@@ -9,6 +9,9 @@ export const GET_ALL_CAMPAIGN_TARGETS = gql`
           campaignID
           completedAt
           contactID
+          contact {
+            id
+          }
           createdAt
           createdBy
           email

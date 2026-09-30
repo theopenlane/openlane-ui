@@ -662,6 +662,7 @@ export interface CampaignTargetsWithFilterQuery {
         updatedBy: string | null
         userID: string | null
         workflowEligibleMarker: boolean | null
+        contact: { id: string } | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }

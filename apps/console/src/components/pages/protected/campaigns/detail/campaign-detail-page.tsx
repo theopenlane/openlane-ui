@@ -10,7 +10,6 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { CAMPAIGN_TERMINAL_STATUSES, useCampaign, useUpdateCampaign, useLaunchCampaign, useResendCampaignIncompleteTargets } from '@/lib/graphql-hooks/campaign'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
 import { useCampaignTargetStats } from '@/lib/graphql-hooks/campaign-target'
-import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CampaignCampaignStatus, CampaignCampaignType, type UpdateCampaignInput } from '@repo/codegen/src/schema'
@@ -22,7 +21,6 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useDeleteCampaign } from '@/lib/graphql-hooks/campaign'
 import { useRouter } from 'next/navigation'
-import { RecipientDetailPanel } from './recipient-detail-panel'
 import { SendTestEmailDialog } from './send-test-email-dialog'
 import { LaunchCampaignDialog, type LaunchCampaignValues } from './launch-campaign-dialog'
 import { type CampaignRecurrenceValues, buildRecurrenceUpdateInput, describeCampaignRecurrence, toRecurrenceValues } from '../recurrence/campaign-recurrence'
@@ -91,7 +89,6 @@ const CampaignDetailPage: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
 
-  const [selectedRecipient, setSelectedRecipient] = useState<CampaignTargetsNodeNonNull | null>(null)
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
   const [testDialogOpen, setTestDialogOpen] = useState(false)
   const [launchDialogOpen, setLaunchDialogOpen] = useState(false)
@@ -395,9 +392,7 @@ const CampaignDetailPage: React.FC = () => {
 
   const tmpl = campaign.template
 
-  const sidebarContent = selectedRecipient ? (
-    <RecipientDetailPanel recipient={selectedRecipient} onClose={() => setSelectedRecipient(null)} />
-  ) : (
+  const sidebarContent = (
     <>
       <div className="rounded-md border border-border bg-card p-4">
         <h3 className="text-sm font-semibold mb-3">Properties</h3>
@@ -565,7 +560,7 @@ const CampaignDetailPage: React.FC = () => {
           dueDate={campaign.dueDate as string | null | undefined}
           recipientCount={stats.total}
           launchBlockedReason={launchBlockedReason}
-          recipientsSlot={stats.total > 0 ? <RecipientsTable campaignId={campaignId} onRecipientClick={setSelectedRecipient} showDelivery={false} canRemove /> : undefined}
+          recipientsSlot={stats.total > 0 ? <RecipientsTable campaignId={campaignId} showDelivery={false} canRemove /> : undefined}
           isRecurring={!!campaign.isRecurring}
           recurrenceLabel={describeCampaignRecurrence(campaign)}
           onEditRecurrence={() => setEditRecurrenceOpen(true)}
@@ -640,7 +635,7 @@ const CampaignDetailPage: React.FC = () => {
 
           <div className="space-y-6">
             <CampaignRunsTable campaign={campaign} stats={stats} />
-            <RecipientsTable campaignId={campaignId} onRecipientClick={setSelectedRecipient} />
+            <RecipientsTable campaignId={campaignId} />
           </div>
         </>
       )}
