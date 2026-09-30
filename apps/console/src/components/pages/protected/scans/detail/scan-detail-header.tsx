@@ -8,6 +8,8 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ScanTypeIconMapper } from '@/components/shared/enum-mapper/scan-enum'
 import { ScanScanType, ScanScanStatus } from '@repo/codegen/src/schema'
 import type { ScanDetailNode } from '@/lib/graphql-hooks/scan'
+import { currentLocationPath } from '@/utils/return-to'
+import { domainScanReviewHref } from '@/constants/scan-routes'
 
 type Props = {
   data?: ScanDetailNode
@@ -35,7 +37,7 @@ const ScanDetailHeader: React.FC<Props> = ({ data, onClose }) => {
                 label: 'View report',
                 variant: 'secondary',
                 icon: <FileText size={16} />,
-                onClick: () => router.push(`/exposure/scans/domain-scan?scanId=${encodeURIComponent(data.id)}`),
+                onClick: () => router.push(domainScanReviewHref(data.id, currentLocationPath())),
               }
             : undefined
         }
