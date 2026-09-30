@@ -17,6 +17,7 @@ import { useNotificationsContext } from '@/providers/notifications-provider'
 import { useRecommendationsFeed } from '@/hooks/useRecommendationsFeed'
 import { redirectToNotification } from '@/components/shared/SystemNotification/notification-redirect'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { currentLocationPath } from '@/utils/return-to'
 import { isPastDate } from '@/utils/date'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { firstLineOf } from '@/lib/suggested-tasks/utils'
@@ -88,7 +89,7 @@ export const useWorkItems = () => {
 
   const dismissNotification = useCallback((notificationId: string) => markAsRead(notificationId), [markAsRead])
 
-  const openNotification = useCallback((notification: Notification) => redirectToNotification(router, notification), [router])
+  const openNotification = useCallback((notification: Notification) => redirectToNotification(router, notification, currentLocationPath()), [router])
 
   const openSuggestion = useCallback(
     (suggestion: SuggestedTask) => {

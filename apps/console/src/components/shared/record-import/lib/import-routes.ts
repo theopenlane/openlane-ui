@@ -177,14 +177,3 @@ export const canImportWith = (permission: TImportPermission, roles: TAccessRole[
   if (permission === 'edit') return canEdit(roles, session)
   return hasPermission(roles, permission, session)
 }
-
-export const RETURN_TO_PARAM = 'returnTo'
-
-const URL_BASE = 'http://localhost'
-
-export const withReturnTo = (href: string, returnTo?: string | null): string => {
-  if (!returnTo) return href
-  const url = new URL(href, URL_BASE)
-  url.searchParams.set(RETURN_TO_PARAM, returnTo)
-  return `${url.pathname}${url.search}${url.hash}`
-}

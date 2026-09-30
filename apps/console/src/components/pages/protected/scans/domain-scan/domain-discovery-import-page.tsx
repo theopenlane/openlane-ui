@@ -21,8 +21,10 @@ import { useDomainScanReport } from './hooks/use-domain-scan-report'
 import { useDomainScanSelection } from './hooks/use-domain-scan-selection'
 import { useDomainScanSummarySections } from './hooks/use-domain-scan-summary-sections'
 import { domainScanProgressStorageKey } from './progress-storage'
+import { DOMAIN_SCAN_EXIT_FALLBACK_HREF } from '@/constants/scan-routes'
 import { domainScanStepVisibility } from './step-visibility'
 import { DOMAIN_SCAN_STEPS, type EditableStepId, type LinkableItem } from './types'
+import { readReturnTo } from '@/utils/return-to'
 
 const EMPTY_LINKED_VENDOR_IDS: string[] = []
 
@@ -30,6 +32,7 @@ const DomainDiscoveryImportPage = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const scanIdParam = searchParams.get('scanId') ?? searchParams.get('id')
+  const exitHref = readReturnTo(searchParams, DOMAIN_SCAN_EXIT_FALLBACK_HREF)
 
   const report = useDomainScanReport(scanIdParam)
   const storageKey = useMemo(() => (scanIdParam ? domainScanProgressStorageKey(scanIdParam) : undefined), [scanIdParam])
@@ -48,7 +51,7 @@ const DomainDiscoveryImportPage = () => {
     goToStep: (stepId) => stepper.goTo(stepId),
   })
 
-  const { handleImport, isImporting, canImport } = useDomainScanImport({ report, selection, storageKey })
+  const { handleImport, isImporting, canImport } = useDomainScanImport({ report, selection, storageKey, exitHref })
 
   const { domains, agentReadiness } = report
   const isSingleMode = selection.platformMode === 'single'
@@ -86,7 +89,7 @@ const DomainDiscoveryImportPage = () => {
 
   const handleFinishLater = () => {
     selection.persistProgress()
-    router.push('/notifications')
+    router.push(exitHref)
   }
 
   const handleNextButton = () => {
