@@ -1,6 +1,6 @@
 'use client'
 
-import { normalizeResponsibilityField, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { normalizeResponsibilityField, buildResponsibilityTargetPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { RISK_STAKEHOLDER, RISK_DELEGATE } from '../../risk-responsibility'
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
@@ -20,6 +20,7 @@ import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { type UpdateRiskInput, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
@@ -65,7 +66,6 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
 
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [initialValues, setInitialValues] = useState<Partial<RiskFormValues>>({})
   const [inlineEditField, setInlineEditField] = useState<InlineEditField | null>(null)
 
   const plateEditorHelper = usePlateEditor()
@@ -77,6 +77,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   })
 
   const { isDirty } = form.formState
+  const buildChangedInput = useChangedInput(form)
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   const isEditingRef = useRef(isEditing)
@@ -126,39 +127,31 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
         scopeName: data.risk.scopeName ?? '',
       }
       form.reset(newValues)
-      setInitialValues(newValues)
     }
   }, [data?.risk, form])
 
   const onSubmit = async (values: RiskFormValues) => {
     try {
-      const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
-        const initialValue = initialValues[key as keyof RiskFormValues]
-        if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
-          acc[key] = value
-        }
-        return acc
-      }, {})
+      const input = await buildChangedInput(values, async (formValues: RiskFormValues): Promise<UpdateRiskInput> => {
+        const [details, businessCosts, mitigation] = await Promise.all([
+          formValues.detailsJSON ? plateEditorHelper.convertToHtml(formValues.detailsJSON as Value) : undefined,
+          formValues.businessCosts ? plateEditorHelper.convertToHtml(formValues.businessCosts as Value) : undefined,
+          formValues.mitigation ? plateEditorHelper.convertToHtml(formValues.mitigation as Value) : undefined,
+        ])
 
-      const detailsJSON = values.detailsJSON ? (values.detailsJSON as Value) : undefined
-      const details = changedFields.detailsJSON ? await plateEditorHelper.convertToHtml(changedFields.detailsJSON as Value) : undefined
-      const businessCosts = changedFields.businessCosts ? await plateEditorHelper.convertToHtml(changedFields.businessCosts as Value) : undefined
-      const mitigation = changedFields.mitigation ? await plateEditorHelper.convertToHtml(changedFields.mitigation as Value) : undefined
+        const { stakeholder, delegate, ...rest } = formValues
+        return {
+          ...rest,
+          ...buildResponsibilityTargetPayload(RISK_STAKEHOLDER, stakeholder, 'update'),
+          ...buildResponsibilityTargetPayload(RISK_DELEGATE, delegate, 'update'),
+          details,
+          businessCosts,
+          mitigation,
+        } as UpdateRiskInput
+      })
 
-      const { stakeholder: _stakeholder, delegate: _delegate, ...rest } = changedFields
-      const input: UpdateRiskInput = {
-        ...rest,
-        ...('stakeholder' in changedFields
-          ? buildResponsibilityPayload(RISK_STAKEHOLDER.fieldBaseName, values.stakeholder, { mode: 'update', stringFieldName: RISK_STAKEHOLDER.stringFieldName })
-          : {}),
-        ...('delegate' in changedFields ? buildResponsibilityPayload(RISK_DELEGATE.fieldBaseName, values.delegate, { mode: 'update', stringFieldName: RISK_DELEGATE.stringFieldName }) : {}),
-        details,
-        businessCosts,
-        mitigation,
-        detailsJSON: detailsJSON,
-      } as UpdateRiskInput
-
-      if (Object.keys(changedFields).length === 0) {
+      if (Object.keys(input).length === 0) {
+        form.reset()
         setIsEditing(false)
         return
       }
@@ -179,7 +172,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    form.reset(initialValues as RiskFormValues)
+    form.reset()
     setIsEditing(false)
   }
 

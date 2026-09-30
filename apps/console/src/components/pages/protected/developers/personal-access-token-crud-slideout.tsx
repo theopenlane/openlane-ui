@@ -14,10 +14,11 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useWatch } from 'react-hook-form'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { usePathname } from 'next/navigation'
 import { useCreateAPIToken, useCreatePersonalAccessToken, useUpdateApiToken, useUpdatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
 import { ScopesSelector } from '@/components/shared/scopes-selector/scopes-selector'
-import { type Organization, type OrganizationSetting } from '@repo/codegen/src/schema'
+import { type Organization, type OrganizationSetting, type UpdateApiTokenInput, type UpdatePersonalAccessTokenInput } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
@@ -84,6 +85,7 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
   const { handleSSOAuthorize, isAuthorizingSSO } = useSSOAuthorize({ isApiKeyPage, isEditMode, editTokenId: editToken?.id, createdTokenId })
 
   const { form, initialOrgIds } = useFormSchema({ isApiKeyPage, isEditMode, editToken })
+  const buildChangedInput = useChangedInput(form)
 
   const noExpire = useWatch({ control: form.control, name: 'noExpire' })
 
@@ -99,24 +101,29 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
   const handleEdit = async (values: TokenFormData) => {
     if (!editToken) return
     if (isApiKeyPage) {
-      await updateApiToken({
-        updateApiTokenId: editToken.id,
-        input: {
-          ...descriptionInput(values.description),
-          ...expiryInput(values.expiryDate, values.noExpire),
-          scopes: values.scopes ?? [],
-        },
-      })
+      const input = await buildChangedInput(values, (formValues): UpdateApiTokenInput => ({
+        ...descriptionInput(formValues.description),
+        ...expiryInput(formValues.expiryDate, formValues.noExpire),
+        scopes: formValues.scopes ?? [],
+      }))
+
+      if (Object.keys(input).length > 0) {
+        await updateApiToken({ updateApiTokenId: editToken.id, input })
+      }
     } else {
-      await updatePersonalAccessToken({
-        updatePersonalAccessTokenId: editToken.id,
-        input: {
-          ...descriptionInput(values.description),
-          ...expiryInput(values.expiryDate, values.noExpire),
-          ...buildOrganizationsInput(initialOrgIds, values.organizationIDs || [], 'OrganizationIDs'),
-        },
-      })
+      const input: UpdatePersonalAccessTokenInput = {
+        ...(await buildChangedInput(values, (formValues): UpdatePersonalAccessTokenInput => ({
+          ...descriptionInput(formValues.description),
+          ...expiryInput(formValues.expiryDate, formValues.noExpire),
+        }))),
+        ...buildOrganizationsInput(initialOrgIds, values.organizationIDs || [], 'OrganizationIDs'),
+      }
+
+      if (Object.keys(input).length > 0) {
+        await updatePersonalAccessToken({ updatePersonalAccessTokenId: editToken.id, input })
+      }
     }
+    form.reset(values)
     successNotification({ title: 'Token updated successfully!' })
     handleOpenChange(false)
   }

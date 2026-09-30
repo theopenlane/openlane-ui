@@ -1,8 +1,10 @@
 'use client'
 
+import { type UpdateNoteInput } from '@repo/codegen/src/schema'
 import React, { use, useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useWatch } from 'react-hook-form'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import * as z from 'zod'
 import { Keyboard, Megaphone, Pencil, Loader2, Trash2 } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
@@ -61,6 +63,8 @@ export default function UpdatesSection() {
     defaultValues: { text: '', title: '' },
   })
 
+  const buildChangedEditInput = useChangedInput(editForm)
+
   const createTextValue = useWatch({ control: createForm.control, name: 'text' })
   const editTextValue = useWatch({ control: editForm.control, name: 'text' })
 
@@ -85,10 +89,11 @@ export default function UpdatesSection() {
   const handleUpdateSubmit = async (values: UpdateFormValues) => {
     if (!editingPostId) return
     try {
-      await updatePost({
-        updateTrustCenterPostId: editingPostId,
-        input: { text: values.text, title: values.title },
-      })
+      const input = await buildChangedEditInput(values, (formValues): UpdateNoteInput => ({ text: formValues.text, title: formValues.title }))
+
+      if (Object.keys(input).length > 0) {
+        await updatePost({ updateTrustCenterPostId: editingPostId, input })
+      }
       successNotification({ title: 'Update saved', description: 'The changes to your post have been saved.' })
       setEditingPostId(null)
       editForm.reset()
@@ -110,8 +115,7 @@ export default function UpdatesSection() {
 
   const startEditing = (postId: string, currentText: string, currentTitle: string) => {
     setEditingPostId(postId)
-    editForm.setValue('text', currentText)
-    editForm.setValue('title', currentTitle || '')
+    editForm.reset({ text: currentText, title: currentTitle || '' })
   }
 
   const cancelEditing = () => {

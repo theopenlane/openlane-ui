@@ -1,7 +1,9 @@
 'use client'
 
+import { type UpdateStandardInput } from '@repo/codegen/src/schema'
 import React, { useEffect, useState, useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogTrigger, DialogClose, DialogTitle } from '@repo/ui/dialog'
@@ -45,6 +47,7 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
   })
 
   const { handleSubmit, reset, formState } = formMethods
+  const buildChangedInput = useChangedInput(formMethods)
   const { isSubmitting } = formState
 
   const prefillForm = useCallback(() => {
@@ -61,14 +64,19 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
       resetPagination()
 
       if (isEditMode && standard?.id) {
-        await updateStandard({
-          updateStandardId: standard?.id,
-          input: {
-            shortName: data.title,
-            description: data.description,
-          },
-          logoFile: data.logoFile ?? undefined,
-        })
+        const input = await buildChangedInput(data, (values): UpdateStandardInput => ({
+          shortName: values.title,
+          description: values.description,
+        }))
+
+        if (Object.keys(input).length > 0 || data.logoFile) {
+          await updateStandard({
+            updateStandardId: standard?.id,
+            input,
+            logoFile: data.logoFile ?? undefined,
+          })
+        }
+        reset({ ...data, logoFile: undefined })
 
         successNotification({ title: 'Standard updated', description: 'Changes have been saved.' })
       } else {

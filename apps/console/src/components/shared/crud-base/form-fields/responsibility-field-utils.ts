@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { atomicInputGroup } from '@/hooks/useChangedInput'
 
 export const responsibilityFieldSchema = z
   .object({
@@ -109,61 +110,65 @@ function getClearFieldNames(fieldBaseName: string, stringFieldName: string): { c
   }
 }
 
+const buildResponsibilityUpdate = (fieldBaseName: string, selection: ResponsibilitySelection, allowPersonnel: boolean, stringFieldName: string): Record<string, string | boolean | undefined> => {
+  const { clearUser, clearGroup, clearString, clearPersonnel } = getClearFieldNames(fieldBaseName, stringFieldName)
+  const clearPersonnelFields = allowPersonnel ? { [clearPersonnel]: true } : {}
+
+  if (!selection) {
+    return {
+      ...clearPersonnelFields,
+      [clearUser]: true,
+      [clearGroup]: true,
+      [clearString]: true,
+    }
+  }
+
+  if (selection.value === '') {
+    return {
+      [clearString]: true,
+    }
+  }
+
+  if (selection.noClearOtherFields) {
+    return { [`${fieldBaseName}ID`]: selection.value }
+  }
+
+  switch (selection.type) {
+    case 'user':
+      return {
+        ...clearPersonnelFields,
+        [`${fieldBaseName}UserID`]: selection.value,
+        [clearGroup]: true,
+        [clearString]: true,
+      }
+    case 'group':
+      return {
+        [`${fieldBaseName}GroupID`]: selection.value,
+        ...clearPersonnelFields,
+        [clearUser]: true,
+        [clearString]: true,
+      }
+    case 'personnel':
+      return { [`${fieldBaseName}IdentityHolderID`]: selection.value, [clearUser]: true, [clearGroup]: true, [clearString]: true }
+    case 'string':
+      return {
+        [stringFieldName]: selection.value,
+        ...clearPersonnelFields,
+        [clearUser]: true,
+        [clearGroup]: true,
+      }
+    default:
+      return {}
+  }
+}
+
 export function buildResponsibilityPayload(
   fieldBaseName: string,
   selection: ResponsibilitySelection,
   { mode = 'create', allowPersonnel = true, stringFieldName = fieldBaseName }: ResponsibilityPayloadOptions = {},
 ): Record<string, string | boolean | undefined> {
   if (mode === 'update') {
-    const { clearUser, clearGroup, clearString, clearPersonnel } = getClearFieldNames(fieldBaseName, stringFieldName)
-    const clearPersonnelFields = allowPersonnel ? { [clearPersonnel]: true } : {}
-
-    if (!selection) {
-      return {
-        ...clearPersonnelFields,
-        [clearUser]: true,
-        [clearGroup]: true,
-        [clearString]: true,
-      }
-    }
-
-    if (selection.value === '') {
-      return {
-        [clearString]: true,
-      }
-    }
-
-    if (selection.noClearOtherFields) {
-      return { [`${fieldBaseName}ID`]: selection.value }
-    }
-
-    switch (selection.type) {
-      case 'user':
-        return {
-          ...clearPersonnelFields,
-          [`${fieldBaseName}UserID`]: selection.value,
-          [clearGroup]: true,
-          [clearString]: true,
-        }
-      case 'group':
-        return {
-          [`${fieldBaseName}GroupID`]: selection.value,
-          ...clearPersonnelFields,
-          [clearUser]: true,
-          [clearString]: true,
-        }
-      case 'personnel':
-        return { [`${fieldBaseName}IdentityHolderID`]: selection.value, [clearUser]: true, [clearGroup]: true, [clearString]: true }
-      case 'string':
-        return {
-          [stringFieldName]: selection.value,
-          ...clearPersonnelFields,
-          [clearUser]: true,
-          [clearGroup]: true,
-        }
-      default:
-        return {}
-    }
+    return atomicInputGroup(buildResponsibilityUpdate(fieldBaseName, selection, allowPersonnel, stringFieldName))
   }
 
   if (!selection) {
@@ -187,6 +192,9 @@ export function buildResponsibilityPayload(
       return {}
   }
 }
+
+export const buildResponsibilityTargetPayload = (target: ResponsibilityTarget, selection: ResponsibilitySelection, mode: ResponsibilityPayloadMode) =>
+  buildResponsibilityPayload(target.fieldBaseName, selection, { mode, stringFieldName: target.stringFieldName })
 
 export function buildResponsibilityInlineUpdate(
   fieldBaseName: string,

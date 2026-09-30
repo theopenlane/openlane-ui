@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Input } from '@repo/ui/input'
 import { useForm } from 'react-hook-form'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { z } from 'zod'
@@ -282,6 +283,8 @@ const SSOPage = () => {
     },
   })
 
+  const buildChangedInput = useChangedInput(form)
+
   useEffect(() => {
     if (currentSetting) {
       const currentProvider = currentSetting.identityProvider
@@ -302,20 +305,19 @@ const SSOPage = () => {
   const updateSSOSettings = async (data: z.infer<typeof formSchema>) => {
     if (!currentOrgId || !currentSetting?.id) return
 
-    const credentialsChanged =
-      data.identityProvider !== (currentSetting.identityProvider ?? '') ||
-      (data.identityProviderClientID || '') !== (currentSetting.identityProviderClientID || '') ||
-      !!data.identityProviderClientSecret ||
-      (data.oidcDiscoveryEndpoint || '') !== (currentSetting.oidcDiscoveryEndpoint || '')
+    const input = await buildChangedInput(data, (values): UpdateOrganizationSettingInput => ({
+      identityProvider: values.identityProvider as OrganizationSettingSsoProvider | undefined,
+      identityProviderClientID: values.identityProviderClientID || undefined,
+      identityProviderClientSecret: values.identityProviderClientSecret || undefined,
+      oidcDiscoveryEndpoint: values.oidcDiscoveryEndpoint || undefined,
+    }))
 
-    const input: Partial<UpdateOrganizationSettingInput> = {
-      identityProvider: data.identityProvider as OrganizationSettingSsoProvider | undefined,
-      identityProviderClientID: data.identityProviderClientID || undefined,
-      identityProviderClientSecret: data.identityProviderClientSecret || undefined,
-      oidcDiscoveryEndpoint: data.oidcDiscoveryEndpoint || undefined,
+    const credentialsChanged = Object.keys(input).length > 0
+
+    if (credentialsChanged) {
+      await updateOrgSetting({ updateOrganizationSettingId: currentSetting.id, input })
     }
-
-    await updateOrgSetting({ updateOrganizationSettingId: currentSetting.id, input })
+    form.reset(data)
     setIsSuccess(true)
     if (credentialsChanged && currentSetting.identityProviderAuthTested) setShowReTestWarning(true)
     invalidateOrgSetting()

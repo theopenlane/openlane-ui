@@ -17,6 +17,7 @@ import { type SlideoutMenuAction } from './slideout-header'
 import { SlideoutFormActions } from './slideout-form-actions'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import type { BulkDeletePayload } from './types'
 import { getBulkActionFailureDescription } from './bulk-action-feedback'
 import { useSession } from 'next-auth/react'
@@ -25,7 +26,7 @@ export interface InternalEditingType {
   (field: string | null): void
 }
 
-export interface RenderFieldsProps<TData, TUpdateInput> {
+export interface RenderFieldsProps<TData, TUpdateInput extends object> {
   isEditing: boolean
   isCreate: boolean
   data?: TData
@@ -40,7 +41,7 @@ export interface RenderHeaderProps {
   close: () => void
 }
 
-export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData> {
+export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData, TUpdateInput extends object, TUpdateData, TCreateInput, TCreateData> {
   objectType: ObjectTypes
   displayName?: string
   form: UseFormReturn<TFormData>
@@ -71,6 +72,7 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   formId?: string
 
   buildPayload?: (data: TFormData) => Promise<TUpdateInput | TCreateInput>
+  buildUndiffedPayload?: (data: TFormData) => Partial<TUpdateInput>
   onSaved?: (params: { formData: TFormData; created: TCreateData | null; entityId: string | null }) => Promise<void>
   normalizeData?: (data: TData) => Partial<TFormData>
   createDefaultValues?: NoInfer<DefaultValues<TFormData>>
@@ -86,7 +88,7 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   initialWidth?: string | number
 }
 
-export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>(
+export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdateInput extends object, TUpdateData, TCreateInput, TCreateData>(
   config: GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>,
 ) {
   const [isEditing, setIsEditing] = useState(false)
@@ -105,6 +107,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     data,
     isFetching,
     buildPayload,
+    buildUndiffedPayload,
     onSaved,
     normalizeData,
     createDefaultValues,
@@ -127,6 +130,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
 
   const { reset } = form
   const { isDirty } = form.formState
+  const buildChangedInput = useChangedInput(form)
   const queryClient = useQueryClient()
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
@@ -233,10 +237,8 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   const onSubmit = async (formData: TFormData) => {
     if (!buildPayload) return
     try {
-      const payload = await buildPayload(formData)
-
       if (isCreate && createMutation) {
-        const created = await createMutation.mutateAsync(payload as TCreateInput)
+        const created = await createMutation.mutateAsync((await buildPayload(formData)) as TCreateInput)
 
         const postSaveSucceeded = await runPostSave({ formData, created, entityId: null })
 
@@ -250,7 +252,14 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
 
         onClose?.()
       } else if (id && updateMutation) {
-        await updateMutation.mutateAsync({ id, input: payload as TUpdateInput })
+        const changedInput = { ...(await buildChangedInput(formData, async (values: TFormData) => (await buildPayload(values)) as TUpdateInput)), ...buildUndiffedPayload?.(formData) }
+
+        if (Object.keys(changedInput).length > 0) {
+          await updateMutation.mutateAsync({ id, input: changedInput as TUpdateInput })
+          reset(formData)
+        } else {
+          reset()
+        }
 
         const postSaveSucceeded = await runPostSave({ formData, created: null, entityId: id })
 

@@ -16,8 +16,9 @@ import { useOrganization } from '@/hooks/useOrganization'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { normalizeEntityData, buildResponsibilityTargetPayload, responsibilityTargetFor } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { type UpdateIdentityHolderInput, type IdentityHolderQuery } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
@@ -30,6 +31,8 @@ import PersonnelPropertiesSidebar from './personnel-properties-sidebar'
 import PersonnelDetailTabs from './tabs/personnel-detail-tabs'
 import type { EditPersonnelFormData } from '../hooks/use-form-schema'
 import { useSession } from 'next-auth/react'
+
+const PERSONNEL_INTERNAL_OWNER = responsibilityTargetFor<UpdateIdentityHolderInput>()('internalOwner')
 
 interface PersonnelDetailPageProps {
   personnelId: string
@@ -61,7 +64,6 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
 
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [initialValues, setInitialValues] = useState<Partial<EditPersonnelFormData>>({})
 
   const hasScrollbar = useHasScrollbar([isEditing, data?.identityHolder, associationsData?.identityHolder])
 
@@ -70,6 +72,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
   })
 
   const { isDirty } = form.formState
+  const buildChangedInput = useChangedInput(form)
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   useEffect(() => {
@@ -107,27 +110,21 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
         internalOwner: normalized.internalOwner as ResponsibilitySelection,
       }
       form.reset(newValues)
-      setInitialValues(newValues)
     }
   }, [data?.identityHolder, form, isDirty])
 
   const onSubmit = async (values: EditPersonnelFormData) => {
     try {
-      const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
-        const initialValue = initialValues[key as keyof EditPersonnelFormData]
-        if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
-          acc[key] = value
-        }
-        return acc
-      }, {})
-
-      const { internalOwner, ...rest } = changedFields
-      const input: UpdateIdentityHolderInput = {
-        ...rest,
-        ...(internalOwner ? buildResponsibilityPayload('internalOwner', internalOwner as ResponsibilitySelection, { mode: 'update' }) : {}),
-      } as UpdateIdentityHolderInput
+      const input = await buildChangedInput(values, (formValues: EditPersonnelFormData): UpdateIdentityHolderInput => {
+        const { internalOwner, ...rest } = formValues
+        return {
+          ...rest,
+          ...buildResponsibilityTargetPayload(PERSONNEL_INTERNAL_OWNER, internalOwner, 'update'),
+        } as UpdateIdentityHolderInput
+      })
 
       if (Object.keys(input).length === 0) {
+        form.reset()
         setIsEditing(false)
         return
       }
@@ -135,7 +132,6 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
       await updateIdentityHolder({ updateIdentityHolderId: personnelId, input })
 
       form.reset(values)
-      setInitialValues(values)
 
       successNotification({
         title: 'Personnel updated',
@@ -150,7 +146,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    form.reset(initialValues as EditPersonnelFormData)
+    form.reset()
     setIsEditing(false)
   }
 

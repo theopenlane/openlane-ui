@@ -33,6 +33,7 @@ import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import { ASSOCIATION_REMOVAL_CONFIG, POLICY_ASSOCIATION_SECTIONS, buildAssociationSections } from '@/components/shared/object-association/object-association-config'
 import Loading from '@/app/(protected)/policies/[id]/view/loading'
@@ -68,6 +69,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
   const policy = data?.internalPolicy
   const { form } = useFormSchema()
+  const buildChangedInput = useChangedInput(form)
   const [isEditing, setIsEditing] = useState(false)
   const [editingField, setEditingField] = useState<string | null>(null)
   const queryClient = useQueryClient()
@@ -211,44 +213,46 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       }
 
       try {
-        const { revision, approverID, delegateID, details: _details, detailsJSON, ...restData } = data
-        const input: UpdateInternalPolicyInput = {
-          ...restData,
-          tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+        const input = await buildChangedInput(data, async (values: EditPolicyMetadataFormData): Promise<UpdateInternalPolicyInput> => {
+          const { revision, approverID, delegateID, details: _details, detailsJSON, ...restData } = values
+          const built: UpdateInternalPolicyInput = {
+            ...restData,
+            tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+          }
+
+          if (detailsJSON !== undefined && !isExternalReference && !isIntegration) {
+            built.detailsJSON = detailsJSON
+            built.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
+          }
+
+          if (approverID) {
+            built.approverID = approverID
+          } else if (policy.approver?.id) {
+            built.clearApprover = true
+          }
+
+          if (delegateID) {
+            built.delegateID = delegateID
+          } else if (policy.delegate?.id) {
+            built.clearDelegate = true
+          }
+
+          if (revision && revision !== (policy?.revision ?? '')) {
+            built.revision = revision
+          } else if (detailsJSON && initialDetailsCanonicalRef.current !== null && canonicalizeDetails(detailsJSON) !== initialDetailsCanonicalRef.current) {
+            built.RevisionBump = VersionBump.MINOR
+          }
+
+          return built
+        })
+
+        if (Object.keys(input).length === 0) {
+          form.reset()
+          setIsEditing(false)
+          return
         }
 
-        if (detailsJSON !== undefined && !isExternalReference && !isIntegration) {
-          input.detailsJSON = detailsJSON
-          input.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
-        }
-
-        if (approverID) {
-          input.approverID = approverID
-        } else if (policy.approver?.id) {
-          input.clearApprover = true
-        }
-
-        if (delegateID) {
-          input.delegateID = delegateID
-        } else if (policy.delegate?.id) {
-          input.clearDelegate = true
-        }
-
-        if (revision && revision !== (policy?.revision ?? '')) {
-          input.revision = revision
-        } else if (detailsJSON && initialDetailsCanonicalRef.current !== null && canonicalizeDetails(detailsJSON) !== initialDetailsCanonicalRef.current) {
-          input.RevisionBump = VersionBump.MINOR
-        }
-
-        const formData: {
-          updateInternalPolicyId: string
-          input: UpdateInternalPolicyInput
-        } = {
-          updateInternalPolicyId: policy?.id,
-          input,
-        }
-
-        await updatePolicy(formData)
+        await updatePolicy({ updateInternalPolicyId: policy.id, input })
 
         successNotification({
           title: 'Policy Updated',
@@ -267,7 +271,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         })
       }
     },
-    [policy, plateEditorHelper, updatePolicy, successNotification, errorNotification, queryClient, policyId, initialDetailsCanonicalRef, isExternalReference, isIntegration],
+    [policy, plateEditorHelper, updatePolicy, successNotification, errorNotification, queryClient, policyId, initialDetailsCanonicalRef, isExternalReference, isIntegration, buildChangedInput, form],
   )
 
   const handleFormSubmit = useCallback(

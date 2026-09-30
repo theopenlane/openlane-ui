@@ -16,8 +16,9 @@ import { useOrganization } from '@/hooks/useOrganization'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { normalizeEntityData, buildResponsibilityTargetPayload, responsibilityTargetFor } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { type UpdateEntityInput, type EntityQuery } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -32,6 +33,10 @@ import VendorPropertiesSidebar from './vendor-properties-sidebar'
 import VendorDetailTabs from './tabs/vendor-detail-tabs'
 import type { EditVendorFormData } from '../hooks/use-form-schema'
 import { useSession } from 'next-auth/react'
+
+const vendorResponsibilityTarget = responsibilityTargetFor<UpdateEntityInput>()
+const VENDOR_INTERNAL_OWNER = vendorResponsibilityTarget('internalOwner')
+const VENDOR_REVIEWER = vendorResponsibilityTarget('reviewedBy')
 
 interface VendorDetailPageProps {
   vendorId: string
@@ -62,7 +67,6 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
 
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [initialValues, setInitialValues] = useState<Partial<VendorFormValues>>({})
 
   const hasScrollbar = useHasScrollbar([isEditing, data?.entity, associationsData?.entity])
 
@@ -71,6 +75,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
   })
 
   const { isDirty } = form.formState
+  const buildChangedInput = useChangedInput(form)
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   useEffect(() => {
@@ -124,34 +129,29 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
         reviewedBy: normalized.reviewedBy as ResponsibilitySelection,
       }
       form.reset(newValues)
-      setInitialValues(newValues)
     }
   }, [data?.entity, form])
 
   const onSubmit = async (values: VendorFormValues) => {
     try {
-      const changedFields: Partial<VendorFormValues> = {}
-      for (const key of Object.keys(values) as Array<keyof VendorFormValues>) {
-        if (JSON.stringify(values[key]) !== JSON.stringify(initialValues[key])) {
-          Object.assign(changedFields, { [key]: values[key] })
-        }
-      }
-
-      const { internalOwner, reviewedBy, description, ...rest } = changedFields
-      const descriptionHtml = description === undefined ? undefined : Array.isArray(description) ? await convertToHtml(description) : description
-      const input: UpdateEntityInput = {
-        ...rest,
-        ...(description !== undefined ? { description: descriptionHtml } : {}),
-        ...(internalOwner ? buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'update' }) : {}),
-        ...(reviewedBy ? buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: 'update' }) : {}),
-      } as UpdateEntityInput
+      const input = await buildChangedInput(values, async (formValues: VendorFormValues): Promise<UpdateEntityInput> => {
+        const { internalOwner, reviewedBy, description, ...rest } = formValues
+        return {
+          ...rest,
+          description: Array.isArray(description) ? await convertToHtml(description) : description,
+          ...buildResponsibilityTargetPayload(VENDOR_INTERNAL_OWNER, internalOwner, 'update'),
+          ...buildResponsibilityTargetPayload(VENDOR_REVIEWER, reviewedBy, 'update'),
+        } as UpdateEntityInput
+      })
 
       if (Object.keys(input).length === 0) {
+        form.reset()
         setIsEditing(false)
         return
       }
 
       await updateEntity({ updateEntityId: vendorId, input })
+      form.reset(values)
 
       successNotification({
         title: 'Vendor updated',
@@ -166,7 +166,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    form.reset(initialValues as VendorFormValues)
+    form.reset()
     setIsEditing(false)
   }
 

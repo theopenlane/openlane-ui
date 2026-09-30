@@ -27,6 +27,7 @@ import { getEdgeIds, getEdgeNodes } from '@/components/shared/object-association
 import { UploadedEvidenceSection } from '@/components/pages/protected/controls/quick-actions/uploaded-evidence-section'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import useControlReviewFormSchema, { CONTROL_REVIEW_DEFAULT_VALUES, type ControlReviewFormData } from './use-control-review-form-schema'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { useControlReviewContext } from './use-control-review-context'
 import ControlContextPanel from '@/components/pages/protected/controls/control-context-panel'
 import RelatedControlsSelector from './related-controls-selector'
@@ -68,6 +69,7 @@ const ControlReviewSheetBody: React.FC<TControlReviewSheetBodyProps> = ({ contro
   const findingLinkedRef = useRef(false)
 
   const { form } = useControlReviewFormSchema()
+  const buildChangedInput = useChangedInput(form)
   const { data, isLoading } = useReview(reviewId || undefined)
   const review = data?.review
 
@@ -131,11 +133,15 @@ const ControlReviewSheetBody: React.FC<TControlReviewSheetBodyProps> = ({ contro
     try {
       const auditorNotesHtml = savedCommentRef.current ? null : await plateToHtmlOrNull(formData.auditorNotes, plateEditorHelper)
 
+      const changedInput = await buildChangedInput(formData, (values): UpdateReviewInput => ({
+        title: values.title,
+        ...(values.testApplied ? { details: values.testApplied } : { clearDetails: true }),
+        ...(values.externalID ? { externalID: values.externalID } : { clearExternalID: true }),
+      }))
+
       const input: UpdateReviewInput = {
-        title: formData.title,
+        ...changedInput,
         status,
-        ...(formData.testApplied ? { details: formData.testApplied } : { clearDetails: true }),
-        ...(formData.externalID ? { externalID: formData.externalID } : { clearExternalID: true }),
         ...buildLinkedAssociationInput(initialLinkedIdsRef.current, formData),
         ...(auditorNotesHtml ? { addComment: { text: auditorNotesHtml } } : {}),
       }
