@@ -41,6 +41,7 @@ const commonFields = {
   externalUUID: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
   environmentName: z.string().optional().nullable(),
+  auditorReferenceID: z.string().optional().nullable(),
 }
 
 const createFormSchema = z.object({

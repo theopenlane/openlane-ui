@@ -3241,6 +3241,7 @@ export interface GetAllEvidencesQuery {
 }
 
 export type EvidenceFieldsFragment = {
+  auditorReferenceID: string | null
   collectionProcedure: string | null
   createdAt: any
   createdBy: string | null
@@ -3283,6 +3284,7 @@ export type GetEvidenceQueryVariables = Exact<{
 
 export interface GetEvidenceQuery {
   evidence: {
+    auditorReferenceID: string | null
     collectionProcedure: string | null
     createdAt: any
     createdBy: string | null
