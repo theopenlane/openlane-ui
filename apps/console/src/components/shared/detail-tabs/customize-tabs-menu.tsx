@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { SlidersHorizontal } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { type TDetailTabsState } from './use-detail-tabs'
@@ -16,7 +16,7 @@ const CustomizeTabsMenu = <T extends string>({ state }: TCustomizeTabsMenuProps<
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="secondary" size="icon-sm" className="shrink-0" icon={<SlidersHorizontal />} descriptiveTooltipText="Customize tabs" />
+        <Button variant="secondary" size="icon-sm" className="shrink-0" icon={<MoreHorizontal />} descriptiveTooltipText="Customize tabs" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-52">
         <DropdownMenuLabel>Show tabs</DropdownMenuLabel>
