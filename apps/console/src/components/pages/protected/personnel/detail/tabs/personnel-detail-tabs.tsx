@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import ScrollableTabsList from '@/components/pages/protected/controls/tabs/scrollable-tabs-list'
@@ -29,6 +29,7 @@ const PersonnelDetailTabs: React.FC<PersonnelDetailTabsProps> = ({ personnel, is
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const [campaignSearchTerm, setCampaignSearchTerm] = useState('')
 
   const tabParamValue = searchParams.get(TAB_QUERY_PARAM)
   const activeTab = tabParamValue && ALL_TABS.includes(tabParamValue as PersonnelTabValue) ? (tabParamValue as PersonnelTabValue) : DEFAULT_TAB
@@ -94,7 +95,7 @@ const PersonnelDetailTabs: React.FC<PersonnelDetailTabsProps> = ({ personnel, is
       </TabsContent>
 
       <TabsContent value="campaigns" className="space-y-6">
-        <CampaignsTab personnelEmail={personnel.email} />
+        <CampaignsTab personnelEmail={personnel.email} searchTerm={campaignSearchTerm} onSearchTermChange={setCampaignSearchTerm} />
       </TabsContent>
 
       <TabsContent value="assessments" className="space-y-6">
