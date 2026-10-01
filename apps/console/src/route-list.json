@@ -116,6 +116,11 @@
     "keywords": ["audit", "files"]
   },
   {
+    "route": "/extension/connect",
+    "name": "Connect Evidence Capture Extension",
+    "hidden": true
+  },
+  {
     "route": "/exposure",
     "name": "Exposure"
   },

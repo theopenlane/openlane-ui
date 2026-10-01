@@ -10,7 +10,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useNotification } from '@/hooks/useNotification'
-import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { useAsyncCommandSearch } from '@repo/ui/use-async-command-search'
 import { useQueryClient, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { CREATE_CONTACT } from '@repo/codegen/query/contact'

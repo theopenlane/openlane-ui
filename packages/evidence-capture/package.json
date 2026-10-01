@@ -1,0 +1,20 @@
+{
+  "name": "@repo/evidence-capture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./connect": "./src/connect.ts",
+    "./provenance": "./src/provenance.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.6.2"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "typescript": "^6.0.3"
+  }
+}

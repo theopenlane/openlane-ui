@@ -61,12 +61,14 @@ const FileActionsCell = <TRow extends TFileActionsRow>({ file, onPreview, traili
 export const getFileActionsColumn = <TRow extends TFileActionsRow>({
   onPreview,
   trailingAction,
+  size = 90,
 }: {
   onPreview?: (file: TRow) => void
   trailingAction?: (file: TRow) => React.ReactNode
+  size?: number
 }): ColumnDef<TRow> => ({
   id: 'actions',
   header: '',
-  size: 90,
+  size,
   cell: ({ row }) => <FileActionsCell file={row.original} onPreview={onPreview} trailingAction={trailingAction} />,
 })

@@ -3215,6 +3215,22 @@ export interface GetEntityAssociationsQuery {
   }
 }
 
+export type GetEvidenceCaptureCollectorQueryVariables = Exact<{ [key: string]: never }>
+
+export interface GetEvidenceCaptureCollectorQuery {
+  self: { id: string; displayName: string; email: string; avatarRemoteURL: string | null }
+}
+
+export type CreateCapturedEvidenceMutationVariables = Exact<{
+  input: Types.CreateEvidenceInput
+  evidenceFiles?: Array<any> | any | null | undefined
+  evidenceFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
+}>
+
+export interface CreateCapturedEvidenceMutation {
+  createEvidence: { evidence: { id: string; displayID: string; name: string } }
+}
+
 export type CreateEvidenceMutationVariables = Exact<{
   input: Types.CreateEvidenceInput
   evidenceFiles?: Array<any> | any | null | undefined
@@ -3378,6 +3394,9 @@ export interface GetEvidenceFilesPaginatedQuery {
           id: string
           uri: string | null
           presignedURL: string | null
+          metadata: any
+          md5Hash: string | null
+          createdAt: any
         } | null
       } | null> | null
     }

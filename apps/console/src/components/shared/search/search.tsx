@@ -22,7 +22,7 @@ import { useSearchHistory } from './useSearchHistory'
 import { getHrefForSearchEntityType } from '@/utils/getHrefForObjectType'
 import { splitTextByQuery } from './search-utils'
 import { useNotification } from '@/hooks/useNotification'
-import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { useAsyncCommandSearch } from '@repo/ui/use-async-command-search'
 
 const MIN_SEARCH_LENGTH = 3
 

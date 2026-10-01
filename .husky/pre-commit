@@ -1,3 +1,4 @@
 bunx lint-staged
 (cd apps/console && npx tsc --noEmit)
+(cd apps/evidence-extension && npx tsc --noEmit)
 bun run test

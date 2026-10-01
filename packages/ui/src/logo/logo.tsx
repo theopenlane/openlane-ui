@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { logoStyles, type LogoVariants } from './logo.styles'
 import { useTheme } from 'next-themes'
+import { LOGO_MARK_BACKGROUND_PATH, LOGO_MARK_FOREGROUND_PATH, LOGO_MARK_VIEWBOX } from './logo-mark'
 
 export interface LogoProps extends LogoVariants {
   width?: number
@@ -31,15 +32,9 @@ export const Logo = ({ theme, width = 385, height = 38, asIcon = false }: LogoPr
 
   if (asIcon) {
     return (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.2 72.82" width={width}>
-        <path
-          className={iconBackground()}
-          d="M32.44 6.57 2.76 57.64c-4.53 7.8-.82 14.18 8.24 14.18h59.35c7.77 0 12.31-6.44 8.45-13.43-1.74-3.15-3.6-6.24-5.4-9.36-5.91-10.24-11.82-20.47-17.73-30.71-2.37-4.1-4.73-8.2-7.1-12.3-4.56-7.24-11.72-7.07-16.14.54h.01Z"
-        />
-        <path
-          className={icon()}
-          d="M42.46 60.73c-1.25-1.6-2.34-3.48-2.33-5.51.02-8.49 13.79-12.32 18.87-17.07 1.99-1.86 3.59-4.34 4.11-6.96l-6.84-11.85c-1.72-1.14-3.58-2.11-5.43-3.01-4.24-2.07-13.03-5.38-19.89-7.17l-1.29 2.23c.51.26 1.02.51 1.53.77 3.16 1.61 6.34 3.25 9.03 5.61 1.04.91 2.03 1.99 2.4 3.32.52 1.9-.37 3.96-1.75 5.37-5 5.05-13.94 6.49-20.34 8.97-2.19.85-4.36 1.77-6.47 2.81l-11.3 19.4c-4.53 7.8-.82 14.18 8.24 14.18h49.82c-1.79-.49-3.57-1.08-5.38-1.81-4.99-2.01-9.67-5.04-12.98-9.28Z"
-        />
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${LOGO_MARK_VIEWBOX.width} ${LOGO_MARK_VIEWBOX.height}`} width={width}>
+        <path className={iconBackground()} d={LOGO_MARK_BACKGROUND_PATH} />
+        <path className={icon()} d={LOGO_MARK_FOREGROUND_PATH} />
       </svg>
     )
   }
