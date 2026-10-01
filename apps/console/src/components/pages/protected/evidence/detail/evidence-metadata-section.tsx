@@ -336,7 +336,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormControl>
-                      <Input variant="medium" {...field} value={field.value ?? ''} className="w-62.5" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'externalUUID'} />
+                      <Input variant="medium" {...field} value={field.value ?? ''} className="w-62.5" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'auditorReferenceID'} />
                     </FormControl>
                     {form.formState.errors.auditorReferenceID && <p className="text-red-500 text-sm">{form.formState.errors.auditorReferenceID.message}</p>}
                   </FormItem>
