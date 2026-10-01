@@ -3,6 +3,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui
 import { Ellipsis } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import cn from 'classnames'
+import { type TElementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 interface MenuProps {
   trigger?: React.ReactNode
@@ -12,10 +13,10 @@ interface MenuProps {
   side?: 'top' | 'right' | 'bottom' | 'left'
   closeOnSelect?: boolean
   className?: string
-  triggerTestId?: string
+  triggerAnchor?: TElementAnchor
 }
 
-const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, side, closeOnSelect, className, triggerTestId }) => {
+const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, side, closeOnSelect, className, triggerAnchor }) => {
   const [open, setOpen] = useState(false)
 
   const handleClose = () => {
@@ -30,10 +31,10 @@ const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, side
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild data-testid={triggerTestId}>
+      <DropdownMenuTrigger asChild {...triggerAnchor}>
         {trigger ?? <Button variant="secondary" descriptiveTooltipText="Action" className="h-8 !px-2 !pl-0 " icon={<Ellipsis size={16} />} />}
       </DropdownMenuTrigger>
-      <DropdownMenuContent className={cn('border shadow-md p-0 ', className)} align={align ?? 'end'} side={side ?? undefined}>
+      <DropdownMenuContent className={cn('border shadow-md p-0 ', className)} align={align ?? 'end'} side={side ?? undefined} aria-labelledby={triggerAnchor?.id}>
         <div className="flex flex-col space-y-2 px-3 py-3">{renderContent(content)}</div>
         {extraContent && (
           <>

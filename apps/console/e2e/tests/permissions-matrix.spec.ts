@@ -87,7 +87,7 @@ const ORG_LEVEL_GATES: Gate[] = [
     granted: ['owner', 'admin'],
     url: '/controls',
     ready: shell,
-    affordance: (page) => page.getByRole('button', { name: /^Create control$/ }),
+    affordance: (page) => page.getByRole('link', { name: /^Create control$/ }),
   },
   {
     permission: 'CanEditTrustCenter (subprocessors)',

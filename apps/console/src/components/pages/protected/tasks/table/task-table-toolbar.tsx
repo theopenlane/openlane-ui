@@ -33,7 +33,7 @@ import ExportMenuItem from '@/components/shared/export/export-menu-item'
 import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
@@ -143,7 +143,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
               <Button
                 type="button"
                 variant="secondary"
-                data-testid={tableActionTestId(ObjectTypes.TASK, 'bulk-delete')}
+                {...tableActionAnchor(ObjectTypes.TASK, 'bulk-delete')}
                 onClick={() => {
                   setIsBulkDeleteDialogOpen(true)
                 }}
@@ -174,11 +174,11 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
             <>
               <Menu
                 closeOnSelect={true}
-                triggerTestId={tableActionTestId(ObjectTypes.TASK, 'actions-menu')}
+                triggerAnchor={tableActionAnchor(ObjectTypes.TASK, 'actions-menu')}
                 content={(close) => (
                   <>
                     <MenuItem
-                      data-testid={tableActionTestId(ObjectTypes.TASK, 'bulk-upload')}
+                      {...tableActionAnchor(ObjectTypes.TASK, 'bulk-upload')}
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
                         close()
@@ -187,7 +187,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
                     >
                       Bulk Upload
                     </MenuItem>
-                    <ExportMenuItem onExport={props.handleExport} onSelected={close} disabled={!props.exportEnabled} data-testid={tableActionTestId(ObjectTypes.TASK, 'export')} />
+                    <ExportMenuItem onExport={props.handleExport} onSelected={close} disabled={!props.exportEnabled} anchor={tableActionAnchor(ObjectTypes.TASK, 'export')} />
                   </>
                 )}
               />

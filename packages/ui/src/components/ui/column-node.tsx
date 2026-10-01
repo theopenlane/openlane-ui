@@ -60,14 +60,15 @@ const ColumnDragHandle = React.memo(function ColumnDragHandle() {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline" className="!px-1 h-5">
-            <GripHorizontal
-              className="text-muted-foreground"
-              onClick={(event) => {
-                event.stopPropagation()
-                event.preventDefault()
-              }}
-            />
+          <Button
+            variant="outline"
+            className="!px-1 h-5"
+            onClick={(event) => {
+              event.stopPropagation()
+              event.preventDefault()
+            }}
+          >
+            <GripHorizontal className="text-muted-foreground" />
           </Button>
         </TooltipTrigger>
 

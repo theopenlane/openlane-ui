@@ -10,6 +10,7 @@ import { useGetAllExports } from '@/lib/graphql-hooks/export'
 import { ExportRow } from './export-row'
 import useClickOutside from '@/hooks/useClickOutside'
 import Link from 'next/link'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 interface SystemNotificationTrackerProps {
   open: boolean
@@ -116,9 +117,9 @@ export function BellButton({ count, onClick, isOpen }: { count: number; onClick:
   return (
     <button
       onClick={onClick}
-      className={`bg-transparent text-muted-foreground relative grid h-7 w-7 place-items-center rounded-md ${isOpen ? 'is-active' : ''}`}
+      className={`bg-transparent text-muted-foreground relative grid h-7 w-7 place-items-center rounded-md *:pointer-events-none ${isOpen ? 'is-active' : ''}`}
       aria-label="Notifications"
-      data-testid="notifications-trigger"
+      {...elementAnchor('notifications-trigger')}
     >
       <span className={'absolute inset-0 rounded-full animate-ping opacity-40'} />
       <Bell className="h-5 w-5 " />

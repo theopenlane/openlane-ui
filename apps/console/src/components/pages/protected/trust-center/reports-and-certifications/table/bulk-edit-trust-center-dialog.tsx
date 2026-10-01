@@ -20,7 +20,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
-import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 export enum SelectOptionBulkEditTrustCenterDocs {
   CATEGORY = 'Category',
@@ -128,7 +128,7 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
       }}
     >
       <FormProvider {...form}>
-        <DialogTrigger asChild data-testid={tableActionTestId(ObjectTypes.TRUST_CENTER_DOC, 'bulk-edit')}>
+        <DialogTrigger asChild {...tableActionAnchor(ObjectTypes.TRUST_CENTER_DOC, 'bulk-edit')}>
           <Button disabled={selectedDocs.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
             {selectedDocs?.length ? `Bulk Edit (${selectedDocs.length})` : 'Bulk Edit'}
           </Button>

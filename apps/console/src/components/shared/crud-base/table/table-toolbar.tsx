@@ -34,7 +34,7 @@ import { useMergeMode } from '@/components/shared/merge-records/merge-mode-conte
 import { cn } from '@repo/ui/lib/utils'
 import MenuItem from '@/components/shared/menu/menu-item'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
-import { tableActionTestId } from './table-action-test-id'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInput> = {
   entityType: ObjectTypes
@@ -181,7 +181,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                     <Button
                       type="button"
                       variant="secondary"
-                      data-testid={tableActionTestId(props.entityType, 'bulk-delete')}
+                      {...tableActionAnchor(props.entityType, 'bulk-delete')}
                       onClick={() => {
                         setIsBulkDeleteDialogOpen(true)
                       }}
@@ -214,12 +214,12 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
               <>
                 <Menu
                   closeOnSelect={true}
-                  triggerTestId={tableActionTestId(props.entityType, 'actions-menu')}
+                  triggerAnchor={tableActionAnchor(props.entityType, 'actions-menu')}
                   content={(close) => (
                     <>
                       {mergeAvailable && (
                         <MenuItem
-                          data-testid={tableActionTestId(props.entityType, 'merge-records')}
+                          {...tableActionAnchor(props.entityType, 'merge-records')}
                           icon={<ArrowRightLeft size={16} strokeWidth={2} />}
                           onSelect={() => {
                             setMergeModeActive(true)
@@ -231,7 +231,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                       )}
                       {importRoute && canImport && (
                         <MenuItem
-                          data-testid={tableActionTestId(props.entityType, 'bulk-upload')}
+                          {...tableActionAnchor(props.entityType, 'bulk-upload')}
                           icon={<Upload size={16} strokeWidth={2} />}
                           onSelect={() => {
                             close()
@@ -241,7 +241,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                           Bulk Upload
                         </MenuItem>
                       )}
-                      <ExportMenuItem onExport={props.handleExport} onSelected={close} data-testid={tableActionTestId(props.entityType, 'export')} />
+                      <ExportMenuItem onExport={props.handleExport} onSelected={close} anchor={tableActionAnchor(props.entityType, 'export')} />
                     </>
                   )}
                 />
@@ -260,7 +260,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                   />
                 )}
                 {shouldShowCreationButton && (
-                  <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet} data-testid={tableActionTestId(props.entityType, 'create')}>
+                  <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet} {...tableActionAnchor(props.entityType, 'create')}>
                     Create
                   </Button>
                 )}

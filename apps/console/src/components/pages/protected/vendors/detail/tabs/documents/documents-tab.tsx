@@ -29,7 +29,7 @@ import UnmarkEvidenceDialog from './unmark-evidence-dialog'
 import DeleteDocumentDialog from './delete-document-dialog'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 interface DocumentsTabProps {
   vendorId: string
@@ -138,12 +138,12 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
         <div className="grow flex flex-row items-center gap-2 justify-end">
           <Menu
             closeOnSelect={true}
-            triggerTestId={tableActionTestId(ObjectTypes.FILE, 'actions-menu')}
-            content={(close) => <ExportMenuItem onExport={handleExportCSV} onSelected={close} data-testid={tableActionTestId(ObjectTypes.FILE, 'export')} />}
+            triggerAnchor={tableActionAnchor(ObjectTypes.FILE, 'actions-menu')}
+            content={(close) => <ExportMenuItem onExport={handleExportCSV} onSelected={close} anchor={tableActionAnchor(ObjectTypes.FILE, 'export')} />}
           />
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.ENTITY_FILES} />
           {canEdit && (
-            <Button variant="primary" icon={<Upload />} iconPosition="left" onClick={() => setIsUploadDialogOpen(true)} data-testid={tableActionTestId(ObjectTypes.FILE, 'upload')}>
+            <Button variant="primary" icon={<Upload />} iconPosition="left" onClick={() => setIsUploadDialogOpen(true)} {...tableActionAnchor(ObjectTypes.FILE, 'upload')}>
               Upload
             </Button>
           )}

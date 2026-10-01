@@ -8,6 +8,8 @@ import { Button } from '@repo/ui/button'
 import Link from 'next/link'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { SUPPORT_EMAIL } from '@/constants'
+import { entityActionAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export default function AnalyticsPage() {
   const { resolvedTheme } = useTheme()
@@ -36,11 +38,9 @@ export default function AnalyticsPage() {
           <Globe size={24} className="mb-4 text-muted-foreground" />
           <h3 className="text-sm font-medium mb-1">Unlock analytics</h3>
           <p className="text-sm text-muted-foreground mb-6">Analytics require a custom domain. Configure one to start tracking usage.</p>
-          <Link href={'/trust-center/domain'}>
-            <Button icon={<Plus size={16} />} iconPosition="left">
-              Add Custom Domain
-            </Button>
-          </Link>
+          <Button asChild icon={<Plus size={16} />} iconPosition="left" {...entityActionAnchor(ObjectTypes.CUSTOM_DOMAIN, 'create')}>
+            <Link href="/trust-center/domain">Add Custom Domain</Link>
+          </Button>
         </div>
       </div>
     )

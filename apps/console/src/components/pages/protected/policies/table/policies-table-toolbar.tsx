@@ -29,7 +29,7 @@ import ExportMenuItem from '@/components/shared/export/export-menu-item'
 import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -132,7 +132,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
               <Button
                 type="button"
                 variant="secondary"
-                data-testid={tableActionTestId(ObjectTypes.INTERNAL_POLICY, 'bulk-delete')}
+                {...tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'bulk-delete')}
                 onClick={() => {
                   setIsBulkDeleteDialogOpen(true)
                 }}
@@ -163,13 +163,13 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
             <>
               <Menu
                 closeOnSelect={true}
-                triggerTestId={tableActionTestId(ObjectTypes.INTERNAL_POLICY, 'actions-menu')}
+                triggerAnchor={tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'actions-menu')}
                 content={(close) => (
                   <>
                     {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
                       <>
                         <MenuItem
-                          data-testid={tableActionTestId(ObjectTypes.INTERNAL_POLICY, 'import-document')}
+                          {...tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'import-document')}
                           icon={<Import size={16} strokeWidth={2} />}
                           onSelect={() => {
                             setIsImportDialogOpen(true)
@@ -179,7 +179,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                           Import existing document
                         </MenuItem>
                         <MenuItem
-                          data-testid={tableActionTestId(ObjectTypes.INTERNAL_POLICY, 'bulk-upload')}
+                          {...tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'bulk-upload')}
                           icon={<Import size={16} strokeWidth={2} />}
                           onSelect={() => {
                             close()
@@ -195,7 +195,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                       onExport={() => handleExport(ExportExportFormat.CSV)}
                       onSelected={close}
                       disabled={!exportEnabled}
-                      data-testid={tableActionTestId(ObjectTypes.INTERNAL_POLICY, 'export')}
+                      anchor={tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'export')}
                     />
                     <ExportMenuItem
                       label="Export to PDF"
@@ -203,7 +203,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                       onExport={() => handleExport(ExportExportFormat.PDF)}
                       onSelected={close}
                       disabled={!exportEnabled}
-                      data-testid={tableActionTestId(ObjectTypes.INTERNAL_POLICY, 'export-pdf')}
+                      {...tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'export-pdf')}
                     />
                   </>
                 )}
@@ -215,7 +215,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.INTERNAL_POLICY} />
               )}
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.INTERNAL_POLICY} />}
-              <CreatePolicyButton data-testid={tableActionTestId(ObjectTypes.INTERNAL_POLICY, 'create')} />
+              <CreatePolicyButton anchor={tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'create')} />
             </>
           )}
         </div>

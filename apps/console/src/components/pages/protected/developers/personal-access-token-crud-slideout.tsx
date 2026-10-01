@@ -16,7 +16,7 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { useWatch } from 'react-hook-form'
 import { usePathname } from 'next/navigation'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { useCreateAPIToken, useCreatePersonalAccessToken, useUpdateApiToken, useUpdatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
 import { ScopesSelector } from '@/components/shared/scopes-selector/scopes-selector'
 import { type Organization, type OrganizationSetting } from '@repo/codegen/src/schema'
@@ -325,7 +325,7 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
               className="h-8 !px-2 !pl-3"
               icon={<SquarePlus />}
               iconPosition="left"
-              data-testid={tableActionTestId(isApiKeyPage ? ObjectTypes.API_TOKEN : ObjectTypes.PERSONAL_ACCESS_TOKEN, 'create')}
+              {...tableActionAnchor(isApiKeyPage ? ObjectTypes.API_TOKEN : ObjectTypes.PERSONAL_ACCESS_TOKEN, 'create')}
             >
               Create
             </Button>

@@ -28,7 +28,7 @@ import MenuItem from '@/components/shared/menu/menu-item'
 import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -172,7 +172,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
               <Button
                 type="button"
                 variant="secondary"
-                data-testid={tableActionTestId(ObjectTypes.EVIDENCE, 'bulk-delete')}
+                {...tableActionAnchor(ObjectTypes.EVIDENCE, 'bulk-delete')}
                 onClick={() => {
                   setIsBulkDeleteDialogOpen(true)
                 }}
@@ -203,11 +203,11 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
             <>
               <Menu
                 closeOnSelect={true}
-                triggerTestId={tableActionTestId(ObjectTypes.EVIDENCE, 'actions-menu')}
+                triggerAnchor={tableActionAnchor(ObjectTypes.EVIDENCE, 'actions-menu')}
                 content={(close) => (
                   <>
                     <MenuItem
-                      data-testid={tableActionTestId(ObjectTypes.EVIDENCE, 'bulk-upload')}
+                      {...tableActionAnchor(ObjectTypes.EVIDENCE, 'bulk-upload')}
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
                         close()
@@ -218,13 +218,13 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
                     </MenuItem>
                     <ExportEvidenceDialog
                       trigger={
-                        <MenuItem data-testid={tableActionTestId(ObjectTypes.EVIDENCE, 'export')} icon={<Download size={16} strokeWidth={2} />}>
+                        <MenuItem {...tableActionAnchor(ObjectTypes.EVIDENCE, 'export')} icon={<Download size={16} strokeWidth={2} />}>
                           Export
                         </MenuItem>
                       }
                     />
                     <MenuItem
-                      data-testid={tableActionTestId(ObjectTypes.EVIDENCE, 'view-all-files')}
+                      {...tableActionAnchor(ObjectTypes.EVIDENCE, 'view-all-files')}
                       icon={<Files size={16} strokeWidth={2} />}
                       onSelect={() => {
                         setIsAllFilesOpen(true)

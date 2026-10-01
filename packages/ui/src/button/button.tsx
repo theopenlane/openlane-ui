@@ -47,7 +47,7 @@ const Button = ({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Comp className={cn('button-icon', base(), className)} ref={ref} {...rest} aria-label={ariaLabel}>
+            <Comp className={cn('button-icon *:pointer-events-none', base(), className)} ref={ref} {...rest} aria-label={ariaLabel}>
               {asChild ? <Slottable child={children}>{renderChildWrapper}</Slottable> : renderChildWrapper(children)}
 
               {!loading && icon && (

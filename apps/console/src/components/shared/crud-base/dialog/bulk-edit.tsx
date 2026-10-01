@@ -24,7 +24,7 @@ import { buildResponsibilityPayload, type ResponsibilitySelection } from '../for
 import { ResponsibilityPicker } from '../form-fields/responsibility-picker'
 import { useBulkUpdateFeedback } from '../use-bulk-update-feedback'
 import { type BulkUpdatePayload } from '../types'
-import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 export type ResponsibilityFieldsMap = Record<string, { fieldBaseName: string; allowPersonnel?: boolean; stringFieldName?: string }>
 
@@ -193,7 +193,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <FormProvider {...form}>
-        <DialogTrigger asChild data-testid={entityType && tableActionTestId(entityType, 'bulk-edit')}>
+        <DialogTrigger asChild {...(entityType ? tableActionAnchor(entityType, 'bulk-edit') : {})}>
           <Button disabled={selectedItems.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
             {selectedItems.length > 0 ? `Bulk Edit (${selectedItems.length})` : 'Bulk Edit'}
           </Button>

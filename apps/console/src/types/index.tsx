@@ -9,6 +9,7 @@ export type NavIcon = LucideIcon | (ComponentType<{ className?: string; size?: n
 
 export interface NavItem {
   title: string
+  anchor: string
   addCount?: boolean
   href: string
   params?: string

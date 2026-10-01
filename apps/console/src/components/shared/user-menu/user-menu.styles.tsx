@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 const userMenuStyles = tv({
   slots: {
-    trigger: 'flex items-center gap-2 cursor-pointer',
+    trigger: 'flex items-center gap-2 cursor-pointer *:pointer-events-none',
     email: 'text-text-light font-medium ',
     userSettingsLink: 'flex items-center !gap-1 text-sm',
     themeRow: 'px-2 flex justify-between text-sm flex-col gap-1',

@@ -19,6 +19,8 @@ import ApplyWatermarkSheet from './apply-watermark-sheet'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TProps = {
   searching?: boolean
@@ -124,7 +126,7 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
             )}
             {watermarkConfig && <ApplyWatermarkSheet watermarkConfig={watermarkConfig} />}
             <TableFilter filterFields={trustCenterDocsFilterFields} onFilterChange={handleFilterChange} pageKey={TableKeyEnum.TRUST_CENTER_DOC} />
-            <Button variant="primary" icon={<PlusCircle size={16} strokeWidth={2} />} iconPosition="left" onClick={handleCreateClick}>
+            <Button variant="primary" icon={<PlusCircle size={16} strokeWidth={2} />} iconPosition="left" onClick={handleCreateClick} {...tableActionAnchor(ObjectTypes.TRUST_CENTER_DOC, 'create')}>
               New Document
             </Button>
           </div>

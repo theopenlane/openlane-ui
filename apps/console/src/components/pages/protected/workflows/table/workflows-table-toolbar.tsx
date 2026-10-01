@@ -20,6 +20,8 @@ import { tableKey } from './types'
 import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
 import MenuItem from '@/components/shared/menu/menu-item'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type WorkflowsTableToolbarProps = {
   searching?: boolean
@@ -120,6 +122,7 @@ const WorkflowsTableToolbar: React.FC<WorkflowsTableToolbarProps> = ({
               )}
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={tableKey} quickFilters={quickFilters} />}
               <Menu
+                triggerAnchor={tableActionAnchor(ObjectTypes.WORKFLOW_DEFINITION, 'create')}
                 trigger={
                   <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                     Create

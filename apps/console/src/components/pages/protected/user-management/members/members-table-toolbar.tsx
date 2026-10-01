@@ -9,7 +9,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import Menu from '@/components/shared/menu/menu'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type TMembersTableToolbarProps = {
   className?: string
@@ -41,9 +41,9 @@ const MembersTableToolbar: React.FC<TMembersTableToolbarProps> = ({ searching, s
         <div className="grow flex flex-row items-center gap-2 justify-end">
           <Menu
             closeOnSelect={true}
-            triggerTestId={tableActionTestId(ObjectTypes.ORG_MEMBERSHIP, 'actions-menu')}
+            triggerAnchor={tableActionAnchor(ObjectTypes.ORG_MEMBERSHIP, 'actions-menu')}
             content={(close) => (
-              <ExportMenuItem onExport={onExport} onSelected={close} isExporting={isExporting} disabled={exportDisabled} data-testid={tableActionTestId(ObjectTypes.ORG_MEMBERSHIP, 'export')} />
+              <ExportMenuItem onExport={onExport} onSelected={close} isExporting={isExporting} disabled={exportDisabled} anchor={tableActionAnchor(ObjectTypes.ORG_MEMBERSHIP, 'export')} />
             )}
           />
           {!hideFilter && <TableFilter filterFields={MEMBERS_FILTER_FIELDS} onFilterChange={setFilters} pageKey={TableKeyEnum.MEMBER} />}
