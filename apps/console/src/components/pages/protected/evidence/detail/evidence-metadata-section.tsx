@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { Calendar, CalendarCheck2, CalendarClock, CircuitBoard, Eye, Fingerprint, LinkIcon, Maximize2, Radio, RefreshCw, Tag, UserRoundCheck, UserRoundPen } from 'lucide-react'
+import { Calendar, CalendarCheck2, CalendarClock, CircuitBoard, Eye, Fingerprint, LinkIcon, Maximize2, Radio, RefreshCw, ShieldCheck, Tag, UserRoundCheck, UserRoundPen } from 'lucide-react'
 import NextLink from 'next/link'
 import { Controller } from 'react-hook-form'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
@@ -28,6 +28,7 @@ import EvidenceDetailFieldRow from './evidence-detail-field-row'
 const frequencyOptions = enumToOptions(EvidenceFrequency)
 
 type TEvidenceMetadata = {
+  auditorReferenceID?: string | null
   source?: string | null
   url?: string | null
   creationDate?: string | null
@@ -320,6 +321,31 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
           }
         >
           <p>{evidence.externalUUID || <span className="text-gray-500">no external id provided</span>}</p>
+        </EvidenceDetailFieldRow>
+
+        <EvidenceDetailFieldRow
+          {...rowProps}
+          field="auditorReferenceID"
+          icon={<ShieldCheck size={16} />}
+          label="Auditor Reference ID"
+          editControl={
+            <InputRow className="w-full">
+              <FormField
+                control={form.control}
+                name="auditorReferenceID"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormControl>
+                      <Input variant="medium" {...field} value={field.value ?? ''} className="w-62.5" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'externalUUID'} />
+                    </FormControl>
+                    {form.formState.errors.auditorReferenceID && <p className="text-red-500 text-sm">{form.formState.errors.auditorReferenceID.message}</p>}
+                  </FormItem>
+                )}
+              />
+            </InputRow>
+          }
+        >
+          <p>{evidence.auditorReferenceID || <span className="text-gray-500">no auditor reference id provided</span>}</p>
         </EvidenceDetailFieldRow>
 
         <EvidenceDetailFieldRow
