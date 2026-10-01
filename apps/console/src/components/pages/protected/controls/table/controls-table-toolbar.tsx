@@ -39,6 +39,7 @@ import ExportMenuItem from '@/components/shared/export/export-menu-item'
 import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -228,9 +229,11 @@ const ControlsTableToolbar: React.FC<TProps> = ({
             <>
               <Menu
                 closeOnSelect={true}
+                triggerTestId={tableActionTestId(ObjectTypes.CONTROL, 'actions-menu')}
                 content={(close) => (
                   <>
                     <MenuItem
+                      data-testid={tableActionTestId(ObjectTypes.CONTROL, 'upload-from-standard')}
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
                         setIsCloneOpen(true)
@@ -240,6 +243,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                       Upload From Standard
                     </MenuItem>
                     <MenuItem
+                      data-testid={tableActionTestId(ObjectTypes.CONTROL, 'bulk-upload')}
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
                         close()
@@ -249,6 +253,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                       Upload Custom Controls
                     </MenuItem>
                     <MenuItem
+                      data-testid={tableActionTestId(ObjectTypes.CONTROL, 'bulk-upload-mappings')}
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
                         close()
@@ -258,6 +263,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                       Upload Control Mappings
                     </MenuItem>
                     <MenuItem
+                      data-testid={tableActionTestId(ObjectTypes.CONTROL, 'bulk-update')}
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
                         setIsUpdateOpen(true)
@@ -266,7 +272,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     >
                       Update Existing Controls
                     </MenuItem>
-                    <ExportMenuItem onExport={handleExport} onSelected={close} disabled={!exportEnabled} />
+                    <ExportMenuItem onExport={handleExport} onSelected={close} disabled={!exportEnabled} data-testid={tableActionTestId(ObjectTypes.CONTROL, 'export')} />
                   </>
                 )}
               />
@@ -279,10 +285,11 @@ const ControlsTableToolbar: React.FC<TProps> = ({
               {(createControlAllowed || createSubcontrolAllowed) && (
                 <Menu
                   trigger={CreateBtn}
+                  triggerTestId={tableActionTestId(ObjectTypes.CONTROL, 'create')}
                   content={
                     <>
                       {createControlAllowed && (
-                        <Link href="/controls/create-control">
+                        <Link href="/controls/create-control" data-testid={tableActionTestId(ObjectTypes.CONTROL, 'create-control')}>
                           <div className="flex items-center space-x-2 ">
                             <CirclePlus size={16} strokeWidth={2} />
                             <span>Control</span>
@@ -290,7 +297,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                         </Link>
                       )}
                       {createSubcontrolAllowed && (
-                        <Link href="/controls/create-subcontrol">
+                        <Link href="/controls/create-subcontrol" data-testid={tableActionTestId(ObjectTypes.CONTROL, 'create-subcontrol')}>
                           <div className="flex items-center space-x-2 ">
                             <CirclePlus size={16} strokeWidth={2} />
                             <span>Subcontrol</span>

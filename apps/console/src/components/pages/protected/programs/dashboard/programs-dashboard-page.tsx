@@ -31,6 +31,7 @@ import { Callout } from '@/components/shared/callout/callout'
 import ProgramsCreate from '../create/programs-page'
 import { ProgramSettingsAssignUserDialog } from '../[id]/settings/users/program-settings-assign-user-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { entityActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
 import { ProgramsDashboardSkeleton } from '../skeleton/programs-dashboard-skeleton'
 import { PROGRAMS_LIST_HREF, PROGRAMS_VIEW_ALL, PROGRAMS_VIEW_PARAM } from '@/constants/programs'
 import { useSession } from 'next-auth/react'
@@ -169,7 +170,7 @@ const ProgramsDashboardPage = () => {
             </TabsList>
           </Tabs>
           {hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram, session) && (
-            <Link href="/programs/create">
+            <Link href="/programs/create" data-testid={entityActionTestId(ObjectTypes.PROGRAM, 'create')}>
               <Button icon={<SquarePlus />} iconPosition="left">
                 Create
               </Button>

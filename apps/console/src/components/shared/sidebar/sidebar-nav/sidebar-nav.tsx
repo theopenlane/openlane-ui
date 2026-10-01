@@ -20,9 +20,11 @@ import { Button } from '@repo/ui/button'
 import { DOCS_URL } from '@/constants/docs'
 import { TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { getNavLandingHref } from '@/routes/get-nav-landing-href'
+import { toKebabCase } from '@/utils/strings'
 
-const SidebarChildLink: React.FC<{ child: NavItem; pathname: string; secondaryExpanded: boolean; router: ReturnType<typeof useRouter>; locked: boolean }> = ({
+const SidebarChildLink: React.FC<{ child: NavItem; testId: string; pathname: string; secondaryExpanded: boolean; router: ReturnType<typeof useRouter>; locked: boolean }> = ({
   child,
+  testId,
   pathname,
   secondaryExpanded,
   router,
@@ -34,6 +36,7 @@ const SidebarChildLink: React.FC<{ child: NavItem; pathname: string; secondaryEx
   const linkContent = (
     <Link
       href={child.href ?? '#'}
+      data-testid={testId}
       onClick={(e) => {
         if (e.metaKey || e.ctrlKey) return
         e.preventDefault()
@@ -175,6 +178,7 @@ export default function SideNav({
         const isExpandable = !!item.children
         const isActive = activeNav?.title === item.title
         const url = item.params ? item.href + item.params : item.href
+        const testId = toKebabCase('nav', item.title)
 
         const button = (
           <div key={idx} className="relative flex w-full items-center justify-center">
@@ -185,6 +189,7 @@ export default function SideNav({
             {isExpandable ? (
               <Button
                 variant="sidebar"
+                data-testid={testId}
                 onClick={() => handleTogglePanel(item)}
                 className={`group relative flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center [&_svg]:size-5!'}`}
               >
@@ -194,6 +199,7 @@ export default function SideNav({
             ) : (
               <Link
                 href={url}
+                data-testid={testId}
                 onClick={(e) => {
                   if (e.metaKey || e.ctrlKey) {
                     onToggleAction(null)
@@ -266,6 +272,7 @@ export default function SideNav({
           <Link
             key={i}
             href={href}
+            data-testid={toKebabCase('nav', 'more', label)}
             target={external ? '_blank' : undefined}
             rel={external ? 'noopener noreferrer' : undefined}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
@@ -288,7 +295,7 @@ export default function SideNav({
       </button>
     )
 
-    return <Menu trigger={trigger} content={menuContent} side="right" align="start" />
+    return <Menu trigger={trigger} content={menuContent} side="right" align="start" triggerTestId="nav-more" />
   }
 
   return (
@@ -308,7 +315,7 @@ export default function SideNav({
       >
         <div className="flex flex-col items-center gap-3 w-full">
           <div className={`flex items-center justify-between w-full px-[11px] ${!primaryExpanded ? 'flex-col gap-3' : ''}`}>
-            <Link href="/dashboard" className="flex items-center justify-center relative">
+            <Link href="/dashboard" className="flex items-center justify-center relative" data-testid="nav-logo">
               {primaryExpanded ? (
                 <div className="w-[134px]">
                   <Logo width={134} />
@@ -319,7 +326,7 @@ export default function SideNav({
                 </div>
               )}
             </Link>
-            <button onClick={() => onPrimaryExpandToggle()} className="text-muted-foreground hover:text-foreground bg-unset">
+            <button onClick={() => onPrimaryExpandToggle()} className="text-muted-foreground hover:text-foreground bg-unset" data-testid="nav-primary-toggle">
               {primaryExpanded ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
             </button>
           </div>
@@ -357,12 +364,12 @@ export default function SideNav({
               {secondaryExpanded ? (
                 <>
                   <span className="text-sm font-medium capitalize">{openPanel}</span>
-                  <button onClick={onSecondaryExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card">
+                  <button onClick={onSecondaryExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card" data-testid="nav-secondary-toggle">
                     <PanelLeftClose size={16} />
                   </button>
                 </>
               ) : (
-                <button onClick={onSecondaryExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card">
+                <button onClick={onSecondaryExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card" data-testid="nav-secondary-toggle">
                   <PanelLeftOpen size={16} />
                 </button>
               )}
@@ -379,7 +386,15 @@ export default function SideNav({
                 item.children ? (
                   <div key={item.title} className="flex flex-col">
                     {item.children.map((child, index) => (
-                      <SidebarChildLink key={index} child={child} pathname={pathname} secondaryExpanded={secondaryExpanded} router={router} locked={isLocked(child)} />
+                      <SidebarChildLink
+                        key={index}
+                        child={child}
+                        testId={toKebabCase('nav', item.title, child.title)}
+                        pathname={pathname}
+                        secondaryExpanded={secondaryExpanded}
+                        router={router}
+                        locked={isLocked(child)}
+                      />
                     ))}
                   </div>
                 ) : null,

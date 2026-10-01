@@ -35,6 +35,8 @@ import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-sh
 import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { BulkEditValueSelect } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-value-select'
 import { useBulkUpdateFeedback } from '@/components/shared/crud-base/use-bulk-update-feedback'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
 
 type BulkEditPoliciesFormValues = BulkEditFieldsFormValues
 
@@ -138,7 +140,7 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
       }}
     >
       <FormProvider {...form}>
-        <DialogTrigger asChild>
+        <DialogTrigger asChild data-testid={tableActionTestId(ObjectTypes.INTERNAL_POLICY, 'bulk-edit')}>
           <Button disabled={selectedPolicies.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
             {selectedPolicies && selectedPolicies.length > 0 ? `Bulk Edit (${selectedPolicies.length})` : 'Bulk Edit'}
           </Button>

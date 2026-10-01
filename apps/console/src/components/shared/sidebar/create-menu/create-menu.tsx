@@ -11,6 +11,7 @@ import { CreateBtnIcon } from '@/components/shared/enum-mapper/common-enum'
 import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
+import { toKebabCase } from '@/utils/strings'
 import { CREATE_MENU_ITEMS, type CreateMenuDialogKey, type CreateMenuItem } from './create-menu-items'
 
 const DIALOG_COMPONENTS: Record<CreateMenuDialogKey, React.ComponentType<{ open: boolean; onOpenChange: (open: boolean) => void }>> = {
@@ -58,6 +59,7 @@ const CreateMenu: React.FC<{ expanded: boolean }> = ({ expanded }) => {
         side="right"
         align="start"
         closeOnSelect
+        triggerTestId="nav-create"
         content={(close) =>
           items.map((item) =>
             item.dialog ? (
@@ -66,6 +68,7 @@ const CreateMenu: React.FC<{ expanded: boolean }> = ({ expanded }) => {
                 size="sm"
                 variant="transparent"
                 className={entryClassName}
+                data-testid={toKebabCase('nav', 'create', item.label)}
                 onClick={() => {
                   setOpenDialog(item.dialog)
                   close()
@@ -74,7 +77,7 @@ const CreateMenu: React.FC<{ expanded: boolean }> = ({ expanded }) => {
                 <CreateMenuEntryContent item={item} />
               </Button>
             ) : (
-              <Button key={item.label} asChild size="sm" variant="transparent" className={entryClassName}>
+              <Button key={item.label} asChild size="sm" variant="transparent" className={entryClassName} data-testid={toKebabCase('nav', 'create', item.label)}>
                 <Link href={item.href} onClick={close}>
                   <CreateMenuEntryContent item={item} />
                 </Link>
