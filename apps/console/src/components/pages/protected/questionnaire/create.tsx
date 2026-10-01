@@ -5,6 +5,8 @@ import { TemplateList } from './templates'
 import React, { useState } from 'react'
 import { Dialog } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
 
 const ICON_SIZE = 12
 
@@ -21,16 +23,17 @@ export const CreateDropdown = () => {
     <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="primary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+          <Button variant="primary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left" data-testid={tableActionTestId(ObjectTypes.ASSESSMENT, 'create')}>
             Create
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem onSelect={handleCreateNew}>
+          <DropdownMenuItem onSelect={handleCreateNew} data-testid={tableActionTestId(ObjectTypes.ASSESSMENT, 'create-from-scratch')}>
             <FilePlus width={ICON_SIZE} className="text-muted-foreground" />
             From Scratch
           </DropdownMenuItem>
           <DropdownMenuItem
+            data-testid={tableActionTestId(ObjectTypes.ASSESSMENT, 'create-from-template')}
             onClick={() => {
               setIsTemplateDialogOpen(true)
             }}

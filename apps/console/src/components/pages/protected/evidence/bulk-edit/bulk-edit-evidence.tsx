@@ -30,6 +30,8 @@ import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-s
 import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
 import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { useBulkUpdateFeedback } from '@/components/shared/crud-base/use-bulk-update-feedback'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
 
 type BulkEditEvidenceFormValues = BulkEditFieldsFormValues
 
@@ -118,7 +120,7 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
       }}
     >
       <FormProvider {...form}>
-        <DialogTrigger asChild>
+        <DialogTrigger asChild data-testid={tableActionTestId(ObjectTypes.EVIDENCE, 'bulk-edit')}>
           <Button disabled={selectedEvidence.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
             {selectedEvidence && selectedEvidence.length > 0 ? `Bulk Edit (${selectedEvidence.length})` : 'Bulk Edit'}
           </Button>

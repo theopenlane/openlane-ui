@@ -11,6 +11,7 @@ import { Computer, Keyboard, LogOut, Moon, PaintbrushVertical, Sun, TextSearch, 
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 import { useRouter } from 'next/navigation'
 import { useSignOut } from '@/hooks/useSignOut'
+import { toKebabCase } from '@/utils/strings'
 interface UserMenuProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -79,6 +80,7 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
                   theme === opt.value ? '!bg-card dark:!bg-btn-secondary' : 'text-muted-foreground'
                 }`}
                 title={opt.label}
+                data-testid={toKebabCase('user-menu', 'theme', opt.value)}
               >
                 {opt.icon}
               </button>
@@ -90,7 +92,7 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
 
         {!sessionUser?.isImpersonation && (
           <>
-            <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => handleSettingsRedirect()}>
+            <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => handleSettingsRedirect()} data-testid="user-menu-user-settings">
               <UserCog size={16} className="text-muted-foreground" />
               <span>User Settings</span>
             </Button>
@@ -125,7 +127,7 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
 
         <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1 mt-3" />
 
-        <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => void handleSignOut()}>
+        <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => void handleSignOut()} data-testid="user-menu-log-out">
           <LogOut size={16} className="text-muted-foreground" />
           <span>Log out</span>
         </Button>

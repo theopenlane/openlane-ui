@@ -37,6 +37,8 @@ import { BulkEditValueSelect } from '@/components/shared/bulk-edit-shared-object
 import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-single-object-association'
 import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
 import { useBulkUpdateFeedback } from '@/components/shared/crud-base/use-bulk-update-feedback'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
 
 type BulkEditTasksFormValues = BulkEditFieldsFormValues
 
@@ -139,7 +141,7 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
       }}
     >
       <FormProvider {...form}>
-        <DialogTrigger asChild>
+        <DialogTrigger asChild data-testid={tableActionTestId(ObjectTypes.TASK, 'bulk-edit')}>
           <Button disabled={selectedTasks.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
             {selectedTasks && selectedTasks.length > 0 ? `Bulk Edit (${selectedTasks.length})` : 'Bulk Edit'}
           </Button>

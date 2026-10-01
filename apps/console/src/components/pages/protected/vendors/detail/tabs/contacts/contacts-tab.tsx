@@ -22,6 +22,7 @@ import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
 import { ContactUserStatus, type UpdateContactInput, type ContactWhereInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
 import { vendorContactsImportRoute } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { GenericBulkEditDialog } from '@/components/shared/crud-base/dialog/bulk-edit'
@@ -187,7 +188,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
               )}
               {canEditVendor && (
                 <>
-                  <Button type="button" variant="secondary" onClick={() => setIsBulkDeleteDialogOpen(true)}>
+                  <Button type="button" variant="secondary" onClick={() => setIsBulkDeleteDialogOpen(true)} data-testid={tableActionTestId(ObjectTypes.CONTACT, 'bulk-unlink')}>
                     {`Remove (${selectedContacts.length})`}
                   </Button>
                   <ConfirmationDialog
@@ -208,10 +209,12 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
             <>
               <Menu
                 closeOnSelect={true}
+                triggerTestId={tableActionTestId(ObjectTypes.CONTACT, 'actions-menu')}
                 content={(close) => (
                   <>
                     {canEditVendor && (
                       <MenuItem
+                        data-testid={tableActionTestId(ObjectTypes.CONTACT, 'bulk-upload')}
                         icon={<Upload size={16} strokeWidth={2} />}
                         onSelect={() => {
                           close()
@@ -221,14 +224,14 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
                         Bulk Upload
                       </MenuItem>
                     )}
-                    <ExportMenuItem onExport={handleExportCSV} onSelected={close} />
+                    <ExportMenuItem onExport={handleExportCSV} onSelected={close} data-testid={tableActionTestId(ObjectTypes.CONTACT, 'export')} />
                   </>
                 )}
               />
               <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.VENDOR_CONTACTS} />
               <TableFilter filterFields={CONTACT_FILTER_FIELDS} onFilterChange={setFilterWhere} pageKey={TableKeyEnum.VENDOR_CONTACTS} />
               {canEditVendor && (
-                <Button icon={<Plus size={16} />} iconPosition="left" onClick={openAddDialog}>
+                <Button icon={<Plus size={16} />} iconPosition="left" onClick={openAddDialog} data-testid={tableActionTestId(ObjectTypes.CONTACT, 'create')}>
                   Add Contact
                 </Button>
               )}
