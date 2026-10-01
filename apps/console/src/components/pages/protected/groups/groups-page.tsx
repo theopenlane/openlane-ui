@@ -31,7 +31,7 @@ import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-rout
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import Menu from '@/components/shared/menu/menu'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 import ExportGroupsDialog from './components/dialogs/export-groups-dialog'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
 import { useGroupsExport } from './use-groups-export'
@@ -171,11 +171,11 @@ const GroupsPage = () => {
         <div className="grow flex flex-row items-center gap-2 justify-end">
           <Menu
             closeOnSelect={true}
-            triggerTestId={tableActionTestId(ObjectTypes.GROUP, 'actions-menu')}
+            triggerAnchor={tableActionAnchor(ObjectTypes.GROUP, 'actions-menu')}
             content={(close) => (
               <>
                 <MenuItem
-                  data-testid={tableActionTestId(ObjectTypes.GROUP, 'bulk-upload')}
+                  {...tableActionAnchor(ObjectTypes.GROUP, 'bulk-upload')}
                   icon={<Upload size={16} strokeWidth={2} />}
                   onSelect={() => {
                     close()
@@ -184,13 +184,7 @@ const GroupsPage = () => {
                 >
                   Bulk Upload
                 </MenuItem>
-                <ExportMenuItem
-                  onExport={() => setIsExportOpen(true)}
-                  onSelected={close}
-                  disabled={!whereFilter}
-                  isExporting={isExporting}
-                  data-testid={tableActionTestId(ObjectTypes.GROUP, 'export')}
-                />
+                <ExportMenuItem onExport={() => setIsExportOpen(true)} onSelected={close} disabled={!whereFilter} isExporting={isExporting} anchor={tableActionAnchor(ObjectTypes.GROUP, 'export')} />
               </>
             )}
           />
@@ -202,7 +196,7 @@ const GroupsPage = () => {
           {hasPermission(permissions?.roles, AccessEnum.CanCreateGroup, session) && (
             <CreateGroupDialog
               trigger={
-                <Button className="h-8 !px-2" icon={<PlusCircle />} iconPosition="left" data-testid={tableActionTestId(ObjectTypes.GROUP, 'create')}>
+                <Button className="h-8 !px-2" icon={<PlusCircle />} iconPosition="left" {...tableActionAnchor(ObjectTypes.GROUP, 'create')}>
                   Create
                 </Button>
               }

@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useOrgMemberPermissions } from '@/lib/authz/use-org-member-permissions'
 import MembersInviteSheet from './sidebar/members-invite-sheet'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { entityActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
+import { entityActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 const MembersPageWrapper = () => {
   const [isMemberSheetOpen, setIsMemberSheetOpen] = useState(false)
@@ -17,7 +17,7 @@ const MembersPageWrapper = () => {
       <div className="flex items-center justify-between">
         <PageHeading eyebrow="user management" heading="Members" />
         {canInvite && (
-          <Button variant="secondary" size="md" iconPosition="left" onClick={() => setIsMemberSheetOpen(true)} data-testid={entityActionTestId(ObjectTypes.ORG_MEMBERSHIP, 'invite')}>
+          <Button variant="secondary" size="md" iconPosition="left" onClick={() => setIsMemberSheetOpen(true)} {...entityActionAnchor(ObjectTypes.ORG_MEMBERSHIP, 'invite')}>
             Invite member
           </Button>
         )}

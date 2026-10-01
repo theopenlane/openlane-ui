@@ -50,6 +50,7 @@ import { VersionBump } from '@/lib/enums/revision-enum'
 import ExternalReferenceView from '@/components/pages/protected/policies/view/fields/external-reference-view'
 import IntegrationDocumentView from '@/components/pages/protected/policies/view/fields/integration-document-view'
 import { useSession } from 'next-auth/react'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type TViewPolicyPage = {
   policyId: string
@@ -337,7 +338,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
             <></>
           ) : (
             <Menu
-              triggerTestId="policy-actions-menu"
+              triggerAnchor={elementAnchor('policy-actions-menu')}
               content={
                 <>
                   {editAllowed && (

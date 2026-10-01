@@ -20,11 +20,11 @@ import { Button } from '@repo/ui/button'
 import { DOCS_URL } from '@/constants/docs'
 import { TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { getNavLandingHref } from '@/routes/get-nav-landing-href'
-import { toKebabCase } from '@/utils/strings'
+import { elementAnchor, type TElementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
-const SidebarChildLink: React.FC<{ child: NavItem; testId: string; pathname: string; secondaryExpanded: boolean; router: ReturnType<typeof useRouter>; locked: boolean }> = ({
+const SidebarChildLink: React.FC<{ child: NavItem; anchor: TElementAnchor; pathname: string; secondaryExpanded: boolean; router: ReturnType<typeof useRouter>; locked: boolean }> = ({
   child,
-  testId,
+  anchor,
   pathname,
   secondaryExpanded,
   router,
@@ -36,7 +36,7 @@ const SidebarChildLink: React.FC<{ child: NavItem; testId: string; pathname: str
   const linkContent = (
     <Link
       href={child.href ?? '#'}
-      data-testid={testId}
+      {...anchor}
       onClick={(e) => {
         if (e.metaKey || e.ctrlKey) return
         e.preventDefault()
@@ -48,7 +48,7 @@ const SidebarChildLink: React.FC<{ child: NavItem; testId: string; pathname: str
           window.open(child.href ?? '#', '_blank', 'noopener')
         }
       }}
-      className={`group relative flex gap-2 mb-2 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
+      className={`group relative flex gap-2 mb-2 rounded-md *:pointer-events-none hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
         secondaryExpanded ? 'items-start min-h-8 px-2.5 py-1.5' : 'items-center justify-center h-8'
       }`}
     >
@@ -178,7 +178,7 @@ export default function SideNav({
         const isExpandable = !!item.children
         const isActive = activeNav?.title === item.title
         const url = item.params ? item.href + item.params : item.href
-        const testId = toKebabCase('nav', item.title)
+        const anchor = elementAnchor('nav', item.anchor)
 
         const button = (
           <div key={idx} className="relative flex w-full items-center justify-center">
@@ -189,7 +189,7 @@ export default function SideNav({
             {isExpandable ? (
               <Button
                 variant="sidebar"
-                data-testid={testId}
+                {...anchor}
                 onClick={() => handleTogglePanel(item)}
                 className={`group relative flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center [&_svg]:size-5!'}`}
               >
@@ -199,7 +199,7 @@ export default function SideNav({
             ) : (
               <Link
                 href={url}
-                data-testid={testId}
+                {...anchor}
                 onClick={(e) => {
                   if (e.metaKey || e.ctrlKey) {
                     onToggleAction(null)
@@ -215,7 +215,7 @@ export default function SideNav({
                     window.open(url, '_blank', 'noopener')
                   }
                 }}
-                className={`group relative flex items-center px-2 gap-2 h-8 bg-transparent border border-transparent rounded-[6px] text-muted-foreground transition-all duration-500 ease-in-out hover:bg-nav hover:border-border hover:text-text-paragraph [&.is-active]:bg-nav [&.is-active]:border-border [&.is-active]:text-text-paragraph ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2 justify-start' : 'w-8 justify-center'}`}
+                className={`group relative flex items-center px-2 gap-2 h-8 *:pointer-events-none bg-transparent border border-transparent rounded-[6px] text-muted-foreground transition-all duration-500 ease-in-out hover:bg-nav hover:border-border hover:text-text-paragraph [&.is-active]:bg-nav [&.is-active]:border-border [&.is-active]:text-text-paragraph ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2 justify-start' : 'w-8 justify-center'}`}
               >
                 <Icon size={primaryExpanded ? 16 : 20} className={`shrink-0 ${iconHoverClass}`} />
                 {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
@@ -248,18 +248,21 @@ export default function SideNav({
     {
       href: DOCS_URL,
       label: 'Documentation',
+      anchor: 'documentation',
       icon: BookText,
       external: true,
     },
     {
       href: SUPPORT_URL,
       label: 'Feedback',
+      anchor: 'feedback',
       icon: MessageSquareText,
       external: false,
     },
     {
       href: CONTRIBUTE_URL,
       label: 'Github',
+      anchor: 'github',
       icon: Github,
       external: true,
     },
@@ -268,14 +271,14 @@ export default function SideNav({
   const renderFooterLinks = () => {
     const menuContent = (
       <>
-        {footerLinks.map(({ href, label, icon: Icon, external }, i) => (
+        {footerLinks.map(({ href, label, anchor, icon: Icon, external }, i) => (
           <Link
             key={i}
             href={href}
-            data-testid={toKebabCase('nav', 'more', label)}
+            {...elementAnchor('nav', 'more', anchor)}
             target={external ? '_blank' : undefined}
             rel={external ? 'noopener noreferrer' : undefined}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground *:pointer-events-none"
           >
             <Icon size={16} />
             <span className="text-sm font-normal leading-5">{label}</span>
@@ -290,12 +293,12 @@ export default function SideNav({
         <span className="text-sm font-normal leading-5">More</span>
       </Button>
     ) : (
-      <button className="btn-card p-1 text-muted-foreground hover:text-foreground bg-transparent">
+      <button className="btn-card p-1 text-muted-foreground hover:text-foreground bg-transparent *:pointer-events-none">
         <Ellipsis size={20} />
       </button>
     )
 
-    return <Menu trigger={trigger} content={menuContent} side="right" align="start" triggerTestId="nav-more" />
+    return <Menu trigger={trigger} content={menuContent} side="right" align="start" triggerAnchor={elementAnchor('nav-more')} />
   }
 
   return (
@@ -315,7 +318,7 @@ export default function SideNav({
       >
         <div className="flex flex-col items-center gap-3 w-full">
           <div className={`flex items-center justify-between w-full px-[11px] ${!primaryExpanded ? 'flex-col gap-3' : ''}`}>
-            <Link href="/dashboard" className="flex items-center justify-center relative" data-testid="nav-logo">
+            <Link href="/dashboard" className="flex items-center justify-center relative *:pointer-events-none" {...elementAnchor('nav-logo')}>
               {primaryExpanded ? (
                 <div className="w-[134px]">
                   <Logo width={134} />
@@ -326,7 +329,7 @@ export default function SideNav({
                 </div>
               )}
             </Link>
-            <button onClick={() => onPrimaryExpandToggle()} className="text-muted-foreground hover:text-foreground bg-unset" data-testid="nav-primary-toggle">
+            <button onClick={() => onPrimaryExpandToggle()} className="text-muted-foreground hover:text-foreground bg-unset *:pointer-events-none" {...elementAnchor('nav-primary-toggle')}>
               {primaryExpanded ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
             </button>
           </div>
@@ -364,12 +367,12 @@ export default function SideNav({
               {secondaryExpanded ? (
                 <>
                   <span className="text-sm font-medium capitalize">{openPanel}</span>
-                  <button onClick={onSecondaryExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card" data-testid="nav-secondary-toggle">
+                  <button onClick={onSecondaryExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card *:pointer-events-none" {...elementAnchor('nav-secondary-toggle')}>
                     <PanelLeftClose size={16} />
                   </button>
                 </>
               ) : (
-                <button onClick={onSecondaryExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card" data-testid="nav-secondary-toggle">
+                <button onClick={onSecondaryExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card *:pointer-events-none" {...elementAnchor('nav-secondary-toggle')}>
                   <PanelLeftOpen size={16} />
                 </button>
               )}
@@ -389,7 +392,7 @@ export default function SideNav({
                       <SidebarChildLink
                         key={index}
                         child={child}
-                        testId={toKebabCase('nav', item.title, child.title)}
+                        anchor={elementAnchor('nav', item.anchor, child.anchor)}
                         pathname={pathname}
                         secondaryExpanded={secondaryExpanded}
                         router={router}

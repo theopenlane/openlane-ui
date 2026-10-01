@@ -40,6 +40,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -257,7 +258,7 @@ const ViewProcedurePage: React.FC = () => {
             <></>
           ) : (
             <Menu
-              triggerTestId="procedure-actions-menu"
+              triggerAnchor={elementAnchor('procedure-actions-menu')}
               content={
                 <>
                   {editAllowed && (

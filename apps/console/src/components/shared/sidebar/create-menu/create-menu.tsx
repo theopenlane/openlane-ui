@@ -11,8 +11,8 @@ import { CreateBtnIcon } from '@/components/shared/enum-mapper/common-enum'
 import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
-import { toKebabCase } from '@/utils/strings'
 import { CREATE_MENU_ITEMS, type CreateMenuDialogKey, type CreateMenuItem } from './create-menu-items'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 const DIALOG_COMPONENTS: Record<CreateMenuDialogKey, React.ComponentType<{ open: boolean; onOpenChange: (open: boolean) => void }>> = {
   task: dynamic(() => import('@/components/pages/protected/tasks/create-task/dialog/create-task-dialog').then((mod) => mod.CreateTaskDialog), { ssr: false }),
@@ -20,7 +20,7 @@ const DIALOG_COMPONENTS: Record<CreateMenuDialogKey, React.ComponentType<{ open:
   contact: dynamic(() => import('@/components/pages/protected/contacts/create/contact-create-sheet'), { ssr: false }),
 }
 
-const entryClassName = 'flex items-center space-x-2 justify-start'
+const entryClassName = 'group flex items-center space-x-2 justify-start'
 
 const CreateMenuEntryContent: React.FC<{ item: CreateMenuItem }> = ({ item: { icon: Icon, label } }) => (
   <>
@@ -59,7 +59,7 @@ const CreateMenu: React.FC<{ expanded: boolean }> = ({ expanded }) => {
         side="right"
         align="start"
         closeOnSelect
-        triggerTestId="nav-create"
+        triggerAnchor={elementAnchor('nav-create')}
         content={(close) =>
           items.map((item) =>
             item.dialog ? (
@@ -68,7 +68,7 @@ const CreateMenu: React.FC<{ expanded: boolean }> = ({ expanded }) => {
                 size="sm"
                 variant="transparent"
                 className={entryClassName}
-                data-testid={toKebabCase('nav', 'create', item.label)}
+                {...elementAnchor('nav', 'create', item.anchor)}
                 onClick={() => {
                   setOpenDialog(item.dialog)
                   close()
@@ -77,7 +77,7 @@ const CreateMenu: React.FC<{ expanded: boolean }> = ({ expanded }) => {
                 <CreateMenuEntryContent item={item} />
               </Button>
             ) : (
-              <Button key={item.label} asChild size="sm" variant="transparent" className={entryClassName} data-testid={toKebabCase('nav', 'create', item.label)}>
+              <Button key={item.label} asChild size="sm" variant="transparent" className={entryClassName} {...elementAnchor('nav', 'create', item.anchor)}>
                 <Link href={item.href} onClick={close}>
                   <CreateMenuEntryContent item={item} />
                 </Link>

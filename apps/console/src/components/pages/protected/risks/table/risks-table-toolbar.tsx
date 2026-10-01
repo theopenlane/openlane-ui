@@ -30,7 +30,7 @@ import ExportMenuItem from '@/components/shared/export/export-menu-item'
 import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -156,7 +156,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
             <Button
               type="button"
               variant="secondary"
-              data-testid={tableActionTestId(ObjectTypes.RISK, 'bulk-delete')}
+              {...tableActionAnchor(ObjectTypes.RISK, 'bulk-delete')}
               onClick={() => {
                 setIsBulkDeleteDialogOpen(true)
               }}
@@ -187,12 +187,12 @@ const RisksTableToolbar: React.FC<TProps> = ({
           <>
             <Menu
               closeOnSelect={true}
-              triggerTestId={tableActionTestId(ObjectTypes.RISK, 'actions-menu')}
+              triggerAnchor={tableActionAnchor(ObjectTypes.RISK, 'actions-menu')}
               content={(close) => (
                 <>
                   {hasPermission(permission?.roles, AccessEnum.CanCreateRisk, session) && (
                     <MenuItem
-                      data-testid={tableActionTestId(ObjectTypes.RISK, 'bulk-upload')}
+                      {...tableActionAnchor(ObjectTypes.RISK, 'bulk-upload')}
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
                         close()
@@ -202,7 +202,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
                       Bulk Upload
                     </MenuItem>
                   )}
-                  <ExportMenuItem onExport={handleExport} onSelected={close} disabled={!exportEnabled} data-testid={tableActionTestId(ObjectTypes.RISK, 'export')} />
+                  <ExportMenuItem onExport={handleExport} onSelected={close} disabled={!exportEnabled} anchor={tableActionAnchor(ObjectTypes.RISK, 'export')} />
                 </>
               )}
             />
@@ -211,7 +211,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
             )}
             {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableKeyEnum.RISK} />}
             {hasPermission(permission?.roles, AccessEnum.CanCreateRisk, session) && (
-              <Button variant="primary" onClick={handleCreateNew} className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left" data-testid={tableActionTestId(ObjectTypes.RISK, 'create')}>
+              <Button variant="primary" onClick={handleCreateNew} className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left" {...tableActionAnchor(ObjectTypes.RISK, 'create')}>
                 Create
               </Button>
             )}

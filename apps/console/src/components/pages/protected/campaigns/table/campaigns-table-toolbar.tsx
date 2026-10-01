@@ -20,7 +20,7 @@ import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { tableActionTestId } from '@/components/shared/crud-base/table/table-action-test-id'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type TCampaignTableToolbarProps = {
   onFilterChange: (filters: CampaignWhereInput) => void
@@ -95,7 +95,7 @@ const CampaignTableToolbar: React.FC<TCampaignTableToolbarProps> = (props) => {
                 <Button
                   type="button"
                   variant="secondary"
-                  data-testid={tableActionTestId(ObjectTypes.CAMPAIGN, 'bulk-delete')}
+                  {...tableActionAnchor(ObjectTypes.CAMPAIGN, 'bulk-delete')}
                   onClick={() => {
                     setIsBulkDeleteDialogOpen(true)
                   }}
@@ -123,8 +123,8 @@ const CampaignTableToolbar: React.FC<TCampaignTableToolbarProps> = (props) => {
         ) : (
           <>
             <Menu
-              triggerTestId={tableActionTestId(ObjectTypes.CAMPAIGN, 'actions-menu')}
-              content={<ExportMenuItem onExport={props.handleExport} disabled={!props.exportEnabled} data-testid={tableActionTestId(ObjectTypes.CAMPAIGN, 'export')} />}
+              triggerAnchor={tableActionAnchor(ObjectTypes.CAMPAIGN, 'actions-menu')}
+              content={<ExportMenuItem onExport={props.handleExport} disabled={!props.exportEnabled} anchor={tableActionAnchor(ObjectTypes.CAMPAIGN, 'export')} />}
             />
             {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
               <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={TableKeyEnum.CAMPAIGN} />

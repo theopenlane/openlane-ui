@@ -28,6 +28,8 @@ import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-st
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const DEFAULT_ENUM_COLUMN_VISIBILITY: VisibilityState = {
   objectType: false,
@@ -166,7 +168,7 @@ const CustomEnumsTab: FC = () => {
             />
 
             {canCreateEnum && (
-              <Button className="gap-2" onClick={handleCreateOpen} icon={<SquarePlus />} iconPosition="left">
+              <Button className="gap-2" onClick={handleCreateOpen} icon={<SquarePlus />} iconPosition="left" {...tableActionAnchor(ObjectTypes.CUSTOM_TYPE_ENUM, 'create')}>
                 Create Enum
               </Button>
             )}
