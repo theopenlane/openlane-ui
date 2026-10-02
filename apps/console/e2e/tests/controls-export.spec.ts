@@ -1,12 +1,12 @@
 import type { Page } from '@playwright/test'
 
+import { CONTROL_ASSOCIATED_OBJECTS_EXPORT_FIELDS } from '@/components/pages/protected/controls/table/control-export-fields'
+
 import { test, expect } from '../fixtures/auth'
 import { createControl, deleteControl, getOwnerApi, type ApiSession } from '../utils/api'
 import { findUnknownFieldPaths } from '../utils/graphql-schema'
 import { waitForMutation } from '../utils/mutations'
 import { uniqueRef } from '../utils/unique'
-
-const ASSOCIATED_OBJECT_EXPORT_FIELDS = ['procedures.name', 'internalPolicies.name', 'programs.name', 'risks.name', 'tasks.title']
 
 interface CreateExportRequestBody {
   variables: { input: { exportType: string; fields: string[] } }
@@ -63,7 +63,7 @@ test.describe('controls — export', () => {
 
     const { input } = ((await exportResponse).request().postDataJSON() as CreateExportRequestBody).variables
     expect(input.exportType).toBe('CONTROL')
-    expect(input.fields).toEqual(expect.arrayContaining(ASSOCIATED_OBJECT_EXPORT_FIELDS))
+    expect(input.fields).toEqual(expect.arrayContaining(CONTROL_ASSOCIATED_OBJECTS_EXPORT_FIELDS))
     expect(await findUnknownFieldPaths(ownerApi, 'Control', input.fields), 'export fields that do not resolve on the Control GraphQL type').toEqual([])
   })
 })
