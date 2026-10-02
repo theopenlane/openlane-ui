@@ -1,4 +1,5 @@
 import { type ITheme, patchLegacyCSSVariables } from 'survey-core'
+import { surveyFontVariables } from '@/styles/questionnaire/theme-fonts'
 import DefaultLight from 'survey-core/themes/default-light'
 
 // values pulled from the openlane light mode tokens in packages/ui/src/styles.css
@@ -159,10 +160,6 @@ const SJS_THEME = {
   '--sjs-primary-forecolor-light': 'rgba(5, 46, 42, 0.25)',
   '--sjs-special-red': 'rgba(244, 91, 80, 1)',
   '--sjs-special-red-light': 'rgba(244, 91, 80, 0.1)',
-  '--sjs-font-surveytitle-family': 'var(--font-outfit)',
-  '--sjs-font-headertitle-family': 'var(--font-outfit)',
-  '--sjs-default-font-family': 'var(--font-outfit)',
-  '--sjs-font-family': 'var(--font-outfit)',
   '--sjs-font-headertitle-color': colors.textColor,
   '--sjs-font-headerdescription-color': colors.textColorDim,
   '--sjs-header-backcolor': colors.background,
@@ -175,7 +172,7 @@ export const lightTheme: ITheme = {
   backgroundImageFit: 'cover',
   backgroundImageAttachment: 'scroll',
   backgroundOpacity: 1,
-  cssVariables: { ...DefaultLight.cssVariables, ...openlaneCssVariables },
+  cssVariables: { ...DefaultLight.cssVariables, ...openlaneCssVariables, ...surveyFontVariables },
   themeName: 'openlane',
   colorPalette: 'light',
   isPanelless: true,
