@@ -138,6 +138,7 @@
       "name": "openlane-evidence-extension",
       "version": "0.0.1",
       "dependencies": {
+        "@fontsource-variable/outfit": "^5.3.0",
         "@hookform/resolvers": "^5.9.1",
         "@repo/codegen": "workspace:*",
         "@repo/dally": "workspace:*",
@@ -691,6 +692,8 @@
     "@floating-ui/react-dom": ["@floating-ui/react-dom@2.1.9", "", { "dependencies": { "@floating-ui/dom": "^1.8.0" }, "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0" } }, "sha512-JDjEFGCpImxDCA7JJKviA0M9+RtmJdj0m/NVU5IMgBK+AmZouAQQ7/+2GLH0GXXY0YMw9oXPB8hKdbPYg5QLYg=="],
 
     "@floating-ui/utils": ["@floating-ui/utils@0.2.12", "", {}, "sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww=="],
+
+    "@fontsource-variable/outfit": ["@fontsource-variable/outfit@5.3.0", "", {}, "sha512-fPb5XnYK0k7SbR++HEmm4+ZqDszmLKQ+sPRUr8oQ/KNC0vy6r6hazJFe8iYozv4cqlHbvJ/JECkJWrfDodUMVQ=="],
 
     "@google-cloud/aiplatform": ["@google-cloud/aiplatform@7.4.0", "", { "dependencies": { "google-gax": "^6.0.0" } }, "sha512-aq1QmKYMfR6aJddgL8eugs2rxFo1ig6/qmIDrFDf6ow6BdAXraSbnbbczkrZvScc8eQ6hG0jXR7chiZiVXPd3A=="],
 

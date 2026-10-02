@@ -1,6 +1,11 @@
 @import '@repo/ui/styles.css';
+@import '@fontsource-variable/outfit';
 
 @source '../**/*.{ts,tsx}';
+
+@theme {
+  --font-sans: 'Outfit Variable', ui-sans-serif, system-ui, sans-serif;
+}
 
 html,
 body {
