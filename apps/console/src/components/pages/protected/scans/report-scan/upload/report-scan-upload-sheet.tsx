@@ -131,8 +131,7 @@ export const ReportScanUploadSheet = ({ suggestedTaskId, onClose }: ReportScanUp
           ) : null}
 
           <p className="text-sm">
-            Your report already describes your platform, the vendors in scope, the controls you operate and anything the auditor flagged. Drop the PDF and we&apos;ll read it in the background. Nothing
-            is created until you review it.
+            Upload a SOC 2 report to extract information about your systems, vendors, controls, and audit findings. You can review and select what to import before anything is created.
           </p>
 
           {file ? (
