@@ -22,6 +22,7 @@ type ResponsesTabProps = {
 
 export const ResponsesTab = ({ responses, jsonconfig }: ResponsesTabProps) => {
   const questions = useMemo(() => extractQuestions(jsonconfig), [jsonconfig])
+  const questionTypeByName = useMemo(() => new Map(questions.map((question) => [question.name, question.type])), [questions])
   const [columnFilters, setColumnFilters] = useState<Record<string, string>>({})
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -36,11 +37,11 @@ export const ResponsesTab = ({ responses, jsonconfig }: ResponsesTabProps) => {
         if (key === '__email') {
           return (response.email || '').toLowerCase().includes(filterValue.toLowerCase())
         }
-        const answer = renderAnswer(data[key])
+        const answer = renderAnswer(data[key], questionTypeByName.get(key))
         return answer.toLowerCase().includes(filterValue.toLowerCase())
       })
     })
-  }, [completedResponses, columnFilters])
+  }, [completedResponses, columnFilters, questionTypeByName])
 
   const totalPages = Math.max(1, Math.ceil(filteredResponses.length / pageSize))
   const paginatedResponses = filteredResponses.slice((page - 1) * pageSize, page * pageSize)
@@ -107,7 +108,7 @@ export const ResponsesTab = ({ responses, jsonconfig }: ResponsesTabProps) => {
                   <TableRow key={response.id}>
                     <TableCell>{response.email}</TableCell>
                     {questions.map((q) => (
-                      <TableCell key={q.name}>{renderAnswer(data[q.name])}</TableCell>
+                      <TableCell key={q.name}>{renderAnswer(data[q.name], q.type)}</TableCell>
                     ))}
                   </TableRow>
                 )

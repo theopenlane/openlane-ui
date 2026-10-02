@@ -1,6 +1,7 @@
 'use client'
 
-import { type ITheme, Model } from 'survey-core'
+import { type ITheme } from 'survey-core'
+import { createSurveyModel } from '@/components/shared/survey/survey-model'
 import { Survey } from 'survey-react-ui'
 
 import 'survey-core/survey-core.min.css'
@@ -22,7 +23,7 @@ export default function ViewQuestionnaire(input: { existingId: string }) {
   const { data: assessmentResult } = useGetAssessment(input.existingId)
   const surveyJson = assessmentResult?.assessment?.jsonconfig
   const survey = useMemo(() => {
-    const model = new Model(surveyJson)
+    const model = createSurveyModel(surveyJson)
     attachSurveyProgressText(model)
     model.applyTheme(theme === 'dark' ? (darkTheme as ITheme) : lightTheme)
     model.showCompleteButton = false

@@ -27,7 +27,7 @@ const AssessmentResponseView: React.FC<AssessmentResponseViewProps> = ({ jsoncon
     const answers = data as Record<string, unknown>
     return questions.map((q) => ({
       question: q.title,
-      answer: renderAnswer(answers[q.name]),
+      answer: renderAnswer(answers[q.name], q.type),
     }))
   }, [data, questions])
 
