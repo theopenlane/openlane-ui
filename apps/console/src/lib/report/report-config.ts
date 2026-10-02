@@ -1,8 +1,9 @@
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import { OrderDirection } from '@repo/codegen/src/schema'
 import { toHumanLabel } from '@/utils/strings'
-import { filterableFieldsByName, isFilterComplete, type TReportCombinator, type TReportFilter } from './report-filters'
-import { getColumnIndex, getEntity, getFieldOperators, pathEdgeName, type TReportOrder, type TReportSort } from './report-schema'
+import { filterableFieldsByName, filterOperators, isFilterComplete, listValues, type TReportFilter } from './report-filters'
+import { isOwnerColumn, migrateLegacyOwnerFilter } from './report-owner-filters'
+import { getColumnIndex, getEntity, pathEdgeName, type TReportCombinator, type TReportOrder, type TReportSort } from './report-schema'
 
 export type TReportQueryConfig = {
   entityName: string
@@ -38,11 +39,23 @@ export const reconcileReportConfig = (config: TReportQueryConfig): TReportQueryC
 
   const fieldsByName = filterableFieldsByName(entity)
 
-  const filters = config.filters.filter((filter) => {
+  const isValid = (filter: TReportFilter): boolean => {
     const field = fieldsByName.get(filter.field)
 
-    return field !== undefined && getFieldOperators(field).includes(filter.operator) && isFilterComplete(filter, field)
+    return field !== undefined && filterOperators(field).includes(filter.operator) && isFilterComplete(filter, field)
+  }
+
+  const migratedFilters = config.filters.map((filter) => {
+    if (isValid(filter)) return filter
+
+    const migrated = migrateLegacyOwnerFilter(entity, { field: filter.field, operator: filter.operator, values: listValues(filter.value) })
+
+    return migrated ? { ...filter, ...migrated } : filter
   })
+
+  if (migratedFilters.some((filter) => !isValid(filter) && isOwnerColumn(entity, filter.field))) return null
+
+  const filters = migratedFilters.filter(isValid)
 
   const sortable = entity.order?.fields ?? []
   const sort = config.sort.field !== null && !sortable.includes(config.sort.field) ? DEFAULT_REPORT_SORT : config.sort

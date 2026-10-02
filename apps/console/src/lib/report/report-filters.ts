@@ -1,7 +1,8 @@
-import { REPORT_OPERATOR_SUFFIX, type TReportEntity, type TReportField, type TReportFieldKind, type TReportOperator } from '@repo/codegen/src/report-schema.generated'
-import { getFieldOperators } from './report-schema'
+import { REPORT_OWNER_OPERATORS, type TReportEntity, type TReportField, type TReportFieldKind, type TReportOperator } from '@repo/codegen/src/report-schema.generated'
+import { combineClauses, getFieldOperators, wherePredicate, type TReportCombinator, type TWhereClause } from './report-schema'
+import { isOwnerFilterComplete, ownerColumnNames, ownerFilterClause, toOwnerFilterField, type TOwnerFilterField } from './report-owner-filters'
 
-export type TReportCombinator = 'and' | 'or'
+export type TReportFilterField = TReportField | TOwnerFilterField
 
 export type TReportFilter = {
   id: string
@@ -14,9 +15,25 @@ export const MAX_FILTERS = 5
 
 const SYSTEM_OWNED_FIELD = 'systemOwned'
 
-export const filterableFields = (entity: TReportEntity): TReportField[] => entity.fields.filter((field) => field.name !== SYSTEM_OWNED_FIELD && getFieldOperators(field).length > 0)
+export const filterOperators = (field: TReportFilterField): TReportOperator[] => (field.kind === 'owner' ? REPORT_OWNER_OPERATORS : getFieldOperators(field))
 
-export const filterableFieldsByName = (entity: TReportEntity): Map<string, TReportField> => new Map(filterableFields(entity).map((field) => [field.name, field]))
+const filterableFieldsByEntity = new WeakMap<TReportEntity, Map<string, TReportFilterField>>()
+
+export const filterableFieldsByName = (entity: TReportEntity): Map<string, TReportFilterField> => {
+  const cached = filterableFieldsByEntity.get(entity)
+  if (cached) return cached
+
+  const ownerColumns = new Set(entity.owners.flatMap(ownerColumnNames))
+  const scalarFields = entity.fields.filter((field) => field.name !== SYSTEM_OWNED_FIELD && !ownerColumns.has(field.name) && getFieldOperators(field).length > 0)
+  const fields: TReportFilterField[] = [...scalarFields, ...entity.owners.map(toOwnerFilterField)]
+  const byName = new Map(fields.map((field) => [field.name, field]))
+
+  filterableFieldsByEntity.set(entity, byName)
+
+  return byName
+}
+
+export const filterableFields = (entity: TReportEntity): TReportFilterField[] => [...filterableFieldsByName(entity).values()]
 
 export const LIST_VALUE_SEPARATOR = ','
 
@@ -50,13 +67,14 @@ const TIME_OPERATOR_LABELS: Partial<Record<TReportOperator, string>> = {
   lte: 'is on or before',
 }
 
-export const operatorLabel = (operator: TReportOperator, kind: TReportFieldKind): string =>
+export const operatorLabel = (operator: TReportOperator, kind: TReportFilterField['kind']): string =>
   kind === 'time' ? (TIME_OPERATOR_LABELS[operator] ?? OPERATOR_LABELS[operator]) : OPERATOR_LABELS[operator]
 
-export type TFilterValueInput = 'none' | 'enumList' | 'list' | 'enum' | 'boolean' | 'number' | 'date' | 'text'
+export type TFilterValueInput = 'none' | 'owner' | 'enumList' | 'list' | 'enum' | 'boolean' | 'number' | 'date' | 'text'
 
-export const filterValueInput = (field: TReportField, operator: TReportOperator): TFilterValueInput => {
+export const filterValueInput = (field: TReportFilterField, operator: TReportOperator): TFilterValueInput => {
   if (operator === 'isNil' || operator === 'notNil') return 'none'
+  if (field.kind === 'owner') return 'owner'
   if (operator === 'in' || operator === 'notIn') return field.kind === 'enum' ? 'enumList' : 'list'
   if (field.kind === 'enum') return 'enum'
   if (field.kind === 'boolean') return 'boolean'
@@ -107,8 +125,9 @@ const coerceValue = (filter: TReportFilter, field: TReportField): unknown => {
   return coerceScalar(filter.value, field.kind)
 }
 
-export const isFilterComplete = (filter: TReportFilter, field: TReportField | undefined): boolean => {
+export const isFilterComplete = (filter: TReportFilter, field: TReportFilterField | undefined): boolean => {
   if (!field) return false
+  if (field.kind === 'owner') return isOwnerFilterComplete(field, filter.operator, filter.value)
 
   const input = filterValueInput(field, filter.operator)
 
@@ -125,7 +144,7 @@ export const isFilterComplete = (filter: TReportFilter, field: TReportField | un
 
 const isDateOnly = (filter: TReportFilter, field: TReportField): boolean => field.kind === 'time' && DATE_ONLY.test(filter.value.trim())
 
-const dayClause = (filter: TReportFilter): Record<string, unknown> | null => {
+const dayClause = (filter: TReportFilter): TWhereClause | null => {
   const start = toUtcInstant(filter.value.trim())
   if (!start) return null
 
@@ -141,18 +160,19 @@ const dayClause = (filter: TReportFilter): Record<string, unknown> | null => {
 
 const DAY_BOUNDED_OPERATORS: TReportOperator[] = ['eq', 'gt', 'lte']
 
-const filterClause = (filter: TReportFilter, field: TReportField): Record<string, unknown> | null => {
+const filterClause = (filter: TReportFilter, field: TReportFilterField): TWhereClause | null => {
+  if (field.kind === 'owner') return ownerFilterClause(field, filter.operator, filter.value)
   if (isDateOnly(filter, field) && DAY_BOUNDED_OPERATORS.includes(filter.operator)) return dayClause(filter)
 
   const value = coerceValue(filter, field)
 
-  return value === null ? null : { [`${filter.field}${REPORT_OPERATOR_SUFFIX[filter.operator]}`]: value }
+  return value === null ? null : wherePredicate(filter.field, filter.operator, value)
 }
 
-export const excludeSystemOwnedWhere = (entity: TReportEntity): Record<string, unknown> | null => {
+export const excludeSystemOwnedWhere = (entity: TReportEntity): TWhereClause | null => {
   const field = entity.fields.find((item) => item.name === SYSTEM_OWNED_FIELD)
 
-  return field && getFieldOperators(field).includes('eq') ? { [`${SYSTEM_OWNED_FIELD}${REPORT_OPERATOR_SUFFIX.eq}`]: false } : null
+  return field && getFieldOperators(field).includes('eq') ? wherePredicate(SYSTEM_OWNED_FIELD, 'eq', false) : null
 }
 
 export const incompleteFilterCount = (filters: TReportFilter[], entity: TReportEntity): number => {
@@ -161,7 +181,7 @@ export const incompleteFilterCount = (filters: TReportFilter[], entity: TReportE
   return filters.filter((filter) => !isFilterComplete(filter, fieldsByName.get(filter.field))).length
 }
 
-export const buildWhere = (filters: TReportFilter[], entity: TReportEntity, combinator: TReportCombinator): Record<string, unknown> | null => {
+export const buildWhere = (filters: TReportFilter[], entity: TReportEntity, combinator: TReportCombinator): TWhereClause | null => {
   const fieldsByName = filterableFieldsByName(entity)
 
   const clauses = filters
@@ -170,10 +190,7 @@ export const buildWhere = (filters: TReportFilter[], entity: TReportEntity, comb
 
       return field && isFilterComplete(filter, field) ? filterClause(filter, field) : null
     })
-    .filter((clause): clause is Record<string, unknown> => clause !== null)
+    .filter((clause): clause is TWhereClause => clause !== null)
 
-  if (clauses.length === 0) return null
-  if (clauses.length === 1) return clauses[0]
-
-  return combinator === 'or' ? { or: clauses } : { and: clauses }
+  return combineClauses(combinator, clauses)
 }

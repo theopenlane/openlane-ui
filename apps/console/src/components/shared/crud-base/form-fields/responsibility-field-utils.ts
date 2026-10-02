@@ -1,16 +1,17 @@
 import { z } from 'zod'
 
-export const responsibilityFieldSchema = z
-  .object({
-    type: z.enum(['user', 'group', 'personnel', 'string']),
-    value: z.string(),
-    displayName: z.string().optional(),
-    noClearOtherFields: z.boolean().optional(),
-  })
-  .optional()
-  .nullable()
+export const responsibilityChoiceSchema = z.object({
+  type: z.enum(['user', 'group', 'personnel', 'string']),
+  value: z.string(),
+  displayName: z.string().optional(),
+  noClearOtherFields: z.boolean().optional(),
+})
+
+export const responsibilityFieldSchema = responsibilityChoiceSchema.optional().nullable()
 
 export type ResponsibilitySelection = z.infer<typeof responsibilityFieldSchema>
+
+export type ResponsibilityChoice = z.infer<typeof responsibilityChoiceSchema>
 
 export interface ResponsibilityFieldInput {
   user?: { id?: string; displayName?: string } | null
