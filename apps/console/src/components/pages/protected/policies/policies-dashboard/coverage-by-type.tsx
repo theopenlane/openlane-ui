@@ -10,6 +10,7 @@ import { isStringArray, loadFilters, saveFilters, type TFilterStateFor } from '@
 import { type TPolicyFilterKey } from '@/components/pages/protected/policies/table/table-config'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { InfoIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import Link from 'next/link'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
@@ -19,6 +20,8 @@ import { objectToSnakeCase } from '@/utils/strings'
 import { useOrganization } from '@/hooks/useOrganization'
 
 const UNTYPED_LABEL = 'Type not defined'
+
+const COVERED_STATUSES: ReadonlySet<InternalPolicyDocumentStatus> = new Set([InternalPolicyDocumentStatus.APPROVED, InternalPolicyDocumentStatus.PUBLISHED])
 
 const CoverageByType = ({ onTypeClick }: { onTypeClick: () => void }) => {
   const { currentOrgId } = useOrganization()
@@ -50,29 +53,29 @@ const CoverageByType = ({ onTypeClick }: { onTypeClick: () => void }) => {
   const groupedData = useMemo(() => {
     if (!policies?.length) return []
 
-    const groups = new Map<string | null, { id: string; total: number; published: number; names: string[] }>()
+    const groups = new Map<string | null, { id: string; total: number; covered: number; names: string[] }>()
 
     for (const policy of policies) {
       const kind = policy.internalPolicyKindName || null
-      const group = groups.get(kind) ?? { id: '', total: 0, published: 0, names: [] }
+      const group = groups.get(kind) ?? { id: '', total: 0, covered: 0, names: [] }
 
       group.total++
       group.names.push(policy.name)
       group.id = policy.id
-      if (policy.status === InternalPolicyDocumentStatus.PUBLISHED) {
-        group.published++
+      if (policy.status && COVERED_STATUSES.has(policy.status)) {
+        group.covered++
       }
       groups.set(kind, group)
     }
 
     return [...groups.entries()]
-      .map(([kind, { id, total, published, names }]) => ({
+      .map(([kind, { id, total, covered, names }]) => ({
         id,
         kind,
         label: kind ?? UNTYPED_LABEL,
         names,
-        percentage: Math.round((published / total) * 100),
-        ratio: `${published}/${total}`,
+        percentage: Math.round((covered / total) * 100),
+        ratio: `${covered}/${total}`,
       }))
       .sort((a, b) => (a.kind === null ? 1 : b.kind === null ? -1 : a.label.localeCompare(b.label)))
   }, [policies])
@@ -121,7 +124,12 @@ const CoverageByType = ({ onTypeClick }: { onTypeClick: () => void }) => {
   }
   return (
     <div className="rounded-2xl py-6">
-      <h2 className="text-lg font-medium mb-6">Coverage by Type</h2>
+      <div className="flex items-center gap-1 mb-6">
+        <h2 className="text-lg font-medium">Coverage by Type</h2>
+        <Button type="button" variant="icon" size="icon-sm" descriptiveTooltipText="Approved or published policies out of all non-archived policies of each type">
+          <InfoIcon />
+        </Button>
+      </div>
 
       <TooltipProvider>
         {groupedData.length === 0 ? (
