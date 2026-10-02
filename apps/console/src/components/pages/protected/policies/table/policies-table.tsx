@@ -31,7 +31,6 @@ import { useSession } from 'next-auth/react'
 import { useSelectColumnVisibility } from '@/components/shared/column-visibility-menu/use-select-column-visibility'
 
 export const PoliciesTable = () => {
-  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.INTERNAL_POLICY)
   const [filters, setFilters] = useState<InternalPolicyWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.INTERNAL_POLICY)
   const { setCrumbs } = use(BreadcrumbContext)
@@ -79,6 +78,10 @@ export const PoliciesTable = () => {
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
   }, [orderBy])
+
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.INTERNAL_POLICY, {
+    restorePage: { where, orderBy: orderByFilter, ready: filters !== null },
+  })
 
   const { policies, error, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
 
@@ -172,10 +175,7 @@ export const PoliciesTable = () => {
         searching={fetching}
         setFilters={setFilters}
         searchTerm={searchTerm}
-        setSearchTerm={(inputVal) => {
-          setSearchTerm(inputVal)
-          resetPagination()
-        }}
+        setSearchTerm={setSearchTerm}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
