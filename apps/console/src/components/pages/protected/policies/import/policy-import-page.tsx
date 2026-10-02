@@ -8,7 +8,7 @@ import { useCreateBulkCSVInternalPolicy } from '@/lib/graphql-hooks/internal-pol
 const PolicyImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVInternalPolicy()
 
-  return <RecordImportPage entityType={ObjectTypes.INTERNAL_POLICY} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.INTERNAL_POLICY} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default PolicyImportPage

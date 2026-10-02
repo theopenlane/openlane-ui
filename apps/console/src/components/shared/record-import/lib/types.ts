@@ -18,15 +18,19 @@ export type TDestinationField = {
   label: string
   requirement?: 'required' | 'oneOf'
   autoValue?: string
+  autoValueLabel?: string
   description?: string
   example?: string
   fuzzyMatchable: boolean
   meta?: ImportFieldMeta
+  format?: 'url'
 }
 
 export type TDestinationFieldSet = {
   fields: TDestinationField[]
+  fixedFields: TDestinationField[]
   requiredGroups: TDestinationField[][]
+  uniqueFields: TDestinationField[]
   primaryField?: string
 }
 
@@ -50,3 +54,18 @@ export type TImportIssue = {
   message: string
   columnIndex?: number
 }
+
+export type TImportRecord = Readonly<Partial<Record<string, string>>>
+
+export type TMappedImport = {
+  toFile: () => File
+  toRecords: () => TImportRecord[]
+}
+
+export type TImportDestination = {
+  fieldSet: TDestinationFieldSet
+  exampleCsv: string
+  exampleFilename: string
+}
+
+export type TImportAutomaticValue = { label: string; value: string }

@@ -2,7 +2,8 @@
 
 import React, { use, useEffect, useState } from 'react'
 import useFormSchema from './hooks/use-form-schema'
-import { CircleHelp } from 'lucide-react'
+import { CircleHelp, Upload } from 'lucide-react'
+import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -29,6 +30,8 @@ import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
+import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 
 export default function FaqsPage() {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -36,6 +39,7 @@ export default function FaqsPage() {
   const [faqToDelete, setFaqToDelete] = useState<string | null>(null)
 
   const queryClient = useQueryClient()
+  const openImport = useOpenImport()
   const { successNotification, errorNotification } = useNotification()
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
@@ -195,9 +199,14 @@ export default function FaqsPage() {
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6 min-h-screen text-foreground">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Frequently Asked Questions</h1>
-        <p className="text-xs mb-8 text-muted-foreground">Drag and drop questions to control the display order in your Trust Center.</p>
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Frequently Asked Questions</h1>
+          <p className="text-xs text-muted-foreground">Drag and drop questions to control the display order in your Trust Center.</p>
+        </div>
+        <Button variant="secondary" icon={<Upload size={16} />} iconPosition="left" disabled={!canEditTc} onClick={() => openImport(IMPORT_ROUTES[ObjectTypes.TRUST_CENTER_FAQ])}>
+          Bulk Upload
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

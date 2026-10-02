@@ -29,6 +29,9 @@ const LIST_DELIMITERS = [';', '|', ',']
 const MIN_SUGGESTION_LENGTH = 3
 const MAX_HOUR = 23
 const MAX_MINUTE = 59
+const MAX_URL_LENGTH = 2048
+const URL_HOST = /^[a-z0-9-]+(\.[a-z0-9-]+)+\.?$/i
+const URL_SCHEME = /^[a-z][a-z0-9+.-]*:\/\//i
 
 export const toEnumToken = (value: string): string =>
   value
@@ -59,6 +62,15 @@ const isValidTimestamp = (value: string): boolean => {
 
 const isValidDate = (value: string): boolean => isValidCalendarDate(value) || isValidTimestamp(value)
 
+const isValidUrl = (value: string): boolean => {
+  if (value.length > MAX_URL_LENGTH) return false
+  try {
+    return URL_HOST.test(new URL(URL_SCHEME.test(value) ? value : `http://${value}`).host)
+  } catch {
+    return false
+  }
+}
+
 const NOT_JSON = Symbol('not-json')
 
 const parseJson = (value: string): unknown => {
@@ -85,6 +97,8 @@ const splitListCell = (cell: string): string[] | null => {
 }
 
 type TItemRule = { expected: string; isValid: (value: string) => boolean }
+
+const URL_RULE: TItemRule = { expected: 'a web address like https://example.com/security', isValid: isValidUrl }
 
 const itemRule = (meta: ImportFieldMeta): TItemRule | null => {
   switch (meta.kind) {
@@ -115,10 +129,16 @@ const suggestEnumValue = (value: string, enumValues: readonly string[]): string 
   return candidates.length === 1 ? candidates[0] : undefined
 }
 
-const checkCells = (rows: string[][], columnIndex: number, meta: ImportFieldMeta): TColumnCellCheck | null => {
-  const rule = itemRule(meta)
+const fieldRule = (field: TDestinationField): TItemRule | null => {
+  if (field.format === 'url') return URL_RULE
+  return field.meta ? itemRule(field.meta) : null
+}
+
+const checkCells = (rows: string[][], columnIndex: number, field: TDestinationField): TColumnCellCheck | null => {
+  const rule = fieldRule(field)
   if (!rule) return null
 
+  const meta: Partial<ImportFieldMeta> = field.meta ?? {}
   const isValidCell = (cell: string) => (meta.list ? splitListCell(cell) : [cell])?.every(rule.isValid) ?? false
   const blankIsInvalid = meta.timestamp === true && !meta.list
   const validity = new Map<string, boolean>()
@@ -149,7 +169,7 @@ const checkCells = (rows: string[][], columnIndex: number, meta: ImportFieldMeta
 const checkCache = new WeakMap<string[][], Map<string, TColumnCellCheck | null>>()
 
 export const checkColumnCells = (rows: string[][], columnIndex: number, field: TDestinationField | undefined): TColumnCellCheck | null => {
-  if (!field?.meta) return null
+  if (!field) return null
 
   const byColumn = checkCache.get(rows) ?? new Map<string, TColumnCellCheck | null>()
   checkCache.set(rows, byColumn)
@@ -158,7 +178,7 @@ export const checkColumnCells = (rows: string[][], columnIndex: number, field: T
   const cached = byColumn.get(key)
   if (cached !== undefined) return cached
 
-  const result = checkCells(rows, columnIndex, field.meta)
+  const result = checkCells(rows, columnIndex, field)
   byColumn.set(key, result)
   return result
 }

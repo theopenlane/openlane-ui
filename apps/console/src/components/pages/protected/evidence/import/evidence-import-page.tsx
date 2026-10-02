@@ -8,7 +8,7 @@ import { useCreateBulkCSVEvidence } from '@/lib/graphql-hooks/evidence'
 const EvidenceImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVEvidence()
 
-  return <RecordImportPage entityType={ObjectTypes.EVIDENCE} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.EVIDENCE} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default EvidenceImportPage
