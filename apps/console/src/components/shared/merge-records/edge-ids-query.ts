@@ -1,5 +1,6 @@
 import type { GraphQLClient } from 'graphql-request'
 import { getEdgeIds } from '@/components/shared/object-association/utils'
+import { chunk } from '@/utils/async'
 
 export const EDGE_PAGE_SIZE = 100
 
@@ -22,12 +23,6 @@ type EdgeIdsQueryResponse = {
 }
 
 const cursorVariableName = (edgeName: string) => `after_${edgeName}`
-
-const chunk = <T>(items: readonly T[], size: number): T[][] => {
-  const groups: T[][] = []
-  for (let index = 0; index < items.length; index += size) groups.push(items.slice(index, index + size))
-  return groups
-}
 
 export const buildEdgeIdsQuery = (queryField: string, pending: readonly PendingEdge[]): string => {
   const paged = pending.filter((edge) => edge.cursor !== null)

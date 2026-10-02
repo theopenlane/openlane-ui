@@ -1,11 +1,11 @@
 'use client'
 
 import React from 'react'
-import { SectionCard } from '../components/section-card'
-import { EmptyState } from '../components/empty-state'
+import { SectionCard } from '../../shared/section-card'
+import { EmptyState } from '../../shared/empty-state'
 import { LinkTargetCard } from '../components/link-target-card'
-import type { LinkMap } from '../selection-utils'
-import type { LinkableItem } from '../types'
+import type { LinkMap } from '../../shared/selection-utils'
+import type { LinkableItem } from '../../shared/types'
 
 type LinkStepProps = {
   platforms: LinkableItem[]

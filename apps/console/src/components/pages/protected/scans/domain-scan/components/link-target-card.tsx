@@ -4,11 +4,11 @@ import React from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Separator } from '@repo/ui/separator'
-import { SectionCard } from './section-card'
-import { VendorLogo } from './vendor-logo'
+import { SectionCard } from '../../shared/section-card'
+import { VendorLogo } from '../../shared/vendor-logo'
 import { LinkSelectAllToggle } from './link-select-all-toggle'
-import { getLinkedIds, toggleLinkValue, type LinkMap } from '../selection-utils'
-import type { LinkableItem } from '../types'
+import { getLinkedIds, toggleLinkValue, type LinkMap } from '../../shared/selection-utils'
+import type { LinkableItem } from '../../shared/types'
 
 type LinkTargetCardProps = {
   target: { id: string; name: string }
