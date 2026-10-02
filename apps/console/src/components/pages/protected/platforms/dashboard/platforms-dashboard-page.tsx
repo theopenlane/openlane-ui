@@ -25,6 +25,8 @@ import PlatformDetailPage from '../detail/platform-detail-page'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { entityActionAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const STATUS_VARIANT: Record<PlatformPlatformStatus, 'green' | 'secondary'> = {
   [PlatformPlatformStatus.ACTIVE]: 'green',
@@ -174,7 +176,7 @@ const PlatformsDashboardPage: React.FC = () => {
           <div className="flex justify-between items-center gap-4">
             <h2 className="text-2xl font-semibold">Platforms</h2>
             {canCreatePlatform && (
-              <Button icon={<SquarePlus />} iconPosition="left" onClick={() => setShowCreate(true)}>
+              <Button icon={<SquarePlus />} iconPosition="left" onClick={() => setShowCreate(true)} {...entityActionAnchor(ObjectTypes.PLATFORM, 'create')}>
                 Create Platform
               </Button>
             )}

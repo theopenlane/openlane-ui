@@ -23,6 +23,7 @@ import { getHrefForSearchEntityType } from '@/utils/getHrefForObjectType'
 import { splitTextByQuery } from './search-utils'
 import { useNotification } from '@/hooks/useNotification'
 import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 const MIN_SEARCH_LENGTH = 3
 
@@ -181,6 +182,7 @@ export const GlobalSearch = () => {
         <Button
           variant="secondary"
           className="p-1 rounded-md h-8 w-8 items-center justify-center flex"
+          {...elementAnchor('nav-search')}
           onClick={() => {
             setOpen(true)
           }}

@@ -20,6 +20,7 @@ import MenuItem from '@/components/shared/menu/menu-item'
 import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { reportActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type ReportToolbarProps = {
   active: 'dashboard' | 'table'
@@ -181,9 +182,11 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
           <>
             <Menu
               closeOnSelect={true}
+              triggerAnchor={reportActionAnchor(ObjectTypes.CONTROL, 'actions-menu')}
               content={(close) => (
                 <>
                   <MenuItem
+                    {...reportActionAnchor(ObjectTypes.CONTROL, 'upload-from-standard')}
                     icon={<Upload size={16} strokeWidth={2} />}
                     onSelect={() => {
                       setIsCloneOpen(true)
@@ -193,6 +196,7 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
                     Upload From Standard
                   </MenuItem>
                   <MenuItem
+                    {...reportActionAnchor(ObjectTypes.CONTROL, 'bulk-upload')}
                     icon={<Upload size={16} strokeWidth={2} />}
                     onSelect={() => {
                       close()
@@ -202,6 +206,7 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
                     Upload Custom Controls
                   </MenuItem>
                   <MenuItem
+                    {...reportActionAnchor(ObjectTypes.CONTROL, 'bulk-upload-mappings')}
                     icon={<Upload size={16} strokeWidth={2} />}
                     onSelect={() => {
                       close()
@@ -217,11 +222,19 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
           </>
         ) : null}
         {createAllowed && showActions && (
-          <Link href="/controls/create-control">
-            <Button variant="primary" className={`h-8 px-2! pl-3! ${ICON_ONLY_BELOW_1300}`} icon={<SquarePlus />} iconPosition="left" descriptiveTooltipText="Create control">
+          <Button
+            asChild
+            variant="primary"
+            className={`h-8 px-2! pl-3! ${ICON_ONLY_BELOW_1300}`}
+            icon={<SquarePlus />}
+            iconPosition="left"
+            descriptiveTooltipText="Create control"
+            {...reportActionAnchor(ObjectTypes.CONTROL, 'create')}
+          >
+            <Link href="/controls/create-control">
               <span className={HIDE_BELOW_1300}>Create</span>
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         )}
       </div>
     </div>

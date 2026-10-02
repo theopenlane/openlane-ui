@@ -16,9 +16,10 @@ type UseDomainScanImportArgs = {
   report: DomainScanReport
   selection: DomainScanSelection
   storageKey?: string
+  exitHref: string
 }
 
-export const useDomainScanImport = ({ report, selection, storageKey }: UseDomainScanImportArgs) => {
+export const useDomainScanImport = ({ report, selection, storageKey, exitHref }: UseDomainScanImportArgs) => {
   const router = useRouter()
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
@@ -89,7 +90,7 @@ export const useDomainScanImport = ({ report, selection, storageKey }: UseDomain
       return
     }
 
-    const reviewedByUserID = session?.user?.id
+    const reviewedByUserID = session?.user?.userId
     if (reviewedByUserID) {
       await Promise.allSettled(scanIds.map((scanId) => updateScan({ updateScanId: scanId, input: { reviewedByUserID } })))
     }
@@ -103,7 +104,7 @@ export const useDomainScanImport = ({ report, selection, storageKey }: UseDomain
       clearDomainScanProgress(storageKey)
     }
 
-    router.push('/notifications')
+    router.push(exitHref)
   }
 
   return { handleImport, isImporting, canImport }

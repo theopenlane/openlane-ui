@@ -53,6 +53,7 @@ export enum ObjectAssociationNodeEnum {
   EVIDENCE = 'evidences',
   ENTITY = 'entities',
   IDENTITY_HOLDER = 'identityHolders',
+  CONTACT = 'contacts',
 }
 
 export type TLinkedProgram = {

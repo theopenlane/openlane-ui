@@ -7,6 +7,7 @@ export type CreateMenuDialogKey = 'task' | 'evidence' | 'contact'
 
 type CreateMenuItemBase = {
   label: string
+  anchor: string
   icon: NavIcon
   objectType?: ObjectTypes
   permission?: AccessEnum
@@ -17,11 +18,13 @@ export type CreateMenuItem = CreateMenuItemBase & ({ href: string; dialog?: neve
 export const CREATE_MENU_ITEMS: CreateMenuItem[] = [
   {
     label: 'Task',
+    anchor: 'task',
     icon: ClipboardCheckIcon,
     dialog: 'task',
   },
   {
     label: 'Program',
+    anchor: 'program',
     icon: ShieldCheckIcon,
     href: '/programs/create',
     objectType: ObjectTypes.PROGRAM,
@@ -29,6 +32,7 @@ export const CREATE_MENU_ITEMS: CreateMenuItem[] = [
   },
   {
     label: 'Evidence',
+    anchor: 'evidence',
     icon: FingerprintIcon,
     dialog: 'evidence',
     objectType: ObjectTypes.EVIDENCE,
@@ -36,6 +40,7 @@ export const CREATE_MENU_ITEMS: CreateMenuItem[] = [
   },
   {
     label: 'Policy',
+    anchor: 'policy',
     icon: FileTextIcon,
     href: '/policies/create',
     objectType: ObjectTypes.INTERNAL_POLICY,
@@ -43,6 +48,7 @@ export const CREATE_MENU_ITEMS: CreateMenuItem[] = [
   },
   {
     label: 'Procedure',
+    anchor: 'procedure',
     icon: WorkflowIcon,
     href: '/procedures/create',
     objectType: ObjectTypes.PROCEDURE,
@@ -50,6 +56,7 @@ export const CREATE_MENU_ITEMS: CreateMenuItem[] = [
   },
   {
     label: 'Risk',
+    anchor: 'risk',
     icon: GaugeIcon,
     href: '/exposure/risks/create',
     objectType: ObjectTypes.RISK,
@@ -57,6 +64,7 @@ export const CREATE_MENU_ITEMS: CreateMenuItem[] = [
   },
   {
     label: 'Trust Center Update',
+    anchor: 'trust-center-update',
     icon: MessageCirclePlusIcon,
     href: '/trust-center/updates',
     objectType: ObjectTypes.TRUST_CENTER,
@@ -64,6 +72,7 @@ export const CREATE_MENU_ITEMS: CreateMenuItem[] = [
   },
   {
     label: 'Contact',
+    anchor: 'contact',
     icon: GalleryVerticalEndIcon,
     dialog: 'contact',
     objectType: ObjectTypes.CONTACT,

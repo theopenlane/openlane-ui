@@ -10799,6 +10799,10 @@ export interface CreateSubscriberInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   userID?: InputMaybe<Scalars['ID']['input']>
+  /** indicates if the email address has been verified */
+  verifiedEmail?: InputMaybe<Scalars['Boolean']['input']>
+  /** indicates if the phone number has been verified */
+  verifiedPhone?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /**
@@ -50681,6 +50685,7 @@ export interface TrustCenterSubprocessorOrder {
 
 /** Properties by which TrustCenterSubprocessor connections can be ordered. */
 export enum TrustCenterSubprocessorOrderField {
+  SUBPROCESSOR_name = 'SUBPROCESSOR_name',
   created_at = 'created_at',
   updated_at = 'updated_at',
 }

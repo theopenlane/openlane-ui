@@ -16,21 +16,19 @@ import { Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ROW_ACTIONS_COLUMN_ID } from '@repo/ui/pinned-columns'
+import { AssessmentResponseStatusLabel } from '@/components/shared/enum-mapper/assessment-response-enum'
+import { type CampaignTargetWhereInput } from '@repo/codegen/src/schema'
+import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
+import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
+import { useRecipientLinks } from './use-recipient-links'
 
 type RecipientsTableProps = {
   campaignId: string
-  onRecipientClick: (recipient: CampaignTargetsNodeNonNull) => void
   showDelivery?: boolean
   canRemove?: boolean
 }
 
-const getRecipientStatus = (recipient: CampaignTargetsNodeNonNull) => {
-  if (recipient.completedAt) return { label: 'Completed', color: 'bg-green-500' }
-  if (recipient.sentAt) return { label: 'Sent', color: 'bg-blue-500' }
-  return { label: 'Pending', color: 'bg-gray-500' }
-}
-
-const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipientClick, showDelivery = true, canRemove = false }) => {
+const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, showDelivery = true, canRemove = false }) => {
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
@@ -50,13 +48,13 @@ const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipie
     }
   }
 
-  const where = useMemo(() => {
-    const base: Record<string, unknown> = { hasCampaignWith: [{ id: campaignId }] }
-    if (debouncedSearch) {
-      base.or = [{ fullNameContainsFold: debouncedSearch }, { emailContainsFold: debouncedSearch }]
-    }
-    return base
-  }, [campaignId, debouncedSearch])
+  const where = useMemo<CampaignTargetWhereInput>(
+    () => ({
+      hasCampaignWith: [{ id: campaignId }],
+      ...(debouncedSearch ? { or: [{ fullNameContainsFold: debouncedSearch }, { emailContainsFold: debouncedSearch }] } : {}),
+    }),
+    [campaignId, debouncedSearch],
+  )
 
   const {
     CampaignTargetsNodes: recipients,
@@ -69,16 +67,19 @@ const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipie
     enabled: !!campaignId,
   })
 
+  const recipientLinks = useRecipientLinks(recipients)
+  const openObjectSheet = useOpenObjectSheet()
+
   const columns = useMemo<ColumnDef<CampaignTargetsNodeNonNull>[]>(() => {
     const baseColumns: ColumnDef<CampaignTargetsNodeNonNull>[] = [
       {
         accessorKey: 'fullName',
         header: 'Name',
-        cell: ({ row }) => (
-          <button type="button" onClick={() => onRecipientClick(row.original)} className="block truncate text-blue-500 hover:underline">
-            {row.original.fullName || '—'}
-          </button>
-        ),
+        cell: ({ row }) => {
+          const label = row.original.fullName || '—'
+          const link = recipientLinks.get(row.original.id)
+          return <span className="block truncate">{link ? <ObjectSheetLink id={link.id} kind={link.kind} label={label} onOpenSheet={openObjectSheet} /> : label}</span>
+        },
       },
       {
         accessorKey: 'email',
@@ -91,15 +92,7 @@ const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipie
       {
         id: 'status',
         header: 'Status',
-        cell: ({ row }) => {
-          const s = getRecipientStatus(row.original)
-          return (
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${s.color}`} />
-              {s.label}
-            </div>
-          )
-        },
+        cell: ({ row }) => <AssessmentResponseStatusLabel status={row.original.status} />,
       },
       {
         accessorKey: 'sentAt',
@@ -131,7 +124,7 @@ const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipie
     }
 
     return [...baseColumns, ...(showDelivery ? deliveryColumns : [addedColumn]), ...(canRemove ? [removeColumn] : [])]
-  }, [onRecipientClick, showDelivery, canRemove])
+  }, [recipientLinks, openObjectSheet, showDelivery, canRemove])
 
   const paginationMeta = useMemo(
     () => ({

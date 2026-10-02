@@ -18,6 +18,8 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useSession } from 'next-auth/react'
 import EvidenceProgramFilter from './evidence-program-filter'
 import { useStickyProgramFilter } from './hooks/use-sticky-program-filter'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { entityActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 const EvidenceDetailsPage = () => {
   const { data: session } = useSession()
@@ -81,7 +83,7 @@ const EvidenceDetailsPage = () => {
               </div>
               {createAllowed && (
                 <div className="shrink-0 h-8 flex items-center">
-                  <Button variant="primary" className="h-8 px-2!" onClick={handleCreateEvidence}>
+                  <Button variant="primary" className="h-8 px-2!" onClick={handleCreateEvidence} {...entityActionAnchor(ObjectTypes.EVIDENCE, 'create')}>
                     Submit Evidence
                   </Button>
                   <EvidenceCreateSheet

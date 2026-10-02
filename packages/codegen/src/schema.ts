@@ -657,10 +657,50 @@ export interface CampaignTargetsWithFilterQuery {
         id: string
         metadata: any
         sentAt: string | null
+        status: Types.CampaignTargetAssessmentResponseStatus
         updatedAt: any
         updatedBy: string | null
         userID: string | null
         workflowEligibleMarker: boolean | null
+        contact: { id: string } | null
+      } | null
+    } | null> | null
+    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type CampaignTargetsWithCampaignQueryVariables = Exact<{
+  where?: Types.CampaignTargetWhereInput | null | undefined
+  orderBy?: Array<Types.CampaignTargetOrder> | Types.CampaignTargetOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface CampaignTargetsWithCampaignQuery {
+  campaignTargets: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        email: string
+        status: Types.CampaignTargetAssessmentResponseStatus
+        sentAt: string | null
+        completedAt: string | null
+        createdAt: any
+        campaign: {
+          id: string
+          name: string
+          description: string | null
+          campaignType: Types.CampaignCampaignType
+          status: Types.CampaignCampaignStatus
+          dueDate: string | null
+          isRecurring: boolean
+          recurrenceFrequency: Types.CampaignFrequency | null
+          recurrenceInterval: number | null
+          assessment: { id: string; name: string } | null
+        } | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -3201,6 +3241,7 @@ export interface GetAllEvidencesQuery {
 }
 
 export type EvidenceFieldsFragment = {
+  auditorReferenceID: string | null
   collectionProcedure: string | null
   createdAt: any
   createdBy: string | null
@@ -3243,6 +3284,7 @@ export type GetEvidenceQueryVariables = Exact<{
 
 export interface GetEvidenceQuery {
   evidence: {
+    auditorReferenceID: string | null
     collectionProcedure: string | null
     createdAt: any
     createdBy: string | null
@@ -6759,6 +6801,12 @@ export interface GetEvidenceStatsQuery {
   submitted: { totalCount: number }
   readyForAuditor: { totalCount: number }
   accepted: { totalCount: number }
+}
+
+export type GetProgramFrameworkNamesQueryVariables = Exact<{ [key: string]: never }>
+
+export interface GetProgramFrameworkNamesQuery {
+  programs: { edges: Array<{ node: { id: string; frameworkName: string | null } | null } | null> | null }
 }
 
 export type GetProgramDashboardQueryVariables = Exact<{

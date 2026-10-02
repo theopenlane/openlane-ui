@@ -9,10 +9,9 @@ import { type AssessmentResponse, type AssessmentResponseQuery, AssessmentRespon
 import { useAssessmentResponsesWithFilter, useAssessmentResponse, useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessment-response'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
-import { Badge } from '@repo/ui/badge'
+import { AssessmentResponseStatusLabel } from '@/components/shared/enum-mapper/assessment-response-enum'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { computeDueDate, formatDate } from '@/utils/date'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import CollapsibleSection from '@/components/shared/collapsible-section/collapsible-section'
 import AssessmentResponseView, { countAnswered } from '@/components/pages/protected/questionnaire/shared/assessment-response-view'
 import { useNotification } from '@/hooks/useNotification'
@@ -30,20 +29,6 @@ type AssessmentResponseRow = Pick<AssessmentResponse, 'id' | 'assessmentID' | 'e
 }
 
 type AssessmentResponseDetail = NonNullable<AssessmentResponseQuery['assessmentResponse']>
-
-const statusVariantMap: Record<AssessmentResponseAssessmentResponseStatus, 'green' | 'blue' | 'default' | 'destructive'> = {
-  [AssessmentResponseAssessmentResponseStatus.COMPLETED]: 'green',
-  [AssessmentResponseAssessmentResponseStatus.SENT]: 'blue',
-  [AssessmentResponseAssessmentResponseStatus.OVERDUE]: 'destructive',
-  [AssessmentResponseAssessmentResponseStatus.NOT_STARTED]: 'default',
-  [AssessmentResponseAssessmentResponseStatus.DRAFT]: 'default',
-}
-
-const StatusBadge: React.FC<{ status: AssessmentResponseAssessmentResponseStatus }> = ({ status }) => (
-  <Badge variant={statusVariantMap[status] || 'default'} className="shrink-0">
-    {getEnumLabel(status)}
-  </Badge>
-)
 
 const SORT_FIELDS = [{ label: 'Created At', key: AssessmentResponseOrderField.created_at }]
 
@@ -135,7 +120,7 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
       id: 'status',
       header: 'Status',
       size: 120,
-      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      cell: ({ row }) => <AssessmentResponseStatusLabel status={row.original.status} />,
     },
   ]
 
@@ -189,7 +174,7 @@ const ResponseMetadata: React.FC<{ response: AssessmentResponseDetail }> = ({ re
   <div className="space-y-2">
     <DetailRow label="Assessment" value={response.assessment?.name} />
     <DetailRow label="Email" value={response.email} />
-    <DetailRow label="Status" value={getEnumLabel(response.status)} />
+    <DetailRow label="Status" value={<AssessmentResponseStatusLabel status={response.status} />} />
     <DetailRow label="Assigned At" value={formatDate(response.assignedAt)} />
     <DetailRow label="Started At" value={formatDate(response.startedAt)} />
     <DetailRow label="Completed At" value={formatDate(response.completedAt)} />
@@ -199,7 +184,7 @@ const ResponseMetadata: React.FC<{ response: AssessmentResponseDetail }> = ({ re
   </div>
 )
 
-const DetailRow: React.FC<{ label: string; value?: string | null }> = ({ label, value }) => (
+const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="flex items-center justify-between border-b border-border pb-2">
     <span className="text-sm text-muted-foreground">{label}</span>
     <span className="text-sm">{value || '-'}</span>

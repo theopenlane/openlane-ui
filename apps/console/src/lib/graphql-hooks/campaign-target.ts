@@ -4,6 +4,7 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type CampaignTargetsWithFilterQuery,
   type CampaignTargetsWithFilterQueryVariables,
+  type CampaignTargetsWithCampaignQuery,
   type CampaignTargetStatsQuery,
   type CampaignTargetStatsQueryVariables,
   type CreateCampaignTargetMutation,
@@ -19,8 +20,10 @@ import {
 } from '@repo/codegen/src/schema'
 
 import { type TPagination } from '@repo/ui/pagination-types'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 import {
   GET_ALL_CAMPAIGN_TARGETS,
+  GET_CAMPAIGN_TARGETS_WITH_CAMPAIGN,
   GET_CAMPAIGN_TARGET_STATS,
   CREATE_CAMPAIGN_TARGET,
   CREATE_BULK_CAMPAIGN_TARGET,
@@ -51,11 +54,26 @@ export const useCampaignTargetsWithFilter = ({ where, orderBy, pagination, enabl
     enabled,
   })
 
-  const edges = queryResult.data?.campaignTargets?.edges ?? []
+  const edges = queryResult.data?.campaignTargets?.edges
 
-  const CampaignTargetsNodes: CampaignTargetsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as CampaignTargetsNodeNonNull)
+  const CampaignTargetsNodes = useMemo(() => (edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [edges])
 
   return { ...queryResult, CampaignTargetsNodes }
+}
+
+export type CampaignTargetWithCampaign = NonNullable<NonNullable<NonNullable<NonNullable<CampaignTargetsWithCampaignQuery['campaignTargets']>['edges']>[number]>['node']>
+
+export const useCampaignTargetsWithCampaign = ({ where, orderBy, pagination, enabled = true }: GetAllCampaignTargetsArgs) => {
+  const { client } = useGraphQLClient()
+  const queryResult = useQuery<CampaignTargetsWithCampaignQuery, unknown>({
+    queryKey: ['campaignTargets', 'withCampaign', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: async () => client.request<CampaignTargetsWithCampaignQuery>(GET_CAMPAIGN_TARGETS_WITH_CAMPAIGN, { where, orderBy, ...pagination?.query }),
+    enabled,
+  })
+
+  const campaignTargets = useMemo(() => getNodes(queryResult.data?.campaignTargets), [queryResult.data])
+
+  return { ...queryResult, campaignTargets }
 }
 
 export const useCampaignTargetStats = ({ where, enabled = true }: { where?: CampaignTargetStatsQueryVariables['where']; enabled?: boolean }) => {

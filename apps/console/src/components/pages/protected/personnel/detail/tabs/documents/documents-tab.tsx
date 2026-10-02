@@ -29,6 +29,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import MarkAsEvidenceDialog from './mark-as-evidence-dialog'
 import UnmarkEvidenceDialog from '@/components/pages/protected/vendors/detail/tabs/documents/unmark-evidence-dialog'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 interface DocumentsTabProps {
   personnelId: string
@@ -155,10 +157,14 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
       <div className="flex items-center gap-2 mb-3">
         <Input icon={<SearchIcon size={16} />} placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} variant="searchTable" />
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          <Menu closeOnSelect={true} content={(close) => <ExportMenuItem onExport={handleExportCSV} onSelected={close} />} />
+          <Menu
+            closeOnSelect={true}
+            triggerAnchor={tableActionAnchor(ObjectTypes.FILE, 'actions-menu')}
+            content={(close) => <ExportMenuItem onExport={handleExportCSV} onSelected={close} anchor={tableActionAnchor(ObjectTypes.FILE, 'export')} />}
+          />
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.IDENTITY_HOLDER_FILES} />
           {canEdit && (
-            <Button variant="primary" icon={<Upload />} iconPosition="left" onClick={() => setIsUploadDialogOpen(true)}>
+            <Button variant="primary" icon={<Upload />} iconPosition="left" onClick={() => setIsUploadDialogOpen(true)} {...tableActionAnchor(ObjectTypes.FILE, 'upload')}>
               Upload
             </Button>
           )}

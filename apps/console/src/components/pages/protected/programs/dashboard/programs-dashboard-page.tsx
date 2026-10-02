@@ -31,6 +31,7 @@ import { Callout } from '@/components/shared/callout/callout'
 import ProgramsCreate from '../create/programs-page'
 import { ProgramSettingsAssignUserDialog } from '../[id]/settings/users/program-settings-assign-user-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { entityActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { ProgramsDashboardSkeleton } from '../skeleton/programs-dashboard-skeleton'
 import { PROGRAMS_LIST_HREF, PROGRAMS_VIEW_ALL, PROGRAMS_VIEW_PARAM } from '@/constants/programs'
 import { useSession } from 'next-auth/react'
@@ -169,11 +170,9 @@ const ProgramsDashboardPage = () => {
             </TabsList>
           </Tabs>
           {hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram, session) && (
-            <Link href="/programs/create">
-              <Button icon={<SquarePlus />} iconPosition="left">
-                Create
-              </Button>
-            </Link>
+            <Button asChild icon={<SquarePlus />} iconPosition="left" {...entityActionAnchor(ObjectTypes.PROGRAM, 'create')}>
+              <Link href="/programs/create">Create</Link>
+            </Button>
           )}
         </div>
       </div>

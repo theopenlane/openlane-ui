@@ -113,17 +113,7 @@ const MultiStepForm = ({ questionSteps, trialCards, trialTitle, trialDescription
         </div>
 
         <div className={`flex flex-col ${CONTENT_RIGHT_COLUMN_CLASS}`}>
-          {submitStage === 'transition' && (
-            <OnboardingTransitionCard
-              totalSteps={steps.length}
-              title={trialTitle}
-              description={trialDescription}
-              cards={trialCards}
-              primaryDomain={primaryDomain}
-              isSubmitting={methods.formState.isSubmitting}
-              onLeave={leaveOnboarding}
-            />
-          )}
+          {submitStage === 'transition' && <OnboardingTransitionCard totalSteps={steps.length} title={trialTitle} description={trialDescription} cards={trialCards} primaryDomain={primaryDomain} />}
 
           {submitStage === 'ready' && (
             <OnboardingReadyCard

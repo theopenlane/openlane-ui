@@ -22,6 +22,8 @@ import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { useSession } from 'next-auth/react'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const DEFAULT_TAGS_COLUMN_VISIBILITY: VisibilityState = {
   type: false,
@@ -131,7 +133,7 @@ const CustomTagsTab: FC = () => {
         />
 
         {canEditTags && (
-          <Button className="gap-2" onClick={handleCreateOpen} icon={<SquarePlus />} iconPosition="left">
+          <Button className="gap-2" onClick={handleCreateOpen} icon={<SquarePlus />} iconPosition="left" {...tableActionAnchor(ObjectTypes.TAG_DEFINITION, 'create')}>
             Create Tag
           </Button>
         )}

@@ -9,6 +9,9 @@ export const GET_ALL_CAMPAIGN_TARGETS = gql`
           campaignID
           completedAt
           contactID
+          contact {
+            id
+          }
           createdAt
           createdBy
           email
@@ -19,10 +22,50 @@ export const GET_ALL_CAMPAIGN_TARGETS = gql`
           id
           metadata
           sentAt
+          status
           updatedAt
           updatedBy
           userID
           workflowEligibleMarker
+        }
+      }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+    }
+  }
+`
+
+export const GET_CAMPAIGN_TARGETS_WITH_CAMPAIGN = gql`
+  query CampaignTargetsWithCampaign($where: CampaignTargetWhereInput, $orderBy: [CampaignTargetOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    campaignTargets(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
+      totalCount
+      edges {
+        node {
+          id
+          email
+          status
+          sentAt
+          completedAt
+          createdAt
+          campaign {
+            id
+            name
+            description
+            campaignType
+            status
+            dueDate
+            isRecurring
+            recurrenceFrequency
+            recurrenceInterval
+            assessment {
+              id
+              name
+            }
+          }
         }
       }
       pageInfo {

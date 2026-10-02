@@ -1,21 +1,22 @@
 'use client'
 
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import ScrollableTabsList from '@/components/pages/protected/controls/tabs/scrollable-tabs-list'
 import OverviewTab from './overview/overview-tab'
 import DocumentsTab from './documents/documents-tab'
+import CampaignsTab from './campaigns/campaigns-tab'
 import AssessmentsTab from './questionnaires/questionnaires-tab'
 import HistoryTab from './history/history-tab'
 import LinkedAccountsTab from './linked-accounts/linked-accounts-tab'
 import type { IdentityHolderQuery, UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
 
-type PersonnelTabValue = 'overview' | 'documents' | 'linked-accounts' | 'assessments' | 'history'
+type PersonnelTabValue = 'overview' | 'documents' | 'linked-accounts' | 'campaigns' | 'assessments' | 'history'
 
 const DEFAULT_TAB: PersonnelTabValue = 'overview'
 const TAB_QUERY_PARAM = 'tab'
-const ALL_TABS: PersonnelTabValue[] = ['overview', 'documents', 'linked-accounts', 'assessments', 'history']
+const ALL_TABS: PersonnelTabValue[] = ['overview', 'documents', 'linked-accounts', 'campaigns', 'assessments', 'history']
 
 interface PersonnelDetailTabsProps {
   personnel: IdentityHolderQuery['identityHolder']
@@ -28,6 +29,7 @@ const PersonnelDetailTabs: React.FC<PersonnelDetailTabsProps> = ({ personnel, is
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const [campaignSearchTerm, setCampaignSearchTerm] = useState('')
 
   const tabParamValue = searchParams.get(TAB_QUERY_PARAM)
   const activeTab = tabParamValue && ALL_TABS.includes(tabParamValue as PersonnelTabValue) ? (tabParamValue as PersonnelTabValue) : DEFAULT_TAB
@@ -73,6 +75,7 @@ const PersonnelDetailTabs: React.FC<PersonnelDetailTabsProps> = ({ personnel, is
             </TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="linked-accounts">Linked Accounts</TabsTrigger>
+            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
             <TabsTrigger value="assessments">Assessments</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
@@ -89,6 +92,10 @@ const PersonnelDetailTabs: React.FC<PersonnelDetailTabsProps> = ({ personnel, is
 
       <TabsContent value="linked-accounts" className="space-y-6">
         <LinkedAccountsTab personnelId={personnel.id} />
+      </TabsContent>
+
+      <TabsContent value="campaigns" className="space-y-6">
+        <CampaignsTab personnelEmail={personnel.email} searchTerm={campaignSearchTerm} onSearchTermChange={setCampaignSearchTerm} />
       </TabsContent>
 
       <TabsContent value="assessments" className="space-y-6">

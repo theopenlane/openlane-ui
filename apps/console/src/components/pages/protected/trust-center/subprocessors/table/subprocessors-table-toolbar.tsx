@@ -22,6 +22,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type TProps = {
   searching?: boolean
@@ -38,6 +40,8 @@ type TProps = {
   canCreateSubprocessor: boolean
   canEditSubprocessor: boolean
 }
+
+const createAnchor = tableActionAnchor(ObjectTypes.TRUST_CENTER_SUBPROCESSOR, 'create')
 
 const SubprocessorsTableToolbar: React.FC<TProps> = ({
   searching,
@@ -156,9 +160,10 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <Menu
               closeOnSelect={true}
+              triggerAnchor={tableActionAnchor(ObjectTypes.TRUST_CENTER_SUBPROCESSOR, 'actions-menu')}
               content={(close) => (
                 <>
-                  <ExportMenuItem onExport={onExport} onSelected={close} disabled={!exportEnabled} />
+                  <ExportMenuItem onExport={onExport} onSelected={close} disabled={!exportEnabled} anchor={tableActionAnchor(ObjectTypes.TRUST_CENTER_SUBPROCESSOR, 'export')} />
                 </>
               )}
             />
@@ -171,13 +176,17 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
               <>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="primary" className="h-8" icon={<ChevronDown size={16} />}>
+                    <Button variant="primary" className="h-8" icon={<ChevronDown size={16} />} {...createAnchor}>
                       Create
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={() => setAddExistingOpen(true)}>Add subprocessor</DropdownMenuItem>
-                    <DropdownMenuItem onSelect={() => setCreateSheetOpen(true)}>Custom subprocessor</DropdownMenuItem>
+                  <DropdownMenuContent align="end" aria-labelledby={createAnchor.id}>
+                    <DropdownMenuItem onSelect={() => setAddExistingOpen(true)} {...tableActionAnchor(ObjectTypes.TRUST_CENTER_SUBPROCESSOR, 'add-existing')}>
+                      Add subprocessor
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => setCreateSheetOpen(true)} {...tableActionAnchor(ObjectTypes.TRUST_CENTER_SUBPROCESSOR, 'create-custom')}>
+                      Custom subprocessor
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <AddExistingDialog createdSubprocessor={createdSubprocessor} onClose={() => setCreatedSubprocessor(null)} open={addExistingOpen} onOpenChange={setAddExistingOpen} />
@@ -187,7 +196,14 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
           </div>
         ) : (
           <div className="flex items-center gap-2 justify-end flex-wrap">
-            <Button variant="secondary" icon={<Trash2 size={16} />} iconPosition="left" onClick={handleBulkDelete} disabled={isDeleting}>
+            <Button
+              variant="secondary"
+              icon={<Trash2 size={16} />}
+              iconPosition="left"
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+              {...tableActionAnchor(ObjectTypes.TRUST_CENTER_SUBPROCESSOR, 'bulk-delete')}
+            >
               Bulk Delete ({selectedRows.length})
             </Button>
             <Button

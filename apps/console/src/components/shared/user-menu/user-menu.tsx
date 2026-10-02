@@ -11,6 +11,9 @@ import { Computer, Keyboard, LogOut, Moon, PaintbrushVertical, Sun, TextSearch, 
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 import { useRouter } from 'next/navigation'
 import { useSignOut } from '@/hooks/useSignOut'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
+const userMenuTriggerAnchor = elementAnchor('user-menu-trigger')
+
 interface UserMenuProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -49,11 +52,11 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
-        <div className={trigger()} data-testid="user-menu-trigger">
+        <div className={trigger()} {...userMenuTriggerAnchor}>
           <Avatar entity={avatarEntity} />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="min-w-64 border shadow-md pb-1" align="end">
+      <DropdownMenuContent className="min-w-64 border shadow-md pb-1" align="end" aria-labelledby={userMenuTriggerAnchor.id}>
         {(displayName || emailAddress) && (
           <>
             <div className="text-sm px-2 text-paragraph">
@@ -75,10 +78,11 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
               <button
                 key={opt.value}
                 onClick={() => setTheme(opt.value)}
-                className={`flex items-center justify-center rounded-md p-1 transition-all bg-popover hover:bg-card dark:bg-card dark:hover:bg-btn-secondary ${
+                className={`flex items-center justify-center rounded-md p-1 transition-all *:pointer-events-none bg-popover hover:bg-card dark:bg-card dark:hover:bg-btn-secondary ${
                   theme === opt.value ? '!bg-card dark:!bg-btn-secondary' : 'text-muted-foreground'
                 }`}
                 title={opt.label}
+                {...elementAnchor('user-menu', 'theme', opt.value)}
               >
                 {opt.icon}
               </button>
@@ -90,7 +94,7 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
 
         {!sessionUser?.isImpersonation && (
           <>
-            <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => handleSettingsRedirect()}>
+            <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => handleSettingsRedirect()} {...elementAnchor('user-menu-user-settings')}>
               <UserCog size={16} className="text-muted-foreground" />
               <span>User Settings</span>
             </Button>
@@ -125,7 +129,7 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
 
         <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1 mt-3" />
 
-        <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => void handleSignOut()}>
+        <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => void handleSignOut()} {...elementAnchor('user-menu-log-out')}>
           <LogOut size={16} className="text-muted-foreground" />
           <span>Log out</span>
         </Button>

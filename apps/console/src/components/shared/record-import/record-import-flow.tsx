@@ -17,8 +17,8 @@ import { MappingStep } from './steps/mapping-step'
 import { ReviewStep } from './steps/review-step'
 import { useRecordImport } from './lib/use-record-import'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
-import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
-import { importDisplayNamePlural, RETURN_TO_PARAM, type TImportRoute } from './lib/import-routes'
+import { readReturnTo } from '@/utils/return-to'
+import { importDisplayNamePlural, type TImportRoute } from './lib/import-routes'
 type TRecordImportFlowProps = {
   entityType: ObjectTypes
   route: TImportRoute
@@ -36,7 +36,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
   const entityLabel = route.displayName
   const entityLabelPlural = importDisplayNamePlural(route)
   const entityLabels = useMemo(() => [entityLabel, entityLabelPlural], [entityLabel, entityLabelPlural])
-  const returnHref = sanitizeLoginRedirect(searchParams.get(RETURN_TO_PARAM), route.listHref)
+  const returnHref = readReturnTo(searchParams, route.listHref)
   const backLabel = returnHref.split('?')[0] === route.listHref.split('?')[0] ? `Back to ${route.listLabel}` : 'Back'
   const fieldReferenceId = useId()
 

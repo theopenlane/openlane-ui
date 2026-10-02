@@ -35,6 +35,8 @@ import { BulkEditValueSelect } from '@/components/shared/bulk-edit-shared-object
 import { useBulkUpdateFeedback } from '@/components/shared/crud-base/use-bulk-update-feedback'
 import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-single-object-association'
 import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type BulkEditProceduresFormValues = BulkEditFieldsFormValues
 
@@ -138,7 +140,7 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
       }}
     >
       <FormProvider {...form}>
-        <DialogTrigger asChild>
+        <DialogTrigger asChild {...tableActionAnchor(ObjectTypes.PROCEDURE, 'bulk-edit')}>
           <Button disabled={selectedProcedures.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
             {selectedProcedures && selectedProcedures.length > 0 ? `Bulk Edit (${selectedProcedures.length})` : 'Bulk Edit'}
           </Button>

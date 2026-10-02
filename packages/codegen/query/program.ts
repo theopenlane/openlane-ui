@@ -385,6 +385,19 @@ export const GET_EVIDENCE_STATS = gql`
   }
 `
 
+export const GET_PROGRAM_FRAMEWORK_NAMES = gql`
+  query GetProgramFrameworkNames {
+    programs(where: { frameworkNameNotNil: true }) {
+      edges {
+        node {
+          id
+          frameworkName
+        }
+      }
+    }
+  }
+`
+
 export const GET_PROGRAM_DASHBOARD = gql`
   query GetProgramDashboard($where: ProgramWhereInput) {
     programs(where: $where) {

@@ -176,6 +176,8 @@ export const wordTokens = (value: string): string[] =>
     .split(/[^a-z0-9]+/)
     .filter(Boolean)
 
+export const toKebabCase = (...parts: string[]): string => parts.flatMap((part) => wordTokens(part.replace(/([a-z0-9])([A-Z])/g, '$1 $2'))).join('-')
+
 export const normalizeFieldName = (value: string): string => value.toLowerCase().replace(/[^a-z0-9]/g, '')
 
 const BYTES_PER_KB = 1024

@@ -22,6 +22,7 @@ import { NdaApprovalGroupCard } from './components/nda-approval-group-card'
 import { ObjectTypes } from '@repo/codegen/src/type-names.ts'
 import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 const NDAsPage = () => {
   const { latestFile, isLoading, latestTemplate } = useGetTrustCenterNDAFiles()
@@ -104,7 +105,7 @@ const NDAsPage = () => {
                 {canEditTc && (
                   <NDAUploadDialog
                     trigger={
-                      <Button icon={<Plus />} iconPosition="left">
+                      <Button icon={<Plus />} iconPosition="left" {...tableActionAnchor(ObjectTypes.TRUST_CENTER_NDA_REQUEST, 'upload')}>
                         Upload
                       </Button>
                     }

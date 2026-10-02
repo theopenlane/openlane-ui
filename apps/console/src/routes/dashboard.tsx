@@ -76,12 +76,14 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
     },
     {
       title: 'Home',
+      anchor: 'home',
       href: '/dashboard',
       icon: HomeIcon,
       hidden: session?.user?.isOnboarding || billingExpired,
     },
     {
       title: 'Compliance',
+      anchor: 'compliance',
       icon: ShieldCheckIcon,
       href: '/',
       plan: PlanEnum.COMPLIANCE_MODULE,
@@ -89,6 +91,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       children: [
         {
           title: 'Auditor Dashboard',
+          anchor: 'auditor-dashboard',
           href: '/auditor-dashboard',
           icon: SquareActivityIcon,
           hidden: !isAuditor,
@@ -96,12 +99,14 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
         },
         {
           title: 'Programs',
+          anchor: 'programs',
           href: '/programs',
           icon: ShieldCheckIcon,
           objectType: ObjectTypes.PROGRAM,
         },
         {
           title: 'Controls',
+          anchor: 'controls',
           href: '/controls',
           params: '?tab=report',
           icon: SlidersHorizontalIcon,
@@ -109,24 +114,28 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
         },
         {
           title: 'Evidence',
+          anchor: 'evidence',
           href: '/evidence',
           icon: FingerprintIcon,
           objectType: ObjectTypes.EVIDENCE,
         },
         {
           title: 'Policies',
+          anchor: 'policies',
           href: '/policies',
           icon: FileTextIcon,
           objectType: ObjectTypes.INTERNAL_POLICY,
         },
         {
           title: 'Procedures',
+          anchor: 'procedures',
           href: '/procedures',
           icon: WorkflowIcon,
           objectType: ObjectTypes.PROCEDURE,
         },
         {
           title: 'Standards Catalog',
+          anchor: 'standards-catalog',
           href: '/standards',
           icon: FileCheckIcon,
           objectType: ObjectTypes.STANDARD,
@@ -135,6 +144,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
     },
     {
       title: 'Registry',
+      anchor: 'registry',
       icon: LayersIcon,
       href: '/registry',
       plan: [PlanEnum.COMPLIANCE_MODULE, PlanEnum.REGISTRY_MODULE],
@@ -142,36 +152,42 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       children: [
         {
           title: 'Platforms',
+          anchor: 'platforms',
           href: '/registry/platforms',
           icon: LayoutGridIcon,
           objectType: ObjectTypes.PLATFORM,
         },
         {
           title: 'System Details',
+          anchor: 'system-details',
           href: '/registry/system-details',
           icon: MonitorCogIcon,
           objectType: ObjectTypes.SYSTEM_DETAIL,
         },
         {
           title: 'Assets',
+          anchor: 'assets',
           href: '/registry/assets',
           icon: LaptopMinimalCheckIcon,
           objectType: ObjectTypes.ASSET,
         },
         {
           title: 'Vendors',
+          anchor: 'vendors',
           href: '/registry/vendors',
           icon: BriefcaseBusinessIcon,
           objectType: ObjectTypes.ENTITY,
         },
         {
           title: 'Personnel',
+          anchor: 'personnel',
           href: '/registry/personnel',
           icon: UsersRoundIcon,
           objectType: ObjectTypes.IDENTITY_HOLDER,
         },
         {
           title: 'Contacts',
+          anchor: 'contacts',
           href: '/registry/contacts',
           icon: GalleryVerticalEndIcon,
           objectType: ObjectTypes.CONTACT,
@@ -180,6 +196,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
     },
     {
       title: 'Trust Center',
+      anchor: 'trust-center',
       plan: PlanEnum.TRUST_CENTER_MODULE,
       href: '/trust-center',
       icon: HeartHandshakeIcon,
@@ -188,56 +205,64 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       children: [
         {
           title: 'Overview',
+          anchor: 'overview',
           href: '/trust-center/overview',
           icon: LayoutPanelTopIcon,
           objectType: ObjectTypes.TRUST_CENTER,
         },
         {
           title: 'Branding',
+          anchor: 'branding',
           href: '/trust-center/branding',
           icon: PenToolIcon,
           objectType: ObjectTypes.TRUST_CENTER,
         },
         {
           title: 'Domain',
+          anchor: 'domain',
           href: '/trust-center/domain',
           icon: EarthIcon,
           objectType: ObjectTypes.TRUST_CENTER,
         },
         {
           title: 'Documents',
+          anchor: 'documents',
           href: '/trust-center/documents',
           icon: FileTextIcon,
           objectType: ObjectTypes.TRUST_CENTER,
         },
         {
           title: 'NDAs',
+          anchor: 'ndas',
           href: '/trust-center/NDAs',
           icon: FilePenLineIcon,
           objectType: ObjectTypes.TRUST_CENTER,
         },
         {
           title: 'Frameworks',
+          anchor: 'frameworks',
           href: '/trust-center/frameworks',
           icon: ShieldCheckIcon,
           objectType: ObjectTypes.TRUST_CENTER,
         },
         {
           title: 'Controls',
+          anchor: 'controls',
           href: '/trust-center/controls',
           icon: SlidersHorizontalIcon,
           objectType: ObjectTypes.TRUST_CENTER,
         },
-        { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: ServerIcon, objectType: ObjectTypes.TRUST_CENTER },
-        { title: 'Updates', href: '/trust-center/updates', icon: MessageCirclePlusIcon, objectType: ObjectTypes.TRUST_CENTER },
-        { title: 'Subscribers', href: '/trust-center/subscribers', icon: UsersIcon, objectType: ObjectTypes.TRUST_CENTER },
-        { title: 'Customer Logos', href: '/trust-center/customer-logos', icon: BlocksIcon, objectType: ObjectTypes.TRUST_CENTER },
-        { title: 'FAQs', href: '/trust-center/faqs', icon: CircleHelpIcon, objectType: ObjectTypes.TRUST_CENTER },
-        { title: 'Analytics', href: '/trust-center/analytics', icon: ChartSplineIcon, objectType: ObjectTypes.TRUST_CENTER },
+        { title: 'Subprocessors', anchor: 'subprocessors', href: '/trust-center/subprocessors', icon: ServerIcon, objectType: ObjectTypes.TRUST_CENTER },
+        { title: 'Updates', anchor: 'updates', href: '/trust-center/updates', icon: MessageCirclePlusIcon, objectType: ObjectTypes.TRUST_CENTER },
+        { title: 'Subscribers', anchor: 'subscribers', href: '/trust-center/subscribers', icon: UsersIcon, objectType: ObjectTypes.TRUST_CENTER },
+        { title: 'Customer Logos', anchor: 'customer-logos', href: '/trust-center/customer-logos', icon: BlocksIcon, objectType: ObjectTypes.TRUST_CENTER },
+        { title: 'FAQs', anchor: 'faqs', href: '/trust-center/faqs', icon: CircleHelpIcon, objectType: ObjectTypes.TRUST_CENTER },
+        { title: 'Analytics', anchor: 'analytics', href: '/trust-center/analytics', icon: ChartSplineIcon, objectType: ObjectTypes.TRUST_CENTER },
       ],
     },
     {
       title: 'Exposure',
+      anchor: 'exposure',
       href: '/exposure',
       icon: SatelliteDishIcon,
       plan: [PlanEnum.COMPLIANCE_MODULE, PlanEnum.VULNERABILITY_MANAGEMENT_MODULE, PlanEnum.RISK_MANAGEMENT_ADDON],
@@ -245,48 +270,56 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       children: [
         {
           title: 'Overview',
+          anchor: 'overview',
           href: '/exposure/overview',
           icon: LayoutPanelTopIcon,
           objectType: ObjectTypes.FINDING,
         },
         {
           title: 'Triage Queue',
+          anchor: 'triage-queue',
           href: '/exposure/triage',
           icon: ChartBarDecreasingIcon,
           objectType: ObjectTypes.VULNERABILITY,
         },
         {
           title: 'Risks',
+          anchor: 'risks',
           href: '/exposure/risks',
           icon: GaugeIcon,
           objectType: ObjectTypes.RISK,
         },
         {
           title: 'Scans',
+          anchor: 'scans',
           href: '/exposure/scans',
           icon: ScanTextIcon,
           objectType: ObjectTypes.SCAN,
         },
         {
           title: 'Findings',
+          anchor: 'findings',
           href: '/exposure/findings',
           icon: SearchIcon,
           objectType: ObjectTypes.FINDING,
         },
         {
           title: 'Vulnerabilities',
+          anchor: 'vulnerabilities',
           href: '/exposure/vulnerabilities',
           icon: BadgeAlertIcon,
           objectType: ObjectTypes.VULNERABILITY,
         },
         {
           title: 'Remediations',
+          anchor: 'remediations',
           href: '/exposure/remediations',
           icon: WrenchIcon,
           objectType: ObjectTypes.REMEDIATION,
         },
         {
           title: 'Reviews',
+          anchor: 'reviews',
           href: '/exposure/reviews',
           icon: MessageSquareMoreIcon,
           objectType: ObjectTypes.REVIEW,
@@ -295,6 +328,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
     },
     {
       title: 'Automation',
+      anchor: 'automation',
       href: '/automation',
       icon: RouteIcon,
       isChildren: true,
@@ -302,33 +336,39 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       children: [
         {
           title: 'Tasks',
+          anchor: 'tasks',
           href: '/automation/tasks',
           icon: ClipboardCheckIcon,
         },
         {
           title: 'Questionnaires',
+          anchor: 'questionnaires',
           href: '/automation/questionnaires',
           icon: SquarePenIcon,
           objectType: ObjectTypes.ASSESSMENT,
         },
         {
           title: 'Campaigns',
+          anchor: 'campaigns',
           href: '/automation/campaigns',
           icon: SendIcon,
           objectType: ObjectTypes.CAMPAIGN,
         },
         {
           title: 'Email Templates',
+          anchor: 'email-templates',
           href: '/automation/email-templates',
           icon: MailCheckIcon,
         },
         {
           title: 'Integrations',
+          anchor: 'integrations',
           href: '/automation/integrations',
           icon: ConnectIcon,
         },
         {
           title: 'Workflow Definitions',
+          anchor: 'workflow-definitions',
           href: '/automation/workflows',
           icon: BookTextIcon,
           plan: PlanEnum.COMPLIANCE_MODULE,
@@ -336,6 +376,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
         },
         {
           title: 'Workflow Inbox',
+          anchor: 'workflow-inbox',
           href: '/automation/workflows/inbox',
           icon: ArchiveIcon,
           plan: PlanEnum.COMPLIANCE_MODULE,
@@ -343,6 +384,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
         },
         {
           title: 'Workflow Instances',
+          anchor: 'workflow-instances',
           href: '/automation/workflows/instances',
           icon: ActivityIcon,
           plan: PlanEnum.COMPLIANCE_MODULE,
@@ -350,6 +392,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
         },
         {
           title: 'Workflow Templates',
+          anchor: 'workflow-templates',
           href: '/automation/workflows/templates',
           icon: WorkflowIcon,
           plan: PlanEnum.COMPLIANCE_MODULE,
@@ -357,6 +400,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
         },
         {
           title: 'Workflow Wizard',
+          anchor: 'workflow-wizard',
           href: '/automation/workflows/wizard',
           icon: SparklesIcon,
           plan: PlanEnum.COMPLIANCE_MODULE,
@@ -366,6 +410,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
     },
     {
       title: 'Custom Report',
+      anchor: 'custom-report',
       href: '/reports/custom',
       icon: ChartLineIcon,
       hidden: session?.user?.isOnboarding || billingExpired,
@@ -380,42 +425,49 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
   return [
     {
       title: 'Organization Settings',
+      anchor: 'organization-settings',
       href: '/organization-settings',
       hidden: session?.user?.isOnboarding || isAuditor,
       icon: CogIcon,
       children: [
         {
           title: 'General Settings',
+          anchor: 'general-settings',
           href: '/organization-settings/general-settings',
           hidden: !canEdit(orgPermission?.roles, session),
           icon: SettingsIcon,
         },
         {
           title: 'Authentication',
+          anchor: 'authentication',
           href: '/organization-settings/authentication',
           hidden: billingExpired || !canEdit(orgPermission?.roles, session),
           icon: LockIcon,
         },
         {
           title: 'Custom Data',
+          anchor: 'custom-data',
           href: '/organization-settings/custom-data',
           hidden: billingExpired,
           icon: BookmarkIcon,
         },
         {
           title: 'Subscribers',
+          anchor: 'subscribers',
           href: '/organization-settings/subscribers',
           icon: MailCheckIcon,
           hidden: true,
         },
         {
           title: 'Billing',
+          anchor: 'billing',
           href: '/organization-settings/billing',
           hidden: !isOwnerOrSuperAdmin(currentUserRole) && !isImpersonation,
           icon: CreditCardIcon,
         },
         {
           title: 'Audit Logs',
+          anchor: 'audit-logs',
           href: '/organization-settings/logs',
           icon: HistoryIcon,
           hidden: true,
@@ -424,17 +476,20 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
     },
     {
       title: 'User Management',
+      anchor: 'user-management',
       href: '/user-management',
       icon: UserRoundPen,
       hidden: session?.user?.isOnboarding || billingExpired || isAuditor,
       children: [
         {
           title: 'Members',
+          anchor: 'members',
           href: '/user-management/members',
           icon: UserRoundPlusIcon,
         },
         {
           title: 'Groups',
+          anchor: 'groups',
           href: '/user-management/groups',
           icon: UsersIcon,
         },
@@ -442,17 +497,20 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
     },
     {
       title: 'Developers',
+      anchor: 'developers',
       href: '/developers',
       icon: KeyboardIcon,
       hidden: session?.user?.isOnboarding || billingExpired || isAuditor,
       children: [
         {
           title: 'API Tokens',
+          anchor: 'api-tokens',
           href: '/developers/api-tokens',
           icon: TerminalIcon,
         },
         {
           title: 'Personal Access Tokens',
+          anchor: 'personal-access-tokens',
           href: '/developers/personal-access-tokens',
           icon: KeyCircleIcon,
           hidden: isImpersonation,
@@ -461,11 +519,13 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
     },
     {
       title: 'User settings',
+      anchor: 'user-settings',
       href: '/user-settings',
       hidden: isImpersonation,
       children: [
         {
           title: 'Profile',
+          anchor: 'profile',
           href: '/user-settings/profile',
           icon: IdCardIcon,
         },
@@ -478,6 +538,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
 export const personalNavigationItems = (): (NavItem | Separator | NavHeading)[] => [
   {
     title: 'User settings',
+    anchor: 'user-settings',
     href: '/user-settings/profile',
     icon: UserRoundCogIcon,
   },

@@ -15,6 +15,8 @@ import { Form, FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useWatch } from 'react-hook-form'
 import { usePathname } from 'next/navigation'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { useCreateAPIToken, useCreatePersonalAccessToken, useUpdateApiToken, useUpdatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
 import { ScopesSelector } from '@/components/shared/scopes-selector/scopes-selector'
 import { type Organization, type OrganizationSetting } from '@repo/codegen/src/schema'
@@ -318,7 +320,13 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
               <p>?</p>
             </div>
           ) : (
-            <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+            <Button
+              variant="primary"
+              className="h-8 !px-2 !pl-3"
+              icon={<SquarePlus />}
+              iconPosition="left"
+              {...tableActionAnchor(isApiKeyPage ? ObjectTypes.API_TOKEN : ObjectTypes.PERSONAL_ACCESS_TOKEN, 'create')}
+            >
               Create
             </Button>
           )}

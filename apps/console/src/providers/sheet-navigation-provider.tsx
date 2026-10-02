@@ -15,6 +15,7 @@ import ControlImplementationDetailsSheet from '@/components/pages/protected/cont
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import ViewVendorSheet from '@/components/pages/protected/vendors/view-vendor-sheet'
 import ViewPersonnelSheet from '@/components/pages/protected/personnel/view-personnel-sheet'
+import ViewContactSheet from '@/components/pages/protected/contacts/view-contact-sheet'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import ReviewSheetResolver from '@/components/pages/protected/reviews/common/review-sheet-resolver'
 import { useRouter } from 'next/navigation'
@@ -37,6 +38,7 @@ const SHEET_KIND_LIST = [
   ObjectAssociationNodeEnum.EVIDENCE,
   ObjectAssociationNodeEnum.ENTITY,
   ObjectAssociationNodeEnum.IDENTITY_HOLDER,
+  ObjectAssociationNodeEnum.CONTACT,
   ObjectAssociationNodeEnum.REVIEW,
 ] as const
 
@@ -106,6 +108,8 @@ const renderSheetContent = (id: string, kind: SheetKind, onClose: () => void) =>
       return <ViewVendorSheet entityId={id} onClose={onClose} />
     case ObjectAssociationNodeEnum.IDENTITY_HOLDER:
       return <ViewPersonnelSheet identityHolderId={id} onClose={onClose} />
+    case ObjectAssociationNodeEnum.CONTACT:
+      return <ViewContactSheet contactId={id} onClose={onClose} />
     case ObjectAssociationNodeEnum.REVIEW:
       return <ReviewSheetResolver reviewId={id} onClose={onClose} />
     default:

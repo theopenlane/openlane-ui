@@ -1,4 +1,5 @@
 import { type ITheme, patchLegacyCSSVariables } from 'survey-core'
+import { surveyFontVariables } from '@/styles/questionnaire/theme-fonts'
 import DefaultDark from 'survey-core/themes/default-dark'
 
 // values pulled from the openlane dark mode tokens in packages/ui/src/styles.css
@@ -115,8 +116,6 @@ const SJS_THEME = {
   '--sjs-layer-1-foreground-600': '#ffffff',
   '--sjs-layer-1-foreground-700': '#ffffff',
   '--sjs-layer-1-foreground-800': '#ffffff',
-  '--sjs-font-surveytitle-family': 'var(--font-outfit)',
-  '--sjs-font-headertitle-family': 'var(--font-outfit)',
   '--sjs-font-headertitle-color': colors.textColor,
   '--sjs-font-headerdescription-color': colors.textColorDim,
   '--sjs-header-backcolor': '#09151d',
@@ -182,7 +181,7 @@ export const darkTheme: ITheme = {
   backgroundImageFit: 'cover',
   backgroundImageAttachment: 'scroll',
   backgroundOpacity: 1,
-  cssVariables: { ...DefaultDark.cssVariables, ...openlaneCssVariables },
+  cssVariables: { ...DefaultDark.cssVariables, ...openlaneCssVariables, ...surveyFontVariables },
   themeName: 'openlane',
   colorPalette: 'dark',
   isPanelless: true,

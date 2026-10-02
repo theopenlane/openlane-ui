@@ -49,7 +49,7 @@ export const describeRecurrence = (values: Pick<CampaignRecurrenceValues, 'isRec
   return totalMonths === 1 ? 'Every month' : `Every ${totalMonths} months`
 }
 
-export const describeCampaignRecurrence = (campaign: CampaignRecurrenceSource): string =>
+export const describeCampaignRecurrence = (campaign: Pick<CampaignRecurrenceSource, 'isRecurring' | 'recurrenceFrequency' | 'recurrenceInterval'>): string =>
   describeRecurrence({
     isRecurring: campaign.isRecurring,
     frequency: campaign.recurrenceFrequency ?? CampaignFrequency.NONE,

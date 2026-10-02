@@ -11,7 +11,7 @@ import { buildOnboardingInput, getExistingControls, getSelectedFrameworkLabels }
 import { type OnboardingQuestion, type SubmitStage } from '@/lib/onboarding-questions/types'
 import { clearOnboardingCreatedOrganization, getOnboardingCreatedOrganization, setOnboardingCreatedOrganization } from '@/lib/storage/onboarding-created-organization'
 import { setOnboardingFrameworks } from '@/lib/storage/onboarding-frameworks'
-import { setOnboardingTasksPending } from '@/lib/storage/onboarding-tasks-pending'
+import { clearOnboardingTasksPending, setOnboardingTasksPending } from '@/lib/storage/onboarding-tasks-pending'
 import { handleSSORedirect, switchOrganization } from '@/lib/user'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { useWebSocketClient } from '@/providers/websocket-provider'
@@ -19,7 +19,7 @@ import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { ClientError } from 'graphql-request'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-const ORGANIZATION_READY_WAIT_MS = 10000
+const ORGANIZATION_READY_WAIT_MS = 60 * 1000 // 1min
 
 export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
   const queryClient = useQueryClient()
@@ -31,13 +31,17 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
   const { domainScanNotification, reviewDomainScanFindings } = useDomainScanNotification()
   const { addNewNotificationListener } = useNotificationsContext()
 
-  const [submitStage, setSubmitStage] = useState<SubmitStage>('form')
+  const [formStage, setFormStage] = useState<Exclude<SubmitStage, 'ready'>>('form')
   const [workspaceReady, setWorkspaceReady] = useState(false)
   const [organizationReady, setOrganizationReady] = useState(false)
   const [organizationReadyWaitOver, setOrganizationReadyWaitOver] = useState(false)
 
   const userId = sessionData?.user?.userId
   const isSubmittingRef = useRef(false)
+  const createdOrganizationIdRef = useRef<string | undefined>(undefined)
+  const isWorkspaceSwitched = formStage === 'transition' && workspaceReady
+  const submitStage: SubmitStage = isWorkspaceSwitched && (organizationReady || organizationReadyWaitOver) ? 'ready' : formStage
+  const isAwaitingOrganization = isWorkspaceSwitched && !organizationReady
 
   useEffect(() => {
     return addNewNotificationListener((notification) => {
@@ -48,18 +52,14 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
   }, [addNewNotificationListener])
 
   useEffect(() => {
-    if (submitStage !== 'transition' || !workspaceReady) return
+    if (!isAwaitingOrganization) return
 
-    const timeout = setTimeout(() => setOrganizationReadyWaitOver(true), ORGANIZATION_READY_WAIT_MS)
+    const timeout = setTimeout(() => {
+      clearOnboardingTasksPending(createdOrganizationIdRef.current)
+      setOrganizationReadyWaitOver(true)
+    }, ORGANIZATION_READY_WAIT_MS)
     return () => clearTimeout(timeout)
-  }, [submitStage, workspaceReady])
-
-  useEffect(() => {
-    if (submitStage !== 'transition' || !workspaceReady) return
-    if (organizationReady || organizationReadyWaitOver) {
-      setSubmitStage('ready')
-    }
-  }, [submitStage, workspaceReady, organizationReady, organizationReadyWaitOver])
+  }, [isAwaitingOrganization])
 
   const describeFailure = (error: unknown): string => (error instanceof Error && !(error instanceof ClientError) ? error.message : parseErrorMessage(error))
 
@@ -96,6 +96,7 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
 
     setOnboardingFrameworks(getSelectedFrameworkLabels(allQuestions, formValues), orgId, getExistingControls(formValues))
     setOnboardingTasksPending(orgId)
+    createdOrganizationIdRef.current = orgId
 
     const switchResponse = await switchOrganization({
       target_organization_id: orgId,
@@ -152,9 +153,8 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
   const submitOnboarding = async (formValues: Record<string, unknown>) => {
     if (isSubmittingRef.current) return
 
-    setSubmitStage('transition')
+    setFormStage('transition')
     setWorkspaceReady(false)
-    setOrganizationReadyWaitOver(false)
 
     try {
       const didComplete = await runOnboardingOnce(formValues)
@@ -166,9 +166,7 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
       setWorkspaceReady(true)
     } catch (error) {
       notifyFailure(error)
-      setWorkspaceReady(false)
-      setOrganizationReadyWaitOver(false)
-      setSubmitStage('form')
+      setFormStage('form')
     }
   }
 
@@ -182,7 +180,7 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
         return
       }
 
-      router.push('/')
+      router.push('/dashboard')
     } catch (error) {
       notifyFailure(error)
     }
@@ -196,7 +194,7 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
 
   const leaveOnboarding = async () => {
     await updateSession({ user: { isOnboarding: false } })
-    router.push('/')
+    router.push('/dashboard')
   }
 
   return {

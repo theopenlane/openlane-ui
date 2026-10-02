@@ -7,6 +7,7 @@ import { Input } from '@repo/ui/input'
 import { LoaderCircle, SearchIcon } from 'lucide-react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import type { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
+import { type TableKeyValue } from '@repo/ui/table-key'
 import type { FilterField, WhereCondition } from '@/types'
 
 export { mergeWhere } from '@/lib/merge-where'
@@ -29,9 +30,10 @@ type SearchFilterBarProps = {
   filterFields: FilterField[] | null
   onFilterChange: (filters: WhereCondition) => void
   actionButtons?: React.ReactNode
+  pageKey?: TableKeyValue
 }
 
-export const SearchFilterBar = ({ placeholder, isSearching, searchValue, onSearchChange, filterFields, onFilterChange, actionButtons }: SearchFilterBarProps) => (
+export const SearchFilterBar = ({ placeholder, isSearching, searchValue, onSearchChange, filterFields, onFilterChange, actionButtons, pageKey }: SearchFilterBarProps) => (
   <div className="flex items-center justify-between gap-2 w-full">
     <div className="flex items-center gap-2 flex-1">
       <Input
@@ -44,7 +46,7 @@ export const SearchFilterBar = ({ placeholder, isSearching, searchValue, onSearc
       />
     </div>
     <div className="flex items-center justify-end gap-2">
-      {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} />}
+      {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={pageKey} />}
       {actionButtons}
     </div>
   </div>

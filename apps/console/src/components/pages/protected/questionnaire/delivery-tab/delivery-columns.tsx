@@ -5,9 +5,8 @@ import { formatDate } from '@/utils/date'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
 import { MoreHorizontal, Trash2 } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
 import { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { AssessmentResponseStatusLabel } from '@/components/shared/enum-mapper/assessment-response-enum'
 
 export type DeliveryRow = {
   id: string
@@ -29,14 +28,6 @@ type DeliveryColumnCallbacks = {
   canDelete?: boolean
 }
 
-const statusVariantMap: Record<AssessmentResponseAssessmentResponseStatus, 'green' | 'blue' | 'default' | 'destructive'> = {
-  [AssessmentResponseAssessmentResponseStatus.COMPLETED]: 'green',
-  [AssessmentResponseAssessmentResponseStatus.SENT]: 'blue',
-  [AssessmentResponseAssessmentResponseStatus.OVERDUE]: 'destructive',
-  [AssessmentResponseAssessmentResponseStatus.NOT_STARTED]: 'default',
-  [AssessmentResponseAssessmentResponseStatus.DRAFT]: 'default',
-}
-
 export const getDeliveryColumns = ({ onResend, onViewResponse, onDelete, canResend = false, canDelete = false }: DeliveryColumnCallbacks): ColumnDef<DeliveryRow>[] => [
   {
     accessorKey: 'email',
@@ -50,10 +41,7 @@ export const getDeliveryColumns = ({ onResend, onViewResponse, onDelete, canRese
     header: 'Status',
     size: 120,
     minSize: 120,
-    cell: ({ row }) => {
-      const status = row.getValue('status') as AssessmentResponseAssessmentResponseStatus
-      return <Badge variant={statusVariantMap[status] || 'default'}>{getEnumLabel(status)}</Badge>
-    },
+    cell: ({ row }) => <AssessmentResponseStatusLabel status={row.original.status} />,
   },
   {
     accessorKey: 'assignedAt',

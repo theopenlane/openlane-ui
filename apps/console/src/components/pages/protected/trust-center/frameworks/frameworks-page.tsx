@@ -34,6 +34,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
+import { entityActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 export default function FrameworksPage() {
   const { successNotification, errorNotification } = useNotification()
@@ -326,7 +327,7 @@ export default function FrameworksPage() {
               <StandardDialog
                 resetPagination={resetPagination}
                 trigger={
-                  <Button icon={<SquarePlus />} iconPosition="left">
+                  <Button icon={<SquarePlus />} iconPosition="left" {...entityActionAnchor(ObjectTypes.STANDARD, 'create')}>
                     Add Custom Framework
                   </Button>
                 }

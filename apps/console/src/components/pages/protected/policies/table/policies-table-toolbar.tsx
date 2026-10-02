@@ -29,6 +29,7 @@ import ExportMenuItem from '@/components/shared/export/export-menu-item'
 import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -131,6 +132,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
               <Button
                 type="button"
                 variant="secondary"
+                {...tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'bulk-delete')}
                 onClick={() => {
                   setIsBulkDeleteDialogOpen(true)
                 }}
@@ -161,11 +163,13 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
             <>
               <Menu
                 closeOnSelect={true}
+                triggerAnchor={tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'actions-menu')}
                 content={(close) => (
                   <>
                     {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
                       <>
                         <MenuItem
+                          {...tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'import-document')}
                           icon={<Import size={16} strokeWidth={2} />}
                           onSelect={() => {
                             setIsImportDialogOpen(true)
@@ -175,6 +179,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                           Import existing document
                         </MenuItem>
                         <MenuItem
+                          {...tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'bulk-upload')}
                           icon={<Import size={16} strokeWidth={2} />}
                           onSelect={() => {
                             close()
@@ -185,13 +190,20 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                         </MenuItem>
                       </>
                     )}
-                    <ExportMenuItem label="Export to CSV" onExport={() => handleExport(ExportExportFormat.CSV)} onSelected={close} disabled={!exportEnabled} />
+                    <ExportMenuItem
+                      label="Export to CSV"
+                      onExport={() => handleExport(ExportExportFormat.CSV)}
+                      onSelected={close}
+                      disabled={!exportEnabled}
+                      anchor={tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'export')}
+                    />
                     <ExportMenuItem
                       label="Export to PDF"
                       icon={<FileText size={16} strokeWidth={2} />}
                       onExport={() => handleExport(ExportExportFormat.PDF)}
                       onSelected={close}
                       disabled={!exportEnabled}
+                      {...tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'export-pdf')}
                     />
                   </>
                 )}
@@ -203,7 +215,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.INTERNAL_POLICY} />
               )}
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.INTERNAL_POLICY} />}
-              <CreatePolicyButton />
+              <CreatePolicyButton anchor={tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'create')} />
             </>
           )}
         </div>

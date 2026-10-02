@@ -19,7 +19,7 @@ import { ArrowRight, BookText, Lightbulb, X } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useSuggestionsEnabled } from '@/hooks/useSuggestionsEnabled'
-import { useGetProgramDashboard } from '@/lib/graphql-hooks/program'
+import { useProgramFrameworkNames } from '@/lib/graphql-hooks/program'
 import { useAllPolicyNames } from '@/lib/graphql-hooks/internal-policy'
 import { useDocsHelpNavigate } from '@/components/shared/docs-help/docs-help-context'
 import { useDismissible } from '@/hooks/useDismissible'
@@ -88,16 +88,13 @@ export function SuggestedPolicyCoverage() {
   // per-org dismissal, persisted so the alert stays gone once waved away
   const { dismissed, dismiss: handleDismiss, isResolved } = useDismissible('policy-coverage-dismissed')
   const { isDismissed, dismiss: dismissTopic } = useDismissedItems('policy-coverage-covered')
-  const { data: mappingData, isPending: isMappingPending, isError: isMappingError } = useDocsPolicyMapping(suggestionsEnabled)
-  const { data: programsData, isPending: isProgramsPending, isError: isProgramsError } = useGetProgramDashboard({ enabled: suggestionsEnabled })
+  const isCardActive = suggestionsEnabled && isResolved && !dismissed
+  const { data: mappingData, isPending: isMappingPending, isError: isMappingError } = useDocsPolicyMapping(isCardActive)
+  const { frameworkNames: orgFrameworks, isError: isProgramsError } = useProgramFrameworkNames({ enabled: isCardActive })
   // held back until the page's own data is in, then paged through in the background
-  const {
-    policies: orgPolicies,
-    isLoading: isPoliciesLoading,
-    isError: isPoliciesError,
-  } = useAllPolicyNames({ enabled: suggestionsEnabled && isResolved && !dismissed && !!mappingData && !!programsData })
+  const { policies: orgPolicies, isLoading: isPoliciesLoading, isError: isPoliciesError } = useAllPolicyNames({ enabled: isCardActive && !!mappingData && !!orgFrameworks })
   const hasError = isMappingError || isProgramsError || isPoliciesError
-  const { data: templates } = usePolicyTemplates(suggestionsEnabled)
+  const { data: templates } = usePolicyTemplates(isCardActive)
 
   const { createFromTemplate, creatingTemplate } = useCreatePolicyFromTemplate()
   const [showAll, setShowAll] = useState(false)
@@ -106,15 +103,14 @@ export function SuggestedPolicyCoverage() {
     // until every query is in, everything reads as missing and the card would
     // flash a full list before emptying itself; a failed one never resolves into
     // an answer at all, so the card stays out rather than guessing
-    if (!suggestionsEnabled || !isResolved || hasError || isMappingPending || isProgramsPending || isPoliciesLoading) return null
+    if (!isCardActive || hasError || isMappingPending || !orgFrameworks || isPoliciesLoading) return null
     const mapping = mappingData?.mapping ?? []
 
-    const orgFrameworks = [...new Set((programsData?.programs?.edges ?? []).map((e) => e?.node?.frameworkName).filter((f): f is string => !!f))]
     const suggested = mapping.filter((row) => row.frameworks[0] === 'all' || row.frameworks.some((f) => orgFrameworks.some((org) => frameworkMatches(f, org))))
     const missing = suggested.filter((row) => !isDismissed(row.policy) && !orgPolicies.some((policy) => policyCovers(policy, { name: row.policy })))
 
-    return { orgFrameworks, total: suggested.length, missing }
-  }, [suggestionsEnabled, mappingData, programsData, isMappingPending, isProgramsPending, orgPolicies, isPoliciesLoading, isDismissed, isResolved, hasError])
+    return { total: suggested.length, missing }
+  }, [isCardActive, mappingData, orgFrameworks, isMappingPending, orgPolicies, isPoliciesLoading, isDismissed, hasError])
 
   // nothing missing means nothing to check again, so retire the card rather than
   // paging every policy in the org on each visit
@@ -122,7 +118,7 @@ export function SuggestedPolicyCoverage() {
     if (coverage && coverage.total > 0 && coverage.missing.length === 0) handleDismiss()
   }, [coverage, handleDismiss])
 
-  if (!suggestionsEnabled || dismissed || !coverage || coverage.missing.length === 0) return null
+  if (!isCardActive || !coverage || coverage.missing.length === 0) return null
 
   const covered = coverage.total - coverage.missing.length
   const COLLAPSED_COUNT = 6
@@ -140,8 +136,8 @@ export function SuggestedPolicyCoverage() {
             <div>
               <h3 className="text-lg font-semibold">Suggested policy coverage</h3>
               <p className="text-sm text-muted-foreground">
-                Based on your {coverage.orgFrameworks.length > 0 ? <>frameworks ({coverage.orgFrameworks.join(', ')})</> : 'compliance program'}, we recommend coverage for the following policy topics.
-                You don’t need a separate policy for each topic. Policies can be combined as long as the required areas are covered.
+                Based on your {orgFrameworks?.length ? <>frameworks ({orgFrameworks.join(', ')})</> : 'compliance program'}, we recommend coverage for the following policy topics. You don’t need a
+                separate policy for each topic. Policies can be combined as long as the required areas are covered.
               </p>
             </div>
           </div>

@@ -28,6 +28,7 @@ import ExportMenuItem from '@/components/shared/export/export-menu-item'
 import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -134,6 +135,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
               <Button
                 type="button"
                 variant="secondary"
+                {...tableActionAnchor(ObjectTypes.PROCEDURE, 'bulk-delete')}
                 onClick={() => {
                   setIsBulkDeleteDialogOpen(true)
                 }}
@@ -164,11 +166,13 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
             <>
               <Menu
                 closeOnSelect={true}
+                triggerAnchor={tableActionAnchor(ObjectTypes.PROCEDURE, 'actions-menu')}
                 content={(close) => (
                   <>
                     {hasPermission(permission?.roles, AccessEnum.CanCreateProcedure, session) && (
                       <>
                         <MenuItem
+                          {...tableActionAnchor(ObjectTypes.PROCEDURE, 'import-document')}
                           icon={<Import size={16} strokeWidth={2} />}
                           onSelect={() => {
                             setIsImportDialogOpen(true)
@@ -178,6 +182,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                           Import existing document
                         </MenuItem>
                         <MenuItem
+                          {...tableActionAnchor(ObjectTypes.PROCEDURE, 'bulk-upload')}
                           icon={<Import size={16} strokeWidth={2} />}
                           onSelect={() => {
                             close()
@@ -188,13 +193,20 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                         </MenuItem>
                       </>
                     )}
-                    <ExportMenuItem label="Export to CSV" onExport={() => handleExport(ExportExportFormat.CSV)} onSelected={close} disabled={!exportEnabled} />
+                    <ExportMenuItem
+                      label="Export to CSV"
+                      onExport={() => handleExport(ExportExportFormat.CSV)}
+                      onSelected={close}
+                      disabled={!exportEnabled}
+                      anchor={tableActionAnchor(ObjectTypes.PROCEDURE, 'export')}
+                    />
                     <ExportMenuItem
                       label="Export to PDF"
                       icon={<FileText size={16} strokeWidth={2} />}
                       onExport={() => handleExport(ExportExportFormat.PDF)}
                       onSelected={close}
                       disabled={!exportEnabled}
+                      {...tableActionAnchor(ObjectTypes.PROCEDURE, 'export-pdf')}
                     />
                   </>
                 )}
@@ -205,7 +217,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
               )}
               {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} pageKey={TableKeyEnum.PROCEDURE} />}
               {hasPermission(permission?.roles, AccessEnum.CanCreateProcedure, session) && (
-                <Button variant="primary" onClick={handleCreateNew} className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
+                <Button variant="primary" onClick={handleCreateNew} className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left" {...tableActionAnchor(ObjectTypes.PROCEDURE, 'create')}>
                   Create
                 </Button>
               )}

@@ -19,6 +19,8 @@ import { formatDate } from '@/utils/date'
 import { EmailTemplateTemplateContext } from '@repo/codegen/src/schema'
 import { EmailTemplatePreviewSheet } from './email-template-preview-sheet'
 import { LinkedCampaignsSheet } from './linked-campaigns-sheet'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const EDITOR_PATH = '/automation/email-templates/editor'
 
@@ -132,7 +134,7 @@ export const EmailTemplatesTab: React.FC = () => {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={handleCreate}>
+          <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={handleCreate} {...tableActionAnchor(ObjectTypes.EMAIL_TEMPLATE, 'create')}>
             Create Email Template
           </Button>
         </div>

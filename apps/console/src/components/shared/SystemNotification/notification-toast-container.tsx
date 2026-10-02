@@ -6,6 +6,7 @@ import { Bell, X } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
+import { currentLocationPath } from '@/utils/return-to'
 import { getNotificationRedirectUrl, redirectToNotification } from './notification-redirect'
 import { useRouter } from 'next/navigation'
 
@@ -169,7 +170,7 @@ export const NotificationToastContainer = () => {
 
       const firstWithUrl = notifications.find((notification) => getNotificationRedirectUrl(notification))
       if (firstWithUrl) {
-        redirectToNotification(router, firstWithUrl)
+        redirectToNotification(router, firstWithUrl, currentLocationPath())
       }
     },
     [markAsRead, router],

@@ -10,7 +10,6 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { CAMPAIGN_TERMINAL_STATUSES, useCampaign, useUpdateCampaign, useLaunchCampaign, useResendCampaignIncompleteTargets } from '@/lib/graphql-hooks/campaign'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
 import { useCampaignTargetStats } from '@/lib/graphql-hooks/campaign-target'
-import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CampaignCampaignStatus, CampaignCampaignType, type UpdateCampaignInput } from '@repo/codegen/src/schema'
@@ -22,7 +21,6 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useDeleteCampaign } from '@/lib/graphql-hooks/campaign'
 import { useRouter } from 'next/navigation'
-import { RecipientDetailPanel } from './recipient-detail-panel'
 import { SendTestEmailDialog } from './send-test-email-dialog'
 import { LaunchCampaignDialog, type LaunchCampaignValues } from './launch-campaign-dialog'
 import { type CampaignRecurrenceValues, buildRecurrenceUpdateInput, describeCampaignRecurrence, toRecurrenceValues } from '../recurrence/campaign-recurrence'
@@ -35,7 +33,8 @@ import { SelectQuestionnaireDialog } from '../create/steps/questionnaire/select-
 import { getQuestionCount } from '../create/steps/questionnaire/questionnaire-metrics'
 import { useTemplateSelect } from '@/lib/graphql-hooks/template'
 import { TemplateTemplateKind } from '@repo/codegen/src/schema'
-import { CampaignStatusIconMapper } from '@/components/shared/enum-mapper/campaign-enum'
+import { CampaignStatusIcon } from '@/components/shared/enum-mapper/campaign-enum'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import CampaignRunsTable from './campaign-runs-table'
 import RecipientsTable from './recipients-table'
@@ -90,7 +89,6 @@ const CampaignDetailPage: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
 
-  const [selectedRecipient, setSelectedRecipient] = useState<CampaignTargetsNodeNonNull | null>(null)
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
   const [testDialogOpen, setTestDialogOpen] = useState(false)
   const [launchDialogOpen, setLaunchDialogOpen] = useState(false)
@@ -270,6 +268,7 @@ const CampaignDetailPage: React.FC = () => {
   }
 
   const status = campaign.status
+  const assessmentHref = campaign.assessmentID ? getHrefForObjectType('assessments', { id: campaign.assessmentID }) : null
   const launched = !!campaign.launchedAt
   const isDraft = status === CampaignCampaignStatus.DRAFT
   const isEditable = isDraft
@@ -393,9 +392,7 @@ const CampaignDetailPage: React.FC = () => {
 
   const tmpl = campaign.template
 
-  const sidebarContent = selectedRecipient ? (
-    <RecipientDetailPanel recipient={selectedRecipient} onClose={() => setSelectedRecipient(null)} />
-  ) : (
+  const sidebarContent = (
     <>
       <div className="rounded-md border border-border bg-card p-4">
         <h3 className="text-sm font-semibold mb-3">Properties</h3>
@@ -499,14 +496,8 @@ const CampaignDetailPage: React.FC = () => {
                 </p>
               </div>
             </div>
-            {campaign.assessmentID && (
-              <Button
-                variant="secondary"
-                type="button"
-                className="w-full justify-center"
-                onClick={() => window.open(`/automation/questionnaires/${campaign.assessmentID}`, '_blank', 'noopener,noreferrer')}
-                icon={<ExternalLink />}
-              >
+            {assessmentHref && (
+              <Button variant="secondary" type="button" className="w-full justify-center" onClick={() => window.open(assessmentHref, '_blank', 'noopener,noreferrer')} icon={<ExternalLink />}>
                 View responses
               </Button>
             )}
@@ -535,7 +526,7 @@ const CampaignDetailPage: React.FC = () => {
           />
           {status && (
             <Badge variant="outline" className="flex items-center gap-1.5">
-              {CampaignStatusIconMapper[status]}
+              <CampaignStatusIcon status={status} />
               {getEnumLabel(status)}
             </Badge>
           )}
@@ -569,7 +560,7 @@ const CampaignDetailPage: React.FC = () => {
           dueDate={campaign.dueDate as string | null | undefined}
           recipientCount={stats.total}
           launchBlockedReason={launchBlockedReason}
-          recipientsSlot={stats.total > 0 ? <RecipientsTable campaignId={campaignId} onRecipientClick={setSelectedRecipient} showDelivery={false} canRemove /> : undefined}
+          recipientsSlot={stats.total > 0 ? <RecipientsTable campaignId={campaignId} showDelivery={false} canRemove /> : undefined}
           isRecurring={!!campaign.isRecurring}
           recurrenceLabel={describeCampaignRecurrence(campaign)}
           onEditRecurrence={() => setEditRecurrenceOpen(true)}
@@ -644,7 +635,7 @@ const CampaignDetailPage: React.FC = () => {
 
           <div className="space-y-6">
             <CampaignRunsTable campaign={campaign} stats={stats} />
-            <RecipientsTable campaignId={campaignId} onRecipientClick={setSelectedRecipient} />
+            <RecipientsTable campaignId={campaignId} />
           </div>
         </>
       )}

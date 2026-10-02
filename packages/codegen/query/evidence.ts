@@ -34,6 +34,7 @@ export const GET_ALL_EVIDENCES = gql`
 
 const EVIDENCE_FIELDS = gql`
   fragment EvidenceFields on Evidence {
+    auditorReferenceID
     collectionProcedure
     createdAt
     createdBy

@@ -121,6 +121,7 @@ export const useUpdateCampaign = () => {
     mutationFn: async (variables) => client.request(UPDATE_CAMPAIGN, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
       queryClient.invalidateQueries({ queryKey: ['emailTemplates'] })
     },
   })
@@ -133,6 +134,7 @@ export const useDeleteCampaign = () => {
     mutationFn: async (variables) => client.request(DELETE_CAMPAIGN, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
     },
   })
 }

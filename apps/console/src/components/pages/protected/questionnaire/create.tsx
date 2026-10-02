@@ -5,6 +5,10 @@ import { TemplateList } from './templates'
 import React, { useState } from 'react'
 import { Dialog } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
+
+const createAnchor = tableActionAnchor(ObjectTypes.ASSESSMENT, 'create')
 
 const ICON_SIZE = 12
 
@@ -21,16 +25,17 @@ export const CreateDropdown = () => {
     <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="primary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+          <Button variant="primary" onClick={handleCreateNew} className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left" {...createAnchor}>
             Create
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem onSelect={handleCreateNew}>
+        <DropdownMenuContent aria-labelledby={createAnchor.id}>
+          <DropdownMenuItem onSelect={handleCreateNew} {...tableActionAnchor(ObjectTypes.ASSESSMENT, 'create-from-scratch')}>
             <FilePlus width={ICON_SIZE} className="text-muted-foreground" />
             From Scratch
           </DropdownMenuItem>
           <DropdownMenuItem
+            {...tableActionAnchor(ObjectTypes.ASSESSMENT, 'create-from-template')}
             onClick={() => {
               setIsTemplateDialogOpen(true)
             }}

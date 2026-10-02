@@ -21,6 +21,7 @@ import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-st
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 import { CreateCampaignSheet } from '@/components/pages/protected/campaigns/create/create-campaign-sheet'
 import CampaignsSummary from '@/components/pages/protected/campaigns/summary/campaigns-summary'
@@ -144,7 +145,7 @@ const CampaignsPage: React.FC = () => {
         heading="Campaigns"
         subheading="Create and manage questionnaires, acknowledgements, and recurring outreach."
         actions={
-          <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={() => setIsCreateSheetOpen(true)}>
+          <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={() => setIsCreateSheetOpen(true)} {...tableActionAnchor(ObjectTypes.CAMPAIGN, 'create')}>
             Create Campaign
           </Button>
         }

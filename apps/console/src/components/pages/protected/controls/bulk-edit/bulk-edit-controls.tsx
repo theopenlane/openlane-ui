@@ -40,6 +40,7 @@ import { BulkEditValueSelect } from '@/components/shared/bulk-edit-shared-object
 import { useBulkUpdateFeedback } from '@/components/shared/crud-base/use-bulk-update-feedback'
 import { type BulkUpdatePayload } from '@/components/shared/crud-base/types'
 import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type BulkEditControlsFormValues = BulkEditFieldsFormValues
 type BulkEditSelection = { id: string; refCode: string }
@@ -145,7 +146,7 @@ const BulkEditRecordsDialog: React.FC<BulkEditRecordsDialogProps> = ({ selectedI
       }}
     >
       <FormProvider {...form}>
-        <DialogTrigger asChild>
+        <DialogTrigger asChild {...tableActionAnchor(ObjectTypes.CONTROL, 'bulk-edit')}>
           <Button disabled={selectedItems.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
             {selectedItems.length > 0 ? `Bulk Edit (${selectedItems.length})` : 'Bulk Edit'}
           </Button>
