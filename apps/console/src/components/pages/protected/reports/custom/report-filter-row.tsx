@@ -4,15 +4,15 @@ import React from 'react'
 import { X } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import type { TReportField, TReportOperator } from '@repo/codegen/src/report-schema.generated'
-import { operatorLabel, type TReportCombinator, type TReportFilter } from '@/lib/report/report-filters'
-import { getFieldOperators, type TLabelled } from '@/lib/report/report-schema'
+import type { TReportOperator } from '@repo/codegen/src/report-schema.generated'
+import { filterOperators, operatorLabel, type TReportFilter, type TReportFilterField } from '@/lib/report/report-filters'
+import { type TLabelled, type TReportCombinator } from '@/lib/report/report-schema'
 import ReportFilterValue from './report-filter-value'
 
 type TReportFilterRowProps = {
   filter: TReportFilter
-  field: TReportField
-  options: TLabelled<TReportField>[]
+  field: TReportFilterField
+  options: TLabelled<TReportFilterField>[]
   combinator: TReportCombinator
   showCombinator: boolean
   onUpdate: (updates: Partial<Omit<TReportFilter, 'id'>>) => void
@@ -44,7 +44,7 @@ const ReportFilterRow: React.FC<TReportFilterRowProps> = ({ filter, field, optio
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {getFieldOperators(field).map((operator) => (
+        {filterOperators(field).map((operator) => (
           <SelectItem key={operator} value={operator}>
             {operatorLabel(operator, field.kind)}
           </SelectItem>

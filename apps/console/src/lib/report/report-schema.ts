@@ -3,6 +3,7 @@ import {
   REPORT_ENTITIES,
   REPORT_ENUM_VALUES,
   REPORT_OPERATOR_SETS,
+  REPORT_OPERATOR_SUFFIX,
   type TReportEdge,
   type TReportEntity,
   type TReportField,
@@ -26,9 +27,22 @@ export type TReportSort = { field: string | null; direction: OrderDirection }
 
 export type TLabelled<T> = { item: T; label: string }
 
+export type TReportCombinator = 'and' | 'or'
+
+export type TWhereClause = Record<string, unknown>
+
+export const wherePredicate = (field: string, operator: TReportOperator, value: unknown): TWhereClause => ({ [`${field}${REPORT_OPERATOR_SUFFIX[operator]}`]: value })
+
+export const combineClauses = (combinator: TReportCombinator, clauses: TWhereClause[]): TWhereClause | null => {
+  if (clauses.length === 0) return null
+  if (clauses.length === 1) return clauses[0]
+
+  return { [combinator]: clauses }
+}
+
 const withLabels = <T>(items: T[], name: (item: T) => string): TLabelled<T>[] => items.map((item) => ({ item, label: toHumanLabel(name(item)) })).sort((a, b) => a.label.localeCompare(b.label))
 
-export const labelledFields = (fields: TReportField[]): TLabelled<TReportField>[] => withLabels(fields, (field) => field.name)
+export const labelledFields = <T extends { name: string }>(fields: T[]): TLabelled<T>[] => withLabels(fields, (field) => field.name)
 
 export const entityOptions = REPORT_ENTITIES.map((entity) => ({ value: entity.queryName, label: toHumanLabel(entity.queryName), objectType: entity.objectType })).sort((a, b) =>
   a.label.localeCompare(b.label),
