@@ -32,7 +32,6 @@ const TasksPage: React.FC = () => {
   const [activeTab, setActiveTab] = useOrgTableViewMode(TableKeyEnum.TASK)
   const [showMyTasks, setShowMyTasks] = useState<boolean>(false)
   const [filters, setFilters] = useState<TaskWhereInput | null>(null)
-  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.TASK)
   const searchParams = useSearchParams()
   const { data: session } = useSession()
   const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
@@ -73,11 +72,11 @@ const TasksPage: React.FC = () => {
   const scanId = searchParams.get('scanId')
 
   const whereFilter = useMemo(() => {
-    const result = filters
-      ? whereGenerator<TaskWhereInput>(filters, (key, value) => {
-          return { [key]: value } as TaskWhereInput
-        })
-      : {}
+    if (filters === null) return null
+
+    const result = whereGenerator<TaskWhereInput>(filters, (key, value) => {
+      return { [key]: value } as TaskWhereInput
+    })
 
     const merged: TaskWhereInput = { ...result }
 
@@ -92,8 +91,6 @@ const TasksPage: React.FC = () => {
     if (scanId) {
       merged.hasScansWith = [{ id: scanId }]
     }
-
-    if (!filters && !debouncedSearch && !scanId) return null
 
     return merged
   }, [filters, debouncedSearch, scanId])
@@ -133,6 +130,10 @@ const TasksPage: React.FC = () => {
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
   }, [orderBy])
+
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.TASK, {
+    restorePage: { where: whereFilter, orderBy: orderByFilter, ready: filters !== null },
+  })
 
   const emptyUserMap = {}
   const mappedColumns: { accessorKey: string; header: string; meta: { exportPrefix?: string } }[] = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks, taskKindOptions })
@@ -183,10 +184,7 @@ const TasksPage: React.FC = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         searchTerm={searchQuery}
-        setSearchTerm={(val) => {
-          setSearchQuery(val)
-          resetPagination()
-        }}
+        setSearchTerm={setSearchQuery}
         searching={searching}
         exportEnabled={hasTasks}
         canEdit={canEdit}

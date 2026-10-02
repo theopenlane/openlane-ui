@@ -330,6 +330,11 @@ function SortableHeaderCell<TData extends RowData>({ header, sortField, sorting,
   )
 }
 
+const getLastPage = (totalCount: number, pageSize: number): Pick<TPagination, 'page' | 'query'> => {
+  const page = Math.ceil(totalCount / pageSize)
+  return { page, query: { last: totalCount - pageSize * (page - 1) } }
+}
+
 export function DataTable<TData extends RowData>({
   columns,
   loading = false,
@@ -642,11 +647,8 @@ export function DataTable<TData extends RowData>({
   const goToLastPage = () => {
     if (!pagination || !totalCount) return
 
-    const lastPage = Math.ceil(totalCount / currentPageSize)
-    const itemsBeforeLast = currentPageSize * (lastPage - 1)
-    const remaining = totalCount - itemsBeforeLast
-
-    setNewPagination(lastPage, { last: remaining })
+    const { page, query } = getLastPage(totalCount, currentPageSize)
+    setNewPagination(page, query)
   }
 
   const handlePageChange = (newPage: number) => {
@@ -667,6 +669,16 @@ export function DataTable<TData extends RowData>({
     const query = isForward ? { first: currentPageSize, after: pageInfo?.endCursor ?? null } : { last: currentPageSize, before: pageInfo?.startCursor ?? null }
     setNewPagination(newPage, query)
   }
+
+  const hasPageResponse = typeof pageInfo?.hasNextPage === 'boolean'
+  const isPastLastPage = currentPage > 1 && hasPageResponse && !loading && !isLoading && (data.length === 0 || (totalPages !== undefined && currentPage > totalPages))
+
+  useEffect(() => {
+    if (!isPastLastPage || !pagination) return
+    const lastPage = totalCount ? getLastPage(totalCount, pagination.pageSize) : null
+    const target = lastPage && lastPage.page > 1 && lastPage.page < pagination.page ? lastPage : { page: 1, query: { first: pagination.pageSize } }
+    onPaginationChange?.({ ...pagination, ...target })
+  }, [isPastLastPage, pagination, totalCount, onPaginationChange])
 
   useEffect(() => {
     if (typeof window !== 'undefined' && tableKey && effectiveColumnOrder.length > 0) {
