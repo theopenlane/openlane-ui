@@ -46,7 +46,7 @@
         "@ai-sdk/amazon-bedrock": "^5.0.82",
         "@assistant-ui/react": "0.15.19",
         "@assistant-ui/react-ai-sdk": "1.4.10",
-        "@assistant-ui/react-markdown": "0.14.15",
+        "@assistant-ui/react-markdown": "0.14.17",
         "@date-fns/tz": "^1.5.0",
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
@@ -441,7 +441,7 @@
 
     "@assistant-ui/react-ai-sdk": ["@assistant-ui/react-ai-sdk@1.4.10", "", { "dependencies": { "@assistant-ui/ai-sdk": "^0.0.5" }, "peerDependencies": { "@types/react": "*", "react": "^18 || ^19" }, "optionalPeers": ["@types/react"] }, "sha512-5APrQURVwYLUpB1YZzjtQc7I+uymnFMPZaQzus0tvivL9Q5hB5QYES+u57lG78Hbl7ig8AF+1KQ7ygWQpP71Mg=="],
 
-    "@assistant-ui/react-markdown": ["@assistant-ui/react-markdown@0.14.15", "", { "dependencies": { "@radix-ui/react-primitive": "^2.1.10", "@radix-ui/react-use-callback-ref": "^1.1.4", "@types/hast": "^3.0.5", "classnames": "^2.5.1", "react-markdown": "^10.1.0" }, "peerDependencies": { "@assistant-ui/react": "^0.15.0", "@types/react": "*", "react": "^18 || ^19" }, "optionalPeers": ["@types/react"] }, "sha512-Hte+MSs8RZNx9+mbTqTRJcT0z4Vs54fNxPwEUrAd01+Qc9Dkx3wpgV6lG1gbDkiLkMVNPXRy6rQqett4xZ0cQw=="],
+    "@assistant-ui/react-markdown": ["@assistant-ui/react-markdown@0.14.17", "", { "dependencies": { "@radix-ui/react-primitive": "^2.1.10", "@radix-ui/react-use-callback-ref": "^1.1.4", "@types/hast": "^3.0.5", "classnames": "^2.5.1", "react-markdown": "^10.1.0" }, "peerDependencies": { "@assistant-ui/react": "^0.15.0", "@types/react": "*", "react": "^18 || ^19" }, "optionalPeers": ["@types/react"] }, "sha512-54szi8IeBBu/THDDoBpA5zY/Fl5wjz1aIC4UJxJFehdomCU6RZt9r5bgx3hHiJpBjgcGp0wBL1qcPCwnNKK+xQ=="],
 
     "@assistant-ui/store": ["@assistant-ui/store@0.3.13", "", { "peerDependencies": { "@assistant-ui/tap": "^0.9.17", "@types/react": "*", "react": "^18 || ^19" }, "optionalPeers": ["@types/react", "react"] }, "sha512-4u5YAMfjgr+jpJUWZ5f1uqXQuxvIiR8SRg1WWlFbIknk5S1Wli4Jp/nTQsOeXsIw0d7Zdb6FKiQw31gqs5z/Ew=="],
 
