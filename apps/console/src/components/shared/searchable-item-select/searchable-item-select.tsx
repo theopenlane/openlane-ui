@@ -17,12 +17,13 @@ interface SearchableItemSelectProps<TItem extends SearchableItem> {
   onSelectedIdsChange: (ids: string[]) => void
   items: TItem[]
   isLoading: boolean
-  icon: React.ReactNode
+  icon: React.ReactNode | ((item: TItem) => React.ReactNode)
   placeholder: string
   searchPlaceholder?: string
   emptyMessage?: string
   multiple?: boolean
   onSearchTextChange?: (value: string) => void
+  onOpenChange?: (open: boolean) => void
   filterItems?: boolean
   knownItems?: TItem[]
   disabledReason?: (item: TItem) => string | undefined
@@ -43,6 +44,7 @@ export const SearchableItemSelect = <TItem extends SearchableItem>({
   emptyMessage = 'No results found.',
   multiple = true,
   onSearchTextChange,
+  onOpenChange,
   filterItems = false,
   knownItems,
   disabledReason,
@@ -55,6 +57,8 @@ export const SearchableItemSelect = <TItem extends SearchableItem>({
   const [searchText, setSearchText] = useState('')
   const [retainedItems, setRetainedItems] = useState<TItem[]>([])
   const listId = useId()
+  const iconPerItem = typeof icon === 'function'
+  const iconFor = (item: TItem): React.ReactNode => (typeof icon === 'function' ? icon(item) : icon)
 
   const itemsById = useMemo(() => new Map([...retainedItems, ...(knownItems ?? []), ...items].map((item) => [item.id, item])), [items, knownItems, retainedItems])
   const selectedItems = selectedIds.map((id) => itemsById.get(id)).filter((item): item is TItem => item !== undefined)
@@ -70,6 +74,15 @@ export const SearchableItemSelect = <TItem extends SearchableItem>({
     onSearchTextChange?.(value)
   }
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen)
+    onOpenChange?.(nextOpen)
+
+    if (!nextOpen) {
+      updateSearchText('')
+    }
+  }
+
   const select = (item: TItem) => {
     setRetainedItems((previous) => (previous.some((retained) => retained.id === item.id) ? previous : [...previous, item]))
 
@@ -79,20 +92,11 @@ export const SearchableItemSelect = <TItem extends SearchableItem>({
     }
 
     onSelectedIdsChange([item.id])
-    updateSearchText('')
-    setOpen(false)
+    handleOpenChange(false)
   }
 
   const remove = (itemId: string) => {
     onSelectedIdsChange(selectedIds.filter((id) => id !== itemId))
-  }
-
-  const handleOpenChange = (nextOpen: boolean) => {
-    setOpen(nextOpen)
-
-    if (!nextOpen) {
-      updateSearchText('')
-    }
   }
 
   return (
@@ -107,12 +111,13 @@ export const SearchableItemSelect = <TItem extends SearchableItem>({
           aria-describedby={ariaDescribedBy}
           aria-invalid={ariaInvalid}
           tabIndex={0}
-          onKeyDown={onActivateKeyDown(() => setOpen(true))}
+          onKeyDown={onActivateKeyDown(() => handleOpenChange(true))}
           className="flex min-h-10 w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-md border bg-input px-3 py-2 text-left text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           {selectedItems.length > 0 ? (
             selectedItems.map((item) => (
               <Badge key={item.id} variant="outline" className="flex items-center gap-1 pr-1">
+                {iconPerItem && iconFor(item)}
                 <span>{item.name}</span>
                 <Button
                   type="button"
@@ -135,7 +140,7 @@ export const SearchableItemSelect = <TItem extends SearchableItem>({
       </PopoverTrigger>
       <PopoverContent className="w-(--radix-popover-trigger-width) min-w-(--radix-popover-trigger-width) border bg-input! p-0" side="bottom" align="start" sideOffset={4}>
         <Command shouldFilter={false}>
-          <CommandInput placeholder={searchPlaceholder} value={searchText} onValueChange={updateSearchText} />
+          <CommandInput placeholder={searchPlaceholder} value={searchText} onValueChange={updateSearchText} searching={isLoading} />
           <CommandList id={listId}>
             <CommandEmpty>{isLoading ? 'Loading...' : emptyMessage}</CommandEmpty>
             {filteredItems.length > 0 && (
@@ -148,7 +153,7 @@ export const SearchableItemSelect = <TItem extends SearchableItem>({
                       <div className={cn('mr-2 flex h-4 w-4 items-center justify-center rounded-sm border', isSelected ? 'border-primary bg-primary text-btn-primary-text' : 'opacity-50')}>
                         {isSelected && <Check className="h-3 w-3" />}
                       </div>
-                      <span className="mr-2 text-muted-foreground">{icon}</span>
+                      <span className="mr-2 text-muted-foreground">{iconFor(item)}</span>
                       <span className="truncate" title={item.name}>
                         {item.name}
                       </span>

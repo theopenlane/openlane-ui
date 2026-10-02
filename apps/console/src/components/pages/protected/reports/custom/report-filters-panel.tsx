@@ -5,8 +5,8 @@ import { Plus } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
-import { getFieldOperators, labelledFields } from '@/lib/report/report-schema'
-import { filterableFields, filterValueInput, MAX_FILTERS, type TReportCombinator, type TReportFilter } from '@/lib/report/report-filters'
+import { labelledFields, type TReportCombinator } from '@/lib/report/report-schema'
+import { filterableFields, filterOperators, filterValueInput, MAX_FILTERS, type TReportFilter } from '@/lib/report/report-filters'
 import ReportPanel from './report-panel'
 import ReportFilterRow from './report-filter-row'
 
@@ -26,7 +26,7 @@ const ReportFiltersPanel: React.FC<TReportFiltersPanelProps> = ({ entity, filter
     const field = options[0]?.item
     if (!field) return
 
-    onChange([...filters, { id: crypto.randomUUID(), field: field.name, operator: getFieldOperators(field)[0], value: '' }])
+    onChange([...filters, { id: crypto.randomUUID(), field: field.name, operator: filterOperators(field)[0], value: '' }])
   }
 
   const updateFilter = (id: string, updates: Partial<Omit<TReportFilter, 'id'>>) => {
@@ -40,10 +40,10 @@ const ReportFiltersPanel: React.FC<TReportFiltersPanelProps> = ({ entity, filter
 
         if (!field || !nextField) return next
 
-        const operators = getFieldOperators(nextField)
+        const operators = filterOperators(nextField)
         if (!operators.includes(next.operator)) next.operator = operators[0]
 
-        if (filterValueInput(nextField, next.operator) !== filterValueInput(field, filter.operator)) next.value = ''
+        if (next.field !== filter.field || filterValueInput(nextField, next.operator) !== filterValueInput(field, filter.operator)) next.value = ''
 
         return next
       }),

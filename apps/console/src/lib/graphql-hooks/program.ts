@@ -15,6 +15,7 @@ import {
   DELETE_PROGRAM,
   UPDATE_PROGRAM_MEMBERSHIP,
   GET_PROGRAM_DASHBOARD,
+  GET_PROGRAM_FRAMEWORK_NAMES,
 } from '@repo/codegen/query/program'
 
 import {
@@ -42,11 +43,13 @@ import {
   type Program,
   type GetProgramDashboardQuery,
   type GetProgramDashboardQueryVariables,
+  type GetProgramFrameworkNamesQuery,
   EvidenceEvidenceStatus,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 
 const EMPTY_PROGRAM_OPTIONS: { label: string; value: string }[] = []
 
@@ -252,7 +255,7 @@ export const useUpdateProgramMembership = () => {
   })
 }
 
-export const useGetProgramDashboard = ({ where, enabled = true }: { where?: ProgramWhereInput; enabled?: boolean }) => {
+export const useGetProgramDashboard = ({ where }: { where?: ProgramWhereInput }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetProgramDashboardQuery, GetProgramDashboardQueryVariables>({
@@ -260,8 +263,28 @@ export const useGetProgramDashboard = ({ where, enabled = true }: { where?: Prog
     queryFn: async () => {
       return client.request(GET_PROGRAM_DASHBOARD, { where })
     },
-    enabled: !!enabled,
   })
+}
+
+const NO_FRAMEWORK_NAMES: string[] = []
+
+const selectFrameworkNames = (data: GetProgramFrameworkNamesQuery): string[] => [...new Set(getNodes(data.programs).flatMap((program) => (program.frameworkName ? [program.frameworkName] : [])))]
+
+export const useProgramFrameworkNames = ({ enabled = true }: { enabled?: boolean } = {}) => {
+  const { client } = useGraphQLClient()
+  const hasProgramAccess = useHasObjectType(ObjectTypes.PROGRAM)
+
+  const query = useQuery<GetProgramFrameworkNamesQuery, Error, string[]>({
+    queryKey: ['programs', 'framework-names'],
+    queryFn: () => client.request(GET_PROGRAM_FRAMEWORK_NAMES),
+    select: selectFrameworkNames,
+    enabled: enabled && hasProgramAccess,
+  })
+
+  return {
+    frameworkNames: !hasProgramAccess ? NO_FRAMEWORK_NAMES : query.isPlaceholderData ? undefined : query.data,
+    isError: hasProgramAccess && query.isError,
+  }
 }
 
 export type ProgramFromGetProgramDashboard = NonNullable<NonNullable<NonNullable<GetProgramDashboardQuery['programs']>['edges']>[number]>['node']
