@@ -62,7 +62,7 @@ export const ReportScanUploadSheet = ({ suggestedTaskId, onClose }: ReportScanUp
 
     try {
       await createReportScan({ input: { scanType: ScanScanType.REPORT, performedBy: REPORT_SCAN_PERFORMER, target: file.name }, scanFiles: [file] })
-      successNotification({ title: "We're reading your report", description: "Usually a couple of minutes. Carry on, we'll notify you when it's ready to review." })
+      successNotification({ title: "Processing your report", description: "Most reports are ready in about 15 minutes. We’ll notify you when yours is ready to review.." })
       onClose()
     } catch (error) {
       errorNotification({ title: "We couldn't upload your report", description: parseErrorMessage(error) })
