@@ -33,7 +33,6 @@ import { useSelectColumnVisibility } from '@/components/shared/column-visibility
 export const ProceduresTable = () => {
   const router = useRouter()
   const { data: session } = useSession()
-  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.PROCEDURE)
   const [filters, setFilters] = useState<ProcedureWhereInput | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.PROCEDURE)
@@ -71,6 +70,10 @@ export const ProceduresTable = () => {
 
     return merged
   }, [filters, debouncedSearch])
+
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.PROCEDURE, {
+    restorePage: { where, orderBy, ready: filters !== null },
+  })
 
   const { procedures, error, isLoading: fetching, paginationMeta } = useProcedures({ where, orderBy, pagination, enabled: !!filters })
   const { userMap, tokenMap } = useAuthorMaps(memberIds ?? [])
@@ -175,10 +178,7 @@ export const ProceduresTable = () => {
         handleCreateNew={handleCreateNew}
         setFilters={setFilters}
         searchTerm={searchTerm}
-        setSearchTerm={(inputVal) => {
-          setSearchTerm(inputVal)
-          resetPagination()
-        }}
+        setSearchTerm={setSearchTerm}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}

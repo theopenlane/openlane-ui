@@ -34,7 +34,6 @@ const RiskTable: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.RISK)
   const [filters, setFilters] = useState<RiskWhereInput | null>(null)
-  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.RISK)
   const [selectedRisks, setSelectedRisks] = useState<{ id: string }[]>([])
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
@@ -83,6 +82,10 @@ const RiskTable: React.FC = () => {
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
   }, [orderBy])
+
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.RISK, {
+    restorePage: { where, orderBy: orderByFilter, ready: filters !== null },
+  })
 
   const { risks, paginationMeta, isError, error } = useRisks({
     where,
@@ -154,10 +157,7 @@ const RiskTable: React.FC = () => {
       <RisksTableToolbar
         handleCreateNew={handleCreateNew}
         searchTerm={searchQuery}
-        setSearchTerm={(val) => {
-          setSearchQuery(val)
-          resetPagination()
-        }}
+        setSearchTerm={setSearchQuery}
         searching={searching}
         onFilterChange={setFilters}
         handleExport={handleExportFile}

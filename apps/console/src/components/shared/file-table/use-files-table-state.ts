@@ -26,7 +26,7 @@ type TUseFilesTableStateProps = {
 export const useFilesTableState = ({ tableKey, where, withEvidence }: TUseFilesTableStateProps) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [previewFile, setPreviewFile] = useState<TFileRow | null>(null)
-  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, tableKey, FILES_PAGE_SIZE_OPTIONS)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, tableKey, { allowedPageSizes: FILES_PAGE_SIZE_OPTIONS })
   const debouncedSearch = useDebounce(searchTerm, 300)
   const whereKey = hashKey([where ?? {}])
 
