@@ -102,7 +102,7 @@ export const ReviewsStep = ({ reviews, controls, selected, setSelected }: Review
   return (
     <SectionCard
       title="Review the auditor's reviews"
-      description="Each review is what the auditor wrote, the procedure they performed in their words. There are usually hundreds, so they are grouped under the control each one tests."
+      description="Each review represents a test performed by the auditor against a control from Section 4 of your report. SOC 2 reports can include hundreds of these tests, so we group them by the control they evaluate."
       titleAction={<SelectAllCheckbox ids={groups.flatMap((group) => group.reviews.map((review) => review.id))} selected={selected} setSelected={setSelected} />}
       footer={
         hiddenGroupCount > 0 ? (
