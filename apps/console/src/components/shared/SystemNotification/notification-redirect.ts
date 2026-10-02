@@ -15,13 +15,14 @@ const isDomainScanEntryArray = (value: unknown): value is DomainScanEntry[] =>
 
 export const getNotificationRedirectUrl = (notification: Notification, returnTo?: string | null) => {
   const isDomainScan = notification.topic === NotificationNotificationTopic.DOMAIN_SCAN || notification.objectType === 'DOMAIN_SCAN'
-  if (isDomainScan) {
+  const url = notification.data?.url
+
+  if (isDomainScan && !url) {
     const scans: unknown = notification.data?.scans
     const singleScanId = isDomainScanEntryArray(scans) && scans.length === 1 ? scans[0].internal_scan_id : undefined
     return domainScanReviewHref(singleScanId || notification.id, returnTo)
   }
 
-  const url = notification.data?.url
   if (!url) {
     return null
   }
