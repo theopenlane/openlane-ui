@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useCallback, useEffect } from 'react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import ScrollableTabsList from '@/components/pages/protected/controls/tabs/scrollable-tabs-list'
+import React from 'react'
+import { TabsContent } from '@repo/ui/tabs'
+import DetailTabs from '@/components/shared/detail-tabs/detail-tabs'
+import { useDetailTabs, type TDetailTab } from '@/components/shared/detail-tabs/use-detail-tabs'
 import OverviewTab from './overview/overview-tab'
 import RiskReviewTab from './risk-review/risk-review-tab'
 import type { GetRiskByIdQuery, GetRiskAssociationsQuery, UpdateRiskInput } from '@repo/codegen/src/schema'
@@ -12,9 +12,12 @@ import ActivityTab from './activity/activity-tab'
 
 type RiskTabValue = 'overview' | 'mitigation' | 'risk-review' | 'activity'
 
-const DEFAULT_TAB: RiskTabValue = 'overview'
-const TAB_QUERY_PARAM = 'tab'
-const ALL_TABS: RiskTabValue[] = ['overview', 'mitigation', 'risk-review', 'activity']
+const RISK_TABS: TDetailTab<RiskTabValue>[] = [
+  { value: 'overview', label: 'Overview' },
+  { value: 'mitigation', label: 'Mitigation' },
+  { value: 'risk-review', label: 'Risk Review' },
+  { value: 'activity', label: 'Activity' },
+]
 
 interface RiskDetailTabsProps {
   risk: GetRiskByIdQuery['risk']
@@ -25,60 +28,10 @@ interface RiskDetailTabsProps {
 }
 
 const RiskDetailTabs: React.FC<RiskDetailTabsProps> = ({ risk, associations, isEditing, canEdit: canEditRisk, handleUpdateField }) => {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  const tabParamValue = searchParams.get(TAB_QUERY_PARAM)
-  const requestedTab = tabParamValue && ALL_TABS.includes(tabParamValue as RiskTabValue) ? (tabParamValue as RiskTabValue) : DEFAULT_TAB
-  const activeTab = requestedTab
-
-  const updateTabParam = useCallback(
-    (tab: RiskTabValue) => {
-      const nextParams = new URLSearchParams(searchParams.toString())
-
-      if (tab === DEFAULT_TAB) {
-        nextParams.delete(TAB_QUERY_PARAM)
-      } else {
-        nextParams.set(TAB_QUERY_PARAM, tab)
-      }
-
-      const query = nextParams.toString()
-      router.replace(query ? `${pathname}?${query}` : pathname)
-    },
-    [pathname, router, searchParams],
-  )
-
-  useEffect(() => {
-    const expectedParam = activeTab === DEFAULT_TAB ? null : activeTab
-    if (tabParamValue !== expectedParam) {
-      updateTabParam(activeTab)
-    }
-  }, [activeTab, tabParamValue, updateTabParam])
-
-  const handleTabChange = (nextTab: string) => {
-    if (!ALL_TABS.includes(nextTab as RiskTabValue)) {
-      updateTabParam(DEFAULT_TAB)
-      return
-    }
-    updateTabParam(nextTab as RiskTabValue)
-  }
+  const tabs = useDetailTabs({ page: 'risk', tabs: RISK_TABS, defaultTab: 'overview' })
 
   return (
-    <Tabs value={activeTab} onValueChange={handleTabChange} variant="underline">
-      <div className="mb-6">
-        <ScrollableTabsList>
-          <TabsList className="w-max gap-2">
-            <TabsTrigger value="overview" className="px-0">
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="mitigation">Mitigation</TabsTrigger>
-            <TabsTrigger value="risk-review">Risk Review</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
-          </TabsList>
-        </ScrollableTabsList>
-      </div>
-
+    <DetailTabs state={tabs}>
       <TabsContent value="overview" className="space-y-6">
         <OverviewTab risk={risk} isEditing={isEditing} canEdit={canEditRisk} />
       </TabsContent>
@@ -94,7 +47,7 @@ const RiskDetailTabs: React.FC<RiskDetailTabsProps> = ({ risk, associations, isE
       <TabsContent value="activity" className="space-y-6">
         <ActivityTab riskId={risk?.id} />
       </TabsContent>
-    </Tabs>
+    </DetailTabs>
   )
 }
 
