@@ -1,8 +1,9 @@
 'use client'
 
-import React from 'react'
+import React, { useId } from 'react'
 import { Check } from 'lucide-react'
 import { Button } from '@repo/ui/button'
+import { TruncatedCell } from '@repo/ui/data-table'
 import { activatable } from '@repo/ui/lib/a11y'
 import { cn } from '@repo/ui/lib/utils'
 import type { SetupChecklistItem, SetupChecklistItemStatus } from '@/hooks/useSetupChecklist'
@@ -45,10 +46,12 @@ type SetupChecklistItemCardProps = {
 const SetupChecklistItemCard = ({ task, onOpen, onComplete }: SetupChecklistItemCardProps) => {
   const status = SETUP_CHECKLIST_STATUS[task.itemStatus]
   const isDone = task.itemStatus === 'done'
+  const detailsId = useId()
 
   return (
     <div
       aria-label={task.title}
+      aria-describedby={task.details ? detailsId : undefined}
       className="flex min-w-0 cursor-pointer flex-col gap-3 rounded-lg border border-homepage-card-border bg-homepage-card-item-transparent px-4 py-3 transition-colors duration-200 hover:border-muted-foreground focus-visible:border-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       {...activatable(() => onOpen(task))}
     >
@@ -76,7 +79,13 @@ const SetupChecklistItemCard = ({ task, onOpen, onComplete }: SetupChecklistItem
       </div>
       <div className="min-w-0">
         <p className="pb-1 text-sm font-medium">{task.title}</p>
-        {task.details && <p className="line-clamp-3 text-xs text-muted-foreground">{task.details}</p>}
+        {task.details && (
+          <div id={detailsId}>
+            <TruncatedCell lineClamp={3} className="text-xs text-muted-foreground" portal>
+              {task.details}
+            </TruncatedCell>
+          </div>
+        )}
       </div>
     </div>
   )
