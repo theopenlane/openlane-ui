@@ -1,15 +1,16 @@
 'use client'
 
-import { type ITheme, Model } from 'survey-core'
+import { type ITheme } from 'survey-core'
 import { Survey } from 'survey-react-ui'
 
 import 'survey-core/survey-core.min.css'
 
-import { useEffect, use } from 'react'
+import { useEffect, useMemo, use } from 'react'
 import { useTheme } from 'next-themes'
 import { lightTheme } from '@/styles/questionnaire/theme-light'
 import { darkTheme } from '@/styles/questionnaire/theme-dark'
 import { useGetTemplate } from '@/lib/graphql-hooks/template'
+import { createSurveyModel } from '@/components/shared/survey/survey-model'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 export default function ViewTemplate(input: { existingId: string }) {
@@ -19,6 +20,15 @@ export default function ViewTemplate(input: { existingId: string }) {
 
   const { data: templateResult } = useGetTemplate(input.existingId)
   const surveyJson = templateResult?.template?.jsonconfig
+
+  const survey = useMemo(() => {
+    if (!surveyJson) return null
+    const model = createSurveyModel(surveyJson)
+    model.applyTheme(theme === 'dark' ? (darkTheme as ITheme) : lightTheme)
+    model.showCompleteButton = false
+    model.mode = 'display'
+    return model
+  }, [surveyJson, theme])
 
   useEffect(() => {
     setCrumbs([
@@ -30,20 +40,9 @@ export default function ViewTemplate(input: { existingId: string }) {
     ])
   }, [setCrumbs])
 
-  if (!surveyJson) {
+  if (!survey) {
     return <div>Loading template...</div>
   }
-
-  const survey = new Model(surveyJson)
-
-  if (theme === 'dark') {
-    survey.applyTheme(darkTheme as ITheme)
-  } else {
-    survey.applyTheme(lightTheme)
-  }
-
-  survey.showCompleteButton = false
-  survey.mode = 'display'
 
   return <Survey model={survey} />
 }
