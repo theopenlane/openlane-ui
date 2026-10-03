@@ -19,6 +19,7 @@ import Link from 'next/link'
 import { LinkedPoliciesCell } from './linked-policies-cell'
 import { LinkedProceduresCell } from './linked-procedures-cell'
 import AssociatedObjectsCell from './associated-objects-cell'
+import { CONTROL_ASSOCIATED_OBJECTS_EXPORT_FIELDS } from './control-export-fields'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
@@ -473,7 +474,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, tokenMap, select
       size: 180,
       minSize: 180,
       meta: {
-        exportFields: ['procedures.name', 'internalPolicies.name', 'programs.name', 'risks.name', 'tasks.title'],
+        exportFields: CONTROL_ASSOCIATED_OBJECTS_EXPORT_FIELDS,
         gqlInclude: ['includeTasks', 'includeInternalPolicies', 'includeProcedures', 'includePrograms', 'includeRisks'] satisfies ControlIncludeVar[],
       },
       cell: ({ row }) => <AssociatedObjectsCell control={row.original} />,

@@ -18,6 +18,7 @@ export const SEGMENTS: Record<string, string[]> = {
     'control-objectives.spec.ts',
     'controls-bulk-upload.spec.ts',
     'controls-crud.spec.ts',
+    'controls-export.spec.ts',
     'controls-mapping.spec.ts',
     'controls.spec.ts',
     'map-control-edit-flows.spec.ts',
