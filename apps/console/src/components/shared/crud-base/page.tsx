@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import { ExportExportFormat, type ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
 import { type ZodObject, type ZodRawShape } from 'zod'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -208,7 +208,6 @@ export function GenericTablePage<
 
   const [filters, setFilters] = useState<TWhereInput | null>(null)
   const [filtersInitialized, setFiltersInitialized] = useState(() => !(filterFields && filterFields.length > 0))
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, tableKey)
   const [orderBy, setOrderBy] = useOrgTableSort(tableKey, orderFieldEnum, defaultSorting)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(tableKey, defaultVisibility))
   const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
@@ -250,15 +249,9 @@ export function GenericTablePage<
     return orderBy || undefined
   }, [orderBy])
 
-  const filterFingerprint = useMemo(() => JSON.stringify({ filters, debouncedSearch, additionalWhereFilter: additionalWhereFilter ?? null }), [filters, debouncedSearch, additionalWhereFilter])
-  const isFirstFilterRenderRef = useRef(true)
-  useEffect(() => {
-    if (isFirstFilterRenderRef.current) {
-      isFirstFilterRenderRef.current = false
-      return
-    }
-    setPagination((prev) => (prev.page === 1 ? prev : { ...prev, page: 1, query: { first: prev.pageSize } }))
-  }, [filterFingerprint, setPagination])
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, tableKey, {
+    restorePage: { where: whereFilter, orderBy: orderByFilter, ready: filtersInitialized },
+  })
 
   useEffect(() => {
     if (!config.hideBreadcrumbs) {
@@ -397,10 +390,7 @@ export function GenericTablePage<
         filterFields={filterFields}
         quickFilters={quickFilters}
         searchTerm={searchQuery}
-        setSearchTerm={(val) => {
-          setSearchQuery(val)
-          setPagination((prev) => ({ ...prev, page: 1, query: { first: prev.pageSize } }))
-        }}
+        setSearchTerm={setSearchQuery}
         searching={searching}
         canEdit={canEdit}
         permission={permission}
