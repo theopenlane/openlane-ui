@@ -12,6 +12,7 @@ import { useContact, useUpdateContact } from '@/lib/graphql-hooks/contact'
 import { ContactUserStatus, type UpdateContactInput } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { LoaderCircle } from 'lucide-react'
 import useContactFormSchema, { type AddContactFormData } from './use-contact-form-schema'
 
@@ -30,6 +31,7 @@ const ContactDetailSheet: React.FC<ContactDetailSheetProps> = ({ contactId, onCl
   const { mutateAsync: updateContact, isPending } = useUpdateContact()
   const { successNotification, errorNotification } = useNotification()
   const { form } = useContactFormSchema()
+  const buildChangedInput = useChangedInput(form)
 
   useEffect(() => {
     if (contact) {
@@ -48,14 +50,15 @@ const ContactDetailSheet: React.FC<ContactDetailSheetProps> = ({ contactId, onCl
   const handleSubmit = async (data: AddContactFormData) => {
     if (!contact) return
 
-    const input: UpdateContactInput = {}
-    const fields = ['fullName', 'email', 'company', 'title', 'phoneNumber', 'address'] as const
-    for (const field of fields) {
-      if (data[field] !== (contact[field] ?? '')) {
-        input[field] = data[field] || undefined
-      }
-    }
-    if (data.status !== contact.status) input.status = data.status
+    const input = await buildChangedInput(data, ({ fullName, email, company, title, phoneNumber, address, status }): UpdateContactInput => ({
+      fullName: fullName || undefined,
+      ...(email ? { email } : { clearEmail: true }),
+      ...(company ? { company } : { clearCompany: true }),
+      ...(title ? { title } : { clearTitle: true }),
+      ...(phoneNumber ? { phoneNumber } : { clearPhoneNumber: true }),
+      ...(address ? { address } : { clearAddress: true }),
+      status,
+    }))
 
     if (Object.keys(input).length === 0) {
       onClose()

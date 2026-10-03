@@ -17,7 +17,8 @@ import { isValidEmail } from '@/lib/validators'
 import { Input } from '@repo/ui/input'
 import SetReadyForAuditorDialog from './set-ready-for-auditor-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { useChangedInput } from '@/hooks/useChangedInput'
+import { ProgramProgramStatus, type UpdateProgramInput } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
@@ -78,6 +79,8 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
     },
   })
 
+  const buildChangedInput = useChangedInput(form)
+
   useEffect(() => {
     if (name || email || firm) {
       form.reset({
@@ -106,14 +109,19 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
       return
     }
     try {
-      await updateProgram({
-        updateProgramId: id ?? '',
-        input: {
-          ...(values.auditFirm === '' ? { clearAuditFirm: true } : { auditFirm: values.auditFirm }),
-          ...(values.auditorName === '' ? { clearAuditor: true } : { auditor: values.auditorName }),
-          ...(values.auditorEmail === '' ? { clearAuditorEmail: true } : { auditorEmail: values.auditorEmail }),
-        },
-      })
+      const input = await buildChangedInput(values, (formValues): UpdateProgramInput => ({
+        ...(formValues.auditFirm === '' ? { clearAuditFirm: true } : { auditFirm: formValues.auditFirm }),
+        ...(formValues.auditorName === '' ? { clearAuditor: true } : { auditor: formValues.auditorName }),
+        ...(formValues.auditorEmail === '' ? { clearAuditorEmail: true } : { auditorEmail: formValues.auditorEmail }),
+      }))
+
+      if (Object.keys(input).length === 0) {
+        form.reset()
+        setIsEditing(false)
+        return
+      }
+
+      await updateProgram({ updateProgramId: id ?? '', input })
       successNotification({
         title: 'Auditor updated',
         description: 'Auditor saved successfully.',

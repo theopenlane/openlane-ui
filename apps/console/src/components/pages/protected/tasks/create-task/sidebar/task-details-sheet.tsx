@@ -25,7 +25,9 @@ import Properties from '../form/fields/properties'
 import Conversation from '../form/fields/conversation'
 import TasksSheetHeader from '../form/fields/header'
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
-import { buildTaskAssociations, buildTaskPayload, generateEvidenceFormData, type TTaskCopyMode } from '../utils'
+import { buildTaskAssociations, buildTaskFieldPayload, generateEvidenceFormData, type TTaskCopyMode } from '../utils'
+import { getAssociationInput } from '@/components/shared/object-association/utils'
+import { useChangedInput } from '@/hooks/useChangedInput'
 import { useTaskCopyPrefill } from '../../hooks/use-task-copy-prefill'
 import MarkAsComplete from '../form/fields/mark-as-complete'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -72,6 +74,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const taskData = data?.task
   const { form } = useFormSchema()
   const { isDirty: isTaskDirty } = form.formState
+  const buildChangedInput = useChangedInput(form)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const { data: associationsData, isLoading: associationsLoading } = useTaskAssociations(id as string)
@@ -167,12 +170,20 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
       return
     }
 
-    const formData: UpdateTaskInput = await buildTaskPayload(data, plateEditorHelper, initialAssociations, associations)
+    const changedFields = await buildChangedInput(data, (values) => buildTaskFieldPayload(values, plateEditorHelper))
+
+    const input: UpdateTaskInput = { ...changedFields, ...getAssociationInput(initialAssociations, associations) }
+
+    if (Object.keys(input).length === 0) {
+      form.reset()
+      setIsEditing(false)
+      return
+    }
 
     try {
       await updateTask({
         updateTaskId: id as string,
-        input: formData,
+        input,
       })
 
       queryClient.invalidateQueries({ queryKey: ['tasks'] })

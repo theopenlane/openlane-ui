@@ -101,10 +101,7 @@ const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose, overrideHeader, o
     basePath: '/exposure/reviews',
     buildPayload: async (formData) => {
       const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, riskIDs, ...rest } = formData
-      const payload = await buildPayload(rest, plateEditorHelper, {
-        dirtyFields: form.formState.dirtyFields,
-        useClearFlags: true,
-      })
+      const payload = await buildPayload(rest, plateEditorHelper, { useClearFlags: true })
       const associationPayload = buildAssociationPayload(
         REVIEW_ASSOCIATION_CONFIG.associationKeys,
         { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, riskIDs },
