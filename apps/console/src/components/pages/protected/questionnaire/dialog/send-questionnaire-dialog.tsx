@@ -297,13 +297,13 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
                           autoFocus
                         />
                         {showSuggestions && trimEmail(inputValue).length >= MIN_SEARCH_LENGTH && suggestions.length > 0 && (
-                          <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-md">
+                          <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-popover">
                             <ul className="max-h-50 overflow-y-auto p-1">
                               {suggestions.map((s) => (
                                 <li key={s.email}>
                                   <button
                                     type="button"
-                                    className="w-full rounded-xs px-2 py-1.5 text-left text-sm hover:bg-muted transition-colors cursor-default flex items-center justify-between gap-2"
+                                    className="w-full rounded-xs px-2 py-1.5 text-left text-sm hover:bg-popover-accent transition-colors cursor-default flex items-center justify-between gap-2"
                                     onMouseDown={(e) => {
                                       e.preventDefault()
                                       selectContact(s.email)

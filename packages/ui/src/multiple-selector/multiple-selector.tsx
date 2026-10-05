@@ -492,7 +492,7 @@ const MultipleSelector = ({
       <div className="relative">
         {open && (
           <CommandList
-            className="absolute top-1 z-50 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-hidden animate-in"
+            className="absolute top-1 z-50 w-full rounded-md border bg-popover text-popover-foreground shadow-popover outline-hidden animate-in"
             onMouseLeave={() => {
               setOnScrollbar(false)
             }}

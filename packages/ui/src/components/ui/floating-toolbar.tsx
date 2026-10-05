@@ -97,7 +97,7 @@ export function FloatingToolbar({
         {...rootProps}
         ref={ref}
         className={cn(
-          'absolute z-(--editor-z-floating-toolbar) scrollbar-hide overflow-x-auto rounded-md border bg-popover p-1 whitespace-nowrap opacity-100 shadow-md print:hidden',
+          'absolute z-(--editor-z-floating-toolbar) scrollbar-hide overflow-x-auto rounded-md border bg-popover p-1 whitespace-nowrap opacity-100 shadow-popover print:hidden',
           'max-w-[80vw]',
           className,
         )}

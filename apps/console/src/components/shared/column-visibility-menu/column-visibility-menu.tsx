@@ -55,7 +55,7 @@ const ColumnVisibilityMenu: React.FC<TColumnVisibilityMenuProps> = ({ mappedColu
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="border shadow-md p-0 max-h-80 overflow-y-auto" align="start">
+      <DropdownMenuContent className="p-0 max-h-80 overflow-y-auto" align="start">
         {[...mappedColumns]
           .sort((a, b) => a.header.localeCompare(b.header))
           .map((column) => (

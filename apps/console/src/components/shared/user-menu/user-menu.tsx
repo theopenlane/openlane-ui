@@ -56,7 +56,7 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
           <Avatar entity={avatarEntity} />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="min-w-64 border shadow-md pb-1" align="end" aria-labelledby={userMenuTriggerAnchor.id}>
+      <DropdownMenuContent className="min-w-64 pb-1" align="end" aria-labelledby={userMenuTriggerAnchor.id}>
         {(displayName || emailAddress) && (
           <>
             <div className="text-sm px-2 text-paragraph">
@@ -73,13 +73,13 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
             <p className="text-sm font-base">Theme</p>
           </div>
 
-          <div className="flex items-center gap-1 rounded-lg bg-popover bg-card p-1 border">
+          <div className="flex items-center gap-1 rounded-lg bg-popover p-1 border">
             {themeOptions.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => setTheme(opt.value)}
-                className={`flex items-center justify-center rounded-md p-1 transition-all *:pointer-events-none bg-popover hover:bg-card dark:bg-card dark:hover:bg-btn-secondary ${
-                  theme === opt.value ? '!bg-card dark:!bg-btn-secondary' : 'text-muted-foreground'
+                className={`flex items-center justify-center rounded-md p-1 transition-all *:pointer-events-none hover:bg-popover-accent ${
+                  theme === opt.value ? 'bg-popover-accent' : 'text-muted-foreground'
                 }`}
                 title={opt.label}
                 {...elementAnchor('user-menu', 'theme', opt.value)}
@@ -109,7 +109,7 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
             <p className="text-sm font-base">Command Menu</p>
           </div>
 
-          <div className="flex items-center gap-1 rounded-sm bg-popover bg-card pr-1 pl-1 border">
+          <div className="flex items-center gap-1 rounded-sm bg-popover pr-1 pl-1 border">
             <span className="text-[10px]">{suffix}</span>
             <span className="text-[12px]">K</span>
           </div>
@@ -121,7 +121,7 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
             <p className="text-sm font-base">Search Menu</p>
           </div>
 
-          <div className="flex items-center gap-1 rounded-sm bg-popover bg-card pr-1 pl-1 border">
+          <div className="flex items-center gap-1 rounded-sm bg-popover pr-1 pl-1 border">
             <span className="text-[10px]">{suffix}</span>
             <span className="text-[12px]">/</span>
           </div>

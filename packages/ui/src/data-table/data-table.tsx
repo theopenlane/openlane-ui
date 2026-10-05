@@ -783,7 +783,7 @@ export function DataTable<TData extends RowData>({
               {rowDragDrop && (
                 <DragOverlay dropAnimation={null} modifiers={ROW_DRAG_OVERLAY_MODIFIERS} style={ROW_DRAG_OVERLAY_STYLE}>
                   {draggedRow && (
-                    <div className="pointer-events-none flex max-w-xs items-center gap-2 rounded-md border bg-popover px-3 py-2 shadow-lg">
+                    <div className="pointer-events-none flex max-w-xs items-center gap-2 rounded-md border bg-popover px-3 py-2 shadow-popover">
                       <GripVertical size={14} className="shrink-0 text-muted-foreground" />
                       <div className="min-w-0">
                         <p className="truncate text-sm">{rowDragDrop.getRowLabel(draggedRow)}</p>
