@@ -13,6 +13,7 @@ import { useImportExit } from './lib/use-import-exit'
 import type { TDestinationField, TImportAutomaticValue, TImportDestination, TMappedImport } from './lib/types'
 import { ImportFlowLayout } from './import-flow-layout'
 import { ImportSourceStep } from './import-source-step'
+import { Callout } from '@/components/shared/callout/callout'
 
 type TRecordImportFlowProps = {
   entityType: ObjectTypes
@@ -97,6 +98,11 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
       ) : (
         <>
           <ImportSourceStep entityLabel={entityLabel} entityLabelPlural={entityLabelPlural} state={state} />
+          {step === 'review' && parsed && route.importNotice && (
+            <Callout variant="info" compact>
+              {route.importNotice}
+            </Callout>
+          )}
           {step === 'review' && parsed && (
             <ReviewStep
               entityLabel={entityLabel}

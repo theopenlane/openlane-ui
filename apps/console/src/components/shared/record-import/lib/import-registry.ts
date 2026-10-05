@@ -32,7 +32,9 @@ import type { TDestinationField } from './types'
 
 type TRequiredInputKeys<TInput> = { [K in keyof TInput]-?: object extends Pick<TInput, K> ? never : K }[keyof TInput]
 
-type TStringInputKeys<TInput> = { [K in keyof TInput]-?: NonNullable<TInput[K]> extends string ? K : never }[keyof TInput]
+type TInputKeysOfType<TInput, TValue> = { [K in keyof TInput]-?: NonNullable<TInput[K]> extends TValue ? K : never }[keyof TInput]
+
+type TStringInputKeys<TInput> = TInputKeysOfType<TInput, string>
 
 type TRequiredOneOf<TInput> = readonly [TStringInputKeys<TInput>, TStringInputKeys<TInput>, ...TStringInputKeys<TInput>[]]
 
@@ -41,6 +43,7 @@ type TImportEntityDefinition<TInput> = {
   requiredOneOf?: readonly TRequiredOneOf<TInput>[]
   primaryField?: TStringInputKeys<TInput>
   autoValues?: { [K in TStringInputKeys<TInput>]?: NonNullable<TInput[K]> }
+  fixedValues?: { [K in TInputKeysOfType<TInput, string | boolean>]?: NonNullable<TInput[K]> }
   uniqueFields?: readonly TStringInputKeys<TInput>[]
   aliases?: Record<string, readonly string[]>
 }
@@ -50,15 +53,19 @@ export type TImportEntityConfig = {
   requiredOneOf: string[][]
   primaryField?: string
   autoValues: Record<string, string>
+  fixedValues: Record<string, string | boolean>
   uniqueFields: string[]
   aliases: Record<string, readonly string[]>
 }
 
-const defineImportEntity = <TInput>({ required, requiredOneOf, primaryField, autoValues, uniqueFields, aliases }: TImportEntityDefinition<TInput>): TImportEntityConfig => ({
+const isFixedValue = (entry: [string, unknown]): entry is [string, string | boolean] => typeof entry[1] === 'string' || typeof entry[1] === 'boolean'
+
+const defineImportEntity = <TInput>({ required, requiredOneOf, primaryField, autoValues, fixedValues, uniqueFields, aliases }: TImportEntityDefinition<TInput>): TImportEntityConfig => ({
   requiredFields: Object.keys(required),
   requiredOneOf: (requiredOneOf ?? []).map((group) => group.map(String)),
   primaryField: primaryField === undefined ? undefined : String(primaryField),
   autoValues: Object.fromEntries(Object.entries(autoValues ?? {}).filter((entry): entry is [string, string] => typeof entry[1] === 'string')),
+  fixedValues: Object.fromEntries(Object.entries(fixedValues ?? {}).filter(isFixedValue)),
   uniqueFields: (uniqueFields ?? []).map(String),
   aliases: aliases ?? {},
 })
@@ -119,7 +126,7 @@ const IMPORT_ENTITIES: Partial<Record<ObjectTypes, TImportEntityConfig>> = {
   [ObjectTypes.RISK]: defineImportEntity<CreateRiskInput>({ required: { name: true } }),
   [ObjectTypes.SCAN]: defineImportEntity<CreateScanInput>({ required: { target: true } }),
   [ObjectTypes.SLA_DEFINITION]: defineImportEntity<CreateSlaDefinitionInput>({ required: { slaDays: true } }),
-  [ObjectTypes.SUBSCRIBER]: defineImportEntity<CreateSubscriberInput>({ required: { email: true } }),
+  [ObjectTypes.SUBSCRIBER]: defineImportEntity<CreateSubscriberInput>({ required: { email: true }, fixedValues: { verifiedEmail: true } }),
   [ObjectTypes.SYSTEM_DETAIL]: defineImportEntity<CreateSystemDetailInput>({ required: { systemName: true } }),
   [ObjectTypes.TASK]: defineImportEntity<CreateTaskInput>({ required: { title: true } }),
   [ObjectTypes.TEMPLATE]: defineImportEntity<CreateTemplateInput>({ required: { jsonconfig: true, name: true } }),
@@ -140,7 +147,7 @@ export const defineFixedImportField = <TInput>({ field, label, value, valueLabel
   fuzzyMatchable: false,
 })
 
-const EMPTY_ENTITY_CONFIG: TImportEntityConfig = { requiredFields: [], requiredOneOf: [], autoValues: {}, uniqueFields: [], aliases: {} }
+const EMPTY_ENTITY_CONFIG: TImportEntityConfig = { requiredFields: [], requiredOneOf: [], autoValues: {}, fixedValues: {}, uniqueFields: [], aliases: {} }
 
 export const getImportEntityConfig = (entityType: ObjectTypes): TImportEntityConfig => IMPORT_ENTITIES[entityType] ?? EMPTY_ENTITY_CONFIG
 

@@ -26,6 +26,7 @@ type TImportRouteDetails = {
   permission: TImportPermission
   gate?: ObjectTypes
   reorderable?: boolean
+  importNotice?: string
 }
 
 export type TImportRoute = TImportRouteDetails & { href: string }
@@ -106,6 +107,7 @@ const IMPORT_ROUTE_DETAILS = {
     section: IMPORT_SECTIONS.organizationSettings,
     displayName: 'Subscriber',
     permission: null,
+    importNotice: 'By uploading subscribers, you confirm that you have permission to add and contact these recipients. Imported subscribers will not be asked to verify their email address.',
   },
   [ObjectTypes.SYSTEM_DETAIL]: {
     listHref: '/registry/system-details',

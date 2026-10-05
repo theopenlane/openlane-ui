@@ -8,7 +8,7 @@ import { toSourceColumns } from './delimited-file'
 import { validateMapping } from './validate-mapping'
 import { checkColumnCells, suggestedValueMap, type TColumnCellCheck } from './validate-cells'
 import { buildImportPlan, buildMappedImport } from './build-mapped-import'
-import { withFixedFields } from './destination-fields'
+import { getRegistryFixedFields, withFixedFields } from './destination-fields'
 import { useImportDestination } from './use-import-destination'
 import type { TDateOrder } from '@/utils/loose-date'
 import type { TColumnMapping, TDestinationField, TDestinationFieldSet, TImportDestination, TParsedDelimitedFile, TValueMap } from './types'
@@ -41,7 +41,8 @@ export const useRecordImport = <TStepId extends string>({ entityType, entityLabe
   const [rowOrder, setRowOrder] = useState<number[] | null>(null)
 
   const { destination: resolved, isLoading: isLoadingFields, isError: isDestinationError } = useImportDestination(entityType, destination)
-  const fieldSet = useMemo(() => (resolved ? withFixedFields(resolved.fieldSet, fixedFields) : EMPTY_FIELD_SET), [resolved, fixedFields])
+  const allFixedFields = useMemo(() => [...getRegistryFixedFields(entityType), ...fixedFields], [entityType, fixedFields])
+  const fieldSet = useMemo(() => (resolved ? withFixedFields(resolved.fieldSet, allFixedFields) : EMPTY_FIELD_SET), [resolved, allFixedFields])
   const columns = useMemo(() => (parsed ? toSourceColumns(parsed) : []), [parsed])
   const suggestions = useMemo(() => matchColumns({ entityType, entityLabels, columns, fieldSet }), [entityType, entityLabels, columns, fieldSet])
 

@@ -57,15 +57,29 @@ export const buildDestinationFields = (entityType: ObjectTypes, sampleCsv: strin
   }
 }
 
-export const withFixedFields = (fieldSet: TDestinationFieldSet, fixedFields: readonly TDestinationField[]): TDestinationFieldSet => {
-  if (fixedFields.length === 0) return fieldSet
+export const getRegistryFixedFields = (entityType: ObjectTypes): TDestinationField[] =>
+  Object.entries(getImportEntityConfig(entityType).fixedValues).map(([name, value]) => ({
+    name,
+    label: toHumanLabel(name),
+    autoValue: String(value),
+    autoValueLabel: typeof value === 'boolean' ? (value ? 'Yes' : 'No') : undefined,
+    fuzzyMatchable: false,
+  }))
 
-  const fixedNames = new Set(fixedFields.map(({ name }) => normalizeFieldName(name)))
+export const withFixedFields = (fieldSet: TDestinationFieldSet, fixedFields: readonly TDestinationField[]): TDestinationFieldSet => {
+  const alreadyFixed = new Set(fieldSet.fixedFields.map(({ name }) => normalizeFieldName(name)))
+  const added = fixedFields.filter((field, index) => {
+    const key = normalizeFieldName(field.name)
+    return !alreadyFixed.has(key) && fixedFields.findIndex((other) => normalizeFieldName(other.name) === key) === index
+  })
+  if (added.length === 0) return fieldSet
+
+  const fixedNames = new Set(added.map(({ name }) => normalizeFieldName(name)))
   const isMappable = (field: TDestinationField) => !fixedNames.has(normalizeFieldName(field.name))
 
   return {
     fields: fieldSet.fields.filter(isMappable),
-    fixedFields: [...fieldSet.fixedFields, ...fixedFields],
+    fixedFields: [...fieldSet.fixedFields, ...added],
     requiredGroups: fieldSet.requiredGroups.filter((group) => group.every(isMappable)),
     uniqueFields: fieldSet.uniqueFields.filter(isMappable),
     primaryField: fieldSet.primaryField !== undefined && fixedNames.has(normalizeFieldName(fieldSet.primaryField)) ? undefined : fieldSet.primaryField,
