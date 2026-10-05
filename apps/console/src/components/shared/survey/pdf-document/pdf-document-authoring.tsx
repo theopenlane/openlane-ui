@@ -69,7 +69,7 @@ const PdfDocumentAuthoring = ({ attachment, linkedUrl, budgetBytes, canEdit, pre
   const sourceDetails = pdfData ? [policyId && (policyRevision ? `Policy ${policyRevision}` : 'Policy'), formatFileSize(getDataUrlByteSize(pdfData))].filter(Boolean).join(' · ') : 'Linked by URL'
 
   return (
-    <div className="flex flex-col gap-3 whitespace-normal">
+    <div role="presentation" className="flex flex-col gap-3 whitespace-normal" onKeyDown={(event) => event.stopPropagation()}>
       {hasSource && (
         <div className="flex flex-col gap-3 rounded-md border bg-card p-3">
           <div className="flex min-w-0 items-start gap-2 text-sm">
