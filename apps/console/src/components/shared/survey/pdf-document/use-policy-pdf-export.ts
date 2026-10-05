@@ -45,6 +45,7 @@ export const usePolicyPdfExport = () => {
         pdfFileName: file.providedFileName || `${policy.name}.pdf`,
         policyId: policy.id,
         policyRevision: revisionAfter ?? '',
+        suggestedTitle: policy.name,
       }
     },
     [createExport, fetchExportFileContent, fetchPolicyRevision, waitForExportFile],

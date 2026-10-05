@@ -1,10 +1,9 @@
 import { ComponentCollection, QuestionCompositeModel, QuestionExpressionModel, QuestionSignaturePadModel, Serializer, type LocalizableString, type Question } from 'survey-core'
 import { formatDate, formatDateTime } from '@/utils/date'
-import { ACKNOWLEDGEMENT_QUESTION_TYPE, readAcknowledgementValue } from './acknowledgement-type'
+import { ACKNOWLEDGEMENT_QUESTION_TYPE, DEFAULT_ACKNOWLEDGEMENT_TITLE, readAcknowledgementValue } from './acknowledgement-type'
 import './acknowledgement.css'
 
 const DEFAULT_ACKNOWLEDGEMENT_STATEMENT = 'I acknowledge that I’ve read and understand the documents above.'
-const DEFAULT_ACKNOWLEDGEMENT_TITLE = 'Acknowledgement'
 const ACKNOWLEDGEMENT_REQUIRED_MESSAGE = 'Check the box to confirm the acknowledgement.'
 
 const SIGNED_AT_QUESTION_TYPE = 'acknowledgementsignedat'

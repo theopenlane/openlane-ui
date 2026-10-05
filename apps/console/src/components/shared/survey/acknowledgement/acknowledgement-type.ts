@@ -2,6 +2,7 @@ import { formatDateTime } from '@/utils/date'
 import { isRecord } from '@/utils/type-guards'
 
 export const ACKNOWLEDGEMENT_QUESTION_TYPE = 'acknowledgement'
+export const DEFAULT_ACKNOWLEDGEMENT_TITLE = 'Acknowledgement'
 
 export type TAcknowledgementValue = {
   acknowledged?: boolean

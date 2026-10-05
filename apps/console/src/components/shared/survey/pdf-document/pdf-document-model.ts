@@ -1,6 +1,6 @@
 import { ElementFactory, Question, Serializer, SurveyModel } from 'survey-core'
 import { getDataUrlByteSize } from '@/utils/data-url'
-import { isPdfDataUrl, PDF_DOCUMENT_QUESTION_TYPE, PDF_DOCUMENT_READ_LABEL, PDF_DOCUMENT_UNREAD_LABEL, renderPdfDocumentAnswer } from './pdf-document-type'
+import { isPdfDataUrl, pdfDocumentTitleFromFileName, PDF_DOCUMENT_QUESTION_TYPE, PDF_DOCUMENT_READ_LABEL, PDF_DOCUMENT_UNREAD_LABEL, renderPdfDocumentAnswer } from './pdf-document-type'
 
 export { PDF_DOCUMENT_QUESTION_TYPE }
 
@@ -11,6 +11,7 @@ export type TPdfDocumentAttachment = {
   pdfFileName: string
   policyId?: string
   policyRevision?: string
+  suggestedTitle?: string
 }
 
 export class QuestionPdfDocumentModel extends Question {
@@ -91,8 +92,10 @@ export class QuestionPdfDocumentModel extends Question {
     return this.isDesignMode && !this.isReadOnly
   }
 
-  attachDocument({ pdfData, pdfFileName, policyId = '', policyRevision = '' }: TPdfDocumentAttachment): void {
+  attachDocument({ pdfData, pdfFileName, policyId = '', policyRevision = '', suggestedTitle }: TPdfDocumentAttachment): void {
     if (pdfData && !isPdfDataUrl(pdfData)) return
+    const title = suggestedTitle?.trim() || pdfDocumentTitleFromFileName(pdfFileName)
+    if (pdfData && title && this.locTitle.isEmpty) this.title = title
     this.pdfData = pdfData
     this.pdfFileName = pdfFileName
     this.policyId = policyId
@@ -102,6 +105,14 @@ export class QuestionPdfDocumentModel extends Question {
 
   removeDocument(): void {
     this.attachDocument({ pdfData: '', pdfFileName: '' })
+  }
+
+  protected getDefaultTitle(): string {
+    return (this.hasEmbeddedDocument && pdfDocumentTitleFromFileName(this.pdfFileName)) || super.getDefaultTitle()
+  }
+
+  get processedTitle(): string {
+    return this.locTitle.isEmpty ? this.getDefaultTitle() : super.processedTitle
   }
 
   get hasReachedEnd(): boolean {
