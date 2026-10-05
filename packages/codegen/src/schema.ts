@@ -3610,7 +3610,20 @@ export type GetExportQueryVariables = Exact<{
 }>
 
 export interface GetExportQuery {
-  export: { status: Types.ExportExportStatus; files: { edges: Array<{ node: { presignedURL: string | null } | null } | null> | null } }
+  export: {
+    id: string
+    status: Types.ExportExportStatus
+    errorMessage: string | null
+    files: { edges: Array<{ node: { id: string; providedFileName: string; providedFileSize: number | null; detectedMimeType: string | null } | null } | null> | null }
+  }
+}
+
+export type GetExportFileContentQueryVariables = Exact<{
+  fileId: string
+}>
+
+export interface GetExportFileContentQuery {
+  file: { id: string; base64: string | null }
 }
 
 export type GetExportsQueryVariables = Exact<{
@@ -4743,6 +4756,15 @@ export interface GetInternalPoliciesListQuery {
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
   }
+}
+
+export type SearchInternalPolicyDocumentsQueryVariables = Exact<{
+  where?: Types.InternalPolicyWhereInput | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface SearchInternalPolicyDocumentsQuery {
+  internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; revision: string | null } | null } | null> | null }
 }
 
 export type GetAllInternalPoliciesQueryVariables = Exact<{

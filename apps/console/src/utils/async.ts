@@ -12,3 +12,17 @@ export const mapWithConcurrency = async <T, R>(items: T[], limit: number, run: (
   await Promise.all(workers)
   return results
 }
+
+export const delay = (ms: number, signal?: AbortSignal): Promise<void> =>
+  new Promise((resolve, reject) => {
+    if (signal?.aborted) return reject(signal.reason)
+    const handleAbort = () => {
+      clearTimeout(timer)
+      reject(signal?.reason)
+    }
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', handleAbort)
+      resolve()
+    }, ms)
+    signal?.addEventListener('abort', handleAbort, { once: true })
+  })

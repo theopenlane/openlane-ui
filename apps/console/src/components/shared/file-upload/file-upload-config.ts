@@ -26,5 +26,8 @@ export const wordAcceptedFileTypesShort = ['DOC', 'DOCX']
 
 export const maxFileSizeInMb = 100
 
+export const pdfAcceptedFileTypes = ['application/pdf']
+export const pdfAcceptedFileTypesShort = ['PDF']
+
 export const imageAcceptedFileTypes = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp', 'image/gif']
 export const imageAcceptedFileTypesShort = ['PNG', 'JPG', 'SVG', 'WEBP', 'GIF']

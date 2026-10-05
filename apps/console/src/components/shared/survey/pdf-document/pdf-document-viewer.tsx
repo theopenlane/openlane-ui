@@ -9,6 +9,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { InfoCard } from '@/components/shared/file-preview/preview-chrome'
 import { useElementSize } from '@/hooks/useElementSize'
 import { SCROLL_TO_END_MESSAGE } from './pdf-document-model'
+import { useDocumentUrl } from './use-document-url'
 
 import 'react-pdf/dist/Page/TextLayer.css'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
@@ -31,7 +32,7 @@ const readPageAspectRatios = (pdf: TPdfDocument) =>
   )
 
 export type TPdfDocumentViewerProps = {
-  url: string
+  source: string
   title: string
   trackReading: boolean
   requireReading: boolean
@@ -39,15 +40,18 @@ export type TPdfDocumentViewerProps = {
   onReachedEnd: () => void
 }
 
-const PdfDocumentViewer = ({ url, title, trackReading, requireReading, hasReachedEnd, onReachedEnd }: TPdfDocumentViewerProps) => {
+const PdfDocumentViewer = ({ source, title, trackReading, requireReading, hasReachedEnd, onReachedEnd }: TPdfDocumentViewerProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const endMarkerRef = useRef<HTMLDivElement>(null)
   const pageWidth = Math.floor(useDebounce(useElementSize(scrollContainerRef, 'content-box').width, RESIZE_SETTLE_MS))
   const [pageAspectRatios, setPageAspectRatios] = useState<number[] | null>(null)
   const [visiblePages, setVisiblePages] = useState<ReadonlySet<number>>(() => new Set())
-  const [loadFailed, setLoadFailed] = useState(false)
+  const [documentFailed, setDocumentFailed] = useState(false)
+  const { documentUrl, decodeFailed } = useDocumentUrl(source)
 
+  const loadFailed = documentFailed || decodeFailed
   const isLaidOut = pageAspectRatios !== null && pageWidth > 0
+  const canOpenToRecordReading = loadFailed && trackReading
   const isWatchingForEnd = trackReading && !hasReachedEnd && isLaidOut
 
   useEffect(() => {
@@ -89,17 +93,17 @@ const PdfDocumentViewer = ({ url, title, trackReading, requireReading, hasReache
   }, [isLaidOut, pageAspectRatios])
 
   const handleLoadSuccess = (pdf: TPdfDocument) => {
-    readPageAspectRatios(pdf).then(setPageAspectRatios, () => setLoadFailed(true))
+    readPageAspectRatios(pdf).then(setPageAspectRatios, () => setDocumentFailed(true))
   }
 
-  const handleLoadFailure = () => setLoadFailed(true)
+  const handleLoadFailure = () => setDocumentFailed(true)
 
-  const openInNewTab = (
+  const openInNewTab = documentUrl && (
     <a
-      href={url}
+      href={documentUrl}
       target="_blank"
       rel="noreferrer"
-      onClick={loadFailed && trackReading ? onReachedEnd : undefined}
+      onClick={canOpenToRecordReading ? onReachedEnd : undefined}
       className="inline-flex items-center gap-1 align-middle text-blue-500 hover:underline"
     >
       Open in a new tab
@@ -112,7 +116,7 @@ const PdfDocumentViewer = ({ url, title, trackReading, requireReading, hasReache
   const loadFailureCard = (
     <InfoCard
       tone="error"
-      message={trackReading ? 'This document could not be displayed here. Open it in a new tab to read it.' : 'This document could not be displayed here.'}
+      message={canOpenToRecordReading ? 'This document could not be displayed here. Open it in a new tab to read it.' : 'This document could not be displayed here.'}
       action={openInNewTab}
     />
   )
@@ -145,20 +149,26 @@ const PdfDocumentViewer = ({ url, title, trackReading, requireReading, hasReache
           !loadFailed && 'h-[600px] max-h-[70vh]',
         )}
       >
-        <Document
-          file={url}
-          suspense={false}
-          onLoadSuccess={handleLoadSuccess}
-          onLoadError={handleLoadFailure}
-          onSourceError={handleLoadFailure}
-          externalLinkTarget="_blank"
-          externalLinkRel="noopener noreferrer"
-          className="flex flex-col items-center gap-3"
-          loading={pageLoadingSkeleton}
-          error={loadFailureCard}
-        >
-          {renderPages()}
-        </Document>
+        {documentUrl ? (
+          <Document
+            file={documentUrl}
+            suspense={false}
+            onLoadSuccess={handleLoadSuccess}
+            onLoadError={handleLoadFailure}
+            onSourceError={handleLoadFailure}
+            externalLinkTarget="_blank"
+            externalLinkRel="noopener noreferrer"
+            className="flex flex-col items-center gap-3"
+            loading={pageLoadingSkeleton}
+            error={loadFailureCard}
+          >
+            {renderPages()}
+          </Document>
+        ) : loadFailed ? (
+          loadFailureCard
+        ) : (
+          pageLoadingSkeleton
+        )}
         <div ref={endMarkerRef} aria-hidden="true" className="h-px" />
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">

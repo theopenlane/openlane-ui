@@ -10,6 +10,7 @@ const ACKNOWLEDGEMENT_REQUIRED_MESSAGE = 'Check the box to confirm the acknowled
 const SIGNED_AT_QUESTION_TYPE = 'acknowledgementsignedat'
 const SIGNATURE_QUESTION_TYPE = 'acknowledgementsignature'
 const SIGNATURE_CSS_CLASS = 'ol-acknowledgement-signature'
+const SIGNATURE_INK_COLOR = '#000000'
 const SIGNED_AT_CSS_CLASS = 'ol-acknowledgement-signed-at'
 const ACKNOWLEDGED_FIELD = 'acknowledged'
 const FULL_NAME_FIELD = 'fullName'
@@ -132,6 +133,7 @@ if (!ComponentCollection.Instance.getCustomQuestionByName(ACKNOWLEDGEMENT_QUESTI
         signatureHeight: 200,
         signatureAutoScaleEnabled: true,
         dataFormat: 'svg',
+        penColor: SIGNATURE_INK_COLOR,
       },
       { type: SIGNED_AT_QUESTION_TYPE, name: SIGNED_AT_FIELD, titleLocation: 'hidden' },
     ],

@@ -1,10 +1,12 @@
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useInfiniteQuery, useMutation, useQuery, type InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 import { useHistoryGraphQLClient } from '@/hooks/useHistoryGraphQLClient'
 import {
   GET_INTERNAL_POLICIES_LIST,
   GET_INTERNAL_POLICY_NAMES,
+  SEARCH_INTERNAL_POLICY_DOCUMENTS,
   GET_INTERNAL_POLICY_DETAILS_BY_ID,
   CREATE_INTERNAL_POLICY,
   UPDATE_INTERNAL_POLICY,
@@ -44,6 +46,8 @@ import {
   type GetPolicyDiscussionByIdQuery,
   type InternalPolicy,
   type PolicySuggestedActionsQuery,
+  type SearchInternalPolicyDocumentsQuery,
+  type SearchInternalPolicyDocumentsQueryVariables,
   type UpdateBulkInternalPolicyMutation,
   type UpdateBulkInternalPolicyMutationVariables,
   type InsertInternalPolicyCommentMutation,
@@ -441,4 +445,33 @@ export const useAllPolicyNames = ({ enabled = true }: { enabled?: boolean } = {}
   const policies = useMemo(() => (data?.pages ?? []).flatMap((page) => (page.internalPolicies.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))), [data])
 
   return { policies, isLoading: enabled && (isPending || isPlaceholderData || hasNextPage || isFetchingNextPage), isError: enabled && isError }
+}
+
+export type TInternalPolicyDocument = NonNullable<NonNullable<NonNullable<SearchInternalPolicyDocumentsQuery['internalPolicies']['edges']>[number]>['node']>
+
+const POLICY_DOCUMENT_SEARCH_LIMIT = 20
+
+export const useSearchInternalPolicyDocuments = ({ search, enabled = true }: { search: string; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+  const where = search ? { nameContainsFold: search } : {}
+
+  const query = useQuery<SearchInternalPolicyDocumentsQuery, Error>({
+    queryKey: ['internalPolicies', 'documents', where],
+    queryFn: () => client.request<SearchInternalPolicyDocumentsQuery, SearchInternalPolicyDocumentsQueryVariables>(SEARCH_INTERNAL_POLICY_DOCUMENTS, { where, first: POLICY_DOCUMENT_SEARCH_LIMIT }),
+    enabled,
+  })
+
+  return { ...query, policies: getNodes(query.data?.internalPolicies), totalCount: query.data?.internalPolicies.totalCount ?? 0 }
+}
+
+export const useFetchInternalPolicyRevision = () => {
+  const { client } = useGraphQLClient()
+
+  return useCallback(
+    async (policyId: string) => {
+      const data = await client.request<SearchInternalPolicyDocumentsQuery, SearchInternalPolicyDocumentsQueryVariables>(SEARCH_INTERNAL_POLICY_DOCUMENTS, { where: { id: policyId }, first: 1 })
+      return getNodes(data.internalPolicies)[0]?.revision ?? null
+    },
+    [client],
+  )
 }

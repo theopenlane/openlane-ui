@@ -1,6 +1,6 @@
 'use client'
 import React, { useCallback, useState } from 'react'
-import { File, FileUp, Upload } from 'lucide-react'
+import { CircleCheck, File, FileUp } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
 import { cn } from '@repo/ui/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
@@ -108,12 +108,12 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
         <input {...getInputProps()} aria-label={props.inputLabel ?? `Upload ${props.acceptedFileTypesShort.join(', ')} file`} />
 
         <div className="flex flex-col items-center gap-3">
-          <div className="w-14 h-14 rounded-md bg-border border border-muted flex items-center justify-center">
+          <div className="relative w-14 h-14 rounded-md bg-border border border-muted flex items-center justify-center">
             {!uploadedFile && <FileUp className="w-7 h-7" />}
             {uploadedFile && (
               <>
-                <File className="w-16 h-16" />
-                <Upload className="absolute bottom-4 right-4 w-5 h-5 bg-jade-500 dark:bg-jade-500 rounded-full p-1 shadow-md" />
+                <File className="w-7 h-7" />
+                <CircleCheck aria-hidden="true" className="absolute -bottom-1.5 -right-1.5 size-5 rounded-full bg-card text-success" />
               </>
             )}
           </div>
