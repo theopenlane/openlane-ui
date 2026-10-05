@@ -152,7 +152,7 @@
     "@radix-ui/react-toolbar": "^1.1.19",
     "@radix-ui/react-tooltip": "^1.2.16",
     "@remixicon/react": "^4.9.0",
-    "@stepperize/react": "^7.0.0",
+    "@stepperize/react": "^8.0.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@tailwindcss/typography": "^0.5.20",
     "@tanstack/react-table": "^9.2.4",
