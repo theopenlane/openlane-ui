@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import ScrollableTabsList from '@/components/pages/protected/controls/tabs/scrollable-tabs-list'
+import React, { useState } from 'react'
+import { TabsContent } from '@repo/ui/tabs'
+import DetailTabs from '@/components/shared/detail-tabs/detail-tabs'
+import { useDetailTabs, type TDetailTab } from '@/components/shared/detail-tabs/use-detail-tabs'
 import OverviewTab from './overview/overview-tab'
 import DocumentsTab from './documents/documents-tab'
 import CampaignsTab from './campaigns/campaigns-tab'
@@ -14,9 +14,14 @@ import type { IdentityHolderQuery, UpdateIdentityHolderInput } from '@repo/codeg
 
 type PersonnelTabValue = 'overview' | 'documents' | 'linked-accounts' | 'campaigns' | 'assessments' | 'history'
 
-const DEFAULT_TAB: PersonnelTabValue = 'overview'
-const TAB_QUERY_PARAM = 'tab'
-const ALL_TABS: PersonnelTabValue[] = ['overview', 'documents', 'linked-accounts', 'campaigns', 'assessments', 'history']
+const PERSONNEL_TABS: TDetailTab<PersonnelTabValue>[] = [
+  { value: 'overview', label: 'Overview' },
+  { value: 'documents', label: 'Documents' },
+  { value: 'linked-accounts', label: 'Linked Accounts' },
+  { value: 'campaigns', label: 'Campaigns' },
+  { value: 'assessments', label: 'Assessments' },
+  { value: 'history', label: 'History' },
+]
 
 interface PersonnelDetailTabsProps {
   personnel: IdentityHolderQuery['identityHolder']
@@ -26,62 +31,11 @@ interface PersonnelDetailTabsProps {
 }
 
 const PersonnelDetailTabs: React.FC<PersonnelDetailTabsProps> = ({ personnel, isEditing, canEdit: canEditPersonnel, handleUpdateField }) => {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
   const [campaignSearchTerm, setCampaignSearchTerm] = useState('')
-
-  const tabParamValue = searchParams.get(TAB_QUERY_PARAM)
-  const activeTab = tabParamValue && ALL_TABS.includes(tabParamValue as PersonnelTabValue) ? (tabParamValue as PersonnelTabValue) : DEFAULT_TAB
-
-  const updateTabParam = useCallback(
-    (tab: PersonnelTabValue) => {
-      const nextParams = new URLSearchParams(searchParams.toString())
-
-      if (tab === DEFAULT_TAB) {
-        nextParams.delete(TAB_QUERY_PARAM)
-      } else {
-        nextParams.set(TAB_QUERY_PARAM, tab)
-      }
-
-      const query = nextParams.toString()
-      router.replace(query ? `${pathname}?${query}` : pathname)
-    },
-    [pathname, router, searchParams],
-  )
-
-  useEffect(() => {
-    const expectedParam = activeTab === DEFAULT_TAB ? null : activeTab
-    if (tabParamValue !== expectedParam) {
-      updateTabParam(activeTab)
-    }
-  }, [activeTab, tabParamValue, updateTabParam])
-
-  const handleTabChange = (nextTab: string) => {
-    if (!ALL_TABS.includes(nextTab as PersonnelTabValue)) {
-      updateTabParam(DEFAULT_TAB)
-      return
-    }
-    updateTabParam(nextTab as PersonnelTabValue)
-  }
+  const tabs = useDetailTabs({ page: 'personnel', tabs: PERSONNEL_TABS, defaultTab: 'overview' })
 
   return (
-    <Tabs value={activeTab} onValueChange={handleTabChange} variant="underline">
-      <div className="mb-6">
-        <ScrollableTabsList>
-          <TabsList className="w-max gap-2">
-            <TabsTrigger value="overview" className="px-0">
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="linked-accounts">Linked Accounts</TabsTrigger>
-            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-            <TabsTrigger value="assessments">Assessments</TabsTrigger>
-            <TabsTrigger value="history">History</TabsTrigger>
-          </TabsList>
-        </ScrollableTabsList>
-      </div>
-
+    <DetailTabs state={tabs}>
       <TabsContent value="overview" className="space-y-6">
         <OverviewTab personnel={personnel} isEditing={isEditing} canEdit={canEditPersonnel} handleUpdateField={handleUpdateField} />
       </TabsContent>
@@ -105,7 +59,7 @@ const PersonnelDetailTabs: React.FC<PersonnelDetailTabsProps> = ({ personnel, is
       <TabsContent value="history" className="space-y-6">
         <HistoryTab personnel={personnel} />
       </TabsContent>
-    </Tabs>
+    </DetailTabs>
   )
 }
 

@@ -75,7 +75,7 @@ export function EmojiPicker({
   icons?: EmojiIconList<React.ReactElement>
 }) {
   return (
-    <div className={cn('flex flex-col rounded-xl bg-popover text-popover-foreground', 'h-[23rem] w-80 border shadow-md')}>
+    <div className={cn('flex flex-col rounded-xl bg-popover text-popover-foreground', 'h-[23rem] w-80 border shadow-popover')}>
       <EmojiPickerNavigation onClick={handleCategoryClick} emojiLibrary={emojiLibrary} focusedCategory={focusedCategory} i18n={i18n} icons={icons} />
       <EmojiPickerSearchBar i18n={i18n} searchValue={searchValue} setSearch={setSearch}>
         <EmojiPickerSearchAndClear clearSearch={clearSearch} i18n={i18n} searchValue={searchValue} />

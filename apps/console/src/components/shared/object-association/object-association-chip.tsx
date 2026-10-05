@@ -64,7 +64,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
           <ObjectsChip name={display.name} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} onClick={handleNavigate} />
         </TooltipTrigger>
 
-        <TooltipContent side="top" className="p-3 rounded-md shadow-lg text-xs min-w-60">
+        <TooltipContent side="top" className="p-3 rounded-md text-xs min-w-60">
           <div>
             <div className="grid grid-cols-[auto_1fr] gap-y-2">
               <div className="flex items-center gap-1 border-b pb-2">

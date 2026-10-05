@@ -6,9 +6,10 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 type ScrollableTabsListProps = {
   children: React.ReactNode
+  trailing?: React.ReactNode
 }
 
-const ScrollableTabsList: React.FC<ScrollableTabsListProps> = ({ children }) => {
+const ScrollableTabsList: React.FC<ScrollableTabsListProps> = ({ children, trailing }) => {
   const tabsScrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
@@ -46,21 +47,24 @@ const ScrollableTabsList: React.FC<ScrollableTabsListProps> = ({ children }) => 
   }
 
   return (
-    <div className="relative">
-      {canScrollLeft && (
-        <Button type="button" variant="secondary" onClick={() => scrollTabs('left')} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0" aria-label="Scroll tabs left">
-          <ArrowLeft size={16} />
-        </Button>
-      )}
-      <div ref={tabsScrollRef} className="relative overflow-x-auto overflow-y-hidden no-scrollbar pr-10 pb-1 mb-1">
-        {children}
+    <div className="relative mb-1 flex items-center gap-2">
+      <div className="relative min-w-0">
+        {canScrollLeft && (
+          <Button type="button" variant="secondary" onClick={() => scrollTabs('left')} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0" aria-label="Scroll tabs left">
+            <ArrowLeft size={16} />
+          </Button>
+        )}
+        <div ref={tabsScrollRef} className="relative overflow-x-auto overflow-y-hidden no-scrollbar pb-1">
+          {children}
+        </div>
+        {canScrollRight && (
+          <Button type="button" variant="secondary" onClick={() => scrollTabs('right')} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0" aria-label="Scroll tabs right">
+            <ArrowRight size={16} />
+          </Button>
+        )}
       </div>
+      {trailing && <div className="mb-px shrink-0">{trailing}</div>}
       <div className="pointer-events-none absolute inset-x-0 bottom-0.5 left-0.5 h-px shadow-[inset_0_-1px_0_0_var(--color-border)]" />
-      {canScrollRight && (
-        <Button type="button" variant="secondary" onClick={() => scrollTabs('right')} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0" aria-label="Scroll tabs right">
-          <ArrowRight size={16} />
-        </Button>
-      )}
     </div>
   )
 }

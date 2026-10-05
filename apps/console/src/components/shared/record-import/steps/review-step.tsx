@@ -1,15 +1,19 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { EyeOff, ListChecks, Pencil } from 'lucide-react'
+import { CalendarCheck, EyeOff, ListChecks, Pencil } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { RecordPreviewTable } from '@/components/shared/record-preview/record-preview-table'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatList, pluralizeWithCount } from '@/utils/strings'
+import { DATE_ORDER_LABELS } from '@/utils/loose-date'
 import type { TColumnMapping, TParsedDelimitedFile, TSourceColumn } from '../lib/types'
 import type { TImportPlan } from '../lib/build-import-file'
 
 const PREVIEW_ROWS = 5
+
+const describeConversion = ({ label, rowCount, dateOrder }: TImportPlan['convertedFields'][number]): string =>
+  `${label} (${pluralizeWithCount(rowCount, 'row')}${dateOrder ? `, read as ${DATE_ORDER_LABELS[dateOrder]}` : ''})`
 
 type TReviewStepProps = {
   entityLabelPlural: string
@@ -31,7 +35,7 @@ const SummaryCard: React.FC<{ title: string; value: string; hint: string }> = ({
 export const ReviewStep: React.FC<TReviewStepProps> = ({ entityLabelPlural, parsed, columns, mapping, plan, onEditMapping }) => {
   const previewRows = useMemo(() => parsed.rows.slice(0, PREVIEW_ROWS).map(plan.buildRow), [parsed, plan])
   const ignoredColumns = useMemo(() => columns.filter((column) => !mapping[column.index]?.field).map((column) => column.header), [columns, mapping])
-  const { autoFilledFields, remappedFields } = plan
+  const { autoFilledFields, remappedFields, convertedFields } = plan
 
   return (
     <div className="flex flex-col gap-4">
@@ -63,8 +67,14 @@ export const ReviewStep: React.FC<TReviewStepProps> = ({ entityLabelPlural, pars
           rows={previewRows}
           emptyMessage="Nothing will be imported with the current mapping."
           caption={
-            (ignoredColumns.length > 0 || remappedFields.length > 0) && (
+            (ignoredColumns.length > 0 || remappedFields.length > 0 || convertedFields.length > 0) && (
               <span className="flex flex-col gap-1">
+                {convertedFields.length > 0 && (
+                  <span className="flex items-center gap-2">
+                    <CalendarCheck size={14} />
+                    Dates converted: {formatList(convertedFields.map(describeConversion))}
+                  </span>
+                )}
                 {remappedFields.length > 0 && (
                   <span className="flex items-center gap-2">
                     <ListChecks size={14} />

@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useCallback, useEffect } from 'react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import ScrollableTabsList from '@/components/pages/protected/controls/tabs/scrollable-tabs-list'
+import React from 'react'
+import { TabsContent } from '@repo/ui/tabs'
+import DetailTabs from '@/components/shared/detail-tabs/detail-tabs'
+import { useDetailTabs, type TDetailTab } from '@/components/shared/detail-tabs/use-detail-tabs'
 import OverviewTab from './overview/overview-tab'
 import DocumentsTab from './documents/documents-tab'
 import ContactsTab from './contacts/contacts-tab'
@@ -14,9 +14,17 @@ import type { EntityQuery, GetEntityAssociationsQuery, UpdateEntityInput } from 
 
 type VendorTabValue = 'overview' | 'documents' | 'contacts' | 'risk-review' | 'directory' | 'activity'
 
-const DEFAULT_TAB: VendorTabValue = 'overview'
-const TAB_QUERY_PARAM = 'tab'
-const BASE_TABS: VendorTabValue[] = ['overview', 'documents', 'contacts', 'risk-review', 'activity']
+const VENDOR_TABS: TDetailTab<VendorTabValue>[] = [
+  { value: 'overview', label: 'Overview' },
+  { value: 'documents', label: 'Documents' },
+  { value: 'contacts', label: 'Contacts' },
+  { value: 'risk-review', label: 'Risk Review' },
+  { value: 'directory', label: 'Directory' },
+  { value: 'activity', label: 'Activity' },
+]
+
+const NO_TABS: ReadonlySet<VendorTabValue> = new Set()
+const DIRECTORY_TAB_ONLY: ReadonlySet<VendorTabValue> = new Set(['directory'])
 
 interface VendorDetailTabsProps {
   vendor: EntityQuery['entity']
@@ -27,66 +35,11 @@ interface VendorDetailTabsProps {
 }
 
 const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, associations, isEditing, canEdit: canEditVendor, handleUpdateField }) => {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
   const hasDirectoryGroups = (vendor.integrations?.edges ?? []).some((edge) => (edge?.node?.directoryGroups?.totalCount ?? 0) > 0)
-  const activityIndex = BASE_TABS.indexOf('activity')
-  const allTabs: VendorTabValue[] = hasDirectoryGroups ? [...BASE_TABS.slice(0, activityIndex), 'directory', ...BASE_TABS.slice(activityIndex)] : BASE_TABS
-
-  const tabParamValue = searchParams.get(TAB_QUERY_PARAM)
-  const requestedTab = tabParamValue && allTabs.includes(tabParamValue as VendorTabValue) ? (tabParamValue as VendorTabValue) : DEFAULT_TAB
-  const activeTab = requestedTab
-
-  const updateTabParam = useCallback(
-    (tab: VendorTabValue) => {
-      const nextParams = new URLSearchParams(searchParams.toString())
-
-      if (tab === DEFAULT_TAB) {
-        nextParams.delete(TAB_QUERY_PARAM)
-      } else {
-        nextParams.set(TAB_QUERY_PARAM, tab)
-      }
-
-      const query = nextParams.toString()
-      router.replace(query ? `${pathname}?${query}` : pathname)
-    },
-    [pathname, router, searchParams],
-  )
-
-  useEffect(() => {
-    const expectedParam = activeTab === DEFAULT_TAB ? null : activeTab
-    if (tabParamValue !== expectedParam) {
-      updateTabParam(activeTab)
-    }
-  }, [activeTab, tabParamValue, updateTabParam])
-
-  const handleTabChange = (nextTab: string) => {
-    if (!allTabs.includes(nextTab as VendorTabValue)) {
-      updateTabParam(DEFAULT_TAB)
-      return
-    }
-    updateTabParam(nextTab as VendorTabValue)
-  }
+  const tabs = useDetailTabs({ page: 'vendor', tabs: VENDOR_TABS, defaultTab: 'overview', unavailableTabs: hasDirectoryGroups ? NO_TABS : DIRECTORY_TAB_ONLY })
 
   return (
-    <Tabs value={activeTab} onValueChange={handleTabChange} variant="underline">
-      <div className="mb-6">
-        <ScrollableTabsList>
-          <TabsList className="w-max gap-2">
-            <TabsTrigger value="overview" className="px-0">
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="contacts">Contacts</TabsTrigger>
-            <TabsTrigger value="risk-review">Risk Review</TabsTrigger>
-            {hasDirectoryGroups && <TabsTrigger value="directory">Directory</TabsTrigger>}
-            <TabsTrigger value="activity">Activity</TabsTrigger>
-          </TabsList>
-        </ScrollableTabsList>
-      </div>
-
+    <DetailTabs state={tabs}>
       <TabsContent value="overview" className="space-y-6">
         <OverviewTab vendor={vendor} associations={associations} isEditing={isEditing} canEdit={canEditVendor} handleUpdateField={handleUpdateField} />
       </TabsContent>
@@ -112,7 +65,7 @@ const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, association
       <TabsContent value="activity" className="space-y-6">
         <ActivityTab vendorId={vendor.id} />
       </TabsContent>
-    </Tabs>
+    </DetailTabs>
   )
 }
 

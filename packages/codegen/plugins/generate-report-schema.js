@@ -134,6 +134,7 @@ const buildFields = (nodeType, whereFields, enums) => {
       list: isListType(field.type),
       enumName: kind === 'enum' ? named.name : undefined,
       operators: operatorsFor(whereFields, field.name),
+      deprecated: field.isDeprecated === true,
     })
   }
 
@@ -165,6 +166,53 @@ const buildEdges = (types, nodeType, edgeTypes, enums) => {
   }
 
   return edges.sort((a, b) => a.name.localeCompare(b.name))
+}
+
+const OWNER_TARGET_KINDS = { User: 'user', Group: 'group', IdentityHolder: 'personnel' }
+
+const OWNER_OPERATORS = ['in', 'notIn', 'isNil', 'notNil']
+
+const OWNER_KINDS = ['user', 'group', 'personnel', 'string']
+
+const OWNER_COLUMN_OPERATORS = { id: ['in', 'notIn', 'isNil', 'notNil'], string: ['containsFold', 'isNil', 'notNil', 'eq', 'neq'] }
+
+const supportsOwnerOperators = (field) => !field.deprecated && OWNER_COLUMN_OPERATORS[field.kind]?.every((operator) => field.operators.includes(operator)) === true
+
+const ownerBase = (edgeName, target) => (edgeName.endsWith(target) && edgeName.length > target.length ? edgeName.slice(0, -target.length) : edgeName)
+
+const buildOwners = (fields, edges) => {
+  const fieldsByName = new Map(fields.map((field) => [field.name, field]))
+  const columnsByBase = new Map()
+
+  for (const edge of edges) {
+    const kind = OWNER_TARGET_KINDS[edge.target]
+    const field = fieldsByName.get(`${edge.name}ID`)
+
+    if (!kind || edge.list || field?.kind !== 'id' || !supportsOwnerOperators(field)) continue
+
+    const base = ownerBase(edge.name, edge.target)
+    const columns = columnsByBase.get(base) ?? {}
+
+    if (columns[kind]) throw new Error(`report schema: owner "${base}" maps ${kind} to both ${columns[kind]} and ${field.name}`)
+
+    columns[kind] = field.name
+    columnsByBase.set(base, columns)
+  }
+
+  const owners = []
+
+  for (const [base, columns] of columnsByBase) {
+    const isResponsibility = OWNER_KINDS.filter((kind) => kind !== 'string' && columns[kind]).length > 1
+    const stringField = isResponsibility ? [base, `${base}Name`].map((name) => fieldsByName.get(name)).find((field) => field?.kind === 'string' && supportsOwnerOperators(field)) : undefined
+
+    if (stringField) columns.string = stringField.name
+
+    if (fieldsByName.has(base) && !Object.values(columns).includes(base)) continue
+
+    owners.push({ name: base, columns })
+  }
+
+  return owners.sort((a, b) => a.name.localeCompare(b.name))
 }
 
 const buildOrder = (types, orderArg) => {
@@ -222,13 +270,16 @@ const buildEntities = (types, query, edgeTypes, enums, unknownPredicates, object
       field.args.find((a) => a.name === 'orderBy'),
     )
 
+    const edges = buildEdges(types, nodeType, edgeTypes, enums)
+
     entities.push({
       queryName: field.name,
       typeName: nodeType.name,
       objectType,
       whereTypeName: whereType.name,
       fields,
-      edges: buildEdges(types, nodeType, edgeTypes, enums),
+      edges,
+      owners: buildOwners(fields, edges),
       defaultFields: defaultFieldsFor(fields),
       order,
     })
@@ -273,6 +324,11 @@ const serializeEdge = (edge) => {
   return `{ ${parts.join(', ')} }`
 }
 
+const serializeOwner = (owner) => {
+  const parts = [`name: ${JSON.stringify(owner.name)}`, ...OWNER_KINDS.filter((kind) => owner.columns[kind]).map((kind) => `${kind}: ${JSON.stringify(owner.columns[kind])}`)]
+  return `{ ${parts.join(', ')} }`
+}
+
 const generate = () => {
   const { query, types } = readSchema()
   const enums = { source: types, used: new Map() }
@@ -280,6 +336,10 @@ const generate = () => {
   const unknownPredicates = new Set()
   const entities = buildEntities(types, query, edgeTypes, enums, unknownPredicates, readObjectTypes())
   const operatorSets = createOperatorSets(entities)
+
+  if (!entities.some((entity) => entity.owners.length > 0)) {
+    throw new Error('report schema: no owner filters derived from any entity; the <edge>ID / User|Group|IdentityHolder edge convention no longer matches the schema')
+  }
 
   const entityLines = entities.flatMap((entity) => [
     '  {',
@@ -291,6 +351,7 @@ const generate = () => {
     ...(entity.order ? [`    order: { typeName: ${JSON.stringify(entity.order.typeName)}, fields: [${entity.order.fields.map((f) => JSON.stringify(f)).join(', ')}] },`] : []),
     `    fields: [${entity.fields.map((f) => serializeField(f, operatorSets)).join(', ')}],`,
     `    edges: [${entity.edges.map(serializeEdge).join(', ')}],`,
+    `    owners: [${entity.owners.map(serializeOwner).join(', ')}],`,
     '  },',
   ])
 
@@ -332,6 +393,14 @@ const generate = () => {
     '  list?: boolean',
     '}',
     '',
+    `export const REPORT_OWNER_KINDS = [${OWNER_KINDS.map((k) => `'${k}'`).join(', ')}] as const`,
+    '',
+    'export type TReportOwnerKind = (typeof REPORT_OWNER_KINDS)[number]',
+    '',
+    `export const REPORT_OWNER_OPERATORS: TReportOperator[] = [${OWNER_OPERATORS.map((o) => `'${o}'`).join(', ')}]`,
+    '',
+    'export type TReportOwner = { name: string } & Partial<Record<TReportOwnerKind, string>>',
+    '',
     'export interface TReportEntity {',
     '  queryName: string',
     '  typeName: string',
@@ -341,6 +410,7 @@ const generate = () => {
     '  order?: { typeName: string; fields: string[] }',
     '  fields: TReportField[]',
     '  edges: TReportEdge[]',
+    '  owners: TReportOwner[]',
     '}',
     '',
     'export const REPORT_OPERATOR_SETS: TReportOperator[][] = [',

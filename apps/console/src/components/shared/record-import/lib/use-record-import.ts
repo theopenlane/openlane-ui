@@ -10,6 +10,7 @@ import { validateMapping } from './validate-mapping'
 import { checkColumnCells, suggestedValueMap, type TColumnCellCheck } from './validate-cells'
 import { buildImportFile, buildImportPlan } from './build-import-file'
 import { useExampleCSV } from './use-example-csv'
+import type { TDateOrder } from '@/utils/loose-date'
 import type { TColumnMapping, TDestinationFieldSet, TParsedDelimitedFile, TValueMap } from './types'
 
 export const IMPORT_STEPS = ['upload', 'map', 'review'] as const
@@ -36,6 +37,7 @@ export const useRecordImport = ({ entityType, entityLabels }: { entityType: Obje
   const [parsed, setParsed] = useState<TParsedDelimitedFile | null>(null)
   const [overrides, setOverrides] = useState<Record<number, string | null>>({})
   const [valueMaps, setValueMaps] = useState<Record<number, TValueMap>>({})
+  const [dateOrders, setDateOrders] = useState<Record<number, TDateOrder>>({})
 
   const { data: exampleCsv, filename: exampleFilename, isLoadingExample, isError: isExampleError } = useExampleCSV(entityType)
   const { data: metadata, isPending: isMetadataPending } = useImportFieldMetadata(entityType)
@@ -58,16 +60,17 @@ export const useRecordImport = ({ entityType, entityLabels }: { entityType: Obje
     const rows = parsed?.rows ?? []
     const checks = new Map<number, TColumnCellCheck>()
     Object.entries(assignments).forEach(([index, { field }]) => {
-      const check = field ? checkColumnCells(rows, Number(index), fieldByName.get(field)) : null
+      const check = field ? checkColumnCells(rows, Number(index), fieldByName.get(field), dateOrders[Number(index)]) : null
       if (check) checks.set(Number(index), check)
     })
     return checks
-  }, [assignments, fieldSet, parsed])
+  }, [assignments, fieldSet, parsed, dateOrders])
 
   const mapping = useMemo(() => {
     const merged: Record<number, TColumnMapping> = { ...assignments }
     cellChecks.forEach((check, index) => {
       if (check.mappableValues) merged[index] = { ...assignments[index], valueMap: { ...suggestedValueMap(check), ...valueMaps[index] } }
+      if (check.convertedRowCount > 0) merged[index] = { ...merged[index], conversion: { values: check.conversions, rowCount: check.convertedRowCount, dateOrder: check.dateOrder } }
     })
     return merged
   }, [assignments, cellChecks, valueMaps])
@@ -76,6 +79,7 @@ export const useRecordImport = ({ entityType, entityLabels }: { entityType: Obje
     setParsed(next)
     setOverrides({})
     setValueMaps({})
+    setDateOrders({})
   }, [])
 
   const setColumnField = useCallback(
@@ -85,9 +89,14 @@ export const useRecordImport = ({ entityType, entityLabels }: { entityType: Obje
       if (assignments[index]?.field === field) return
       setOverrides((current) => ({ ...current, [index]: field }))
       setValueMaps(({ [index]: _cleared, ...rest }) => rest)
+      setDateOrders(({ [index]: _cleared, ...rest }) => rest)
     },
     [columns, assignments],
   )
+
+  const setColumnDateOrder = useCallback((index: number, order: TDateOrder) => {
+    setDateOrders((current) => ({ ...current, [index]: order }))
+  }, [])
 
   const setColumnValue = useCallback((index: number, value: string, target: string | null) => {
     setValueMaps((current) => ({ ...current, [index]: { ...current[index], [value]: target } }))
@@ -117,6 +126,7 @@ export const useRecordImport = ({ entityType, entityLabels }: { entityType: Obje
     mapping,
     setColumnField,
     setColumnValue,
+    setColumnDateOrder,
     validation,
     cellChecks,
     plan,

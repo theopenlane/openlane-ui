@@ -41,6 +41,14 @@ export interface TReportEdge {
   list?: boolean
 }
 
+export const REPORT_OWNER_KINDS = ['user', 'group', 'personnel', 'string'] as const
+
+export type TReportOwnerKind = (typeof REPORT_OWNER_KINDS)[number]
+
+export const REPORT_OWNER_OPERATORS: TReportOperator[] = ['in', 'notIn', 'isNil', 'notNil']
+
+export type TReportOwner = { name: string } & Partial<Record<TReportOwnerKind, string>>
+
 export interface TReportEntity {
   queryName: string
   typeName: string
@@ -50,6 +58,7 @@ export interface TReportEntity {
   order?: { typeName: string; fields: string[] }
   fields: TReportField[]
   edges: TReportEdge[]
+  owners: TReportOwner[]
 }
 
 export const REPORT_OPERATOR_SETS: TReportOperator[][] = [
@@ -711,6 +720,10 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [
+      { name: 'approver', group: 'approverID' },
+      { name: 'delegate', group: 'delegateID' },
+    ],
   },
   {
     queryName: 'assessmentResponses',
@@ -784,6 +797,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [{ name: 'identityHolder', personnel: 'identityHolderID' }],
   },
   {
     queryName: 'assessments',
@@ -822,6 +836,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'assets',
@@ -934,6 +949,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'systemDetails', target: 'SystemDetail', connection: true, list: true },
       { name: 'vulnerabilities', target: 'Vulnerability', connection: true, list: true },
     ],
+    owners: [{ name: 'internalOwner', user: 'internalOwnerUserID', group: 'internalOwnerGroupID', personnel: 'internalOwnerIdentityHolderID', string: 'internalOwner' }],
   },
   {
     queryName: 'campaigns',
@@ -1032,6 +1048,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [{ name: 'internalOwner', user: 'internalOwnerUserID', group: 'internalOwnerGroupID', personnel: 'internalOwnerIdentityHolderID', string: 'internalOwner' }],
   },
   {
     queryName: 'campaignTargets',
@@ -1071,6 +1088,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [{ name: 'group', group: 'groupID' }],
   },
   {
     queryName: 'contacts',
@@ -1111,6 +1129,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'integrationRuns', target: 'IntegrationRun', connection: true, list: true },
       { name: 'subscribers', target: 'Subscriber', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'controlImplementations',
@@ -1140,6 +1159,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'subcontrols', target: 'Subcontrol', connection: true, list: true },
       { name: 'tasks', target: 'Task', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'controlObjectives',
@@ -1179,6 +1199,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'subcontrols', target: 'Subcontrol', connection: true, list: true },
       { name: 'tasks', target: 'Task', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'controls',
@@ -1282,6 +1303,10 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [
+      { name: 'controlOwner', group: 'controlOwnerID' },
+      { name: 'delegate', group: 'delegateID' },
+    ],
   },
   {
     queryName: 'customTypeEnums',
@@ -1317,6 +1342,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'subcontrols', target: 'Subcontrol', connection: true, list: true },
       { name: 'tasks', target: 'Task', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'directoryAccounts',
@@ -1386,6 +1412,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'scope', target: 'CustomTypeEnum' },
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
     ],
+    owners: [{ name: 'identityHolder', personnel: 'identityHolderID' }],
   },
   {
     queryName: 'directoryGroups',
@@ -1441,6 +1468,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'scope', target: 'CustomTypeEnum' },
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'directoryMemberships',
@@ -1489,6 +1517,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'scope', target: 'CustomTypeEnum' },
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'discussions',
@@ -1515,6 +1544,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'risk', target: 'Risk' },
       { name: 'subcontrol', target: 'Subcontrol' },
     ],
+    owners: [],
   },
   {
     queryName: 'emailTemplates',
@@ -1556,6 +1586,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowDefinition', target: 'WorkflowDefinition' },
       { name: 'workflowInstance', target: 'WorkflowInstance' },
     ],
+    owners: [],
   },
   {
     queryName: 'entities',
@@ -1712,6 +1743,10 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'vendorRiskScores', target: 'VendorRiskScore', connection: true, list: true },
       { name: 'vulnerabilities', target: 'Vulnerability', connection: true, list: true },
     ],
+    owners: [
+      { name: 'internalOwner', user: 'internalOwnerUserID', group: 'internalOwnerGroupID', personnel: 'internalOwnerIdentityHolderID', string: 'internalOwner' },
+      { name: 'reviewedBy', user: 'reviewedByUserID', group: 'reviewedByGroupID', personnel: 'reviewedByIdentityHolderID', string: 'reviewedBy' },
+    ],
   },
   {
     queryName: 'entityTypes',
@@ -1732,6 +1767,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'updatedByImpersonator', kind: 'string', operatorSet: 7 },
     ],
     edges: [{ name: 'entities', target: 'Entity', connection: true, list: true }],
+    owners: [],
   },
   {
     queryName: 'evidences',
@@ -1788,6 +1824,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'exports',
@@ -1817,6 +1854,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'events', target: 'Event', connection: true, list: true },
       { name: 'files', target: 'File', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'findingControls',
@@ -1847,6 +1885,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'finding', target: 'Finding' },
       { name: 'standard', target: 'Standard' },
     ],
+    owners: [],
   },
   {
     queryName: 'findings',
@@ -1969,6 +2008,11 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [
+      { name: 'assignedTo', user: 'assignedToUserID', group: 'assignedToGroupID', personnel: 'assignedToIdentityHolderID', string: 'assignedTo' },
+      { name: 'internalOwner', user: 'internalOwnerUserID', group: 'internalOwnerGroupID', personnel: 'internalOwnerIdentityHolderID', string: 'internalOwner' },
+      { name: 'reviewedBy', user: 'reviewedByUserID', group: 'reviewedByGroupID', personnel: 'reviewedByIdentityHolderID', string: 'reviewedBy' },
+    ],
   },
   {
     queryName: 'groups',
@@ -2057,6 +2101,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'tasks', target: 'Task', connection: true, list: true },
       { name: 'users', target: 'User', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'identityHolders',
@@ -2155,6 +2200,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [{ name: 'internalOwner', user: 'internalOwnerUserID', group: 'internalOwnerGroupID', personnel: 'internalOwnerIdentityHolderID', string: 'internalOwner' }],
   },
   {
     queryName: 'integrationRuns',
@@ -2199,6 +2245,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'risks', target: 'Risk', connection: true, list: true },
       { name: 'vulnerabilities', target: 'Vulnerability', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'integrations',
@@ -2266,6 +2313,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'tasks', target: 'Task', connection: true, list: true },
       { name: 'vulnerabilities', target: 'Vulnerability', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'internalPolicies',
@@ -2351,6 +2399,10 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [
+      { name: 'approver', group: 'approverID' },
+      { name: 'delegate', group: 'delegateID' },
+    ],
   },
   {
     queryName: 'mappedControls',
@@ -2379,6 +2431,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'toControls', target: 'Control', connection: true, list: true },
       { name: 'toSubcontrols', target: 'Subcontrol', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'narratives',
@@ -2407,6 +2460,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'programs', target: 'Program', connection: true, list: true },
       { name: 'satisfies', target: 'Control', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'notificationPreferences',
@@ -2445,6 +2499,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'verifiedAt', kind: 'time', operatorSet: 1 },
     ],
     edges: [{ name: 'notificationTemplate', target: 'NotificationTemplate' }],
+    owners: [],
   },
   {
     queryName: 'notificationTemplates',
@@ -2494,6 +2549,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'notifications', target: 'Notification', connection: true, list: true },
       { name: 'workflowDefinition', target: 'WorkflowDefinition' },
     ],
+    owners: [],
   },
   {
     queryName: 'platforms',
@@ -2638,6 +2694,13 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [
+      { name: 'businessOwner', user: 'businessOwnerUserID', group: 'businessOwnerGroupID', personnel: 'businessOwnerIdentityHolderID', string: 'businessOwner' },
+      { name: 'internalOwner', user: 'internalOwnerUserID', group: 'internalOwnerGroupID', personnel: 'internalOwnerIdentityHolderID', string: 'internalOwner' },
+      { name: 'platformOwner', user: 'platformOwnerID' },
+      { name: 'securityOwner', user: 'securityOwnerUserID', group: 'securityOwnerGroupID', personnel: 'securityOwnerIdentityHolderID', string: 'securityOwner' },
+      { name: 'technicalOwner', user: 'technicalOwnerUserID', group: 'technicalOwnerGroupID', personnel: 'technicalOwnerIdentityHolderID', string: 'technicalOwner' },
+    ],
   },
   {
     queryName: 'procedures',
@@ -2713,6 +2776,10 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'tasks', target: 'Task', connection: true, list: true },
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
+    ],
+    owners: [
+      { name: 'approver', group: 'approverID' },
+      { name: 'delegate', group: 'delegateID' },
     ],
   },
   {
@@ -2790,6 +2857,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'users', target: 'User', connection: true, list: true },
       { name: 'vulnerabilities', target: 'Vulnerability', connection: true, list: true },
     ],
+    owners: [{ name: 'programOwner', user: 'programOwnerID' }],
   },
   {
     queryName: 'remediations',
@@ -2858,6 +2926,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'reviews',
@@ -2919,6 +2988,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'tasks', target: 'Task', connection: true, list: true },
       { name: 'vulnerabilities', target: 'Vulnerability', connection: true, list: true },
     ],
+    owners: [{ name: 'reviewer', user: 'reviewerID' }],
   },
   {
     queryName: 'risks',
@@ -3045,6 +3115,10 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [
+      { name: 'delegate', user: 'delegateUserID', group: 'delegateGroupID', personnel: 'delegateIdentityHolderID', string: 'delegateName' },
+      { name: 'stakeholder', user: 'stakeholderUserID', group: 'stakeholderGroupID', personnel: 'stakeholderIdentityHolderID', string: 'stakeholderName' },
+    ],
   },
   {
     queryName: 'scans',
@@ -3112,6 +3186,11 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'tasks', target: 'Task', connection: true, list: true },
       { name: 'vulnerabilities', target: 'Vulnerability', connection: true, list: true },
     ],
+    owners: [
+      { name: 'assignedTo', user: 'assignedToUserID', group: 'assignedToGroupID', personnel: 'assignedToIdentityHolderID', string: 'assignedTo' },
+      { name: 'performedBy', user: 'performedByUserID', group: 'performedByGroupID', string: 'performedBy' },
+      { name: 'reviewedBy', user: 'reviewedByUserID', group: 'reviewedByGroupID', personnel: 'reviewedByIdentityHolderID', string: 'reviewedBy' },
+    ],
   },
   {
     queryName: 'slaDefinitions',
@@ -3133,6 +3212,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'updatedByImpersonator', kind: 'string', operatorSet: 7 },
     ],
     edges: [],
+    owners: [],
   },
   {
     queryName: 'standards',
@@ -3173,6 +3253,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'trustCenterCompliances', target: 'TrustCenterCompliance', connection: true, list: true },
       { name: 'trustCenterDocs', target: 'TrustCenterDoc', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'subcontrols',
@@ -3262,6 +3343,10 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [
+      { name: 'controlOwner', group: 'controlOwnerID' },
+      { name: 'delegate', group: 'delegateID' },
+    ],
   },
   {
     queryName: 'subprocessors',
@@ -3289,6 +3374,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'logoFile', target: 'File' },
       { name: 'trustCenterSubprocessors', target: 'TrustCenterSubprocessor', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'subscribers',
@@ -3322,6 +3408,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'events', target: 'Event', connection: true, list: true },
       { name: 'trustCenter', target: 'TrustCenter' },
     ],
+    owners: [],
   },
   {
     queryName: 'systemDetails',
@@ -3354,6 +3441,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'platforms', target: 'Platform', connection: true, list: true },
       { name: 'programs', target: 'Program', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'tagDefinitions',
@@ -3377,6 +3465,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'updatedByImpersonator', kind: 'string', operatorSet: 7 },
     ],
     edges: [],
+    owners: [],
   },
   {
     queryName: 'tasks',
@@ -3451,6 +3540,10 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [
+      { name: 'assignee', user: 'assigneeID' },
+      { name: 'assigner', user: 'assignerID' },
+    ],
   },
   {
     queryName: 'templates',
@@ -3491,6 +3584,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'scope', target: 'CustomTypeEnum' },
       { name: 'trustCenter', target: 'TrustCenter' },
     ],
+    owners: [],
   },
   {
     queryName: 'trustCenters',
@@ -3534,6 +3628,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'trustCenterSubprocessors', target: 'TrustCenterSubprocessor', connection: true, list: true },
       { name: 'watermarkConfig', target: 'TrustCenterWatermarkConfig' },
     ],
+    owners: [],
   },
   {
     queryName: 'vendorRiskScores',
@@ -3569,6 +3664,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'entity', target: 'Entity' },
       { name: 'vendorScoringConfig', target: 'VendorScoringConfig' },
     ],
+    owners: [],
   },
   {
     queryName: 'vendorScoringConfigs',
@@ -3590,6 +3686,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'updatedByImpersonator', kind: 'string', operatorSet: 7 },
     ],
     edges: [{ name: 'vendorRiskScores', target: 'VendorRiskScore', connection: true, list: true }],
+    owners: [],
   },
   {
     queryName: 'vulnerabilities',
@@ -3710,6 +3807,11 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
       { name: 'workflowTimeline', target: 'WorkflowEvent', connection: true, list: true },
     ],
+    owners: [
+      { name: 'assignedTo', user: 'assignedToUserID', group: 'assignedToGroupID', personnel: 'assignedToIdentityHolderID', string: 'assignedTo' },
+      { name: 'internalOwner', user: 'internalOwnerUserID', group: 'internalOwnerGroupID', personnel: 'internalOwnerIdentityHolderID', string: 'internalOwner' },
+      { name: 'reviewedBy', user: 'reviewedByUserID', group: 'reviewedByGroupID', personnel: 'reviewedByIdentityHolderID', string: 'reviewedBy' },
+    ],
   },
   {
     queryName: 'workflowAssignments',
@@ -3749,6 +3851,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowAssignmentTargets', target: 'WorkflowAssignmentTarget', connection: true, list: true },
       { name: 'workflowInstance', target: 'WorkflowInstance' },
     ],
+    owners: [],
   },
   {
     queryName: 'workflowAssignmentTargets',
@@ -3776,6 +3879,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'group', target: 'Group' },
       { name: 'workflowAssignment', target: 'WorkflowAssignment' },
     ],
+    owners: [],
   },
   {
     queryName: 'workflowDefinitions',
@@ -3812,6 +3916,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'notificationTemplates', target: 'NotificationTemplate', connection: true, list: true },
       { name: 'tagDefinitions', target: 'TagDefinition', connection: true, list: true },
     ],
+    owners: [],
   },
   {
     queryName: 'workflowEvents',
@@ -3834,6 +3939,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowInstanceID', kind: 'id', operatorSet: 6 },
     ],
     edges: [{ name: 'workflowInstance', target: 'WorkflowInstance' }],
+    owners: [],
   },
   {
     queryName: 'workflowInstances',
@@ -3903,6 +4009,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'workflowEvents', target: 'WorkflowEvent', connection: true, list: true },
       { name: 'workflowObjectRefs', target: 'WorkflowObjectRef', connection: true, list: true },
     ],
+    owners: [{ name: 'identityHolder', personnel: 'identityHolderID' }],
   },
   {
     queryName: 'workflowObjectRefs',
@@ -3964,5 +4071,6 @@ export const REPORT_ENTITIES: TReportEntity[] = [
       { name: 'vulnerability', target: 'Vulnerability' },
       { name: 'workflowInstance', target: 'WorkflowInstance' },
     ],
+    owners: [{ name: 'identityHolder', personnel: 'identityHolderID' }],
   },
 ]

@@ -4,13 +4,14 @@ import React from 'react'
 import { Input } from '@repo/ui/input'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import type { TReportField, TReportOperator } from '@repo/codegen/src/report-schema.generated'
+import type { TReportOperator } from '@repo/codegen/src/report-schema.generated'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { filterValueInput, LIST_VALUE_SEPARATOR, listValues } from '@/lib/report/report-filters'
+import { filterValueInput, LIST_VALUE_SEPARATOR, listValues, type TReportFilterField } from '@/lib/report/report-filters'
 import { getEnumValues } from '@/lib/report/report-schema'
+import ReportOwnerFilterValue from './report-owner-filter-value'
 
 type TReportFilterValueProps = {
-  field: TReportField
+  field: TReportFilterField
   operator: TReportOperator
   value: string
   onChange: (value: string) => void
@@ -22,6 +23,8 @@ const ReportFilterValue: React.FC<TReportFilterValueProps> = ({ field, operator,
   const input = filterValueInput(field, operator)
 
   if (input === 'none') return null
+
+  if (field.kind === 'owner') return <ReportOwnerFilterValue field={field} value={value} onChange={onChange} />
 
   if (input === 'enumList') {
     const options = getEnumValues(field).map((option) => ({ value: option, label: getEnumLabel(option) }))

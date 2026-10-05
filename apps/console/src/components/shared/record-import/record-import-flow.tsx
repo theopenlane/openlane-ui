@@ -55,6 +55,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
     mapping,
     setColumnField,
     setColumnValue,
+    setColumnDateOrder,
     validation,
     cellChecks,
     plan,
@@ -159,6 +160,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
               rowCount={rowCount}
               onColumnFieldChange={setColumnField}
               onColumnValueChange={setColumnValue}
+              onColumnDateOrderChange={setColumnDateOrder}
             />
           )}
           {step === 'review' && parsed && <ReviewStep entityLabelPlural={entityLabelPlural} parsed={parsed} columns={columns} mapping={mapping} plan={plan} onEditMapping={() => goToStep('map')} />}

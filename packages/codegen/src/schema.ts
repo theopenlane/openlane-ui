@@ -6803,6 +6803,12 @@ export interface GetEvidenceStatsQuery {
   accepted: { totalCount: number }
 }
 
+export type GetProgramFrameworkNamesQueryVariables = Exact<{ [key: string]: never }>
+
+export interface GetProgramFrameworkNamesQuery {
+  programs: { edges: Array<{ node: { id: string; frameworkName: string | null } | null } | null> | null }
+}
+
 export type GetProgramDashboardQueryVariables = Exact<{
   where?: Types.ProgramWhereInput | null | undefined
 }>

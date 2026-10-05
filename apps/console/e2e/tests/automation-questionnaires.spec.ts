@@ -27,14 +27,19 @@ const openSendDialog = async (page: Page, id: string): Promise<void> => {
   await expect(page.getByRole('dialog', { name: 'Send Questionnaire' })).toBeVisible({ timeout: 30_000 })
 }
 
+const editorSaveButton = (page: Page) => page.getByRole('button', { name: 'Save', exact: true })
+
+const editorTitleField = (page: Page) => page.getByRole('textbox', { name: 'Title', exact: true })
+
 const openQuestionnaireEditor = async (page: Page, id?: string): Promise<void> => {
   const query = id ? `?id=${id}` : ''
   await page.goto(`/automation/questionnaires/questionnaire-editor${query}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
   await expect(page.getByRole('heading', { name: 'Editor' })).toBeVisible({ timeout: 30_000 })
-  await expect(page.getByRole('button', { name: 'Save Survey' })).toBeVisible({ timeout: 30_000 })
+  await expect(editorSaveButton(page)).toBeVisible({ timeout: 30_000 })
+  if (id) await expect(editorTitleField(page)).not.toHaveValue('', { timeout: 30_000 })
 }
 
-const editorSelect = (page: Page, label: 'Type' | 'Response Due') => page.getByRole('combobox', { name: label })
+const editorSelect = (page: Page, label: 'Type' | 'Response Due') => page.getByRole('combobox', { name: label, exact: true })
 
 const selectEditorOption = async (page: Page, label: 'Type' | 'Response Due', option: string): Promise<void> => {
   await editorSelect(page, label).click()
@@ -43,24 +48,13 @@ const selectEditorOption = async (page: Page, label: 'Type' | 'Response Due', op
 }
 
 const setSurveyTitle = async (page: Page, title: string): Promise<void> => {
-  const settings = page.getByRole('button', { name: 'Survey settings' })
-  const field = page.getByLabel(/^Survey title/).first()
-
-  if (!(await field.isVisible().catch(() => false))) await settings.dispatchEvent('click')
-  await expect(field).toBeEditable({ timeout: 30_000 })
-  await field.fill(title)
-  await field.blur()
+  await editorTitleField(page).fill(title)
 }
 
 const saveSurvey = async (page: Page): Promise<void> => {
-  const save = page.getByRole('button', { name: 'Save Survey' })
+  const save = editorSaveButton(page)
   await expect(save).toBeEnabled({ timeout: 30_000 })
-
-  try {
-    await save.click({ timeout: 10_000 })
-  } catch {
-    for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click']) await save.dispatchEvent(type)
-  }
+  await save.click()
 }
 
 const calendarDayName = (date: Date): string => format(date, 'EEEE, MMMM do, yyyy')

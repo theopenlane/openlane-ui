@@ -11,10 +11,12 @@ import { Callout } from '@/components/shared/callout/callout'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { pluralizeWithCount } from '@/utils/strings'
 import { isEmptyColumn } from '../lib/match-columns'
+import type { TDateOrder } from '@/utils/loose-date'
 import type { TColumnMapping, TDestinationField, TMatchConfidence, TSourceColumn } from '../lib/types'
 import type { TMappingValidation } from '../lib/validate-mapping'
 import type { TColumnCellCheck } from '../lib/validate-cells'
 import { ValueMappingPanel } from './value-mapping-panel'
+import { DateOrderToggle } from './date-order-toggle'
 
 const MATCH_LABELS: Record<Exclude<TMatchConfidence, 'none'>, string> = {
   exact: 'Exact',
@@ -25,7 +27,7 @@ const MATCH_LABELS: Record<Exclude<TMatchConfidence, 'none'>, string> = {
   manual: 'Manual',
 }
 
-const MAPPING_ROW_GRID = 'grid grid-cols-[minmax(160px,1fr)_minmax(180px,1.4fr)_minmax(260px,1.2fr)_110px] items-center gap-4'
+const MAPPING_ROW_GRID = 'grid grid-cols-[minmax(160px,1fr)_minmax(180px,1.4fr)_minmax(260px,1.2fr)_130px] items-center gap-4'
 const EXAMPLE_VALUES_SHOWN = 2
 
 const COLUMN_FILTERS = ['all', 'mapped', 'unmapped', 'issues'] as const
@@ -40,6 +42,7 @@ const matchBadge = (column: TSourceColumn, columnMapping: TColumnMapping | undef
   if (columnMapping.confidence === 'none') return { label: 'No match', variant: 'outline' }
   const remapped = Object.keys(columnMapping.valueMap ?? {}).length
   if (remapped > 0 && unresolvedValueCount === 0) return { label: `Values mapped (${remapped})`, variant: 'green' }
+  if (columnMapping.conversion && unresolvedValueCount === 0) return { label: `Converted (${columnMapping.conversion.rowCount})`, variant: 'green' }
   return { label: MATCH_LABELS[columnMapping.confidence], variant: columnMapping.confidence === 'suggested' ? 'blue' : 'green' }
 }
 
@@ -61,6 +64,7 @@ type TMappingStepProps = {
   rowCount: number
   onColumnFieldChange: (index: number, field: string | null) => void
   onColumnValueChange: (index: number, value: string, target: string | null) => void
+  onColumnDateOrderChange: (index: number, order: TDateOrder) => void
 }
 
 export const MappingStep: React.FC<TMappingStepProps> = ({
@@ -75,6 +79,7 @@ export const MappingStep: React.FC<TMappingStepProps> = ({
   rowCount,
   onColumnFieldChange,
   onColumnValueChange,
+  onColumnDateOrderChange,
 }) => {
   const [filter, setFilter] = useState<TColumnFilter>('all')
   const [expandedValueColumns, setExpandedValueColumns] = useState<ReadonlySet<number>>(() => new Set())
@@ -261,9 +266,12 @@ export const MappingStep: React.FC<TMappingStepProps> = ({
                           </Button>
                         )}
                       </div>
-                      <Badge variant={badge.variant} className="w-fit">
-                        {badge.label}
-                      </Badge>
+                      <div className="flex flex-col gap-1">
+                        <Badge variant={badge.variant} className="w-fit">
+                          {badge.label}
+                        </Badge>
+                        {cellCheck?.dateOrder && <DateOrderToggle order={cellCheck.dateOrder} columnHeader={column.header} onChange={(order) => onColumnDateOrderChange(column.index, order)} />}
+                      </div>
                       {isValueMappingOpen && selectedField && cellCheck && (
                         <ValueMappingPanel
                           id={valuePanelId}

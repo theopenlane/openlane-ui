@@ -42,7 +42,7 @@ const EvidenceSuggestedActions = () => {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="end" sideOffset={12} className="w-[380px] rounded-2xl border-muted-foreground/10 bg-popover p-0 shadow-xl z-30">
+      <PopoverContent align="end" sideOffset={12} className="w-[380px] rounded-2xl border border-muted-foreground/10 bg-popover p-0 shadow-popover z-30">
         <div className="flex items-center justify-between gap-2 rounded-t-2xl px-5 pt-4 pb-1">
           <h3 className="text-lg font-semibold">Suggested Actions</h3>
           <X className="h-4 w-4 cursor-pointer" aria-label="Close" onClick={() => setOpen(false)} />
