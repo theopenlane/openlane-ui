@@ -86,7 +86,7 @@ const DropdownMenuRadioItem = ({
 }: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.RadioItem> & { ref?: React.Ref<React.ElementRef<typeof DropdownMenuPrimitive.RadioItem>> }) => (
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
-    className={cn('flex items-center gap-2 px-2 py-1.5 cursor-pointer select-none text-sm outline-none focus:bg-accent focus:text-accent-foreground rounded-sm', className)}
+    className={cn('flex items-center gap-2 px-2 py-1.5 cursor-pointer select-none text-sm outline-none focus:bg-popover-accent rounded-sm', className)}
     {...props}
   >
     <span className="relative flex h-4 w-4 items-center justify-center">

@@ -198,6 +198,8 @@
   --card-foreground: hsl(209 22% 24%);
   --popover: #ffffff;
   --popover-foreground: hsl(209 22% 24%);
+  --popover-shadow: 0 4px 8px -2px rgb(9 21 29 / 0.08), 0 12px 24px -4px rgb(9 21 29 / 0.14);
+  --popover-accent: #e6eef1;
   --primary: #2dcdad;
   --primary-foreground: hsl(191 72% 9%);
   --link: hsl(168 64% 28%);
@@ -318,8 +320,10 @@
   --foreground: #ffffff;
   --card: #233440;
   --card-foreground: hsl(196 20% 73%);
-  --popover: #233440;
+  --popover: #2a3c49;
   --popover-foreground: hsl(196 20% 73%);
+  --popover-shadow: 0 4px 8px -2px rgb(0 0 0 / 0.4), 0 16px 32px -4px rgb(0 0 0 / 0.55);
+  --popover-accent: #4c5e69;
   --primary: hsl(168 64% 49%);
   --primary-foreground: hsl(210 40% 98%);
   --link: hsl(168 64% 70%);
@@ -468,6 +472,8 @@
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+  --color-popover-accent: var(--popover-accent);
+  --shadow-popover: var(--popover-shadow);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-link: var(--link);

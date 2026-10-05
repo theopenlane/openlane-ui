@@ -528,7 +528,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="border shadow-md w-[540px] max-h-[400px] flex flex-col overflow-hidden" align="end">
+      <DropdownMenuContent className="w-[540px] max-h-[400px] flex flex-col overflow-hidden" align="end">
         <div className="overflow-y-auto p-0 flex-1">
           {activeQuickFilters.length > 0 && (
             <>
