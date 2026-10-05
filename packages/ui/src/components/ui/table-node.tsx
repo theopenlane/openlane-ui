@@ -709,7 +709,7 @@ function TableFloatingToolbarContent({
 }) {
   return (
     <PopoverContent asChild onOpenAutoFocus={(e) => e.preventDefault()} contentEditable={false} {...props}>
-      <Toolbar className="scrollbar-hide flex w-auto max-w-[80vw] flex-row overflow-x-auto rounded-md border bg-popover p-1 shadow-md print:hidden" contentEditable={false}>
+      <Toolbar className="scrollbar-hide flex w-auto max-w-[80vw] flex-row overflow-x-auto rounded-md border bg-popover p-1 shadow-popover print:hidden" contentEditable={false}>
         <ToolbarGroup>
           <ColorDropdownMenu tooltip="Background color">
             <PaintBucketIcon />

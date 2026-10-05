@@ -66,7 +66,7 @@ export const AddressAutocompleteInput = ({ value, onChange, onAddressResolved, o
     <div ref={wrapperRef} className="relative w-full" onBlur={handleBlur}>
       <Input ref={inputRef} id={id} value={value} placeholder={placeholder} onChange={handleChange} autoFocus={autoFocus} autoComplete="off" />
       {showPredictions && hasTypedSomething && (
-        <div role="presentation" className="absolute z-50 mt-1 w-full overflow-hidden rounded-md border border-border bg-popover shadow-md" onMouseDown={(event) => event.preventDefault()}>
+        <div role="presentation" className="absolute z-50 mt-1 w-full overflow-hidden rounded-md border border-border bg-popover shadow-popover" onMouseDown={(event) => event.preventDefault()}>
           {isSearching && <p className="px-3 py-2 text-sm text-muted-foreground">Searching addresses...</p>}
           {!isSearching && isError && <p className="px-3 py-2 text-sm text-muted-foreground">Could not load address suggestions. Please try again later.</p>}
           {!isSearching && !isError && predictions.length === 0 && <p className="px-3 py-2 text-sm text-muted-foreground">No addresses found.</p>}
@@ -75,7 +75,7 @@ export const AddressAutocompleteInput = ({ value, onChange, onAddressResolved, o
               <div
                 key={prediction.placeId}
                 {...activatable(() => handleSelectPrediction(prediction))}
-                className="flex items-start gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-accent focus:bg-accent focus:outline-none transition-colors"
+                className="flex items-start gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-popover-accent focus:bg-popover-accent focus:outline-none transition-colors"
               >
                 <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                 <span>{prediction.text.text}</span>

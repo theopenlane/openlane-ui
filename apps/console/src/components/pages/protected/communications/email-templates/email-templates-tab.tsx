@@ -200,7 +200,7 @@ export const EmailTemplatesTab: React.FC = () => {
                         <MoreHorizontal size={16} />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="min-w-48 border shadow-md">
+                    <DropdownMenuContent align="end" className="min-w-48">
                       <DropdownMenuItem onClick={() => handleToggleActive(template.id, template.active)}>
                         <CircleCheckBig className="h-4 w-4" />
                         {template.active ? 'Disable' : 'Mark Active'}

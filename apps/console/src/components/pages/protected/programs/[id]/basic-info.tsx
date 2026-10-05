@@ -340,7 +340,7 @@ export function FrameworkField<T extends FieldValues>({ form, program, isEditing
                 />
 
                 {showSuggestions && filteredSuggestions.length > 0 && (
-                  <ul className="absolute z-10 mt-1 w-full max-h-48 overflow-auto rounded-md border bg-popover p-1 shadow-md">
+                  <ul className="absolute z-10 mt-1 w-full max-h-48 overflow-auto rounded-md border bg-popover p-1 shadow-popover">
                     {filteredSuggestions.map((opt) => {
                       const selectSuggestion = () => {
                         field.onChange(opt.label)
@@ -356,7 +356,7 @@ export function FrameworkField<T extends FieldValues>({ form, program, isEditing
                           tabIndex={0}
                           onMouseDown={selectSuggestion}
                           onKeyDown={onActivateKeyDown(selectSuggestion)}
-                          className="cursor-pointer rounded-sm px-2 py-1 text-sm hover:bg-accent hover:text-accent-foreground"
+                          className="cursor-pointer rounded-sm px-2 py-1 text-sm hover:bg-popover-accent"
                         >
                           {opt.label}
                         </li>

@@ -8,7 +8,7 @@ export const selectStyles = tv({
     icon: 'h-4 w-4 opacity-50',
     scrollButton: 'flex cursor-default items-center justify-center py-1',
     content:
-      'relative z-50 max-h-96 overflow-hidden rounded-md border bg-card shadow-md data-[state=open]:animate-in ' +
+      'relative z-50 max-h-96 overflow-hidden rounded-md border bg-popover shadow-popover data-[state=open]:animate-in ' +
       'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 ' +
       'data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 ' +
       'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
@@ -18,7 +18,7 @@ export const selectStyles = tv({
     label: 'py-1.5 pl-8 pr-2 text-sm font-semibold',
     item:
       'relative flex w-full cursor-default select-none items-center rounded-xs py-1.5 pl-2 pr-2 cursor-pointer text-sm outline-hidden ' +
-      'transition-all duration-500 focus:bg-muted rounded-[6px] data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'transition-all duration-500 focus:bg-popover-accent rounded-[6px] data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
     separator: '-mx-1 my-1 h-px bg-border',
   },
   variants: {

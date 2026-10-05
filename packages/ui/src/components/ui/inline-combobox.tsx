@@ -192,7 +192,7 @@ const InlineComboboxContent: typeof ComboboxPopover = ({ className, ...props }) 
   // Portal prevents CSS from leaking into popover
   return (
     <Portal>
-      <ComboboxPopover className={cn('z-500 max-h-[288px] w-[300px] overflow-y-auto rounded-md bg-popover shadow-md', className)} {...props} />
+      <ComboboxPopover className={cn('z-500 max-h-[288px] w-[300px] overflow-y-auto rounded-md border bg-popover shadow-popover', className)} {...props} />
     </Portal>
   )
 }
@@ -206,7 +206,7 @@ const comboboxItemVariants = cva(
     variants: {
       interactive: {
         false: '',
-        true: 'cursor-pointer transition-colors hover:bg-accent hover:text-accent-foreground data-[active-item=true]:bg-accent data-[active-item=true]:text-accent-foreground',
+        true: 'cursor-pointer transition-colors hover:bg-popover-accent data-[active-item=true]:bg-popover-accent',
       },
     },
   },
