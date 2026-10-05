@@ -16,9 +16,11 @@ const ROW_NUMBERS_SHOWN = 5
 const INVALID_VALUES_SHOWN = 3
 const HEADER_ROW_OFFSET = 2
 
-const describeRows = (firstRowIndexes: number[], total: number): string =>
+export const toFileRowNumber = (rowIndex: number): number => rowIndex + HEADER_ROW_OFFSET
+
+export const describeRows = (firstRowIndexes: number[], total: number): string =>
   `${total === 1 ? 'row' : 'rows'} ${formatTruncatedList(
-    firstRowIndexes.map((index) => String(index + HEADER_ROW_OFFSET)),
+    firstRowIndexes.slice(0, ROW_NUMBERS_SHOWN).map((index) => String(toFileRowNumber(index))),
     total,
     ROW_NUMBERS_SHOWN,
   )} ${total === 1 ? 'has' : 'have'}`

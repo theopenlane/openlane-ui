@@ -93,3 +93,33 @@ export const GET_ALL_TRUST_CENTER_SUBPROCESSOR_BY_ID = gql`
     }
   }
 `
+
+export const GET_TRUST_CENTER_SUBPROCESSOR_LINKS = gql`
+  query GetTrustCenterSubprocessorLinks($first: Int, $after: Cursor) {
+    trustCenterSubprocessors(first: $first, after: $after) {
+      edges {
+        node {
+          id
+          subprocessor {
+            id
+            name
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`
+
+export const CREATE_BULK_TRUST_CENTER_SUBPROCESSOR = gql`
+  mutation CreateBulkTrustCenterSubprocessor($input: [CreateTrustCenterSubprocessorInput!]) {
+    createBulkTrustCenterSubprocessor(input: $input) {
+      trustCenterSubprocessors {
+        id
+      }
+    }
+  }
+`
