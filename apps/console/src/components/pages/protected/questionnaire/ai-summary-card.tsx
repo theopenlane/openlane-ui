@@ -6,6 +6,8 @@ import { Button } from '@repo/ui/button'
 import { Sparkles, Loader2, Smile, Meh, Frown } from 'lucide-react'
 import { aiEnabled } from '@repo/dally/ai'
 import { extractQuestions } from './responses-tab/extract-questions'
+import { renderAnswer } from './utils/render-answer'
+import { isRecord } from '@/utils/type-guards'
 
 type SummaryResult = {
   summary: string
@@ -46,9 +48,10 @@ export const AISummaryCard = ({ jsonconfig, responses }: AISummaryCardProps) => 
 
     try {
       const questions = extractQuestions(jsonconfig)
-      const responseData = completedResponses.map((r) => ({
-        answers: r.document?.data && typeof r.document.data === 'object' ? r.document.data : {},
-      }))
+      const responseData = completedResponses.map((r) => {
+        const data = isRecord(r.document?.data) ? r.document.data : {}
+        return { answers: Object.fromEntries(questions.map((q) => [q.name, renderAnswer(data[q.name], q.type)])) }
+      })
 
       const res = await fetch('/api/questionnaire-summary', {
         method: 'POST',

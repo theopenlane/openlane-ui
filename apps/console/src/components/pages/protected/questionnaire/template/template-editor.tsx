@@ -17,7 +17,7 @@ import { Panel } from '@repo/ui/panel'
 import { useRouter } from 'next/navigation'
 
 import '@/styles/questionnaire/custom.css'
-import '@/components/shared/survey/pdf-document/pdf-document-creator'
+import '@/components/shared/survey/survey-creator-types'
 import { surveyLicenseKey } from '@repo/dally/auth'
 import { useCreateTemplate, useGetTemplate, useUpdateTemplate } from '@/lib/graphql-hooks/template'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
