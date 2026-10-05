@@ -1,7 +1,5 @@
 import { z } from 'zod'
 
-export const CAPTURE_PROVENANCE_METADATA_KEY = 'capture_provenance'
-
 export const CAPTURE_SOURCE_NAME = 'Openlane Evidence Capture'
 
 export const captureProvenanceSchema = z.object({
@@ -33,11 +31,24 @@ export const captureProvenanceSchema = z.object({
 
 export type TCaptureProvenance = z.infer<typeof captureProvenanceSchema>
 
-const fileMetadataSchema = z.object({ [CAPTURE_PROVENANCE_METADATA_KEY]: captureProvenanceSchema })
+export const fileProvenanceSchema = z.object({
+  claims: captureProvenanceSchema,
+  serverSha256: z.string().regex(/^[a-f0-9]{64}$/),
+  hashVerified: z.boolean(),
+  receivedAt: z.iso.datetime({ offset: true }),
+  uploadedBy: z.object({
+    subjectId: z.string(),
+    authenticationType: z.string(),
+    impersonatorId: z.string().optional(),
+    systemAdminId: z.string().optional(),
+  }),
+})
 
-export const readCaptureProvenance = (fileMetadata: unknown): TCaptureProvenance | null => {
-  const parsed = fileMetadataSchema.safeParse(fileMetadata)
-  return parsed.success ? parsed.data[CAPTURE_PROVENANCE_METADATA_KEY] : null
+export type TFileProvenance = z.infer<typeof fileProvenanceSchema>
+
+export const readFileProvenance = (provenance: unknown): TFileProvenance | null => {
+  const parsed = fileProvenanceSchema.safeParse(provenance)
+  return parsed.success ? parsed.data : null
 }
 
 export const toSha256Hex = async (data: BufferSource): Promise<string> => {

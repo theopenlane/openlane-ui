@@ -18,7 +18,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import FilePreviewDialog from '@/components/shared/file-preview/file-preview-dialog'
 import { getFileActionsColumn } from '@/components/shared/file-table/file-actions-column'
-import { readCaptureProvenance, type TCaptureProvenance } from '@repo/evidence-capture/provenance'
+import { readFileProvenance, type TFileProvenance } from '@repo/evidence-capture/provenance'
 import { CaptureProvenanceDialog } from '@/components/pages/protected/evidence/capture-provenance-dialog'
 
 type TControlEvidenceFiles = {
@@ -45,9 +45,9 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
   ])
   const { files, isLoading: fetching, isError, pageInfo, totalCount } = useGetEvidenceWithFilesPaginated({ evidenceId: evidenceID, orderBy: orderBy, pagination: pagination })
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
-  const provenanceByFileId = new Map<string, TCaptureProvenance>()
+  const provenanceByFileId = new Map<string, TFileProvenance>()
   files.forEach((file) => {
-    const provenance = file && readCaptureProvenance(file.metadata)
+    const provenance = file && readFileProvenance(file.provenance)
     if (file && provenance) {
       provenanceByFileId.set(file.id, provenance)
     }
@@ -170,7 +170,15 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
 
       <FilePreviewDialog file={previewFile} open={previewIsOpen} onOpenChange={setPreviewIsOpen} />
 
-      {provenanceFile && provenanceForDialog && <CaptureProvenanceDialog key={provenanceFile.id} provenance={provenanceForDialog} file={provenanceFile} onClose={() => setProvenanceFileId(null)} />}
+      {provenanceFile && provenanceForDialog && (
+        <CaptureProvenanceDialog
+          key={provenanceFile.id}
+          provenance={provenanceForDialog}
+          presignedURL={provenanceFile.presignedURL}
+          md5Hash={provenanceFile.md5Hash}
+          onClose={() => setProvenanceFileId(null)}
+        />
+      )}
     </div>
   )
 }

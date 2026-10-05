@@ -3215,12 +3215,6 @@ export interface GetEntityAssociationsQuery {
   }
 }
 
-export type GetEvidenceCaptureCollectorQueryVariables = Exact<{ [key: string]: never }>
-
-export interface GetEvidenceCaptureCollectorQuery {
-  self: { id: string; displayName: string; email: string; avatarRemoteURL: string | null }
-}
-
 export type CreateCapturedEvidenceMutationVariables = Exact<{
   input: Types.CreateEvidenceInput
   evidenceFiles?: Array<any> | any | null | undefined
@@ -3392,9 +3386,8 @@ export interface GetEvidenceFilesPaginatedQuery {
           id: string
           uri: string | null
           presignedURL: string | null
-          metadata: any
+          provenance: any
           md5Hash: string | null
-          createdAt: any
         } | null
       } | null> | null
     }
@@ -8979,7 +8972,7 @@ export type CreateApiTokenMutationVariables = Exact<{
 }>
 
 export interface CreateApiTokenMutation {
-  createAPIToken: { apiToken: { id: string; token: string } }
+  createAPIToken: { apiToken: { id: string; token: string; owner: { id: string; displayName: string } | null } }
 }
 
 export type GetApiTokensQueryVariables = Exact<{
@@ -8990,7 +8983,19 @@ export type GetApiTokensQueryVariables = Exact<{
 export interface GetApiTokensQuery {
   apiTokens: {
     totalCount: number
-    edges: Array<{ node: { id: string; name: string; description: string | null; scopes: Array<string> | null; expiresAt: any; lastUsedAt: any; ssoAuthorizations: any } | null } | null> | null
+    edges: Array<{
+      node: {
+        id: string
+        name: string
+        description: string | null
+        scopes: Array<string> | null
+        expiresAt: any
+        lastUsedAt: any
+        ssoAuthorizations: any
+        createdAt: any
+        createdBy: string | null
+      } | null
+    } | null> | null
     pageInfo: { startCursor: any; endCursor: any }
   }
 }

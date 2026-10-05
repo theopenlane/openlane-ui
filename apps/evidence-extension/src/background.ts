@@ -1,25 +1,18 @@
-import { DELETE_PERSONAL_ACCESS_TOKEN } from '@repo/codegen/query/tokens'
-import type { DeletePersonalAccessTokenMutation, DeletePersonalAccessTokenMutationVariables } from '@repo/codegen/src/schema'
-import { connectMessageSchema, EVIDENCE_EXTENSION_TOKEN_NAME, type TConnectResponse } from '@repo/evidence-capture/connect'
-import { ApiUnauthorizedError, graphqlRequest } from './lib/api'
+import { connectMessageSchema, type TConnectResponse } from '@repo/evidence-capture/connect'
 import { CONSOLE_ORIGIN } from './lib/config'
 import { readConnection, saveConnection, type TConnection } from './lib/connection'
+import { revokeConnectionToken } from './lib/revoke'
 
-const revokeReplacedToken = async (previous: TConnection): Promise<string | undefined> => {
-  try {
-    await graphqlRequest<DeletePersonalAccessTokenMutation, DeletePersonalAccessTokenMutationVariables>(previous, DELETE_PERSONAL_ACCESS_TOKEN, {
-      deletePersonalAccessTokenId: previous.tokenId,
-    })
-    return undefined
-  } catch (error) {
-    if (error instanceof ApiUnauthorizedError) {
-      return undefined
-    }
-    return `The extension's previous access token could not be revoked. Delete the older "${EVIDENCE_EXTENSION_TOKEN_NAME}" token from Personal Access Tokens.`
-  }
-}
+const revokeReplacedToken = (previous: TConnection): Promise<string | undefined> =>
+  revokeConnectionToken(previous).then(
+    () => undefined,
+    () => `The extension's previous connection to ${previous.organizationName} could not be revoked. Revoke it from Connected Apps.`,
+  )
 
 const connect = async (connection: TConnection): Promise<TConnectResponse> => {
+  if (Date.parse(connection.expiresAt) <= Date.now()) {
+    return { ok: false, error: 'The access token for this connection has already expired.' }
+  }
   const previous = await readConnection()
   await saveConnection(connection)
   const warning = previous && previous.tokenId !== connection.tokenId ? await revokeReplacedToken(previous) : undefined

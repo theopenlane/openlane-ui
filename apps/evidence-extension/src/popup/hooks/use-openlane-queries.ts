@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { GET_CONTROL_SELECT_OPTIONS } from '@repo/codegen/query/control'
-import { GET_EVIDENCE_CAPTURE_COLLECTOR } from '@repo/codegen/query/evidence-capture'
-import type { GetControlSelectOptionsQuery, GetControlSelectOptionsQueryVariables, GetEvidenceCaptureCollectorQuery, GetEvidenceCaptureCollectorQueryVariables } from '@repo/codegen/src/schema'
+import { GET_API_TOKENS_BY_IDS } from '@repo/codegen/query/tokens'
+import type { GetApiTokensByIdsQuery, GetApiTokensByIdsQueryVariables, GetControlSelectOptionsQuery, GetControlSelectOptionsQueryVariables } from '@repo/codegen/src/schema'
 import { graphqlRequest } from '../../lib/api'
 import type { TConnection } from '../../lib/connection'
 import type { TEvidenceDraft } from './use-evidence-draft-form-schema'
@@ -12,18 +12,18 @@ export const EVIDENCE_FLOW_MUTATION_KEY = ['evidence-flow']
 
 export type TControlOption = TEvidenceDraft['controls'][number]
 
-export const useCollector = (connection: TConnection) =>
+export const useConnectionCheck = (connection: TConnection) =>
   useQuery({
-    queryKey: ['collector', connection.tokenId],
-    queryFn: async () => (await graphqlRequest<GetEvidenceCaptureCollectorQuery, GetEvidenceCaptureCollectorQueryVariables>(connection, GET_EVIDENCE_CAPTURE_COLLECTOR)).data.self,
-    staleTime: 5 * 60 * 1000, // 5min
+    queryKey: ['connection-check', connection.tokenId],
+    queryFn: () => graphqlRequest<GetApiTokensByIdsQuery, GetApiTokensByIdsQueryVariables>(connection, GET_API_TOKENS_BY_IDS, { where: { idIn: [connection.tokenId] } }),
+    staleTime: 60 * 1000, // 1min
   })
 
 export const useControlSearch = (connection: TConnection, term: string, enabled: boolean) =>
   useQuery({
     queryKey: ['controls', connection.organizationId, term],
     queryFn: async (): Promise<TControlOption[]> => {
-      const { data } = await graphqlRequest<GetControlSelectOptionsQuery, GetControlSelectOptionsQueryVariables>(connection, GET_CONTROL_SELECT_OPTIONS, {
+      const data = await graphqlRequest<GetControlSelectOptionsQuery, GetControlSelectOptionsQueryVariables>(connection, GET_CONTROL_SELECT_OPTIONS, {
         where: { refCodeContainsFold: term, systemOwned: false, isTrustCenterControl: false },
         first: CONTROL_SEARCH_LIMIT,
       })

@@ -17,11 +17,11 @@ export const SignedOut = ({ notice }: TSignedOutProps) => (
   <div className="space-y-4 p-4">
     <ScreenTitle
       title="Connect to Openlane"
-      description="Sign in to capture screenshots and upload them as evidence. Openlane creates a personal access token for this extension, scoped to the organization you choose."
+      description="Capture screenshots and upload them as evidence. An organization owner or admin connects the extension to your organization, and Openlane shows what it can access before you confirm."
     />
     {notice && <ErrorAlert>{notice}</ErrorAlert>}
     <Button full icon={<ExternalLink size={14} />} onClick={openConnectPage}>
-      Connect your Openlane account
+      Connect to your organization
     </Button>
   </div>
 )

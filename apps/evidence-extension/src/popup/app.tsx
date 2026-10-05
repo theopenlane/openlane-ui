@@ -8,7 +8,7 @@ import { PopupHeader } from './components/popup-header'
 import { useActiveTab } from './hooks/use-active-tab'
 import { useConnection } from './hooks/use-connection'
 import type { TEvidenceDraft } from './hooks/use-evidence-draft-form-schema'
-import { EVIDENCE_FLOW_MUTATION_KEY, useCollector } from './hooks/use-openlane-queries'
+import { EVIDENCE_FLOW_MUTATION_KEY, useConnectionCheck } from './hooks/use-openlane-queries'
 import { CaptureDetails } from './screens/capture-details'
 import { Home } from './screens/home'
 import { Review, type TCreatedEvidence } from './screens/review'
@@ -31,7 +31,7 @@ const ConnectedApp = ({ connection }: { connection: TConnection }) => {
   const [screen, setScreen] = useState<TScreen>({ name: 'home' })
   const [draft, setDraft] = useState<TEvidenceDraft | null>(null)
   const activeTab = useActiveTab()
-  const collector = useCollector(connection)
+  useConnectionCheck(connection)
   const isBusy = useIsMutating({ mutationKey: EVIDENCE_FLOW_MUTATION_KEY }) > 0
 
   const capture = screen.name === 'review' || screen.name === 'success' ? screen.capture : null
@@ -52,7 +52,7 @@ const ConnectedApp = ({ connection }: { connection: TConnection }) => {
   const renderScreen = () => {
     switch (screen.name) {
       case 'settings':
-        return <Settings connection={connection} collectorEmail={collector.data?.email} />
+        return <Settings connection={connection} />
       case 'details':
         if (activeTab.status !== 'ready') {
           return activeTab.status === 'unsupported' ? <p className="p-4 text-sm text-muted-foreground">{activeTab.reason}</p> : null
@@ -93,7 +93,7 @@ const ConnectedApp = ({ connection }: { connection: TConnection }) => {
       case 'home':
         return (
           <Home
-            collector={collector}
+            collector={connection.collector}
             organizationName={connection.organizationName}
             captureUnavailableReason={activeTab.status === 'unsupported' ? activeTab.reason : undefined}
             onCapture={() => setScreen({ name: 'details' })}

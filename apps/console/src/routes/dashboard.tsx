@@ -55,6 +55,7 @@ import {
   UserRoundPlusIcon,
   UsersIcon,
   UsersRoundIcon,
+  WaypointsIcon,
   WorkflowIcon,
   WrenchIcon,
 } from '@/components/shared/icons/animated'
@@ -456,6 +457,11 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
           href: '/developers/personal-access-tokens',
           icon: KeyCircleIcon,
           hidden: isImpersonation,
+        },
+        {
+          title: 'Connected Apps',
+          href: '/developers/connected-apps',
+          icon: WaypointsIcon,
         },
       ],
     },

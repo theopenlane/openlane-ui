@@ -1,5 +1,6 @@
-import { connectMessageSchema } from '@repo/evidence-capture/connect'
+import { connectMessageSchema, EVIDENCE_EXTENSION_TOKEN_NAME } from '@repo/evidence-capture/connect'
 import { z } from 'zod'
+import { revokeLegacyPersonalAccessToken } from './revoke'
 
 const CONNECTION_STORAGE_KEY = 'connection'
 const DISCONNECT_REASON_STORAGE_KEY = 'disconnectReason'
@@ -7,6 +8,25 @@ const DISCONNECT_REASON_STORAGE_KEY = 'disconnectReason'
 const connectionSchema = connectMessageSchema.omit({ type: true })
 
 export type TConnection = z.infer<typeof connectionSchema>
+
+const legacyConnectionSchema = connectionSchema.pick({ token: true, tokenId: true, organizationId: true })
+
+export type TLegacyConnection = z.infer<typeof legacyConnectionSchema>
+
+const retireLegacyConnection = async (stored: unknown) => {
+  const legacy = legacyConnectionSchema.safeParse(stored)
+  const revoked =
+    legacy.success &&
+    (await revokeLegacyPersonalAccessToken(legacy.data).then(
+      () => true,
+      () => false,
+    ))
+  await clearConnection(
+    revoked || !legacy.success
+      ? 'The extension now connects with a scoped API token. Connect the extension again.'
+      : `The extension now connects with a scoped API token. Connect it again, then delete the old "${EVIDENCE_EXTENSION_TOKEN_NAME}" personal access token.`,
+  )
+}
 
 export const clearConnection = async (reason?: string) => {
   if (reason) {
@@ -16,9 +36,13 @@ export const clearConnection = async (reason?: string) => {
 }
 
 export const readConnection = async (): Promise<TConnection | null> => {
-  const stored = await chrome.storage.local.get(CONNECTION_STORAGE_KEY)
-  const parsed = connectionSchema.safeParse(stored[CONNECTION_STORAGE_KEY])
+  const stored = (await chrome.storage.local.get(CONNECTION_STORAGE_KEY))[CONNECTION_STORAGE_KEY]
+  if (stored === undefined) {
+    return null
+  }
+  const parsed = connectionSchema.safeParse(stored)
   if (!parsed.success) {
+    await retireLegacyConnection(stored)
     return null
   }
   if (Date.parse(parsed.data.expiresAt) <= Date.now()) {

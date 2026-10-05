@@ -33,6 +33,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { useSession } from 'next-auth/react'
 import { isSsoCallbackError, type SsoCallbackError } from '@/lib/auth/utils/sso-callback-error'
+import { formatScopeActions, groupScopesByResource } from '@/components/shared/token-scopes/token-scopes'
 
 const SSO_TOKEN_ERROR_MESSAGES: Record<SsoCallbackError, string> = {
   sso_signin_failed: 'SSO sign-in failed during token authorization',
@@ -53,15 +54,6 @@ type TokenNode = {
 }
 
 const VISIBLE_SCOPES = 3
-const SCOPE_ACTION_ORDER = ['read', 'write', 'delete']
-const sortScopeActions = (a: string, b: string) => {
-  const ai = SCOPE_ACTION_ORDER.indexOf(a)
-  const bi = SCOPE_ACTION_ORDER.indexOf(b)
-  if (ai === -1 && bi === -1) return a.localeCompare(b)
-  if (ai === -1) return 1
-  if (bi === -1) return -1
-  return ai - bi
-}
 
 type ScopesCellContentProps = {
   scopes: string[]
@@ -75,13 +67,7 @@ const ScopesCellContent = ({ scopes, token }: ScopesCellContentProps) => {
   const visible = scopes.slice(0, VISIBLE_SCOPES)
   const hiddenCount = scopes.length - VISIBLE_SCOPES
 
-  const grouped = scopes.reduce<Record<string, string[]>>((acc, scope) => {
-    const colon = scope.indexOf(':')
-    const resource = colon === -1 ? scope : scope.slice(0, colon)
-    const action = colon === -1 ? '' : scope.slice(colon + 1)
-    ;(acc[resource] ??= []).push(action)
-    return acc
-  }, {})
+  const grouped = groupScopesByResource(scopes)
 
   const groupedEntries = Object.entries(grouped)
   const useColumns = groupedEntries.length > 5
@@ -111,14 +97,14 @@ const ScopesCellContent = ({ scopes, token }: ScopesCellContentProps) => {
             return (
               <tr key={resource}>
                 <td className="text-muted-foreground pr-6 py-0.5 whitespace-nowrap align-top">{resource}</td>
-                <td className="py-0.5 whitespace-nowrap text-foreground/70">{[...actions].sort(sortScopeActions).join(' · ')}</td>
+                <td className="py-0.5 whitespace-nowrap text-foreground/70">{formatScopeActions(actions)}</td>
                 {cols && (
                   <>
                     <td className="px-8 py-0.5">
                       <div className="w-px h-full bg-border" />
                     </td>
                     <td className="text-muted-foreground pr-6 py-0.5 whitespace-nowrap align-top">{rightEntry?.[0] ?? ''}</td>
-                    <td className="py-0.5 whitespace-nowrap text-foreground/70">{rightEntry ? [...rightEntry[1]].sort(sortScopeActions).join(' · ') : ''}</td>
+                    <td className="py-0.5 whitespace-nowrap text-foreground/70">{rightEntry ? formatScopeActions(rightEntry[1]) : ''}</td>
                   </>
                 )}
               </tr>

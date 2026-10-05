@@ -2,62 +2,77 @@
 
 import React, { useSyncExternalStore } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { useMutation } from '@tanstack/react-query'
 import { Camera, CircleCheck, KeyRound, Link2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import { EVIDENCE_EXTENSION_TOKEN_NAME, EVIDENCE_EXTENSION_TOKEN_TTL_MS, PERSONAL_ACCESS_TOKENS_PATH } from '@repo/evidence-capture/connect'
+import {
+  CONNECT_MESSAGE_TYPE,
+  CONNECTED_APPS_PATH,
+  EVIDENCE_EXTENSION_SCOPES,
+  EVIDENCE_EXTENSION_TOKEN_NAME,
+  EVIDENCE_EXTENSION_TOKEN_TTL_DAYS,
+  EVIDENCE_EXTENSION_TOKEN_TTL_MS,
+  type TConnectMessage,
+} from '@repo/evidence-capture/connect'
 import { Callout } from '@/components/shared/callout/callout'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
+import { ScopeSummary } from '@/components/shared/token-scopes/scope-summary'
+import { useApiTokenAccessReason } from '@/components/pages/protected/developers/hooks/use-api-token-access-reason'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetAllOrganizations } from '@/lib/graphql-hooks/organization'
-import { useCreatePersonalAccessToken, useDeletePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
+import { useCreateAPIToken, useDeleteApiToken } from '@/lib/graphql-hooks/tokens'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { isEvidenceExtensionReachable, sendConnectionToEvidenceExtension } from '@/lib/evidence-extension'
-import { MS_PER_DAY } from '@/utils/date'
 import { parseErrorMessage, UserFacingError } from '@/utils/graphQlErrorMatcher'
-
-const TOKEN_TTL_DAYS = Math.round(EVIDENCE_EXTENSION_TOKEN_TTL_MS / MS_PER_DAY)
 
 const PANEL_CLASS = 'mx-auto mt-10 max-w-xl'
 
 const subscribeToNothing = () => () => {}
 
-type TTargetOrganization = { id: string; name: string }
-
 const ExtensionConnectPage: React.FC = () => {
+  const { data: session } = useSession()
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const { isPending: organizationsPending } = useGetAllOrganizations()
   const organization = getOrganizationByID(currentOrgId)?.node
-  const { mutateAsync: createToken } = useCreatePersonalAccessToken()
-  const { mutateAsync: deleteToken } = useDeletePersonalAccessToken()
+  const accessReason = useApiTokenAccessReason('Only organization owners and admins can connect the extension for now.')
+  const { data: userData, isPending: userPending } = useGetCurrentUser(session?.user?.userId)
+  const { mutateAsync: createToken } = useCreateAPIToken()
+  const { mutateAsync: deleteToken } = useDeleteApiToken()
   const extensionReachable = useSyncExternalStore(subscribeToNothing, isEvidenceExtensionReachable, () => false)
 
   const connect = useMutation({
-    mutationFn: async (target: TTargetOrganization) => {
+    mutationFn: async (collector: TConnectMessage['collector']) => {
       const tokenExpiry = new Date(Date.now() + EVIDENCE_EXTENSION_TOKEN_TTL_MS).toISOString()
-      const { personalAccessToken } = (
+      const { apiToken } = (
         await createToken({
           input: {
             name: EVIDENCE_EXTENSION_TOKEN_NAME,
-            description: 'Created for the Openlane Evidence Capture browser extension to upload evidence.',
+            description: `Connected by ${collector.email} for the Openlane Evidence Capture browser extension.`,
             expiresAt: tokenExpiry,
-            organizationIDs: [target.id],
+            scopes: [...EVIDENCE_EXTENSION_SCOPES],
           },
         })
-      ).createPersonalAccessToken
+      ).createAPIToken
 
       try {
+        if (!apiToken.owner) {
+          throw new UserFacingError('The access token was created without an organization, so the extension was not connected.')
+        }
         return await sendConnectionToEvidenceExtension({
-          type: 'openlane-evidence-capture/connect',
-          token: personalAccessToken.token,
-          tokenId: personalAccessToken.id,
+          type: CONNECT_MESSAGE_TYPE,
+          token: apiToken.token,
+          tokenId: apiToken.id,
           expiresAt: tokenExpiry,
-          organizationId: target.id,
-          organizationName: target.name,
+          organizationId: apiToken.owner.id,
+          organizationName: apiToken.owner.displayName,
+          collector,
         })
       } catch (error) {
-        await deleteToken({ deletePersonalAccessTokenId: personalAccessToken.id }).catch(() => {
-          throw new UserFacingError(`${parseErrorMessage(error)} The unused access token could not be revoked; delete "${EVIDENCE_EXTENSION_TOKEN_NAME}" from Personal Access Tokens.`)
+        await deleteToken({ deleteAPITokenId: apiToken.id }).catch(() => {
+          throw new UserFacingError(`${parseErrorMessage(error)} The unused access token could not be revoked; revoke it from Connected Apps.`)
         })
         throw error
       }
@@ -80,6 +95,17 @@ const ExtensionConnectPage: React.FC = () => {
 
   const organizationName = organization.displayName
   const ssoEnforced = !!organization.setting?.identityProviderLoginEnforced
+  const user = userData?.user
+
+  const disabledReason = () => {
+    if (accessReason) return accessReason
+    if (userPending) return 'Loading your profile…'
+    if (!user) return 'Your profile could not be loaded.'
+    if (ssoEnforced) return `${organizationName} requires SSO.`
+    if (!extensionReachable) return 'The extension was not detected in this browser.'
+    return undefined
+  }
+  const reason = disabledReason()
 
   if (connect.isSuccess) {
     return (
@@ -106,13 +132,19 @@ const ExtensionConnectPage: React.FC = () => {
         </li>
         <li className="flex gap-3">
           <KeyRound size={18} className="mt-0.5 shrink-0 text-muted-foreground" />
-          <span>
-            Access uses a personal access token scoped to {organizationName} that expires after {TOKEN_TTL_DAYS} days. You can revoke it at any time from{' '}
-            <Link href={PERSONAL_ACCESS_TOKENS_PATH} className="text-blue-500 hover:underline">
-              Personal Access Tokens
-            </Link>
-            .
-          </span>
+          <div className="space-y-2">
+            <p>
+              Access uses an API token for {organizationName} that expires after {EVIDENCE_EXTENSION_TOKEN_TTL_DAYS} days, with these scopes:
+            </p>
+            <ScopeSummary scopes={EVIDENCE_EXTENSION_SCOPES} />
+            <p>
+              You can revoke it at any time from{' '}
+              <Link href={CONNECTED_APPS_PATH} className="text-blue-500 hover:underline">
+                Connected Apps
+              </Link>
+              .
+            </p>
+          </div>
         </li>
       </ul>
 
@@ -132,15 +164,17 @@ const ExtensionConnectPage: React.FC = () => {
         </Callout>
       )}
 
-      <Button
-        icon={<Link2 size={16} />}
-        iconPosition="left"
-        loading={connect.isPending}
-        disabled={ssoEnforced || !extensionReachable || connect.isPending}
-        onClick={() => connect.mutate({ id: organization.id, name: organizationName })}
-      >
-        Connect extension
-      </Button>
+      <DisabledReasonTooltip reason={reason}>
+        <Button
+          icon={<Link2 size={16} />}
+          iconPosition="left"
+          loading={connect.isPending}
+          disabled={!!reason || connect.isPending}
+          onClick={() => user && connect.mutate({ id: user.id, email: user.email, displayName: user.displayName, avatarRemoteURL: user.avatarRemoteURL ?? undefined })}
+        >
+          Connect extension
+        </Button>
+      </DisabledReasonTooltip>
     </Panel>
   )
 }

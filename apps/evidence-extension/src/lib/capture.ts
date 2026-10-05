@@ -1,8 +1,6 @@
-import { GET_EVIDENCE_CAPTURE_COLLECTOR } from '@repo/codegen/query/evidence-capture'
-import type { GetEvidenceCaptureCollectorQuery, GetEvidenceCaptureCollectorQueryVariables } from '@repo/codegen/src/schema'
 import { CAPTURE_SOURCE_NAME, captureProvenanceSchema, toSha256Hex } from '@repo/evidence-capture/provenance'
 import type { TCaptureProvenance } from '@repo/evidence-capture/provenance'
-import { graphqlRequest } from './api'
+import { fetchServerDate } from './api'
 import type { TConnection } from './connection'
 import { composeWithFooter, formatFooterTimestamp } from './footer'
 
@@ -32,10 +30,7 @@ const captureScreenshot = async (windowId: number) => {
 
 export const captureVisibleTab = async (connection: TConnection, target: TCaptureTarget): Promise<TCapture> => {
   const clientCapturedAt = new Date()
-  const [{ data, serverDate }, screenshot] = await Promise.all([
-    graphqlRequest<GetEvidenceCaptureCollectorQuery, GetEvidenceCaptureCollectorQueryVariables>(connection, GET_EVIDENCE_CAPTURE_COLLECTOR),
-    captureScreenshot(target.windowId),
-  ])
+  const [serverDate, screenshot] = await Promise.all([fetchServerDate(), captureScreenshot(target.windowId)])
 
   const capturedAt = (serverDate ?? clientCapturedAt).toISOString()
   const blob = await composeWithFooter(screenshot, {
@@ -56,8 +51,8 @@ export const captureVisibleTab = async (connection: TConnection, target: TCaptur
     source_url: `${target.url.origin}${target.url.pathname}`,
     source_domain: target.url.hostname,
     page_title: target.title,
-    collector: data.self.id,
-    collector_email: data.self.email,
+    collector: connection.collector.id,
+    collector_email: connection.collector.email,
     organization_id: connection.organizationId,
     capture_source: CAPTURE_SOURCE_LABEL,
     extension_version: EXTENSION_VERSION,

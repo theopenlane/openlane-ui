@@ -1,15 +1,10 @@
 import { buildGraphQLRequestBody } from '@repo/dally/graphql-body'
-import { API_GRAPHQL_URL } from './config'
+import { API_GRAPHQL_URL, API_ORIGIN } from './config'
 import type { TConnection } from './connection'
 
 type TGraphQLResponse<TData> = {
   data?: TData | null
   errors?: { message: string }[]
-}
-
-export type TApiResult<TData> = {
-  data: TData
-  serverDate: Date | null
 }
 
 export class ApiUnauthorizedError extends Error {
@@ -20,15 +15,16 @@ export class ApiRequestError extends Error {
   name = 'ApiRequestError'
 }
 
-const parseServerDate = (header: string | null) => {
-  if (!header) {
-    return null
-  }
-  const date = new Date(header)
-  return Number.isNaN(date.getTime()) ? null : date
+const SERVER_DATE_TIMEOUT_MS = 3000 // 3s
+
+export const fetchServerDate = async () => {
+  const response = await fetch(`${API_ORIGIN}/livez`, { cache: 'no-store', credentials: 'omit', signal: AbortSignal.timeout(SERVER_DATE_TIMEOUT_MS) }).catch(() => null)
+  const header = response?.headers.get('date')
+  const date = header ? new Date(header) : null
+  return date && !Number.isNaN(date.getTime()) ? date : null
 }
 
-export const graphqlRequest = async <TData, TVariables extends object>(connection: TConnection, query: string, variables?: TVariables): Promise<TApiResult<TData>> => {
+export const graphqlRequest = async <TData, TVariables extends object>(connection: Pick<TConnection, 'token' | 'organizationId'>, query: string, variables?: TVariables): Promise<TData> => {
   const { body, isMultipart } = buildGraphQLRequestBody(query, variables)
   const response = await fetch(API_GRAPHQL_URL, {
     method: 'POST',
@@ -52,5 +48,5 @@ export const graphqlRequest = async <TData, TVariables extends object>(connectio
     throw new ApiRequestError(`Openlane returned HTTP ${response.status}.`)
   }
 
-  return { data: payload.data, serverDate: parseServerDate(response.headers.get('date')) }
+  return payload.data
 }

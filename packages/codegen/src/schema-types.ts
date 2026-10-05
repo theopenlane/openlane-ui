@@ -46,6 +46,8 @@ export interface Scalars {
   ExampleEvidence: { input: any; output: any }
   /** ExportMetadata contains metadata for an export record */
   ExportMetadata: { input: any; output: any }
+  /** The `FileProvenance` scalar type is the immutable capture record of an uploaded file: the client-supplied claims, the server-computed SHA-256, whether the claimed hash matched, the server receive time, and the authenticated uploader */
+  FileProvenance: { input: any; output: any }
   /** The `ImplementationGuidance` scalar type that represents steps to take to implement a control; they can come directly from the control source or pulled from external sources */
   ImplementationGuidance: { input: any; output: any }
   /** The `IntegrationHealth` scalar type records the runtime health state of an installed integration, including the unhealthy reason, per-operation failure reasons, and the last successful health check time */
@@ -10799,6 +10801,10 @@ export interface CreateSubscriberInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   userID?: InputMaybe<Scalars['ID']['input']>
+  /** indicates if the email address has been verified */
+  verifiedEmail?: InputMaybe<Scalars['Boolean']['input']>
+  /** indicates if the phone number has been verified */
+  verifiedPhone?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /**
@@ -18449,6 +18455,8 @@ export interface File extends Node {
   platform?: Maybe<Array<Platform>>
   presignedURL?: Maybe<Scalars['String']['output']>
   program?: Maybe<Array<Program>>
+  /** the immutable capture record attested by the server when the file was uploaded */
+  provenance?: Maybe<Scalars['FileProvenance']['output']>
   /** the extension of the file provided */
   providedFileExtension: Scalars['String']['output']
   /** the name of the file provided in the payload key without the extension */
@@ -18568,6 +18576,8 @@ export interface FileMetadataInput {
   metadata?: InputMaybe<Scalars['Map']['input']>
   /** the display name for the file, defaults to the original filename */
   name?: InputMaybe<Scalars['String']['input']>
+  /** the client-side capture record for the file, stored immutably with server-side attestation; only accepted on evidence files, at most 16KB encoded, and an artifact_sha256 claim must match the uploaded bytes */
+  provenance?: InputMaybe<Scalars['Map']['input']>
 }
 
 /** Ordering options for File connections */
@@ -50681,6 +50691,7 @@ export interface TrustCenterSubprocessorOrder {
 
 /** Properties by which TrustCenterSubprocessor connections can be ordered. */
 export enum TrustCenterSubprocessorOrderField {
+  SUBPROCESSOR_name = 'SUBPROCESSOR_name',
   created_at = 'created_at',
   updated_at = 'updated_at',
 }

@@ -3,7 +3,7 @@ import { Camera, ChevronRight, Video } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
-import type { useCollector } from '../hooks/use-openlane-queries'
+import type { TConnection } from '../../lib/connection'
 
 type TActionCardProps = {
   icon: ReactNode
@@ -30,16 +30,11 @@ const ActionCard = ({ icon, title, description, badge, onClick }: TActionCardPro
 )
 
 type THomeProps = {
-  collector: ReturnType<typeof useCollector>
+  collector: TConnection['collector']
   organizationName: string
   captureUnavailableReason?: string
   onCapture: () => void
   onOpenSettings: () => void
-}
-
-const collectorName = (collector: THomeProps['collector']) => {
-  if (collector.data) return collector.data.displayName
-  return collector.isError ? 'Could not load your profile' : 'Loading…'
 }
 
 export const Home = ({ collector, organizationName, captureUnavailableReason, onCapture, onOpenSettings }: THomeProps) => (
@@ -54,12 +49,14 @@ export const Home = ({ collector, organizationName, captureUnavailableReason, on
     <Button variant="outline" full childFull className="h-auto justify-start rounded-lg p-3 text-left" onClick={onOpenSettings}>
       <span className="flex w-full items-center gap-3">
         <Avatar className="size-9">
-          {collector.data?.avatarRemoteURL && <AvatarImage src={collector.data.avatarRemoteURL} alt="" />}
-          <AvatarFallback>{collector.data?.displayName.charAt(0).toUpperCase() || '?'}</AvatarFallback>
+          {collector.avatarRemoteURL && <AvatarImage src={collector.avatarRemoteURL} alt="" />}
+          <AvatarFallback>{(collector.displayName || collector.email).charAt(0).toUpperCase() || '?'}</AvatarFallback>
         </Avatar>
         <span className="min-w-0 flex-1">
-          <span className="block truncate font-semibold text-foreground">{collectorName(collector)}</span>
-          <span className="block truncate text-sm font-normal text-muted-foreground">{collector.data ? `${collector.data.email} · ${organizationName}` : organizationName}</span>
+          <span className="block truncate font-semibold text-foreground">{collector.displayName || collector.email}</span>
+          <span className="block truncate text-sm font-normal text-muted-foreground">
+            {collector.email} · {organizationName}
+          </span>
         </span>
         <ChevronRight className="shrink-0 text-muted-foreground" />
       </span>
