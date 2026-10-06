@@ -1,7 +1,8 @@
 'use client'
 
 import { type UseFormReturn } from 'react-hook-form'
-import { ClipboardList } from 'lucide-react'
+import { ClipboardList, ExternalLink } from 'lucide-react'
+import { Button } from '@repo/ui/button'
 import { startOfToday } from 'date-fns'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
@@ -14,16 +15,22 @@ import { type TAcknowledgementRequestFormData } from './use-acknowledgement-requ
 
 type TAcknowledgementRecipientsStepProps = {
   form: UseFormReturn<TAcknowledgementRequestFormData>
+  onPreview: () => void
 }
 
-export const AcknowledgementRecipientsStep = ({ form }: TAcknowledgementRecipientsStepProps) => {
+export const AcknowledgementRecipientsStep = ({ form, onPreview }: TAcknowledgementRecipientsStepProps) => {
   const { policies, name, statement } = form.getValues()
 
   return (
     <AcknowledgementSections>
       <AcknowledgementSection icon={ClipboardList} title="What will be sent">
         <div className="flex flex-col gap-3 rounded-lg border bg-muted/40 p-4">
-          <ReadOnlyField label="Name">{name}</ReadOnlyField>
+          <div className="flex items-start justify-between gap-3">
+            <ReadOnlyField label="Name">{name}</ReadOnlyField>
+            <Button type="button" variant="secondary" icon={<ExternalLink size={14} />} iconPosition="left" onClick={onPreview}>
+              Preview
+            </Button>
+          </div>
           <ReadOnlyField label="Policies">
             <div className="flex flex-wrap gap-2">
               {policies.map((policy) => (

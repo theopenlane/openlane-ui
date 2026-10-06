@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { queryOptions, useQueries, useQueryClient } from '@tanstack/react-query'
 import { type TInternalPolicyDocument, useFetchInternalPolicyRevision } from '@/lib/graphql-hooks/internal-policy'
 import { usePolicyPdfExport } from '@/components/shared/survey/pdf-document/use-policy-pdf-export'
@@ -40,6 +40,7 @@ export const usePolicyDocumentPreparation = (policies: TInternalPolicyDocument[]
   const queryClient = useQueryClient()
   const [limit] = useState(() => createConcurrencyLimiter(POLICY_EXPORT_CONCURRENCY))
   const [isRequested, setIsRequested] = useState(false)
+  const refreshesRef = useRef(new Map<string, Promise<TPdfDocumentAttachment>>())
 
   const policyPdfQuery = useCallback(
     (policy: TInternalPolicyDocument) =>
@@ -67,8 +68,15 @@ export const usePolicyDocumentPreparation = (policies: TInternalPolicyDocument[]
       const query = policyPdfQuery(policy)
       const document = await queryClient.fetchQuery(query)
       if ((await fetchPolicyRevision(policy.id)) === document.policyRevision) return document
+
+      const refreshKey = query.queryKey.join('|')
+      const inFlight = refreshesRef.current.get(refreshKey)
+      if (inFlight) return inFlight
+
       queryClient.removeQueries({ queryKey: query.queryKey, exact: true })
-      return queryClient.fetchQuery(query)
+      const refresh = queryClient.fetchQuery(query).finally(() => refreshesRef.current.delete(refreshKey))
+      refreshesRef.current.set(refreshKey, refresh)
+      return refresh
     },
     [fetchPolicyRevision, policyPdfQuery, queryClient],
   )

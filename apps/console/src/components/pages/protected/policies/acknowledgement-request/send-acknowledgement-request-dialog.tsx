@@ -11,12 +11,14 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { StatusLine } from '@/components/shared/status-line/status-line'
 import { StepHeader } from '@/components/shared/step-header/step-header'
+import { useSurveyPreviewSender } from '@/components/shared/survey/survey-preview-handoff'
 import { useNotification } from '@/hooks/useNotification'
 import { type TInternalPolicyDocument, useInternalPolicyDocumentsByIds } from '@/lib/graphql-hooks/internal-policy'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { formatTruncatedList, pluralizeWithCount } from '@/utils/strings'
 import { AcknowledgementDetailsStep } from './acknowledgement-details-step'
+import { buildAcknowledgementSurvey } from './build-acknowledgement-survey'
 import { AcknowledgementRecipientsStep } from './acknowledgement-recipients-step'
 import { type TAcknowledgementRequestFormData, useAcknowledgementRequestFormSchema } from './use-acknowledgement-request-form-schema'
 import { type TAcknowledgementRequestPhase, type TAcknowledgementRequestResult, useSendAcknowledgementRequest } from './use-send-acknowledgement-request'
@@ -104,6 +106,7 @@ const SendAcknowledgementRequestForm = ({ initialPolicies, onClose, onDismissalC
   const policies = form.watch('policies')
   const { preparation, prefetchDocuments, prepareDocuments } = usePolicyDocumentPreparation(policies)
   const sendRequest = useSendAcknowledgementRequest()
+  const openSurveyPreview = useSurveyPreviewSender()
   const { successNotification, errorNotification } = useNotification()
 
   useImperativeHandle(ref, () => ({ abort: () => abortRef.current?.abort() }), [])
@@ -178,6 +181,12 @@ const SendAcknowledgementRequestForm = ({ initialPolicies, onClose, onDismissalC
     }
   }
 
+  const openPreview = () => {
+    const { name, statement } = form.getValues()
+    const opened = openSurveyPreview(async () => buildAcknowledgementSurvey({ title: name.trim(), statement: statement.trim(), documents: await prepareDocuments() }))
+    if (!opened) errorNotification({ title: 'Could not open the preview', description: 'Allow pop-ups for this site and try again.' })
+  }
+
   const goToRecipients = async () => {
     if (!(await form.trigger(DETAIL_FIELDS))) return
     prefetchDocuments()
@@ -196,7 +205,7 @@ const SendAcknowledgementRequestForm = ({ initialPolicies, onClose, onDismissalC
       <StepHeader stepper={stepper} onStepSelect={selectStep} />
       <Form {...form}>
         <form className="min-w-0" onSubmit={(event) => event.preventDefault()}>
-          {isRecipientsStep ? <AcknowledgementRecipientsStep form={form} /> : <AcknowledgementDetailsStep form={form} />}
+          {isRecipientsStep ? <AcknowledgementRecipientsStep form={form} onPreview={openPreview} /> : <AcknowledgementDetailsStep form={form} />}
         </form>
       </Form>
       <PreparationStatus phase={phase} preparation={preparation} policyCount={policies.length} onRetry={prefetchDocuments} />

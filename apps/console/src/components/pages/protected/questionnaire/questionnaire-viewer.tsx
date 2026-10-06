@@ -1,35 +1,13 @@
 'use client'
 
-import { type ITheme } from 'survey-core'
-import { createSurveyModel } from '@/components/shared/survey/survey-model'
-import { Survey } from 'survey-react-ui'
-
-import 'survey-core/survey-core.min.css'
-import '@/styles/questionnaire/survey-viewer.css'
-
-import { useEffect, useMemo, use } from 'react'
-import { useTheme } from 'next-themes'
-import { lightTheme } from '@/styles/questionnaire/theme-light'
-import { darkTheme } from '@/styles/questionnaire/theme-dark'
+import { useEffect, use } from 'react'
 import { useGetAssessment } from '@/lib/graphql-hooks/assessment'
-import { attachSurveyProgressText } from '@/components/shared/survey/survey-progress-text'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import { QuestionnaireDisplay } from './questionnaire-display'
 
-export default function ViewQuestionnaire(input: { existingId: string }) {
+const ViewQuestionnaire = (input: { existingId: string }) => {
   const { setCrumbs } = use(BreadcrumbContext)
-  const themeContext = useTheme()
-  const theme = themeContext.resolvedTheme as 'light' | 'dark' | 'white' | undefined
-
   const { data: assessmentResult } = useGetAssessment(input.existingId)
-  const surveyJson = assessmentResult?.assessment?.jsonconfig
-  const survey = useMemo(() => {
-    const model = createSurveyModel(surveyJson)
-    attachSurveyProgressText(model)
-    model.applyTheme(theme === 'dark' ? (darkTheme as ITheme) : lightTheme)
-    model.showCompleteButton = false
-    model.mode = 'display'
-    return model
-  }, [surveyJson, theme])
 
   useEffect(() => {
     setCrumbs([
@@ -40,5 +18,7 @@ export default function ViewQuestionnaire(input: { existingId: string }) {
     ])
   }, [setCrumbs])
 
-  return <Survey model={survey} />
+  return <QuestionnaireDisplay json={assessmentResult?.assessment?.jsonconfig} />
 }
+
+export default ViewQuestionnaire
