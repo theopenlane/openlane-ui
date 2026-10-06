@@ -12,9 +12,9 @@ import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
 import { Form, FormField, FormItem, FormControl, FormMessage } from '@repo/ui/form'
 import { useNotification } from '@/hooks/useNotification'
-import { useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessment-response'
+import { useSendAssessmentToRecipients } from '@/lib/graphql-hooks/assessment-response'
 import { useContacts } from '@/lib/graphql-hooks/contact'
-import { useIdentityHoldersWithFilter } from '@/lib/graphql-hooks/identity-holder'
+import { emailOrFullNameSearchWhere, useIdentityHoldersWithFilter } from '@/lib/graphql-hooks/identity-holder'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { computeDueDate } from '@/utils/date'
 import { isDuplicateEmail, isValidEmail } from '@/lib/validators'
@@ -42,7 +42,7 @@ const trimEmail = (email: string) => email.trim()
 
 export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, assessmentName, responseDueDuration }: SendQuestionnaireDialogProps) => {
   const { successNotification, errorNotification } = useNotification()
-  const { mutateAsync: createAssessmentResponse } = useCreateAssessmentResponse()
+  const sendAssessment = useSendAssessmentToRecipients()
 
   const [emails, setEmails] = useState<string[]>([])
   const [inputValue, setInputValue] = useState('')
@@ -54,16 +54,12 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
   const debouncedSearch = useDebounce(trimEmail(inputValue), 250)
 
   const { contacts } = useContacts({
-    where: {
-      or: [{ emailContainsFold: debouncedSearch }, { fullNameContainsFold: debouncedSearch }],
-    },
+    where: emailOrFullNameSearchWhere(debouncedSearch),
     enabled: open && debouncedSearch.length >= MIN_SEARCH_LENGTH,
   })
 
   const { identityHoldersNodes: personnel } = useIdentityHoldersWithFilter({
-    where: {
-      or: [{ emailContainsFold: debouncedSearch }, { fullNameContainsFold: debouncedSearch }],
-    },
+    where: emailOrFullNameSearchWhere(debouncedSearch),
     enabled: open && debouncedSearch.length >= MIN_SEARCH_LENGTH,
   })
 
@@ -210,28 +206,9 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
 
     const dueDate = computeDueDate(responseDueDuration)
 
-    const results = await Promise.allSettled(
-      allEmailsToSend.map((email) =>
-        createAssessmentResponse({
-          input: {
-            email,
-            assessmentID: assessmentId,
-            ...(dueDate && { dueDate }),
-          },
-        }),
-      ),
-    )
-
-    const succeeded: string[] = []
-    const failed: string[] = []
-
-    results.forEach((result, i) => {
-      if (result.status === 'fulfilled') {
-        succeeded.push(allEmailsToSend[i])
-      } else {
-        failed.push(allEmailsToSend[i])
-      }
-    })
+    const result = await sendAssessment({ assessmentId, recipients: allEmailsToSend.map((email) => ({ email })), dueDate })
+    const succeeded = result.sent.map(({ email }) => email)
+    const failed = result.failed.map(({ email }) => email)
 
     if (succeeded.length > 0) {
       successNotification({

@@ -7,6 +7,7 @@ export enum AccessEnum {
   CanInviteMembers = 'can_invite_members',
   CanCreateSubcontrol = 'can_create_subcontrol',
   CanCreateInternalPolicy = 'can_create_internal_policy',
+  CanCreateAssessment = 'can_create_assessment',
   CanCreateProcedure = 'can_create_procedure',
   CanCreateGroup = 'can_create_group',
   CanManageGroups = 'can_manage_groups',

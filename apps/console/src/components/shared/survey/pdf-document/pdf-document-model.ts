@@ -1,18 +1,19 @@
 import { ElementFactory, Question, Serializer, SurveyModel } from 'survey-core'
 import { getDataUrlByteSize } from '@/utils/data-url'
-import { isPdfDataUrl, pdfDocumentTitleFromFileName, PDF_DOCUMENT_QUESTION_TYPE, PDF_DOCUMENT_READ_LABEL, PDF_DOCUMENT_UNREAD_LABEL, renderPdfDocumentAnswer } from './pdf-document-type'
+import {
+  isPdfDataUrl,
+  pdfDocumentAttachmentTitle,
+  pdfDocumentTitleFromFileName,
+  PDF_DOCUMENT_QUESTION_TYPE,
+  PDF_DOCUMENT_READ_LABEL,
+  PDF_DOCUMENT_UNREAD_LABEL,
+  renderPdfDocumentAnswer,
+  type TPdfDocumentAttachment,
+} from './pdf-document-type'
 
 export { PDF_DOCUMENT_QUESTION_TYPE }
 
 export const SCROLL_TO_END_MESSAGE = 'Scroll to the end of the document to continue.'
-
-export type TPdfDocumentAttachment = {
-  pdfData: string
-  pdfFileName: string
-  policyId?: string
-  policyRevision?: string
-  suggestedTitle?: string
-}
 
 export class QuestionPdfDocumentModel extends Question {
   constructor(name: string) {
@@ -92,9 +93,10 @@ export class QuestionPdfDocumentModel extends Question {
     return this.isDesignMode && !this.isReadOnly
   }
 
-  attachDocument({ pdfData, pdfFileName, policyId = '', policyRevision = '', suggestedTitle }: TPdfDocumentAttachment): void {
+  attachDocument(attachment: TPdfDocumentAttachment): void {
+    const { pdfData, pdfFileName, policyId = '', policyRevision = '' } = attachment
     if (pdfData && !isPdfDataUrl(pdfData)) return
-    const title = suggestedTitle?.trim() || pdfDocumentTitleFromFileName(pdfFileName)
+    const title = pdfDocumentAttachmentTitle(attachment)
     if (pdfData && title && this.locTitle.isEmpty) this.title = title
     this.pdfData = pdfData
     this.pdfFileName = pdfFileName

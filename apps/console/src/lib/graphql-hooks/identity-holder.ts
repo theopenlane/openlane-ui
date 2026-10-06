@@ -21,6 +21,7 @@ import {
   type DeleteBulkIdentityHolderMutation,
   type DeleteBulkIdentityHolderMutationVariables,
   type IdentityHolderWhereInput,
+  type ContactWhereInput,
   type DirectoryAccountWhereInput,
   type DirectoryMembershipWhereInput,
   type GetIdentityHolderAssociationsQuery,
@@ -121,10 +122,12 @@ const toPersonnelOption = (person: IdentityHolderOption) => ({
 
 export type PersonnelOption = ReturnType<typeof toPersonnelOption>
 
+export const emailOrFullNameSearchWhere = (term: string) => ({ or: [{ fullNameContainsFold: term }, { emailContainsFold: term }] }) satisfies IdentityHolderWhereInput & ContactWhereInput
+
 export const usePersonnelSelect = ({ searchText = '', enabled = true }: PersonnelSelectArgs = {}) => {
   const search = searchText.trim()
   const { nodes, ...rest } = useIdentityHolderOptions({
-    where: search ? { or: [{ fullNameContainsFold: search }, { emailContainsFold: search }] } : undefined,
+    where: search ? emailOrFullNameSearchWhere(search) : undefined,
     enabled,
   })
 

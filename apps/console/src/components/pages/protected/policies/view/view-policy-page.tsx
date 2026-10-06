@@ -11,7 +11,7 @@ import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/policies/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
-import { ExternalLink, LockOpen, PencilIcon, Trash2 } from 'lucide-react'
+import { ExternalLink, LockOpen, PencilIcon, Send, Trash2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/policies/view/cards/properties-card.tsx'
@@ -20,7 +20,8 @@ import HistoricalCard from '@/components/pages/protected/policies/view/cards/his
 import TagsCard from '@/components/pages/protected/policies/view/cards/tags-card.tsx'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { canDelete, canEdit } from '@/lib/authz/utils'
+import { canDelete, canEdit, hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -37,7 +38,7 @@ import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import { ASSOCIATION_REMOVAL_CONFIG, POLICY_ASSOCIATION_SECTIONS, buildAssociationSections } from '@/components/shared/object-association/object-association-config'
 import Loading from '@/app/(protected)/policies/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { type Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { canonicalizeDetails } from '@/components/shared/plate/plate-utils'
@@ -51,6 +52,7 @@ import ExternalReferenceView from '@/components/pages/protected/policies/view/fi
 import IntegrationDocumentView from '@/components/pages/protected/policies/view/fields/integration-document-view'
 import { useSession } from 'next-auth/react'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { SendAcknowledgementRequestDialog } from '@/components/pages/protected/policies/acknowledgement-request/send-acknowledgement-request-dialog'
 
 type TViewPolicyPage = {
   policyId: string
@@ -76,8 +78,11 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { data: permission } = useAccountRoles(ObjectTypes.INTERNAL_POLICY, policyId)
   const deleteAllowed = canDelete(permission?.roles)
   const editAllowed = canEdit(permission?.roles, session)
+  const { data: orgPermission } = useOrganizationRoles()
+  const acknowledgementAllowed = editAllowed && hasPermission(orgPermission?.roles, AccessEnum.CanCreateAssessment, session)
   const { mutateAsync: deletePolicy } = useDeleteInternalPolicy()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isAcknowledgementDialogOpen, setIsAcknowledgementDialogOpen] = useState(false)
   const [pendingManagementMode, setPendingManagementMode] = useState<InternalPolicyDocumentManagementMode | null>(null)
   const router = useRouter()
   const { setCrumbs } = React.use(BreadcrumbContext)
@@ -339,12 +344,28 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
           ) : (
             <Menu
               triggerAnchor={elementAnchor('policy-actions-menu')}
-              content={
+              closeOnSelect
+              content={(close) => (
                 <>
                   {editAllowed && (
                     <Button size="sm" variant="transparent" className="flex justify-start space-x-2 " onClick={handleEdit}>
                       <PencilIcon size={16} strokeWidth={2} />
                       <span>Edit</span>
+                    </Button>
+                  )}
+                  {acknowledgementAllowed && (
+                    <Button
+                      size="sm"
+                      variant="transparent"
+                      className="flex justify-start space-x-2"
+                      {...elementAnchor('policy-send-acknowledgement-request')}
+                      onClick={() => {
+                        close()
+                        setIsAcknowledgementDialogOpen(true)
+                      }}
+                    >
+                      <Send size={16} strokeWidth={2} />
+                      <span>Send acknowledgment request</span>
                     </Button>
                   )}
                   {deleteAllowed && (
@@ -377,9 +398,10 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                     </Button>
                   )}
                 </>
-              }
+              )}
             />
           )}
+          <SendAcknowledgementRequestDialog open={isAcknowledgementDialogOpen} onOpenChange={setIsAcknowledgementDialogOpen} initialPolicyIds={[policy.id]} />
           <ConfirmationDialog
             open={!!pendingManagementMode}
             onOpenChange={(open) => {

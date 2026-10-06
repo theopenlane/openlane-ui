@@ -13,7 +13,7 @@ import { pageStyles } from './page.styles'
 import { DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { useTemplates } from '@/lib/graphql-hooks/template'
-import { useCreateAssessment } from '@/lib/graphql-hooks/assessment'
+import { useCreateAssessmentWithPolicies } from '@/lib/graphql-hooks/assessment'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -32,7 +32,7 @@ type TemplateListProps = {
 export const TemplateList = ({ initialTemplateId, onCreateSuccess }: TemplateListProps) => {
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
-  const { mutateAsync: createAssessment } = useCreateAssessment()
+  const { mutateAsync: createAssessment } = useCreateAssessmentWithPolicies()
 
   const { selectTemplate } = pageStyles()
 
@@ -51,13 +51,12 @@ export const TemplateList = ({ initialTemplateId, onCreateSuccess }: TemplateLis
         const suffix = `-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
 
         const response = await createAssessment({
-          input: {
-            name: `${selectedTemplate?.name}${suffix}`,
-            templateID: templateId,
-          },
+          name: `${selectedTemplate?.name}${suffix}`,
+          templateID: templateId,
+          jsonconfig: selectedTemplate?.jsonconfig,
         })
 
-        const assessmentId = response.createAssessment?.assessment?.id
+        const assessmentId = response.createAssessmentWithPolicies.assessment.id
         if (assessmentId) {
           successNotification({
             title: 'Questionnaire created successfully',

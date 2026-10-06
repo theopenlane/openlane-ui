@@ -1,10 +1,13 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
 import {
   CREATE_ASSESSMENT_TEMPLATE,
-  CREATE_ASSESSMENT,
+  CREATE_ASSESSMENT_WITH_POLICIES,
+  CREATE_BULK_ASSESSMENT_POLICY,
+  DELETE_BULK_ASSESSMENT_POLICY,
+  GET_ASSESSMENT_POLICY_ATTESTATIONS,
   UPDATE_ASSESSMENT,
   GET_ALL_ASSESSMENTS,
   GET_ASSESSMENT,
@@ -16,8 +19,15 @@ import {
 } from '@repo/codegen/query/assessment'
 
 import {
-  type CreateAssessmentMutation,
-  type CreateAssessmentMutationVariables,
+  type CreateAssessmentWithPoliciesMutation,
+  type CreateAssessmentWithPoliciesMutationVariables,
+  type CreateAssessmentInput,
+  type CreateBulkAssessmentPolicyMutation,
+  type CreateBulkAssessmentPolicyMutationVariables,
+  type DeleteBulkAssessmentPolicyMutation,
+  type DeleteBulkAssessmentPolicyMutationVariables,
+  type GetAssessmentPolicyAttestationsQuery,
+  type GetAssessmentPolicyAttestationsQueryVariables,
   type UpdateAssessmentMutation,
   type UpdateAssessmentMutationVariables,
   type FilterAssessmentsQuery,
@@ -42,6 +52,9 @@ import {
   type MutationCreateAssessmentTemplateArgs,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
+import { getSurveyPolicySources } from '@/components/shared/survey/pdf-document/pdf-document-type'
+import { getNodes } from '@/lib/graphql-hooks/connection'
+import { UserFacingError } from '@/utils/graphQlErrorMatcher'
 
 type CreateAssessmentTemplateMutationVariables = MutationCreateAssessmentTemplateArgs
 
@@ -230,15 +243,55 @@ const COMPLETED_NON_TEST_RESPONSES: AssessmentResponseWhereInput = { ...EXCLUDE_
 
 export const useAssessmentResponsesTotalCount = (id?: string) => useAssessmentResponseCount('responses-total-count', id, COMPLETED_NON_TEST_RESPONSES)
 
-export const useCreateAssessment = () => {
+export const useCreateAssessmentWithPolicies = () => {
   const { client, queryClient } = useGraphQLClient()
 
-  return useMutation<CreateAssessmentMutation, unknown, CreateAssessmentMutationVariables>({
-    mutationFn: (variables) => client.request(CREATE_ASSESSMENT, variables),
+  return useMutation<CreateAssessmentWithPoliciesMutation, unknown, CreateAssessmentInput>({
+    mutationFn: (assessmentInput) =>
+      client.request<CreateAssessmentWithPoliciesMutation, CreateAssessmentWithPoliciesMutationVariables>(CREATE_ASSESSMENT_WITH_POLICIES, {
+        assessmentInput,
+        policies: getSurveyPolicySources(assessmentInput.jsonconfig),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assessments'] })
     },
   })
+}
+
+export const useSyncAssessmentPolicies = () => {
+  const { client } = useGraphQLClient()
+
+  return useCallback(
+    async (assessmentId: string, jsonconfig: unknown) => {
+      const desired = new Map(getSurveyPolicySources(jsonconfig).map((source) => [source.internalPolicyID, source]))
+      const { assessment } = await client.request<GetAssessmentPolicyAttestationsQuery, GetAssessmentPolicyAttestationsQueryVariables>(GET_ASSESSMENT_POLICY_ATTESTATIONS, { assessmentId })
+      const links = getNodes(assessment.policyAttestations)
+
+      const isUpToDate = ({ internalPolicyID, policyRevision }: (typeof links)[number]) => {
+        const source = desired.get(internalPolicyID)
+        return !!source && (!source.policyRevision || source.policyRevision === policyRevision)
+      }
+      const staleLinkIds = links.filter((link) => !isUpToDate(link)).map(({ id }) => id)
+      const linkedPolicyIds = new Set(links.filter(isUpToDate).map(({ internalPolicyID }) => internalPolicyID))
+      const missing = [...desired.values()].filter(({ internalPolicyID }) => !linkedPolicyIds.has(internalPolicyID))
+
+      if (staleLinkIds.length > 0) {
+        const { deleteBulkAssessmentPolicy } = await client.request<DeleteBulkAssessmentPolicyMutation, DeleteBulkAssessmentPolicyMutationVariables>(DELETE_BULK_ASSESSMENT_POLICY, {
+          ids: staleLinkIds,
+        })
+        if (deleteBulkAssessmentPolicy.error || (deleteBulkAssessmentPolicy.notDeletedIDs?.length ?? 0) > 0) {
+          throw new UserFacingError('Some policy links could not be removed. Please try again later.', { cause: deleteBulkAssessmentPolicy.error })
+        }
+      }
+
+      if (missing.length > 0) {
+        await client.request<CreateBulkAssessmentPolicyMutation, CreateBulkAssessmentPolicyMutationVariables>(CREATE_BULK_ASSESSMENT_POLICY, {
+          input: missing.map(({ internalPolicyID, policyRevision }) => ({ assessmentID: assessmentId, internalPolicyID, policyRevision })),
+        })
+      }
+    },
+    [client],
+  )
 }
 
 export const useCreateAssessmentTemplate = () => {
@@ -254,10 +307,20 @@ export const useCreateAssessmentTemplate = () => {
 
 export const useUpdateAssessment = () => {
   const { client, queryClient } = useGraphQLClient()
+  const syncAssessmentPolicies = useSyncAssessmentPolicies()
 
   return useMutation<UpdateAssessmentMutation, unknown, UpdateAssessmentMutationVariables>({
-    mutationFn: (variables) => client.request(UPDATE_ASSESSMENT, variables),
-    onSuccess: () => {
+    mutationFn: async (variables) => {
+      const result = await client.request<UpdateAssessmentMutation, UpdateAssessmentMutationVariables>(UPDATE_ASSESSMENT, variables)
+      if (variables.input.jsonconfig === undefined) return result
+      try {
+        await syncAssessmentPolicies(variables.updateAssessmentId, variables.input.jsonconfig)
+      } catch (error) {
+        throw new UserFacingError('The questionnaire was saved, but its linked policies could not be updated. Save again to retry.', { cause: error })
+      }
+      return result
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['assessments'] })
     },
   })

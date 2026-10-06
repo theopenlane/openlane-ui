@@ -23,6 +23,7 @@ export type TTableAction =
   | 'export'
   | 'export-pdf'
   | 'merge-records'
+  | 'send-acknowledgement-request'
 
 export type TEntityAction = 'create' | 'invite'
 

@@ -12,8 +12,7 @@ import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-ass
 import { useNotification } from '@/hooks/useNotification'
 import { getDataUrlByteSize } from '@/utils/data-url'
 import { formatFileSize } from '@/utils/strings'
-import { type TPdfDocumentAttachment } from './pdf-document-model'
-import { isPdfDataUrl, PDF_DOCUMENT_EMBED_BUDGET_MB } from './pdf-document-type'
+import { isPdfDataUrl, PDF_DOCUMENT_EMBED_BUDGET_MB, type TPdfDocumentAttachment } from './pdf-document-type'
 import PdfDocumentPolicyPicker from './pdf-document-policy-picker'
 import { embedBudgetExceededMessage } from './pdf-document-budget'
 

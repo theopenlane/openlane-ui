@@ -464,6 +464,19 @@ export const useSearchInternalPolicyDocuments = ({ search, enabled = true }: { s
   return { ...query, policies: getNodes(query.data?.internalPolicies), totalCount: query.data?.internalPolicies.totalCount ?? 0 }
 }
 
+export const useInternalPolicyDocumentsByIds = (ids: string[]) => {
+  const { client } = useGraphQLClient()
+  const where = { idIn: ids }
+
+  const query = useQuery<SearchInternalPolicyDocumentsQuery, Error>({
+    queryKey: ['internalPolicies', 'documents', where],
+    queryFn: () => client.request<SearchInternalPolicyDocumentsQuery, SearchInternalPolicyDocumentsQueryVariables>(SEARCH_INTERNAL_POLICY_DOCUMENTS, { where, first: ids.length }),
+    enabled: ids.length > 0,
+  })
+
+  return { ...query, policies: getNodes(query.data?.internalPolicies) }
+}
+
 export const useFetchInternalPolicyRevision = () => {
   const { client } = useGraphQLClient()
 

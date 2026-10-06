@@ -100,7 +100,7 @@ export const SearchableItemSelect = <TItem extends SearchableItem>({
   }
 
   return (
-    <Popover open={open} onOpenChange={handleOpenChange}>
+    <Popover open={open} onOpenChange={handleOpenChange} modal>
       <PopoverTrigger asChild>
         <div
           id={id}

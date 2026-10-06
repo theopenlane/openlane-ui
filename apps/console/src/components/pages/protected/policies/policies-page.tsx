@@ -18,6 +18,7 @@ import { useInternalPoliciesCount } from '@/lib/graphql-hooks/internal-policy'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
 import { SuggestedPolicyCoverage } from '@/components/pages/protected/policies/suggested-policy-coverage'
+import { PoliciesReportActionsMenu } from './policies-report-actions-menu'
 
 type TPoliciesPageProps = {
   active: 'dashboard' | 'table'
@@ -118,6 +119,7 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
             )}
 
             {totalCount > 0 && <CreatePolicyButton />}
+            {totalCount > 0 && <PoliciesReportActionsMenu />}
           </div>
         )}
       </div>

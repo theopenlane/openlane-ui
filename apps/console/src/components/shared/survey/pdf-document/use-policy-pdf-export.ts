@@ -7,7 +7,7 @@ import { useFetchInternalPolicyRevision, type TInternalPolicyDocument } from '@/
 import { PDF_MIME_TYPE } from '@/components/shared/file-preview/preview-mime'
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'
 import { getDataUrlByteSize, toDataUrl } from '@/utils/data-url'
-import { type TPdfDocumentAttachment } from './pdf-document-model'
+import { type TPdfDocumentAttachment } from './pdf-document-type'
 import { embedBudgetExceededMessage } from './pdf-document-budget'
 
 const tooLargeError = (bytes: number, budgetBytes: number) => new UserFacingError(embedBudgetExceededMessage('The exported PDF', bytes, budgetBytes))
