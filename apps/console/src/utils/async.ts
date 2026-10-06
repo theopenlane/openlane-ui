@@ -26,3 +26,41 @@ export const delay = (ms: number, signal?: AbortSignal): Promise<void> =>
     }, ms)
     signal?.addEventListener('abort', handleAbort, { once: true })
   })
+
+export const createConcurrencyLimiter = (limit: number) => {
+  const maxActive = Math.max(1, Math.floor(limit))
+  let active = 0
+  const waiting: (() => void)[] = []
+
+  const waitForSlot = (signal?: AbortSignal) =>
+    new Promise<void>((resolve, reject) => {
+      const start = () => {
+        signal?.removeEventListener('abort', handleAbort)
+        resolve()
+      }
+      const handleAbort = () => {
+        waiting.splice(waiting.indexOf(start), 1)
+        reject(signal?.reason)
+      }
+      waiting.push(start)
+      signal?.addEventListener('abort', handleAbort, { once: true })
+    })
+
+  const release = () => {
+    const next = waiting.shift()
+    if (next) next()
+    else active--
+  }
+
+  return async <R>(run: () => Promise<R>, signal?: AbortSignal): Promise<R> => {
+    signal?.throwIfAborted()
+    if (active < maxActive) active++
+    else await waitForSlot(signal)
+
+    try {
+      return await run()
+    } finally {
+      release()
+    }
+  }
+}

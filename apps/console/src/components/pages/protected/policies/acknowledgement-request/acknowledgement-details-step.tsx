@@ -1,13 +1,12 @@
 'use client'
 
 import { type UseFormReturn } from 'react-hook-form'
-import { ClipboardList, ListChecks } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Callout } from '@/components/shared/callout/callout'
 import { AcknowledgementPolicySelect } from './acknowledgement-policy-select'
-import { AcknowledgementSection, PolicyIcon } from './acknowledgement-section'
+import { ACKNOWLEDGEMENT_SECTION_TITLE_CLASS, AcknowledgementSection, AcknowledgementSections } from './acknowledgement-section'
 import { type TAcknowledgementRequestFormData } from './use-acknowledgement-request-form-schema'
 
 type TAcknowledgementDetailsStepProps = {
@@ -15,14 +14,16 @@ type TAcknowledgementDetailsStepProps = {
 }
 
 export const AcknowledgementDetailsStep = ({ form }: TAcknowledgementDetailsStepProps) => (
-  <div className="flex flex-col gap-6">
-    <AcknowledgementSection icon={PolicyIcon} title="Policies">
+  <AcknowledgementSections>
+    <AcknowledgementSection>
       <FormField
         control={form.control}
         name="policies"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="sr-only">Policies</FormLabel>
+            <FormLabel required className={ACKNOWLEDGEMENT_SECTION_TITLE_CLASS}>
+              Policies
+            </FormLabel>
             <FormControl>
               <AcknowledgementPolicySelect value={field.value} onChange={field.onChange} />
             </FormControl>
@@ -32,13 +33,15 @@ export const AcknowledgementDetailsStep = ({ form }: TAcknowledgementDetailsStep
       />
     </AcknowledgementSection>
 
-    <AcknowledgementSection icon={ClipboardList} title="Assessment details">
+    <AcknowledgementSection title="Acknowledgment details">
       <FormField
         control={form.control}
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Assessment name</FormLabel>
+            <FormLabel required className="text-muted-foreground">
+              Name
+            </FormLabel>
             <FormControl>
               <Input {...field} maxWidth />
             </FormControl>
@@ -48,25 +51,25 @@ export const AcknowledgementDetailsStep = ({ form }: TAcknowledgementDetailsStep
       />
     </AcknowledgementSection>
 
-    <AcknowledgementSection icon={ListChecks} title="Acknowledgment setup">
+    <AcknowledgementSection title="Acknowledgment setup">
       <FormField
         control={form.control}
         name="statement"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Acknowledgment statement</FormLabel>
+            <FormLabel required className="text-muted-foreground">
+              Acknowledgment statement
+            </FormLabel>
             <FormControl>
               <Textarea {...field} rows={3} />
             </FormControl>
-            <FormDescription>Recipients tick this statement and sign after reading every policy.</FormDescription>
+            <FormDescription>Recipients must confirm this statement and sign after reviewing all policies.</FormDescription>
             <FormMessage />
           </FormItem>
         )}
       />
     </AcknowledgementSection>
 
-    <Callout variant="info" compact>
-      Choose recipients and a due date in the next step when you select Send now.
-    </Callout>
-  </div>
+    <Callout variant="plain">Recipients and an optional due date are added in the next step when you select Send now.</Callout>
+  </AcknowledgementSections>
 )

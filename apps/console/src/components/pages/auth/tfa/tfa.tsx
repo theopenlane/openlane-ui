@@ -130,7 +130,7 @@ const TfaPage: React.FC = () => {
           </InputOTPGroup>
           <InputOTPSeparator />
         </InputOTP>
-        {error && <p className="text-error">{error}</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
         <div className="flex ">{config.bottomText}</div>
         {isSubmitting && <p className="text-sm text-text-light">Validating OTP...</p>}
       </div>

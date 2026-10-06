@@ -1,14 +1,15 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { isCancelledError } from '@tanstack/react-query'
 import Link from 'next/link'
-import { Loader2 } from 'lucide-react'
 import { defineStepper } from '@stepperize/react'
 import { Button } from '@repo/ui/button'
 import { Form } from '@repo/ui/form'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import Skeleton from '@/components/shared/skeleton/skeleton'
+import { StatusLine } from '@/components/shared/status-line/status-line'
 import { StepHeader } from '@/components/shared/step-header/step-header'
 import { useNotification } from '@/hooks/useNotification'
 import { type TInternalPolicyDocument, useInternalPolicyDocumentsByIds } from '@/lib/graphql-hooks/internal-policy'
@@ -18,7 +19,8 @@ import { formatTruncatedList, pluralizeWithCount } from '@/utils/strings'
 import { AcknowledgementDetailsStep } from './acknowledgement-details-step'
 import { AcknowledgementRecipientsStep } from './acknowledgement-recipients-step'
 import { type TAcknowledgementRequestFormData, useAcknowledgementRequestFormSchema } from './use-acknowledgement-request-form-schema'
-import { type TAcknowledgementRequestProgress, type TAcknowledgementRequestResult, useSendAcknowledgementRequest } from './use-send-acknowledgement-request'
+import { type TAcknowledgementRequestPhase, type TAcknowledgementRequestResult, useSendAcknowledgementRequest } from './use-send-acknowledgement-request'
+import { type TDocumentPreparation, usePolicyDocumentPreparation } from './use-policy-document-preparation'
 
 type TSendAcknowledgementRequestDialogProps = {
   open: boolean
@@ -26,13 +28,22 @@ type TSendAcknowledgementRequestDialogProps = {
   initialPolicyIds?: string[]
 }
 
+type TDismissal = 'free' | 'guarded' | 'locked'
+
+type TFormHandle = { abort: () => void }
+
 type TFormProps = {
   initialPolicies: TInternalPolicyDocument[]
   onClose: () => void
-  onLockChange: (locked: boolean) => void
+  onDismissalChange: (dismissal: TDismissal) => void
+  ref?: React.Ref<TFormHandle>
 }
 
 const { useStepper } = defineStepper([{ id: 'details' }, { id: 'recipients' }])
+
+type TStepId = ReturnType<typeof useStepper>['current']['id']
+
+type TSubmitPhase = 'preparing' | TAcknowledgementRequestPhase
 
 const DETAIL_FIELDS = ['policies', 'name', 'statement'] as const satisfies (keyof TAcknowledgementRequestFormData)[]
 const SEND_FIELDS = [...DETAIL_FIELDS, 'dueDate'] as const satisfies (keyof TAcknowledgementRequestFormData)[]
@@ -40,14 +51,13 @@ const NO_POLICY_IDS: string[] = []
 const MAX_LISTED_FAILURES = 5
 
 const STEP_DESCRIPTIONS = {
-  details: 'Create an assessment linked to one or more policies. Save it now or send it to recipients immediately.',
-  recipients: 'Select recipients and choose when this acknowledgment request is due.',
+  details: 'Choose the policies to acknowledge and customize the acknowledgment statement. Save it for later or send it now.',
+  recipients: 'Select recipients and optionally set a due date.',
 }
 
-const progressLabel = (progress: TAcknowledgementRequestProgress, total: number) => {
-  if (progress.phase === 'exporting') return `Exporting policies to PDF (${progress.exported} of ${total}). This can take up to a minute.`
-  if (progress.phase === 'creating') return 'Creating the acknowledgment request...'
-  return 'Sending the acknowledgment request...'
+const PHASE_LABELS: Record<TAcknowledgementRequestPhase, string> = {
+  creating: 'Creating the acknowledgment request...',
+  sending: 'Sending the acknowledgment request...',
 }
 
 const QuestionnaireLink = ({ assessmentId }: { assessmentId: string }) => (
@@ -56,25 +66,57 @@ const QuestionnaireLink = ({ assessmentId }: { assessmentId: string }) => (
   </Link>
 )
 
-const SendAcknowledgementRequestForm = ({ initialPolicies, onClose, onLockChange }: TFormProps) => {
+type TPreparationStatusProps = {
+  phase: TSubmitPhase | null
+  preparation: TDocumentPreparation
+  policyCount: number
+  onRetry: () => void
+}
+
+const PreparationStatus = ({ phase, preparation, policyCount, onRetry }: TPreparationStatusProps) => {
+  if (phase && phase !== 'preparing') return <StatusLine>{PHASE_LABELS[phase]}</StatusLine>
+  if (preparation.status === 'preparing') {
+    return (
+      <StatusLine>
+        Preparing policy PDFs ({preparation.exported} of {policyCount}). This can take up to a minute.
+      </StatusLine>
+    )
+  }
+  if (preparation.status === 'error') {
+    return (
+      <p className="text-sm text-destructive" role="alert">
+        Could not prepare the policy PDFs: {parseErrorMessage(preparation.error)}{' '}
+        <Button type="button" variant="link" className="text-blue-500" onClick={onRetry}>
+          Retry
+        </Button>
+      </p>
+    )
+  }
+  return null
+}
+
+const SendAcknowledgementRequestForm = ({ initialPolicies, onClose, onDismissalChange, ref }: TFormProps) => {
   const form = useAcknowledgementRequestFormSchema(initialPolicies)
   const stepper = useStepper()
-  const [progress, setProgress] = useState<TAcknowledgementRequestProgress | null>(null)
+  const [phase, setPhase] = useState<TSubmitPhase | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const isSubmittingRef = useRef(false)
+  const policies = form.watch('policies')
+  const { preparation, prefetchDocuments, prepareDocuments } = usePolicyDocumentPreparation(policies)
   const sendRequest = useSendAcknowledgementRequest()
   const { successNotification, errorNotification } = useNotification()
 
+  useImperativeHandle(ref, () => ({ abort: () => abortRef.current?.abort() }), [])
   useEffect(() => () => abortRef.current?.abort(), [])
 
-  const policies = form.watch('policies')
-  const isSubmitting = progress !== null
-  const isCancellable = progress === null || progress.phase === 'exporting'
   const isRecipientsStep = stepper.current.id === 'recipients'
+  const isSubmitting = phase !== null
+  const isLocked = phase === 'creating' || phase === 'sending'
+  const hasWorkToLose = form.formState.isDirty || isRecipientsStep || isSubmitting
 
-  const updateProgress = (next: TAcknowledgementRequestProgress | null) => {
-    setProgress(next)
-    onLockChange(next !== null && next.phase !== 'exporting')
-  }
+  useEffect(() => {
+    onDismissalChange(isLocked ? 'locked' : hasWorkToLose ? 'guarded' : 'free')
+  }, [hasWorkToLose, isLocked, onDismissalChange])
 
   const notifyResult = ({ assessmentId, sendResult }: TAcknowledgementRequestResult) => {
     const link = <QuestionnaireLink assessmentId={assessmentId} />
@@ -97,6 +139,16 @@ const SendAcknowledgementRequestForm = ({ initialPolicies, onClose, onLockChange
   }
 
   const submit = async (send: boolean) => {
+    if (isSubmittingRef.current) return
+    isSubmittingRef.current = true
+    try {
+      await validateAndSubmit(send)
+    } finally {
+      isSubmittingRef.current = false
+    }
+  }
+
+  const validateAndSubmit = async (send: boolean) => {
     if (!(await form.trigger(send ? SEND_FIELDS : DETAIL_FIELDS))) {
       if (!(await form.trigger(DETAIL_FIELDS))) stepper.goTo('details')
       return
@@ -109,51 +161,56 @@ const SendAcknowledgementRequestForm = ({ initialPolicies, onClose, onLockChange
 
     const controller = new AbortController()
     abortRef.current = controller
+    setPhase('preparing')
     try {
+      const documents = await prepareDocuments()
       const result = await sendRequest(
-        { policies, name: name.trim(), statement: statement.trim(), recipients: send ? recipients : [], dueDate: send ? dueDate : null },
-        { signal: controller.signal, onProgress: updateProgress },
+        { documents, name: name.trim(), statement: statement.trim(), recipients: send ? recipients : [], dueDate: send ? dueDate : null },
+        { signal: controller.signal, onPhase: setPhase },
       )
-      updateProgress(null)
       notifyResult(result)
       onClose()
     } catch (error) {
-      updateProgress(null)
-      if (controller.signal.aborted) return
+      if (controller.signal.aborted || isCancelledError(error)) return
       errorNotification({ title: 'Could not create the acknowledgment request', description: parseErrorMessage(error) })
+    } finally {
+      setPhase(null)
     }
   }
 
   const goToRecipients = async () => {
-    if (await form.trigger(DETAIL_FIELDS)) stepper.next()
+    if (!(await form.trigger(DETAIL_FIELDS))) return
+    prefetchDocuments()
+    stepper.next()
+  }
+
+  const selectStep = (id: TStepId) => {
+    if (isSubmitting || id === stepper.current.id) return
+    if (id === 'recipients') void goToRecipients()
+    else stepper.goTo(id)
   }
 
   return (
     <>
-      <DialogDescription>{STEP_DESCRIPTIONS[stepper.current.id]}</DialogDescription>
-      <StepHeader stepper={stepper} />
+      <DialogDescription className="text-muted-foreground">{STEP_DESCRIPTIONS[stepper.current.id]}</DialogDescription>
+      <StepHeader stepper={stepper} onStepSelect={selectStep} />
       <Form {...form}>
         <form className="min-w-0" onSubmit={(event) => event.preventDefault()}>
           {isRecipientsStep ? <AcknowledgementRecipientsStep form={form} /> : <AcknowledgementDetailsStep form={form} />}
         </form>
       </Form>
-      {progress && (
-        <p className="inline-flex items-center gap-2 text-sm text-muted-foreground" role="status">
-          <Loader2 className="size-4 animate-spin" />
-          {progressLabel(progress, policies.length)}
-        </p>
-      )}
+      <PreparationStatus phase={phase} preparation={preparation} policyCount={policies.length} onRetry={prefetchDocuments} />
       <DialogFooter className="sm:justify-between">
         {isRecipientsStep ? (
           <Button type="button" variant="secondary" onClick={() => stepper.prev()} disabled={isSubmitting}>
             Back
           </Button>
         ) : (
-          <CancelButton onClick={onClose} disabled={!isCancellable} />
+          <CancelButton onClick={onClose} disabled={isSubmitting && phase !== 'preparing'} />
         )}
         <div className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="secondary" onClick={() => void submit(false)} disabled={isSubmitting}>
-            {isRecipientsStep ? 'Save instead' : 'Save'}
+            Save draft
           </Button>
           <Button type="button" variant="primary" onClick={() => void (isRecipientsStep ? submit(true) : goToRecipients())} disabled={isSubmitting} loading={isSubmitting}>
             {isRecipientsStep ? 'Create & send' : 'Send now'}
@@ -164,7 +221,7 @@ const SendAcknowledgementRequestForm = ({ initialPolicies, onClose, onLockChange
   )
 }
 
-const SendAcknowledgementRequestContent = ({ initialPolicyIds, onClose, onLockChange }: Omit<TFormProps, 'initialPolicies'> & { initialPolicyIds: string[] }) => {
+const SendAcknowledgementRequestContent = ({ initialPolicyIds, ...formProps }: Omit<TFormProps, 'initialPolicies'> & { initialPolicyIds: string[] }) => {
   const { policies, isPending, isPlaceholderData, isError } = useInternalPolicyDocumentsByIds(initialPolicyIds)
   const initialPolicies = useMemo(() => initialPolicyIds.flatMap((id) => policies.find((policy) => policy.id === id) ?? []), [initialPolicyIds, policies])
   const hasInitialPolicies = initialPolicyIds.length > 0
@@ -174,7 +231,7 @@ const SendAcknowledgementRequestContent = ({ initialPolicyIds, onClose, onLockCh
       <>
         <DialogDescription>The selected policies could not be loaded. Please try again later.</DialogDescription>
         <DialogFooter>
-          <CancelButton onClick={onClose} title="Close" />
+          <CancelButton onClick={formProps.onClose} title="Close" />
         </DialogFooter>
       </>
     )
@@ -192,24 +249,32 @@ const SendAcknowledgementRequestContent = ({ initialPolicyIds, onClose, onLockCh
     )
   }
 
-  return <SendAcknowledgementRequestForm initialPolicies={initialPolicies} onClose={onClose} onLockChange={onLockChange} />
+  return <SendAcknowledgementRequestForm initialPolicies={initialPolicies} {...formProps} />
 }
 
 export const SendAcknowledgementRequestDialog = ({ open, onOpenChange, initialPolicyIds = NO_POLICY_IDS }: TSendAcknowledgementRequestDialogProps) => {
-  const [isLocked, setIsLocked] = useState(false)
+  const [dismissal, setDismissal] = useState<TDismissal>('free')
+  const formRef = useRef<TFormHandle>(null)
 
-  const close = () => {
-    setIsLocked(false)
-    onOpenChange(false)
+  const handleOpenChange = (next: boolean) => {
+    if (!next) {
+      formRef.current?.abort()
+      setDismissal('free')
+    }
+    onOpenChange(next)
+  }
+
+  const guardDismiss = (event: Event) => {
+    if (dismissal !== 'free') event.preventDefault()
   }
 
   return (
-    <Dialog open={open} onOpenChange={(next) => (next || !isLocked) && onOpenChange(next)}>
-      <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto" showCloseButton={!isLocked}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto" showCloseButton={dismissal !== 'locked'} onInteractOutside={guardDismiss} onEscapeKeyDown={guardDismiss}>
         <DialogHeader>
           <DialogTitle>Send acknowledgment request</DialogTitle>
         </DialogHeader>
-        <SendAcknowledgementRequestContent initialPolicyIds={initialPolicyIds} onClose={close} onLockChange={setIsLocked} />
+        <SendAcknowledgementRequestContent ref={formRef} initialPolicyIds={initialPolicyIds} onClose={() => handleOpenChange(false)} onDismissalChange={setDismissal} />
       </DialogContent>
     </Dialog>
   )

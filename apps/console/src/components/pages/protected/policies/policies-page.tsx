@@ -118,8 +118,8 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
               </DropdownMenu>
             )}
 
-            {totalCount > 0 && <CreatePolicyButton />}
             {totalCount > 0 && <PoliciesReportActionsMenu />}
+            {totalCount > 0 && <CreatePolicyButton />}
           </div>
         )}
       </div>

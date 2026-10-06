@@ -481,8 +481,12 @@ export const useFetchInternalPolicyRevision = () => {
   const { client } = useGraphQLClient()
 
   return useCallback(
-    async (policyId: string) => {
-      const data = await client.request<SearchInternalPolicyDocumentsQuery, SearchInternalPolicyDocumentsQueryVariables>(SEARCH_INTERNAL_POLICY_DOCUMENTS, { where: { id: policyId }, first: 1 })
+    async (policyId: string, signal?: AbortSignal) => {
+      const data = await client.request<SearchInternalPolicyDocumentsQuery, SearchInternalPolicyDocumentsQueryVariables>({
+        document: SEARCH_INTERNAL_POLICY_DOCUMENTS,
+        variables: { where: { id: policyId }, first: 1 },
+        signal,
+      })
       return getNodes(data.internalPolicies)[0]?.revision ?? null
     },
     [client],

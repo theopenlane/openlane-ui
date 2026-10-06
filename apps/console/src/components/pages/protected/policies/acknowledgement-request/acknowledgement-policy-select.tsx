@@ -1,18 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { SearchableItemSelect } from '@/components/shared/searchable-item-select/searchable-item-select'
+import { SearchableItemSelect, type TSearchableItemSelectAriaProps } from '@/components/shared/searchable-item-select/searchable-item-select'
+import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum'
 import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { type TInternalPolicyDocument, useSearchInternalPolicyDocuments } from '@/lib/graphql-hooks/internal-policy'
-import { PolicyIcon } from './acknowledgement-section'
 import { MAX_ACKNOWLEDGEMENT_POLICIES, MAX_ACKNOWLEDGEMENT_POLICIES_MESSAGE } from './use-acknowledgement-request-form-schema'
 
-type TAcknowledgementPolicySelectProps = {
+const PolicyIcon = ObjectAssociationMap.policies.icon
+
+type TAcknowledgementPolicySelectProps = TSearchableItemSelectAriaProps & {
   value: TInternalPolicyDocument[]
   onChange: (policies: TInternalPolicyDocument[]) => void
-  id?: string
-  'aria-describedby'?: string
-  'aria-invalid'?: boolean
 }
 
 export const AcknowledgementPolicySelect = ({ value, onChange, ...ariaProps }: TAcknowledgementPolicySelectProps) => {

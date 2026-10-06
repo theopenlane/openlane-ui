@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Loader2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum'
 import { SearchableItemSelect } from '@/components/shared/searchable-item-select/searchable-item-select'
+import { StatusLine } from '@/components/shared/status-line/status-line'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { useNotification } from '@/hooks/useNotification'
@@ -73,12 +73,7 @@ const PdfDocumentPolicyPicker = ({ budgetBytes, onAttach, onCancel }: TPdfDocume
           Showing {policies.length} of {totalCount} policies. Type to narrow the list.
         </p>
       )}
-      {isExporting && (
-        <p className="inline-flex items-center gap-2 text-sm text-muted-foreground" role="status">
-          <Loader2 className="size-4 animate-spin" />
-          Exporting the policy to PDF. This can take up to a minute.
-        </p>
-      )}
+      {isExporting && <StatusLine>Exporting the policy to PDF. This can take up to a minute.</StatusLine>}
       <div className="flex justify-end gap-2">
         <CancelButton onClick={onCancel} />
         <Button variant="primary" onClick={handleAttach} disabled={!selectedPolicy || isExporting} loading={isExporting}>

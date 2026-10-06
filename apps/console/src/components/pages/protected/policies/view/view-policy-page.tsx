@@ -368,33 +368,45 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                       <span>Send acknowledgment request</span>
                     </Button>
                   )}
-                  {deleteAllowed && (
-                    <>
-                      <Button size="sm" variant="transparent" className="flex justify-start space-x-2" data-testid="policy-delete-button" onClick={() => setIsDeleteDialogOpen(true)}>
-                        <Trash2 size={16} strokeWidth={2} />
-                        <span>Delete</span>
-                      </Button>
-                      <ConfirmationDialog
-                        open={isDeleteDialogOpen}
-                        onOpenChange={setIsDeleteDialogOpen}
-                        onConfirm={handleDeletePolicy}
-                        title={`Delete Internal Policy`}
-                        description={
-                          <>
-                            This action cannot be undone. This will permanently remove <b>{policy.name}</b> from the organization.
-                          </>
-                        }
-                      />
-                    </>
-                  )}
-                  <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setShowPermissionsSheet(true)}>
+                  <Button
+                    size="sm"
+                    variant="transparent"
+                    className="flex justify-start space-x-2"
+                    onClick={() => {
+                      close()
+                      setShowPermissionsSheet(true)
+                    }}
+                  >
                     <LockOpen size={16} strokeWidth={2} />
                     <span>Manage Permissions</span>
                   </Button>
                   {showManagementModeAction && (
-                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setPendingManagementMode(InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE)}>
+                    <Button
+                      size="sm"
+                      variant="transparent"
+                      className="flex justify-start space-x-2"
+                      onClick={() => {
+                        close()
+                        setPendingManagementMode(InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE)
+                      }}
+                    >
                       <ExternalLink size={16} strokeWidth={2} />
                       <span>Switch to externally managed</span>
+                    </Button>
+                  )}
+                  {deleteAllowed && (
+                    <Button
+                      size="sm"
+                      variant="transparent"
+                      className="flex justify-start space-x-2"
+                      data-testid="policy-delete-button"
+                      onClick={() => {
+                        close()
+                        setIsDeleteDialogOpen(true)
+                      }}
+                    >
+                      <Trash2 size={16} strokeWidth={2} />
+                      <span>Delete</span>
                     </Button>
                   )}
                 </>
@@ -402,6 +414,19 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
             />
           )}
           <SendAcknowledgementRequestDialog open={isAcknowledgementDialogOpen} onOpenChange={setIsAcknowledgementDialogOpen} initialPolicyIds={[policy.id]} />
+          {deleteAllowed && (
+            <ConfirmationDialog
+              open={isDeleteDialogOpen}
+              onOpenChange={setIsDeleteDialogOpen}
+              onConfirm={handleDeletePolicy}
+              title={`Delete Internal Policy`}
+              description={
+                <>
+                  This action cannot be undone. This will permanently remove <b>{policy.name}</b> from the organization.
+                </>
+              }
+            />
+          )}
           <ConfirmationDialog
             open={!!pendingManagementMode}
             onOpenChange={(open) => {

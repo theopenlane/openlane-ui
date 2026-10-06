@@ -11,7 +11,7 @@ export const MAX_ACKNOWLEDGEMENT_POLICIES_MESSAGE = `An acknowledgment request c
 
 const formSchema = z.object({
   policies: z.array(z.custom<TInternalPolicyDocument>()).min(1, 'Select at least one policy.').max(MAX_ACKNOWLEDGEMENT_POLICIES, MAX_ACKNOWLEDGEMENT_POLICIES_MESSAGE),
-  name: z.string().trim().min(1, 'Assessment name is required.'),
+  name: z.string().trim().min(1, 'Name is required.'),
   statement: z.string().trim().min(1, 'Acknowledgment statement is required.'),
   recipients: z.array(z.custom<TAssessmentRecipientOption>()),
   dueDate: z

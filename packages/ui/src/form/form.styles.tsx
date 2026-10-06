@@ -3,10 +3,9 @@ import { tv, type VariantProps } from 'tailwind-variants'
 export const formStyles = tv({
   slots: {
     formItem: 'space-y-2',
-    formLabelError: '',
-    formDescription: 'text-sm',
-    formMessageIcon: 'text-error',
-    formMessage: 'text-sm rounded-sm p-[8px] text-error bg-error-muted bg-opacity-[50%] flex items-center gap-2 !mt-2',
+    formLabelRequired: 'ml-0.5 text-destructive',
+    formDescription: 'text-sm text-muted-foreground',
+    formMessage: 'text-sm text-destructive',
   },
 })
 

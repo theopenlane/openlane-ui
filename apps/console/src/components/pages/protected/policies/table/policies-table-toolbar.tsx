@@ -30,9 +30,7 @@ import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-rout
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
-import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { SendAcknowledgementRequestDialog } from '../acknowledgement-request/send-acknowledgement-request-dialog'
-import { MAX_ACKNOWLEDGEMENT_POLICIES, MAX_ACKNOWLEDGEMENT_POLICIES_MESSAGE } from '../acknowledgement-request/use-acknowledgement-request-form-schema'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -77,7 +75,6 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
   const [isAcknowledgementDialogOpen, setIsAcknowledgementDialogOpen] = useState(false)
-  const acknowledgementDisabledReason = selectedPolicies.length > MAX_ACKNOWLEDGEMENT_POLICIES ? MAX_ACKNOWLEDGEMENT_POLICIES_MESSAGE : undefined
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeletePolicies } = useBulkDeletePolicy()
   const { data: session } = useSession()
@@ -136,24 +133,6 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
           {selectedPolicies.length > 0 ? (
             <>
               {editAllowed && <BulkEditPoliciesDialog selectedPolicies={selectedPolicies} setSelectedPolicies={setSelectedPolicies}></BulkEditPoliciesDialog>}
-              {acknowledgementAllowed && (
-                <>
-                  <DisabledReasonTooltip reason={acknowledgementDisabledReason}>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      icon={<Send />}
-                      iconPosition="left"
-                      disabled={!!acknowledgementDisabledReason}
-                      {...tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'send-acknowledgement-request')}
-                      onClick={() => setIsAcknowledgementDialogOpen(true)}
-                    >
-                      Send acknowledgment request
-                    </Button>
-                  </DisabledReasonTooltip>
-                  <SendAcknowledgementRequestDialog open={isAcknowledgementDialogOpen} onOpenChange={setIsAcknowledgementDialogOpen} initialPolicyIds={selectedPolicies.map((policy) => policy.id)} />
-                </>
-              )}
               <Button
                 type="button"
                 variant="secondary"
@@ -215,6 +194,18 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                         </MenuItem>
                       </>
                     )}
+                    {acknowledgementAllowed && (
+                      <MenuItem
+                        {...tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'send-acknowledgement-request')}
+                        icon={<Send size={16} strokeWidth={2} />}
+                        onSelect={() => {
+                          close()
+                          setIsAcknowledgementDialogOpen(true)
+                        }}
+                      >
+                        Send acknowledgment request
+                      </MenuItem>
+                    )}
                     <ExportMenuItem
                       label="Export to CSV"
                       onExport={() => handleExport(ExportExportFormat.CSV)}
@@ -245,6 +236,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
           )}
         </div>
       </div>
+      {acknowledgementAllowed && <SendAcknowledgementRequestDialog open={isAcknowledgementDialogOpen} onOpenChange={setIsAcknowledgementDialogOpen} />}
     </>
   )
 }
