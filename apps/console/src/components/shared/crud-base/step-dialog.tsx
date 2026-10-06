@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
+import { ArrowLeft } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -58,14 +59,6 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
     }
   }
 
-  const handleBack = () => {
-    if (stepper.isFirst) {
-      onClose()
-    } else {
-      stepper.prev()
-    }
-  }
-
   const handleSubmit = async () => {
     try {
       const formData = form.getValues()
@@ -109,7 +102,13 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
         </FormProvider>
 
         <DialogFooter>
-          <CancelButton onClick={handleBack} title={stepper.isFirst ? 'Cancel' : 'Back'} />
+          {stepper.isFirst ? (
+            <CancelButton onClick={onClose} />
+          ) : (
+            <Button type="button" variant="secondary" icon={<ArrowLeft size={16} />} iconPosition="left" onClick={() => stepper.prev()}>
+              Back
+            </Button>
+          )}
           {stepper.isLast ? (
             <SaveButton onClick={handleNext} disabled={createMutation.isPending} isSaving={createMutation.isPending} title="Create" savingTitle="Creating..." />
           ) : (
