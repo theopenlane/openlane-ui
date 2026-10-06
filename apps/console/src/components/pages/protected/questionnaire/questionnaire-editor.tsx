@@ -17,6 +17,7 @@ import { Panel } from '@repo/ui/panel'
 import { useRouter } from 'next/navigation'
 
 import '@/styles/questionnaire/custom.css'
+import '@/components/shared/survey/survey-creator-types'
 import { surveyLicenseKey } from '@repo/dally/auth'
 import { useCreateAssessment, useGetAssessment, useUpdateAssessment } from '@/lib/graphql-hooks/assessment'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'

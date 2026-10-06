@@ -1,0 +1,22 @@
+.sd-root-modern .sd-composite:has(.ol-acknowledgement-signature) .sd-panel__content {
+  padding-top: 4px;
+}
+
+.sd-root-modern .sjs_sp_container.ol-acknowledgement-signature {
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.sd-root-modern:not(.sd-root--readonly) .sd-question--readonly .sjs_sp_container.ol-acknowledgement-signature {
+  border: 1px dashed var(--sjs2-color-component-input-default-line);
+}
+
+.sd-root-modern .ol-acknowledgement-signature .sjs_sp_placeholder {
+  color: #6b7280;
+}
+
+.sd-root-modern .sd-expression.ol-acknowledgement-signed-at {
+  font-size: 13px;
+  color: var(--sjs2-color-fg-basic-secondary);
+}

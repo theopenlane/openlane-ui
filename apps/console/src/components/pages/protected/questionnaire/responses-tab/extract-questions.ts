@@ -1,7 +1,15 @@
+import { ACKNOWLEDGEMENT_QUESTION_TYPE, DEFAULT_ACKNOWLEDGEMENT_TITLE } from '@/components/shared/survey/acknowledgement/acknowledgement-type'
+import { PDF_DOCUMENT_QUESTION_TYPE, pdfDocumentTitleFromFileName } from '@/components/shared/survey/pdf-document/pdf-document-type'
+
 export type ExtractedQuestion = {
   name: string
   title: string
   type: string
+}
+
+const CUSTOM_QUESTION_DEFAULT_TITLES: Record<string, (element: Record<string, unknown>) => string> = {
+  [PDF_DOCUMENT_QUESTION_TYPE]: (element) => (typeof element.pdfFileName === 'string' ? pdfDocumentTitleFromFileName(element.pdfFileName) : ''),
+  [ACKNOWLEDGEMENT_QUESTION_TYPE]: () => DEFAULT_ACKNOWLEDGEMENT_TITLE,
 }
 
 export const extractQuestions = (jsonconfig: unknown): ExtractedQuestion[] => {
@@ -23,7 +31,7 @@ export const extractQuestions = (jsonconfig: unknown): ExtractedQuestion[] => {
     const name = getStringValue(element.name)
     const type = getStringValue(element.type)
     if (!name || !type || seenQuestionNames.has(name)) return
-    const title = getStringValue(element.title) ?? name
+    const title = getStringValue(element.title) ?? getStringValue(CUSTOM_QUESTION_DEFAULT_TITLES[type]?.(element)) ?? name
     seenQuestionNames.add(name)
     questions.push({
       name,

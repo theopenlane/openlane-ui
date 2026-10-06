@@ -5,6 +5,12 @@ const nextConfig = {
   experimental: {
     useTypeScriptCli: true,
   },
+  turbopack: {
+    resolveAlias: {
+      'pdfjs-dist': 'pdfjs-dist/legacy/build/pdf.mjs',
+      'pdfjs-dist/web/pdf_viewer.mjs': 'pdfjs-dist/legacy/web/pdf_viewer.mjs',
+    },
+  },
   async redirects() {
     return [
       {

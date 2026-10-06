@@ -22,6 +22,17 @@ export const normalizeHref = (url?: string | null) => {
   return `https://${trimmed}`
 }
 
+export const toValidHref = (url?: string | null) => {
+  const href = normalizeHref(url)
+  if (!href) return ''
+
+  try {
+    return new URL(href).href
+  } catch {
+    return ''
+  }
+}
+
 export const formatUrlForDisplay = (url?: string | null) => {
   const normalized = normalizeUrl(url)
   const withoutScheme = normalized.startsWith('https://') ? normalized.slice('https://'.length) : normalized

@@ -13,14 +13,28 @@ export const CREATE_EXPORT = gql`
 export const GET_EXPORT = gql`
   query GetExport($exportId: ID!) {
     export(id: $exportId) {
+      id
       status
+      errorMessage
       files {
         edges {
           node {
-            presignedURL
+            id
+            providedFileName
+            providedFileSize
+            detectedMimeType
           }
         }
       }
+    }
+  }
+`
+
+export const GET_EXPORT_FILE_CONTENT = gql`
+  query GetExportFileContent($fileId: ID!) {
+    file(id: $fileId) {
+      id
+      base64
     }
   }
 `

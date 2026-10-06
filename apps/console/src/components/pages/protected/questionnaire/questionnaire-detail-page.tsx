@@ -305,7 +305,7 @@ const QuestionnaireDetailPage = () => {
         label: q.title,
         accessor: (r: (typeof responseRows)[0]) => {
           const data = (r.document?.data || {}) as Record<string, unknown>
-          return renderAnswer(data[q.name])
+          return renderAnswer(data[q.name], q.type)
         },
       })),
     ]
