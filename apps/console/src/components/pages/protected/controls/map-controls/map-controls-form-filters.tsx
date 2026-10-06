@@ -10,6 +10,7 @@ import { type Option } from '@repo/ui/multiple-selector'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Checkbox } from '@repo/ui/checkbox'
 import { type MapControl } from '@/types'
+import { organizationStandardsWhere } from '@/constants/standards'
 
 interface Props {
   onFilterChange: (where: ControlWhereInput) => void
@@ -36,13 +37,7 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
   const categories = data?.controlCategories ?? []
 
   const { standardOptions } = useStandardsSelect({
-    where: {
-      hasControlsWith: [
-        {
-          hasOwnerWith: [{ id: currentOrgId }],
-        },
-      ],
-    },
+    where: organizationStandardsWhere(currentOrgId),
     enabled: Boolean(currentOrgId),
   })
 

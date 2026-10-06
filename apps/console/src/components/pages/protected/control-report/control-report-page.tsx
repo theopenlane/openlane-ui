@@ -26,6 +26,7 @@ import { controlOwnedByUserWhere } from '@/lib/control-where'
 import { getOrganizationStorageItem, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
 import { compareNatural } from '@/lib/sort'
 import { useSession } from 'next-auth/react'
+import { organizationStandardsWhere } from '@/constants/standards'
 
 type TControlReportPageProps = {
   active: 'dashboard' | 'table'
@@ -64,13 +65,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   const createAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateControl, session)
 
   const { standardOptions, isSuccess: isSuccessStandards } = useStandardsSelect({
-    where: {
-      hasControlsWith: [
-        {
-          hasOwnerWith: [{ id: currentOrgId }],
-        },
-      ],
-    },
+    where: organizationStandardsWhere(currentOrgId),
     enabled: Boolean(currentOrgId),
   })
 

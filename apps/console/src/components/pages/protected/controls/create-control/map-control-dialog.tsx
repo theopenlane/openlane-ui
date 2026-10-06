@@ -13,6 +13,7 @@ import { type ColumnDef } from '@repo/ui/table-types'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
+import { organizationStandardsWhere } from '@/constants/standards'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { useGetAllSubcontrols } from '@/lib/graphql-hooks/subcontrol'
 import { type Control, type ControlWhereInput, type Subcontrol, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
@@ -96,9 +97,7 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
   const isLoading = controlsLoading || subcontrolsLoading
 
   const { standardOptions = [] } = useStandardsSelect({
-    where: {
-      hasControlsWith: [{ hasOwnerWith: [{ id: currentOrgId }] }],
-    },
+    where: organizationStandardsWhere(currentOrgId),
     enabled: Boolean(currentOrgId),
   })
 

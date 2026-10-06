@@ -55,3 +55,19 @@ export const TEMPLATE_CONTROLS_WHERE: ControlWhereInput = {
   systemOwned: true,
   referenceFramework: OPENLANE_BASELINE_STANDARD.shortName,
 }
+
+export const organizationStandardsWhere = (organizationId: string | undefined): StandardWhereInput => ({
+  hasControlsWith: [{ hasOwnerWith: [{ id: organizationId }] }],
+})
+
+export const toFrameworkTag = (shortName: string): string =>
+  normalizeFrameworkName(shortName)
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '')
+
+export const withFrameworkTags = (tags: (string | undefined)[], frameworkNames: string[]): string[] => {
+  const existing = tags.filter((tag): tag is string => !!tag)
+  const existingKeys = new Set(existing.map((tag) => tag.toLowerCase()))
+  const added = [...new Set(frameworkNames.map(toFrameworkTag))].filter((tag) => tag && !existingKeys.has(tag))
+  return [...existing, ...added]
+}

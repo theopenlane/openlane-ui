@@ -7,6 +7,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCreateBulkTrustCenterCompliance, useDeleteBulkTrustCenterCompliance, useGetTrustCenterCompliances } from '@/lib/graphql-hooks/trust-center-compliance'
 import { Badge } from '@repo/ui/badge'
 import { useDeleteStandard, useGetAllStandardsInfinite, useGetRecommendedStandards, type StandardNode } from '@/lib/graphql-hooks/standard'
+import { organizationStandardsWhere } from '@/constants/standards'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Switch } from '@repo/ui/switch'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
@@ -61,7 +62,7 @@ export default function FrameworksPage() {
   const sessionResolved = sessionStatus !== 'loading'
 
   const { standards: recommendedStandards, isFetched: recommendedFetched } = useGetRecommendedStandards({
-    where: mergeWhere<StandardWhereInput>([baseWhere, { hasControlsWith: [{ hasOwnerWith: [{ id: currentOrgId }] }] }]),
+    where: mergeWhere<StandardWhereInput>([baseWhere, organizationStandardsWhere(currentOrgId)]),
     enabled: !!currentOrgId,
   })
 
