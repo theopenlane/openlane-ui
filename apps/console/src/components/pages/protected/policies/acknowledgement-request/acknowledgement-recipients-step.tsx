@@ -43,7 +43,7 @@ export const AcknowledgementRecipientsStep = ({ form }: TAcknowledgementRecipien
           name="recipients"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-muted-foreground">Personnel or email addresses (required to send)</FormLabel>
+              <FormLabel className="text-sm text-muted-foreground">Personnel or email addresses (required to send)</FormLabel>
               <FormControl>
                 <AssessmentRecipientSelect value={field.value} onChange={field.onChange} />
               </FormControl>

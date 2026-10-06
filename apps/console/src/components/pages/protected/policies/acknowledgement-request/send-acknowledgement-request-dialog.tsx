@@ -192,7 +192,7 @@ const SendAcknowledgementRequestForm = ({ initialPolicies, onClose, onDismissalC
 
   return (
     <>
-      <DialogDescription className="text-muted-foreground">{STEP_DESCRIPTIONS[stepper.current.id]}</DialogDescription>
+      <DialogDescription className="text-sm text-muted-foreground">{STEP_DESCRIPTIONS[stepper.current.id]}</DialogDescription>
       <StepHeader stepper={stepper} onStepSelect={selectStep} />
       <Form {...form}>
         <form className="min-w-0" onSubmit={(event) => event.preventDefault()}>

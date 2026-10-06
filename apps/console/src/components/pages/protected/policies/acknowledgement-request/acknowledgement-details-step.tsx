@@ -39,7 +39,7 @@ export const AcknowledgementDetailsStep = ({ form }: TAcknowledgementDetailsStep
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel required className="text-muted-foreground">
+            <FormLabel required className="text-sm text-muted-foreground">
               Name
             </FormLabel>
             <FormControl>
@@ -57,7 +57,7 @@ export const AcknowledgementDetailsStep = ({ form }: TAcknowledgementDetailsStep
         name="statement"
         render={({ field }) => (
           <FormItem>
-            <FormLabel required className="text-muted-foreground">
+            <FormLabel required className="text-sm text-muted-foreground">
               Acknowledgment statement
             </FormLabel>
             <FormControl>
