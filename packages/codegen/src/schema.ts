@@ -292,6 +292,87 @@ export interface GetAssessmentPolicyAttestationsQuery {
   assessment: { id: string; policyAttestations: { edges: Array<{ node: { id: string; internalPolicyID: string; policyRevision: string | null } | null } | null> | null } }
 }
 
+export type GetPolicyAcknowledgementsQueryVariables = Exact<{
+  policyId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetPolicyAcknowledgementsQuery {
+  internalPolicy: {
+    id: string
+    assessments: {
+      totalCount: number
+      pageInfo: { startCursor: any; endCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+      edges: Array<{
+        node: {
+          id: string
+          name: string
+          policyAttestations: { edges: Array<{ node: { internalPolicyID: string; policyRevision: string | null } | null } | null> | null }
+          campaigns: { edges: Array<{ node: { id: string; status: Types.CampaignCampaignStatus; dueDate: string | null } | null } | null> | null }
+          sentResponses: { totalCount: number }
+          completedResponses: { totalCount: number }
+          latestDueResponse: { edges: Array<{ node: { dueDate: any } | null } | null> | null }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type GetAssessmentResponsesPageQueryVariables = Exact<{
+  assessmentId: string
+  where?: Types.AssessmentResponseWhereInput | null | undefined
+  orderBy?: Array<Types.AssessmentResponseOrder> | Types.AssessmentResponseOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+  withDocument?: boolean
+}>
+
+export interface GetAssessmentResponsesPageQuery {
+  assessment: {
+    id: string
+    assessmentResponses: {
+      totalCount: number
+      pageInfo: { startCursor: any; endCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+      edges: Array<{
+        node: {
+          id: string
+          email: string | null
+          displayName: string | null
+          status: Types.AssessmentResponseAssessmentResponseStatus
+          sendAttempts: number
+          assignedAt: any
+          dueDate: any
+          completedAt: any
+          emailDeliveredAt: any
+          identityHolder: { id: string; fullName: string } | null
+          document?: { id: string; data: any } | null
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type GetPolicyAcknowledgementCountQueryVariables = Exact<{
+  policyId: string
+}>
+
+export interface GetPolicyAcknowledgementCountQuery {
+  internalPolicy: { id: string; assessments: { totalCount: number } }
+}
+
+export type GetAssessmentJsonconfigQueryVariables = Exact<{
+  assessmentId: string
+}>
+
+export interface GetAssessmentJsonconfigQuery {
+  assessment: { id: string; jsonconfig: any }
+}
+
 export type CreateBulkAssessmentPolicyMutationVariables = Exact<{
   input?: Array<Types.CreateAssessmentPolicyInput> | Types.CreateAssessmentPolicyInput | null | undefined
 }>

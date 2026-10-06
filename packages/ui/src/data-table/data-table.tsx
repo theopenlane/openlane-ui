@@ -146,6 +146,7 @@ interface BaseDataTableProps<TData extends RowData> {
   sorting?: { field: string; direction?: OrderDirection }[] | undefined
   renderExpandedRow?: (row: Row<TData>) => React.ReactNode
   rowDragDrop?: RowDragDropConfig<TData>
+  getRowId?: (row: TData) => string
 }
 
 type DataTableProps<TData extends RowData> = BaseDataTableProps<TData> & TStickyOption
@@ -356,6 +357,7 @@ export function DataTable<TData extends RowData>({
   stickyDialogHeader = false,
   renderExpandedRow,
   rowDragDrop,
+  getRowId,
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
@@ -522,6 +524,7 @@ export function DataTable<TData extends RowData>({
     onRowSelectionChange: setRowSelection,
     onColumnSizingChange: handleColumnSizingChange,
     getRowCanExpand: () => !!renderExpandedRow,
+    ...(getRowId && { getRowId: (row: TData) => getRowId(row) }),
     columnResizeMode,
     columnResizeDirection,
     enableColumnResizing: true,

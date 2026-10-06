@@ -15,9 +15,11 @@ const ASSESSMENT_RESPONSE_STATUS_ICON = {
   [AssessmentResponseAssessmentResponseStatus.COMPLETED]: <CircleCheck height={16} width={16} className="text-completed shrink-0" />,
 } satisfies Record<AssessmentResponseAssessmentResponseStatus, React.ReactNode> & Record<CampaignTargetAssessmentResponseStatus, React.ReactNode>
 
+export const AssessmentResponseStatusIcon = ({ status }: { status: AssessmentResponseStatus }) => <>{ASSESSMENT_RESPONSE_STATUS_ICON[status] ?? UNKNOWN_ICON}</>
+
 export const AssessmentResponseStatusLabel = ({ status }: { status: AssessmentResponseStatus }) => (
   <div className="flex items-center gap-2">
-    {ASSESSMENT_RESPONSE_STATUS_ICON[status] ?? UNKNOWN_ICON}
+    <AssessmentResponseStatusIcon status={status} />
     <span>{getEnumLabel(status)}</span>
   </div>
 )

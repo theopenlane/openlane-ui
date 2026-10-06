@@ -4,12 +4,18 @@ import { type ColumnDef } from '@repo/ui/table-types'
 import { formatDate } from '@/utils/date'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
-import { MoreHorizontal, Trash2 } from 'lucide-react'
+import { FileText, MoreHorizontal, Trash2 } from 'lucide-react'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
+import AssessmentResponseView from '../shared/assessment-response-view'
+import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
 import { AssessmentResponseStatusLabel } from '@/components/shared/enum-mapper/assessment-response-enum'
 
 export type DeliveryRow = {
   id: string
+  name?: string | null
+  identityHolderId?: string | null
   email?: string | null
   assignedAt: string
   dueDate?: string | null
@@ -20,7 +26,13 @@ export type DeliveryRow = {
   document?: { id: string; data: unknown } | null
 }
 
+const RESPONSE_PREVIEW_ITEMS = 3
+
+const hasViewableResponse = (row: DeliveryRow) => row.status === AssessmentResponseAssessmentResponseStatus.COMPLETED && !!row.document?.data
+
 type DeliveryColumnCallbacks = {
+  jsonconfig: unknown
+  onOpenSheet: (id: string, kind: ObjectAssociationNodeEnum) => void
   onResend: (row: DeliveryRow) => void
   onViewResponse: (row: DeliveryRow) => void
   onDelete: (row: DeliveryRow) => void
@@ -28,7 +40,22 @@ type DeliveryColumnCallbacks = {
   canDelete?: boolean
 }
 
-export const getDeliveryColumns = ({ onResend, onViewResponse, onDelete, canResend = false, canDelete = false }: DeliveryColumnCallbacks): ColumnDef<DeliveryRow>[] => [
+export const getDeliveryColumns = ({ jsonconfig, onOpenSheet, onResend, onViewResponse, onDelete, canResend = false, canDelete = false }: DeliveryColumnCallbacks): ColumnDef<DeliveryRow>[] => [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+    size: 180,
+    minSize: 120,
+    cell: ({ row }) => {
+      const { name, identityHolderId } = row.original
+      if (!name) return null
+      return identityHolderId ? (
+        <ObjectSheetLink id={identityHolderId} kind={ObjectAssociationNodeEnum.IDENTITY_HOLDER} label={name} onOpenSheet={onOpenSheet} />
+      ) : (
+        <div className="truncate">{name}</div>
+      )
+    },
+  },
   {
     accessorKey: 'email',
     header: 'Recipient',
@@ -62,6 +89,24 @@ export const getDeliveryColumns = ({ onResend, onViewResponse, onDelete, canRese
     cell: ({ row }) => formatDate(row.getValue('completedAt')),
   },
   {
+    id: 'response',
+    header: 'Response',
+    size: 150,
+    cell: ({ row }) =>
+      hasViewableResponse(row.original) ? (
+        <SystemTooltip
+          portal
+          side="left"
+          icon={
+            <Button type="button" variant="link" className="font-normal text-blue-500" icon={<FileText />} iconPosition="left" onClick={() => onViewResponse(row.original)}>
+              View response
+            </Button>
+          }
+          content={<AssessmentResponseView jsonconfig={jsonconfig} data={row.original.document?.data} maxItems={RESPONSE_PREVIEW_ITEMS} />}
+        />
+      ) : null,
+  },
+  {
     accessorKey: 'sendAttempts',
     header: 'Resent',
     size: 80,
@@ -70,9 +115,8 @@ export const getDeliveryColumns = ({ onResend, onViewResponse, onDelete, canRese
     id: 'actions',
     header: '',
     cell: ({ row }) => {
-      const showViewResponse = row.original.status === AssessmentResponseAssessmentResponseStatus.COMPLETED
-      const showResend = !showViewResponse && canResend
-      const hasAnyAction = showViewResponse || showResend || canDelete
+      const showResend = row.original.status !== AssessmentResponseAssessmentResponseStatus.COMPLETED && canResend
+      const hasAnyAction = showResend || canDelete
       if (!hasAnyAction) {
         return null
       }
@@ -84,7 +128,6 @@ export const getDeliveryColumns = ({ onResend, onViewResponse, onDelete, canRese
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {showViewResponse && <DropdownMenuItem onClick={() => onViewResponse(row.original)}>See Response</DropdownMenuItem>}
             {showResend && <DropdownMenuItem onClick={() => onResend(row.original)}>Resend</DropdownMenuItem>}
             {canDelete && (
               <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => onDelete(row.original)}>

@@ -12,7 +12,6 @@ import DetailsField from '@/components/pages/protected/policies/view/fields/deta
 import TitleField from '@/components/pages/protected/policies/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
 import { ExternalLink, LockOpen, PencilIcon, Send, Trash2 } from 'lucide-react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/policies/view/cards/properties-card.tsx'
 import { InternalPolicyDocumentManagementMode, InternalPolicyDocumentStatus, InternalPolicyFrequency, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
@@ -44,9 +43,8 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { canonicalizeDetails } from '@/components/shared/plate/plate-utils'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import LinkedProcedures from './fields/linked-procedures'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import HistoryTab from './tabs/history/history-tab'
+import { PolicyDetailTabs } from './policy-detail-tabs'
 import { VersionBump } from '@/lib/enums/revision-enum'
 import ExternalReferenceView from '@/components/pages/protected/policies/view/fields/external-reference-view'
 import IntegrationDocumentView from '@/components/pages/protected/policies/view/fields/integration-document-view'
@@ -57,8 +55,6 @@ import { SendAcknowledgementRequestDialog } from '@/components/pages/protected/p
 type TViewPolicyPage = {
   policyId: string
 }
-
-type TabValue = 'policy' | 'procedures' | 'history'
 
 // how long to wait for the backend's own control mapping after a create
 const MAPPING_SETTLE_INTERVAL_MS = 1500
@@ -126,7 +122,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   }, [justCreated, settlingMappings, mappedControlCount, policyId, queryClient, router])
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
   const plateEditorHelper = usePlateEditor()
-  const [activeTab, setActiveTab] = useState<TabValue>('policy')
   const isExternalReference = policy?.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
   const isIntegration = policy?.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION
   const hasFile = !!policy?.file
@@ -413,7 +408,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
               )}
             />
           )}
-          <SendAcknowledgementRequestDialog open={isAcknowledgementDialogOpen} onOpenChange={setIsAcknowledgementDialogOpen} initialPolicyIds={[policy.id]} />
           {deleteAllowed && (
             <ConfirmationDialog
               open={isDeleteDialogOpen}
@@ -465,39 +459,22 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={policy.name} editAllowed={editAllowed} />
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} variant="underline">
-        <TabsList className="relative flex justify-start w-full">
-          <div className="absolute -bottom-0.5 left-1 right-0 h-px bg-border" />
-          <TabsTrigger className="relative max-w-26 text-start" value="policy">
-            Policy
-          </TabsTrigger>
-          <TabsTrigger value="procedures" className="relative max-w-28 flex text-start items-center gap-2">
-            Procedures
-            {procedureCount > 0 && <span className="inline-flex items-center justify-center min-w-5 h-5 text-xs rounded-full bg-card bg-rounded">{procedureCount}</span>}
-          </TabsTrigger>
-          <TabsTrigger value="history" className="relative max-w-26 text-start">
-            History
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="policy">
-          {policy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION ? (
+      <SendAcknowledgementRequestDialog open={isAcknowledgementDialogOpen} onOpenChange={setIsAcknowledgementDialogOpen} initialPolicyIds={[policy.id]} />
+      <PolicyDetailTabs
+        policy={policy}
+        procedures={procedures}
+        procedureCount={procedureCount}
+        onSendAcknowledgementRequest={acknowledgementAllowed ? () => setIsAcknowledgementDialogOpen(true) : undefined}
+        policyPanel={
+          policy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION ? (
             <IntegrationDocumentView policy={policy} />
           ) : isExternalReference && policy.file ? (
             <ExternalReferenceView policy={policy} editAllowed={editAllowed} />
           ) : (
             <DetailsField isEditing={isEditing} form={form} policy={policy} discussionData={discussionData?.internalPolicy} />
-          )}
-        </TabsContent>
-
-        <TabsContent value="procedures">
-          <LinkedProcedures procedures={procedures} />
-        </TabsContent>
-
-        <TabsContent value="history">
-          <HistoryTab policyId={policyId} policy={policy} />
-        </TabsContent>
-      </Tabs>
+          )
+        }
+      />
     </div>
   )
 

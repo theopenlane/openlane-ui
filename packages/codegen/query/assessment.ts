@@ -53,6 +53,126 @@ export const GET_ASSESSMENT_POLICY_ATTESTATIONS = gql`
   }
 `
 
+export const GET_POLICY_ACKNOWLEDGEMENTS = gql`
+  query GetPolicyAcknowledgements($policyId: ID!, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    internalPolicy(id: $policyId) {
+      id
+      assessments(first: $first, after: $after, last: $last, before: $before, orderBy: [{ field: created_at, direction: DESC }]) {
+        totalCount
+        pageInfo {
+          startCursor
+          endCursor
+          hasPreviousPage
+          hasNextPage
+        }
+        edges {
+          node {
+            id
+            name
+            policyAttestations(first: 100) {
+              edges {
+                node {
+                  internalPolicyID
+                  policyRevision
+                }
+              }
+            }
+            campaigns(first: 1, orderBy: [{ field: created_at, direction: DESC }]) {
+              edges {
+                node {
+                  id
+                  status
+                  dueDate
+                }
+              }
+            }
+            sentResponses: assessmentResponses(where: { isTest: false }) {
+              totalCount
+            }
+            completedResponses: assessmentResponses(where: { isTest: false, status: COMPLETED }) {
+              totalCount
+            }
+            latestDueResponse: assessmentResponses(where: { isTest: false, dueDateNotNil: true }, first: 1, orderBy: [{ field: due_date, direction: DESC }]) {
+              edges {
+                node {
+                  dueDate
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_ASSESSMENT_RESPONSES_PAGE = gql`
+  query GetAssessmentResponsesPage(
+    $assessmentId: ID!
+    $where: AssessmentResponseWhereInput
+    $orderBy: [AssessmentResponseOrder!]
+    $first: Int
+    $after: Cursor
+    $last: Int
+    $before: Cursor
+    $withDocument: Boolean! = true
+  ) {
+    assessment(id: $assessmentId) {
+      id
+      assessmentResponses(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
+        totalCount
+        pageInfo {
+          startCursor
+          endCursor
+          hasPreviousPage
+          hasNextPage
+        }
+        edges {
+          node {
+            id
+            email
+            displayName
+            status
+            sendAttempts
+            assignedAt
+            dueDate
+            completedAt
+            emailDeliveredAt
+            identityHolder {
+              id
+              fullName
+            }
+            document @include(if: $withDocument) {
+              id
+              data
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_POLICY_ACKNOWLEDGEMENT_COUNT = gql`
+  query GetPolicyAcknowledgementCount($policyId: ID!) {
+    internalPolicy(id: $policyId) {
+      id
+      assessments {
+        totalCount
+      }
+    }
+  }
+`
+
+export const GET_ASSESSMENT_JSONCONFIG = gql`
+  query GetAssessmentJsonconfig($assessmentId: ID!) {
+    assessment(id: $assessmentId) {
+      id
+      jsonconfig
+    }
+  }
+`
+
 export const CREATE_BULK_ASSESSMENT_POLICY = gql`
   mutation CreateBulkAssessmentPolicy($input: [CreateAssessmentPolicyInput!]) {
     createBulkAssessmentPolicy(input: $input) {

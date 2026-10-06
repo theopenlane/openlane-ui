@@ -3,9 +3,9 @@ import { formatDate, formatTimeSince } from '@/utils/date'
 type DateCellProps = {
   value: string | null | undefined
   variant?: 'date' | 'timesince'
+  empty?: string
 }
 
-export function DateCell({ value, variant = 'date' }: DateCellProps) {
-  const formatted = variant === 'timesince' ? formatTimeSince(value) : formatDate(value)
-  return <span className="whitespace-nowrap">{formatted}</span>
-}
+export const DateCell = ({ value, variant = 'date', empty }: DateCellProps) => (
+  <span className="whitespace-nowrap">{variant === 'timesince' ? formatTimeSince(value, empty) : formatDate(value, empty)}</span>
+)

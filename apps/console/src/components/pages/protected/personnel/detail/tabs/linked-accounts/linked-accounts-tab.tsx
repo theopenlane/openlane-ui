@@ -17,7 +17,8 @@ import { createRowActionsColumn } from '@/components/shared/crud-base/columns/ro
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { Badge } from '@repo/ui/badge'
-import { Check, ChevronDown, ChevronRight, X } from 'lucide-react'
+import { Check, X } from 'lucide-react'
+import { ExpandRowButton } from '@/components/shared/crud-base/columns/expand-row-button'
 import { buildMembershipList, resolveSingleEntityVendor, type MembershipList, type MembershipVendor } from '@/lib/directory-memberships/group-memberships'
 import { MembershipList as MembershipListTable } from '@/components/shared/directory-memberships/membership-list'
 import { DirectoryMembershipDirectoryMembershipRole, type DirectoryMembershipWhereInput } from '@repo/codegen/src/schema'
@@ -106,20 +107,7 @@ const DATA_COLUMNS: ColumnDef<DirectoryAccountRow>[] = [
     minSize: 50,
     maxSize: 50,
     enableHiding: false,
-    cell: ({ row }) => (
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation()
-          row.toggleExpanded()
-        }}
-        aria-expanded={row.getIsExpanded()}
-        aria-label={row.getIsExpanded() ? 'Collapse access details' : 'Expand access details'}
-        className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground"
-      >
-        {row.getIsExpanded() ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-      </button>
-    ),
+    cell: ({ row }) => <ExpandRowButton row={row} label="access details" />,
   },
   {
     accessorKey: 'directory',
@@ -266,6 +254,7 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
         setColumnVisibility={setColumnVisibility}
         tableKey={TableKeyEnum.PERSONNEL_LINKED_ACCOUNTS}
         renderExpandedRow={renderExpandedRow}
+        getRowId={(row) => row.id}
       />
     </div>
   )
