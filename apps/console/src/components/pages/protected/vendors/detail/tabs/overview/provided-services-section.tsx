@@ -3,6 +3,7 @@
 import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Badge } from '@repo/ui/badge'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
@@ -13,11 +14,12 @@ interface ProvidedServicesSectionProps {
   vendor: EntityQuery['entity']
   isEditing: boolean
   canEdit: boolean
-  handleUpdateField: (input: UpdateEntityInput) => Promise<void>
+  handleUpdateField: (input: UpdateEntityInput, options?: TPersistOptions) => Promise<void>
 }
 
 const ProvidedServicesSection: React.FC<ProvidedServicesSectionProps> = ({ vendor, isEditing, canEdit, handleUpdateField }) => {
-  const { control, watch, setValue } = useFormContext<EditVendorFormData>()
+  const { control, watch, resetField } = useFormContext<EditVendorFormData>()
+  const persistField = usePersistFormField<EditVendorFormData>()
 
   const providedServices = watch('providedServices')
   const providedServicesValues = useMemo(() => {
@@ -35,11 +37,10 @@ const ProvidedServicesSection: React.FC<ProvidedServicesSectionProps> = ({ vendo
     draft,
     persisted: vendor?.providedServices,
     onCommit: (next) => {
-      setValue('providedServices', next)
-      handleUpdateField({ providedServices: next })
+      void persistField('providedServices', next, (options) => handleUpdateField({ providedServices: next }, options))
     },
     onCancel: () => {
-      setValue('providedServices', vendor?.providedServices ?? [])
+      resetField('providedServices')
     },
   })
 

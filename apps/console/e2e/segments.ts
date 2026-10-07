@@ -35,7 +35,6 @@ export const SEGMENTS: Record<string, string[]> = {
     'policies.spec.ts',
     'procedures-create-form.spec.ts',
     'procedures-crud.spec.ts',
-    'procedures-edit-form.spec.ts',
     'procedures-table.spec.ts',
     'procedures.spec.ts',
   ],

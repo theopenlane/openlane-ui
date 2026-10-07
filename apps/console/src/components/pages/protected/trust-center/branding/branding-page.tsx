@@ -25,8 +25,8 @@ import { getBrandingPreviewDifference } from './helpers/preview-difference'
 import { UnpublishedChangesWarning } from './section-warning'
 import { useFixedToolbarOffset } from '@/hooks/useFixedToolbarOffset'
 import { buildPreviewUrl } from './helpers/preview-url'
-import { clearableSettingInput, FAVICON_ASSET, LOGO_ASSET, previewAssetInput, publishAssetInput } from './helpers/branding-setting-input'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { BRANDING_PREVIEW_FIELDS, clearableSettingInput, FAVICON_ASSET, LOGO_ASSET, publishAssetInput } from './helpers/branding-setting-input'
+import { useDirtyInput } from '@/hooks/useDirtyInput'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -64,7 +64,7 @@ const BrandPage: React.FC = () => {
     formState: { isDirty },
   } = methods
 
-  const buildChangedInput = useChangedInput(methods)
+  const buildDirtyInput = useDirtyInput(methods)
 
   const [isFormSettled, setIsFormSettled] = useState(false)
   const hasUnsavedChanges = isFormSettled && isDirty
@@ -124,12 +124,6 @@ const BrandPage: React.FC = () => {
     overview: typeof values.overview === 'string' ? values.overview.trim() : values.overview ? await convertToHtml(values.overview) : '',
   })
 
-  const buildPreviewInput = async (values: BrandFormValues): Promise<UpdateTrustCenterSettingInput> => ({
-    ...(await buildSettingInput(values)),
-    ...previewAssetInput(LOGO_ASSET, values.logoFile, values.logoRemoteURL),
-    ...previewAssetInput(FAVICON_ASSET, values.faviconFile, values.faviconRemoteURL),
-  })
-
   const buildPublishInput = async (values: BrandFormValues): Promise<UpdateTrustCenterSettingInput> => ({
     ...(await buildSettingInput(values)),
     ...publishAssetInput(LOGO_ASSET, values.logoFile, previewSetting?.logoFile?.id, values.logoRemoteURL),
@@ -144,7 +138,7 @@ const BrandPage: React.FC = () => {
   const savePreview = async (values: BrandFormValues) => {
     if (!previewSetting?.id) return
 
-    const input = await buildChangedInput(values, buildPreviewInput)
+    const input = await buildDirtyInput<UpdateTrustCenterSettingInput>(values, BRANDING_PREVIEW_FIELDS)
     const uploads = stagedUploads(values)
 
     if (Object.keys(input).length === 0 && !uploads.logoFile && !uploads.faviconFile) {

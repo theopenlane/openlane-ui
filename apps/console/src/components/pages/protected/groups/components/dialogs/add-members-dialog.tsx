@@ -55,11 +55,11 @@ const AddMembersDialog = () => {
   const handleSave = async () => {
     if (!selectedGroup || !id) return
 
-    const originalMembersMap = new Map(members?.map((member) => [member.user.id, member]))
+    const originalMembersMap = new Map(members.map((member) => [member.user.id, member]))
 
     const newMemberIds = new Set(selectedMembers.map((member) => member.value))
 
-    const removeGroupMembers = members?.filter((member) => !newMemberIds.has(member.user.id)).map((member) => member.groupID)
+    const removeGroupMembers = members.filter((member) => !newMemberIds.has(member.user.id)).map((member) => member.groupID)
 
     const addGroupMembers = selectedMembers
       .filter((selected) => !originalMembersMap.has(selected.value))
@@ -68,11 +68,16 @@ const AddMembersDialog = () => {
         userID: selected.value,
       }))
 
+    if (removeGroupMembers.length === 0 && addGroupMembers.length === 0) {
+      setIsOpen(false)
+      return
+    }
+
     await updateGroup({
       updateGroupId: id,
       input: {
-        removeGroupMembers,
-        addGroupMembers,
+        ...(removeGroupMembers.length > 0 && { removeGroupMembers }),
+        ...(addGroupMembers.length > 0 && { addGroupMembers }),
       },
     })
 

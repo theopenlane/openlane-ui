@@ -16,9 +16,9 @@ import { useOrganization } from '@/hooks/useOrganization'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { normalizeEntityData, buildResponsibilityTargetPayload, responsibilityTargetFor } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { normalizeEntityData, responsibilityInput, responsibilityTargetFor } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { dateOrClear, omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { type UpdateIdentityHolderInput, type IdentityHolderQuery } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
@@ -33,6 +33,31 @@ import type { EditPersonnelFormData } from '../hooks/use-form-schema'
 import { useSession } from 'next-auth/react'
 
 const PERSONNEL_INTERNAL_OWNER = responsibilityTargetFor<UpdateIdentityHolderInput>()('internalOwner')
+
+const PERSONNEL_UPDATE_FIELDS = {
+  emailAliases: orClear('clearEmailAliases'),
+  title: orClear('clearTitle'),
+  department: orClear('clearDepartment'),
+  team: orClear('clearTeam'),
+  location: orClear('clearLocation'),
+  phoneNumber: orClear('clearPhoneNumber'),
+  isOpenlaneUser: orClear('clearIsOpenlaneUser'),
+  startDate: dateOrClear('clearStartDate'),
+  endDate: dateOrClear('clearEndDate'),
+  externalUserID: orClear('clearExternalUserID'),
+  externalReferenceID: orClear('clearExternalReferenceID'),
+  environmentName: orClear('clearEnvironmentName'),
+  scopeName: orClear('clearScopeName'),
+  tags: orClear('clearTags'),
+  internalOwner: responsibilityInput(PERSONNEL_INTERNAL_OWNER),
+  assetIDs: omit,
+  controlIDs: omit,
+  subcontrolIDs: omit,
+  entityIDs: omit,
+  campaignIDs: omit,
+  internalPolicyIDs: omit,
+  taskIDs: omit,
+} satisfies TFieldMappers<EditPersonnelFormData, UpdateIdentityHolderInput>
 
 interface PersonnelDetailPageProps {
   personnelId: string
@@ -72,7 +97,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
   })
 
   const { isDirty } = form.formState
-  const buildChangedInput = useChangedInput(form)
+  const buildDirtyInput = useDirtyInput(form)
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   useEffect(() => {
@@ -115,13 +140,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
 
   const onSubmit = async (values: EditPersonnelFormData) => {
     try {
-      const input = await buildChangedInput(values, (formValues: EditPersonnelFormData): UpdateIdentityHolderInput => {
-        const { internalOwner, ...rest } = formValues
-        return {
-          ...rest,
-          ...buildResponsibilityTargetPayload(PERSONNEL_INTERNAL_OWNER, internalOwner, 'update'),
-        } as UpdateIdentityHolderInput
-      })
+      const input = await buildDirtyInput<UpdateIdentityHolderInput>(values, PERSONNEL_UPDATE_FIELDS)
 
       if (Object.keys(input).length === 0) {
         form.reset()
@@ -158,7 +177,9 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
   const handleUpdateField = async (input: UpdateIdentityHolderInput, options?: { throwOnError?: boolean }) => {
     try {
       await updateIdentityHolder({ updateIdentityHolderId: personnelId, input })
-      form.reset(form.getValues())
+      if (!isEditing) {
+        form.reset(form.getValues())
+      }
       successNotification({
         title: 'Personnel updated',
         description: 'The personnel record was successfully updated.',

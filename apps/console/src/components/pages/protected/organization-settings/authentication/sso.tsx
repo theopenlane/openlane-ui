@@ -4,12 +4,12 @@ import Image from 'next/image'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Input } from '@repo/ui/input'
 import { useForm } from 'react-hook-form'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { z } from 'zod'
 import { Button } from '@repo/ui/button'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useUpdateOrganizationSetting, useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
@@ -224,6 +224,24 @@ const SSOOverview = ({
   )
 }
 
+const IDENTITY_PROVIDER_OPTIONS = Object.values(OrganizationSettingSsoProvider).filter((provider) => provider !== OrganizationSettingSsoProvider.NONE)
+
+const ssoFormSchema = z.object({
+  identityProvider: z.enum(IDENTITY_PROVIDER_OPTIONS, { error: (issue) => (issue.input === undefined ? 'Identity provider is required' : undefined) }),
+  identityProviderClientID: z.string().min(1, 'Client ID is required'),
+  identityProviderClientSecret: z.string().min(1, 'Client Secret is required'),
+  oidcDiscoveryEndpoint: z.string().min(1, 'OIDC Discovery Endpoint is required').url('Enter a valid URL'),
+})
+
+type TSSOFormData = z.infer<typeof ssoFormSchema>
+
+const SSO_UPDATE_FIELDS = {
+  identityProvider: orClear('clearIdentityProvider'),
+  identityProviderClientID: orClear('clearIdentityProviderClientID'),
+  identityProviderClientSecret: orClear('clearIdentityProviderClientSecret'),
+  oidcDiscoveryEndpoint: orClear('clearOidcDiscoveryEndpoint'),
+} satisfies TFieldMappers<TSSOFormData, UpdateOrganizationSettingInput>
+
 const SSOPage = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const [viewMode, setViewMode] = useState<viewMode>('overview')
@@ -260,21 +278,8 @@ const SSOPage = () => {
   const isSSOConfigured = !!(currentSetting?.identityProvider && currentSetting.identityProvider !== 'NONE')
   const allowedDomains = currentSetting?.allowedEmailDomains ?? []
 
-  const identityProviderOptions = useMemo(() => Object.values(OrganizationSettingSsoProvider).filter((provider) => provider !== 'NONE'), [])
-
-  const formSchema = useMemo(
-    () =>
-      z.object({
-        identityProvider: z.enum(identityProviderOptions, { error: (issue) => (issue.input === undefined ? 'Identity provider is required' : undefined) }),
-        identityProviderClientID: z.string().min(1, 'Client ID is required'),
-        identityProviderClientSecret: z.string().min(1, 'Client Secret is required'),
-        oidcDiscoveryEndpoint: z.string().min(1, 'OIDC Discovery Endpoint is required').url('Enter a valid URL'),
-      }),
-    [identityProviderOptions],
-  )
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<TSSOFormData>({
+    resolver: zodResolver(ssoFormSchema),
     defaultValues: {
       identityProvider: undefined,
       identityProviderClientID: '',
@@ -283,13 +288,13 @@ const SSOPage = () => {
     },
   })
 
-  const buildChangedInput = useChangedInput(form)
+  const buildDirtyInput = useDirtyInput(form)
 
   useEffect(() => {
     if (currentSetting) {
       const currentProvider = currentSetting.identityProvider
       form.reset({
-        identityProvider: currentProvider && currentProvider !== 'NONE' && identityProviderOptions.includes(currentProvider) ? currentProvider : undefined,
+        identityProvider: currentProvider && currentProvider !== 'NONE' && IDENTITY_PROVIDER_OPTIONS.includes(currentProvider) ? currentProvider : undefined,
         identityProviderClientID: currentSetting.identityProviderClientID || '',
         identityProviderClientSecret: currentSetting.identityProviderClientSecret || '',
         oidcDiscoveryEndpoint: currentSetting.oidcDiscoveryEndpoint || '',
@@ -298,19 +303,14 @@ const SSOPage = () => {
       setExemptDomains(currentSetting.ssoExemptDomains ?? [])
       setJitDomains(currentSetting.jitAllowedEmailDomains ?? [])
     }
-  }, [currentSetting, identityProviderOptions, form])
+  }, [currentSetting, form])
 
   const invalidateOrgSetting = () => queryClient.invalidateQueries({ queryKey: ['organizationSetting', currentOrgId] })
 
-  const updateSSOSettings = async (data: z.infer<typeof formSchema>) => {
+  const updateSSOSettings = async (data: TSSOFormData) => {
     if (!currentOrgId || !currentSetting?.id) return
 
-    const input = await buildChangedInput(data, (values): UpdateOrganizationSettingInput => ({
-      identityProvider: values.identityProvider as OrganizationSettingSsoProvider | undefined,
-      identityProviderClientID: values.identityProviderClientID || undefined,
-      identityProviderClientSecret: values.identityProviderClientSecret || undefined,
-      oidcDiscoveryEndpoint: values.oidcDiscoveryEndpoint || undefined,
-    }))
+    const input = await buildDirtyInput<UpdateOrganizationSettingInput>(data, SSO_UPDATE_FIELDS)
 
     const credentialsChanged = Object.keys(input).length > 0
 
@@ -419,7 +419,7 @@ const SSOPage = () => {
     await saveJitDomains(updated, previous)
   }
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: TSSOFormData) => {
     try {
       await updateSSOSettings(data)
       successNotification({
@@ -722,7 +722,7 @@ const SSOPage = () => {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {identityProviderOptions.map((provider) => {
+                                  {IDENTITY_PROVIDER_OPTIONS.map((provider) => {
                                     const logo = SSO_PROVIDER_LOGOS[provider as OrganizationSettingSsoProvider]
                                     return (
                                       <SelectItem key={provider} value={provider}>

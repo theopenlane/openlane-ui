@@ -20,7 +20,7 @@ const formSchema = z.object({
   }),
   internalPolicyKindName: z.string(),
   reviewDue: z.date().optional().nullable(),
-  tags: z.array(z.string().optional()),
+  tags: z.array(z.string()),
   programIDs: z.array(z.string()).optional(),
   procedureIDs: z.array(z.string()).optional(),
   controlObjectiveIDs: z.array(z.string()).optional(),

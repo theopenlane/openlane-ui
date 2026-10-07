@@ -3,8 +3,9 @@
 import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo, useRef, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Card } from '@repo/ui/cardpanel'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import MultipleSelector from '@repo/ui/multiple-selector'
 import { type UpdateIdentityHolderInput, type IdentityHolderQuery } from '@repo/codegen/src/schema'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
@@ -21,13 +22,14 @@ const iconClass = 'h-4 w-4 text-muted-foreground'
 interface PersonnelPropertiesSidebarProps {
   data: IdentityHolderQuery['identityHolder']
   isEditing: boolean
-  handleUpdate: (input: UpdateIdentityHolderInput) => Promise<void>
+  handleUpdate: (input: UpdateIdentityHolderInput, options?: TPersistOptions) => Promise<void>
   canEdit: boolean
 }
 
 const PersonnelPropertiesSidebar: React.FC<PersonnelPropertiesSidebarProps> = ({ data, isEditing, handleUpdate, canEdit: canEditPersonnel }) => {
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
-  const { control, watch, setValue } = useFormContext<EditPersonnelFormData>()
+  const { control, watch, resetField } = useFormContext<EditPersonnelFormData>()
+  const persistField = usePersistFormField<EditPersonnelFormData>()
 
   const { tagOptions } = useGetTags()
 
@@ -45,8 +47,7 @@ const PersonnelPropertiesSidebar: React.FC<PersonnelPropertiesSidebarProps> = ({
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
     if (changed) {
-      setValue('tags', next)
-      handleUpdate({ tags: next })
+      void persistField('tags', next, (options) => handleUpdate({ tags: next }, options))
     }
   }
 
@@ -66,11 +67,7 @@ const PersonnelPropertiesSidebar: React.FC<PersonnelPropertiesSidebarProps> = ({
   useEscapeKey(
     () => {
       if (internalEditing === 'tags') {
-        const options: Option[] = (data?.tags ?? []).filter((item: string): item is string => typeof item === 'string').map((item: string) => ({ value: item, label: item }))
-        setValue(
-          'tags',
-          options.map((opt) => opt.value),
-        )
+        resetField('tags')
         setInternalEditing(null)
       }
     },

@@ -7,7 +7,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { Form } from '@repo/ui/form'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
-import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
+import { EvidenceEvidenceStatus, type UpdateEvidenceInput } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { type EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -19,7 +19,7 @@ import { canDelete, canEdit } from '@/lib/authz/utils'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { associationsInput, dateOrClear, omit, orClear, richTextOrClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { EvidenceDetailsSheetSkeleton } from './skeleton/evidence-details-skeleton'
 import EvidenceFiles from './evidence-files'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -61,8 +61,34 @@ type TEvidenceDetailsSheetContent = TEvidenceDetailsSheet & {
 const DATE_POPOVER_FIELDS: EvidenceEditableField[] = ['renewalDate', 'creationDate']
 const INLINE_POPOVER_FIELDS: EvidenceEditableField[] = ['tags', 'reviewFrequency', ...DATE_POPOVER_FIELDS]
 
+const EVIDENCE_UPDATE_FIELDS = {
+  description: orClear('clearDescription'),
+  tags: orClear('clearTags'),
+  creationDate: (creationDate) => ({ creationDate: creationDate?.toISOString() }),
+  renewalDate: dateOrClear('clearRenewalDate'),
+  url: orClear('clearURL'),
+  collectionProcedure: richTextOrClear('clearCollectionProcedure'),
+  source: orClear('clearSource'),
+  reviewFrequency: orClear('clearReviewFrequency'),
+  externalUUID: orClear('clearExternalUUID'),
+  scopeName: orClear('clearScopeName'),
+  environmentName: orClear('clearEnvironmentName'),
+  status: omit,
+  evidenceFiles: omit,
+  controlIDs: associationsInput('controlIDs'),
+  subcontrolIDs: associationsInput('subcontrolIDs'),
+  programIDs: associationsInput('programIDs'),
+  controlObjectiveIDs: omit,
+  taskIDs: omit,
+  evidenceIDs: omit,
+  groupIDs: omit,
+  internalPolicyIDs: omit,
+  procedureIDs: omit,
+  riskIDs: omit,
+} satisfies TFieldMappers<EditEvidenceFormData, UpdateEvidenceInput>
+
 const EvidenceDetailsSheetContent: React.FC<TEvidenceDetailsSheetContent> = ({ controlId, entityId: entityIdProp, onClose: onCloseProp, config, isOpen }) => {
-  const { convertToHtml, convertToReadOnly } = usePlateEditor()
+  const { convertToReadOnly } = usePlateEditor()
   const [editRequested, setEditRequested] = useState(false)
 
   const { data: session } = useSession()
@@ -112,7 +138,7 @@ const EvidenceDetailsSheetContent: React.FC<TEvidenceDetailsSheetContent> = ({ c
 
   const { form } = useFormSchema(true)
   const { isDirty: isEvidenceDirty } = form.formState
-  const buildChangedInput = useChangedInput(form)
+  const buildDirtyInput = useDirtyInput(form)
 
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -188,37 +214,19 @@ const EvidenceDetailsSheetContent: React.FC<TEvidenceDetailsSheetContent> = ({ c
   const onSubmit = async (formData: EditEvidenceFormData) => {
     if (!config.id) return
 
-    const controlIDs = form.getValues('controlIDs') || []
-    const subcontrolIDs = form.getValues('subcontrolIDs') || []
-    const programIDs = form.getValues('programIDs') || []
-
-    const updatedAssociations = {
-      ...initialAssociations,
-      ...associations,
-      controlIDs,
-      subcontrolIDs,
-      programIDs,
-    }
-
-    setAssociations(updatedAssociations)
-
-    const associationInputs = getAssociationInput(initialAssociations, updatedAssociations)
+    const { controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, programIDs: _programIDs, ...externalAssociations } = associations
+    const associationInputs = getAssociationInput(initialAssociations, { ...initialAssociations, ...externalAssociations })
 
     const currentStatus = latestStatusRef.current ?? evidence?.status
 
     try {
-      const changedFields = await buildChangedInput(formData, async (values) => {
-        const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, status: _status, creationDate, renewalDate, ...restFormData } = values
-        const collectionProcedure = values.collectionProcedure && typeof values.collectionProcedure !== 'string' ? await convertToHtml(values.collectionProcedure) : values.collectionProcedure
+      const changedFields = await buildDirtyInput<UpdateEvidenceInput>(formData, EVIDENCE_UPDATE_FIELDS)
 
-        return {
-          ...restFormData,
-          collectionProcedure,
-          creationDate: creationDate?.toISOString(),
-          ...(renewalDate ? { renewalDate: renewalDate.toISOString() } : { clearRenewalDate: true }),
-          clearURL: !values.url,
-        }
-      })
+      if (Object.keys(changedFields).length === 0 && Object.keys(associationInputs).length === 0) {
+        form.reset()
+        setEditRequested(false)
+        return
+      }
 
       await updateEvidence({
         updateEvidenceId: config.id,
@@ -363,7 +371,7 @@ const EvidenceDetailsSheetContent: React.FC<TEvidenceDetailsSheetContent> = ({ c
   useEscapeKey(
     () => {
       if (editField) {
-        form.setValue(editField, evidence?.[editField] ?? '')
+        form.resetField(editField)
         setEditField(null)
       }
     },

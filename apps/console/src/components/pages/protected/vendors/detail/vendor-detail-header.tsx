@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
@@ -31,14 +32,15 @@ interface VendorDetailHeaderProps {
   onCancel: (e: React.MouseEvent<HTMLButtonElement>) => void
   onDeleteClick: () => void
   permissionRoles?: TAccessRole[]
-  handleUpdateField: (input: UpdateEntityInput) => Promise<void>
+  handleUpdateField: (input: UpdateEntityInput, options?: TPersistOptions) => Promise<void>
   onMergeComplete?: () => void
 }
 
 const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditing, canEditVendor, onEdit, onCancel, onDeleteClick, permissionRoles, handleUpdateField, onMergeComplete }) => {
   const canDeleteVendor = canDelete(permissionRoles)
   const showMenu = canEditVendor || canDeleteVendor
-  const { setValue, register } = useFormContext()
+  const { register, resetField } = useFormContext()
+  const persistField = usePersistFormField()
   const [inlineEditing, setInlineEditing] = useState<'name' | 'displayName' | null>(null)
   const [localValue, setLocalValue] = useState('')
   const [originalValue, setOriginalValue] = useState('')
@@ -68,14 +70,14 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
 
   const handleBlur = async (field: 'name' | 'displayName') => {
     if (localValue !== originalValue) {
-      setValue(field, localValue)
-      await handleUpdateField({ [field]: localValue })
+      register(field)
+      await persistField(field, localValue, (options) => handleUpdateField({ [field]: localValue }, options))
     }
     setInlineEditing(null)
   }
 
   const handleEscape = (field: 'name' | 'displayName') => {
-    setValue(field, originalValue)
+    resetField(field)
     setInlineEditing(null)
   }
 

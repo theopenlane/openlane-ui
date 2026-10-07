@@ -32,7 +32,7 @@ export const isPlateValueEmpty = (value: Value | string | undefined | null, edit
   return true
 }
 
-type TPlateHtmlConverter = Pick<ReturnType<typeof usePlateEditor>, 'convertToHtml'>
+export type TPlateHtmlConverter = Pick<ReturnType<typeof usePlateEditor>, 'convertToHtml'>
 
 export const plateToHtmlOrNull = async (value: Value | string | undefined | null, converter: TPlateHtmlConverter): Promise<string | null> => {
   if (!value || isPlateValueEmpty(value)) {

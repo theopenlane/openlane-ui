@@ -215,7 +215,6 @@ export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: E
         isEditing={props.isEditing}
         isCreate={props.isCreate}
         initialValue={props.isCreate ? '' : ((props.data as VulnerabilityQuery['vulnerability'])?.description ?? '')}
-        isFormInitialized={props.isFormInitialized}
       />
       <AdditionalFields
         isEditing={props.isEditing}

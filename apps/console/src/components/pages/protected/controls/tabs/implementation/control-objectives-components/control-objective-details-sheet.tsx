@@ -8,6 +8,7 @@ import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Label } from '@repo/ui/label'
 import PlateEditor from '@/components/shared/plate/plate-editor'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import { ControlObjectiveControlSource, ControlObjectiveObjectiveStatus, type ControlObjectiveFieldsFragment, type UpdateControlObjectiveInput } from '@repo/codegen/src/schema'
 import { useGetControlObjectiveById, useUpdateControlObjective, useDeleteControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { ControlObjectiveCard } from './control-objective-card'
@@ -16,8 +17,8 @@ import { GenericDetailsSheet, type RenderFieldsProps } from '@/components/shared
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import useFormSchema, { type TFormData } from './form/use-form-schema'
 import { ControlObjectiveSourceOptions, ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type Value } from 'platejs'
+import { omit, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { CONTROL_OBJECTIVE_UPDATE_FIELDS, revisionBumpExtras } from './form/control-objective-update-fields'
 import { VersionBump } from '@/lib/enums/revision-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
@@ -29,6 +30,13 @@ type Props = {
 
 const versionBumpOptions = enumToOptions(VersionBump)
 
+const DETAILS_SHEET_UPDATE_FIELDS = {
+  ...CONTROL_OBJECTIVE_UPDATE_FIELDS,
+  revision: omit,
+  controlIDs: omit,
+  subcontrolIDs: omit,
+} satisfies TFieldMappers<TFormData, UpdateControlObjectiveInput>
+
 const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'controlObjectiveId', entityId: entityIdProp, onClose: onCloseProp }) => {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -39,7 +47,7 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
 
   const { data: node, isLoading } = useGetControlObjectiveById(entityId)
   const { form } = useFormSchema()
-  const plateEditorHelper = usePlateEditor()
+  const hydrate = usePlateHydration(form)
 
   const baseUpdateMutation = useUpdateControlObjective()
   const baseDeleteMutation = useDeleteControlObjective()
@@ -82,24 +90,6 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
     [],
   )
 
-  const buildPayload = useCallback(
-    async (formData: TFormData): Promise<UpdateControlObjectiveInput> => {
-      const desiredOutcome = formData.desiredOutcome ? await plateEditorHelper.convertToHtml(formData.desiredOutcome as Value) : undefined
-      return {
-        name: formData.name,
-        desiredOutcome,
-        status: formData.status,
-        source: formData.source,
-        controlObjectiveType: formData.controlObjectiveType,
-        category: formData.category,
-        subcategory: formData.subcategory,
-      }
-    },
-    [plateEditorHelper],
-  )
-
-  const buildUndiffedPayload = useCallback((formData: TFormData): Partial<UpdateControlObjectiveInput> => (formData.RevisionBump ? { RevisionBump: formData.RevisionBump } : {}), [])
-
   const renderFields = useCallback(
     ({ isEditing, data, isFormInitialized }: RenderFieldsProps<ControlObjectiveFieldsFragment, UpdateControlObjectiveInput>) => {
       if (!isEditing) return null
@@ -124,7 +114,7 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
             <Controller
               control={control}
               name="desiredOutcome"
-              render={({ field }) => <PlateEditor initialValue={isFormInitialized ? (data?.desiredOutcome ?? undefined) : undefined} onChange={(val) => field.onChange(val)} />}
+              render={({ field }) => <PlateEditor initialValue={isFormInitialized ? (data?.desiredOutcome ?? undefined) : undefined} onChange={field.onChange} onHydrate={hydrate(field.name)} />}
             />
           </div>
 
@@ -217,7 +207,7 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
         </div>
       )
     },
-    [form],
+    [form, hydrate],
   )
 
   const extraContent = node ? (
@@ -239,8 +229,8 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
       isFetching={isLoading}
       updateMutation={updateMutation}
       deleteMutation={deleteMutation}
-      buildPayload={buildPayload}
-      buildUndiffedPayload={buildUndiffedPayload}
+      updateFields={DETAILS_SHEET_UPDATE_FIELDS}
+      buildChangeExtras={revisionBumpExtras}
       normalizeData={normalizeData}
       getName={(data) => data.name}
       renderFields={renderFields}

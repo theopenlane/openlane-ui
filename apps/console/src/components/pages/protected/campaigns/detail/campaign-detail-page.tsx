@@ -12,6 +12,7 @@ import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-templa
 import { useCampaignTargetStats } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { diffBuiltInput, hasInputChanges } from '@/utils/input-diff'
 import { CampaignCampaignStatus, CampaignCampaignType, type UpdateCampaignInput } from '@repo/codegen/src/schema'
 import { formatDate, formatDateTime, formatDateTimeWithZone } from '@/utils/date'
 import Skeleton from '@/components/shared/skeleton/skeleton'
@@ -26,7 +27,7 @@ import { LaunchCampaignDialog, type LaunchCampaignValues } from './launch-campai
 import { type CampaignRecurrenceValues, buildRecurrenceUpdateInput, describeCampaignRecurrence, toRecurrenceValues } from '../recurrence/campaign-recurrence'
 import { EditRecurrenceDialog } from '../recurrence/edit-recurrence-dialog'
 import { CampaignSetupView } from './campaign-setup-view'
-import { EditDetailsDialog } from './edit-details-dialog'
+import { type CampaignDetailsValues, EditDetailsDialog } from './edit-details-dialog'
 import { ChangeTemplateDialog } from './change-template-dialog'
 import { AddRecipientsDialog } from './add-recipients-dialog'
 import { SelectQuestionnaireDialog } from '../create/steps/questionnaire/select-questionnaire-dialog'
@@ -74,6 +75,16 @@ const getLaunchBlockedReason = ({ hasCampaignContent, isFetchingRecipients, hasR
   if (hasRecipientsError) return 'Recipients could not be loaded. Refresh and try again.'
   if (recipientCount === 0) return 'Add at least one recipient first.'
   return undefined
+}
+
+const buildDetailsUpdateInput = ({ name, description }: CampaignDetailsValues): UpdateCampaignInput => {
+  const hasDescription = description.trim().length > 0
+
+  return {
+    name: name.trim(),
+    description: hasDescription ? description : undefined,
+    clearDescription: hasDescription ? undefined : true,
+  }
 }
 
 const CampaignDetailPage: React.FC = () => {
@@ -189,7 +200,7 @@ const CampaignDetailPage: React.FC = () => {
     }
     try {
       const recurrenceInput = buildRecurrenceUpdateInput(recurrence)
-      if (JSON.stringify(recurrenceInput) !== JSON.stringify(buildRecurrenceUpdateInput(recurrenceValues))) {
+      if (hasInputChanges(recurrenceInput, buildRecurrenceUpdateInput(recurrenceValues))) {
         await updateCampaign({ updateCampaignId: campaignId, input: recurrenceInput })
       }
       const { queuedCount, skippedCount } = (await launchCampaign({ input: { campaignID: campaignId, scheduledAt } })).launchCampaign
@@ -210,13 +221,18 @@ const CampaignDetailPage: React.FC = () => {
     if (await handleUpdateField({ status: CampaignCampaignStatus.CANCELED }, 'Campaign canceled')) setCancelDialogOpen(false)
   }
 
-  const handleSaveDetails = async (values: { name: string; description: string }) => {
-    if (await handleUpdateField({ name: values.name, description: values.description })) setEditDetailsOpen(false)
+  const handleSaveDetails = async (values: CampaignDetailsValues) => {
+    const input = diffBuiltInput(buildDetailsUpdateInput(values), buildDetailsUpdateInput({ name: campaign?.name ?? '', description: campaign?.description ?? '' }))
+    if (Object.keys(input).length === 0) {
+      setEditDetailsOpen(false)
+      return
+    }
+    if (await handleUpdateField(input)) setEditDetailsOpen(false)
   }
 
   const handleSaveRecurrence = async (values: CampaignRecurrenceValues) => {
     const input = buildRecurrenceUpdateInput(values)
-    if (JSON.stringify(input) === JSON.stringify(buildRecurrenceUpdateInput(recurrenceValues))) {
+    if (!hasInputChanges(input, buildRecurrenceUpdateInput(recurrenceValues))) {
       setEditRecurrenceOpen(false)
       return
     }

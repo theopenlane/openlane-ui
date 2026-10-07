@@ -7,18 +7,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@repo/ui/label'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { useCreateControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
+import { type UpdateControlObjectiveInput } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
+import { omit, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type TFormData } from './use-form-schema'
+import { CONTROL_OBJECTIVE_UPDATE_FIELDS, revisionBumpExtras } from './control-objective-update-fields'
 import { VersionBump } from '@/lib/enums/revision-enum'
 import { ControlObjectiveSourceOptions, ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { Callout } from '@/components/shared/callout/callout'
 
 const versionBumpOptions = enumToOptions(VersionBump)
+
+const FORM_UPDATE_FIELDS = {
+  ...CONTROL_OBJECTIVE_UPDATE_FIELDS,
+  controlIDs: omit,
+  subcontrolIDs: omit,
+  revision: omit,
+} satisfies TFieldMappers<TFormData, UpdateControlObjectiveInput>
 
 export const CreateControlObjectiveForm = ({
   formId,
@@ -38,41 +48,51 @@ export const CreateControlObjectiveForm = ({
   const isEditing = !!defaultValues
   const isSuggested = !isEditing && !!suggestedValues
   const { convertToHtml } = usePlateEditor()
+  const buildDirtyInput = useDirtyInput(form)
   const {
     handleSubmit,
     control,
     formState: { errors },
   } = form
 
-  const onDesiredOutcomeChange = usePlateHydration(form, 'desiredOutcome', defaultValues?.desiredOutcome ?? suggestedValues?.desiredOutcome)
+  const hydrate = usePlateHydration(form)
 
   const { mutateAsync: createObjective } = useCreateControlObjective()
   const { mutateAsync: updateObjective } = useUpdateControlObjective()
 
-  const onSubmit = async (data: TFormData) => {
+  const updateObjectiveFromForm = async (objectiveId: string, data: TFormData) => {
+    const input = await buildDirtyInput<UpdateControlObjectiveInput>(data, FORM_UPDATE_FIELDS, { extras: revisionBumpExtras(data) })
+
+    if (Object.keys(input).length === 0) {
+      form.reset()
+      onSuccess()
+      return
+    }
+
+    await updateObjective({ updateControlObjectiveId: objectiveId, input })
+    successNotification({ title: 'Control Objective updated' })
+    onSuccess()
+  }
+
+  const createObjectiveFromForm = async (data: TFormData) => {
     const desiredOutcome = typeof data.desiredOutcome === 'string' ? data.desiredOutcome || undefined : data.desiredOutcome ? await convertToHtml(data.desiredOutcome) : undefined
 
-    const basePayload = {
+    await createObjective({
       ...data,
       desiredOutcome,
-      subcontrolIDs: undefined,
-      controlIDs: undefined,
-    }
-
-    const creationPayload = {
-      ...basePayload,
       ...(subcontrolId ? { subcontrolIDs: [subcontrolId as string] } : { controlIDs: [id as string] }),
-    }
+    })
+    successNotification({ title: 'Control Objective created' })
+    onSuccess()
+  }
 
+  const onSubmit = async (data: TFormData) => {
     try {
       if (isEditing) {
-        await updateObjective({ updateControlObjectiveId: defaultValues.id, input: basePayload })
-        successNotification({ title: 'Control Objective updated' })
+        await updateObjectiveFromForm(defaultValues.id, data)
       } else {
-        await createObjective(creationPayload)
-        successNotification({ title: 'Control Objective created' })
+        await createObjectiveFromForm(data)
       }
-      onSuccess()
     } catch (error) {
       errorNotification({ title: isEditing ? 'Update failed' : 'Create failed', description: parseErrorMessage(error) })
     }
@@ -106,7 +126,7 @@ export const CreateControlObjectiveForm = ({
           <Controller
             control={control}
             name="desiredOutcome"
-            render={({ field }) => <PlateEditor initialValue={defaultValues?.desiredOutcome ?? suggestedValues?.desiredOutcome} onChange={(val) => onDesiredOutcomeChange(val, field.onChange)} />}
+            render={({ field }) => <PlateEditor initialValue={defaultValues?.desiredOutcome ?? suggestedValues?.desiredOutcome} onChange={field.onChange} onHydrate={hydrate('desiredOutcome')} />}
           />
         </div>
 
@@ -178,7 +198,6 @@ export const CreateControlObjectiveForm = ({
             <Label className="min-w-36">Revision</Label>
             <div className="flex flex-col">
               <Controller
-                defaultValue={'DRAFT'}
                 name="RevisionBump"
                 control={control}
                 render={({ field }) => (

@@ -16,7 +16,29 @@ import { useGetCurrentUser, useUpdateUser } from '@/lib/graphql-hooks/user'
 import { type UpdateUserInput } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+
+const profileNameSchema = z.object({
+  firstName: z.string().min(2, {
+    message: 'First name must be at least 2 characters',
+  }),
+  lastName: z.string().min(2, {
+    message: 'Last name must be at least 2 characters',
+  }),
+  displayName: z.string().min(2, {
+    message: 'Display name must be at least 2 characters',
+  }),
+  email: z.string().email({
+    message: 'Invalid email address',
+  }),
+})
+
+type TProfileNameFormData = z.infer<typeof profileNameSchema>
+
+const PROFILE_NAME_UPDATE_FIELDS = {
+  firstName: orClear('clearFirstName'),
+  lastName: orClear('clearLastName'),
+} satisfies TFieldMappers<TProfileNameFormData, UpdateUserInput>
 
 const ProfileNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
@@ -29,23 +51,8 @@ const ProfileNameForm = () => {
 
   const { data: userData } = useGetCurrentUser(userId)
 
-  const formSchema = z.object({
-    firstName: z.string().min(2, {
-      message: 'First name must be at least 2 characters',
-    }),
-    lastName: z.string().min(2, {
-      message: 'Last name must be at least 2 characters',
-    }),
-    displayName: z.string().min(2, {
-      message: 'Display name must be at least 2 characters',
-    }),
-    email: z.string().email({
-      message: 'Invalid email address',
-    }),
-  })
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<TProfileNameFormData>({
+    resolver: zodResolver(profileNameSchema),
     defaultValues: {
       firstName: userData?.user.firstName || '',
       lastName: userData?.user.lastName || '',
@@ -54,16 +61,11 @@ const ProfileNameForm = () => {
     },
   })
 
-  const buildChangedInput = useChangedInput(form)
+  const buildDirtyInput = useDirtyInput(form)
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: TProfileNameFormData) => {
     try {
-      const input = await buildChangedInput(data, (values): UpdateUserInput => ({
-        firstName: values.firstName,
-        lastName: values.lastName,
-        displayName: values.displayName,
-        email: values.email,
-      }))
+      const input = await buildDirtyInput<UpdateUserInput>(data, PROFILE_NAME_UPDATE_FIELDS)
 
       if (Object.keys(input).length === 0) {
         form.reset()

@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useMemo } from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useFormState } from 'react-hook-form'
+import { isDeepEqual } from '@/utils/input-diff'
 import { useQueryClient } from '@tanstack/react-query'
 import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion'
 import { type Section, type TBaseAssociatedNode, getObjectName } from '@/components/shared/object-association/types/object-association-types'
@@ -105,19 +106,23 @@ export const AssociationSection = <TConfig extends AssociationEntityConfig>({
 
   const form = useFormContext<Record<string, string[]>>()
   const queryClient = useQueryClient()
+  const { register, resetField } = form
   const setAssociationValue = form.setValue as (name: string, value: string[], options?: { shouldDirty?: boolean }) => void
 
   const initialData = useMemo(() => buildInitialAssociationIds(config, associationsData) as TObjectAssociationMap<TFieldKey>, [config, associationsData])
 
+  const { defaultValues } = useFormState({ control: form.control })
+
   useEffect(() => {
     if (isEditing || isCreate) return
-    if (Object.keys(initialData).length > 0) {
-      const initialEntries = Object.entries(initialData) as [TFieldKey, string[]][]
-      initialEntries.forEach(([key, ids]) => {
-        setAssociationValue(key, ids, { shouldDirty: false })
+    const initialEntries = Object.entries(initialData) as [string, string[]][]
+    initialEntries
+      .filter(([key, ids]) => !isDeepEqual(defaultValues?.[key], ids))
+      .forEach(([key, ids]) => {
+        register(key)
+        resetField(key, { defaultValue: ids })
       })
-    }
-  }, [initialData, isEditing, isCreate, setAssociationValue])
+  }, [initialData, defaultValues, isEditing, isCreate, register, resetField])
 
   const sections: Section = useMemo(() => {
     if (!associationsData) return {}

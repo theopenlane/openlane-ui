@@ -37,7 +37,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
     TableKeyEnum.CONTROLS_MAPPED_CATEGORIES,
   )
 
-  const { setValue, getValues } = useFormContext()
+  const { setValue, getValues, resetField } = useFormContext()
   const { data, isLoading } = useGetStandards({})
 
   const standards = useMemo(() => {
@@ -69,18 +69,26 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
   }
 
   const handleSave = async () => {
-    setValue('mappedCategories', selected)
     setOpen(false)
     if (!id) {
+      setValue('mappedCategories', selected, { shouldDirty: true })
+      return
+    }
+
+    const current: string[] = getValues('mappedCategories') ?? []
+    const unchanged = current.length === selected.length && current.every((category) => selected.includes(category))
+    if (unchanged) {
+      onClose()
       return
     }
 
     await updateControl({
-      updateControlId: id ?? '',
+      updateControlId: id,
       input: {
         mappedCategories: selected,
       },
     })
+    resetField('mappedCategories', { defaultValue: selected })
     onClose()
   }
 

@@ -56,7 +56,7 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, isEditAllowed = tru
   useEscapeKey(
     () => {
       if (internalEditing && initialValue) {
-        form.setValue('name', initialValue)
+        form.resetField('name')
         setInternalEditing(false)
       }
     },

@@ -26,7 +26,7 @@ export const RiskDecisionDialog: React.FC<RiskDecisionDialogProps> = ({ open, on
     setSaving(true)
     try {
       const selectedDecision = getValues('riskDecision')
-      await handleUpdate({ riskDecision: selectedDecision as RiskRiskDecision })
+      await handleUpdate({ riskDecision: selectedDecision })
       onOpenChange(false)
     } finally {
       setSaving(false)

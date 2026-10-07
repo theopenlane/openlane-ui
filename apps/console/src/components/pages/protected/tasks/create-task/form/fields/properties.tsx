@@ -6,7 +6,7 @@ import { BookText, CalendarCheck2, Circle, CircleUser, Folder, Tag, UserRoundPen
 
 import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import MultipleSelector from '@repo/ui/multiple-selector'
 import { formatDate } from '@/utils/date'
 import { type TaskQuery, type TaskTaskStatus, type UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useTaskStore } from '../../../hooks/useTaskStore'
@@ -36,7 +36,7 @@ type PropertiesProps = {
 const allProperties = ['assigneeID', 'due', 'status', 'taskKindName', 'tags']
 
 const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEditing, setInternalEditing, handleUpdate, isEditAllowed, isTemplate }) => {
-  const { control, formState, watch, setValue } = useFormContext<EditTaskFormData>()
+  const { control, formState, watch, resetField } = useFormContext<EditTaskFormData>()
   const { orgMembers } = useTaskStore()
 
   const statusOptions = TaskStatusOptions
@@ -104,11 +104,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
         setInternalEditing(null)
       }
       if (internalEditing === 'tags') {
-        const options: Option[] = (taskData?.tags ?? []).filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item }))
-        setValue(
-          'tags',
-          options.map((opt) => opt.value),
-        )
+        resetField('tags')
         setInternalEditing(null)
       }
     },
@@ -140,7 +136,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                   value={field.value || 'unassigned'}
                   onValueChange={(value) => {
                     const newValue = value === 'unassigned' ? null : value
-                    handleUpdate?.({ assigneeID: newValue, clearAssignee: !newValue })
+                    handleUpdate?.({ assigneeID: newValue, clearAssignee: !newValue || undefined })
                     field.onChange(newValue)
                     setInternalEditing(null)
                   }}

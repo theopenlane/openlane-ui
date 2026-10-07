@@ -39,8 +39,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import Loading from './loading.tsx'
 import { useAccountRoles } from '@/lib/query-hooks/permissions.ts'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils.ts'
+import { buildControlUpdateFields, type TControlFormValues } from '@/components/pages/protected/controls/build-control-update-input'
+import { orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
@@ -51,25 +51,19 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Callout } from '@/components/shared/callout/callout'
 
-interface FormValues {
-  refCode: string
-  description: string | Value
-  descriptionJSON?: Value
-  delegateID: string
-  controlOwnerID: string
-  responsiblePartyID: string
-  category?: string
-  subcategory?: string
+type FormValues = TControlFormValues & {
   status: SubcontrolControlStatus
-  mappedCategories: string[]
   source?: SubcontrolControlSource
-  referenceID?: string
-  auditorReferenceID?: string
-  title: string
   subcontrolKindName?: string
-  sourceName?: string
-  publicRepresentation?: Value | string
 }
+
+const buildSubcontrolUpdateFields = (isSourceFramework: boolean) =>
+  ({
+    ...buildControlUpdateFields(isSourceFramework),
+    status: orClear('clearStatus'),
+    source: orClear('clearSource'),
+    subcontrolKindName: orClear('clearSubcontrolKindName'),
+  }) satisfies TFieldMappers<FormValues, UpdateSubcontrolInput>
 
 const initialDataObj = {
   refCode: '',
@@ -98,7 +92,6 @@ const ControlDetailsPage: React.FC = () => {
 
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
-  const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const [showAskAIDialog, setShowAskAIDialog] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
@@ -110,7 +103,6 @@ const ControlDetailsPage: React.FC = () => {
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
-  const plateEditorHelper = usePlateEditor()
 
   const { data: permission } = useAccountRoles(ObjectTypes.SUBCONTROL, subcontrolId ?? '')
   const { data: discussionData } = useGetSubcontrolDiscussionById(subcontrolId)
@@ -141,62 +133,16 @@ const ControlDetailsPage: React.FC = () => {
   const isSourceFramework = data?.subcontrol.source === SubcontrolControlSource.FRAMEWORK
 
   const { isDirty } = form.formState
+  const buildDirtyInput = useDirtyInput(form)
 
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
-        if (key === 'publicRepresentation') return acc
-        const initialValue = initialValues[key as keyof FormValues]
-        if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
-          acc[key] = value
-        }
-        return acc
-      }, {})
-
-      if (changedFields.descriptionJSON) {
-        changedFields.descriptionJSON = values?.descriptionJSON
-        changedFields.description = await plateEditorHelper.convertToHtml(values.descriptionJSON as Value)
-      }
-
-      const currentPR = values.publicRepresentation
-      if (Array.isArray(currentPR)) {
-        if (isPlateValueEmpty(currentPR)) {
-          if (initialValues.publicRepresentation) {
-            changedFields.publicRepresentation = undefined
-          }
-        } else {
-          const newHtml = await plateEditorHelper.convertToHtml(currentPR as Value)
-          if (newHtml !== initialValues.publicRepresentation) {
-            changedFields.publicRepresentation = newHtml
-          }
-        }
-      }
-
-      if (isSourceFramework) {
-        delete changedFields.title
-        delete changedFields.refCode
-        delete changedFields.descriptionJSON
-        delete changedFields.description
-      }
-
-      const PERSON_FIELD_CLEAR_KEYS: Record<string, string> = {
-        delegateID: 'clearDelegate',
-        controlOwnerID: 'clearControlOwner',
-        responsiblePartyID: 'clearResponsibleParty',
-      }
-
-      const input = Object.entries(changedFields).reduce<Record<string, unknown>>((acc, [key, value]) => {
-        if (key in PERSON_FIELD_CLEAR_KEYS && !value) {
-          acc[PERSON_FIELD_CLEAR_KEYS[key]] = true
-        } else {
-          acc[key] = value || undefined
-        }
-        return acc
-      }, {}) as UpdateSubcontrolInput
+      const input = await buildDirtyInput<UpdateSubcontrolInput>(values, buildSubcontrolUpdateFields(isSourceFramework))
 
       if (Object.keys(input).length === 0) {
+        form.reset()
         setIsEditing(false)
         return
       }
@@ -205,6 +151,8 @@ const ControlDetailsPage: React.FC = () => {
         updateSubcontrolId: subcontrolId ?? '',
         input,
       })
+
+      form.reset(values)
 
       successNotification({
         title: 'Subcontrol updated',
@@ -239,7 +187,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    form.reset(initialValues)
+    form.reset()
     setIsEditing(false)
   }
 
@@ -308,10 +256,10 @@ const ControlDetailsPage: React.FC = () => {
         auditorReferenceID: data.subcontrol.auditorReferenceID || undefined,
         title: data.subcontrol.title || '',
         publicRepresentation: data.subcontrol.publicRepresentation || '',
+        sourceName: data.subcontrol.sourceName || '',
       }
 
-      form.reset(newValues)
-      setInitialValues(newValues)
+      form.reset(newValues, { keepDirtyValues: true })
     }
   }, [data?.subcontrol, form])
 
@@ -320,6 +268,7 @@ const ControlDetailsPage: React.FC = () => {
   }
   if (isError || !data?.subcontrol) return <div className="p-4 text-red-500">Subcontrol not found</div>
   const subcontrol: SubcontrolByIdNode = data.subcontrol
+  const storedDescriptionJSON = subcontrol.descriptionJSON ? (subcontrol.descriptionJSON as Value) : undefined
   const isVerified = subcontrol.controlImplementations?.edges?.some((edge) => !!edge?.node?.verificationDate) ?? false
 
   const mainContent = (
@@ -331,8 +280,8 @@ const ControlDetailsPage: React.FC = () => {
               isEditAllowed={!isSourceFramework && canEdit(permission?.roles, sessionData)}
               isEditing={isEditing}
               handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
-              initialRefCode={initialValues.refCode}
-              initialTitle={initialValues.title}
+              initialRefCode={subcontrol.refCode || ''}
+              initialTitle={subcontrol.title || ''}
               referenceFramework={subcontrol.referenceFramework}
             />
             {isVerified && (
@@ -364,10 +313,10 @@ const ControlDetailsPage: React.FC = () => {
       )}
       <DescriptionField
         isEditing={isEditing}
-        initialValue={initialValues.descriptionJSON ?? initialValues.description}
+        initialValue={storedDescriptionJSON ?? subcontrol.description ?? ''}
         isEditAllowed={!isSourceFramework && canEdit(permission?.roles, sessionData)}
         discussionData={discussionData?.subcontrol}
-        systemCreated={!initialValues.descriptionJSON && !!initialValues.description}
+        systemCreated={!storedDescriptionJSON && !!subcontrol.description}
         source={subcontrol.source ?? undefined}
       />
 

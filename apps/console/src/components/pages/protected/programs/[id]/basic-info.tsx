@@ -16,7 +16,7 @@ import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { Textarea } from '@repo/ui/textarea'
 import { Pencil } from 'lucide-react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { ProgramProgramStatus, type UpdateProgramInput } from '@repo/codegen/src/schema'
 import { useGetOrgMemberships, useUserSelect } from '@/lib/graphql-hooks/member'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
@@ -43,11 +43,18 @@ const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  programOwnerId: z.string().optional(),
+  programOwnerID: z.string().optional(),
   frameworkName: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
+
+const PROGRAM_BASIC_INFO_UPDATE_FIELDS = {
+  description: orClear('clearDescription'),
+  tags: orClear('clearTags'),
+  programOwnerID: orClear('clearProgramOwner'),
+  frameworkName: orClear('clearFrameworkName'),
+} satisfies TFieldMappers<FormValues, UpdateProgramInput>
 
 const BasicInformation = () => {
   const { data: session } = useSession()
@@ -90,7 +97,7 @@ const BasicInformation = () => {
       tags: program?.tags ?? [],
     },
   })
-  const buildChangedInput = useChangedInput(form)
+  const buildDirtyInput = useDirtyInput(form)
 
   useEffect(() => {
     if (program) {
@@ -98,7 +105,7 @@ const BasicInformation = () => {
         name: program.name ?? '',
         description: program.description ?? '',
         tags: program.tags ?? [],
-        programOwnerId: program.programOwnerID ?? '',
+        programOwnerID: program.programOwnerID ?? '',
         frameworkName: program?.frameworkName ?? '',
       })
 
@@ -128,13 +135,7 @@ const BasicInformation = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const input = await buildChangedInput(values, (formValues: FormValues): UpdateProgramInput => ({
-        name: formValues.name,
-        description: formValues.description ?? null,
-        tags: formValues.tags ?? [],
-        programOwnerID: formValues.programOwnerId || undefined,
-        frameworkName: formValues.frameworkName,
-      }))
+      const input = await buildDirtyInput<UpdateProgramInput>(values, PROGRAM_BASIC_INFO_UPDATE_FIELDS)
 
       if (Object.keys(input).length === 0) {
         form.reset()
@@ -269,7 +270,7 @@ const BasicInformation = () => {
             <Label className="block w-56 shrink-0">Program Owner</Label>
             <div className="flex-1">
               <Controller
-                name="programOwnerId"
+                name="programOwnerID"
                 control={form.control}
                 render={({ field }) =>
                   isEditing ? (

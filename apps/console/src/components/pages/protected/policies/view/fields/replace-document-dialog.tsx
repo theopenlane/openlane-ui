@@ -68,11 +68,16 @@ const ReplaceDocumentDialog: React.FC<Props> = ({ policy, open, onOpenChange }) 
               maxFileSizeInMb={100}
               multipleFiles={false}
               onFileUpload={(uploaded) => {
-                if (uploaded.file) setValue('file', uploaded.file, { shouldValidate: true })
+                if (uploaded.file) setValue('file', uploaded.file, { shouldDirty: true, shouldValidate: true })
               }}
             />
           ) : (
-            <UploadedFileDetailsCard fileName={selectedFile.name} fileSize={selectedFile.size} index={0} handleDeleteFile={() => setValue('file', undefined, { shouldValidate: true })} />
+            <UploadedFileDetailsCard
+              fileName={selectedFile.name}
+              fileSize={selectedFile.size}
+              index={0}
+              handleDeleteFile={() => setValue('file', undefined, { shouldDirty: true, shouldValidate: true })}
+            />
           )}
           {formState.errors.file && <p className="text-sm text-red-500">{formState.errors.file.message}</p>}
 

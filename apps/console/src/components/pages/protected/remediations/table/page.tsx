@@ -1,47 +1,26 @@
 'use client'
 
-import React, { useCallback } from 'react'
+import React from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
-import {
-  type RemediationsNodeNonNull,
-  useRemediation,
-  useCreateRemediation,
-  useUpdateRemediation,
-  useBulkEditRemediation,
-  useBulkDeleteRemediation,
-  useGetRemediationAssociations,
-} from '@/lib/graphql-hooks/remediation'
+import { type RemediationsNodeNonNull, useRemediation, useCreateRemediation, useUpdateRemediation, useBulkEditRemediation, useBulkDeleteRemediation } from '@/lib/graphql-hooks/remediation'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import { type RemediationSheetConfig, type RemediationTablePageConfig, type RemediationFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import { type CreateRemediationInput, type UpdateRemediationInput, type GetRemediationAssociationsQuery } from '@repo/codegen/src/schema'
+import { type CreateRemediationInput, type UpdateRemediationInput } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
-import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { REMEDIATION_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
+import { REMEDIATION_UPDATE_FIELDS } from '../hooks/remediation-update-fields'
 
 const RemediationPage: React.FC = () => {
   const { form } = useFormSchema()
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
-  const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useRemediation(id || undefined)
-  const { data: associationsData } = useGetRemediationAssociations(id || undefined)
-
-  const extractAssociations = useCallback((assocData: GetRemediationAssociationsQuery) => {
-    const remediation = assocData.remediation
-    return {
-      controlIDs: (remediation.controls?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      subcontrolIDs: (remediation.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      findingIDs: (remediation.findings?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      vulnerabilityIDs: (remediation.vulnerabilities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-    }
-  }, [])
-  const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
 
   function getName(remediation: RemediationsNodeNonNull) {
     return remediation?.title || remediation?.displayID || remediation?.externalID
@@ -101,17 +80,13 @@ const RemediationPage: React.FC = () => {
     deleteMutation,
     buildPayload: async (data) => {
       const { controlIDs, subcontrolIDs, findingIDs, vulnerabilityIDs, ...rest } = data
-      const associationPayload = buildAssociationPayload(
-        REMEDIATION_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, subcontrolIDs, findingIDs, vulnerabilityIDs },
-        isCreate,
-        initialAssociationsRef.current,
-      )
+      const associationPayload = buildAssociationPayload(REMEDIATION_ASSOCIATION_CONFIG.associationKeys, { controlIDs, subcontrolIDs, findingIDs, vulnerabilityIDs }, true, {})
       return {
         ...rest,
         ...associationPayload,
       }
     },
+    updateFields: REMEDIATION_UPDATE_FIELDS,
     getName,
     renderFields: (props: RemediationFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }

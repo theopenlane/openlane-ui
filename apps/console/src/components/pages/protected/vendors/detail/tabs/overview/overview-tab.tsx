@@ -24,7 +24,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ vendor, associations, isEditi
 
   return (
     <div className="space-y-6">
-      <DescriptionField isEditing={isEditing} isCreate={false} initialValue={typeof vendor.description === 'string' ? vendor.description : null} isFormInitialized />
+      <DescriptionField isEditing={isEditing} isCreate={false} initialValue={typeof vendor.description === 'string' ? vendor.description : null} />
 
       <ProvidedServicesSection vendor={vendor} isEditing={isEditing} canEdit={canEdit} handleUpdateField={handleUpdateField} />
 

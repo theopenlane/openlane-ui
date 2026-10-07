@@ -30,7 +30,7 @@ export const useMergeRunner = <TRecord, TUpdateInput, TEntity extends MergeableT
   const { successNotification, errorNotification, warningNotification } = useNotification()
 
   const runMerge = useCallback(
-    async (secondaryId: string, fieldInput: TUpdateInput) => {
+    async (secondaryId: string, fieldInput: TUpdateInput | null) => {
       setIsMerging(true)
 
       const invalidate = () => {
@@ -94,7 +94,9 @@ export const useMergeRunner = <TRecord, TUpdateInput, TEntity extends MergeableT
         }
 
         try {
-          await update.mutateAsync({ id: primaryId, input: fieldInput })
+          if (fieldInput) {
+            await update.mutateAsync({ id: primaryId, input: fieldInput })
+          }
         } catch (error) {
           invalidate()
           warningNotification({
@@ -112,7 +114,9 @@ export const useMergeRunner = <TRecord, TUpdateInput, TEntity extends MergeableT
       }
 
       try {
-        await update.mutateAsync({ id: primaryId, input: fieldInput })
+        if (fieldInput) {
+          await update.mutateAsync({ id: primaryId, input: fieldInput })
+        }
       } catch (error) {
         invalidate()
         setIsMerging(false)

@@ -3,6 +3,7 @@
 import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
@@ -23,19 +24,20 @@ interface RiskDetailHeaderProps {
   onCancel: (e: React.MouseEvent<HTMLButtonElement>) => void
   onDeleteClick: () => void
   canDeleteRisk: boolean
-  handleUpdateField: (input: UpdateRiskInput) => Promise<void>
+  handleUpdateField: (input: UpdateRiskInput, options?: TPersistOptions) => Promise<void>
 }
 
 const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, canEditRisk, onEdit, onCancel, onDeleteClick, canDeleteRisk, handleUpdateField }) => {
   const { setValue, register } = useFormContext()
+  const persistField = usePersistFormField()
   const [inlineEditing, setInlineEditing] = useState<'name' | null>(null)
   const [localValue, setLocalValue] = useState('')
   const [originalValue, setOriginalValue] = useState<string>('')
 
   const handleBlur = async (field: 'name') => {
     if (localValue !== originalValue) {
-      setValue(field, localValue)
-      await handleUpdateField({ [field]: localValue })
+      register(field)
+      await persistField(field, localValue, (options) => handleUpdateField({ [field]: localValue }, options))
     }
     setInlineEditing(null)
   }

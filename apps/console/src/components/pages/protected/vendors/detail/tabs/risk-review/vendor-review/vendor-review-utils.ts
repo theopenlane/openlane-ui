@@ -1,4 +1,6 @@
-import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
+import { EntityFrequency, type EntityQuery, type UpdateEntityInput, type UpdateReviewInput } from '@repo/codegen/src/schema'
+import { omit, orClear, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { riskRatingFromScore } from '@/lib/vendor-risk-rating'
@@ -22,30 +24,25 @@ export const buildVendorReviewDefaults = (vendor: TVendor, review?: ReviewsNodeN
   riskScore: vendor.riskScore === null || vendor.riskScore === undefined ? '' : String(vendor.riskScore),
 })
 
-export const buildVendorRiskUpdate = (vendor: TVendor, formData: VendorReviewFormData): UpdateEntityInput | null => {
-  const input: UpdateEntityInput = {}
+export const VENDOR_REVIEW_UPDATE_FIELDS = {
+  description: async (value, _values, { converter }) => {
+    const details = await plateToHtmlOrNull(value, converter)
+    return details ? { details } : { clearDetails: true }
+  },
+  tier: omit,
+  riskScore: omit,
+} satisfies TFieldMappers<VendorReviewFormData, UpdateReviewInput>
 
-  if (formData.tier && formData.tier !== vendor.tier) {
-    input.tier = formData.tier
-  }
-
-  const riskScore = parseRiskScore(formData.riskScore)
-  if (riskScore !== (vendor.riskScore ?? null)) {
-    if (riskScore === null) {
-      input.clearRiskScore = true
-    } else {
-      input.riskScore = riskScore
+export const VENDOR_RISK_UPDATE_FIELDS = {
+  title: omit,
+  description: omit,
+  tier: orClear('clearTier'),
+  riskScore: (value) => {
+    const riskScore = parseRiskScore(value)
+    const riskRating = riskRatingFromScore(riskScore)
+    return {
+      ...(riskScore === null ? { clearRiskScore: true } : { riskScore }),
+      ...(riskRating ? { riskRating } : { clearRiskRating: true }),
     }
-  }
-
-  const riskRating = riskRatingFromScore(riskScore) ?? ''
-  if (riskRating !== (vendor.riskRating ?? '')) {
-    if (riskRating) {
-      input.riskRating = riskRating
-    } else {
-      input.clearRiskRating = true
-    }
-  }
-
-  return Object.keys(input).length > 0 ? input : null
-}
+  },
+} satisfies TFieldMappers<VendorReviewFormData, UpdateEntityInput>

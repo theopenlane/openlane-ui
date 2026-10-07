@@ -15,7 +15,7 @@ import { type Option } from '@repo/ui/multiple-selector'
 
 type EditableUserCellProps = {
   label: string
-  entity?: AvatarEntityLike | null
+  entity?: (AvatarEntityLike & { id?: string | null }) | null
   onSubmitData: (
     data: EditableFieldFormData,
     helpers: {
@@ -109,6 +109,10 @@ const EditableUserCell: React.FC<EditableUserCellProps> = ({ label, entity, onSu
                       onValueChange={async (value) => {
                         const newValue = value === UNASSIGNED ? null : value
                         field.onChange(newValue)
+                        if (newValue === (entity?.id ?? null)) {
+                          setIsEditing(false)
+                          return
+                        }
                         await onSubmit({ ...form.getValues(), id: newValue })
                       }}
                     >

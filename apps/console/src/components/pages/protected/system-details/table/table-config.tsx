@@ -105,7 +105,6 @@ export const getFieldsToRender = (props: SystemDetailFieldProps, enumOptions: En
         setInternalEditing={props.setInternalEditing}
         handleUpdateField={props.handleUpdateField as ((input: UpdateSystemDetailInput) => Promise<void>) | undefined}
         enumOptions={enumOptions}
-        isFormInitialized={props.isFormInitialized}
       />
     </div>
   )

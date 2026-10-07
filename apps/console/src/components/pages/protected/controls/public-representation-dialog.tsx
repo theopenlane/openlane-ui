@@ -8,7 +8,7 @@ import { type Value } from 'platejs'
 import { docsHelpAvailable } from '@repo/dally/ai'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { plainTextToPlateValue } from '@/components/shared/plate/plate-utils'
+import { plainTextToPlateValue, stringToPlateValue } from '@/components/shared/plate/plate-utils'
 import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import { useGetAllControlImplementations } from '@/lib/graphql-hooks/control-implementation'
@@ -92,6 +92,12 @@ const PublicRepresentationDialog: React.FC<PublicRepresentationDialogProps> = ({
 
   const handleSave = async () => {
     const publicRepresentation = typeof value === 'string' ? value : await convertToHtml(value)
+    const isUnchanged = publicRepresentation === existing || publicRepresentation === (await convertToHtml(stringToPlateValue(existing) ?? []))
+
+    if (isUnchanged) {
+      onOpenChange(false)
+      return
+    }
 
     try {
       if (isSubcontrol) {

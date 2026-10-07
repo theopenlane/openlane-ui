@@ -3,6 +3,7 @@
 import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import { type Value } from 'platejs'
 import { useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -18,7 +19,8 @@ interface PublicRepresentationFieldProps {
 
 const PublicRepresentationField: React.FC<PublicRepresentationFieldProps> = ({ isEditing, initialValue, isEditAllowed }) => {
   const { subcontrolId } = useParams<{ subcontrolId: string | undefined; id: string }>()
-  const { control } = useFormContext()
+  const { control, resetField } = useFormContext()
+  const hydrate = usePlateHydration({ resetField })
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
@@ -47,6 +49,7 @@ const PublicRepresentationField: React.FC<PublicRepresentationFieldProps> = ({ i
             containerClassName="min-h-[150px]"
             userData={userData}
             initialValue={initialValue}
+            onHydrate={hydrate(field.name)}
             onChange={(val) => {
               field.onChange(val)
             }}

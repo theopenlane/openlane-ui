@@ -21,8 +21,17 @@ import '@/components/shared/survey/survey-creator-types'
 import { surveyLicenseKey } from '@repo/dally/auth'
 import { useCreateAssessmentWithPolicies, useGetAssessment, useUpdateAssessment } from '@/lib/graphql-hooks/assessment'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { initialQuestionnaireEditorState, NO_DUE_DATE_DURATION, questionnaireEditorReducer, type TQuestionnaireEditorAction, UNTITLED_QUESTIONNAIRE } from './questionnaire-editor-state'
+import {
+  initialQuestionnaireEditorState,
+  NO_DUE_DATE_DURATION,
+  questionnaireEditorReducer,
+  type TQuestionnaireEditorAction,
+  type TQuestionnaireEditorState,
+  UNTITLED_QUESTIONNAIRE,
+} from './questionnaire-editor-state'
 import { QuestionnaireEditorToolbar } from './questionnaire-editor-toolbar'
+import { diffBuiltInput } from '@/utils/input-diff'
+import { type UpdateAssessmentInput } from '@repo/codegen/src/schema'
 
 const enLocale = editorLocalization.getLocale('en')
 
@@ -50,6 +59,20 @@ const createSurveyCreator = () => {
   return creator
 }
 
+type TAssessmentUpdateValues = Pick<TQuestionnaireEditorState, 'assessmentType' | 'responseDueDuration'> & {
+  name: string
+  jsonconfig: UpdateAssessmentInput['jsonconfig']
+}
+
+const buildAssessmentUpdateInput = ({ name, jsonconfig, assessmentType, responseDueDuration }: TAssessmentUpdateValues): UpdateAssessmentInput => ({
+  name,
+  jsonconfig,
+  assessmentType,
+  ...(responseDueDuration === NO_DUE_DATE_DURATION ? { clearResponseDueDuration: true } : { responseDueDuration }),
+})
+
+const surveyName = (creator: SurveyCreator): string => creator.survey.title?.trim() || UNTITLED_QUESTIONNAIRE
+
 slk(surveyLicenseKey as string)
 
 const getSaveDisabledReason = ({ activeTab, isModified }: { activeTab: string; isModified: boolean }) => {
@@ -70,6 +93,7 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
   const [isModified, setIsModified] = useState(false)
   const [activeTab, setActiveTab] = useState(creator.activeTab)
   const [hasSaved, setHasSaved] = useState(false)
+  const baselineRef = useRef<TAssessmentUpdateValues | undefined>(undefined)
 
   useEffect(() => {
     const syncState = () => setIsModified(creator.state === 'modified')
@@ -115,11 +139,20 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
       creatorRef.current.JSON = assessmentResult.assessment.jsonconfig
     }
 
-    dispatchQuestionnaireEditorState({
+    const hydrateAction: TQuestionnaireEditorAction = {
       type: 'hydrate-from-assessment',
       assessmentType: assessmentResult.assessment.assessmentType,
       responseDueDuration: assessmentResult.assessment.responseDueDuration,
-    })
+    }
+    const hydrated = questionnaireEditorReducer(initialQuestionnaireEditorState, hydrateAction)
+
+    baselineRef.current = {
+      name: surveyName(creatorRef.current),
+      jsonconfig: creatorRef.current.JSON,
+      assessmentType: hydrated.assessmentType,
+      responseDueDuration: hydrated.responseDueDuration,
+    }
+    dispatchQuestionnaireEditorState(hydrateAction)
   }, [assessmentResult])
 
   const { mutateAsync: createAssessmentData, isPending: isCreating } = useCreateAssessmentWithPolicies()
@@ -136,21 +169,20 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
 
   const saveAssessment = async () => {
     const jsonconfig = creator.JSON
-    const name = creator.survey.title?.trim() || UNTITLED_QUESTIONNAIRE
+    const name = surveyName(creator)
 
     try {
       if (input.existingId) {
-        await updateAssessmentData({
-          updateAssessmentId: input.existingId,
-          input: {
-            name,
-            jsonconfig,
-            assessmentType,
-            ...(responseDueDuration === NO_DUE_DATE_DURATION ? { clearResponseDueDuration: true } : { responseDueDuration }),
-          },
-        })
+        const values: TAssessmentUpdateValues = { name, jsonconfig, assessmentType, responseDueDuration }
+        const baseline = baselineRef.current
+        const updateInput = diffBuiltInput(buildAssessmentUpdateInput(values), baseline && buildAssessmentUpdateInput(baseline))
+
+        if (Object.keys(updateInput).length > 0) {
+          await updateAssessmentData({ updateAssessmentId: input.existingId, input: updateInput })
+          baselineRef.current = values
+          successNotification({ title: 'Assessment updated successfully' })
+        }
         setHasSaved(true)
-        successNotification({ title: 'Assessment updated successfully' })
         router.push(`/automation/questionnaires/${input.existingId}`)
         return
       }

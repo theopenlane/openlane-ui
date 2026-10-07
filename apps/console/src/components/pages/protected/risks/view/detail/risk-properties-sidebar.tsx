@@ -3,8 +3,9 @@
 import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo, useRef, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Card } from '@repo/ui/cardpanel'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import MultipleSelector from '@repo/ui/multiple-selector'
 import { type UpdateRiskInput, type GetRiskByIdQuery, RiskRiskStatus, RiskFrequency, RiskRiskDecision, type RiskRiskLikelihood } from '@repo/codegen/src/schema'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { RISK_STAKEHOLDER, RISK_DELEGATE } from '../../risk-responsibility'
@@ -29,13 +30,14 @@ const iconClass = 'h-4 w-4 text-muted-foreground'
 interface RiskPropertiesSidebarProps {
   data: GetRiskByIdQuery['risk']
   isEditing: boolean
-  handleUpdate: (input: UpdateRiskInput) => Promise<void>
+  handleUpdate: (input: UpdateRiskInput, options?: TPersistOptions) => Promise<void>
   canEdit: boolean
 }
 
 const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isEditing, handleUpdate, canEdit: canEditRisk }) => {
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
-  const { control, watch, setValue } = useFormContext<EditRisksFormData>()
+  const { control, watch, resetField } = useFormContext<EditRisksFormData>()
+  const persistField = usePersistFormField<EditRisksFormData>()
 
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
@@ -58,8 +60,7 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
     if (changed) {
-      setValue('tags', next)
-      handleUpdate({ tags: next })
+      void persistField('tags', next, (options) => handleUpdate({ tags: next }, options))
     }
   }
 
@@ -79,11 +80,7 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
   useEscapeKey(
     () => {
       if (internalEditing === 'tags') {
-        const options: Option[] = (data?.tags ?? []).filter((item: string): item is string => typeof item === 'string').map((item: string) => ({ value: item, label: item }))
-        setValue(
-          'tags',
-          options.map((opt) => opt.value),
-        )
+        resetField('tags')
         setInternalEditing(null)
       }
     },

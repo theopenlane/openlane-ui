@@ -14,7 +14,7 @@ import AssignRoleToGroupDialog from './dialogs/assign-role-to-group-dialog'
 import GroupsPermissionsTable from './groups-permissions-table'
 import GroupRolesTable from './group-roles-table'
 import InheritPermissionDialog from './dialogs/inherit-permission-dialog'
-import { GroupSettingVisibility, GroupMembershipRole } from '@repo/codegen/src/schema'
+import { GroupSettingVisibility, GroupMembershipRole, type UpdateGroupInput } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
 import { z } from 'zod'
 import { useForm, Controller } from 'react-hook-form'
@@ -31,7 +31,7 @@ import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { GROUP_PERMISSIONS_DOCS_URL } from '@/constants/docs'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -48,6 +48,13 @@ const EditGroupSchema = z.object({
 })
 
 type EditGroupFormData = z.infer<typeof EditGroupSchema>
+
+const GROUP_UPDATE_FIELDS = {
+  groupName: (groupName) => ({ name: groupName, displayName: groupName }),
+  description: orClear('clearDescription'),
+  visibility: (visibility) => ({ updateGroupSettings: { visibility: visibility === 'Public' ? GroupSettingVisibility.PUBLIC : GroupSettingVisibility.PRIVATE } }),
+  tags: (tags) => (tags.length > 0 ? { tags: tags.map((tag) => tag.value) } : { clearTags: true }),
+} satisfies TFieldMappers<EditGroupFormData, UpdateGroupInput>
 
 const GroupDetailsSheet = () => {
   const { data: sessionData } = useSession()
@@ -79,7 +86,7 @@ const GroupDetailsSheet = () => {
   })
 
   const { control, handleSubmit, reset } = form
-  const buildChangedInput = useChangedInput(form)
+  const buildDirtyInput = useDirtyInput(form)
 
   const handleCopyLink = () => {
     if (!selectedGroup) return
@@ -113,15 +120,7 @@ const GroupDetailsSheet = () => {
     if (!selectedGroup || !id) return
 
     try {
-      const input = await buildChangedInput(data, (values: EditGroupFormData) => ({
-        name: values.groupName,
-        displayName: values.groupName,
-        description: values.description,
-        tags: values.tags.map((t) => t.value),
-        updateGroupSettings: {
-          visibility: values.visibility === 'Public' ? GroupSettingVisibility.PUBLIC : GroupSettingVisibility.PRIVATE,
-        },
-      }))
+      const input = await buildDirtyInput<UpdateGroupInput>(data, GROUP_UPDATE_FIELDS)
 
       if (Object.keys(input).length === 0) {
         reset()

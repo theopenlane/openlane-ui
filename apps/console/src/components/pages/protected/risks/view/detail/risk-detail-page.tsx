@@ -1,6 +1,6 @@
 'use client'
 
-import { normalizeResponsibilityField, buildResponsibilityTargetPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { normalizeResponsibilityField, responsibilityInput } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { RISK_STAKEHOLDER, RISK_DELEGATE } from '../../risk-responsibility'
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
@@ -20,7 +20,7 @@ import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { dateOrClear, omit, orClear, richTextOrClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { type UpdateRiskInput, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
@@ -37,8 +37,7 @@ import QuickActions from '@/components/pages/protected/risks/quick-actions/quick
 import { Badge } from '@repo/ui/badge'
 import { cn } from '@repo/ui/lib/utils'
 import RiskLabel from '../../risk-label'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type Value } from 'platejs'
+import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import TaskDetailsSheet from '../../../tasks/create-task/sidebar/task-details-sheet'
 import { useSession } from 'next-auth/react'
 
@@ -47,6 +46,34 @@ interface RiskDetailPageProps {
 }
 
 type RiskFormValues = EditRisksFormData
+
+const RISK_UPDATE_FIELDS = {
+  details: omit,
+  detailsJSON: async (detailsJSON, _values, { converter }) => {
+    const details = await plateToHtmlOrNull(detailsJSON, converter)
+    return details ? { detailsJSON, details } : { clearDetails: true, clearDetailsJSON: true }
+  },
+  businessCosts: richTextOrClear('clearBusinessCosts'),
+  mitigation: richTextOrClear('clearMitigation'),
+  riskKindName: orClear('clearRiskKindName'),
+  riskCategoryName: orClear('clearRiskCategoryName'),
+  score: orClear('clearScore'),
+  residualScore: orClear('clearResidualScore'),
+  impact: orClear('clearImpact'),
+  likelihood: orClear('clearLikelihood'),
+  status: orClear('clearStatus'),
+  dueDate: dateOrClear('clearDueDate'),
+  tags: orClear('clearTags'),
+  stakeholder: responsibilityInput(RISK_STAKEHOLDER),
+  delegate: responsibilityInput(RISK_DELEGATE),
+  reviewRequired: orClear('clearReviewRequired'),
+  reviewFrequency: orClear('clearReviewFrequency'),
+  nextReviewDueAt: dateOrClear('clearNextReviewDueAt'),
+  riskDecision: orClear('clearRiskDecision'),
+  mitigatedAt: dateOrClear('clearMitigatedAt'),
+  environmentName: orClear('clearEnvironmentName'),
+  scopeName: orClear('clearScopeName'),
+} satisfies TFieldMappers<RiskFormValues, UpdateRiskInput>
 type InlineEditField = 'status' | 'riskKindName' | 'riskCategoryName'
 
 const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
@@ -68,8 +95,6 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [inlineEditField, setInlineEditField] = useState<InlineEditField | null>(null)
 
-  const plateEditorHelper = usePlateEditor()
-
   const hasScrollbar = useHasScrollbar([isEditing, data?.risk, associationsData?.risk])
 
   const form = useForm<RiskFormValues>({
@@ -77,7 +102,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   })
 
   const { isDirty } = form.formState
-  const buildChangedInput = useChangedInput(form)
+  const buildDirtyInput = useDirtyInput(form)
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   const isEditingRef = useRef(isEditing)
@@ -119,9 +144,9 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
         }),
         delegate: normalizeResponsibilityField({ user: data.risk.delegateUser, group: data.risk.delegateGroup, personnel: data.risk.delegateIdentityHolder, stringValue: data.risk.delegateName }),
         reviewRequired: data.risk.reviewRequired ?? true,
-        reviewFrequency: data.risk.reviewFrequency ?? '',
+        reviewFrequency: data.risk.reviewFrequency ?? undefined,
         nextReviewDueAt: data.risk.nextReviewDueAt ?? '',
-        riskDecision: data.risk.riskDecision ?? '',
+        riskDecision: data.risk.riskDecision ?? undefined,
         mitigatedAt: data.risk.mitigatedAt ?? '',
         environmentName: data.risk.environmentName ?? '',
         scopeName: data.risk.scopeName ?? '',
@@ -132,23 +157,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
 
   const onSubmit = async (values: RiskFormValues) => {
     try {
-      const input = await buildChangedInput(values, async (formValues: RiskFormValues): Promise<UpdateRiskInput> => {
-        const [details, businessCosts, mitigation] = await Promise.all([
-          formValues.detailsJSON ? plateEditorHelper.convertToHtml(formValues.detailsJSON as Value) : undefined,
-          formValues.businessCosts ? plateEditorHelper.convertToHtml(formValues.businessCosts as Value) : undefined,
-          formValues.mitigation ? plateEditorHelper.convertToHtml(formValues.mitigation as Value) : undefined,
-        ])
-
-        const { stakeholder, delegate, ...rest } = formValues
-        return {
-          ...rest,
-          ...buildResponsibilityTargetPayload(RISK_STAKEHOLDER, stakeholder, 'update'),
-          ...buildResponsibilityTargetPayload(RISK_DELEGATE, delegate, 'update'),
-          details,
-          businessCosts,
-          mitigation,
-        } as UpdateRiskInput
-      })
+      const input = await buildDirtyInput<UpdateRiskInput>(values, RISK_UPDATE_FIELDS)
 
       if (Object.keys(input).length === 0) {
         form.reset()

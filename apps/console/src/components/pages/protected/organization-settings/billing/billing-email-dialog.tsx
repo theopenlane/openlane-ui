@@ -18,15 +18,21 @@ const BillingEmailDialog = () => {
   const { successNotification, errorNotification } = useNotification()
 
   const { data: settingData } = useGetOrganizationSetting(currentOrgId)
+  const storedEmail = settingData?.organization.setting?.billingEmail || ''
 
   useEffect(() => {
     if (isOpen) {
-      setEmailInput(settingData?.organization.setting?.billingEmail || '')
+      setEmailInput(storedEmail)
     }
-  }, [settingData, isOpen])
+  }, [storedEmail, isOpen])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    if (emailInput === storedEmail) {
+      setIsOpen(false)
+      return
+    }
 
     try {
       await updateOrg({

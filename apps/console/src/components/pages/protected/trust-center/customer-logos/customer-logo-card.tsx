@@ -15,19 +15,25 @@ import { Label } from '@repo/ui/label'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { normalizeUrl } from '@/utils/normalizeUrl'
+import { orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { type UpdateTrustCenterEntityInput } from '@repo/codegen/src/schema'
 
 const formSchema = z.object({
-  url: z.string().optional(),
+  url: z.string().trim().optional(),
 })
 
 type TFormValues = z.infer<typeof formSchema>
+
+const ENTITY_UPDATE_FIELDS = {
+  url: orClear('clearURL'),
+} satisfies TFieldMappers<TFormValues, UpdateTrustCenterEntityInput>
 
 type CustomerLogoCardProps = {
   id: string
   name: string
   url?: string | null
   logoUrl?: string | null
-  onUpdate: (args: { id: string; url?: string; logoFile?: File }) => Promise<void> | void
+  onUpdate: (args: { id: string; input: UpdateTrustCenterEntityInput; logoFile?: File }) => Promise<void> | void
   onDelete: (id: string) => void
   isUpdating?: boolean
   isDeleting?: boolean
@@ -43,11 +49,17 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
     resolver: zodResolver(formSchema),
     defaultValues: { url: url ?? '' },
   })
+  const buildDirtyInput = useDirtyInput(form)
 
   const handleUpload = (uploaded: TUploadedFile) => {
     if (!uploaded.file) return
     setSelectedFile(uploaded.file)
     setPreview(URL.createObjectURL(uploaded.file))
+  }
+
+  const startEdit = () => {
+    form.reset({ url: url ?? '' })
+    setIsEditing(true)
   }
 
   const resetEdit = () => {
@@ -58,15 +70,15 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
   }
 
   const onSubmit = async (values: TFormValues) => {
-    const nextUrl = values.url?.trim() ? values.url.trim() : undefined
-    await onUpdate({
-      id,
-      url: nextUrl,
-      logoFile: selectedFile || undefined,
-    })
-    setIsEditing(false)
-    setSelectedFile(null)
-    setPreview(null)
+    const input = await buildDirtyInput<UpdateTrustCenterEntityInput>(values, ENTITY_UPDATE_FIELDS)
+    if (Object.keys(input).length > 0 || selectedFile) {
+      await onUpdate({
+        id,
+        input,
+        logoFile: selectedFile || undefined,
+      })
+    }
+    resetEdit()
   }
 
   return (
@@ -92,7 +104,7 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
 
             <div className="flex items-center gap-3 text-muted-foreground ">
               {canEdit && (
-                <button onClick={() => setIsEditing(true)} aria-label={`Edit URL for ${name}`} disabled={isUpdating || isDeleting}>
+                <button onClick={startEdit} aria-label={`Edit URL for ${name}`} disabled={isUpdating || isDeleting}>
                   <Pencil className="h-4 w-4" />
                 </button>
               )}

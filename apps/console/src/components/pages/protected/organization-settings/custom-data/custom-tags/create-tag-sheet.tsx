@@ -3,7 +3,7 @@
 import { type UpdateTagDefinitionInput } from '@repo/codegen/src/schema'
 import React, { useEffect, useState } from 'react'
 import { FormProvider, useForm, useController } from 'react-hook-form'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { LoaderCircle } from 'lucide-react'
@@ -39,6 +39,22 @@ type FormData = z.infer<typeof schema>
 
 const DEFAULT_TAG_COLOR = '#6366f1'
 
+const parseAliases = (aliases: string | undefined) =>
+  aliases
+    ?.split(',')
+    .map((alias) => alias.trim())
+    .filter(Boolean) ?? []
+
+const TAG_UPDATE_FIELDS = {
+  name: omit,
+  description: orClear('clearDescription'),
+  color: orClear('clearColor'),
+  aliases: (value) => {
+    const aliases = parseAliases(value)
+    return aliases.length > 0 ? { aliases } : { clearAliases: true }
+  },
+} satisfies TFieldMappers<FormData, UpdateTagDefinitionInput>
+
 export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => void }) => {
   const params = useSearchParams()
   const { replace } = useSmartRouter()
@@ -68,7 +84,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
   })
 
   const { control, handleSubmit, reset } = formMethods
-  const buildChangedInput = useChangedInput(formMethods)
+  const buildDirtyInput = useDirtyInput(formMethods)
   const { field: colorField } = useController({ name: 'color', control })
 
   useEffect(() => {
@@ -102,20 +118,8 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
 
   const onSubmit = async (data: FormData) => {
     try {
-      const formattedAliases = data.aliases
-        ?.split(',')
-        .map((a) => a.trim())
-        .filter(Boolean)
-
       if (isEditMode && id) {
-        const input = await buildChangedInput(data, (values): UpdateTagDefinitionInput => ({
-          description: values.description,
-          color: values.color,
-          aliases: values.aliases
-            ?.split(',')
-            .map((a) => a.trim())
-            .filter(Boolean),
-        }))
+        const input = await buildDirtyInput<UpdateTagDefinitionInput>(data, TAG_UPDATE_FIELDS)
 
         if (Object.keys(input).length > 0) {
           await updateTag({ updateTagDefinitionId: id, input })
@@ -127,7 +131,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
             name: data.name,
             description: data.description,
             color: data.color,
-            aliases: formattedAliases,
+            aliases: parseAliases(data.aliases),
           },
         })
         successNotification({ title: 'Tag created' })

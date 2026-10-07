@@ -51,6 +51,7 @@ export const VisibilityField = ({ isEditing }: Props) => {
             onValueChange={(val) =>
               setValue('visibility', val as TrustCenterDocTrustCenterDocumentVisibility, {
                 shouldValidate: true,
+                shouldDirty: true,
               })
             }
             value={visibilityValue || ''}

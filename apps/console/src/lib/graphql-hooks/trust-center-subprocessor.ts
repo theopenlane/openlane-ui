@@ -94,6 +94,7 @@ export const useUpdateTrustCenterSubprocessor = () => {
 
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['trustCenterSubprocessors'] })
+      queryClient.invalidateQueries({ queryKey: ['trustCenterSubprocessor'] })
       invalidateCustomTypeEnumsForName(queryClient, variables.input.trustCenterSubprocessorKindName)
     },
   })
