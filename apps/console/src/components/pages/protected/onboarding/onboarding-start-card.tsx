@@ -44,7 +44,7 @@ const OnboardingStartCard = ({ step, totalSteps, canContinue, isDisabled, onCont
           </Button>
         )}
         <Button type="button" variant={canContinue ? 'secondary' : 'primary'} onClick={onCreate} disabled={isDisabled}>
-          Create organization
+          Create organization now
         </Button>
       </div>
     </Card>
