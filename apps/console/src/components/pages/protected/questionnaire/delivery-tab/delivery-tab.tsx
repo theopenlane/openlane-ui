@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
+import { type VisibilityState } from '@repo/ui/table-types'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
+import { useAssessmentResponsesPage } from '@/lib/graphql-hooks/assessment'
+import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 import { useCreateAssessmentResponse, useDeleteAssessmentResponse } from '@/lib/graphql-hooks/assessment-response'
 import { useNotification } from '@/hooks/useNotification'
 import { getDeliveryColumns, type DeliveryRow } from './delivery-columns'
@@ -18,6 +20,7 @@ import type { AssessmentResponseWhereInput } from '@repo/codegen/src/schema'
 import { computeDueDate } from '@/utils/date'
 
 type DeliveryTabProps = {
+  hiddenColumns?: VisibilityState
   assessmentId: string
   jsonconfig: unknown
   where?: AssessmentResponseWhereInput
@@ -47,7 +50,7 @@ const paginationReducer = (state: TPagination, action: PaginationAction): TPagin
   }
 }
 
-export const DeliveryTab = ({ assessmentId, jsonconfig, where, enabled = true, onTotalCountChange, responseDueDuration, canSend = false, canDelete = false }: DeliveryTabProps) => {
+export const DeliveryTab = ({ assessmentId, jsonconfig, where, enabled = true, onTotalCountChange, responseDueDuration, canSend = false, canDelete = false, hiddenColumns }: DeliveryTabProps) => {
   const [pagination, dispatchPagination] = useReducer(paginationReducer, DEFAULT_PAGINATION)
   const { mutateAsync: createResponse } = useCreateAssessmentResponse()
   const { mutateAsync: deleteResponse } = useDeleteAssessmentResponse()
@@ -57,9 +60,9 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, enabled = true, o
   const {
     responses: deliveryResponses,
     paginationMeta,
-    isLoading,
-  } = useGetAssessmentDetail({
-    id: assessmentId,
+    isPending: isLoading,
+  } = useAssessmentResponsesPage({
+    assessmentId,
     where,
     pagination,
     enabled,
@@ -67,19 +70,19 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, enabled = true, o
 
   const responses = useMemo(
     () =>
-      (deliveryResponses ?? [])
-        .filter((r): r is NonNullable<typeof r> => Boolean(r))
-        .map((r) => ({
-          id: r.id,
-          email: r.email || r.displayName || '',
-          assignedAt: r.assignedAt,
-          dueDate: r.dueDate,
-          status: r.status,
-          sendAttempts: r.sendAttempts,
-          emailDeliveredAt: r.emailDeliveredAt,
-          completedAt: r.completedAt,
-          document: r.document,
-        })),
+      deliveryResponses.map((r) => ({
+        id: r.id,
+        name: r.identityHolder?.fullName ?? null,
+        identityHolderId: r.identityHolder?.id ?? null,
+        email: r.email || r.displayName || '',
+        assignedAt: r.assignedAt,
+        dueDate: r.dueDate,
+        status: r.status,
+        sendAttempts: r.sendAttempts,
+        emailDeliveredAt: r.emailDeliveredAt,
+        completedAt: r.completedAt,
+        document: r.document,
+      })),
     [deliveryResponses],
   )
 
@@ -138,9 +141,10 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, enabled = true, o
     dispatchPagination({ type: 'set', value: nextPagination })
   }, [])
 
+  const openObjectSheet = useOpenObjectSheet()
   const columns = useMemo(
-    () => getDeliveryColumns({ onResend: handleResend, onViewResponse: handleViewResponse, onDelete: handleDelete, canResend: canSend, canDelete }),
-    [handleResend, handleViewResponse, handleDelete, canSend, canDelete],
+    () => getDeliveryColumns({ jsonconfig, onOpenSheet: openObjectSheet, onResend: handleResend, onViewResponse: handleViewResponse, onDelete: handleDelete, canResend: canSend, canDelete }),
+    [jsonconfig, openObjectSheet, handleResend, handleViewResponse, handleDelete, canSend, canDelete],
   )
 
   return (
@@ -153,6 +157,7 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, enabled = true, o
         paginationMeta={paginationMeta}
         loading={isLoading}
         tableKey={TableKeyEnum.QUESTIONNAIRE_DELIVERY}
+        columnVisibility={hiddenColumns}
       />
 
       <Dialog open={!!selectedResponse} onOpenChange={(open) => !open && setSelectedResponse(null)}>

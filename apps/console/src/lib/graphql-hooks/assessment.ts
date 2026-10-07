@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react'
+import type { GraphQLClient } from 'graphql-request'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
@@ -8,6 +9,10 @@ import {
   CREATE_BULK_ASSESSMENT_POLICY,
   DELETE_BULK_ASSESSMENT_POLICY,
   GET_ASSESSMENT_POLICY_ATTESTATIONS,
+  GET_POLICY_ACKNOWLEDGEMENTS,
+  GET_POLICY_ACKNOWLEDGEMENT_COUNT,
+  GET_ASSESSMENT_RESPONSES_PAGE,
+  GET_ASSESSMENT_JSONCONFIG,
   UPDATE_ASSESSMENT,
   GET_ALL_ASSESSMENTS,
   GET_ASSESSMENT,
@@ -28,6 +33,14 @@ import {
   type DeleteBulkAssessmentPolicyMutationVariables,
   type GetAssessmentPolicyAttestationsQuery,
   type GetAssessmentPolicyAttestationsQueryVariables,
+  type GetPolicyAcknowledgementsQuery,
+  type GetPolicyAcknowledgementsQueryVariables,
+  type GetPolicyAcknowledgementCountQuery,
+  type GetPolicyAcknowledgementCountQueryVariables,
+  type GetAssessmentResponsesPageQuery,
+  type GetAssessmentResponsesPageQueryVariables,
+  type GetAssessmentJsonconfigQuery,
+  type GetAssessmentJsonconfigQueryVariables,
   type UpdateAssessmentMutation,
   type UpdateAssessmentMutationVariables,
   type FilterAssessmentsQuery,
@@ -54,6 +67,7 @@ import {
 import { type TPagination } from '@repo/ui/pagination-types'
 import { getSurveyPolicySources } from '@/components/shared/survey/pdf-document/pdf-document-type'
 import { getNodes } from '@/lib/graphql-hooks/connection'
+import { fetchAllConnectionNodes } from '@/lib/graphql-hooks/fetch-all-connection-nodes'
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'
 
 type CreateAssessmentTemplateMutationVariables = MutationCreateAssessmentTemplateArgs
@@ -192,7 +206,7 @@ export const useGetAssessmentDetail = ({ id, where, orderBy, pagination, enabled
   })
 
   const assessment = queryResult.data?.assessment
-  const responses = useMemo(() => (assessment?.assessmentResponses?.edges ?? []).map((edge) => edge?.node).filter(Boolean), [assessment?.assessmentResponses?.edges])
+  const responses = useMemo(() => getNodes(assessment?.assessmentResponses), [assessment?.assessmentResponses])
   const totalRecipients = assessment?.assessmentResponses?.totalCount ?? 0
   const hasMoreResponses = assessment?.assessmentResponses?.pageInfo?.hasNextPage ?? false
   const completedResponses = useMemo(() => responses.filter((r) => r?.status === AssessmentResponseAssessmentResponseStatus.COMPLETED).length, [responses])
@@ -214,6 +228,104 @@ export const useGetAssessmentDetail = ({ id, where, orderBy, pagination, enabled
     hasMoreResponses,
     completedResponses,
     isLoading: queryResult.isPending,
+  }
+}
+
+const RESPONSES_PAGE_SIZE = 100
+const JSONCONFIG_STALE_TIME = 5 * 60 * 1000 // 5min
+
+const assessmentJsonconfigQuery = (client: GraphQLClient, id: string) => ({
+  queryKey: ['assessmentJsonconfig', id],
+  queryFn: async () => (await client.request<GetAssessmentJsonconfigQuery, GetAssessmentJsonconfigQueryVariables>(GET_ASSESSMENT_JSONCONFIG, { assessmentId: id })).assessment.jsonconfig,
+  staleTime: JSONCONFIG_STALE_TIME,
+})
+
+export const useAssessmentJsonconfig = (id: string, enabled = true) => {
+  const { client } = useGraphQLClient()
+  return useQuery({ ...assessmentJsonconfigQuery(client, id), enabled: enabled && !!id })
+}
+
+export const useFetchAssessmentJsonconfig = () => {
+  const { client, queryClient } = useGraphQLClient()
+  return useCallback((id: string) => queryClient.fetchQuery(assessmentJsonconfigQuery(client, id)), [client, queryClient])
+}
+
+export const useAssessmentResponsesPage = ({
+  assessmentId,
+  where,
+  pagination,
+  enabled = true,
+}: {
+  assessmentId: string
+  where?: AssessmentResponseWhereInput
+  pagination: TPagination
+  enabled?: boolean
+}) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetAssessmentResponsesPageQuery>({
+    queryKey: ['assessments', assessmentId, 'responses', where, pagination.page, pagination.pageSize],
+    queryFn: () => client.request<GetAssessmentResponsesPageQuery, GetAssessmentResponsesPageQueryVariables>(GET_ASSESSMENT_RESPONSES_PAGE, { assessmentId, where, ...pagination.query }),
+    enabled: enabled && !!assessmentId,
+  })
+
+  const connection = queryResult.data?.assessment.assessmentResponses
+  const responses = useMemo(() => getNodes(connection), [connection])
+  const paginationMeta = useMemo(() => ({ totalCount: connection?.totalCount ?? 0, pageInfo: connection?.pageInfo, isLoading: queryResult.isPending }), [connection, queryResult.isPending])
+
+  return { ...queryResult, responses, paginationMeta }
+}
+
+export const useFetchAllAssessmentResponses = () => {
+  const { client } = useGraphQLClient()
+
+  return useCallback(
+    (id: string, { where, withAnswers }: { where?: AssessmentResponseWhereInput; withAnswers: boolean }) =>
+      fetchAllConnectionNodes(async (after) => {
+        const { assessment } = await client.request<GetAssessmentResponsesPageQuery, GetAssessmentResponsesPageQueryVariables>(GET_ASSESSMENT_RESPONSES_PAGE, {
+          assessmentId: id,
+          where,
+          first: RESPONSES_PAGE_SIZE,
+          after,
+          withDocument: withAnswers,
+        })
+        return assessment.assessmentResponses
+      }),
+    [client],
+  )
+}
+
+export type TPolicyAcknowledgement = NonNullable<NonNullable<NonNullable<GetPolicyAcknowledgementsQuery['internalPolicy']['assessments']['edges']>[number]>['node']>
+
+export const usePolicyAcknowledgements = ({ policyId, pagination }: { policyId: string; pagination: TPagination }) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetPolicyAcknowledgementsQuery>({
+    queryKey: ['assessments', 'policy-acknowledgements', policyId, pagination.page, pagination.pageSize],
+    queryFn: () => client.request<GetPolicyAcknowledgementsQuery, GetPolicyAcknowledgementsQueryVariables>(GET_POLICY_ACKNOWLEDGEMENTS, { policyId, ...pagination.query }),
+    enabled: !!policyId,
+  })
+
+  const connection = queryResult.data?.internalPolicy.assessments
+  const acknowledgements = useMemo(() => getNodes(connection), [connection])
+  const paginationMeta = useMemo(() => ({ totalCount: connection?.totalCount ?? 0, pageInfo: connection?.pageInfo, isLoading: queryResult.isPending }), [connection, queryResult.isPending])
+
+  return { ...queryResult, acknowledgements, paginationMeta }
+}
+
+export const usePolicyAcknowledgementCount = (policyId: string) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetPolicyAcknowledgementCountQuery>({
+    queryKey: ['assessments', 'policy-acknowledgement-count', policyId],
+    queryFn: () => client.request<GetPolicyAcknowledgementCountQuery, GetPolicyAcknowledgementCountQueryVariables>(GET_POLICY_ACKNOWLEDGEMENT_COUNT, { policyId }),
+    enabled: !!policyId,
+  })
+
+  return {
+    ...queryResult,
+    count: queryResult.isPlaceholderData ? 0 : (queryResult.data?.internalPolicy.assessments.totalCount ?? 0),
+    isResolving: !!policyId && (queryResult.isPending || queryResult.isPlaceholderData),
   }
 }
 
@@ -320,8 +432,9 @@ export const useUpdateAssessment = () => {
       }
       return result
     },
-    onSettled: () => {
+    onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: ['assessments'] })
+      if (variables.input.jsonconfig !== undefined) queryClient.invalidateQueries({ queryKey: ['assessmentJsonconfig', variables.updateAssessmentId] })
     },
   })
 }

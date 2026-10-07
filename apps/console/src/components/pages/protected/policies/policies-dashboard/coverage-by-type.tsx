@@ -2,7 +2,7 @@
 
 import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo } from 'react'
-import ProgressBar from './progress-bar'
+import ProgressBar from '@/components/shared/progress-bar/progress-bar'
 import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/internal-policy'
 import { wherePoliciesDashboard } from './dashboard-config'
 import { InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'

@@ -9,26 +9,29 @@ import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Users, CheckCircle, Calendar, Send, FileText, Download, Eye, Pencil, Trash2, Copy, ExternalLink, RefreshCw } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { EXCLUDE_TEST_RESPONSES, useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGenerateAssessmentAccessURL, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
+import {
+  EXCLUDE_TEST_RESPONSES,
+  useAssessmentRecipientsTotalCount,
+  useAssessmentResponsesTotalCount,
+  useFetchAllAssessmentResponses,
+  useGenerateAssessmentAccessURL,
+  useGetAssessmentDetail,
+} from '@/lib/graphql-hooks/assessment'
 import { computeDueDate, formatDate, isPastDate } from '@/utils/date'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import type { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
-import type { AssessmentResponseWhereInput, GetAssessmentDetailQuery, GetAssessmentDetailQueryVariables } from '@repo/codegen/src/schema'
+import type { AssessmentResponseWhereInput } from '@repo/codegen/src/schema'
 import type { WhereCondition } from '@/types'
 import { deliveryFilterFields, mapDeliveryFilterKey } from './delivery-filter-config'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { AISummaryCard } from './ai-summary-card'
 import { DeliveryTab } from './delivery-tab/delivery-tab'
 import { ResponsesTab } from './responses-tab/responses-tab'
-import { extractQuestions } from './responses-tab/extract-questions'
 import type { LucideIcon } from 'lucide-react'
 import { SendQuestionnaireDialog } from './dialog/send-questionnaire-dialog'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
-import { renderAnswer } from './utils/render-answer'
+import { useExportAssessmentResponses } from './utils/use-export-assessment-responses'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
-import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_ASSESSMENT_DETAIL } from '@repo/codegen/query/assessment'
 import { useNotification } from '@/hooks/useNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useDeleteAssessment } from '@/lib/graphql-hooks/assessment'
@@ -78,7 +81,8 @@ const QuestionnaireDetailPage = () => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { setCrumbs } = React.use(BreadcrumbContext)
-  const { client } = useGraphQLClient()
+  const fetchAllResponses = useFetchAllAssessmentResponses()
+  const { exportResponses, isExporting } = useExportAssessmentResponses()
   const { errorNotification, successNotification } = useNotification()
   const { assessment, responses, isLoading } = useGetAssessmentDetail({ id, where: EXCLUDE_TEST_RESPONSES })
   const [deliveryFilters, setDeliveryFilters] = useState<WhereCondition | null>(null)
@@ -206,76 +210,26 @@ const QuestionnaireDetailPage = () => {
 
   const responseRows = useMemo(
     () =>
-      (responses ?? [])
-        .filter((r) => r != null)
-        .map((r) => ({
-          id: r.id,
-          email: r.email || r.displayName || '',
-          completedAt: r.completedAt,
-          document: r.document,
-        })),
+      responses.map((r) => ({
+        id: r.id,
+        email: r.email || r.displayName || '',
+        completedAt: r.completedAt,
+        document: r.document,
+      })),
     [responses],
   )
-
-  const fetchAllDeliveryRows = useCallback(async () => {
-    const rows: Array<{
-      email?: string | null
-      status: AssessmentResponseAssessmentResponseStatus
-      assignedAt: string
-      dueDate?: string | null
-      completedAt?: string | null
-      sendAttempts: number
-    }> = []
-    let after: string | null | undefined
-    const pageSize = 100
-    const visitedCursors = new Set<string>()
-
-    while (true) {
-      const response = await client.request<GetAssessmentDetailQuery, GetAssessmentDetailQueryVariables>(GET_ASSESSMENT_DETAIL, {
-        getAssessmentId: id,
-        where: deliveryWhereFilter,
-        first: pageSize,
-        after,
-      })
-
-      const connection = response.assessment?.assessmentResponses
-      const nodes = (connection?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => node != null)
-
-      rows.push(
-        ...nodes.map((node) => ({
-          email: node.email || node.displayName || '',
-          status: node.status,
-          assignedAt: node.assignedAt,
-          dueDate: node.dueDate,
-          completedAt: node.completedAt,
-          sendAttempts: node.sendAttempts,
-        })),
-      )
-
-      if (!connection?.pageInfo?.hasNextPage || !connection.pageInfo.endCursor) {
-        break
-      }
-
-      if (visitedCursors.has(connection.pageInfo.endCursor)) {
-        break
-      }
-      visitedCursors.add(connection.pageInfo.endCursor)
-      after = connection.pageInfo.endCursor
-    }
-
-    return rows
-  }, [client, id, deliveryWhereFilter])
 
   const handleExportDelivery = useCallback(async () => {
     if (!deliveryTotalCount) return
     setIsExportingDelivery(true)
     try {
-      const allRows = await fetchAllDeliveryRows()
+      const allRows = await fetchAllResponses(id, { where: deliveryWhereFilter, withAnswers: false })
       if (!allRows.length) return
       exportToCSV(
         allRows,
         [
-          { label: 'Recipient', accessor: (r) => r.email },
+          { label: 'Recipient', accessor: (r) => r.email || r.displayName || '' },
+          { label: 'Name', accessor: (r) => r.identityHolder?.fullName ?? '' },
           { label: 'Status', accessor: (r) => r.status },
           { label: 'Sent Date', accessor: (r) => r.assignedAt || '' },
           { label: 'Due Date', accessor: (r) => r.dueDate || '' },
@@ -284,33 +238,17 @@ const QuestionnaireDetailPage = () => {
         ],
         'questionnaire_delivery',
       )
-    } catch {
+    } catch (error) {
       errorNotification({
         title: 'Export failed',
-        description: 'Could not export delivery records.',
+        description: parseErrorMessage(error),
       })
     } finally {
       setIsExportingDelivery(false)
     }
-  }, [deliveryTotalCount, fetchAllDeliveryRows, errorNotification])
+  }, [deliveryTotalCount, fetchAllResponses, id, deliveryWhereFilter, errorNotification])
 
-  const handleExportResponses = useCallback(() => {
-    if (!responseRows.length) return
-    const questions = extractQuestions(assessment?.jsonconfig)
-    if (!questions.length) return
-    const columns = [
-      { label: 'Respondent', accessor: (r: (typeof responseRows)[0]) => r.email },
-      { label: 'Completed', accessor: (r: (typeof responseRows)[0]) => r.completedAt || '' },
-      ...questions.map((q) => ({
-        label: q.title,
-        accessor: (r: (typeof responseRows)[0]) => {
-          const data = (r.document?.data || {}) as Record<string, unknown>
-          return renderAnswer(data[q.name], q.type)
-        },
-      })),
-    ]
-    exportToCSV(responseRows, columns, 'questionnaire_responses')
-  }, [responseRows, assessment?.jsonconfig])
+  const handleExportResponses = useCallback(() => void exportResponses(id, assessment?.name ?? 'questionnaire'), [exportResponses, id, assessment?.name])
 
   if (isLoading) {
     return (
@@ -406,8 +344,7 @@ const QuestionnaireDetailPage = () => {
             </div>
           )}
           {activeTab === 'responses' && (
-            <Button variant="secondary" onClick={handleExportResponses} disabled={!responseRows.length}>
-              <Download className="mr-2 h-4 w-4" />
+            <Button variant="secondary" icon={<Download />} iconPosition="left" onClick={handleExportResponses} disabled={!completedResponses || isExporting(id)} loading={isExporting(id)}>
               Export
             </Button>
           )}

@@ -1,3 +1,5 @@
+import { UserFacingError } from '@/utils/graphQlErrorMatcher'
+
 export type TConnectionPage<TNode> = {
   pageInfo?: { endCursor?: unknown; hasNextPage?: boolean | null } | null
   edges?: Array<{ node?: TNode | null } | null> | null
@@ -5,7 +7,7 @@ export type TConnectionPage<TNode> = {
 
 export const MAX_EXPORT_PAGES = 200
 
-export class ExportTooLargeError extends Error {
+export class ExportTooLargeError extends UserFacingError {
   constructor() {
     super('Export exceeded the maximum size. Narrow your filters and try again.')
     this.name = 'ExportTooLargeError'
