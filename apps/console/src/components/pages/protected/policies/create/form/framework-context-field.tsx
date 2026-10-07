@@ -26,10 +26,9 @@ const frameworkIcon = (framework: SearchableItem) => (
   </span>
 )
 
-const getDisabledReason = (isLoading: boolean, isError: boolean, frameworkCount: number) => {
+const getDisabledReason = (isLoading: boolean, isError: boolean) => {
   if (isLoading) return "Loading your organization's frameworks..."
   if (isError) return "Couldn't load your organization's frameworks. Please try again later."
-  if (frameworkCount === 0) return 'Your organization has no frameworks yet. Add one from the Standards Catalog.'
   return undefined
 }
 
@@ -37,10 +36,12 @@ export const FrameworkContextField = ({ frameworks, isLoading, isError, checked,
   const switchId = useId()
   const descriptionId = useId()
   const pickerId = useId()
-  const disabledReason = getDisabledReason(isLoading, isError, frameworks.length)
+  const disabledReason = getDisabledReason(isLoading, isError)
   const isOn = checked && !disabledReason
   const allSelected = selectedFrameworks.length === frameworks.length
   const frameworkTags = selectedFrameworks.map((framework) => toFrameworkTag(framework.name))
+
+  if (!disabledReason && frameworks.length === 0) return null
 
   return (
     <div className="flex gap-3 rounded-lg border p-4">

@@ -44,8 +44,10 @@ const policyFrameworkInstruction = (frameworks: string[]) => {
   if (frameworks.length === 0) return ''
   const single = frameworks.length === 1
   return (
-    `The policy is being written for the following compliance ${single ? 'framework' : 'frameworks'}: ${frameworks.join(', ')}. ` +
-    `Align its requirements, terminology and references with ${single ? 'that framework' : 'those frameworks'} rather than any other framework, unless the additional context asks for another one.`
+    `Write the policy in the context of the following compliance ${single ? 'framework' : 'frameworks'}: ${frameworks.join(', ')}. ` +
+    `Align the policy's requirements, terminology, and references with ${single ? 'this framework' : 'these frameworks'}. ` +
+    `Prioritize the selected ${single ? 'framework' : 'frameworks'} when deciding what requirements or references to include. ` +
+    `Do not introduce requirements from other frameworks unless explicitly requested in the additional context.`
   )
 }
 
