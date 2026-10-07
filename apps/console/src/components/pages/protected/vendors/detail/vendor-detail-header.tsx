@@ -23,6 +23,7 @@ import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import { MergeMenuItem } from '@/components/shared/merge-records/merge-menu-item'
 import { vendorMergeConfig } from '@/components/shared/merge-records/configs/vendor-merge-config'
 import MenuItem from '@/components/shared/menu/menu-item'
+import type { EditVendorFormData } from '../hooks/use-form-schema'
 
 interface VendorDetailHeaderProps {
   vendor: EntityQuery['entity']
@@ -39,8 +40,8 @@ interface VendorDetailHeaderProps {
 const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditing, canEditVendor, onEdit, onCancel, onDeleteClick, permissionRoles, handleUpdateField, onMergeComplete }) => {
   const canDeleteVendor = canDelete(permissionRoles)
   const showMenu = canEditVendor || canDeleteVendor
-  const { register, resetField } = useFormContext()
-  const persistField = usePersistFormField()
+  const { register, resetField } = useFormContext<EditVendorFormData>()
+  const persistField = usePersistFormField<EditVendorFormData>()
   const [inlineEditing, setInlineEditing] = useState<'name' | 'displayName' | null>(null)
   const [localValue, setLocalValue] = useState('')
   const [originalValue, setOriginalValue] = useState('')

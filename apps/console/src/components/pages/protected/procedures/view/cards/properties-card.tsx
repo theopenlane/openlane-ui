@@ -4,7 +4,9 @@ import { activatable } from '@repo/ui/lib/a11y'
 import React, { useRef, useState } from 'react'
 import { type ProcedureByIdFragment, type ProcedureDocumentStatus, type UpdateProcedureInput } from '@repo/codegen/src/schema'
 import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-react'
-import { Controller, type UseFormReturn } from 'react-hook-form'
+import { Controller, type PathValue, type UseFormReturn } from 'react-hook-form'
+import { isSameDay } from 'date-fns'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
@@ -27,7 +29,7 @@ type TPropertiesCardProps = {
   procedure: ProcedureByIdFragment
   isEditing: boolean
   editAllowed: boolean
-  handleUpdate?: (val: UpdateProcedureInput) => void
+  handleUpdate?: (val: UpdateProcedureInput, options?: TPersistOptions) => Promise<void> | void
   activeField?: string | null
   setActiveField?: (field: string | null) => void
 }
@@ -44,14 +46,13 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
     isEditAllowed: editAllowed,
   })
 
-  const handleUpdateIfChanged = (field: 'status' | 'procedureKindName' | 'revision', value: string, current: string | undefined | null) => {
-    if (isEditing) {
-      return
-    }
-    if (value !== current && handleUpdate) {
-      handleUpdate({ [field]: value })
-    }
+  const persistField = usePersistFormField<EditProcedureMetadataFormData>()
+
+  const persistInline = <TName extends 'status' | 'procedureKindName' | 'revision' | 'reviewDue'>(name: TName, value: PathValue<EditProcedureMetadataFormData, TName>, input: UpdateProcedureInput) => {
     setEditingField(null)
+    if (handleUpdate) {
+      void persistField(name, value, (options) => handleUpdate(input, options))
+    }
   }
 
   const triggerRef = useRef<HTMLDivElement>(null)
@@ -115,8 +116,16 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                   <Select
                     value={field.value}
                     onValueChange={(value) => {
-                      handleUpdateIfChanged('status', value, field.value)
-                      field.onChange(value)
+                      const status = value as ProcedureDocumentStatus
+                      if (isEditing) {
+                        field.onChange(status)
+                        return
+                      }
+                      if (status === field.value) {
+                        setEditingField(null)
+                        return
+                      }
+                      persistInline('status', status, { status })
                     }}
                   >
                     <SelectTrigger className="w-full">{ProcedureStatusOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>
@@ -178,9 +187,16 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                       value={field.value ?? ''}
                       autoFocus
                       onBlur={() => {
-                        if (!form.formState.errors.revision) {
-                          handleUpdateIfChanged('revision', field.value ?? '', procedure?.revision)
+                        if (isEditing || form.formState.errors.revision) {
+                          return
                         }
+                        const revision = field.value?.trim() ?? ''
+                        if (!revision || revision === procedure.revision) {
+                          form.resetField('revision')
+                          setEditingField(null)
+                          return
+                        }
+                        persistInline('revision', revision, { revision })
                       }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -248,8 +264,15 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                       searchPlaceholder="Search procedure type..."
                       contentRef={popoverRef}
                       onValueChange={(value) => {
-                        field.onChange(value)
-                        handleUpdateIfChanged('procedureKindName', value, procedure?.procedureKindName)
+                        if (isEditing) {
+                          field.onChange(value)
+                          return
+                        }
+                        if ((value || '') === (field.value || '')) {
+                          setEditingField(null)
+                          return
+                        }
+                        persistInline('procedureKindName', value, value ? { procedureKindName: value } : { clearProcedureKindName: true })
                       }}
                       placeholder="Select type"
                     />
@@ -302,12 +325,17 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                 <>
                   <div ref={reviewPopoverRef}>
                     <CalendarPopover
-                      field={field}
+                      field={isEditing ? field : { ...field, onChange: () => undefined }}
                       onChange={(date) => {
-                        if (!isEditing && date !== procedure.reviewDue) {
-                          handleUpdate?.({ reviewDue: date })
+                        if (isEditing) {
+                          return
                         }
-                        setEditingField(null)
+                        const current = field.value
+                        if (date && current ? isSameDay(date, current) : date === current) {
+                          setEditingField(null)
+                          return
+                        }
+                        persistInline('reviewDue', date, date ? { reviewDue: date } : { clearReviewDue: true })
                       }}
                       disabledFrom={new Date()}
                       required

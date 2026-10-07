@@ -17,7 +17,7 @@ import { GenericDetailsSheet, type RenderFieldsProps } from '@/components/shared
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import useFormSchema, { type TFormData } from './form/use-form-schema'
 import { ControlObjectiveSourceOptions, ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
-import { omit, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { omit, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { CONTROL_OBJECTIVE_UPDATE_FIELDS, revisionBumpExtras } from './form/control-objective-update-fields'
 import { VersionBump } from '@/lib/enums/revision-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
@@ -35,6 +35,8 @@ const DETAILS_SHEET_UPDATE_FIELDS = {
   revision: omit,
   controlIDs: omit,
   subcontrolIDs: omit,
+  RevisionBump: passthrough,
+  name: passthrough,
 } satisfies TFieldMappers<TFormData, UpdateControlObjectiveInput>
 
 const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'controlObjectiveId', entityId: entityIdProp, onClose: onCloseProp }) => {
@@ -227,10 +229,8 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
       entityId={entityId}
       data={node}
       isFetching={isLoading}
-      updateMutation={updateMutation}
       deleteMutation={deleteMutation}
-      updateFields={DETAILS_SHEET_UPDATE_FIELDS}
-      buildChangeExtras={revisionBumpExtras}
+      update={{ mutation: updateMutation, fields: DETAILS_SHEET_UPDATE_FIELDS, buildChangeExtras: revisionBumpExtras }}
       normalizeData={normalizeData}
       getName={(data) => data.name}
       renderFields={renderFields}

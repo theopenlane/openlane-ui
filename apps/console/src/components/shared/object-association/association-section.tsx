@@ -106,7 +106,7 @@ export const AssociationSection = <TConfig extends AssociationEntityConfig>({
 
   const form = useFormContext<Record<string, string[]>>()
   const queryClient = useQueryClient()
-  const { register, resetField } = form
+  const { register, resetField, getFieldState } = form
   const setAssociationValue = form.setValue as (name: string, value: string[], options?: { shouldDirty?: boolean }) => void
 
   const initialData = useMemo(() => buildInitialAssociationIds(config, associationsData) as TObjectAssociationMap<TFieldKey>, [config, associationsData])
@@ -114,15 +114,16 @@ export const AssociationSection = <TConfig extends AssociationEntityConfig>({
   const { defaultValues } = useFormState({ control: form.control })
 
   useEffect(() => {
-    if (isEditing || isCreate) return
+    if (isCreate) return
     const initialEntries = Object.entries(initialData) as [string, string[]][]
     initialEntries
       .filter(([key, ids]) => !isDeepEqual(defaultValues?.[key], ids))
+      .filter(([key]) => !getFieldState(key).isDirty)
       .forEach(([key, ids]) => {
         register(key)
         resetField(key, { defaultValue: ids })
       })
-  }, [initialData, defaultValues, isEditing, isCreate, register, resetField])
+  }, [initialData, defaultValues, isCreate, register, resetField, getFieldState])
 
   const sections: Section = useMemo(() => {
     if (!associationsData) return {}

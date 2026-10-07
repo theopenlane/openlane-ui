@@ -7,7 +7,7 @@ import { useUpdateTask } from '@/lib/graphql-hooks/task'
 import EditableUserCell from '@/components/shared/editable-user-cell/editable-user-cell'
 
 type TAssigneeCellProps = {
-  assignee?: (AvatarEntityLike & { id?: string | null }) | null
+  assignee?: (AvatarEntityLike & { id: string }) | null
   taskId: string
 }
 

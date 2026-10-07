@@ -67,9 +67,8 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
       const payload = { ...formData, description, descriptionJSON: undefined }
       return createInitialPayload ? { ...createInitialPayload, ...payload } : payload
     },
-    updateFields: ACTION_PLAN_UPDATE_FIELDS,
+    update: { mutation: updateMutation, fields: ACTION_PLAN_UPDATE_FIELDS },
     getName,
-    updateMutation,
     createMutation,
     deleteMutation,
     renderFields: (props: ActionPlanFieldProps) => getFieldsToRender(props),

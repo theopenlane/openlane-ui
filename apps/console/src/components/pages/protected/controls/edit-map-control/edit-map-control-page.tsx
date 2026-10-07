@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Accordion } from '@radix-ui/react-accordion'
 
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
-import { associationsInput, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { associationsInput, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import type { Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { MappedControlMappingType, MappedControlMappingSource, type UpdateMappedControlInput } from '@repo/codegen/src/schema'
@@ -32,6 +32,7 @@ const MAPPED_CONTROL_UPDATE_FIELDS = {
   confidence: orClear('clearConfidence'),
   source: orClear('clearSource'),
   relation: orClear('clearRelation'),
+  mappingType: passthrough,
 } satisfies TFieldMappers<MapControlsFormData, UpdateMappedControlInput>
 
 const EditMapControlPage = () => {
@@ -174,16 +175,22 @@ const EditMapControlPage = () => {
       const fromSubcontrolIDs = mc.fromSubcontrols?.edges?.map((e) => e?.node?.id || '').filter(Boolean) || []
       const toSubcontrolIDs = mc.toSubcontrols?.edges?.map((e) => e?.node?.id || '').filter(Boolean) || []
 
-      form.reset({
-        fromControlIDs,
-        toControlIDs,
-        fromSubcontrolIDs,
-        toSubcontrolIDs,
-        confidence: mc.confidence ?? undefined,
-        mappingType: mc.mappingType ?? MappedControlMappingType.PARTIAL,
-        relation: mc.relation ?? '',
-        source: mc.source ?? MappedControlMappingSource.MANUAL,
-      })
+      const isFromDirty = form.getFieldState('fromControlIDs').isDirty || form.getFieldState('fromSubcontrolIDs').isDirty
+      const isToDirty = form.getFieldState('toControlIDs').isDirty || form.getFieldState('toSubcontrolIDs').isDirty
+
+      form.reset(
+        {
+          fromControlIDs,
+          toControlIDs,
+          fromSubcontrolIDs,
+          toSubcontrolIDs,
+          confidence: mc.confidence ?? undefined,
+          mappingType: mc.mappingType ?? MappedControlMappingType.PARTIAL,
+          relation: mc.relation ?? '',
+          source: mc.source ?? MappedControlMappingSource.MANUAL,
+        },
+        { keepDirtyValues: true },
+      )
 
       const presetFrom: MapControl[] = []
       const presetTo: MapControl[] = []
@@ -212,8 +219,8 @@ const EditMapControlPage = () => {
         }
       })
 
-      setPresetControlsFrom(presetFrom)
-      setPresetControlsTo(presetTo)
+      if (!isFromDirty) setPresetControlsFrom(presetFrom)
+      if (!isToDirty) setPresetControlsTo(presetTo)
     }
   }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs, mappedControlId, mappedControlData])
 

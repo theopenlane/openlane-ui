@@ -1,25 +1,27 @@
 'use client'
 
 import React from 'react'
-import { useFormContext } from 'react-hook-form'
 import { Check, X, PencilIcon } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import type { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
+import type { EditVendorFormData } from '../../../hooks/use-form-schema'
+
+type TSecurityField = 'ssoEnforced' | 'mfaSupported' | 'mfaEnforced' | 'hasSoc2'
 
 interface SecuritySectionProps {
   vendor: EntityQuery['entity']
   isEditing: boolean
   canEdit: boolean
-  handleUpdateField: (input: UpdateEntityInput) => Promise<void>
+  handleUpdateField: (input: UpdateEntityInput, options?: TPersistOptions) => Promise<void>
 }
 
 const SecuritySection: React.FC<SecuritySectionProps> = ({ vendor, isEditing, canEdit, handleUpdateField }) => {
-  const { setValue } = useFormContext()
+  const persistField = usePersistFormField<EditVendorFormData>()
 
-  const toggleField = async (field: string, currentValue: boolean) => {
+  const toggleField = async (field: TSecurityField, currentValue: boolean) => {
     const newValue = !currentValue
-    setValue(field, newValue)
-    await handleUpdateField({ [field]: newValue })
+    await persistField(field, newValue, (options) => handleUpdateField({ [field]: newValue }, options))
   }
 
   return (
@@ -120,7 +122,7 @@ interface Soc2CardProps {
   vendor: EntityQuery['entity']
   isEditing: boolean
   canEdit: boolean
-  toggleField: (field: string, currentValue: boolean) => Promise<void>
+  toggleField: (field: TSecurityField, currentValue: boolean) => Promise<void>
 }
 
 const Soc2Card: React.FC<Soc2CardProps> = ({ vendor, isEditing, canEdit, toggleField }) => {

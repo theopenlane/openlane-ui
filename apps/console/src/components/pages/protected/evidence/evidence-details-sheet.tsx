@@ -19,7 +19,7 @@ import { canDelete, canEdit } from '@/lib/authz/utils'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { associationsInput, dateOrClear, omit, orClear, richTextOrClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { associationsInput, dateOrClear, omit, orClear, richTextOrClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { EvidenceDetailsSheetSkeleton } from './skeleton/evidence-details-skeleton'
 import EvidenceFiles from './evidence-files'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -85,6 +85,7 @@ const EVIDENCE_UPDATE_FIELDS = {
   internalPolicyIDs: omit,
   procedureIDs: omit,
   riskIDs: omit,
+  name: passthrough,
 } satisfies TFieldMappers<EditEvidenceFormData, UpdateEvidenceInput>
 
 const EvidenceDetailsSheetContent: React.FC<TEvidenceDetailsSheetContent> = ({ controlId, entityId: entityIdProp, onClose: onCloseProp, config, isOpen }) => {

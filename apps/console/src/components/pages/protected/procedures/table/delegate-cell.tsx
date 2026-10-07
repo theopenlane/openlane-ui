@@ -18,10 +18,7 @@ const DelegateCell: React.FC<TDelegateCellProps> = ({ delegate, procedureId }) =
     try {
       await updateProcedure({
         updateProcedureId: procedureId,
-        input: {
-          delegateID: data.id,
-          clearDelegate: !data.id || undefined,
-        },
+        input: data.id ? { delegateID: data.id } : { clearDelegate: true },
       })
       await helpers.queryClient.invalidateQueries({ queryKey: ['procedures'] })
       helpers.notifySuccess()

@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
@@ -74,18 +74,16 @@ const BillingContactDialog = () => {
     }
   }
 
-  useEffect(() => {
-    if (!setting) {
-      return
+  const handleOpenChange = (next: boolean) => {
+    if (next) {
+      setAddress({ ...emptyAddress, ...storedAddress })
+      setFullName(storedContact)
     }
-    setAddress({ ...emptyAddress, ...setting.organization.setting?.billingAddress })
-
-    setFullName(setting.organization.setting?.billingContact || '')
-    return () => {}
-  }, [setting])
+    setOpen(next)
+  }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} aria-describedby={undefined}>
+    <Dialog open={open} onOpenChange={handleOpenChange} aria-describedby={undefined}>
       <DialogTrigger asChild>
         <h1 className="text-primary text-sm font-medium cursor-pointer">Edit</h1>
       </DialogTrigger>

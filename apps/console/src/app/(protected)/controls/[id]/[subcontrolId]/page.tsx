@@ -279,7 +279,7 @@ const ControlDetailsPage: React.FC = () => {
             <TitleField
               isEditAllowed={!isSourceFramework && canEdit(permission?.roles, sessionData)}
               isEditing={isEditing}
-              handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
+              handleUpdate={handleUpdateField}
               initialRefCode={subcontrol.refCode || ''}
               initialTitle={subcontrol.title || ''}
               referenceFramework={subcontrol.referenceFramework}

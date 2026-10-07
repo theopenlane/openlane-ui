@@ -82,7 +82,7 @@ const PlatformPage: React.FC = () => {
         dataFlowSummary,
         trustBoundaryDescription,
         // Default to the current user when no owner explicitly selected — backend requires this for authorization
-        platformOwnerID: platformOwner?.type === 'user' ? platformOwner.value : (session?.user?.id ?? undefined),
+        platformOwnerID: platformOwner?.type === 'user' ? platformOwner.value : (session?.user?.userId ?? undefined),
         ...buildResponsibilityPayload('businessOwner', businessOwner, { mode: 'create' }),
         ...buildResponsibilityPayload('technicalOwner', technicalOwner, { mode: 'create' }),
       } as CreatePlatformInput

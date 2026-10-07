@@ -59,7 +59,7 @@ const API_TOKEN_UPDATE_FIELDS = {
   expiryDate: expiryInput,
   noExpire: expiryInput,
   organizationIDs: omit,
-  scopes: orClear('clearScopes'),
+  scopes: (scopes) => ({ scopes: scopes ?? [] }),
 } satisfies TFieldMappers<TokenFormData, UpdateApiTokenInput>
 
 const PERSONAL_ACCESS_TOKEN_UPDATE_FIELDS = {
@@ -126,21 +126,26 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
 
   const handleEdit = async (values: TokenFormData) => {
     if (!editToken) return
+    let sent = false
     if (isApiKeyPage) {
       const input = await buildDirtyInput<UpdateApiTokenInput>(values, API_TOKEN_UPDATE_FIELDS)
 
       if (Object.keys(input).length > 0) {
         await updateApiToken({ updateApiTokenId: editToken.id, input })
+        sent = true
       }
     } else {
       const input = await buildDirtyInput<UpdatePersonalAccessTokenInput>(values, PERSONAL_ACCESS_TOKEN_UPDATE_FIELDS)
 
       if (Object.keys(input).length > 0) {
         await updatePersonalAccessToken({ updatePersonalAccessTokenId: editToken.id, input })
+        sent = true
       }
     }
     form.reset(values)
-    successNotification({ title: 'Token updated successfully!' })
+    if (sent) {
+      successNotification({ title: 'Token updated successfully!' })
+    }
     handleOpenChange(false)
   }
 

@@ -1,14 +1,13 @@
 'use client'
 
 import React, { useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
 import { IdentityHolderUserStatus, IdentityHolderIdentityHolderType, type UpdateIdentityHolderInput, type CreateIdentityHolderInput } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { useBulkDeleteIdentityHolder, useBulkEditIdentityHolder, useIdentityHolder, type IdentityHoldersNodeNonNull, useCreateIdentityHolderWithFiles } from '@/lib/graphql-hooks/identity-holder'
+import { useBulkDeleteIdentityHolder, useBulkEditIdentityHolder, type IdentityHoldersNodeNonNull, useCreateIdentityHolderWithFiles } from '@/lib/graphql-hooks/identity-holder'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import {
@@ -43,9 +42,6 @@ const normalizeData = (data: IdentityHoldersNodeNonNull | null | undefined) =>
 const PersonnelPage: React.FC = () => {
   const { form } = useFormSchema()
 
-  const searchParams = useSearchParams()
-  const id = searchParams.get('id')
-  const { data, isLoading } = useIdentityHolder(id || undefined)
   const stagedFilesRef = useRef<File[]>([])
   const existingFileIdsRef = useRef<string[]>([])
 
@@ -117,8 +113,7 @@ const PersonnelPage: React.FC = () => {
     objectType: objectType,
     displayName,
     form,
-    data: id ? data?.identityHolder : undefined,
-    isFetching: isLoading,
+    isFetching: false,
     createMutation,
     deleteMutation,
     buildPayload: async (data) => {

@@ -152,15 +152,14 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
         title: 'Watermark updated',
         description: 'Watermark settings have been successfully saved.',
       })
+      setSheetOpen(false)
+      setUploadedFile(null)
     } catch (err) {
       const message = parseErrorMessage(err)
       errorNotification({
         title: 'Failed to save watermark',
         description: message,
       })
-    } finally {
-      setSheetOpen(false)
-      setUploadedFile(null)
     }
   }
 

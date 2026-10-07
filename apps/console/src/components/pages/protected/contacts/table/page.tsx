@@ -87,14 +87,13 @@ const ContactPage: React.FC = () => {
     form,
     data: id ? data?.contact : undefined,
     isFetching: isLoading,
-    updateMutation,
     createMutation,
     deleteMutation,
     createDefaultValues: CONTACT_CREATE_DEFAULT_VALUES,
     buildPayload: async (data) => {
       return { ...data }
     },
-    updateFields: CONTACT_UPDATE_FIELDS,
+    update: { mutation: updateMutation, fields: CONTACT_UPDATE_FIELDS },
     getName,
     renderFields: (props: ContactFieldProps) => getFieldsToRender(props, enumOpts),
     extraMenuActions: id && !isCreate && canEditContact ? [mergeMenuAction(() => setIsMergeOpen(true))] : undefined,

@@ -74,6 +74,7 @@ const EditableGroupCell: React.FC<EditableGroupCellProps> = ({ label, entity, on
         <div
           {...activatable((e) => {
             e.stopPropagation()
+            form.reset({ id: entity?.id ?? null })
             setIsEditing(true)
           })}
           className="flex items-center cursor-pointer"
@@ -108,6 +109,10 @@ const EditableGroupCell: React.FC<EditableGroupCellProps> = ({ label, entity, on
                       onValueChange={async (value) => {
                         const newValue = value === UNASSIGNED ? null : value
                         field.onChange(newValue)
+                        if (newValue === (entity?.id ?? null)) {
+                          setIsEditing(false)
+                          return
+                        }
                         await onSubmit({ ...form.getValues(), id: newValue })
                       }}
                     >

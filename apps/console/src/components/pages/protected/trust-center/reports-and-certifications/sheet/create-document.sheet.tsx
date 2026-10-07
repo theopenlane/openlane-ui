@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
-import { omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { omit, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
@@ -59,6 +59,7 @@ const DOCUMENT_UPDATE_FIELDS = {
   file: omit,
   status: omit,
   standardID: orClear('clearStandard'),
+  title: passthrough,
 } satisfies TFieldMappers<FormData, UpdateTrustCenterDocInput>
 
 export const CreateDocumentSheet: React.FC = () => {

@@ -67,7 +67,8 @@ const AllowedDomains = () => {
   }
 
   const removeDomain = async (domainToRemove: string) => {
-    await updateSetting({ allowedEmailDomains: domains.filter((d) => d !== domainToRemove) }, 'Domain removed successfully.')
+    const remaining = domains.filter((d) => d !== domainToRemove)
+    await updateSetting(remaining.length > 0 ? { allowedEmailDomains: remaining } : { clearAllowedEmailDomains: true }, 'Domain removed successfully.')
   }
 
   const onSwitchChange = async (checked: boolean) => {

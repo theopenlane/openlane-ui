@@ -18,7 +18,7 @@ import { defaultSorting, exportType, objectName, objectType, orderFieldEnum, tab
 import { getEdgeIds, buildAssociationPayload, getAssociationInput } from '@/components/shared/object-association/utils'
 import { SYSTEM_DETAIL_ASSOCIATION_KEYS } from '@/components/shared/object-association/association-configs'
 import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
-import { associationsInput, dateOrClear, orClear, richTextOrClear, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { associationsInput, dateOrClear, orClear, richTextOrClear, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 
 const normalizeData = (data: SystemDetailQuery['systemDetail']) => {
   if (!data) {
@@ -48,6 +48,7 @@ const SYSTEM_DETAIL_UPDATE_FIELDS = {
   tags: orClear('clearTags'),
   platformIDs: associationsInput('platformIDs'),
   programIDs: associationsInput('programIDs'),
+  systemName: passthrough,
 } satisfies TFieldMappers<SystemDetailFormData, UpdateSystemDetailInput>
 
 const SystemDetailPage: React.FC = () => {
@@ -106,7 +107,6 @@ const SystemDetailPage: React.FC = () => {
     form,
     data: id ? data?.systemDetail : undefined,
     isFetching: isLoading,
-    updateMutation,
     createMutation,
     deleteMutation,
     buildPayload: async (formData) => {
@@ -122,7 +122,7 @@ const SystemDetailPage: React.FC = () => {
         ...buildAssociationPayload(SYSTEM_DETAIL_ASSOCIATION_KEYS, { platformIDs, programIDs }, true, {}),
       }
     },
-    updateFields: SYSTEM_DETAIL_UPDATE_FIELDS,
+    update: { mutation: updateMutation, fields: SYSTEM_DETAIL_UPDATE_FIELDS },
     normalizeData,
     getName,
     renderFields: (props: SystemDetailFieldProps) => getFieldsToRender(props, enumOpts),

@@ -55,7 +55,6 @@ const ViewActionPlanSheet: React.FC<Props> = ({ entityId, onClose, createInitial
     isCreateMode: !entityId,
     data: entityId ? data?.actionPlan : undefined,
     isFetching: isLoading,
-    updateMutation,
     createMutation,
     deleteMutation,
     onClose,
@@ -64,7 +63,7 @@ const ViewActionPlanSheet: React.FC<Props> = ({ entityId, onClose, createInitial
       const payload = { ...formData, description, descriptionJSON: undefined }
       return createInitialPayload ? { ...createInitialPayload, ...payload } : payload
     },
-    updateFields: ACTION_PLAN_UPDATE_FIELDS,
+    update: { mutation: updateMutation, fields: ACTION_PLAN_UPDATE_FIELDS },
     getName,
     renderFields: (props: ActionPlanFieldProps) => getFieldsToRender(props),
   }

@@ -39,6 +39,8 @@ type FormData = z.infer<typeof schema>
 
 const DEFAULT_TAG_COLOR = '#6366f1'
 
+const BLANK_TAG_FORM: FormData = { name: '', aliases: '', description: '', color: DEFAULT_TAG_COLOR }
+
 const parseAliases = (aliases: string | undefined) =>
   aliases
     ?.split(',')
@@ -69,18 +71,13 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
 
   const [open, setOpen] = useState(false)
 
-  const { data: tagData, isLoading: isLoadingDetails } = useGetTagDetails(id)
+  const { data: tagData, isLoading: isLoadingDetails, isPlaceholderData } = useGetTagDetails(id)
   const { mutateAsync: createTag, isPending: isCreating } = useCreateTag()
   const { mutateAsync: updateTag, isPending: isUpdating } = useUpdateTag()
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: '',
-      aliases: '',
-      description: '',
-      color: DEFAULT_TAG_COLOR,
-    },
+    defaultValues: BLANK_TAG_FORM,
   })
 
   const { control, handleSubmit, reset } = formMethods
@@ -88,16 +85,20 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
   const { field: colorField } = useController({ name: 'color', control })
 
   useEffect(() => {
-    if (tagData?.tagDefinition) {
-      const t = tagData.tagDefinition
-      reset({
-        name: t.name ?? '',
-        aliases: Array.isArray(t.aliases) ? t.aliases.join(', ') : (t.aliases ?? ''),
-        description: t.description ?? '',
-        color: normalizeHexColor(t.color) ?? DEFAULT_TAG_COLOR,
-      })
+    if (!open) return
+    if (!id) {
+      if (isCreate) reset(BLANK_TAG_FORM)
+      return
     }
-  }, [tagData, reset])
+    const t = tagData?.tagDefinition
+    if (!t || t.id !== id || isPlaceholderData) return
+    reset({
+      name: t.name ?? '',
+      aliases: Array.isArray(t.aliases) ? t.aliases.join(', ') : (t.aliases ?? ''),
+      description: t.description ?? '',
+      color: normalizeHexColor(t.color) ?? DEFAULT_TAG_COLOR,
+    })
+  }, [open, id, isCreate, tagData, isPlaceholderData, reset])
 
   useEffect(() => {
     if (id || isCreate) {
@@ -110,9 +111,6 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
   const handleOpenChange = (val: boolean) => {
     if (!val) {
       replace({ id: null, create: null })
-      setTimeout(() => {
-        reset({ name: '', aliases: '', description: '', color: DEFAULT_TAG_COLOR })
-      }, 300)
     }
   }
 
@@ -123,8 +121,8 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
 
         if (Object.keys(input).length > 0) {
           await updateTag({ updateTagDefinitionId: id, input })
+          successNotification({ title: 'Tag updated' })
         }
-        successNotification({ title: 'Tag updated' })
       } else {
         await createTag({
           input: {
@@ -144,6 +142,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
   }
 
   const isPending = isCreating || isUpdating
+  const isLoadingTag = isLoadingDetails || (isEditMode && isPlaceholderData)
 
   const tagHeading = isCreate ? 'Create Custom Tag' : (tagData?.tagDefinition?.name ?? 'Custom Tag')
 
@@ -158,7 +157,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
             title={tagHeading}
             onClose={() => handleOpenChange(false)}
             formActions={
-              canEditTags && !isLoadingDetails ? (
+              canEditTags && !isLoadingTag ? (
                 <SlideoutFormActions
                   formId={TAG_FORM_ID}
                   onCancel={() => handleOpenChange(false)}
@@ -171,7 +170,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
           />
         }
       >
-        {isLoadingDetails ? (
+        {isLoadingTag ? (
           <div className="flex items-center justify-center h-64">
             <LoaderCircle className="animate-spin text-muted-foreground" size={32} />
           </div>

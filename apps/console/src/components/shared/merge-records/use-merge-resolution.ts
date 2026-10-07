@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback, useEffect } from 'react'
-import { isRecord } from '@/utils/type-guards'
-import type { MergeConfig, MergeFieldConfig, MergeSource, MergeArrayStrategy } from './types'
+import { isDeepEqual } from '@/utils/input-diff'
+import type { MergeConfig, MergeFieldConfig, MergeFieldType, MergeSource, MergeArrayStrategy } from './types'
 
 export const isEmptyValue = (value: unknown): boolean => {
   if (value === null || value === undefined) return true
@@ -10,20 +10,14 @@ export const isEmptyValue = (value: unknown): boolean => {
   return false
 }
 
-const areEqualValues = (a: unknown, b: unknown): boolean => {
-  if (a === b) return true
-  if (a === null || b === null || a === undefined || b === undefined) return false
-  if (Array.isArray(a) && Array.isArray(b)) {
+const areEqualValues = (type: MergeFieldType, a: unknown, b: unknown): boolean => {
+  if (type === 'tags' && Array.isArray(a) && Array.isArray(b)) {
     if (a.length !== b.length) return false
     const sortedA = [...a].map(String).sort()
     const sortedB = [...b].map(String).sort()
     return sortedA.every((v, i) => v === sortedB[i])
   }
-  if (isRecord(a) && isRecord(b)) {
-    const keys = new Set([...Object.keys(a), ...Object.keys(b)])
-    return [...keys].every((key) => areEqualValues(a[key], b[key]))
-  }
-  return false
+  return isDeepEqual(a, b)
 }
 
 const unionArrays = (primary: unknown, secondary: unknown): string[] => {
@@ -148,7 +142,7 @@ export const useMergeResolution = <TRecord, TUpdateInput>({ config, fields, prim
         }
       }
 
-      if (areEqualValues(primaryValue, secondaryValue)) {
+      if (areEqualValues(field.type, primaryValue, secondaryValue)) {
         return {
           field,
           kind: 'hidden' as const,
@@ -244,7 +238,7 @@ export const useMergeResolution = <TRecord, TUpdateInput>({ config, fields, prim
   const primaryChanges = useMemo<Partial<TRecord>>(() => {
     const out: Record<string, unknown> = {}
     for (const rf of resolvedFields) {
-      if (rf.kind === 'hidden' || areEqualValues(rf.resolvedValue, rf.primaryValue)) continue
+      if (rf.kind === 'hidden' || areEqualValues(rf.field.type, rf.resolvedValue, rf.primaryValue)) continue
       out[rf.field.key] = rf.resolvedValue
     }
     return out as Partial<TRecord>

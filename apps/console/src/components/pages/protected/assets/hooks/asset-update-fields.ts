@@ -1,5 +1,5 @@
 import { type UpdateAssetInput } from '@repo/codegen/src/schema'
-import { associationsInput, dateOrClear, orClear, richTextOrClear, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { associationsInput, dateOrClear, orClear, richTextOrClear, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { responsibilityInput, responsibilityTargetFor } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { type AssetFormData } from './use-form-schema'
 
@@ -34,4 +34,7 @@ export const ASSET_UPDATE_FIELDS = {
   scanIDs: associationsInput('scanIDs'),
   entityIDs: associationsInput('entityIDs'),
   identityHolderIDs: associationsInput('identityHolderIDs'),
+  assetType: passthrough,
+  name: passthrough,
+  sourceType: passthrough,
 } satisfies TFieldMappers<AssetFormData, UpdateAssetInput>

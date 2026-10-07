@@ -12,7 +12,7 @@ import { Clock, ClipboardCheck, CalendarClock, SearchIcon } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
 import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { riskRatingFromScore } from '@/lib/vendor-risk-rating'
+import { riskRatingFromScore, vendorRiskScoreInput } from '@/lib/vendor-risk-rating'
 import { ReadOnlyField } from '@/components/shared/read-only-field/read-only-field'
 import { useReviewsWithFilter, type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
@@ -75,9 +75,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
     ...sharedFieldProps,
     handleUpdate: async (input: UpdateEntityInput) => {
       if ('riskScore' in input && input.riskScore !== undefined) {
-        const riskScore = parseInt(String(input.riskScore), 10) || 0
-        const derivedRating = riskRatingFromScore(riskScore)
-        return handleUpdateField({ riskScore, ...(derivedRating ? { riskRating: derivedRating } : { clearRiskRating: true }) })
+        return handleUpdateField(vendorRiskScoreInput(input.riskScore))
       }
       return handleUpdateField(input)
     },

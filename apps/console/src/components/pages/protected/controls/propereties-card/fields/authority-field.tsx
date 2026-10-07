@@ -1,3 +1,4 @@
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
@@ -40,10 +41,11 @@ export const AuthorityField = ({
   editingField: string | null
   setEditingField: (field: string | null) => void
   options: Option[]
-  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput, options?: TPersistOptions) => Promise<void>
   hideAvatar?: boolean
 }) => {
   const { control } = useFormContext()
+  const persistField = usePersistFormField()
 
   const displayName = value?.displayName || `No ${label}`
   const editing = isEditAllowed && (isEditing || editingField === editingKey)
@@ -82,8 +84,12 @@ export const AuthorityField = ({
               placeholder={`Select ${label.toLowerCase()}`}
               clearable
               onChange={(val) => {
-                if (!isEditing) handleUpdate?.(buildClearableUpdate(fieldKey, val, CONTROL_AUTHORITY_CLEAR_KEYS[fieldKey]) as UpdateControlInput | UpdateSubcontrolInput)
                 setEditingField(null)
+                if (!isEditing && handleUpdate) {
+                  const input = buildClearableUpdate(fieldKey, val, CONTROL_AUTHORITY_CLEAR_KEYS[fieldKey]) as UpdateControlInput | UpdateSubcontrolInput
+                  void persistField(fieldKey, val, (options) => handleUpdate(input, options))
+                  return
+                }
                 field.onChange(val)
               }}
               onClose={() => setEditingField(null)}

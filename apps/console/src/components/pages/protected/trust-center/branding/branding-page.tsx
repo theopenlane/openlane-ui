@@ -25,7 +25,7 @@ import { getBrandingPreviewDifference } from './helpers/preview-difference'
 import { UnpublishedChangesWarning } from './section-warning'
 import { useFixedToolbarOffset } from '@/hooks/useFixedToolbarOffset'
 import { buildPreviewUrl } from './helpers/preview-url'
-import { BRANDING_PREVIEW_FIELDS, clearableSettingInput, FAVICON_ASSET, LOGO_ASSET, publishAssetInput } from './helpers/branding-setting-input'
+import { BRANDING_PREVIEW_FIELDS, clearableSettingInput, FAVICON_ASSET, LOGO_ASSET, publishAssetInput, revertAssetInput } from './helpers/branding-setting-input'
 import { useDirtyInput } from '@/hooks/useDirtyInput'
 
 export enum InputTypeEnum {
@@ -182,8 +182,8 @@ const BrandPage: React.FC = () => {
         overview: setting.overview,
         ...(setting.font ? { font: setting.font } : { clearFont: true }),
         themeMode: setting.themeMode,
-        ...publishAssetInput(LOGO_ASSET, undefined, setting.logoFile?.id, setting.logoRemoteURL),
-        ...publishAssetInput(FAVICON_ASSET, undefined, setting.faviconFile?.id, setting.faviconRemoteURL),
+        ...revertAssetInput(LOGO_ASSET, setting.logoFile?.id, setting.logoRemoteURL),
+        ...revertAssetInput(FAVICON_ASSET, setting.faviconFile?.id, setting.faviconRemoteURL),
       },
     })
   }

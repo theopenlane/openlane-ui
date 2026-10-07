@@ -2,11 +2,11 @@
 
 import React, { useRef } from 'react'
 import useFormSchema, { type ReviewFormData } from '@/components/pages/protected/reviews/hooks/use-form-schema'
-import { type ReviewsNodeNonNull, useUpdateReview, useCreateReview } from '@/lib/graphql-hooks/review'
+import { type ReviewsNodeNonNull, useCreateReview } from '@/lib/graphql-hooks/review'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { getFieldsToRender } from '@/components/pages/protected/reviews/table/table-config'
 import { type ReviewSheetConfig, type ReviewFieldProps, objectType } from '@/components/pages/protected/reviews/table/types'
-import { type CreateReviewInput, type UpdateReviewInput } from '@repo/codegen/src/schema'
+import { type CreateReviewInput } from '@repo/codegen/src/schema'
 import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -29,13 +29,7 @@ const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId,
   const stagedFilesRef = useRef<File[]>([])
   const existingFileIdsRef = useRef<string[]>([])
 
-  const baseUpdateMutation = useUpdateReview()
   const baseCreateMutation = useCreateReview()
-
-  const updateMutation = {
-    isPending: baseUpdateMutation.isPending,
-    mutateAsync: async (params: { id: string; input: UpdateReviewInput }) => baseUpdateMutation.mutateAsync({ updateReviewId: params.id, input: params.input }),
-  }
 
   const createMutation = {
     isPending: baseCreateMutation.isPending,
@@ -70,7 +64,6 @@ const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId,
     isCreateMode: true,
     data: undefined,
     isFetching: false,
-    updateMutation,
     createMutation,
     buildPayload: async (formData) => {
       const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, riskIDs, taskIDs, assetIDs, programIDs, ...rest } = formData

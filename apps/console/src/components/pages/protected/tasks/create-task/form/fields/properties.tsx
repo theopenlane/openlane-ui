@@ -2,6 +2,7 @@
 
 import React, { useMemo, useRef } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { BookText, CalendarCheck2, Circle, CircleUser, Folder, Tag, UserRoundPen } from 'lucide-react'
 
 import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
@@ -28,7 +29,7 @@ type PropertiesProps = {
   taskData: TaskQuery['task'] | undefined
   internalEditing: keyof EditTaskFormData | null
   setInternalEditing: (field: keyof EditTaskFormData | null) => void
-  handleUpdate?: (val: UpdateTaskInput) => void | Promise<boolean>
+  handleUpdate?: (val: UpdateTaskInput, options?: TPersistOptions) => Promise<void> | void
   isEditAllowed: boolean
   isTemplate: boolean
 }
@@ -38,6 +39,7 @@ const allProperties = ['assigneeID', 'due', 'status', 'taskKindName', 'tags']
 const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEditing, setInternalEditing, handleUpdate, isEditAllowed, isTemplate }) => {
   const { control, formState, watch, resetField } = useFormContext<EditTaskFormData>()
   const { orgMembers } = useTaskStore()
+  const persistField = usePersistFormField<EditTaskFormData>()
 
   const statusOptions = TaskStatusOptions
   const { tagOptions } = useGetTags()
@@ -77,7 +79,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
     if (changed && handleUpdate) {
-      handleUpdate({ tags: next })
+      void persistField('tags', next, (options) => handleUpdate({ tags: next }, options))
     }
   }
 
@@ -136,9 +138,15 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                   value={field.value || 'unassigned'}
                   onValueChange={(value) => {
                     const newValue = value === 'unassigned' ? null : value
-                    handleUpdate?.({ assigneeID: newValue, clearAssignee: !newValue || undefined })
-                    field.onChange(newValue)
                     setInternalEditing(null)
+                    if (isEditing || !handleUpdate) {
+                      field.onChange(newValue)
+                      return
+                    }
+                    if (newValue === (field.value ?? null)) {
+                      return
+                    }
+                    void persistField('assigneeID', newValue, (options) => handleUpdate(newValue ? { assigneeID: newValue } : { clearAssignee: true }, options))
                   }}
                 >
                   <SelectTrigger className="w-full">{orgMembers?.find((m) => m.value === field.value)?.label || (field.value ? 'Select' : 'Not Assigned')}</SelectTrigger>
@@ -184,9 +192,12 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                     field={{
                       ...field,
                       onChange: (newDate) => {
-                        field.onChange(newDate)
-                        handleUpdate?.({ due: newDate })
                         setInternalEditing(null)
+                        if (isEditing || !handleUpdate) {
+                          field.onChange(newDate)
+                          return
+                        }
+                        void persistField('due', newDate, (options) => handleUpdate(newDate ? { due: newDate } : { clearDue: true }, options))
                       },
                     }}
                     disabledFrom={new Date()}
@@ -223,9 +234,13 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                   <Select
                     value={field.value}
                     onValueChange={(value) => {
-                      handleUpdate?.({ status: value as TaskTaskStatus })
-                      field.onChange(value)
+                      const status = value as TaskTaskStatus
                       setInternalEditing(null)
+                      if (isEditing || !handleUpdate) {
+                        field.onChange(status)
+                        return
+                      }
+                      void persistField('status', status, (options) => handleUpdate({ status }, options))
                     }}
                   >
                     <SelectTrigger className="w-full">{getEnumLabel(field.value as TaskTaskStatus)}</SelectTrigger>
@@ -280,9 +295,12 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                   contentRef={popoverRef}
                   searchPlaceholder="Search task type..."
                   onValueChange={(value) => {
-                    handleUpdate?.({ taskKindName: value })
-                    field.onChange(value)
                     setInternalEditing(null)
+                    if (isEditing || !handleUpdate) {
+                      field.onChange(value)
+                      return
+                    }
+                    void persistField('taskKindName', value, (options) => handleUpdate({ taskKindName: value }, options))
                   }}
                   placeholder="Select"
                 />

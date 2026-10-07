@@ -1,3 +1,4 @@
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useNotification } from '@/hooks/useNotification'
 import { type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
@@ -7,8 +8,16 @@ import { CopyIcon, FolderIcon, HelpCircle } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 
+const REFERENCE_CLEAR_KEYS = {
+  referenceID: 'clearReferenceID',
+  auditorReferenceID: 'clearAuditorReferenceID',
+  sourceName: 'clearSourceName',
+  externalUUID: 'clearExternalUUID',
+} as const
+
 export const ReferenceProperty = ({
   name,
+  isEditAllowed,
   label,
   icon,
   tooltip,
@@ -19,18 +28,20 @@ export const ReferenceProperty = ({
   setActiveField,
   fieldId,
 }: {
-  name: string
+  name: keyof typeof REFERENCE_CLEAR_KEYS
+  isEditAllowed: boolean
   label: string
   icon?: React.ReactNode
   tooltip: string
   value?: string | null
   isEditing: boolean
-  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput, options?: TPersistOptions) => Promise<void>
   activeField?: string | null
   setActiveField?: (field: string | null) => void
   fieldId?: string
 }) => {
   const { control } = useFormContext()
+  const persistField = usePersistFormField()
   const { successNotification } = useNotification()
   const [internalEditing, setInternalEditing] = useState(false)
   const resolvedFieldId = fieldId ?? name
@@ -39,10 +50,10 @@ export const ReferenceProperty = ({
 
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const editing = isEditing || isActive
+  const editing = isEditAllowed && (isEditing || isActive)
 
   const handleClick = () => {
-    if (!isEditing) {
+    if (!isEditing && isEditAllowed) {
       if (isControlled) {
         setActiveField?.(resolvedFieldId)
       } else {
@@ -96,14 +107,15 @@ export const ReferenceProperty = ({
                   if (isEditing) return
 
                   const trimmed = e.target.value.trim()
-                  if (value !== trimmed) {
-                    handleUpdate?.({ [name]: trimmed })
-                  }
                   field.onChange(trimmed)
                   if (isControlled) {
                     setActiveField?.(null)
                   } else {
                     setInternalEditing(false)
+                  }
+                  if ((value ?? '') !== trimmed && handleUpdate) {
+                    const input = trimmed ? { [name]: trimmed } : { [REFERENCE_CLEAR_KEYS[name]]: true }
+                    void persistField(name, trimmed, (options) => handleUpdate(input, options))
                   }
                 }}
                 onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -115,7 +127,7 @@ export const ReferenceProperty = ({
             )}
           />
         ) : (
-          <HoverPencilWrapper onPencilClick={handleClick}>
+          <HoverPencilWrapper showPencil={isEditAllowed} onPencilClick={isEditAllowed ? handleClick : undefined}>
             {value ? (
               <div className="flex items-center gap-2 cursor-pointer" onDoubleClick={handleClick}>
                 <span>{value}</span>

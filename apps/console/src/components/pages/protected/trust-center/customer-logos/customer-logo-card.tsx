@@ -33,7 +33,7 @@ type CustomerLogoCardProps = {
   name: string
   url?: string | null
   logoUrl?: string | null
-  onUpdate: (args: { id: string; input: UpdateTrustCenterEntityInput; logoFile?: File }) => Promise<void> | void
+  onUpdate: (args: { id: string; input: UpdateTrustCenterEntityInput; logoFile?: File }) => Promise<boolean>
   onDelete: (id: string) => void
   isUpdating?: boolean
   isDeleting?: boolean
@@ -72,11 +72,12 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
   const onSubmit = async (values: TFormValues) => {
     const input = await buildDirtyInput<UpdateTrustCenterEntityInput>(values, ENTITY_UPDATE_FIELDS)
     if (Object.keys(input).length > 0 || selectedFile) {
-      await onUpdate({
+      const saved = await onUpdate({
         id,
         input,
         logoFile: selectedFile || undefined,
       })
+      if (!saved) return
     }
     resetEdit()
   }

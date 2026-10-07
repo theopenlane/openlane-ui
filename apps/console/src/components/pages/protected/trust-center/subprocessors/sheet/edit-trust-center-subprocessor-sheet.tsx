@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { omit, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -31,22 +31,32 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 
-const schema = z.object({
-  category: z.string().optional(),
-  countries: z.array(z.string()).optional(),
-  name: z.string().trim().min(1, 'Name is required'),
-  description: z.string().trim().optional(),
-  uploadMode: z.enum(['file', 'url']).default('file'),
-  logoFile: z.instanceof(File).optional(),
-  logoUrl: z.string().url('Please enter a valid URL').optional().or(z.literal('')).or(z.string().startsWith('data:')),
-})
+const LOGO_URL_ERROR = 'Please enter a valid URL'
+
+const httpUrlSchema = z.url({ protocol: /^https?$/ })
+
+const schema = z
+  .object({
+    category: z.string().optional(),
+    countries: z.array(z.string()).optional(),
+    name: z.string().trim().min(1, 'Name is required'),
+    description: z.string().trim().optional(),
+    uploadMode: z.enum(['file', 'url']).default('file'),
+    logoFile: z.instanceof(File).optional(),
+    logoUrl: z.string().optional(),
+  })
+  .superRefine(({ uploadMode, logoUrl }, ctx) => {
+    const remoteURL = (logoUrl ?? '').trim()
+    if (uploadMode !== 'url' || !remoteURL) return
+    if (!httpUrlSchema.safeParse(remoteURL).success) ctx.addIssue({ code: 'custom', path: ['logoUrl'], message: LOGO_URL_ERROR })
+  })
 
 type FormData = z.infer<typeof schema>
 
 const logoInput = (_value: string | File | undefined, { uploadMode, logoFile, logoUrl }: FormData): UpdateSubprocessorInput => {
   if (uploadMode === 'url') {
     const remoteURL = (logoUrl ?? '').trim()
-    return remoteURL && !remoteURL.startsWith('data:') ? { logoRemoteURL: remoteURL, clearLogoFile: true } : { clearLogoRemoteURL: true }
+    return remoteURL ? { logoRemoteURL: remoteURL, clearLogoFile: true } : { clearLogoRemoteURL: true }
   }
   return logoFile instanceof File ? { clearLogoRemoteURL: true } : {}
 }
@@ -58,6 +68,7 @@ const SUBPROCESSOR_UPDATE_FIELDS = {
   logoUrl: logoInput,
   category: omit,
   countries: omit,
+  name: passthrough,
 } satisfies TFieldMappers<FormData, UpdateSubprocessorInput>
 
 const subprocessorCategoryInput = (category: string | undefined): UpdateTrustCenterSubprocessorInput =>

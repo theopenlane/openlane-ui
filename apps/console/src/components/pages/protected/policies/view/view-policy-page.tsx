@@ -33,8 +33,9 @@ import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { dateOrClear, omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { dateOrClear, omit, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
+import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { ASSOCIATION_REMOVAL_CONFIG, POLICY_ASSOCIATION_SECTIONS, buildAssociationSections } from '@/components/shared/object-association/object-association-config'
 import Loading from '@/app/(protected)/policies/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
@@ -96,6 +97,7 @@ const buildPolicyUpdateFields = (isDetailsEditable: boolean) =>
     controlObjectiveIDs: omit,
     controlIDs: omit,
     taskIDs: omit,
+    name: passthrough,
   }) satisfies TFieldMappers<EditPolicyMetadataFormData, UpdateInternalPolicyInput>
 
 const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
@@ -204,7 +206,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         approvalRequired: policy?.approvalRequired ?? true,
         status: policy.status ?? InternalPolicyDocumentStatus.DRAFT,
         internalPolicyKindName: policy.internalPolicyKindName ?? '',
-        reviewDue: policy.reviewDue ? new Date(policy.reviewDue as string) : undefined,
+        reviewDue: policy.reviewDue ? new Date(policy.reviewDue as string) : null,
         reviewFrequency: policy.reviewFrequency ?? InternalPolicyFrequency.YEARLY,
         revision: policy.revision ?? '',
         approverID: policy.approver?.id,
@@ -285,7 +287,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     [form, onSubmitHandler],
   )
 
-  const handleUpdateField = async (input: UpdateInternalPolicyInput, options?: { throwOnError?: boolean }) => {
+  const handleUpdateField = async (input: UpdateInternalPolicyInput, options?: TPersistOptions) => {
     if (!policy?.id) {
       return
     }

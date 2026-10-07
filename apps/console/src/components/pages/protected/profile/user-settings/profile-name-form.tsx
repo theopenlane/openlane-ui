@@ -16,7 +16,7 @@ import { useGetCurrentUser, useUpdateUser } from '@/lib/graphql-hooks/user'
 import { type UpdateUserInput } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
-import { orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 
 const profileNameSchema = z.object({
   firstName: z.string().min(2, {
@@ -38,6 +38,8 @@ type TProfileNameFormData = z.infer<typeof profileNameSchema>
 const PROFILE_NAME_UPDATE_FIELDS = {
   firstName: orClear('clearFirstName'),
   lastName: orClear('clearLastName'),
+  displayName: passthrough,
+  email: passthrough,
 } satisfies TFieldMappers<TProfileNameFormData, UpdateUserInput>
 
 const ProfileNameForm = () => {

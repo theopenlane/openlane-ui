@@ -92,6 +92,7 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
     try {
       const existingReviewId = review?.id ?? createdReviewId
       let didCreate = false
+      let didUpdate = false
 
       if (existingReviewId) {
         const contextBackfill: UpdateReviewInput = {
@@ -102,17 +103,15 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
 
         const reviewInput: UpdateReviewInput = {
           ...changedInput,
-          ...(nextStatus && nextStatus !== review?.status ? { status: nextStatus } : {}),
-          ...(approves && !review?.approved ? { approved: true, approvedAt: now } : {}),
-          ...(action === 'draft' && review?.approved ? { approved: false } : {}),
-          ...(action === 'draft' && review?.approvedAt ? { clearApprovedAt: true } : {}),
-          ...(action === 'draft' && review?.reviewedAt ? { clearReviewedAt: true } : {}),
-          ...(completes && !review?.reviewedAt ? { reviewedAt: now } : {}),
+          ...(nextStatus ? { status: nextStatus } : {}),
+          ...(approves ? { approved: true, approvedAt: now } : action === 'draft' ? { approved: false, clearApprovedAt: true } : {}),
+          ...(action === 'draft' ? { clearReviewedAt: true } : completes && !review?.reviewedAt ? { reviewedAt: now } : {}),
         }
         const input: UpdateReviewInput = Object.keys(reviewInput).length > 0 ? { ...reviewInput, ...contextBackfill } : reviewInput
 
         if (Object.keys(input).length > 0) {
           await updateReview({ updateReviewId: existingReviewId, input })
+          didUpdate = true
         }
       } else {
         const details = await plateToHtmlOrNull(formData.description, plateEditorHelper)
@@ -145,6 +144,13 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
       const riskInput = canEditVendor ? await buildDirtyInput<UpdateEntityInput>(formData, VENDOR_RISK_UPDATE_FIELDS) : {}
       if (Object.keys(riskInput).length > 0) {
         await updateEntity({ updateEntityId: vendor.id, input: riskInput })
+        didUpdate = true
+      }
+
+      if (!didCreate && !didUpdate) {
+        form.reset()
+        setIsEditing(false)
+        return
       }
 
       successNotification({

@@ -298,7 +298,7 @@ const ControlDetailsPage: React.FC = () => {
               isEditing={isEditing}
               initialRefCode={control.refCode || ''}
               initialTitle={control.title || ''}
-              handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
+              handleUpdate={handleUpdateField}
               referenceFramework={control.referenceFramework}
             />
             {isVerified && (

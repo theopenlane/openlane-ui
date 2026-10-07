@@ -57,17 +57,27 @@ export const FAVICON_ASSET = { fileID: 'faviconFileID', remoteURL: 'faviconRemot
 const previewAssetInput = (asset: TBrandingAsset, stagedFile: File | null | undefined, remoteURL: string | null | undefined): UpdateTrustCenterSettingInput =>
   remoteURL && !stagedFile ? { [asset.remoteURL]: remoteURL, [asset.clearFile]: true } : { [asset.clearRemoteURL]: true }
 
+const assetSourceInput = (
+  asset: TBrandingAsset,
+  stagedFile: File | null | undefined,
+  sourceFileID: string | null | undefined,
+  remoteURL: string | null | undefined,
+): UpdateTrustCenterSettingInput | null => {
+  if (stagedFile) return { [asset.clearRemoteURL]: true }
+  if (sourceFileID) return { [asset.fileID]: sourceFileID, [asset.clearRemoteURL]: true }
+  if (remoteURL) return { [asset.remoteURL]: remoteURL, [asset.clearFile]: true }
+  return null
+}
+
 export const publishAssetInput = (
   asset: TBrandingAsset,
   stagedFile: File | null | undefined,
   sourceFileID: string | null | undefined,
   remoteURL: string | null | undefined,
-): UpdateTrustCenterSettingInput => {
-  if (stagedFile) return { [asset.clearRemoteURL]: true }
-  if (sourceFileID) return { [asset.fileID]: sourceFileID, [asset.clearRemoteURL]: true }
-  if (remoteURL) return { [asset.remoteURL]: remoteURL, [asset.clearFile]: true }
-  return { [asset.clearFile]: true, [asset.clearRemoteURL]: true }
-}
+): UpdateTrustCenterSettingInput => assetSourceInput(asset, stagedFile, sourceFileID, remoteURL) ?? {}
+
+export const revertAssetInput = (asset: TBrandingAsset, fileID: string | null | undefined, remoteURL: string | null | undefined): UpdateTrustCenterSettingInput =>
+  assetSourceInput(asset, undefined, fileID, remoteURL) ?? { [asset.clearFile]: true, [asset.clearRemoteURL]: true }
 
 const previewAssetFieldInput =
   (asset: TBrandingAsset, file: 'logoFile' | 'faviconFile', remoteURL: 'logoRemoteURL' | 'faviconRemoteURL') =>

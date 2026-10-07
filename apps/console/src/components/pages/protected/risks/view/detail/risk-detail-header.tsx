@@ -28,22 +28,20 @@ interface RiskDetailHeaderProps {
 }
 
 const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, canEditRisk, onEdit, onCancel, onDeleteClick, canDeleteRisk, handleUpdateField }) => {
-  const { setValue, register } = useFormContext()
+  const { register } = useFormContext()
   const persistField = usePersistFormField()
   const [inlineEditing, setInlineEditing] = useState<'name' | null>(null)
   const [localValue, setLocalValue] = useState('')
   const [originalValue, setOriginalValue] = useState<string>('')
 
   const handleBlur = async (field: 'name') => {
-    if (localValue !== originalValue) {
-      register(field)
+    if (localValue.trim() && localValue !== originalValue) {
       await persistField(field, localValue, (options) => handleUpdateField({ [field]: localValue }, options))
     }
     setInlineEditing(null)
   }
 
-  const handleEscape = (field: 'name') => {
-    setValue(field, originalValue)
+  const handleEscape = () => {
     setInlineEditing(null)
   }
 
@@ -65,7 +63,7 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
         onBlur={() => handleBlur(field)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') e.currentTarget.blur()
-          if (e.key === 'Escape') handleEscape(field)
+          if (e.key === 'Escape') handleEscape()
         }}
       />
     )

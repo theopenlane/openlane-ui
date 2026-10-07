@@ -3,7 +3,9 @@
 import React, { useRef, useState } from 'react'
 import { type InternalPolicyByIdFragment, type InternalPolicyDocumentStatus, InternalPolicyDocumentManagementMode, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
 import { Binoculars, Calendar, FileStack, FileText, ScrollText, HelpCircle } from 'lucide-react'
-import { Controller, type UseFormReturn } from 'react-hook-form'
+import { Controller, type PathValue, type UseFormReturn } from 'react-hook-form'
+import { isSameDay } from 'date-fns'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
@@ -27,7 +29,7 @@ type TPropertiesCardProps = {
   policy: InternalPolicyByIdFragment
   isEditing: boolean
   editAllowed: boolean
-  handleUpdate?: (val: UpdateInternalPolicyInput) => void
+  handleUpdate?: (val: UpdateInternalPolicyInput, options?: TPersistOptions) => Promise<void> | void
   activeField?: string | null
   setActiveField?: (field: string | null) => void
 }
@@ -47,14 +49,17 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
     isEditAllowed: editAllowed,
   })
 
-  const handleUpdateIfChanged = (field: 'status' | 'internalPolicyKindName' | 'revision', value: string, current: string | undefined | null) => {
-    if (isEditing) {
-      return
-    }
-    if (value !== current && handleUpdate) {
-      handleUpdate({ [field]: value })
-    }
+  const persistField = usePersistFormField<EditPolicyMetadataFormData>()
+
+  const persistInline = <TName extends 'status' | 'internalPolicyKindName' | 'revision' | 'reviewDue'>(
+    name: TName,
+    value: PathValue<EditPolicyMetadataFormData, TName>,
+    input: UpdateInternalPolicyInput,
+  ) => {
     setEditingField(null)
+    if (handleUpdate) {
+      void persistField(name, value, (options) => handleUpdate(input, options))
+    }
   }
 
   const triggerRef = useRef<HTMLDivElement>(null)
@@ -127,8 +132,16 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                   <Select
                     value={field.value}
                     onValueChange={(value) => {
-                      handleUpdateIfChanged('status', value, field.value)
-                      field.onChange(value)
+                      const status = value as InternalPolicyDocumentStatus
+                      if (isEditing) {
+                        field.onChange(status)
+                        return
+                      }
+                      if (status === field.value) {
+                        setEditingField(null)
+                        return
+                      }
+                      persistInline('status', status, { status })
                     }}
                   >
                     <SelectTrigger className="w-full">{InternalPolicyStatusOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>
@@ -227,9 +240,16 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                       value={field.value ?? ''}
                       autoFocus
                       onBlur={() => {
-                        if (!form.formState.errors.revision) {
-                          handleUpdateIfChanged('revision', field.value ?? '', policy?.revision)
+                        if (isEditing || form.formState.errors.revision) {
+                          return
                         }
+                        const revision = field.value?.trim() ?? ''
+                        if (!revision || revision === policy.revision) {
+                          form.resetField('revision')
+                          setEditingField(null)
+                          return
+                        }
+                        persistInline('revision', revision, { revision })
                       }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -297,8 +317,15 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                       searchPlaceholder="Search policy type..."
                       contentRef={popoverRef}
                       onValueChange={(val) => {
-                        field.onChange(val)
-                        handleUpdateIfChanged('internalPolicyKindName', val, policy?.internalPolicyKindName)
+                        if (isEditing) {
+                          field.onChange(val)
+                          return
+                        }
+                        if ((val || '') === (field.value || '')) {
+                          setEditingField(null)
+                          return
+                        }
+                        persistInline('internalPolicyKindName', val, val ? { internalPolicyKindName: val } : { clearInternalPolicyKindName: true })
                       }}
                       placeholder="Select type"
                     />
@@ -358,12 +385,17 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                 <>
                   <div ref={reviewPopoverRef}>
                     <CalendarPopover
-                      field={field}
+                      field={isEditing ? field : { ...field, onChange: () => undefined }}
                       onChange={(date) => {
-                        if (!isEditing && date !== policy.reviewDue) {
-                          handleUpdate?.({ reviewDue: date })
+                        if (isEditing) {
+                          return
                         }
-                        setEditingField(null)
+                        const current = field.value
+                        if (date && current ? isSameDay(date, current) : date === current) {
+                          setEditingField(null)
+                          return
+                        }
+                        persistInline('reviewDue', date, date ? { reviewDue: date } : { clearReviewDue: true })
                       }}
                       disabledFrom={new Date()}
                       required

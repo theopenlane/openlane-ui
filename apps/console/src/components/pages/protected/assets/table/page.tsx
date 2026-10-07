@@ -162,7 +162,6 @@ const AssetPage: React.FC = () => {
     form,
     data: id ? data?.asset : undefined,
     isFetching: isLoading,
-    updateMutation,
     createMutation,
     deleteMutation,
     buildPayload: async (data) => {
@@ -177,7 +176,7 @@ const AssetPage: React.FC = () => {
         ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'create' }),
       }
     },
-    updateFields: ASSET_UPDATE_FIELDS,
+    update: { mutation: updateMutation, fields: ASSET_UPDATE_FIELDS },
     normalizeData,
     getName,
     renderFields: (props: AssetFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),

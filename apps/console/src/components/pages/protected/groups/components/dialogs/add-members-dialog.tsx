@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Plus } from 'lucide-react'
@@ -15,17 +15,17 @@ import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const AddMembersDialog = () => {
   const { selectedGroup } = useGroupsStore()
   const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
-  const { successNotification } = useNotification()
+  const { successNotification, errorNotification } = useNotification()
   const [selectedMembers, setSelectedMembers] = useState<Option[]>([])
   const queryClient = useQueryClient()
   const { data } = useGetGroupDetails(selectedGroup)
   const { members: membersGroupData, isManaged, id } = data?.group || {}
-  const [hasInitialized, setHasInitialized] = useState(false)
   const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup)
 
   const members = useMemo(
@@ -73,33 +73,40 @@ const AddMembersDialog = () => {
       return
     }
 
-    await updateGroup({
-      updateGroupId: id,
-      input: {
-        ...(removeGroupMembers.length > 0 && { removeGroupMembers }),
-        ...(addGroupMembers.length > 0 && { addGroupMembers }),
-      },
-    })
+    try {
+      await updateGroup({
+        updateGroupId: id,
+        input: {
+          ...(removeGroupMembers.length > 0 && { removeGroupMembers }),
+          ...(addGroupMembers.length > 0 && { addGroupMembers }),
+        },
+      })
 
-    queryClient.invalidateQueries({ queryKey: ['groups', selectedGroup] })
-    successNotification({ title: 'Members updated successfully' })
-    setIsOpen(false)
+      queryClient.invalidateQueries({ queryKey: ['groups', selectedGroup] })
+      successNotification({ title: 'Members updated successfully' })
+      setIsOpen(false)
+    } catch (error) {
+      errorNotification({
+        title: 'Error',
+        description: parseErrorMessage(error),
+      })
+    }
   }
 
-  useEffect(() => {
-    if (!hasInitialized && members.length > 0) {
-      const initialSelected = members.map((member) => ({
-        value: member.user.id,
-        label: `${member.user.displayName}`,
-      }))
-
-      setSelectedMembers(initialSelected)
-      setHasInitialized(true)
+  const handleOpenChange = (open: boolean) => {
+    if (open) {
+      setSelectedMembers(
+        members.map((member) => ({
+          value: member.user.id,
+          label: `${member.user.displayName}`,
+        })),
+      )
     }
-  }, [members, hasInitialized])
+    setIsOpen(open)
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="secondary" icon={<Plus />} iconPosition="left" disabled={!!isManaged || !canEdit(permission?.roles, session)}>
           Add members

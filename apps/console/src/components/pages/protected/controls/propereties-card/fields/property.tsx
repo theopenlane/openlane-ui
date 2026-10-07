@@ -14,7 +14,7 @@ export const Property = ({ label, value, onPencilClick }: { label: string; value
           <StandardChip referenceFramework={value ?? ''} />
         </div>
       ) : (
-        <HoverPencilWrapper onPencilClick={onPencilClick}>
+        <HoverPencilWrapper showPencil={!!onPencilClick} onPencilClick={onPencilClick}>
           <div className="text-sm whitespace-pre-line">{value || '-'}</div>
         </HoverPencilWrapper>
       )}
