@@ -15,7 +15,7 @@ import { type Option } from '@repo/ui/multiple-selector'
 
 type EditableUserCellProps = {
   label: string
-  entity?: (AvatarEntityLike & { id?: string | null }) | null
+  entity?: (AvatarEntityLike & { id: string }) | null
   onSubmitData: (
     data: EditableFieldFormData,
     helpers: {
@@ -75,6 +75,7 @@ const EditableUserCell: React.FC<EditableUserCellProps> = ({ label, entity, onSu
         <div
           {...activatable((e) => {
             e.stopPropagation()
+            form.reset({ id: entity?.id ?? null })
             setIsEditing(true)
           })}
           className="flex items-center cursor-pointer"

@@ -18,7 +18,7 @@ import {
   responsibilityTargetFor,
   responsibilityTargetWithoutPersonnelFor,
 } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { dateOrClear, orClear, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { dateOrClear, orClear, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { type ScanFormData } from '../hooks/use-form-schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -47,6 +47,9 @@ const SCAN_UPDATE_FIELDS = {
   assignedTo: responsibilityInput(SCAN_ASSIGNED_TO),
   performedBy: responsibilityInput(SCAN_PERFORMED_BY),
   reviewedBy: responsibilityInput(SCAN_REVIEWED_BY),
+  scanType: passthrough,
+  status: passthrough,
+  target: passthrough,
 } satisfies TFieldMappers<ScanFormData, UpdateScanInput>
 
 const ScanPage: React.FC = () => {
@@ -124,7 +127,6 @@ const ScanPage: React.FC = () => {
     form,
     data: id ? data?.scan : undefined,
     isFetching: isLoading,
-    updateMutation,
     createMutation,
     deleteMutation,
     normalizeData,
@@ -141,7 +143,7 @@ const ScanPage: React.FC = () => {
         ...buildResponsibilityPayload('reviewedBy', reviewedBy),
       }
     },
-    updateFields: SCAN_UPDATE_FIELDS,
+    update: { mutation: updateMutation, fields: SCAN_UPDATE_FIELDS },
     getName,
     renderFields: (props: ScanFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }

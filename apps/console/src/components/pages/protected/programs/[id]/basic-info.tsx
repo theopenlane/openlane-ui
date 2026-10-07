@@ -4,8 +4,8 @@ import { onActivateKeyDown } from '@repo/ui/lib/a11y'
 import { useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { Card } from '@repo/ui/cardpanel'
 import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useForm, Controller, FormProvider, type Path, type FieldValues, type UseFormReturn } from 'react-hook-form'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useForm, useWatch, Controller, FormProvider, type Path, type FieldValues, type UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@repo/ui/input'
@@ -16,8 +16,8 @@ import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { Textarea } from '@repo/ui/textarea'
 import { Pencil } from 'lucide-react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
-import { ProgramProgramStatus, type UpdateProgramInput } from '@repo/codegen/src/schema'
+import { orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
+import { ProgramProgramStatus, type GetProgramBasicInfoQuery, type UpdateProgramInput } from '@repo/codegen/src/schema'
 import { useGetOrgMemberships, useUserSelect } from '@/lib/graphql-hooks/member'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -54,7 +54,16 @@ const PROGRAM_BASIC_INFO_UPDATE_FIELDS = {
   tags: orClear('clearTags'),
   programOwnerID: orClear('clearProgramOwner'),
   frameworkName: orClear('clearFrameworkName'),
+  name: passthrough,
 } satisfies TFieldMappers<FormValues, UpdateProgramInput>
+
+const toFormValues = (program: GetProgramBasicInfoQuery['program']): FormValues => ({
+  name: program.name ?? '',
+  description: program.description ?? '',
+  tags: program.tags ?? [],
+  programOwnerID: program.programOwnerID ?? '',
+  frameworkName: program.frameworkName ?? '',
+})
 
 const BasicInformation = () => {
   const { data: session } = useSession()
@@ -80,7 +89,6 @@ const BasicInformation = () => {
   const canManageCategories = isEditAllowed && program?.status !== ProgramProgramStatus.ARCHIVED
 
   const [isEditing, setIsEditing] = useState(false)
-  const [tagValues, setTagValues] = useState<{ value: string; label: string }[]>([])
 
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
@@ -98,38 +106,22 @@ const BasicInformation = () => {
     },
   })
   const buildDirtyInput = useDirtyInput(form)
+  const tags = useWatch({ control: form.control, name: 'tags' })
+  const tagValues = useMemo(() => (tags ?? []).map((tag) => ({ label: tag, value: tag })), [tags])
+
+  const isEditingRef = useRef(isEditing)
+  useEffect(() => {
+    isEditingRef.current = isEditing
+  }, [isEditing])
 
   useEffect(() => {
-    if (program) {
-      form.reset({
-        name: program.name ?? '',
-        description: program.description ?? '',
-        tags: program.tags ?? [],
-        programOwnerID: program.programOwnerID ?? '',
-        frameworkName: program?.frameworkName ?? '',
-      })
-
-      setTagValues(
-        (program.tags ?? []).map((tag) => ({
-          label: tag,
-          value: tag,
-        })),
-      )
+    if (program && !isEditingRef.current) {
+      form.reset(toFormValues(program))
     }
   }, [program, form])
 
   const handleCancel = () => {
-    if (program) {
-      form.reset()
-
-      setTagValues(
-        (program.tags ?? []).map((tag) => ({
-          label: tag,
-          value: tag,
-        })),
-      )
-    }
-
+    form.reset(program ? toFormValues(program) : undefined)
     setIsEditing(false)
   }
 
@@ -151,6 +143,7 @@ const BasicInformation = () => {
       })
 
       queryClient.invalidateQueries({ queryKey: ['programs', id] })
+      form.reset(values)
       setIsEditing(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -237,7 +230,6 @@ const BasicInformation = () => {
                         onChange={(selected) => {
                           const values = selected.map((s) => s.value)
                           field.onChange(values)
-                          setTagValues(selected)
                         }}
                       />
                     )}
@@ -308,7 +300,7 @@ interface FrameworkFieldProps<T extends FieldValues> {
   name: Path<T>
 }
 
-export function FrameworkField<T extends FieldValues>({ form, program, isEditing, isEditAllowed, standardOptionsNormalized, name }: FrameworkFieldProps<T>) {
+export const FrameworkField = <T extends FieldValues>({ form, program, isEditing, isEditAllowed, standardOptionsNormalized, name }: FrameworkFieldProps<T>) => {
   const [query, setQuery] = useState(program?.frameworkName || '')
   const [showSuggestions, setShowSuggestions] = useState(false)
 

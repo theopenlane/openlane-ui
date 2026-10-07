@@ -108,7 +108,7 @@ const MapControlsRelations = ({ onDelete, deleteLoading }: Props) => {
           render={({ field }) => (
             <div className="flex items-center flex-col">
               <Slider value={field.value ?? 0} onChange={(val) => field.onChange(val)} />
-              <p className="text-blue-500 cursor-pointer self-start" {...activatable(() => setValue('confidence', 0, { shouldDirty: true }))}>
+              <p className="text-blue-500 cursor-pointer self-start" {...activatable(() => setValue('confidence', undefined, { shouldDirty: true }))}>
                 Clear
               </p>
             </div>

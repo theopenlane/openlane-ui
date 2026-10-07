@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react'
 import { Tag } from 'lucide-react'
 import { type UseFormReturn } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { InputRow } from '@repo/ui/input'
 import { FormControl, FormField } from '@repo/ui/form'
 import MultipleSelector from '@repo/ui/multiple-selector'
@@ -22,7 +23,7 @@ type TTagsCardProps = {
   policy: InternalPolicyByIdFragment
   isEditing: boolean
   editAllowed: boolean
-  handleUpdate?: (val: UpdateInternalPolicyInput) => void
+  handleUpdate?: (val: UpdateInternalPolicyInput, options?: TPersistOptions) => Promise<void> | void
   activeField?: string | null
   setActiveField?: (field: string | null) => void
 }
@@ -38,6 +39,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
       setInternalInternalEditing(value)
     }
   }
+  const persistField = usePersistFormField<CreatePolicyFormData>()
   const { tagOptions } = useGetTags()
   const { data: permission } = useOrganizationRoles()
   const { data: session } = useSession()
@@ -59,7 +61,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
     if (changed && handleUpdate) {
-      handleUpdate({ tags: next })
+      void persistField('tags', next, (options) => handleUpdate({ tags: next }, options))
     }
 
     setInternalEditing(false)

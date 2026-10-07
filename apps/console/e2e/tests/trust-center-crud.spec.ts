@@ -635,6 +635,7 @@ test.describe('trust-center — document bulk actions and watermark', () => {
     await page.getByRole('button', { name: /^Watermark$/ }).click()
     await expect(page.getByText('Watermark Document')).toBeVisible({ timeout: 30_000 })
 
+    await page.getByText('Text Watermark', { exact: true }).click()
     await page.getByPlaceholder('Enter watermark text…').fill(`E2E ${Date.now().toString(36)}`)
 
     await expectMutationOk(page, 'UpdateTrustCenterWatermarkConfig', async () => {

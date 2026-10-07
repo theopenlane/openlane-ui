@@ -1,8 +1,8 @@
 import { type UpdateContactInput } from '@repo/codegen/src/schema'
-import { orClear, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { orClear, passthrough, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { type ContactFormData } from './use-form-schema'
 
-type TContactScalarFields = Pick<ContactFormData, 'fullName' | 'email' | 'company' | 'title' | 'address' | 'phoneNumber'>
+type TContactScalarFields = Pick<ContactFormData, 'fullName' | 'email' | 'company' | 'title' | 'address' | 'phoneNumber' | 'status'>
 
 export const CONTACT_SCALAR_UPDATE_FIELDS = {
   fullName: orClear('clearFullName'),
@@ -11,4 +11,5 @@ export const CONTACT_SCALAR_UPDATE_FIELDS = {
   title: orClear('clearTitle'),
   address: orClear('clearAddress'),
   phoneNumber: orClear('clearPhoneNumber'),
+  status: passthrough,
 } satisfies TFieldMappers<TContactScalarFields, UpdateContactInput>

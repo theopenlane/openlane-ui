@@ -18,10 +18,7 @@ const ApproverCell: React.FC<TApproverCellProps> = ({ approver, procedureId }) =
     try {
       await updateProcedure({
         updateProcedureId: procedureId,
-        input: {
-          approverID: data.id,
-          clearApprover: !data.id || undefined,
-        },
+        input: data.id ? { approverID: data.id } : { clearApprover: true },
       })
       await helpers.queryClient.invalidateQueries({ queryKey: ['procedures'] })
       helpers.notifySuccess()

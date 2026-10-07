@@ -23,7 +23,7 @@ import DetailHeaderActions from '@/components/shared/detail-header-actions/detai
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { associationsInput, orClear, richTextOrClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { associationsInput, orClear, richTextOrClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { PlatformPlatformStatus, type UpdatePlatformInput } from '@repo/codegen/src/schema'
 import PlatformAssetsTable from './platform-assets-table'
 import PlatformVendorsTable from './platform-vendors-table'
@@ -79,6 +79,8 @@ const PLATFORM_UPDATE_FIELDS = {
   outOfScopeAssetIDs: associationsInput('outOfScopeAssetIDs'),
   entityIDs: associationsInput('entityIDs'),
   outOfScopeVendorIDs: associationsInput('outOfScopeVendorIDs'),
+  name: passthrough,
+  status: passthrough,
 } satisfies TFieldMappers<EditPlatformFormData, UpdatePlatformInput>
 
 const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onCreatePlatform }) => {

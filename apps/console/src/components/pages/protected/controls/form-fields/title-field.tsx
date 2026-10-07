@@ -7,18 +7,21 @@ import { type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codeg
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
+import { type TControlFormValues } from '@/components/pages/protected/controls/build-control-update-input'
 
 interface TitleFieldProps {
   isEditing: boolean
   isEditAllowed?: boolean
-  handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  handleUpdate: (val: UpdateControlInput & UpdateSubcontrolInput, options?: TPersistOptions) => Promise<void>
   initialRefCode: string
   initialTitle: string
   referenceFramework: string | null | undefined
 }
 
 const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialRefCode, initialTitle, referenceFramework }: TitleFieldProps) => {
-  const { register, getValues, resetField } = useFormContext()
+  const { register, getValues, resetField } = useFormContext<TControlFormValues>()
+  const persistField = usePersistFormField<TControlFormValues>()
   const [internalEditing, setInternalEditing] = useState(false)
 
   const handleClick = () => {
@@ -32,23 +35,25 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialRefC
     if (e.currentTarget.contains(e.relatedTarget as Node)) return
 
     const refCode = getValues('refCode')
-    const title = getValues('title')
+    const title = getValues('title') ?? ''
 
     if (!refCode?.trim()) return
 
-    const updates: Record<string, string | null> = {}
-    if (refCode !== initialRefCode) {
-      updates.refCode = refCode
-    }
-    if ((title ?? '') !== (initialTitle ?? '')) {
-      updates.title = title || null
-    }
-
-    if (Object.keys(updates).length > 0) {
-      handleUpdate(updates as UpdateControlInput | UpdateSubcontrolInput)
-    }
-
     setInternalEditing(false)
+
+    const refCodeChanged = refCode !== initialRefCode
+    const titleChanged = title !== (initialTitle ?? '')
+    if (!refCodeChanged && !titleChanged) return
+
+    const input: UpdateControlInput & UpdateSubcontrolInput = {
+      ...(refCodeChanged ? { refCode } : {}),
+      ...(titleChanged ? (title ? { title } : { clearTitle: true }) : {}),
+    }
+    const save = handleUpdate(input, { throwOnError: true })
+    const persisted: Promise<void>[] = []
+    if (refCodeChanged) persisted.push(persistField('refCode', refCode, () => save))
+    if (titleChanged) persisted.push(persistField('title', title, () => save))
+    void Promise.all(persisted)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

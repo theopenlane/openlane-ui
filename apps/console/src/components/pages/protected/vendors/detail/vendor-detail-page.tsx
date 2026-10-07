@@ -30,6 +30,8 @@ import VendorDetailHeader from './vendor-detail-header'
 import VendorPropertiesSidebar from './vendor-properties-sidebar'
 import VendorDetailTabs from './tabs/vendor-detail-tabs'
 import type { EditVendorFormData } from '../hooks/use-form-schema'
+import { vendorRiskScoreInput } from '@/lib/vendor-risk-rating'
+import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { useSession } from 'next-auth/react'
 
 const vendorResponsibilityTarget = responsibilityTargetFor<UpdateEntityInput>()
@@ -83,8 +85,8 @@ const VENDOR_UPDATE_FIELDS = {
   providedServices: orClear('clearProvidedServices'),
   renewalRisk: orClear('clearRenewalRisk'),
   reviewedBy: responsibilityInput(VENDOR_REVIEWER),
-  riskRating: orClear('clearRiskRating'),
-  riskScore: orClear('clearRiskScore'),
+  riskRating: omit,
+  riskScore: vendorRiskScoreInput,
   scopeName: orClear('clearScopeName'),
   soc2PeriodEnd: dateOrClear('clearSoc2PeriodEnd'),
   spendCurrency: orClear('clearSpendCurrency'),
@@ -100,6 +102,7 @@ const VENDOR_UPDATE_FIELDS = {
   campaignIDs: omit,
   identityHolderIDs: omit,
   contactIDs: omit,
+  ssoEnforced: orClear('clearSSOEnforced'),
 } satisfies TFieldMappers<VendorFormValues, UpdateEntityInput>
 
 const normalizeData = (data: EntityQuery['entity']) =>
@@ -222,7 +225,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
     setIsEditing(true)
   }
 
-  const handleUpdateField = async (input: UpdateEntityInput, options?: { throwOnError?: boolean }) => {
+  const handleUpdateField = async (input: UpdateEntityInput, options?: TPersistOptions) => {
     try {
       await updateEntity({ updateEntityId: vendorId, input })
       successNotification({

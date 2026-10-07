@@ -208,8 +208,8 @@ export function buildResponsibilityPayload(
   }
 }
 
-export const buildResponsibilityTargetPayload = (target: ResponsibilityTarget, selection: ResponsibilitySelection, mode: ResponsibilityPayloadMode) =>
-  buildResponsibilityPayload(target.fieldBaseName, selection, { mode, stringFieldName: target.stringFieldName })
+export const buildResponsibilityCreatePayload = (target: ResponsibilityTarget, selection: ResponsibilitySelection) =>
+  buildResponsibilityPayload(target.fieldBaseName, selection, { mode: 'create', stringFieldName: target.stringFieldName })
 
 export function buildResponsibilityInlineUpdate(
   fieldBaseName: string,

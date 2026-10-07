@@ -11,6 +11,7 @@ import RiskReviewTab from './risk-review/risk-review-tab'
 import DirectoryTab from './directory/directory-tab'
 import ActivityTab from './activity/activity-tab'
 import type { EntityQuery, GetEntityAssociationsQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
+import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 
 type VendorTabValue = 'overview' | 'documents' | 'contacts' | 'risk-review' | 'directory' | 'activity'
 
@@ -31,7 +32,7 @@ interface VendorDetailTabsProps {
   associations?: GetEntityAssociationsQuery
   isEditing: boolean
   canEdit: boolean
-  handleUpdateField: (input: UpdateEntityInput) => Promise<void>
+  handleUpdateField: (input: UpdateEntityInput, options?: TPersistOptions) => Promise<void>
 }
 
 const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, associations, isEditing, canEdit: canEditVendor, handleUpdateField }) => {

@@ -109,13 +109,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
                   creatable
                   commandProps={{ className: 'w-full' }}
                   value={tagValues}
-                  onChange={(selectedOptions) => {
-                    const newTags = selectedOptions.map((opt) => opt.value)
-                    field.onChange(newTags)
-                    if (handleUpdateField) {
-                      handleUpdateField({ tags: newTags })
-                    }
-                  }}
+                  onChange={(selectedOptions) => field.onChange(selectedOptions.map((opt) => opt.value))}
                 />
                 {formState.errors.tags && <p className="text-red-500 text-sm">{formState.errors.tags.message}</p>}
               </div>

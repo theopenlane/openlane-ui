@@ -1,5 +1,5 @@
 import { type UpdateActionPlanInput } from '@repo/codegen/src/schema'
-import { dateOrClear, omit, orClear, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { dateOrClear, omit, orClear, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import { type ActionPlanFormData } from './use-form-schema'
 
@@ -15,4 +15,6 @@ export const ACTION_PLAN_UPDATE_FIELDS = {
   reviewFrequency: orClear('clearReviewFrequency'),
   dueDate: dateOrClear('clearDueDate'),
   reviewDue: dateOrClear('clearReviewDue'),
+  name: passthrough,
+  title: passthrough,
 } satisfies TFieldMappers<ActionPlanFormData, UpdateActionPlanInput>

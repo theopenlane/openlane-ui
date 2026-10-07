@@ -56,11 +56,10 @@ const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose, overrideHeader, o
     isCreateMode: false,
     data: entityId ? data?.review : undefined,
     isFetching: isLoading,
-    updateMutation,
     deleteMutation,
     onClose,
     basePath: '/exposure/reviews',
-    updateFields: REVIEW_UPDATE_FIELDS,
+    update: { mutation: updateMutation, fields: REVIEW_UPDATE_FIELDS },
     getName,
     renderFields: (props: ReviewFieldProps) => getFieldsToRender(props, enumOpts),
   }

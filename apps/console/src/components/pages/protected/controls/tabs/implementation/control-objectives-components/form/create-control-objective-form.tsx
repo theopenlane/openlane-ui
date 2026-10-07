@@ -11,7 +11,7 @@ import { type UpdateControlObjectiveInput } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
-import { omit, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { omit, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type TFormData } from './use-form-schema'
@@ -28,6 +28,8 @@ const FORM_UPDATE_FIELDS = {
   controlIDs: omit,
   subcontrolIDs: omit,
   revision: omit,
+  RevisionBump: passthrough,
+  name: passthrough,
 } satisfies TFieldMappers<TFormData, UpdateControlObjectiveInput>
 
 export const CreateControlObjectiveForm = ({

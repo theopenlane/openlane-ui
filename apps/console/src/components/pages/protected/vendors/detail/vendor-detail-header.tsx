@@ -21,6 +21,7 @@ import { vendorMergeConfig } from '@/components/shared/merge-records/configs/ven
 import { deleteMenuAction, mergeMenuAction } from '@/components/shared/crud-base/slideout-header'
 import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
+import type { EditVendorFormData } from '../hooks/use-form-schema'
 
 interface VendorDetailHeaderProps {
   vendor: EntityQuery['entity']
@@ -37,8 +38,8 @@ interface VendorDetailHeaderProps {
 const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditing, canEditVendor, onEdit, onCancel, onDeleteClick, permissionRoles, handleUpdateField, onMergeComplete }) => {
   const canDeleteVendor = canDelete(permissionRoles)
   const [mergeOpen, setMergeOpen] = useState(false)
-  const { register, resetField } = useFormContext()
-  const persistField = usePersistFormField()
+  const { register, resetField } = useFormContext<EditVendorFormData>()
+  const persistField = usePersistFormField<EditVendorFormData>()
   const [inlineEditing, setInlineEditing] = useState<'name' | 'displayName' | null>(null)
   const [localValue, setLocalValue] = useState('')
   const [originalValue, setOriginalValue] = useState('')

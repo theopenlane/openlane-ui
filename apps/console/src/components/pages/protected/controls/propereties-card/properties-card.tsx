@@ -32,18 +32,21 @@ import type { ControlByIdNode } from '@/lib/graphql-hooks/control'
 import type { SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { useFormContext } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
+import { type TControlFormValues } from '@/components/pages/protected/controls/build-control-update-input'
 
 type ControlPropertiesCardProps = {
   isEditing: boolean
   data?: ControlByIdNode
-  handleUpdate?: (val: UpdateControlInput) => void
+  handleUpdate?: (val: UpdateControlInput, options?: TPersistOptions) => Promise<void>
   canEdit: boolean
 }
 
 type SubcontrolPropertiesCardProps = {
   isEditing: boolean
   data?: SubcontrolByIdNode
-  handleUpdate?: (val: UpdateSubcontrolInput) => void
+  handleUpdate?: (val: UpdateSubcontrolInput, options?: TPersistOptions) => Promise<void>
   canEdit: boolean
 }
 
@@ -57,16 +60,28 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
   const isCreateSubcontrol = path.includes('/create-subcontrol')
 
   const handleUpdateAdapter = useCallback(
-    (val: UpdateControlInput | UpdateSubcontrolInput) => {
+    async (val: UpdateControlInput | UpdateSubcontrolInput, options?: TPersistOptions) => {
       if (!handleUpdate) return
       if (data?.__typename === 'Subcontrol') {
-        ;(handleUpdate as (input: UpdateSubcontrolInput) => void)(val as UpdateSubcontrolInput)
+        await (handleUpdate as (input: UpdateSubcontrolInput, options?: TPersistOptions) => Promise<void>)(val as UpdateSubcontrolInput, options)
         return
       }
-      ;(handleUpdate as (input: UpdateControlInput) => void)(val as UpdateControlInput)
+      await (handleUpdate as (input: UpdateControlInput, options?: TPersistOptions) => Promise<void>)(val as UpdateControlInput, options)
     },
     [data?.__typename, handleUpdate],
   )
+
+  const { setValue } = useFormContext<TControlFormValues>()
+  const persistField = usePersistFormField<TControlFormValues>()
+
+  const handleMappedCategoriesSave = async (selected: string[]) => {
+    if (isEditing || !handleUpdate) {
+      setValue('mappedCategories', selected, { shouldDirty: true })
+      return
+    }
+    const input = selected.length > 0 ? { mappedCategories: selected } : { clearMappedCategories: true }
+    await persistField('mappedCategories', selected, (options) => handleUpdateAdapter(input, options))
+  }
 
   const [editingField, setEditingField] = useState<string | null>(null)
   const isGroupEditing = editingField === 'owner' || editingField === 'delegate'
@@ -105,7 +120,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
     if (changed) {
-      handleUpdateAdapter({ tags: next } as UpdateControlInput)
+      void handleUpdateAdapter({ tags: next })
     }
     setEditingField(null)
   })
@@ -125,7 +140,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
       const next = selectedTags.map((t) => t.value)
       const changed = current.length !== next.length || current.some((val) => !next.includes(val))
       if (changed) {
-        handleUpdateAdapter({ tags: next } as UpdateControlInput)
+        void handleUpdateAdapter({ tags: next })
       }
     }
     prevIsEditingRef.current = isEditing
@@ -216,8 +231,16 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           setActiveField={setEditingField}
           fieldId="subcategory"
         />
-        <Status data={data} isEditing={isEditing} handleUpdate={handleUpdateAdapter} activeField={editingField} setActiveField={setEditingField} fieldId="status" />
-        <MappedCategories isEditing={isEditing} data={data} activeField={editingField} setActiveField={setEditingField} fieldId="mappedCategories" />
+        <Status data={data} isEditing={isEditing} isEditAllowed={canEdit} handleUpdate={handleUpdateAdapter} activeField={editingField} setActiveField={setEditingField} fieldId="status" />
+        <MappedCategories
+          isEditing={isEditing}
+          isEditAllowed={canEdit}
+          data={data}
+          activeField={editingField}
+          setActiveField={setEditingField}
+          fieldId="mappedCategories"
+          onSave={handleMappedCategoriesSave}
+        />
         <EditableSelect
           label="Source"
           name="source"
@@ -231,6 +254,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
         />
         {isEditing || (data?.sourceName && data.source !== 'FRAMEWORK') ? (
           <ReferenceProperty
+            isEditAllowed={canEdit}
             handleUpdate={handleUpdateAdapter}
             name="sourceName"
             label="Source Name"
@@ -257,6 +281,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
         />
         {isEditing || data?.referenceID ? (
           <ReferenceProperty
+            isEditAllowed={canEdit}
             handleUpdate={handleUpdateAdapter}
             name="referenceID"
             label="Ref ID"
@@ -271,6 +296,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
         ) : null}
         {isEditing || data?.auditorReferenceID ? (
           <ReferenceProperty
+            isEditAllowed={canEdit}
             handleUpdate={handleUpdateAdapter}
             name="auditorReferenceID"
             label="Auditor ID"
@@ -285,6 +311,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
         ) : null}
         {data?.__typename === 'Control' && (isEditing || data.externalUUID) ? (
           <ReferenceProperty
+            isEditAllowed={canEdit}
             handleUpdate={handleUpdateAdapter}
             name="externalUUID"
             label="External ID"

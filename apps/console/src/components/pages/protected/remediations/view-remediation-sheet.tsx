@@ -52,11 +52,10 @@ const ViewRemediationSheet: React.FC<Props> = ({ entityId, onClose }) => {
     isCreateMode: false,
     data: entityId ? data?.remediation : undefined,
     isFetching: isLoading,
-    updateMutation,
     deleteMutation,
     onClose,
     basePath: '/exposure/remediations',
-    updateFields: REMEDIATION_UPDATE_FIELDS,
+    update: { mutation: updateMutation, fields: REMEDIATION_UPDATE_FIELDS },
     getName,
     renderFields: (props: RemediationFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
