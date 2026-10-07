@@ -7,7 +7,7 @@ import { useFetchInternalPolicyRevision, type TInternalPolicyDocument } from '@/
 import { PDF_MIME_TYPE } from '@/components/shared/file-preview/preview-mime'
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'
 import { getDataUrlByteSize, toDataUrl } from '@/utils/data-url'
-import { type TPdfDocumentAttachment } from './pdf-document-model'
+import { type TPdfDocumentAttachment } from './pdf-document-type'
 import { embedBudgetExceededMessage } from './pdf-document-budget'
 
 const tooLargeError = (bytes: number, budgetBytes: number) => new UserFacingError(embedBudgetExceededMessage('The exported PDF', bytes, budgetBytes))
@@ -19,7 +19,8 @@ export const usePolicyPdfExport = () => {
 
   return useCallback(
     async (policy: TInternalPolicyDocument, budgetBytes: number, signal: AbortSignal): Promise<TPdfDocumentAttachment> => {
-      const revisionBefore = await fetchPolicyRevision(policy.id)
+      const revisionBefore = await fetchPolicyRevision(policy.id, signal)
+      signal.throwIfAborted()
       const { createExport: created } = await createExport({
         input: { exportType: ExportExportType.INTERNAL_POLICY, format: ExportExportFormat.PDF, filters: JSON.stringify({ id: policy.id }) },
       })
@@ -29,8 +30,7 @@ export const usePolicyPdfExport = () => {
       if (file.detectedMimeType && file.detectedMimeType !== PDF_MIME_TYPE) throw new UserFacingError('The policy export did not produce a PDF.')
       if ((file.providedFileSize ?? 0) > budgetBytes) throw tooLargeError(file.providedFileSize ?? 0, budgetBytes)
 
-      const revisionAfter = await fetchPolicyRevision(policy.id)
-      signal.throwIfAborted()
+      const revisionAfter = await fetchPolicyRevision(policy.id, signal)
       if (revisionAfter !== revisionBefore) throw new UserFacingError('The policy changed while it was being exported. Please try again.')
 
       const base64 = await fetchExportFileContent(file.id, signal)

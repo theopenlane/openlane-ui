@@ -102,19 +102,19 @@ export const MultiStringField: React.FC<MultiStringFieldProps> = ({
               {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1" />} content={tooltipContent} />}
             </div>
             {description && <p className="text-sm text-muted-foreground">{description}</p>}
-            <FormControl>
-              <div>
-                <div className="flex flex-wrap gap-2 rounded-md bg-transparent">
-                  {isFieldEditing &&
-                    values.map((value) => (
-                      <span key={value} className="flex items-center gap-1 bg-muted px-2 py-1 rounded-md">
-                        {type === 'link' ? <ExternalLinkValue value={value} /> : value}
-                        <button type="button" onClick={() => handleRemove(value)} className="ml-2 bg-transparent">
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  {isFieldEditing && (
+            <div>
+              <div className="flex flex-wrap gap-2 rounded-md bg-transparent">
+                {isFieldEditing &&
+                  values.map((value) => (
+                    <span key={value} className="flex items-center gap-1 bg-muted px-2 py-1 rounded-md">
+                      {type === 'link' ? <ExternalLinkValue value={value} /> : value}
+                      <button type="button" onClick={() => handleRemove(value)} className="ml-2 bg-transparent">
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                {isFieldEditing && (
+                  <FormControl>
                     <Input
                       type="text"
                       value={input}
@@ -134,25 +134,25 @@ export const MultiStringField: React.FC<MultiStringFieldProps> = ({
                       className="bg-transparent outline-none"
                       autoFocus={internalEditing === name}
                     />
-                  )}
-                </div>
-                {!isFieldEditing && (
-                  <div className={`text-sm py-2 rounded-md cursor-pointer px-1 w-full` + (type !== 'link' ? ' hover:bg-accent' : '')} {...activatable(isEditAllowed ? handleClick : undefined)}>
-                    {values.length === 0 ? (
-                      <span className="text-muted-foreground italic">Not set</span>
-                    ) : type === 'link' ? (
-                      <div className="flex flex-wrap gap-2">
-                        {values.map((value) => (
-                          <ExternalLinkValue key={value} value={value} className="hover:bg-accent bg-muted rounded-md px-2 py-1" />
-                        ))}
-                      </div>
-                    ) : (
-                      values.join(', ')
-                    )}
-                  </div>
+                  </FormControl>
                 )}
               </div>
-            </FormControl>
+              {!isFieldEditing && (
+                <div className={`text-sm py-2 rounded-md cursor-pointer px-1 w-full` + (type !== 'link' ? ' hover:bg-accent' : '')} {...activatable(isEditAllowed ? handleClick : undefined)}>
+                  {values.length === 0 ? (
+                    <span className="text-muted-foreground italic">Not set</span>
+                  ) : type === 'link' ? (
+                    <div className="flex flex-wrap gap-2">
+                      {values.map((value) => (
+                        <ExternalLinkValue key={value} value={value} className="hover:bg-accent bg-muted rounded-md px-2 py-1" />
+                      ))}
+                    </div>
+                  ) : (
+                    values.join(', ')
+                  )}
+                </div>
+              )}
+            </div>
             {(error || validationError || typeof formState.errors[name]?.message === 'string') && (
               <p className="text-red-500 text-sm">{error || validationError || (typeof formState.errors[name]?.message === 'string' ? formState.errors[name]?.message : '')}</p>
             )}

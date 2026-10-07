@@ -3,6 +3,7 @@ import { isRecord } from '@/utils/type-guards'
 
 export const ACKNOWLEDGEMENT_QUESTION_TYPE = 'acknowledgement'
 export const DEFAULT_ACKNOWLEDGEMENT_TITLE = 'Acknowledgement'
+export const DEFAULT_ACKNOWLEDGEMENT_STATEMENT = 'I acknowledge that I’ve read and understand the documents above.'
 
 export type TAcknowledgementValue = {
   acknowledged?: boolean

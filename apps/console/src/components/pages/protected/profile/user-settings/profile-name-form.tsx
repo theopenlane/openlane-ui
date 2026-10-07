@@ -99,8 +99,8 @@ const ProfileNameForm = () => {
     <Panel>
       <PanelHeader heading="Your Profile" noBorder />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <InputRow className="gap-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <InputRow className="items-start gap-8">
             <FormField
               control={form.control}
               name="firstName"
@@ -150,7 +150,7 @@ const ProfileNameForm = () => {
               )}
             />
           </InputRow>
-          <InputRow className="gap-8">
+          <InputRow className="items-start gap-8">
             <FormField
               control={form.control}
               name="displayName"
@@ -198,7 +198,7 @@ const ProfileNameForm = () => {
               )}
             />
           </InputRow>
-          <SaveButton variant={isSuccess ? 'success' : 'primary'} className="mt-6" title={isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'} />
+          <SaveButton variant={isSuccess ? 'success' : 'primary'} className="mt-2 self-start" title={isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'} />
         </form>
       </Form>
     </Panel>

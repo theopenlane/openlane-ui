@@ -542,7 +542,7 @@ test.describe('questionnaires — create from template', () => {
     await dialog.getByRole('combobox').first().click()
     await page.getByRole('option', { name: templateName, exact: true }).click()
 
-    await expectMutationOk(page, 'CreateAssessment', async () => {
+    await expectMutationOk(page, 'CreateAssessmentWithPolicies', async () => {
       await dialog
         .getByRole('button', { name: /^(Create|Continue|Use)/ })
         .last()

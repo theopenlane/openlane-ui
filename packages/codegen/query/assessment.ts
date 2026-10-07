@@ -24,6 +24,55 @@ export const CREATE_ASSESSMENT = gql`
   }
 `
 
+export const CREATE_ASSESSMENT_WITH_POLICIES = gql`
+  mutation CreateAssessmentWithPolicies($assessmentInput: CreateAssessmentInput!, $policies: [AssessmentPoliciesInput!]) {
+    createAssessmentWithPolicies(assessmentInput: $assessmentInput, policies: $policies) {
+      assessment {
+        id
+        name
+        responseDueDuration
+      }
+    }
+  }
+`
+
+export const GET_ASSESSMENT_POLICY_ATTESTATIONS = gql`
+  query GetAssessmentPolicyAttestations($assessmentId: ID!) {
+    assessment(id: $assessmentId) {
+      id
+      policyAttestations(first: 100) {
+        edges {
+          node {
+            id
+            internalPolicyID
+            policyRevision
+          }
+        }
+      }
+    }
+  }
+`
+
+export const CREATE_BULK_ASSESSMENT_POLICY = gql`
+  mutation CreateBulkAssessmentPolicy($input: [CreateAssessmentPolicyInput!]) {
+    createBulkAssessmentPolicy(input: $input) {
+      assessmentPolicies {
+        id
+      }
+    }
+  }
+`
+
+export const DELETE_BULK_ASSESSMENT_POLICY = gql`
+  mutation DeleteBulkAssessmentPolicy($ids: [ID!]!) {
+    deleteBulkAssessmentPolicy(ids: $ids) {
+      deletedIDs
+      notDeletedIDs
+      error
+    }
+  }
+`
+
 export const CREATE_ASSESSMENT_TEMPLATE = gql`
   mutation CreateAssessmentTemplate($input: CreateAssessmentTemplateInput!) {
     createAssessmentTemplate(input: $input) {

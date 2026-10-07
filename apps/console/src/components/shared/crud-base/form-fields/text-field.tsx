@@ -159,16 +159,8 @@ export const TextField = <TUpdateInput,>({
         <FormItem className={cn(className, layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : '')}>
           <div className="flex items-center gap-2 shrink-0">
             {icon}
-            <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>
+            <FormLabel required={required && isEditAllowed} className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>
               {label}
-              {required && isEditAllowed && (
-                <>
-                  <span aria-hidden="true" className="text-destructive ml-0.5">
-                    *
-                  </span>
-                  <span className="sr-only"> (required)</span>
-                </>
-              )}
             </FormLabel>
             {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
           </div>

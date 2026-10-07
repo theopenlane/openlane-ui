@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation'
 import '@/styles/questionnaire/custom.css'
 import '@/components/shared/survey/survey-creator-types'
 import { surveyLicenseKey } from '@repo/dally/auth'
-import { useCreateAssessment, useGetAssessment, useUpdateAssessment } from '@/lib/graphql-hooks/assessment'
+import { useCreateAssessmentWithPolicies, useGetAssessment, useUpdateAssessment } from '@/lib/graphql-hooks/assessment'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { initialQuestionnaireEditorState, NO_DUE_DATE_DURATION, questionnaireEditorReducer, type TQuestionnaireEditorAction, UNTITLED_QUESTIONNAIRE } from './questionnaire-editor-state'
 import { QuestionnaireEditorToolbar } from './questionnaire-editor-toolbar'
@@ -122,7 +122,7 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
     })
   }, [assessmentResult])
 
-  const { mutateAsync: createAssessmentData, isPending: isCreating } = useCreateAssessment()
+  const { mutateAsync: createAssessmentData, isPending: isCreating } = useCreateAssessmentWithPolicies()
   const { mutateAsync: updateAssessmentData, isPending: isUpdating } = useUpdateAssessment()
 
   const handleTitleChange = (nextTitle: string) => {
@@ -155,7 +155,7 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
         return
       }
 
-      await createAssessmentData({ input: { name, jsonconfig, assessmentType, responseDueDuration } })
+      await createAssessmentData({ name, jsonconfig, assessmentType, responseDueDuration })
       setHasSaved(true)
       successNotification({ title: 'Assessment created successfully' })
       router.push(`/automation/questionnaires`)

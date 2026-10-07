@@ -8,9 +8,10 @@ interface StepHeaderProps<T extends readonly Step[] = readonly Step[]> {
   stepper: Stepper<T>
   disabledIDs?: string[]
   className?: string
+  onStepSelect?: (id: T[number]['id']) => void
 }
 
-export function StepHeader<T extends readonly Step[]>({ stepper, disabledIDs = [], className }: StepHeaderProps<T>) {
+export function StepHeader<T extends readonly Step[]>({ stepper, disabledIDs = [], className, onStepSelect = stepper.goTo }: StepHeaderProps<T>) {
   const visibleSteps = stepper.steps.filter((s) => !disabledIDs.includes(s.id))
   const currentVisibleIndex = visibleSteps.findIndex((s) => s.id === stepper.current.id)
 
@@ -20,7 +21,7 @@ export function StepHeader<T extends readonly Step[]>({ stepper, disabledIDs = [
         {visibleSteps.map((s) => {
           const isActive = stepper.current.id === s.id
           return (
-            <div key={s.id} {...activatable(() => !disabledIDs.includes(s.id) && stepper.goTo(s.id))} className="flex items-center cursor-pointer">
+            <div key={s.id} {...activatable(() => !disabledIDs.includes(s.id) && onStepSelect(s.id))} className="flex items-center cursor-pointer">
               <StepIndicator active={isActive} />
             </div>
           )

@@ -140,7 +140,7 @@ const OrganizationNameForm = () => {
 
                     <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving...' : isSuccess ? 'Saved' : 'Save'} />
                   </div>
-                  <FormMessage className="empty:hidden" />
+                  <FormMessage />
                 </FormItem>
               )}
             />

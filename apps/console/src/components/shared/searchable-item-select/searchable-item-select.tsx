@@ -12,7 +12,14 @@ import { cn } from '@repo/ui/lib/utils'
 
 export type SearchableItem = { id: string; name: string }
 
-interface SearchableItemSelectProps<TItem extends SearchableItem> {
+export type TSearchableItemSelectAriaProps = {
+  id?: string
+  'aria-labelledby'?: string
+  'aria-describedby'?: string
+  'aria-invalid'?: boolean
+}
+
+interface SearchableItemSelectProps<TItem extends SearchableItem> extends TSearchableItemSelectAriaProps {
   selectedIds: string[]
   onSelectedIdsChange: (ids: string[]) => void
   items: TItem[]
@@ -28,9 +35,6 @@ interface SearchableItemSelectProps<TItem extends SearchableItem> {
   knownItems?: TItem[]
   disabledReason?: (item: TItem) => string | undefined
   renderItemEnd?: (item: TItem) => React.ReactNode
-  id?: string
-  'aria-describedby'?: string
-  'aria-invalid'?: boolean
 }
 
 export const SearchableItemSelect = <TItem extends SearchableItem>({
@@ -50,6 +54,7 @@ export const SearchableItemSelect = <TItem extends SearchableItem>({
   disabledReason,
   renderItemEnd,
   id,
+  'aria-labelledby': ariaLabelledBy,
   'aria-describedby': ariaDescribedBy,
   'aria-invalid': ariaInvalid,
 }: SearchableItemSelectProps<TItem>) => {
@@ -100,7 +105,7 @@ export const SearchableItemSelect = <TItem extends SearchableItem>({
   }
 
   return (
-    <Popover open={open} onOpenChange={handleOpenChange}>
+    <Popover open={open} onOpenChange={handleOpenChange} modal>
       <PopoverTrigger asChild>
         <div
           id={id}
@@ -108,6 +113,7 @@ export const SearchableItemSelect = <TItem extends SearchableItem>({
           aria-expanded={open}
           aria-controls={listId}
           aria-haspopup="listbox"
+          aria-labelledby={ariaLabelledBy}
           aria-describedby={ariaDescribedBy}
           aria-invalid={ariaInvalid}
           tabIndex={0}

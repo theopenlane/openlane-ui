@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { Button } from '@repo/ui/button'
-import { Form, FormField, FormControl, FormMessage, FormLabel } from '@repo/ui/form'
+import { Form, FormField, FormControl, FormItem, FormMessage, FormLabel } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { resendStyles } from './resend.styles'
 import { resendVerification } from '@/lib/user'
@@ -52,13 +52,15 @@ export const Resend = () => {
               control={form.control}
               name="email"
               render={({ field }) => (
-                <>
+                <FormItem className="flex w-full flex-col gap-2 space-y-0 md:flex-row md:items-center">
                   <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="jane.doe@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </>
+                  <div className="relative flex-1">
+                    <FormControl>
+                      <Input type="email" placeholder="jane.doe@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage className="mt-1 md:absolute md:left-0 md:top-full" />
+                  </div>
+                </FormItem>
               )}
             />
             <Button type="submit" className={buttonVariants({ size: 'lg', variant: 'ghost' })}>

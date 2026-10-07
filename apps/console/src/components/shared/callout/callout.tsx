@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Info, AlertTriangle, AlertCircle, CheckCircle2, LightbulbIcon, Sparkles, type LucideIcon } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 
-type Variant = 'info' | 'success' | 'warning' | 'danger' | 'suggestion' | 'recommendation' | 'simple'
+type Variant = 'info' | 'success' | 'warning' | 'danger' | 'suggestion' | 'recommendation' | 'simple' | 'plain'
 
 const variantToVars: Record<Variant, { bg: string; border: string; icon: string; iconEl: LucideIcon; link: string; text?: string }> = {
   info: {
@@ -47,6 +47,14 @@ const variantToVars: Record<Variant, { bg: string; border: string; icon: string;
     iconEl: Info,
     link: '[&_a]:text-foreground [&_a]:decoration-border',
     text: 'text-muted-foreground text-xs!',
+  },
+  plain: {
+    bg: '',
+    border: 'border-0 p-0',
+    icon: 'text-[var(--color-info)]',
+    iconEl: Info,
+    link: '[&_a]:text-foreground [&_a]:decoration-[var(--color-info)]',
+    text: 'text-muted-foreground',
   },
   recommendation: {
     bg: 'bg-[var(--color-recommendation)]/10 dark:bg-[var(--color-recommendation)]/18',

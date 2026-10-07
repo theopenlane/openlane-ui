@@ -6,8 +6,8 @@ import { ReactQuestionFactory, SurveyQuestionElementBase } from 'survey-react-ui
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { InfoCard } from '@/components/shared/file-preview/preview-chrome'
 import { toValidHref } from '@/utils/normalizeUrl'
-import { PDF_DOCUMENT_QUESTION_TYPE, type QuestionPdfDocumentModel, type TPdfDocumentAttachment } from './pdf-document-model'
-import { PDF_DOCUMENT_EMBED_BUDGET_BYTES } from './pdf-document-type'
+import { PDF_DOCUMENT_QUESTION_TYPE, type QuestionPdfDocumentModel } from './pdf-document-model'
+import { PDF_DOCUMENT_EMBED_BUDGET_BYTES, type TPdfDocumentAttachment } from './pdf-document-type'
 
 const PdfDocumentViewer = dynamic(() => import('./pdf-document-viewer'), {
   ssr: false,

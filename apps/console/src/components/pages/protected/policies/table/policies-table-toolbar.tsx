@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { FileText, Import, LoaderCircle, SearchIcon } from 'lucide-react'
+import { FileText, Import, LoaderCircle, SearchIcon, Send } from 'lucide-react'
 import { ExportExportFormat } from '@repo/codegen/src/schema'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
@@ -30,6 +30,7 @@ import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-rout
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { SendAcknowledgementRequestDialog } from '../acknowledgement-request/send-acknowledgement-request-dialog'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -73,9 +74,12 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   const filterFields = usePoliciesFilters()
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
+  const [isAcknowledgementDialogOpen, setIsAcknowledgementDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeletePolicies } = useBulkDeletePolicy()
   const { data: session } = useSession()
+  const editAllowed = canEdit(permission?.roles, session)
+  const acknowledgementAllowed = editAllowed && hasPermission(permission?.roles, AccessEnum.CanCreateAssessment, session)
 
   const handleBulkDelete = async () => {
     if (!selectedPolicies) {
@@ -128,7 +132,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {selectedPolicies.length > 0 ? (
             <>
-              {canEdit(permission?.roles, session) && <BulkEditPoliciesDialog selectedPolicies={selectedPolicies} setSelectedPolicies={setSelectedPolicies}></BulkEditPoliciesDialog>}
+              {editAllowed && <BulkEditPoliciesDialog selectedPolicies={selectedPolicies} setSelectedPolicies={setSelectedPolicies}></BulkEditPoliciesDialog>}
               <Button
                 type="button"
                 variant="secondary"
@@ -139,7 +143,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
               >
                 {selectedPolicies && selectedPolicies.length > 0 ? `Bulk Delete (${selectedPolicies.length})` : 'Bulk Delete'}
               </Button>
-              {canEdit(permission?.roles, session) && (
+              {editAllowed && (
                 <>
                   <ConfirmationDialog
                     open={isBulkDeleteDialogOpen}
@@ -190,6 +194,18 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                         </MenuItem>
                       </>
                     )}
+                    {acknowledgementAllowed && (
+                      <MenuItem
+                        {...tableActionAnchor(ObjectTypes.INTERNAL_POLICY, 'send-acknowledgement-request')}
+                        icon={<Send size={16} strokeWidth={2} />}
+                        onSelect={() => {
+                          close()
+                          setIsAcknowledgementDialogOpen(true)
+                        }}
+                      >
+                        Send acknowledgment request
+                      </MenuItem>
+                    )}
                     <ExportMenuItem
                       label="Export to CSV"
                       onExport={() => handleExport(ExportExportFormat.CSV)}
@@ -220,6 +236,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
           )}
         </div>
       </div>
+      {acknowledgementAllowed && <SendAcknowledgementRequestDialog open={isAcknowledgementDialogOpen} onOpenChange={setIsAcknowledgementDialogOpen} />}
     </>
   )
 }

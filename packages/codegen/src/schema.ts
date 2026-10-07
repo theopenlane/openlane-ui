@@ -275,6 +275,39 @@ export interface CreateAssessmentMutation {
   }
 }
 
+export type CreateAssessmentWithPoliciesMutationVariables = Exact<{
+  assessmentInput: Types.CreateAssessmentInput
+  policies?: Array<Types.AssessmentPoliciesInput> | Types.AssessmentPoliciesInput | null | undefined
+}>
+
+export interface CreateAssessmentWithPoliciesMutation {
+  createAssessmentWithPolicies: { assessment: { id: string; name: string; responseDueDuration: number | null } }
+}
+
+export type GetAssessmentPolicyAttestationsQueryVariables = Exact<{
+  assessmentId: string
+}>
+
+export interface GetAssessmentPolicyAttestationsQuery {
+  assessment: { id: string; policyAttestations: { edges: Array<{ node: { id: string; internalPolicyID: string; policyRevision: string | null } | null } | null> | null } }
+}
+
+export type CreateBulkAssessmentPolicyMutationVariables = Exact<{
+  input?: Array<Types.CreateAssessmentPolicyInput> | Types.CreateAssessmentPolicyInput | null | undefined
+}>
+
+export interface CreateBulkAssessmentPolicyMutation {
+  createBulkAssessmentPolicy: { assessmentPolicies: Array<{ id: string }> | null }
+}
+
+export type DeleteBulkAssessmentPolicyMutationVariables = Exact<{
+  ids: Array<string> | string
+}>
+
+export interface DeleteBulkAssessmentPolicyMutation {
+  deleteBulkAssessmentPolicy: { deletedIDs: Array<string>; notDeletedIDs: Array<string> | null; error: string | null }
+}
+
 export type CreateAssessmentTemplateMutationVariables = Exact<{
   input: Types.CreateAssessmentTemplateInput
 }>
