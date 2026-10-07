@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import { type EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { ExportExportFormat, ExportExportType, type InternalPolicyByIdFragment, type PolicyDiscussionFieldsFragment } from '@repo/codegen/src/schema.ts'
 import { useSession } from 'next-auth/react'
@@ -19,6 +20,7 @@ type TDetailsFieldProps = {
 }
 
 const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, discussionData }) => {
+  const hydrate = usePlateHydration(form)
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
@@ -49,6 +51,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, d
             initialValue={policy?.detailsJSON ? (policy?.detailsJSON as Value) : (policy?.details ?? undefined)}
             entity={discussionData}
             onChange={field.onChange}
+            onHydrate={hydrate(field.name)}
             placeholder="Write your policy description"
           />
         )}

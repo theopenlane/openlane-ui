@@ -18,7 +18,7 @@ interface TitleFieldProps {
 }
 
 const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialRefCode, initialTitle, referenceFramework }: TitleFieldProps) => {
-  const { register, getValues, setValue } = useFormContext()
+  const { register, getValues, resetField } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
 
   const handleClick = () => {
@@ -59,8 +59,8 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialRefC
 
   useEscapeKey(() => {
     if (internalEditing) {
-      setValue('refCode', initialRefCode)
-      setValue('title', initialTitle)
+      resetField('refCode')
+      resetField('title')
       setInternalEditing(false)
     }
   })

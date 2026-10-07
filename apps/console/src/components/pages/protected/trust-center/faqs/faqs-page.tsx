@@ -1,7 +1,7 @@
 'use client'
 
 import React, { use, useEffect, useState } from 'react'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { isEmptyInputValue, omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import useFormSchema from './hooks/use-form-schema'
 import { CircleHelp, Upload } from 'lucide-react'
 import { Button } from '@repo/ui/button'
@@ -20,7 +20,7 @@ import {
   type TrustCenterFaqsNodeNonNull,
 } from '@/lib/graphql-hooks/trust-center-faq'
 import { useQueryClient } from '@tanstack/react-query'
-import { type TrustCenterFaQsWithFilterQuery, type UpdateTrustCenterFaqInput, OrderDirection, TrustCenterFaqOrderField } from '@repo/codegen/src/schema'
+import { type TrustCenterFaQsWithFilterQuery, type UpdateNoteInput, type UpdateTrustCenterFaqInput, OrderDirection, TrustCenterFaqOrderField } from '@repo/codegen/src/schema'
 import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import type { FaqFormValues } from './hooks/use-form-schema'
@@ -33,6 +33,28 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
 import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+
+const FAQ_COMMENT_UPDATE_FIELDS = {
+  question: (title) => ({ title }),
+  answer: (text) => ({ text }),
+  referenceLink: omit,
+  category: omit,
+} satisfies TFieldMappers<FaqFormValues, UpdateNoteInput>
+
+const faqCategoryInput = (category: string | undefined): UpdateTrustCenterFaqInput =>
+  category ? { trustCenterFaqKindName: category } : { clearTrustCenterFaqKindName: true, clearTrustCenterFaqKind: true }
+
+const FAQ_UPDATE_FIELDS = {
+  question: omit,
+  answer: omit,
+  referenceLink: orClear('clearReferenceLink'),
+  category: faqCategoryInput,
+} satisfies TFieldMappers<FaqFormValues, UpdateTrustCenterFaqInput>
+
+const trustCenterFaqRefreshInput = ({ referenceLink, category }: FaqFormValues): UpdateTrustCenterFaqInput => ({
+  ...(referenceLink && !isEmptyInputValue(referenceLink) ? { referenceLink } : { clearReferenceLink: true }),
+  ...faqCategoryInput(category),
+})
 
 export default function FaqsPage() {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -67,7 +89,7 @@ export default function FaqsPage() {
   const { mutateAsync: reorderFaqs } = useReorderTrustCenterFaqs()
 
   const { form: editForm } = useFormSchema()
-  const buildChangedEditInput = useChangedInput(editForm)
+  const buildDirtyEditInput = useDirtyInput(editForm)
 
   const handleCreateSubmit = async (values: FaqFormValues): Promise<boolean> => {
     const highestOrder = Math.max(0, ...orderedFaqs.map((f) => f.displayOrder ?? 0))
@@ -96,21 +118,14 @@ export default function FaqsPage() {
     if (!faq) return
 
     try {
-      const commentInput = await buildChangedEditInput(values, (formValues) => ({ title: formValues.question, text: formValues.answer }))
+      const commentInput = await buildDirtyEditInput<UpdateNoteInput>(values, FAQ_COMMENT_UPDATE_FIELDS)
 
       if (Object.keys(commentInput).length > 0) {
         await updateFaqComment({ updateTrustCenterFAQCommentId: faq.noteID, input: commentInput })
       }
 
-      const buildFaqInput = (formValues: FaqFormValues): UpdateTrustCenterFaqInput => ({
-        referenceLink: formValues.referenceLink || undefined,
-        clearReferenceLink: !formValues.referenceLink || undefined,
-        trustCenterFaqKindName: formValues.category || undefined,
-        clearTrustCenterFaqKindName: !formValues.category || undefined,
-        clearTrustCenterFaqKind: !formValues.category || undefined,
-      })
-      const changedFaqInput = await buildChangedEditInput(values, buildFaqInput)
-      const faqInput = Object.keys(changedFaqInput).length > 0 || Object.keys(commentInput).length === 0 ? changedFaqInput : buildFaqInput(values)
+      const changedFaqInput = await buildDirtyEditInput<UpdateTrustCenterFaqInput>(values, FAQ_UPDATE_FIELDS)
+      const faqInput = Object.keys(changedFaqInput).length === 0 && Object.keys(commentInput).length > 0 ? trustCenterFaqRefreshInput(values) : changedFaqInput
 
       if (Object.keys(faqInput).length > 0) {
         await updateFaq({ updateTrustCenterFAQId: editingFaqId, input: faqInput })

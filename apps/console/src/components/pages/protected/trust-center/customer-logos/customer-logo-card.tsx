@@ -13,13 +13,19 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { normalizeUrl } from '@/utils/normalizeUrl'
 import { useEditCustomerLogoForm, type TEditCustomerLogoFormValues } from './hooks/use-customer-logo-form-schema'
+import { orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { type UpdateTrustCenterEntityInput } from '@repo/codegen/src/schema'
+
+const ENTITY_UPDATE_FIELDS = {
+  url: orClear('clearURL'),
+} satisfies TFieldMappers<TEditCustomerLogoFormValues, UpdateTrustCenterEntityInput>
 
 type CustomerLogoCardProps = {
   id: string
   name: string
   url?: string | null
   logoUrl?: string | null
-  onUpdate: (args: { id: string; url?: string; logoFile?: File }) => Promise<void> | void
+  onUpdate: (args: { id: string; input: UpdateTrustCenterEntityInput; logoFile?: File }) => Promise<void> | void
   onDelete: (id: string) => void
   isUpdating?: boolean
   isDeleting?: boolean
@@ -32,11 +38,17 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
   const [preview, setPreview] = useState<string | null>(null)
 
   const form = useEditCustomerLogoForm(url)
+  const buildDirtyInput = useDirtyInput(form)
 
   const handleUpload = (uploaded: TUploadedFile) => {
     if (!uploaded.file) return
     setSelectedFile(uploaded.file)
     setPreview(URL.createObjectURL(uploaded.file))
+  }
+
+  const startEdit = () => {
+    form.reset({ url: url ?? '' })
+    setIsEditing(true)
   }
 
   const resetEdit = () => {
@@ -47,14 +59,15 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
   }
 
   const onSubmit = async (values: TEditCustomerLogoFormValues) => {
-    await onUpdate({
-      id,
-      url: values.url || undefined,
-      logoFile: selectedFile || undefined,
-    })
-    setIsEditing(false)
-    setSelectedFile(null)
-    setPreview(null)
+    const input = await buildDirtyInput<UpdateTrustCenterEntityInput>(values, ENTITY_UPDATE_FIELDS)
+    if (Object.keys(input).length > 0 || selectedFile) {
+      await onUpdate({
+        id,
+        input,
+        logoFile: selectedFile || undefined,
+      })
+    }
+    resetEdit()
   }
 
   return (
@@ -80,7 +93,7 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
 
             <div className="flex items-center gap-3 text-muted-foreground ">
               {canEdit && (
-                <button onClick={() => setIsEditing(true)} aria-label={`Edit URL for ${name}`} disabled={isUpdating || isDeleting}>
+                <button onClick={startEdit} aria-label={`Edit URL for ${name}`} disabled={isUpdating || isDeleting}>
                   <Pencil className="h-4 w-4" />
                 </button>
               )}

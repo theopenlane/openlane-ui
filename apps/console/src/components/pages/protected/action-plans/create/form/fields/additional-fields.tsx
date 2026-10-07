@@ -11,6 +11,7 @@ import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { ACTION_PLAN_INTERNAL_OWNER } from '../../../action-plan-form-data'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -27,7 +28,8 @@ const priorityOptions = enumToOptions(ActionPlanPriority)
 const frequencyOptions = enumToOptions(ActionPlanFrequency)
 
 export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing, handleUpdateField }) => {
-  const { control } = useFormContext()
+  const { control, resetField } = useFormContext()
+  const hydrate = usePlateHydration({ resetField })
 
   const sharedFieldProps = {
     isEditing,
@@ -73,7 +75,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
                 control={control}
                 name="descriptionJSON"
                 render={({ field }) => (
-                  <PlateEditor initialValue={data?.description} onChange={(val) => field.onChange(val)} isCreate={isCreate} placeholder="Write a description for the action plan" />
+                  <PlateEditor initialValue={data?.description} onChange={field.onChange} onHydrate={hydrate(field.name)} isCreate={isCreate} placeholder="Write a description for the action plan" />
                 )}
               />
             ) : (

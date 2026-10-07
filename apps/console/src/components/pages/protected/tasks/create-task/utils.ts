@@ -1,7 +1,5 @@
-import type usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type CreateTaskFormData, type EditTaskFormData } from '../hooks/use-form-schema'
+import { type CreateTaskFormData } from '../hooks/use-form-schema'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
-import { type Value } from 'platejs'
 import { type GetTaskAssociationsQuery, type TaskQuery } from '@repo/codegen/src/schema'
 import { buildAssociationIds, buildAssociationItems, type TAssociationItem } from '@/components/shared/object-association/association-items'
 import { type AssociationSectionKey } from '@/components/shared/object-association/object-association-config'
@@ -9,22 +7,6 @@ import { getLinkedPrograms } from '@/components/shared/object-association/utils'
 import { type TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData'
 
 export type TTaskCopyMode = 'duplicate' | 'template'
-
-export const buildTaskFieldPayload = async (data: EditTaskFormData, plateEditorHelper: ReturnType<typeof usePlateEditor>) => {
-  const details = data?.details ? await plateEditorHelper.convertToHtml(data.details as Value) : undefined
-  return {
-    taskKindName: data?.taskKindName,
-    due: data?.due ? new Date(data.due).toISOString() : undefined,
-    title: data?.title,
-    details,
-    assigneeID: data?.assigneeID,
-    status: data?.status,
-    clearAssignee: !data?.assigneeID,
-    clearDue: !data?.due,
-    tags: data.tags,
-    isTemplate: data.isTemplate,
-  }
-}
 
 export const TASK_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'programs', 'procedures', 'policies', 'controlObjectives', 'risks', 'groups'] as const satisfies readonly AssociationSectionKey[]
 

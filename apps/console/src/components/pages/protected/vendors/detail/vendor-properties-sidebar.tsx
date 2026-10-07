@@ -3,6 +3,7 @@
 import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Card } from '@repo/ui/cardpanel'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { type UpdateEntityInput, type EntityQuery, EntityEntityStatus, EntityFrequency } from '@repo/codegen/src/schema'
@@ -27,13 +28,14 @@ const iconClass = 'h-4 w-4 text-muted-foreground'
 interface VendorPropertiesSidebarProps {
   data: EntityQuery['entity']
   isEditing: boolean
-  handleUpdate: (input: UpdateEntityInput) => Promise<void>
+  handleUpdate: (input: UpdateEntityInput, options?: TPersistOptions) => Promise<void>
   canEdit: boolean
 }
 
 const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data, isEditing, handleUpdate, canEdit: canEditVendor }) => {
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
-  const { control, watch, setValue } = useFormContext<EditVendorFormData>()
+  const { control, watch, resetField } = useFormContext<EditVendorFormData>()
+  const persistField = usePersistFormField<EditVendorFormData>()
 
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
@@ -56,11 +58,10 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
     draft: tagsDraft,
     persisted: data?.tags,
     onCommit: (next) => {
-      setValue('tags', next)
-      handleUpdate({ tags: next })
+      void persistField('tags', next, (options) => handleUpdate({ tags: next }, options))
     },
     onCancel: () => {
-      setValue('tags', data?.tags ?? [])
+      resetField('tags')
     },
   })
 

@@ -13,9 +13,10 @@ import { normalizeUrl } from '@/utils/normalizeUrl'
 interface Props {
   onFileUpload: (file: TUploadedFile) => void
   isEditing: boolean
+  fallbackPreviewSrc?: string
 }
 
-export const LogoField = ({ onFileUpload, isEditing }: Props) => {
+export const LogoField = ({ onFileUpload, isEditing, fallbackPreviewSrc }: Props) => {
   const {
     watch,
     setValue,
@@ -41,14 +42,14 @@ export const LogoField = ({ onFileUpload, isEditing }: Props) => {
   const previewSrc = useMemo(() => {
     if (preview) return normalizeUrl(preview)
     const trimmedUrl = (logoUrl ?? '').trim()
-    if (!trimmedUrl) return null
-    return normalizeUrl(trimmedUrl)
-  }, [preview, logoUrl])
+    if (trimmedUrl) return normalizeUrl(trimmedUrl)
+    return fallbackPreviewSrc ? normalizeUrl(fallbackPreviewSrc) : null
+  }, [preview, logoUrl, fallbackPreviewSrc])
 
   return (
     <div className="space-y-4">
       {isEditing && (
-        <RadioGroup defaultValue="file" value={uploadMode} onValueChange={(value) => setValue('uploadMode', value)} className="flex gap-4">
+        <RadioGroup defaultValue="file" value={uploadMode} onValueChange={(value) => setValue('uploadMode', value, { shouldDirty: true })} className="flex gap-4">
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="file" id="file" />
             <Label htmlFor="file" className="font-normal cursor-pointer">

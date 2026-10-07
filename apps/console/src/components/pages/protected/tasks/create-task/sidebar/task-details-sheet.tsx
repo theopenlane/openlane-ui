@@ -12,7 +12,6 @@ import { Form } from '@repo/ui/form'
 import { useTask, useTaskAssociations, useUpdateTask } from '@/lib/graphql-hooks/task'
 import { CreateTaskDialog } from '../dialog/create-task-dialog'
 import { useQueryClient } from '@tanstack/react-query'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
@@ -25,9 +24,9 @@ import Properties from '../form/fields/properties'
 import Conversation from '../form/fields/conversation'
 import TasksSheetHeader from '../form/fields/header'
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
-import { buildTaskAssociations, buildTaskFieldPayload, generateEvidenceFormData, type TTaskCopyMode } from '../utils'
+import { buildTaskAssociations, generateEvidenceFormData, type TTaskCopyMode } from '../utils'
 import { getAssociationInput } from '@/components/shared/object-association/utils'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { dateOrClear, orClear, richTextOrClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { useTaskCopyPrefill } from '../../hooks/use-task-copy-prefill'
 import MarkAsComplete from '../form/fields/mark-as-complete'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -49,11 +48,18 @@ type TaskDetailsSheetProps = {
   onClose?: () => void
 }
 
+const TASK_UPDATE_FIELDS = {
+  taskKindName: orClear('clearTaskKindName'),
+  details: richTextOrClear('clearDetails'),
+  assigneeID: orClear('clearAssignee'),
+  due: dateOrClear('clearDue'),
+  tags: orClear('clearTags'),
+} satisfies TFieldMappers<EditTaskFormData, UpdateTaskInput>
+
 const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id', entityId: entityIdProp, onClose: onCloseProp }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [internalEditing, setInternalEditing] = useState<keyof EditTaskFormData | null>(null)
   const queryClient = useQueryClient()
-  const plateEditorHelper = usePlateEditor()
   const smartRouter = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
   const openObjectSheet = useOpenObjectSheet()
@@ -72,9 +78,9 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const isEditAllowed = canEdit(permission?.roles, session)
   const { data, isLoading: fetching } = useTask(id as string)
   const taskData = data?.task
-  const { form } = useFormSchema()
+  const { form } = useFormSchema(undefined, { isCreate: false })
   const { isDirty: isTaskDirty } = form.formState
-  const buildChangedInput = useChangedInput(form)
+  const buildDirtyInput = useDirtyInput(form)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const { data: associationsData, isLoading: associationsLoading } = useTaskAssociations(id as string)
@@ -108,7 +114,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
       form.reset({
         title: taskData.title ?? '',
         details: taskData.details ?? '',
-        due: taskData.due ? new Date(taskData.due as string) : undefined,
+        due: taskData.due ? new Date(taskData.due as string) : null,
         assigneeID: taskData.assignee?.id,
         taskKindName: taskData?.taskKindName ?? undefined,
         status: taskData?.status ? Object.values(TaskTaskStatus).find((type) => type === taskData?.status) : undefined,
@@ -170,7 +176,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
       return
     }
 
-    const changedFields = await buildChangedInput(data, (values) => buildTaskFieldPayload(values, plateEditorHelper))
+    const changedFields = await buildDirtyInput<UpdateTaskInput>(data, TASK_UPDATE_FIELDS)
 
     const input: UpdateTaskInput = { ...changedFields, ...getAssociationInput(initialAssociations, associations) }
 

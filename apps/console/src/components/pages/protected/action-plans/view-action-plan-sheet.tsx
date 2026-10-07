@@ -8,7 +8,8 @@ import { getFieldsToRender } from './table/table-config'
 import { type ActionPlanSheetConfig, type ActionPlanFieldProps, objectType } from './table/types'
 import { type CreateActionPlanInput, type UpdateActionPlanInput } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { buildActionPlanPayload, normalizeActionPlanData } from './action-plan-form-data'
+import { ACTION_PLAN_UPDATE_FIELDS } from './hooks/action-plan-update-fields'
+import { buildActionPlanCreatePayload, normalizeActionPlanData } from './action-plan-form-data'
 
 type Props = {
   entityId: string | null
@@ -59,13 +60,8 @@ const ViewActionPlanSheet: React.FC<Props> = ({ entityId, onClose, createInitial
     createMutation,
     deleteMutation,
     onClose,
-    buildPayload: (formData) =>
-      buildActionPlanPayload(formData, {
-        isCreate: !entityId,
-        isInternalOwnerDirty: !!form.formState.dirtyFields.internalOwner,
-        createInitialPayload,
-        convertToHtml: plateEditorHelper.convertToHtml,
-      }),
+    buildPayload: (formData) => buildActionPlanCreatePayload(formData, { createInitialPayload, converter: plateEditorHelper }),
+    updateFields: ACTION_PLAN_UPDATE_FIELDS,
     getName,
     renderFields: (props: ActionPlanFieldProps) => getFieldsToRender(props),
   }

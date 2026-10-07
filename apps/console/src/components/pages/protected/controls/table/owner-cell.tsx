@@ -21,7 +21,7 @@ const OwnerCell: React.FC<TOwnerCellProps> = ({ owner, controlId }) => {
         updateControlId: controlId,
         input: {
           controlOwnerID: data.id,
-          clearControlOwner: !data.id,
+          clearControlOwner: !data.id || undefined,
         },
       })
       await helpers.queryClient.invalidateQueries({ queryKey: ['controls'] })

@@ -7,7 +7,7 @@ import { useUpdateTask } from '@/lib/graphql-hooks/task'
 import EditableUserCell from '@/components/shared/editable-user-cell/editable-user-cell'
 
 type TAssigneeCellProps = {
-  assignee?: AvatarEntityLike | null
+  assignee?: (AvatarEntityLike & { id?: string | null }) | null
   taskId: string
 }
 
@@ -18,10 +18,7 @@ const AssigneeCell: React.FC<TAssigneeCellProps> = ({ assignee, taskId }) => {
     try {
       await updateTask({
         updateTaskId: taskId,
-        input: {
-          assigneeID: data.id,
-          clearAssignee: !data.id,
-        },
+        input: data.id ? { assigneeID: data.id } : { clearAssignee: true },
       })
       helpers.notifySuccess()
     } catch (err) {
