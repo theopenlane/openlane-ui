@@ -3,6 +3,7 @@
 import { useCallback } from 'react'
 import { ExportExportFormat, ExportExportType } from '@repo/codegen/src/schema'
 import { useCreateExport, useExportFile } from '@/lib/graphql-hooks/export'
+import { type TExportMetadata } from '@/components/shared/export/use-file-export'
 import { useFetchInternalPolicyRevision, type TInternalPolicyDocument } from '@/lib/graphql-hooks/internal-policy'
 import { PDF_MIME_TYPE } from '@/components/shared/file-preview/preview-mime'
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'
@@ -22,7 +23,12 @@ export const usePolicyPdfExport = () => {
       const revisionBefore = await fetchPolicyRevision(policy.id, signal)
       signal.throwIfAborted()
       const { createExport: created } = await createExport({
-        input: { exportType: ExportExportType.INTERNAL_POLICY, format: ExportExportFormat.PDF, filters: JSON.stringify({ id: policy.id }) },
+        input: {
+          exportType: ExportExportType.INTERNAL_POLICY,
+          format: ExportExportFormat.PDF,
+          filters: JSON.stringify({ id: policy.id }),
+          exportMetadata: { excludePDFMetadata: true } satisfies TExportMetadata,
+        },
       })
       signal.throwIfAborted()
 
