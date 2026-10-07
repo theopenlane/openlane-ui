@@ -103,15 +103,17 @@ const EditableUserCell: React.FC<EditableUserCellProps> = ({ label, entity, onSu
                 name="id"
                 control={form.control}
                 render={({ field }) => {
-                  const selectedValue = field.value ?? undefined
+                  const selectedValue = field.value ?? UNASSIGNED
                   return (
                     <Select
                       value={selectedValue}
+                      onOpenChange={(open) => {
+                        if (!open) setIsEditing(false)
+                      }}
                       onValueChange={async (value) => {
                         const newValue = value === UNASSIGNED ? null : value
                         field.onChange(newValue)
                         if (newValue === (entity?.id ?? null)) {
-                          setIsEditing(false)
                           return
                         }
                         await onSubmit({ ...form.getValues(), id: newValue })
