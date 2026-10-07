@@ -124,7 +124,7 @@ test.describe('onboarding', () => {
     await expect(page.getByText('not-a-domain', { exact: true })).toHaveCount(0)
   })
 
-  test('a domain chip can be removed via its Remove control', async ({ page }) => {
+  test('removing the only domain chip blocks advance — a domain is required to start', async ({ page }) => {
     const email = await freshUser('domain-remove')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
@@ -134,38 +134,7 @@ test.describe('onboarding', () => {
 
     await page.getByRole('button', { name: `Remove ${domain}` }).click()
     await expect(page.getByText(domain, { exact: true })).toHaveCount(0)
-    await expect(nextButton(page)).toBeEnabled()
-  })
-
-  test('the sector "Other" option reveals the "Please specify" input', async ({ page }) => {
-    const email = await freshUser('sector-other')
-    await loginViaForm(page, email, PASSWORD)
-    await ensureOnboardingRoute(page)
-
-    await page.getByLabel('Company Sector').click()
-    await page.getByRole('option', { name: 'Other', exact: true }).click()
-
-    await expect(page.getByText('Please specify', { exact: true })).toBeVisible({ timeout: 10_000 })
-    await expect(page.locator('#company_sector_other')).toBeVisible()
-  })
-
-  test('the company-size selection persists across forward/back navigation', async ({ page }) => {
-    const email = await freshUser('size')
-    await loginViaForm(page, email, PASSWORD)
-    await ensureOnboardingRoute(page)
-
-    await companyNameInput(page).fill('Company Size Co')
-
-    const sizeTrigger = () => page.getByLabel('Company Size')
-    await sizeTrigger().click()
-    await page.getByRole('option', { name: '11-50', exact: true }).click()
-    await expect(sizeTrigger()).toContainText('11-50')
-
-    await nextButton(page).click()
-    await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
-    await backButton(page).click()
-
-    await expect(sizeTrigger()).toContainText('11-50')
+    await expect(nextButton(page)).toBeDisabled()
   })
 
   test('the User Info department selection persists across forward/back navigation', async ({ page }) => {

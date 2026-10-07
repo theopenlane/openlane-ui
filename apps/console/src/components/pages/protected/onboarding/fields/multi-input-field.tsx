@@ -64,7 +64,7 @@ export const MultiInputField: React.FC<{ question: OnboardingQuestion }> = ({ qu
             setInvalidDraft(false)
           }}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === 'Tab') {
+            if (e.key === 'Enter') {
               e.preventDefault()
               addItem()
             }

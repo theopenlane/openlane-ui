@@ -1,41 +1,40 @@
 'use client'
 
-import { DynamicStep } from '@/components/pages/protected/onboarding/dynamic-step'
-import SetupProgressCard from '@/components/pages/protected/onboarding/onboarding-setup-progress'
-import OnboardingFooter from '@/components/pages/protected/onboarding/onboarding-footer'
+import OnboardingGuidedForm from '@/components/pages/protected/onboarding/onboarding-guided-form'
 import OnboardingReadyCard from '@/components/pages/protected/onboarding/onboarding-ready-card'
+import OnboardingStartCard from '@/components/pages/protected/onboarding/onboarding-start-card'
 import OnboardingTransitionCard from '@/components/pages/protected/onboarding/onboarding-transition-card'
-import { CONTENT_LEFT_COLUMN_CLASS, CONTENT_RIGHT_COLUMN_CLASS, PAGE_FOOTER_CLEARANCE_CLASS } from '@/components/pages/protected/onboarding/onboarding-layout-classes'
 import { useOnboardingSubmit } from '@/components/pages/protected/onboarding/hooks/use-onboarding-submit'
 import { useOnboardingQuestions } from '@/hooks/useOnboardingQuestions'
-import { allQuestionsForStep, buildOnboardingDefaultValues, buildOnboardingSchema, getRequiredKeysForStep, getVisibleKeysForStep, isAnswered } from '@/lib/onboarding-questions/build-schema'
+import { allQuestionsForStep, buildOnboardingDefaultValues, buildOnboardingSchema, getVisibleKeysForStep, isAnswered, isStepIncomplete } from '@/lib/onboarding-questions/build-schema'
+import { COMPANY_DOMAINS_KEY, COMPANY_NAME_KEY } from '@/lib/onboarding-questions/question-keys'
 import { type OnboardingCard, type OnboardingStep } from '@/lib/onboarding-questions/types'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Badge } from '@repo/ui/badge'
-import { Card } from '@repo/ui/cardpanel'
 import { Logo } from '@repo/ui/logo'
-import { defineStepper } from '@stepperize/react'
 import { Loader2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
-import { useEffect, useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 
-type MultiStepFormProps = {
-  questionSteps: OnboardingStep[]
+type OnboardingPath = 'start' | 'guided'
+
+type OnboardingFormProps = {
+  startStep: OnboardingStep
+  guidedSteps: OnboardingStep[]
   trialCards: OnboardingCard[]
   trialTitle: string
   trialDescription: string
 }
 
-const MultiStepForm = ({ questionSteps, trialCards, trialTitle, trialDescription }: MultiStepFormProps) => {
-  const { useStepper, steps } = useMemo(() => defineStepper(questionSteps.map((step) => ({ id: step.key, label: step.title }))), [questionSteps])
-  const stepper = useStepper()
-  const onboardingSchema = useMemo(() => buildOnboardingSchema(questionSteps), [questionSteps])
-  const defaultOnboardingValues = useMemo(() => buildOnboardingDefaultValues(questionSteps), [questionSteps])
-  const allQuestions = useMemo(() => questionSteps.flatMap(allQuestionsForStep), [questionSteps])
+const OnboardingForm = ({ startStep, guidedSteps, trialCards, trialTitle, trialDescription }: OnboardingFormProps) => {
+  const allSteps = useMemo(() => [startStep, ...guidedSteps], [startStep, guidedSteps])
+  const onboardingSchema = useMemo(() => buildOnboardingSchema(allSteps), [allSteps])
+  const defaultOnboardingValues = useMemo(() => buildOnboardingDefaultValues(allSteps), [allSteps])
+  const allQuestions = useMemo(() => allSteps.flatMap(allQuestionsForStep), [allSteps])
   const { data: sessionData } = useSession()
-  const [isMounted, setIsMounted] = useState(false)
+  const [path, setPath] = useState<OnboardingPath>('start')
+  const [resumeStepKey, setResumeStepKey] = useState<string>()
+  const hasSeededFromSessionRef = useRef(false)
 
   const { submitStage, submitOnboarding, exitOnboarding, notifyIncompleteExit, leaveOnboarding, domainScanNotification, reviewDomainScanFindings } = useOnboardingSubmit(allQuestions)
 
@@ -47,135 +46,101 @@ const MultiStepForm = ({ questionSteps, trialCards, trialTitle, trialDescription
   const values = useWatch({ control: methods.control }) as Record<string, unknown>
 
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
-  useEffect(() => {
     const userDomain = sessionData?.user.email?.split('@')[1]
-    if (!userDomain) return
+    if (!userDomain || hasSeededFromSessionRef.current) return
+    hasSeededFromSessionRef.current = true
 
-    const currentDomains = methods.getValues('company_domains')
+    const currentDomains = methods.getValues(COMPANY_DOMAINS_KEY)
     const existingDomains = Array.isArray(currentDomains) ? currentDomains : []
     if (!existingDomains.includes(userDomain)) {
-      methods.setValue('company_domains', [...existingDomains, userDomain])
+      methods.setValue(COMPANY_DOMAINS_KEY, [...existingDomains, userDomain], { shouldValidate: true })
     }
 
-    if (!methods.getValues('company_name')) {
+    if (!methods.getValues(COMPANY_NAME_KEY)) {
       const derivedName = userDomain
         .split('.')[0]
         .split(/[-_]+/)
         .filter(Boolean)
         .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ')
-      methods.setValue('company_name', derivedName, { shouldValidate: true })
+      methods.setValue(COMPANY_NAME_KEY, derivedName, { shouldValidate: true })
     }
   }, [sessionData, methods])
 
-  const currentStep = questionSteps.find((step) => step.key === stepper.current.id)
+  const totalSteps = allSteps.length
+  const startKeys = getVisibleKeysForStep(startStep, values)
+  const isStartBlocked = isStepIncomplete(startStep, values) || startKeys.some((key) => methods.formState.errors[key])
 
-  const handleNext = async () => {
-    const visibleKeys = currentStep ? getVisibleKeysForStep(currentStep, values) : []
-    const isValid = visibleKeys.length > 0 ? await methods.trigger(visibleKeys) : true
-
-    if (!isValid) return
-
-    if (!stepper.isLast) {
-      stepper.next()
-    } else {
-      methods.handleSubmit(submitOnboarding)()
-    }
+  const handleContinue = async () => {
+    if (!(await methods.trigger(startKeys))) return
+    setResumeStepKey(undefined)
+    setPath('guided')
   }
 
-  const handleBack = () => {
-    if (!stepper.isFirst) {
-      stepper.prev()
+  const handleCreate = async () => {
+    if (!(await methods.trigger(startKeys))) return
+
+    const answeredKeys = allQuestions.filter((question) => isAnswered(values[question.key])).map((question) => question.key)
+    if (await methods.trigger(answeredKeys)) {
+      submitOnboarding(methods.getValues())
+      return
     }
+
+    setResumeStepKey(guidedSteps.find((step) => allQuestionsForStep(step).some((question) => methods.getFieldState(question.key).invalid))?.key)
+    setPath('guided')
+    notifyIncompleteExit()
   }
 
-  const currentIndex = stepper.steps.findIndex((item) => item.id === stepper.current.id)
-  const hasFormErrors = Object.keys(methods.formState.errors).length > 0
-  const isCurrentStepIncomplete = (currentStep ? getRequiredKeysForStep(currentStep, values) : []).some((key) => !isAnswered(values[key]))
-  const domains = values.company_domains
+  const domains = values[COMPANY_DOMAINS_KEY]
   const primaryDomain = Array.isArray(domains) && typeof domains[0] === 'string' ? domains[0] : undefined
+  const stageStepLabel = path === 'guided' ? `Step ${totalSteps} of ${totalSteps}` : undefined
+
+  const stageCard = (
+    <>
+      {submitStage === 'transition' && <OnboardingTransitionCard stepLabel={stageStepLabel} title={trialTitle} description={trialDescription} cards={trialCards} primaryDomain={primaryDomain} />}
+      {submitStage === 'ready' && (
+        <OnboardingReadyCard
+          stepLabel={stageStepLabel}
+          scanData={domainScanNotification?.data}
+          hasScanReport={!!domainScanNotification}
+          primaryDomain={primaryDomain}
+          onReview={reviewDomainScanFindings}
+          onLeave={leaveOnboarding}
+        />
+      )}
+    </>
+  )
 
   return (
-    <div className={`flex flex-col w-full max-w-6xl m-auto px-4 py-8 ${submitStage === 'form' ? PAGE_FOOTER_CLEARANCE_CLASS : ''}`}>
-      <div className="flex flex-col lg:flex-row w-full gap-10">
-        <div className={`hidden lg:flex flex-col gap-8 self-start ${CONTENT_LEFT_COLUMN_CLASS}`}>
+    <FormProvider {...methods}>
+      {path === 'guided' ? (
+        <OnboardingGuidedForm
+          startStep={startStep}
+          guidedSteps={guidedSteps}
+          initialStepKey={resumeStepKey}
+          submitStage={submitStage}
+          stageCard={stageCard}
+          onBackToStart={() => setPath('start')}
+          onSubmit={submitOnboarding}
+          onExit={exitOnboarding}
+          onIncompleteExit={notifyIncompleteExit}
+        />
+      ) : (
+        <div className="flex w-full max-w-2xl flex-col items-center gap-8 m-auto px-4 py-8">
           <Logo width={150} height={24} />
-
-          <div className="flex flex-col gap-3">
-            <h1 className="text-3xl font-semibold">Welcome to Openlane</h1>
-            <p className="text-sm text-muted-foreground">Let&apos;s set up your workspace so you can get value faster</p>
-          </div>
-
-          <SetupProgressCard stepLabels={questionSteps.map((step) => step.title)} currentIndex={currentIndex} stage={submitStage} />
-        </div>
-
-        <div className={`flex flex-col ${CONTENT_RIGHT_COLUMN_CLASS}`}>
-          {submitStage === 'transition' && <OnboardingTransitionCard totalSteps={steps.length} title={trialTitle} description={trialDescription} cards={trialCards} primaryDomain={primaryDomain} />}
-
-          {submitStage === 'ready' && (
-            <OnboardingReadyCard
-              totalSteps={steps.length}
-              scanData={domainScanNotification?.data}
-              hasScanReport={!!domainScanNotification}
-              primaryDomain={primaryDomain}
-              onReview={reviewDomainScanFindings}
-              onLeave={leaveOnboarding}
-            />
-          )}
-
-          {submitStage === 'form' && currentStep && (
-            <FormProvider {...methods}>
-              <form
-                className="w-full"
-                onSubmit={(event) => {
-                  event.preventDefault()
-                  handleNext()
-                }}
-              >
-                <Card className="w-full min-h-96 p-5 sm:p-8 shadow-lg rounded-xl">
-                  <div className="flex flex-col gap-3 mb-8">
-                    <Badge variant="primary" className="w-fit uppercase tracking-wide border-primary/24">
-                      Step {currentIndex + 1} of {steps.length}
-                    </Badge>
-                    <div className="relative h-1.5 w-full rounded-full bg-border overflow-hidden">
-                      <div className="absolute inset-y-0 left-0 bg-primary rounded-full transition-all" style={{ width: `${((currentIndex + 1) / steps.length) * 100}%` }} />
-                    </div>
-                  </div>
-
-                  <DynamicStep step={currentStep} />
-                </Card>
-              </form>
-            </FormProvider>
+          {submitStage === 'form' ? (
+            <OnboardingStartCard step={startStep} totalSteps={totalSteps} canContinue={guidedSteps.length > 0} isDisabled={isStartBlocked} onContinue={handleContinue} onCreate={handleCreate} />
+          ) : (
+            stageCard
           )}
         </div>
-      </div>
-
-      {isMounted &&
-        submitStage === 'form' &&
-        createPortal(
-          <OnboardingFooter
-            showExit={currentIndex > 0}
-            onExit={methods.handleSubmit(exitOnboarding, notifyIncompleteExit)}
-            isFirstStep={stepper.isFirst}
-            isLastStep={stepper.isLast}
-            backLabel={steps[currentIndex - 1]?.label}
-            nextLabel={steps[currentIndex + 1]?.label}
-            isNextDisabled={hasFormErrors || isCurrentStepIncomplete}
-            isSubmitting={methods.formState.isSubmitting}
-            onBack={handleBack}
-            onNext={handleNext}
-          />,
-          document.body,
-        )}
-    </div>
+      )}
+    </FormProvider>
   )
 }
 
 const OnboardingPage = () => {
-  const { steps: questionSteps, trialCards, trialTitle, trialDescription, isLoading, error } = useOnboardingQuestions()
+  const { startStep, guidedSteps, trialCards, trialTitle, trialDescription, isLoading, error } = useOnboardingQuestions()
 
   if (isLoading) {
     return (
@@ -185,7 +150,7 @@ const OnboardingPage = () => {
     )
   }
 
-  if (error || questionSteps.length === 0) {
+  if (error || !startStep) {
     return (
       <div className="flex w-full items-center justify-center py-32">
         <p className="text-sm text-text-light">We couldn&apos;t load the onboarding questions. Please refresh the page.</p>
@@ -193,7 +158,7 @@ const OnboardingPage = () => {
     )
   }
 
-  return <MultiStepForm questionSteps={questionSteps} trialCards={trialCards} trialTitle={trialTitle} trialDescription={trialDescription} />
+  return <OnboardingForm startStep={startStep} guidedSteps={guidedSteps} trialCards={trialCards} trialTitle={trialTitle} trialDescription={trialDescription} />
 }
 
 export default OnboardingPage
