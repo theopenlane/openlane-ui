@@ -8,6 +8,7 @@ import { Separator } from '@repo/ui/separator'
 import { activatable } from '@repo/ui/lib/a11y'
 import { cn } from '@repo/ui/lib/utils'
 import { pluralizeWithCount } from '@/utils/strings'
+import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-categories'
 import { SectionCard } from '../../shared/section-card'
 import { SelectAllCheckbox } from '../../shared/select-all-checkbox'
 import { selectionCheckedState, setAllSelected, toggleSetValue } from '../../shared/selection-utils'
@@ -102,7 +103,7 @@ export const ReviewsStep = ({ reviews, controls, selected, setSelected }: Review
   return (
     <SectionCard
       title="Review the auditor's reviews"
-      description="Each review represents a test performed by the auditor against a control from Section 4 of your report. SOC 2 reports can include hundreds of these tests, so we group them by the control they evaluate."
+      description={`Each review represents a test performed by the auditor against a control from Section 4 of your report. ${SOC_2_FRAMEWORK_NAME} reports can include hundreds of these tests, so we group them by the control they evaluate.`}
       titleAction={<SelectAllCheckbox ids={groups.flatMap((group) => group.reviews.map((review) => review.id))} selected={selected} setSelected={setSelected} />}
       footer={
         hiddenGroupCount > 0 ? (
