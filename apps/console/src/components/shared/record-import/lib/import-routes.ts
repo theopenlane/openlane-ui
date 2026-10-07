@@ -8,12 +8,13 @@ import { pluralizeTypeName, toHumanLabel } from '@/utils/strings'
 
 export type TImportPermission = AccessEnum | 'edit' | null
 
-const SECTIONS = {
+export const IMPORT_SECTIONS = {
   registry: { label: 'Registry', href: '/registry' },
   exposure: { label: 'Exposure', href: '/exposure/overview' },
   automation: { label: 'Automation', href: '/automation' },
   organizationSettings: { label: 'Organization Settings', href: '/organization-settings' },
   userManagement: { label: 'User Management', href: '/user-management' },
+  trustCenter: { label: 'Trust Center', href: '/trust-center/overview' },
 } as const satisfies Record<string, Crumb>
 
 type TImportRouteDetails = {
@@ -24,6 +25,8 @@ type TImportRouteDetails = {
   displayNamePlural?: string
   permission: TImportPermission
   gate?: ObjectTypes
+  reorderable?: boolean
+  importNotice?: string
 }
 
 export type TImportRoute = TImportRouteDetails & { href: string }
@@ -35,34 +38,34 @@ const IMPORT_ROUTE_DETAILS = {
   [ObjectTypes.ACTION_PLAN]: {
     listHref: '/exposure/risks',
     listLabel: 'Risks',
-    section: SECTIONS.exposure,
+    section: IMPORT_SECTIONS.exposure,
     displayName: 'Action Plan',
     permission: 'edit',
     gate: ObjectTypes.RISK,
   },
-  [ObjectTypes.ASSET]: { listHref: '/registry/assets', listLabel: 'Assets', section: SECTIONS.registry, displayName: 'Asset', permission: 'edit' },
+  [ObjectTypes.ASSET]: { listHref: '/registry/assets', listLabel: 'Assets', section: IMPORT_SECTIONS.registry, displayName: 'Asset', permission: 'edit' },
   [ObjectTypes.CONTACT]: {
     listHref: '/registry/contacts',
     listLabel: 'Contacts',
-    section: SECTIONS.registry,
+    section: IMPORT_SECTIONS.registry,
     displayName: 'Contact',
     permission: AccessEnum.CanCreateContact,
   },
   [ObjectTypes.CONTROL]: { listHref: '/controls', listLabel: 'Controls', displayName: 'Control', permission: null },
-  [ObjectTypes.ENTITY]: { listHref: '/registry/vendors', listLabel: 'Vendors', section: SECTIONS.registry, displayName: 'Vendor', permission: 'edit' },
+  [ObjectTypes.ENTITY]: { listHref: '/registry/vendors', listLabel: 'Vendors', section: IMPORT_SECTIONS.registry, displayName: 'Vendor', permission: 'edit' },
   [ObjectTypes.EVIDENCE]: { listHref: '/evidence', listLabel: 'Evidence', displayName: 'Evidence', displayNamePlural: 'Evidence', permission: null },
-  [ObjectTypes.FINDING]: { listHref: '/exposure/findings', listLabel: 'Findings', section: SECTIONS.exposure, displayName: 'Finding', permission: 'edit' },
+  [ObjectTypes.FINDING]: { listHref: '/exposure/findings', listLabel: 'Findings', section: IMPORT_SECTIONS.exposure, displayName: 'Finding', permission: 'edit' },
   [ObjectTypes.GROUP]: {
     listHref: '/user-management/groups',
     listLabel: 'Groups',
-    section: SECTIONS.userManagement,
+    section: IMPORT_SECTIONS.userManagement,
     displayName: 'Group',
     permission: null,
   },
   [ObjectTypes.IDENTITY_HOLDER]: {
     listHref: '/registry/personnel',
     listLabel: 'Personnel',
-    section: SECTIONS.registry,
+    section: IMPORT_SECTIONS.registry,
     displayName: 'Personnel',
     displayNamePlural: 'Personnel',
     permission: 'edit',
@@ -85,46 +88,76 @@ const IMPORT_ROUTE_DETAILS = {
   [ObjectTypes.REMEDIATION]: {
     listHref: '/exposure/remediations',
     listLabel: 'Remediations',
-    section: SECTIONS.exposure,
+    section: IMPORT_SECTIONS.exposure,
     displayName: 'Remediation',
     permission: 'edit',
   },
   [ObjectTypes.REVIEW]: {
     listHref: '/exposure/reviews',
     listLabel: 'Reviews',
-    section: SECTIONS.exposure,
+    section: IMPORT_SECTIONS.exposure,
     displayName: 'Review',
     permission: AccessEnum.CanCreateReview,
   },
-  [ObjectTypes.RISK]: { listHref: '/exposure/risks', listLabel: 'Risks', section: SECTIONS.exposure, displayName: 'Risk', permission: AccessEnum.CanCreateRisk },
-  [ObjectTypes.SCAN]: { listHref: '/exposure/scans', listLabel: 'Scans', section: SECTIONS.exposure, displayName: 'Scan', permission: 'edit' },
+  [ObjectTypes.RISK]: { listHref: '/exposure/risks', listLabel: 'Risks', section: IMPORT_SECTIONS.exposure, displayName: 'Risk', permission: AccessEnum.CanCreateRisk },
+  [ObjectTypes.SCAN]: { listHref: '/exposure/scans', listLabel: 'Scans', section: IMPORT_SECTIONS.exposure, displayName: 'Scan', permission: 'edit' },
   [ObjectTypes.SUBSCRIBER]: {
     listHref: '/organization-settings/subscribers',
     listLabel: 'Subscribers',
-    section: SECTIONS.organizationSettings,
+    section: IMPORT_SECTIONS.organizationSettings,
     displayName: 'Subscriber',
     permission: null,
+    importNotice: 'By uploading subscribers, you confirm that you have permission to add and contact these recipients. Imported subscribers will not be asked to verify their email address.',
   },
   [ObjectTypes.SYSTEM_DETAIL]: {
     listHref: '/registry/system-details',
     listLabel: 'System Details',
-    section: SECTIONS.registry,
+    section: IMPORT_SECTIONS.registry,
     displayName: 'System Detail',
     permission: 'edit',
   },
-  [ObjectTypes.TASK]: { listHref: '/automation/tasks', listLabel: 'Tasks', section: SECTIONS.automation, displayName: 'Task', permission: null },
+  [ObjectTypes.TASK]: { listHref: '/automation/tasks', listLabel: 'Tasks', section: IMPORT_SECTIONS.automation, displayName: 'Task', permission: null },
   [ObjectTypes.TEMPLATE]: {
     listHref: '/automation/questionnaires/templates',
     listLabel: 'Templates',
-    section: SECTIONS.automation,
+    section: IMPORT_SECTIONS.automation,
     displayName: 'Template',
     permission: null,
     gate: ObjectTypes.ASSESSMENT,
   },
+  [ObjectTypes.TRUST_CENTER_FAQ]: {
+    listHref: '/trust-center/faqs',
+    listLabel: 'FAQs',
+    section: IMPORT_SECTIONS.trustCenter,
+    displayName: 'FAQ',
+    displayNamePlural: 'FAQs',
+    permission: 'edit',
+    gate: ObjectTypes.TRUST_CENTER,
+    reorderable: true,
+  },
+  [ObjectTypes.TRUST_CENTER_NDA_REQUEST]: {
+    listHref: '/trust-center/NDAs',
+    listLabel: 'NDAs',
+    section: IMPORT_SECTIONS.trustCenter,
+    displayName: 'Signed NDA',
+    displayNamePlural: 'Signed NDAs',
+    permission: 'edit',
+    gate: ObjectTypes.TRUST_CENTER,
+    importNotice:
+      'By uploading signed NDAs, you will be giving these users full access to documents in your trust center, unless your file sets a different access level. Verify the accuracy of the list before proceeding.',
+  },
+  [ObjectTypes.TRUST_CENTER_SUBPROCESSOR]: {
+    listHref: '/trust-center/subprocessors',
+    listLabel: 'Subprocessors',
+    section: IMPORT_SECTIONS.trustCenter,
+    displayName: 'Subprocessor',
+    permission: AccessEnum.CanCreateTrustCenterSubprocessor,
+    gate: ObjectTypes.TRUST_CENTER,
+  },
   [ObjectTypes.VULNERABILITY]: {
     listHref: '/exposure/vulnerabilities',
     listLabel: 'Vulnerabilities',
-    section: SECTIONS.exposure,
+    section: IMPORT_SECTIONS.exposure,
     displayName: 'Vulnerability',
     displayNamePlural: 'Vulnerabilities',
     permission: 'edit',
@@ -136,6 +169,7 @@ export type TImportableObjectType = keyof typeof IMPORT_ROUTE_DETAILS
 const IMPORT_PATH = '/import'
 export const IMPORT_TYPE_PARAM = 'type'
 export const IMPORT_VENDOR_PARAM = 'vendorId'
+export const IMPORT_TRUST_CENTER_PARAM = 'trustCenterId'
 
 const importHref = (entityType: TImportableObjectType, extra: Record<string, string> = {}): string =>
   `${IMPORT_PATH}?${new URLSearchParams({ [IMPORT_TYPE_PARAM]: entityType.toLowerCase(), ...extra })}`
@@ -155,21 +189,43 @@ export const vendorContactsImportRoute = (vendorId: string, vendorName: string):
   href: importHref(ObjectTypes.CONTACT, { [IMPORT_VENDOR_PARAM]: vendorId }),
   listHref: `/registry/vendors/${encodeURIComponent(vendorId)}?tab=contacts`,
   listLabel: vendorName,
-  section: SECTIONS.registry,
+  section: IMPORT_SECTIONS.registry,
   displayName: 'Contact',
   permission: 'edit',
   gate: ObjectTypes.ENTITY,
 })
 
-export type TImportTarget = { entityType: TImportableObjectType; vendorId?: string; gate: ObjectTypes; title: string }
+export const trustCenterSubscribersImportRoute = (trustCenterId: string): TImportRoute => ({
+  ...IMPORT_ROUTE_DETAILS[ObjectTypes.SUBSCRIBER],
+  href: importHref(ObjectTypes.SUBSCRIBER, { [IMPORT_TRUST_CENTER_PARAM]: trustCenterId }),
+  listHref: '/trust-center/subscribers',
+  section: IMPORT_SECTIONS.trustCenter,
+  permission: 'edit',
+  gate: ObjectTypes.TRUST_CENTER,
+})
 
-export const resolveImportTarget = (type: string | undefined, vendorId: string | undefined): TImportTarget | undefined => {
+const IMPORT_SCOPES = {
+  [IMPORT_VENDOR_PARAM]: { entityType: ObjectTypes.CONTACT, route: (vendorId: string) => vendorContactsImportRoute(vendorId, '') },
+  [IMPORT_TRUST_CENTER_PARAM]: { entityType: ObjectTypes.SUBSCRIBER, route: trustCenterSubscribersImportRoute },
+} as const satisfies Record<string, { entityType: TImportableObjectType; route: (id: string) => TImportRoute }>
+
+export type TImportScopeParam = keyof typeof IMPORT_SCOPES
+
+export const IMPORT_SCOPE_PARAMS = Object.keys(IMPORT_SCOPES) as TImportScopeParam[]
+
+export type TImportScope = { param: TImportScopeParam; id: string }
+
+export type TImportTarget = { entityType: TImportableObjectType; scope?: TImportScope; gate: ObjectTypes; title: string }
+
+export const resolveImportTarget = (type: string | undefined, readScopeId: (param: TImportScopeParam) => string | undefined): TImportTarget | undefined => {
   const entityType = resolveImportType(type)
   if (!entityType) return undefined
 
-  const scopedVendorId = entityType === ObjectTypes.CONTACT ? vendorId : undefined
-  const route = scopedVendorId ? vendorContactsImportRoute(scopedVendorId, '') : IMPORT_ROUTES[entityType]
-  return { entityType, vendorId: scopedVendorId, gate: route.gate ?? entityType, title: `Import ${importDisplayNamePlural(route)}` }
+  const param = IMPORT_SCOPE_PARAMS.find((candidate) => IMPORT_SCOPES[candidate].entityType === entityType && readScopeId(candidate))
+  const id = param && readScopeId(param)
+  const scope: TImportScope | undefined = param && id ? { param, id } : undefined
+  const route = scope ? IMPORT_SCOPES[scope.param].route(scope.id) : IMPORT_ROUTES[entityType]
+  return { entityType, scope, gate: route.gate ?? entityType, title: `Import ${importDisplayNamePlural(route)}` }
 }
 
 export const canImportWith = (permission: TImportPermission, roles: TAccessRole[] | undefined, session: Session | null): boolean => {

@@ -8,7 +8,7 @@ import { useCreateBulkCSVTemplate } from '@/lib/graphql-hooks/template'
 const TemplateImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVTemplate()
 
-  return <RecordImportPage entityType={ObjectTypes.TEMPLATE} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.TEMPLATE} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default TemplateImportPage

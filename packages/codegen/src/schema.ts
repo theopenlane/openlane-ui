@@ -8525,6 +8525,23 @@ export interface DeleteBulkSubprocessorsMutation {
   deleteBulkSubprocessor: { deletedIDs: Array<string>; notDeletedIDs: Array<string>; error: string | null }
 }
 
+export type GetSubprocessorCatalogQueryVariables = Exact<{
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetSubprocessorCatalogQuery {
+  subprocessors: { edges: Array<{ node: { id: string; name: string; systemOwned: boolean | null } | null } | null> | null; pageInfo: { endCursor: any; hasNextPage: boolean } }
+}
+
+export type CreateBulkSubprocessorMutationVariables = Exact<{
+  input?: Array<Types.CreateSubprocessorInput> | Types.CreateSubprocessorInput | null | undefined
+}>
+
+export interface CreateBulkSubprocessorMutation {
+  createBulkSubprocessor: { subprocessors: Array<{ id: string; name: string }> | null }
+}
+
 export type CreateSubscriberMutationVariables = Exact<{
   input: Types.CreateSubscriberInput
 }>
@@ -9409,14 +9426,6 @@ export interface UpdateTrustCenterFaqCommentMutation {
   updateTrustCenterFAQComment: { trustCenterFAQ: { id: string } }
 }
 
-export type CreateBulkCsvTrustCenterFaqMutationVariables = Exact<{
-  input: any
-}>
-
-export interface CreateBulkCsvTrustCenterFaqMutation {
-  createBulkCSVTrustCenterFAQ: { trustCenterFAQs: Array<{ id: string }> | null }
-}
-
 export type DeleteBulkTrustCenterFaqMutationVariables = Exact<{
   ids: Array<string> | string
 }>
@@ -9432,6 +9441,14 @@ export type UpdateBulkTrustCenterFaqMutationVariables = Exact<{
 
 export interface UpdateBulkTrustCenterFaqMutation {
   updateBulkTrustCenterFAQ: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
+}
+
+export type CreateBulkTrustCenterFaqMutationVariables = Exact<{
+  input?: Array<Types.CreateTrustCenterFaqInput> | Types.CreateTrustCenterFaqInput | null | undefined
+}>
+
+export interface CreateBulkTrustCenterFaqMutation {
+  createBulkTrustCenterFAQ: { trustCenterFAQs: Array<{ id: string }> | null }
 }
 
 export type GetTrustCenterNdaFilesQueryVariables = Exact<{
@@ -9520,6 +9537,23 @@ export interface DeleteBulkTrustCenterNdaRequestMutation {
   deleteBulkTrustCenterNDARequest: { deletedIDs: Array<string>; notDeletedIDs: Array<string>; error: string | null }
 }
 
+export type CreateBulkCsvTrustCenterNdaRequestMutationVariables = Exact<{
+  input: any
+}>
+
+export interface CreateBulkCsvTrustCenterNdaRequestMutation {
+  createBulkCSVTrustCenterNDARequest: { trustCenterNDARequests: Array<{ id: string }> | null }
+}
+
+export type GetTrustCenterNdaRequestEmailsQueryVariables = Exact<{
+  where?: Types.TrustCenterNdaRequestWhereInput | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface GetTrustCenterNdaRequestEmailsQuery {
+  trustCenterNdaRequests: { edges: Array<{ node: { id: string; email: string } | null } | null> | null }
+}
+
 export type GetTrustCenterSubprocessorsQueryVariables = Exact<{
   where?: Types.TrustCenterSubprocessorWhereInput | null | undefined
   first?: number | null | undefined
@@ -9593,6 +9627,23 @@ export interface GetTrustCenterSubprocessorByIdQuery {
     countries: Array<string> | null
     subprocessor: { id: string; name: string; description: string | null; logoRemoteURL: string | null; systemOwned: boolean | null; logoFile: { base64: string | null } | null }
   }
+}
+
+export type GetTrustCenterSubprocessorLinksQueryVariables = Exact<{
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetTrustCenterSubprocessorLinksQuery {
+  trustCenterSubprocessors: { edges: Array<{ node: { id: string; subprocessor: { id: string; name: string } } | null } | null> | null; pageInfo: { endCursor: any; hasNextPage: boolean } }
+}
+
+export type CreateBulkTrustCenterSubprocessorMutationVariables = Exact<{
+  input?: Array<Types.CreateTrustCenterSubprocessorInput> | Types.CreateTrustCenterSubprocessorInput | null | undefined
+}>
+
+export interface CreateBulkTrustCenterSubprocessorMutation {
+  createBulkTrustCenterSubprocessor: { trustCenterSubprocessors: Array<{ id: string }> | null }
 }
 
 export type GetTrustCenterQueryVariables = Exact<{ [key: string]: never }>

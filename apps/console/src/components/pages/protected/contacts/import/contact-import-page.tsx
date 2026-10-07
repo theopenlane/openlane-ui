@@ -8,7 +8,7 @@ import { useCreateBulkCSVContact } from '@/lib/graphql-hooks/contact'
 const ContactImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVContact()
 
-  return <RecordImportPage entityType={ObjectTypes.CONTACT} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.CONTACT} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default ContactImportPage

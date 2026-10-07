@@ -29,6 +29,9 @@ const GO_BOOLEANS = new Set(['1', 't', 'T', 'TRUE', 'true', 'True', '0', 'f', 'F
 const YES_NO = /^(yes|no)$/i
 const LIST_DELIMITERS = [';', '|', ',']
 const MIN_SUGGESTION_LENGTH = 3
+const MAX_URL_LENGTH = 2048
+const URL_HOST = /^[a-z0-9-]+(\.[a-z0-9-]+)+\.?$/i
+const URL_SCHEME = /^[a-z][a-z0-9+.-]*:\/\//i
 
 export const toEnumToken = (value: string): string =>
   value
@@ -40,6 +43,15 @@ export const toEnumToken = (value: string): string =>
     .filter(Boolean)
     .join('_')
     .toUpperCase()
+
+const isValidUrl = (value: string): boolean => {
+  if (value.length > MAX_URL_LENGTH) return false
+  try {
+    return URL_HOST.test(new URL(URL_SCHEME.test(value) ? value : `http://${value}`).host)
+  } catch {
+    return false
+  }
+}
 
 const NOT_JSON = Symbol('not-json')
 
@@ -53,7 +65,7 @@ const parseJson = (value: string): unknown => {
 
 const isValidJson = (value: string): boolean => parseJson(value) !== NOT_JSON
 
-const splitListCell = (cell: string): string[] | null => {
+export const splitListCell = (cell: string): string[] | null => {
   const decoded = parseJson(cell)
   if (decoded !== NOT_JSON) {
     if (Array.isArray(decoded)) return decoded.map(String)
@@ -79,6 +91,8 @@ const dateRule = (meta: ImportFieldMeta, order: TDateOrder): TItemRule => {
     normalize: (value) => normalizeLooseDate(value, { order, timestamp, referenceYear }),
   }
 }
+
+const URL_RULE: TItemRule = { expected: 'a web address like https://example.com/security', isValid: isValidUrl }
 
 const itemRule = (meta: ImportFieldMeta): TItemRule | null => {
   switch (meta.kind) {
@@ -107,10 +121,17 @@ const suggestEnumValue = (value: string, enumValues: readonly string[]): string 
   return candidates.length === 1 ? candidates[0] : undefined
 }
 
-const checkCells = (rows: string[][], columnIndex: number, meta: ImportFieldMeta, dateOrder: TDateOrder | undefined): TColumnCellCheck | null => {
+const fieldRule = (field: TDestinationField, dateOrder: TDateOrder | undefined): TItemRule | null => {
+  if (field.format === 'url') return URL_RULE
+  if (!field.meta) return null
+  return dateOrder ? dateRule(field.meta, dateOrder) : itemRule(field.meta)
+}
+
+const checkCells = (rows: string[][], columnIndex: number, field: TDestinationField, dateOrder: TDateOrder | undefined): TColumnCellCheck | null => {
+  const meta: Partial<ImportFieldMeta> = field.meta ?? {}
   const distinctDates = meta.kind === 'date' ? new Set(rows.map((row) => row[columnIndex]?.trim() ?? '')) : undefined
   const order = distinctDates ? (dateOrder ?? inferDateOrder(distinctDates)) : undefined
-  const rule = order ? dateRule(meta, order) : itemRule(meta)
+  const rule = fieldRule(field, order)
   if (!rule) return null
 
   const resolveCell = (cell: string): string | null => {
@@ -160,7 +181,7 @@ const checkCells = (rows: string[][], columnIndex: number, meta: ImportFieldMeta
 const checkCache = new WeakMap<string[][], Map<string, TColumnCellCheck | null>>()
 
 export const checkColumnCells = (rows: string[][], columnIndex: number, field: TDestinationField | undefined, dateOrder?: TDateOrder): TColumnCellCheck | null => {
-  if (!field?.meta) return null
+  if (!field) return null
 
   const byColumn = checkCache.get(rows) ?? new Map<string, TColumnCellCheck | null>()
   checkCache.set(rows, byColumn)
@@ -169,7 +190,7 @@ export const checkColumnCells = (rows: string[][], columnIndex: number, field: T
   const cached = byColumn.get(key)
   if (cached !== undefined) return cached
 
-  const result = checkCells(rows, columnIndex, field.meta, dateOrder)
+  const result = checkCells(rows, columnIndex, field, dateOrder)
   byColumn.set(key, result)
   return result
 }

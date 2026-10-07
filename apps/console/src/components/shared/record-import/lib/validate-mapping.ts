@@ -1,6 +1,7 @@
 import { formatList, formatTruncatedList, pluralizeWithCount } from '@/utils/strings'
 import type { TColumnMapping, TDestinationFieldSet, TImportIssue, TSourceColumn } from './types'
 import { unresolvedValues, type TColumnCellCheck } from './validate-cells'
+import { readCell } from './build-mapped-import'
 
 export type TMappingValidation = {
   blockingIssues: TImportIssue[]
@@ -15,9 +16,11 @@ const ROW_NUMBERS_SHOWN = 5
 const INVALID_VALUES_SHOWN = 3
 const HEADER_ROW_OFFSET = 2
 
-const describeRows = (firstRowIndexes: number[], total: number): string =>
+export const toFileRowNumber = (rowIndex: number): number => rowIndex + HEADER_ROW_OFFSET
+
+export const describeRows = (firstRowIndexes: number[], total: number): string =>
   `${total === 1 ? 'row' : 'rows'} ${formatTruncatedList(
-    firstRowIndexes.map((index) => String(index + HEADER_ROW_OFFSET)),
+    firstRowIndexes.slice(0, ROW_NUMBERS_SHOWN).map((index) => String(toFileRowNumber(index))),
     total,
     ROW_NUMBERS_SHOWN,
   )} ${total === 1 ? 'has' : 'have'}`
@@ -77,7 +80,8 @@ export const validateMapping = ({
       return
     }
 
-    const blankRows = group.length > 1 ? rowsMissingAll(rows, mappedColumns) : []
+    const blanksAlreadyReported = mappedColumns.length === 1 && cellChecks.get(mappedColumns[0].index)?.invalidValues.some(({ value }) => value === '')
+    const blankRows = blanksAlreadyReported ? [] : rowsMissingAll(rows, mappedColumns)
     if (blankRows.length > 0) {
       blockingIssues.push({
         id: `required-blank:${groupIndex}`,
@@ -85,6 +89,40 @@ export const validateMapping = ({
         columnIndex: mappedColumns[0].index,
       })
     }
+  })
+
+  fieldSet.uniqueFields.forEach((field) => {
+    const column = columnsByField.get(field.name)?.[0]
+    if (!column) return
+
+    const firstRowByValue = new Map<string, number>()
+    const repeated = new Map<string, { value: string; rowIndexes: number[] }>()
+    rows.forEach((row, rowIndex) => {
+      const value = readCell(row, column.index, mapping[column.index]?.valueMap, mapping[column.index]?.conversion)
+      if (!value) return
+      const key = value.toLowerCase()
+      const firstRow = firstRowByValue.get(key)
+      if (firstRow === undefined) {
+        firstRowByValue.set(key, rowIndex)
+        return
+      }
+      const entry = repeated.get(key) ?? { value, rowIndexes: [firstRow] }
+      entry.rowIndexes.push(rowIndex)
+      repeated.set(key, entry)
+    })
+    if (repeated.size === 0) return
+
+    const duplicates = [...repeated.values()]
+    const repeatedRows = duplicates.flatMap(({ rowIndexes }) => rowIndexes).sort((a, b) => a - b)
+    blockingIssues.push({
+      id: `unique:${field.name}`,
+      message: `Each ${field.label} can appear only once, but ${describeRows(repeatedRows.slice(0, ROW_NUMBERS_SHOWN), repeatedRows.length)} ${formatTruncatedList(
+        duplicates.map(({ value }) => `"${value}"`),
+        duplicates.length,
+        INVALID_VALUES_SHOWN,
+      )} more than once.`,
+      columnIndex: column.index,
+    })
   })
 
   const fieldByName = new Map(fields.map((field) => [field.name, field]))

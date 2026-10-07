@@ -5,7 +5,7 @@ import { Button } from '@repo/ui/button'
 import { Separator } from '@repo/ui/separator'
 import { SectionCard } from './section-card'
 import { EmptyState } from './empty-state'
-import { VendorLogo } from './vendor-logo'
+import { VendorLogo } from '@/components/shared/vendor-logo/vendor-logo'
 import type { DomainScanSummaryItem } from '../types'
 
 type ConfirmGroupProps = {

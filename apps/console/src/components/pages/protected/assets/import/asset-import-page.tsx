@@ -8,7 +8,7 @@ import { useCreateBulkCSVAsset } from '@/lib/graphql-hooks/asset'
 const AssetImportPage: React.FC = () => {
   const { mutateAsync } = useCreateBulkCSVAsset()
 
-  return <RecordImportPage entityType={ObjectTypes.ASSET} onImport={(input) => mutateAsync({ input })} />
+  return <RecordImportPage entityType={ObjectTypes.ASSET} onImport={(mapped) => mutateAsync({ input: mapped.toFile() })} />
 }
 
 export default AssetImportPage

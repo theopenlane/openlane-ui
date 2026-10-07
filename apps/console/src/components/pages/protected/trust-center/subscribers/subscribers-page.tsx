@@ -7,7 +7,7 @@ import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
-import { LoaderCircle, SearchIcon } from 'lucide-react'
+import { LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
@@ -23,6 +23,11 @@ import { Switch } from '@repo/ui/switch'
 import { Label } from '@repo/ui/label'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { useHandleUpdateSetting } from '../branding/helpers/useHandleUpdateSetting'
+import Menu from '@/components/shared/menu/menu'
+import MenuItem from '@/components/shared/menu/menu-item'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
+import { trustCenterSubscribersImportRoute } from '@/components/shared/record-import/lib/import-routes'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 
 const SUBSCRIBER_ORDER_BY = [{ field: SubscriberOrderField.email, direction: OrderDirection.ASC }]
 
@@ -42,6 +47,7 @@ const SubscribersPage = () => {
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
   const canEdit = canEditTrustCenter(tcPermission?.roles)
   const { updateTrustCenterSetting, isPending: isUpdatingSetting } = useHandleUpdateSetting()
+  const openImport = useOpenImport()
 
   const debouncedSearch = useDebounce(searchTerm, 300)
   const searching = searchTerm !== debouncedSearch
@@ -142,6 +148,25 @@ const SubscribersPage = () => {
             variant="searchTable"
           />
         </div>
+        {canEdit && trustCenterID && (
+          <Menu
+            closeOnSelect={true}
+            content={(close) => (
+              <DisabledReasonTooltip side="left" reason={allowSubscribers ? undefined : 'Turn on Allow new subscribers to import subscribers.'}>
+                <MenuItem
+                  icon={<Upload size={16} strokeWidth={2} />}
+                  disabled={!allowSubscribers}
+                  onSelect={() => {
+                    close()
+                    openImport(trustCenterSubscribersImportRoute(trustCenterID))
+                  }}
+                >
+                  Bulk Upload
+                </MenuItem>
+              </DisabledReasonTooltip>
+            )}
+          />
+        )}
       </div>
 
       <DataTable
