@@ -27,6 +27,7 @@ import { deleteMenuAction, mergeMenuAction } from '@/components/shared/crud-base
 import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { AddToTrustCenterDialog } from './add-to-trust-center/add-to-trust-center-dialog'
+import type { EditVendorFormData } from '../hooks/use-form-schema'
 
 interface VendorDetailHeaderProps {
   vendor: EntityQuery['entity']
@@ -48,8 +49,8 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   const hasTrustCenter = useHasObjectType(ObjectTypes.TRUST_CENTER)
   const canAddToTrustCenter = hasTrustCenter && hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor, session)
   const [addToTrustCenterOpen, setAddToTrustCenterOpen] = useState(false)
-  const { register, resetField } = useFormContext()
-  const persistField = usePersistFormField()
+  const { register, resetField } = useFormContext<EditVendorFormData>()
+  const persistField = usePersistFormField<EditVendorFormData>()
   const [inlineEditing, setInlineEditing] = useState<'name' | 'displayName' | null>(null)
   const [localValue, setLocalValue] = useState('')
   const [originalValue, setOriginalValue] = useState('')

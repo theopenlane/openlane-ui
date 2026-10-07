@@ -1,5 +1,5 @@
 import { type UpdateActionPlanInput } from '@repo/codegen/src/schema'
-import { dateOrClear, omit, orClear, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { dateOrClear, omit, orClear, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import { responsibilityInput } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { ACTION_PLAN_INTERNAL_OWNER } from '../action-plan-form-data'
@@ -18,4 +18,6 @@ export const ACTION_PLAN_UPDATE_FIELDS = {
   dueDate: dateOrClear('clearDueDate'),
   reviewDue: dateOrClear('clearReviewDue'),
   internalOwner: responsibilityInput(ACTION_PLAN_INTERNAL_OWNER),
+  name: passthrough,
+  title: passthrough,
 } satisfies TFieldMappers<ActionPlanFormData, UpdateActionPlanInput>

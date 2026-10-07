@@ -53,9 +53,8 @@ const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose
     isCreateMode: false,
     data: data?.review as ReviewsNodeNonNull | undefined,
     isFetching,
-    updateMutation,
     deleteMutation,
-    updateFields: REVIEW_UPDATE_FIELDS,
+    update: { mutation: updateMutation, fields: REVIEW_UPDATE_FIELDS },
     getName,
     renderFields: (props: ReviewFieldProps) => getFieldsToRender(props, enumOpts),
   }

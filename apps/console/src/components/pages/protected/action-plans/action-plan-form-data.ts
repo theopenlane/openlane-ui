@@ -1,6 +1,6 @@
 import { type CreateActionPlanInput, type UpdateActionPlanInput } from '@repo/codegen/src/schema'
 import { type ActionPlansNodeNonNull } from '@/lib/graphql-hooks/action-plan'
-import { buildResponsibilityTargetPayload, normalizeEntityData, responsibilityTargetFor } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { buildResponsibilityCreatePayload, normalizeEntityData, responsibilityTargetFor } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { plateToHtmlOrNull, type TPlateHtmlConverter } from '@/components/shared/plate/plate-utils'
 import { type ActionPlanFormData } from './hooks/use-form-schema'
 
@@ -21,7 +21,7 @@ export const buildActionPlanCreatePayload = async (formData: ActionPlanFormData,
   const payload = {
     ...rest,
     description: (await plateToHtmlOrNull(descriptionJSON, converter)) ?? undefined,
-    ...buildResponsibilityTargetPayload(ACTION_PLAN_INTERNAL_OWNER, internalOwner, 'create'),
+    ...buildResponsibilityCreatePayload(ACTION_PLAN_INTERNAL_OWNER, internalOwner),
   }
   return createInitialPayload ? { ...createInitialPayload, ...payload } : payload
 }

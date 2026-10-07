@@ -52,9 +52,13 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
     isPending: boolean
   }
 
-  updateMutation?: {
-    mutateAsync: (params: { id: string; input: Partial<TUpdateInput> }) => Promise<TUpdateData>
-    isPending: boolean
+  update?: {
+    mutation: {
+      mutateAsync: (params: { id: string; input: Partial<TUpdateInput> }) => Promise<TUpdateData>
+      isPending: boolean
+    }
+    fields: TFieldMappers<TFormData, TUpdateInput>
+    buildChangeExtras?: (data: TFormData) => Partial<TUpdateInput>
   }
 
   deleteMutation?: {
@@ -73,8 +77,6 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   formId?: string
 
   buildPayload?: (data: TFormData) => Promise<TUpdateInput | TCreateInput>
-  updateFields?: TFieldMappers<TFormData, TUpdateInput>
-  buildChangeExtras?: (data: TFormData) => Partial<TUpdateInput>
   onSaved?: (params: { formData: TFormData; created: TCreateData | null; entityId: string | null }) => Promise<void>
   normalizeData?: (data: TData) => Partial<TFormData>
   createDefaultValues?: NoInfer<DefaultValues<TFormData>>
@@ -101,7 +103,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
 
   const {
     form,
-    updateMutation,
+    update,
     createMutation,
     deleteMutation,
     objectType,
@@ -109,8 +111,6 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     data,
     isFetching,
     buildPayload,
-    updateFields,
-    buildChangeExtras,
     onSaved,
     normalizeData,
     createDefaultValues,
@@ -143,7 +143,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   const isCreate = isCreateMode !== undefined ? isCreateMode : searchParams.get('create') === 'true'
 
   const permissionRoles = useObjectPermissionRoles(objectType, id)
-  const isEditAllowed = !!updateMutation && canEdit(permissionRoles, session)
+  const isEditAllowed = !!update && canEdit(permissionRoles, session)
   const isDeleteAllowed = !!deleteMutation && canDelete(permissionRoles)
 
   const objectTypeName = objectType.charAt(0).toUpperCase() + objectType.slice(1).toLowerCase()
@@ -253,14 +253,11 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
         }
 
         onClose?.()
-      } else if (id && updateMutation) {
-        if (!updateFields) {
-          throw new Error(`${objectTypeName} has no update field mappers`)
-        }
-        const changedInput = await buildDirtyInput(formData, updateFields, { extras: buildChangeExtras?.(formData) })
+      } else if (id && update) {
+        const changedInput = await buildDirtyInput(formData, update.fields, { extras: update.buildChangeExtras?.(formData) })
 
         if (Object.keys(changedInput).length > 0) {
-          await updateMutation.mutateAsync({ id, input: changedInput })
+          await update.mutation.mutateAsync({ id, input: changedInput })
           reset(formData)
         } else {
           reset()
@@ -323,19 +320,19 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
         }
       : undefined
 
-  const isSavePending = (updateMutation?.isPending || createMutation?.isPending) ?? false
+  const isSavePending = (update?.mutation.isPending || createMutation?.isPending) ?? false
   const isContentLoading = isFetching && !isCreate
-  const showFormActions = !overrideContent && !isContentLoading && ((isCreate && !!createMutation) || (isEditing && !!updateMutation))
+  const showFormActions = !overrideContent && !isContentLoading && ((isCreate && !!createMutation) || (isEditing && !!update))
 
   const handleUpdateField = async (input: TUpdateInput, options?: TPersistOptions) => {
-    if (!id || isEditing || !updateMutation) {
+    if (!id || isEditing || !update) {
       if (options?.throwOnError) {
-        throw new Error('Inline save is not available while editing')
+        throw new Error(isEditing ? 'Inline save is not available while editing' : 'Inline save is not available')
       }
       return
     }
     try {
-      await updateMutation.mutateAsync({ id, input })
+      await update.mutation.mutateAsync({ id, input })
       successNotification({
         title: updateSuccessTitle,
         description: updateSuccessDescription,

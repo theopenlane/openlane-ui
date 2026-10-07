@@ -56,12 +56,11 @@ const ViewActionPlanSheet: React.FC<Props> = ({ entityId, onClose, createInitial
     data: entityId ? data?.actionPlan : undefined,
     isFetching: isLoading,
     normalizeData: normalizeActionPlanData,
-    updateMutation,
     createMutation,
     deleteMutation,
     onClose,
     buildPayload: (formData) => buildActionPlanCreatePayload(formData, { createInitialPayload, converter: plateEditorHelper }),
-    updateFields: ACTION_PLAN_UPDATE_FIELDS,
+    update: { mutation: updateMutation, fields: ACTION_PLAN_UPDATE_FIELDS },
     getName,
     renderFields: (props: ActionPlanFieldProps) => getFieldsToRender(props),
   }

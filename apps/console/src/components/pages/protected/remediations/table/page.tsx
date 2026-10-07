@@ -75,7 +75,6 @@ const RemediationPage: React.FC = () => {
     form,
     data: id ? data?.remediation : undefined,
     isFetching: isLoading,
-    updateMutation,
     createMutation,
     deleteMutation,
     buildPayload: async (data) => {
@@ -86,7 +85,7 @@ const RemediationPage: React.FC = () => {
         ...associationPayload,
       }
     },
-    updateFields: REMEDIATION_UPDATE_FIELDS,
+    update: { mutation: updateMutation, fields: REMEDIATION_UPDATE_FIELDS },
     getName,
     renderFields: (props: RemediationFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }

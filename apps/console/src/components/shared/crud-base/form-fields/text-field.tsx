@@ -12,6 +12,7 @@ import { InfoIcon } from 'lucide-react'
 import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 import { cn } from '@repo/ui/lib/utils'
 import { useRef } from 'react'
+import { usePersistFormField, type TPersistOptions } from '../persist-form-field'
 
 interface TextFieldProps<TUpdateInput> {
   name: string
@@ -26,7 +27,7 @@ interface TextFieldProps<TUpdateInput> {
   internalEditing: string | null
   setInternalEditing: InternalEditingType
   initialValue?: string
-  handleUpdate?: (input: TUpdateInput) => Promise<void>
+  handleUpdate?: (input: TUpdateInput, options?: TPersistOptions) => Promise<void>
   className?: string
   error?: string
   tooltipContent?: string
@@ -67,6 +68,7 @@ export const TextField = <TUpdateInput,>({
   renderEditor,
 }: TextFieldProps<TUpdateInput>) => {
   const { control, getValues, formState } = useFormContext()
+  const persistField = usePersistFormField()
 
   const isFieldEditing = isCreate || isEditing || internalEditing === name
   const value = data?.[name] ?? initialValue ?? ''
@@ -83,7 +85,7 @@ export const TextField = <TUpdateInput,>({
     }
 
     if (handleUpdate) {
-      await Promise.resolve(handleUpdate({ [name]: newValue } as unknown as TUpdateInput))
+      await persistField(name, newValue, (options) => handleUpdate({ [name]: newValue } as unknown as TUpdateInput, options))
     }
 
     setInternalEditing(null)
@@ -107,7 +109,7 @@ export const TextField = <TUpdateInput,>({
     }
 
     if (handleUpdate) {
-      await Promise.resolve(handleUpdate({ [name]: newValue } as unknown as TUpdateInput))
+      await persistField(name, newValue, (options) => handleUpdate({ [name]: newValue } as unknown as TUpdateInput, options))
     }
 
     setInternalEditing(null)

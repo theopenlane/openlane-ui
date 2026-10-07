@@ -46,7 +46,7 @@ export default function CustomerLogosPage() {
     }
   }
 
-  const onUpdate = async ({ id, input, logoFile }: { id: string; input: UpdateTrustCenterEntityInput; logoFile?: File }) => {
+  const onUpdate = async ({ id, input, logoFile }: { id: string; input: UpdateTrustCenterEntityInput; logoFile?: File }): Promise<boolean> => {
     try {
       await updateEntity({
         input,
@@ -54,8 +54,10 @@ export default function CustomerLogosPage() {
         logoFile: logoFile,
       })
       successNotification({ title: 'Customer updated' })
+      return true
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+      return false
     }
   }
 

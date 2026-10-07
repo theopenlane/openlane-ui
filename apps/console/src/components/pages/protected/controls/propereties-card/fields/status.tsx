@@ -1,3 +1,4 @@
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { type ControlControlStatus, type SubcontrolControlStatus, type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
@@ -12,6 +13,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const Status = ({
   isEditing,
+  isEditAllowed,
   data,
   handleUpdate,
   activeField,
@@ -19,21 +21,23 @@ export const Status = ({
   fieldId,
 }: {
   isEditing: boolean
+  isEditAllowed: boolean
   data?: ControlByIdNode | SubcontrolByIdNode
-  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput, options?: TPersistOptions) => Promise<void>
   activeField?: string | null
   setActiveField?: (field: string | null) => void
   fieldId?: string
 }) => {
   const { control, getValues } = useFormContext()
+  const persistField = usePersistFormField()
   const [internalEditing, setInternalEditing] = useState(false)
   const resolvedFieldId = fieldId ?? 'status'
   const isControlled = activeField !== undefined && setActiveField !== undefined
   const isActive = isControlled ? activeField === resolvedFieldId : internalEditing
 
-  const editing = isEditing || isActive
+  const editing = isEditAllowed && (isEditing || isActive)
 
-  const handleChange = (val: ControlControlStatus | SubcontrolControlStatus) => {
+  const handleChange = (val: ControlControlStatus | SubcontrolControlStatus, onFieldChange: (value: ControlControlStatus | SubcontrolControlStatus) => void) => {
     if (getValues('status') === val) {
       if (isControlled) {
         setActiveField?.(null)
@@ -42,19 +46,21 @@ export const Status = ({
       }
       return
     }
-    if (!isEditing) {
-      handleUpdate?.({ status: val })
-    }
-
     if (isControlled) {
       setActiveField?.(null)
     } else {
       setInternalEditing(false)
     }
+
+    if (!isEditing && handleUpdate) {
+      void persistField('status', val, (options) => handleUpdate({ status: val }, options))
+      return
+    }
+    onFieldChange(val)
   }
 
   const handleClick = () => {
-    if (!isEditing) {
+    if (!isEditing && isEditAllowed) {
       if (isControlled) {
         setActiveField?.(resolvedFieldId)
       } else {
@@ -107,8 +113,7 @@ export const Status = ({
               <Select
                 value={field.value}
                 onValueChange={(val: ControlControlStatus | SubcontrolControlStatus) => {
-                  handleChange(val)
-                  field.onChange(val)
+                  handleChange(val, field.onChange)
                 }}
               >
                 <SelectTrigger data-testid="control-status-select">
@@ -125,8 +130,8 @@ export const Status = ({
             )}
           />
         ) : (
-          <HoverPencilWrapper onPencilClick={handleClick}>
-            <div data-testid="control-status-trigger" className="flex items-center space-x-2 cursor-pointer" onDoubleClick={handleClick}>
+          <HoverPencilWrapper showPencil={isEditAllowed} onPencilClick={isEditAllowed ? handleClick : undefined}>
+            <div data-testid="control-status-trigger" className={`flex items-center space-x-2 ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={handleClick}>
               {ControlIconMapper16[data?.status as ControlControlStatus]}
               <p>{getEnumLabel(data?.status as ControlControlStatus) || '-'}</p>
             </div>

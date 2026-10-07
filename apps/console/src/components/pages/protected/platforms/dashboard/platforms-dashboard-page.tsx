@@ -114,7 +114,7 @@ const PlatformsDashboardPage: React.FC = () => {
       businessPurpose,
       dataFlowSummary,
       trustBoundaryDescription,
-      platformOwnerID: platformOwner?.type === 'user' ? platformOwner.value : (session?.user?.id ?? undefined),
+      platformOwnerID: platformOwner?.type === 'user' ? platformOwner.value : (session?.user?.userId ?? undefined),
       ...buildResponsibilityPayload('businessOwner', businessOwner, { mode: 'create' }),
       ...buildResponsibilityPayload('technicalOwner', technicalOwner, { mode: 'create' }),
       ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'create' }),

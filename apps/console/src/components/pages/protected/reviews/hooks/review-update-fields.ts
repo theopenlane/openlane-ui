@@ -1,5 +1,5 @@
 import { type UpdateReviewInput } from '@repo/codegen/src/schema'
-import { associationsInput, dateOrClear, orClear, richTextOrClear, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { associationsInput, dateOrClear, orClear, richTextOrClear, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { type ReviewFormData } from './use-form-schema'
 
 export const REVIEW_UPDATE_FIELDS = {
@@ -28,4 +28,5 @@ export const REVIEW_UPDATE_FIELDS = {
   assetIDs: associationsInput('assetIDs'),
   programIDs: associationsInput('programIDs'),
   riskIDs: associationsInput('riskIDs'),
+  title: passthrough,
 } satisfies TFieldMappers<ReviewFormData, UpdateReviewInput>

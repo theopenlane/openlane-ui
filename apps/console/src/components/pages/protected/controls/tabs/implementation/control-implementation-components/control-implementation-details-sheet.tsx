@@ -103,9 +103,8 @@ const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'c
       entityId={entityId}
       data={node}
       isFetching={isLoading}
-      updateMutation={updateMutation}
       deleteMutation={deleteMutation}
-      updateFields={CONTROL_IMPLEMENTATION_UPDATE_FIELDS}
+      update={{ mutation: updateMutation, fields: CONTROL_IMPLEMENTATION_UPDATE_FIELDS }}
       normalizeData={normalizeData}
       getName={() => null}
       renderFields={renderFields}

@@ -1,6 +1,6 @@
 'use client'
 
-import { buildResponsibilityTargetPayload, normalizeEntityData, responsibilityInput } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { buildResponsibilityCreatePayload, normalizeEntityData, responsibilityInput } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useControlLinksForFinding } from '@/components/shared/object-association/finding-control-links'
 import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import { getEdgeNodes } from '@/components/shared/object-association/utils'
@@ -113,7 +113,6 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
     isCreateMode: isCreate,
     data: entityId ? data?.finding : undefined,
     isFetching: isLoading,
-    updateMutation,
     createMutation,
     deleteMutation,
     normalizeData,
@@ -124,12 +123,12 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
       return {
         ...cleaned,
         ...buildFindingCreateAssociations(formData),
-        ...buildResponsibilityTargetPayload(FINDING_INTERNAL_OWNER, internalOwner, 'create'),
-        ...buildResponsibilityTargetPayload(FINDING_ASSIGNEE, assignedTo, 'create'),
-        ...buildResponsibilityTargetPayload(FINDING_REVIEWER, reviewedBy, 'create'),
+        ...buildResponsibilityCreatePayload(FINDING_INTERNAL_OWNER, internalOwner),
+        ...buildResponsibilityCreatePayload(FINDING_ASSIGNEE, assignedTo),
+        ...buildResponsibilityCreatePayload(FINDING_REVIEWER, reviewedBy),
       }
     },
-    updateFields: FINDING_UPDATE_FIELDS,
+    update: { mutation: updateMutation, fields: FINDING_UPDATE_FIELDS },
     onSaved: async ({ formData, created, entityId: savedId }) => {
       const findingID = savedId ?? created?.createFinding?.finding?.id
       if (!findingID || !formData.controlIDs) return

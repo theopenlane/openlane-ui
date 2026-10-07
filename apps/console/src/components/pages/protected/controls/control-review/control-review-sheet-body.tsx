@@ -27,7 +27,7 @@ import { getEdgeIds, getEdgeNodes } from '@/components/shared/object-association
 import { UploadedEvidenceSection } from '@/components/pages/protected/controls/quick-actions/uploaded-evidence-section'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import useControlReviewFormSchema, { CONTROL_REVIEW_DEFAULT_VALUES, type ControlReviewFormData } from './use-control-review-form-schema'
-import { isEmptyInputValue, omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { isEmptyInputValue, omit, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { useControlReviewContext } from './use-control-review-context'
 import ControlContextPanel from '@/components/pages/protected/controls/control-context-panel'
 import RelatedControlsSelector from './related-controls-selector'
@@ -58,6 +58,7 @@ const REVIEW_UPDATE_FIELDS = {
   findingTitle: omit,
   findingSeverity: omit,
   findingDescription: omit,
+  title: passthrough,
 } satisfies TFieldMappers<ControlReviewFormData, UpdateReviewInput>
 
 const ControlReviewSheetBody: React.FC<TControlReviewSheetBodyProps> = ({ controlId, reviewId, onClose }) => {

@@ -1,6 +1,5 @@
 'use client'
 
-import { type TPersistOptions } from './persist-form-field'
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
@@ -17,6 +16,7 @@ import { SlideoutFormActions } from './slideout-form-actions'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName, toHumanLabel } from '@/utils/strings'
 import { useDirtyInput } from '@/hooks/useDirtyInput'
+import { type TPersistOptions } from './persist-form-field'
 import type { TabConfig } from './types'
 import type { RenderFieldsProps, GenericDetailsSheetConfig } from './generic-sheet'
 import { getBulkActionFailureDescription } from './bulk-action-feedback'
@@ -40,7 +40,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
 
   const {
     form,
-    updateMutation,
+    update,
     createMutation,
     deleteMutation,
     objectType,
@@ -48,8 +48,6 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
     data,
     isFetching,
     buildPayload,
-    updateFields,
-    buildChangeExtras,
     normalizeData,
     createDefaultValues,
     formId = 'editForm',
@@ -145,18 +143,16 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
         })
         onClose?.()
       } else if (id) {
-        if (!updateMutation) return
-        if (!updateFields) {
-          throw new Error(`${objectTypeName} has no update field mappers`)
-        }
-        const changedInput = await buildDirtyInput(formData, updateFields, { extras: buildChangeExtras?.(formData) })
+        if (!update) return
+        const changedInput = await buildDirtyInput(formData, update.fields, { extras: update.buildChangeExtras?.(formData) })
 
-        if (Object.keys(changedInput).length > 0) {
-          await updateMutation.mutateAsync({ id, input: changedInput })
-          reset(formData)
-        } else {
+        if (Object.keys(changedInput).length === 0) {
           reset()
+          setIsEditing(false)
+          return
         }
+        await update.mutation.mutateAsync({ id, input: changedInput })
+        reset(formData)
         queryClient.invalidateQueries({ queryKey })
         successNotification({
           title: `${objectTypeName} Updated`,
@@ -208,14 +204,14 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
   }
 
   const handleUpdateField = async (input: TUpdateInput, options?: TPersistOptions) => {
-    if (!id || isEditing || !updateMutation) {
+    if (!id || isEditing || !update) {
       if (options?.throwOnError) {
-        throw new Error('Inline save is not available while editing')
+        throw new Error(isEditing ? 'Inline save is not available while editing' : 'Inline save is not available')
       }
       return
     }
     try {
-      await updateMutation.mutateAsync({ id, input })
+      await update.mutation.mutateAsync({ id, input })
       successNotification({
         title: `${objectTypeName} Updated`,
         description: `The ${objectTypeName.toLowerCase()} has been successfully updated.`,
@@ -232,7 +228,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
     }
   }
 
-  const isPending = (updateMutation?.isPending ?? false) || (createMutation?.isPending ?? false)
+  const isPending = (update?.mutation.isPending ?? false) || (createMutation?.isPending ?? false)
 
   const fieldProps: RenderFieldsProps<TData, TUpdateInput> = {
     isEditing,
@@ -246,7 +242,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
   }
 
   const defaultTab = tabs[0]?.id ?? 'details'
-  const showFormActions = ((isCreate && !!createMutation) || (isEditing && !!updateMutation)) && !(isFetching && !isCreate)
+  const showFormActions = ((isCreate && !!createMutation) || (isEditing && !!update)) && !(isFetching && !isCreate)
 
   return (
     <div className="flex flex-col gap-4">

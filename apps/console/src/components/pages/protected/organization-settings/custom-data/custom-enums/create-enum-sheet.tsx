@@ -147,8 +147,6 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
 
   const onSubmit = async (data: FormData) => {
     try {
-      const payload = { ...data, objectType: toApiObjectType(data.objectType) }
-
       if (isEditMode && id) {
         const input = await buildDirtyInput<UpdateCustomTypeEnumInput>(data, ENUM_UPDATE_FIELDS)
 
@@ -157,7 +155,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
         }
         successNotification({ title: 'Enum updated' })
       } else {
-        await createEnum(payload)
+        await createEnum({ ...data, objectType: toApiObjectType(data.objectType) })
         successNotification({ title: 'Enum created' })
       }
       handleOpenChange(false)

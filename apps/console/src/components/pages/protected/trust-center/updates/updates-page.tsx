@@ -4,7 +4,7 @@ import { type UpdateNoteInput } from '@repo/codegen/src/schema'
 import React, { use, useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useWatch } from 'react-hook-form'
-import { omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { omit, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import * as z from 'zod'
 import { Keyboard, Megaphone, Pencil, Loader2, Trash2 } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
@@ -44,6 +44,7 @@ type UpdateFormValues = z.infer<ReturnType<typeof buildFormSchema>>
 const POST_UPDATE_FIELDS = {
   title: orClear('clearTitle'),
   notifySubscribers: omit,
+  text: passthrough,
 } satisfies TFieldMappers<UpdateFormValues, UpdateNoteInput>
 
 export default function UpdatesSection() {
