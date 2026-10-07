@@ -62,7 +62,7 @@ export const ReportScanUploadSheet = ({ suggestedTaskId, onClose }: ReportScanUp
 
     try {
       await createReportScan({ input: { scanType: ScanScanType.REPORT, performedBy: REPORT_SCAN_PERFORMER, target: file.name }, scanFiles: [file] })
-      successNotification({ title: "Processing your report", description: "Most reports are ready in about 15 minutes. We’ll notify you when yours is ready to review.." })
+      successNotification({ title: 'Processing your report', description: 'Most reports are ready in about 15 minutes. We’ll notify you when yours is ready to review.' })
       onClose()
     } catch (error) {
       errorNotification({ title: "We couldn't upload your report", description: parseErrorMessage(error) })
@@ -131,7 +131,8 @@ export const ReportScanUploadSheet = ({ suggestedTaskId, onClose }: ReportScanUp
           ) : null}
 
           <p className="text-sm">
-            Upload a SOC 2 report to extract information about your systems, vendors, controls, and audit findings. You can review and select what to import before anything is created.
+            Upload a {SOC_2_FRAMEWORK_NAME} report to extract information about your systems, vendors, controls, and audit findings. You can review and select what to import before anything is
+            created.
           </p>
 
           {file ? (
