@@ -99,7 +99,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
         <>
           <ImportSourceStep entityLabel={entityLabel} entityLabelPlural={entityLabelPlural} state={state} />
           {step === 'review' && parsed && route.importNotice && (
-            <Callout variant="info" compact>
+            <Callout variant="warning" compact>
               {route.importNotice}
             </Callout>
           )}

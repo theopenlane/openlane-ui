@@ -143,6 +143,8 @@ const IMPORT_ROUTE_DETAILS = {
     displayNamePlural: 'Signed NDAs',
     permission: 'edit',
     gate: ObjectTypes.TRUST_CENTER,
+    importNotice:
+      'By uploading signed NDAs, you will be giving these users full access to documents in your trust center, unless your file sets a different access level. Verify the accuracy of the list before proceeding.',
   },
   [ObjectTypes.TRUST_CENTER_SUBPROCESSOR]: {
     listHref: '/trust-center/subprocessors',
