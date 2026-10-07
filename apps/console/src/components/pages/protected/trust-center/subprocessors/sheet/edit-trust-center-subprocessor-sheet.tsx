@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -29,18 +29,54 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
+import Skeleton from '@/components/shared/skeleton/skeleton'
 
 const schema = z.object({
-  category: z.string().min(1, 'Category is required'),
-  countries: z.array(z.string()).min(1, 'Select at least one country'),
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
+  category: z.string().optional(),
+  countries: z.array(z.string()).optional(),
+  name: z.string().trim().min(1, 'Name is required'),
+  description: z.string().trim().optional(),
   uploadMode: z.enum(['file', 'url']).default('file'),
   logoFile: z.instanceof(File).optional(),
   logoUrl: z.string().url('Please enter a valid URL').optional().or(z.literal('')).or(z.string().startsWith('data:')),
 })
 
 type FormData = z.infer<typeof schema>
+
+const logoInput = (_value: string | File | undefined, { uploadMode, logoFile, logoUrl }: FormData): UpdateSubprocessorInput => {
+  if (uploadMode === 'url') {
+    const remoteURL = (logoUrl ?? '').trim()
+    return remoteURL && !remoteURL.startsWith('data:') ? { logoRemoteURL: remoteURL, clearLogoFile: true } : { clearLogoRemoteURL: true }
+  }
+  return logoFile instanceof File ? { clearLogoRemoteURL: true } : {}
+}
+
+const SUBPROCESSOR_UPDATE_FIELDS = {
+  description: orClear('clearDescription'),
+  uploadMode: logoInput,
+  logoFile: logoInput,
+  logoUrl: logoInput,
+  category: omit,
+  countries: omit,
+} satisfies TFieldMappers<FormData, UpdateSubprocessorInput>
+
+const subprocessorCategoryInput = (category: string | undefined): UpdateTrustCenterSubprocessorInput =>
+  category ? { trustCenterSubprocessorKindName: category } : { clearTrustCenterSubprocessorKindName: true }
+
+const TRUST_CENTER_SUBPROCESSOR_UPDATE_FIELDS = {
+  category: subprocessorCategoryInput,
+  countries: orClear('clearCountries'),
+  name: omit,
+  description: omit,
+  uploadMode: omit,
+  logoFile: omit,
+  logoUrl: omit,
+} satisfies TFieldMappers<FormData, UpdateTrustCenterSubprocessorInput>
+
+const trustCenterSubprocessorRefreshInput = ({ category, countries }: FormData): UpdateTrustCenterSubprocessorInput => ({
+  ...(category ? subprocessorCategoryInput(category) : {}),
+  ...(countries?.length ? { countries } : { clearCountries: true }),
+})
 
 export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   const router = useRouter()
@@ -58,7 +94,9 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   const canEditOrg = canEdit(orgPermission?.roles, session)
   const canCreateCategory = hasPermission(orgPermission?.roles, AccessEnum.CanCreateCustomTypeEnum, session)
 
-  const { data } = useGetTrustCenterSubprocessorByID({ trustCenterSubprocessorId: trustCenterSubprocessorId || '' })
+  const { data, isFetching } = useGetTrustCenterSubprocessorByID({ trustCenterSubprocessorId: trustCenterSubprocessorId || '' })
+  const record = trustCenterSubprocessorId && data?.trustCenterSubprocessor?.id === trustCenterSubprocessorId ? data.trustCenterSubprocessor : undefined
+  const [seededId, setSeededId] = useState<string | null>(null)
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema) as Resolver<FormData>,
@@ -74,10 +112,14 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   })
 
   const { handleSubmit, reset, formState } = formMethods
-  const buildChangedInput = useChangedInput(formMethods)
+  const buildDirtyInput = useDirtyInput(formMethods)
   const { isSubmitting } = formState
 
-  const isEditable = canEditOrg && !data?.trustCenterSubprocessor?.subprocessor?.systemOwned
+  const isEditable = canEditOrg && !record?.subprocessor?.systemOwned
+  const isSeeded = !!record && seededId === record.id
+  const isNotFound = !record && !isFetching
+  const existingLogoBase64 = record?.subprocessor?.logoFile?.base64
+  const existingLogoFileUrl = existingLogoBase64 ? toBase64DataUri(existingLogoBase64) : undefined
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen)
@@ -97,68 +139,48 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   }, [trustCenterSubprocessorId])
 
   useEffect(() => {
-    if (!data) return
-    const sp = data.trustCenterSubprocessor?.subprocessor
+    if (!record) {
+      setSeededId(null)
+      return
+    }
+    const sp = record.subprocessor
     const existingLogoBase64 = sp?.logoFile?.base64
-    const existingLogoFileUrl = existingLogoBase64 ? toBase64DataUri(existingLogoBase64) : undefined
     const existingLogoRemoteUrl = sp?.logoRemoteURL
 
     reset({
-      category: data.trustCenterSubprocessor?.trustCenterSubprocessorKindName ?? '',
-      countries: data.trustCenterSubprocessor?.countries ?? [],
+      category: record.trustCenterSubprocessorKindName ?? '',
+      countries: record.countries ?? [],
       name: sp?.name ?? '',
       description: sp?.description ?? '',
       uploadMode: existingLogoRemoteUrl && !existingLogoBase64 ? 'url' : 'file',
       logoFile: undefined,
-      logoUrl: existingLogoRemoteUrl ?? existingLogoFileUrl ?? '',
+      logoUrl: existingLogoRemoteUrl ?? '',
     })
-  }, [data, reset])
+    setSeededId(record.id)
+  }, [record, reset])
 
   const handleLogoUpload = (uploaded: TUploadedFile) => {
     if (uploaded.file) {
-      formMethods.setValue('logoFile', uploaded.file, { shouldValidate: true })
+      formMethods.setValue('logoFile', uploaded.file, { shouldValidate: true, shouldDirty: true })
     }
   }
 
   const onSubmit = async (values: FormData) => {
-    if (!trustCenterSubprocessorId) return
+    if (!trustCenterSubprocessorId || !record) return
 
     try {
-      const tc = data?.trustCenterSubprocessor
-      const isSystemOwned = !!tc?.subprocessor?.systemOwned
-
-      const subprocessorId = tc?.subprocessor?.id
+      const isSystemOwned = !!record.subprocessor?.systemOwned
+      const subprocessorId = record.subprocessor?.id
       const stagedLogo = values.uploadMode === 'file' ? values.logoFile : undefined
-      const subprocessorInput =
-        !isSystemOwned && subprocessorId
-          ? await buildChangedInput(values, (formValues): UpdateSubprocessorInput => {
-              const description = (formValues.description ?? '').trim()
-              const logoUrl = (formValues.logoUrl ?? '').trim()
-              return {
-                name: formValues.name.trim(),
-                ...(description ? { description } : { clearDescription: true }),
-                ...(formValues.uploadMode === 'url'
-                  ? logoUrl
-                    ? { logoRemoteURL: logoUrl, clearLogoFile: true }
-                    : { clearLogoRemoteURL: true }
-                  : formValues.logoFile instanceof File
-                    ? { clearLogoRemoteURL: true }
-                    : {}),
-              }
-            })
-          : {}
-      const subprocessorChanged = !!subprocessorId && (Object.keys(subprocessorInput).length > 0 || !!stagedLogo)
+      const subprocessorInput = !isSystemOwned && subprocessorId ? await buildDirtyInput<UpdateSubprocessorInput>(values, SUBPROCESSOR_UPDATE_FIELDS) : {}
+      const subprocessorChanged = !isSystemOwned && !!subprocessorId && (Object.keys(subprocessorInput).length > 0 || !!stagedLogo)
 
       if (subprocessorChanged) {
         await updateSubprocessor({ updateSubprocessorId: subprocessorId, input: subprocessorInput, logoFile: stagedLogo })
       }
 
-      const buildTrustCenterSubprocessorInput = (formValues: FormData): UpdateTrustCenterSubprocessorInput => ({
-        trustCenterSubprocessorKindName: formValues.category,
-        countries: formValues.countries,
-      })
-      const changedTrustCenterInput = await buildChangedInput(values, buildTrustCenterSubprocessorInput)
-      const trustCenterInput = Object.keys(changedTrustCenterInput).length > 0 || !subprocessorChanged ? changedTrustCenterInput : buildTrustCenterSubprocessorInput(values)
+      const changedTrustCenterInput = await buildDirtyInput<UpdateTrustCenterSubprocessorInput>(values, TRUST_CENTER_SUBPROCESSOR_UPDATE_FIELDS)
+      const trustCenterInput = Object.keys(changedTrustCenterInput).length === 0 && subprocessorChanged ? trustCenterSubprocessorRefreshInput(values) : changedTrustCenterInput
 
       if (Object.keys(trustCenterInput).length > 0) {
         await updateTCSubprocessor({ id: trustCenterSubprocessorId, input: trustCenterInput })
@@ -199,19 +221,29 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
                 })
               }),
             ]}
-            formActions={<SlideoutFormActions formId="tc-subprocessor-form" onCancel={() => handleOpenChange(false)} isPending={isSubmitting} />}
+            formActions={<SlideoutFormActions formId="tc-subprocessor-form" onCancel={() => handleOpenChange(false)} isPending={isSubmitting} disabled={!isSeeded} />}
           />
         }
       >
-        <FormProvider {...formMethods}>
-          <form id="tc-subprocessor-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
-            <NameField isEditing={false} />
-            <DescriptionField isEditing={isEditable} />
-            <CountriesField isEditing />
-            <CategoryField objectType={ObjectTypes.TRUST_CENTER_SUBPROCESSOR} isEditing canCreate={canCreateCategory} />
-            <LogoField onFileUpload={handleLogoUpload} isEditing={isEditable} />
-          </form>
-        </FormProvider>
+        {isSeeded ? (
+          <FormProvider {...formMethods}>
+            <form id="tc-subprocessor-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
+              <NameField isEditing={false} />
+              <DescriptionField isEditing={isEditable} />
+              <CountriesField isEditing />
+              <CategoryField objectType={ObjectTypes.TRUST_CENTER_SUBPROCESSOR} isEditing canCreate={canCreateCategory} />
+              <LogoField onFileUpload={handleLogoUpload} isEditing={isEditable} fallbackPreviewSrc={existingLogoFileUrl} />
+            </form>
+          </FormProvider>
+        ) : isNotFound ? (
+          <p className="mt-6 text-sm text-muted-foreground">Subprocessor not found.</p>
+        ) : (
+          <div className="mt-6 space-y-5">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <Skeleton key={index} className="h-12 w-full rounded-lg" />
+            ))}
+          </div>
+        )}
       </SheetContent>
     </Sheet>
   )

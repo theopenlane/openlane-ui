@@ -8,7 +8,7 @@ import { Form } from '@repo/ui/form'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { ReviewReviewStatus, type CreateReviewInput, type EntityQuery, type UpdateReviewInput } from '@repo/codegen/src/schema'
+import { ReviewReviewStatus, type CreateReviewInput, type EntityQuery, type UpdateEntityInput, type UpdateReviewInput } from '@repo/codegen/src/schema'
 import { useBulkDeleteReview, useCreateReview, useUpdateReview, type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useObjectPermissionRoles } from '@/components/shared/crud-base/use-object-permission'
@@ -21,11 +21,11 @@ import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import useVendorReviewFormSchema, { type VendorReviewFormData } from './use-vendor-review-form-schema'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { useDirtyInput } from '@/hooks/useDirtyInput'
 import VendorReviewContextPanel from './vendor-review-context-panel'
 import VendorReviewFieldsPanel from './vendor-review-fields-panel'
 import VendorReviewFormActions, { type TVendorReviewAction } from './vendor-review-form-actions'
-import { buildVendorReviewDefaults, buildVendorRiskUpdate } from './vendor-review-utils'
+import { buildVendorReviewDefaults, VENDOR_REVIEW_UPDATE_FIELDS, VENDOR_RISK_UPDATE_FIELDS } from './vendor-review-utils'
 
 const STATUS_BY_ACTION: Partial<Record<TVendorReviewAction, ReviewReviewStatus>> = {
   draft: ReviewReviewStatus.IN_PROGRESS,
@@ -58,7 +58,7 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
 
   const [initialValues] = useState(() => buildVendorReviewDefaults(vendor, review))
   const { form } = useVendorReviewFormSchema(initialValues)
-  const buildChangedInput = useChangedInput(form)
+  const buildDirtyInput = useDirtyInput(form)
   const savedDescription = review?.details ?? ''
   const reviewId = review?.id ?? createdReviewId ?? undefined
 
@@ -94,21 +94,26 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
       let didCreate = false
 
       if (existingReviewId) {
-        const changedInput = await buildChangedInput(formData, async (values): Promise<UpdateReviewInput> => {
-          const details = await plateToHtmlOrNull(values.description, plateEditorHelper)
-          return { title: values.title, ...(details ? { details } : { clearDetails: true }) }
-        })
-
-        const input: UpdateReviewInput = {
-          ...changedInput,
-          ...(nextStatus ? { status: nextStatus } : {}),
-          ...(approves ? { approved: true, approvedAt: now } : action === 'draft' ? { approved: false, clearApprovedAt: true } : {}),
-          ...(action === 'draft' ? { clearReviewedAt: true } : completes && !review?.reviewedAt ? { reviewedAt: now } : {}),
+        const contextBackfill: UpdateReviewInput = {
           ...(review?.environmentName || !vendor.environmentName ? {} : { environmentName: vendor.environmentName }),
           ...(review?.scopeName || !vendor.scopeName ? {} : { scopeName: vendor.scopeName }),
         }
+        const changedInput = await buildDirtyInput<UpdateReviewInput>(formData, VENDOR_REVIEW_UPDATE_FIELDS)
 
-        await updateReview({ updateReviewId: existingReviewId, input })
+        const reviewInput: UpdateReviewInput = {
+          ...changedInput,
+          ...(nextStatus && nextStatus !== review?.status ? { status: nextStatus } : {}),
+          ...(approves && !review?.approved ? { approved: true, approvedAt: now } : {}),
+          ...(action === 'draft' && review?.approved ? { approved: false } : {}),
+          ...(action === 'draft' && review?.approvedAt ? { clearApprovedAt: true } : {}),
+          ...(action === 'draft' && review?.reviewedAt ? { clearReviewedAt: true } : {}),
+          ...(completes && !review?.reviewedAt ? { reviewedAt: now } : {}),
+        }
+        const input: UpdateReviewInput = Object.keys(reviewInput).length > 0 ? { ...reviewInput, ...contextBackfill } : reviewInput
+
+        if (Object.keys(input).length > 0) {
+          await updateReview({ updateReviewId: existingReviewId, input })
+        }
       } else {
         const details = await plateToHtmlOrNull(formData.description, plateEditorHelper)
         const input: CreateReviewInput = {
@@ -137,8 +142,8 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
         queryClient.invalidateQueries({ queryKey: ['entities'] })
       }
 
-      const riskInput = canEditVendor ? buildVendorRiskUpdate(vendor, formData) : null
-      if (riskInput) {
+      const riskInput = canEditVendor ? await buildDirtyInput<UpdateEntityInput>(formData, VENDOR_RISK_UPDATE_FIELDS) : {}
+      if (Object.keys(riskInput).length > 0) {
         await updateEntity({ updateEntityId: vendor.id, input: riskInput })
       }
 

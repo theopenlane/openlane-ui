@@ -71,7 +71,7 @@ const CreatePolicyForm: React.FC = () => {
           ...data,
           detailsJSON: data.detailsJSON,
           details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
-          tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+          tags: data?.tags ?? [],
           ...(mapControlIds.length ? { controlIDs: [...new Set([...(data.controlIDs ?? []), ...mapControlIds])] } : {}),
         },
       }

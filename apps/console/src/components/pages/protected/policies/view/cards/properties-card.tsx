@@ -68,8 +68,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
 
   useEscapeKey(() => {
     if (editingField && (editingField === 'status' || editingField === 'internalPolicyKindName' || editingField === 'reviewDue' || editingField === 'revision')) {
-      const value = policy?.[editingField]
-      form.setValue(editingField, value || '')
+      form.resetField(editingField)
       if (isControlled) {
         setActiveField?.(null)
       } else {

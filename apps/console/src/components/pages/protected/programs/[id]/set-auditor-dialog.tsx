@@ -2,15 +2,12 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import type { Resolver } from 'react-hook-form'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { useUpdateProgram } from '@/lib/graphql-hooks/program'
+import { useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { useParams } from 'next/navigation'
-import { useQueryClient } from '@tanstack/react-query'
 import MessageBox from '@repo/ui/message-box'
 import { Label } from '@repo/ui/label'
 import { InfoIcon } from 'lucide-react'
@@ -22,37 +19,31 @@ import { AUDITOR_URL } from '@/constants'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { Callout } from '@/components/shared/callout/callout'
-
-const setAuditorSchema = z.object({
-  auditorName: z.string().optional().nullable(),
-  auditorEmail: z.string().optional().nullable(),
-  auditFirm: z.string().optional(),
-  auditorReadComments: z.boolean().default(false),
-  auditorWriteComments: z.boolean().default(false),
-  auditorReady: z.boolean().default(false),
-})
-
-type SetAuditorFormValues = z.infer<typeof setAuditorSchema>
+import { useDirtyInput } from '@/hooks/useDirtyInput'
+import { type UpdateProgramInput } from '@repo/codegen/src/schema'
+import { AUDITOR_UPDATE_FIELDS, setAuditorSchema, toAuditorFormValues, type SetAuditorFormValues } from './auditor-update-fields'
 
 export const SetAuditorDialog = () => {
   const { id } = useParams<{ id: string }>()
-  const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
+  const { data: programData } = useGetProgramBasicInfo(id)
 
   const { mutateAsync: update } = useUpdateProgram()
 
   const form = useForm<SetAuditorFormValues>({
-    resolver: zodResolver(setAuditorSchema) as Resolver<SetAuditorFormValues>,
-    defaultValues: {
-      auditorName: '',
-      auditFirm: '',
-      auditorEmail: '',
-      auditorReadComments: false,
-      auditorWriteComments: false,
-      auditorReady: false,
-    },
+    resolver: zodResolver(setAuditorSchema),
+    defaultValues: toAuditorFormValues(undefined),
   })
+
+  const buildDirtyInput = useDirtyInput(form)
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      form.reset(toAuditorFormValues(programData?.program))
+    }
+    setOpen(nextOpen)
+  }
 
   const onSubmit = async (values: SetAuditorFormValues) => {
     if (!id) return
@@ -63,19 +54,16 @@ export const SetAuditorDialog = () => {
       return
     }
     try {
-      await update({
-        updateProgramId: id,
-        input: {
-          auditor: values.auditorName,
-          auditorEmail: values.auditorEmail === '' ? undefined : values.auditorEmail,
-          auditFirm: values.auditFirm,
-          auditorReadComments: values.auditorReadComments,
-          auditorWriteComments: values.auditorWriteComments,
-          auditorReady: values.auditorReady,
-        },
-      })
+      const input = await buildDirtyInput<UpdateProgramInput>(values, AUDITOR_UPDATE_FIELDS)
+
+      if (Object.keys(input).length === 0) {
+        form.reset()
+        setOpen(false)
+        return
+      }
+
+      await update({ updateProgramId: id, input })
       successNotification({ title: 'Auditor successfully added/edited' })
-      queryClient.invalidateQueries({ queryKey: ['programs'] })
       setOpen(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -89,7 +77,7 @@ export const SetAuditorDialog = () => {
   const errorMessages = Object.values(form.formState.errors).map((error) => error?.message) as string[]
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="w-fit">Set auditor</Button>
       </DialogTrigger>
@@ -125,10 +113,10 @@ export const SetAuditorDialog = () => {
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center">
-              <Label htmlFor="auditorName">Name</Label>
+              <Label htmlFor="auditor">Name</Label>
               <SystemTooltip icon={<InfoIcon size={14} className="mx-1" />} content={<p>Enter the name of your primary contact at the audit firm (e.g. Amy Shields).</p>} />
             </div>
-            <Input id="auditorName" {...form.register('auditorName')} placeholder="Amy Shields" />
+            <Input id="auditor" {...form.register('auditor')} placeholder="Amy Shields" />
           </div>
 
           <div className="flex flex-col gap-2">

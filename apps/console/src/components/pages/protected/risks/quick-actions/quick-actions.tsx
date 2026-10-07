@@ -10,7 +10,7 @@ import type { TObjectAssociationMap } from '@/components/shared/object-associati
 import QuickActionsBar, { type QuickActionItem } from '@/components/shared/crud-base/quick-actions/quick-actions-bar'
 import CreateReviewSheet from '../../reviews/common/create-review-sheet'
 import { RiskRiskDecision, RiskRiskStatus, type UpdateRiskInput } from '@repo/codegen/src/schema'
-import { useFormContext } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { type EditRisksFormData } from '../view/hooks/use-form-schema'
 import { RiskDecisionDialog } from './decision-dialog'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
@@ -21,7 +21,7 @@ const EDIT_RESTRICTED_IDS = new Set(['mark-as-remediated', 'add-review', 'set-ri
 type RiskQuickActionsProps = {
   riskId: string
   canEdit: boolean
-  handleUpdate: (input: UpdateRiskInput) => Promise<void>
+  handleUpdate: (input: UpdateRiskInput, options?: TPersistOptions) => Promise<void>
 }
 
 const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
@@ -29,7 +29,7 @@ const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
   const [isDecisionDialogOpen, setIsDecisionDialogOpen] = useState(false)
   const { replace } = useSmartRouter()
 
-  const { setValue } = useFormContext<EditRisksFormData>()
+  const persistField = usePersistFormField<EditRisksFormData>()
 
   const taskInitialData = useMemo<TObjectAssociationMap>(() => {
     return { riskIDs: props.riskId ? [props.riskId] : [] }
@@ -59,10 +59,9 @@ const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
         id: 'mark-as-remediated',
         label: 'Mark as Remediated',
         icon: <CheckCheck size={16} />,
-        onClick: () => {
-          setValue('status', RiskRiskStatus.CLOSED)
-          setValue('riskDecision', RiskRiskDecision.MITIGATE)
-          props.handleUpdate({ status: RiskRiskStatus.MITIGATED, riskDecision: RiskRiskDecision.MITIGATE })
+        onClick: async () => {
+          const save = props.handleUpdate({ status: RiskRiskStatus.MITIGATED, riskDecision: RiskRiskDecision.MITIGATE }, { throwOnError: true })
+          await Promise.all([persistField('status', RiskRiskStatus.MITIGATED, () => save), persistField('riskDecision', RiskRiskDecision.MITIGATE, () => save)])
         },
       },
       {
@@ -73,7 +72,7 @@ const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
     ]
 
     return [...baseActions]
-  }, [setIsCreateReviewOpen, setIsDecisionDialogOpen, setValue, props, replace])
+  }, [setIsCreateReviewOpen, setIsDecisionDialogOpen, persistField, props, replace])
 
   const filteredActions = useMemo(() => {
     if (props.canEdit) return actions
@@ -140,8 +139,8 @@ const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
           onOpenChange={setIsDecisionDialogOpen}
           handleUpdate={async (input) => {
             if (!input.riskDecision) return
-            setValue('riskDecision', input.riskDecision)
-            props.handleUpdate({ riskDecision: input.riskDecision })
+            const riskDecision = input.riskDecision
+            await persistField('riskDecision', riskDecision, (options) => props.handleUpdate({ riskDecision }, options))
           }}
           internalEditing={null}
           setInternalEditing={() => {}}

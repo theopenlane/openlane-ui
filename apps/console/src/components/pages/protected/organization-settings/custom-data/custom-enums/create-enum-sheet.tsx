@@ -3,7 +3,7 @@
 import { type UpdateCustomTypeEnumInput } from '@repo/codegen/src/schema'
 import React, { useEffect, useState, useMemo } from 'react'
 import { FormProvider, useForm, useController, useWatch } from 'react-hook-form'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { LoaderCircle } from 'lucide-react'
@@ -53,6 +53,14 @@ const getRandomColor = () => COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALE
 
 type FormData = z.infer<typeof schema>
 
+const ENUM_UPDATE_FIELDS = {
+  name: omit,
+  objectType: omit,
+  field: omit,
+  description: orClear('clearDescription'),
+  color: orClear('clearColor'),
+} satisfies TFieldMappers<FormData, UpdateCustomTypeEnumInput>
+
 export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: () => void; filter: string }) => {
   const params = useSearchParams()
   const { replace } = useSmartRouter()
@@ -87,7 +95,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
     },
   })
 
-  const buildChangedInput = useChangedInput(formMethods)
+  const buildDirtyInput = useDirtyInput(formMethods)
 
   const {
     control,
@@ -142,7 +150,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
       const payload = { ...data, objectType: toApiObjectType(data.objectType) }
 
       if (isEditMode && id) {
-        const input = await buildChangedInput(data, (values): UpdateCustomTypeEnumInput => ({ description: values.description, color: values.color }))
+        const input = await buildDirtyInput<UpdateCustomTypeEnumInput>(data, ENUM_UPDATE_FIELDS)
 
         if (Object.keys(input).length > 0) {
           await updateEnum({ id, input })

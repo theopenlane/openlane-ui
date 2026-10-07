@@ -2,22 +2,20 @@
 import { Input, InputRow } from '@repo/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { Info, InfoIcon } from 'lucide-react'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { InfoIcon } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { type Value } from 'platejs'
-import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
-import { type CreateProcedureInput, type ProcedureByIdFragment, ProcedureDocumentStatus, ProcedureFrequency, type UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
+import { type CreateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useQueryClient } from '@tanstack/react-query'
 import useFormSchema, { type CreateProcedureFormData } from '../hooks/use-form-schema'
 import { PROCEDURE_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
-import { type AssociationInitialIds, asAssociationsData, buildAssociationPayload, buildInitialAssociationIds } from '@/components/shared/object-association/utils'
+import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { ProcedureAssociationSection } from '@/components/pages/protected/procedures/create/form/fields/association-section'
 import StatusCard from '@/components/pages/protected/procedures/create/cards/status-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/create/cards/tags-card.tsx'
-import { useCreateProcedure, useGetProcedureAssociationsById, useGetProcedureDiscussionById, useUpdateProcedure } from '@/lib/graphql-hooks/procedure.ts'
+import { useCreateProcedure } from '@/lib/graphql-hooks/procedure.ts'
 import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
 import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/internal-policy.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
@@ -34,39 +32,25 @@ import DraftRestoreModal from '@/components/shared/draft-restore-modal/draft-res
 
 const PROCEDURE_DRAFT_KEY = 'draft:procedure-create'
 
-type TCreateProcedureFormProps = {
-  procedure?: ProcedureByIdFragment
-}
-
 export type TMetadata = {
   createdAt: string
   updatedAt: string
   revision: string
 }
 
-const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure }) => {
+const CreateProcedureForm: React.FC = () => {
   const { form } = useFormSchema()
   const router = useRouter()
-  const queryClient = useQueryClient()
   const { setCrumbs } = React.use(BreadcrumbContext)
-  const { mutateAsync: createProcedure, isPending: isCreating } = useCreateProcedure()
-  const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
-  const isSubmitting = isCreating || isSaving
+  const { mutateAsync: createProcedure, isPending: isSubmitting } = useCreateProcedure()
   const { successNotification, errorNotification } = useNotification()
-  const [metadata, setMetadata] = useState<TMetadata>()
-  const isEditable = !!procedure
-  const [initialAssociations, setInitialAssociations] = useState<AssociationInitialIds<typeof PROCEDURE_ASSOCIATION_CONFIG>>({})
-  const didInitRef = useRef(false)
   const searchParams = useSearchParams()
   const policyId = searchParams.get('policyId')
   const { data } = useGetInternalPolicyDetailsById(policyId)
-  const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
+  const { currentOrgId } = useOrganization()
   const [createMultiple, setCreateMultiple] = useState(false)
   const [clearData, setClearData] = useState<boolean>(false)
 
-  const { data: assocData } = useGetProcedureAssociationsById(procedure?.id || null)
-  const { data: discussionData } = useGetProcedureDiscussionById(procedure?.id || null)
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
@@ -75,7 +59,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const { pendingDraft, restore, discard, clearDraft, editorKey } = useFormDraft<CreateProcedureFormData>({
     storageKey: PROCEDURE_DRAFT_KEY,
     organizationId: currentOrgId,
-    enabled: !isEditable,
+    enabled: true,
     form,
   })
 
@@ -87,48 +71,14 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
     ])
   }, [setCrumbs])
 
-  const procedureAssociations = useMemo(() => buildInitialAssociationIds(PROCEDURE_ASSOCIATION_CONFIG, asAssociationsData(assocData)), [assocData])
-
   useEffect(() => {
-    if (!procedure) return
-
-    if (didInitRef.current) {
-      setInitialAssociations(procedureAssociations)
-      return
-    }
-
-    form.reset({
-      tags: procedure.tags ?? [],
-      details: procedure?.details ?? '',
-      name: procedure.name,
-      approvalRequired: procedure?.approvalRequired ?? true,
-      status: procedure.status ?? ProcedureDocumentStatus.DRAFT,
-      procedureKindName: procedure.procedureKindName ?? '',
-      reviewDue: procedure.reviewDue ? new Date(procedure.reviewDue as string) : undefined,
-      reviewFrequency: procedure.reviewFrequency ?? ProcedureFrequency.YEARLY,
-      approverID: procedure.approver?.id ?? undefined,
-      delegateID: procedure.delegate?.id ?? undefined,
-      ...procedureAssociations,
-    })
-
-    setMetadata({
-      createdAt: procedure.createdAt,
-      updatedAt: procedure.updatedAt,
-      revision: procedure?.revision ?? '',
-    })
-
-    setInitialAssociations(procedureAssociations)
-    didInitRef.current = true
-  }, [form, procedure, procedureAssociations])
-
-  useEffect(() => {
-    if (!procedure && data?.internalPolicy?.id) {
+    if (data?.internalPolicy?.id) {
       const current = form.getValues('internalPolicyIDs') ?? []
       if (!current.includes(data.internalPolicy.id)) {
         form.setValue('internalPolicyIDs', [...current, data.internalPolicy.id], { shouldDirty: true })
       }
     }
-  }, [data, procedure, form])
+  }, [data, form])
 
   const onCreateHandler = async (data: CreateProcedureFormData) => {
     try {
@@ -141,7 +91,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
           ...associationInputs,
           detailsJSON: data.detailsJSON,
           details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
-          tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+          tags: data?.tags ?? [],
         },
       }
 
@@ -169,70 +119,17 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
     }
   }
 
-  const onSaveHandler = async (data: CreateProcedureFormData) => {
-    try {
-      if (!procedure) {
-        return
-      }
-
-      const associationInputs = buildAssociationPayload(PROCEDURE_ASSOCIATION_CONFIG.associationKeys, data, false, initialAssociations)
-      const mutationData = Object.fromEntries(Object.entries(data).filter(([key]) => !(key in PROCEDURE_ASSOCIATION_CONFIG.initialDataKeys)))
-
-      const formData: {
-        updateProcedureId: string
-        input: UpdateProcedureInput
-      } = {
-        updateProcedureId: procedure.id,
-        input: {
-          ...mutationData,
-          detailsJSON: data.detailsJSON,
-          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
-          tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
-          ...associationInputs,
-        },
-      }
-
-      await updateProcedure(formData)
-
-      successNotification({
-        title: 'Procedure Updated',
-        description: 'Procedure has been successfully updated',
-      })
-
-      form.reset()
-      queryClient.invalidateQueries({ queryKey: ['procedures'] })
-      queryClient.invalidateQueries({ queryKey: ['procedure', procedure?.id] })
-      router.push(`/procedures`)
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
-
   const handleDetailsChange = (value: Value) => {
-    form.setValue('detailsJSON', value)
+    form.setValue('detailsJSON', value, { shouldDirty: true })
   }
 
   return (
     <>
-      {isEditable && <title>{`${currentOrganization?.node?.displayName}: Procedures - ${procedure?.name}`}</title>}
       {pendingDraft && <DraftRestoreModal open savedAt={pendingDraft.savedAt} entityLabel="procedure" onResume={restore} onDiscard={discard} />}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="flex flex-col lg:flex-row gap-6 w-full">
+        <form onSubmit={form.handleSubmit(onCreateHandler)} className="flex flex-col lg:flex-row gap-6 w-full">
           <div className="flex-1 space-y-6 min-w-0">
-            {isEditable && (
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertTitle>Edit & draft approval process</AlertTitle>
-                <AlertDescription>
-                  <p>Editing Title, Procedure will trigger a draft creation and require approval.</p>
-                </AlertDescription>
-              </Alert>
-            )}
-            {!isEditable && <ProcedureHelpCallout />}
+            <ProcedureHelpCallout />
             {/* Title Field */}
             <InputRow className="w-full">
               <FormField
@@ -269,11 +166,10 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
                       key={editorKey}
                       onChange={handleDetailsChange}
                       userData={userData}
-                      entity={discussionData?.procedure}
                       clearData={clearData}
                       onClear={() => setClearData(false)}
-                      isCreate={!procedure?.id}
-                      initialValue={procedure?.detailsJSON ?? procedure?.details ?? form.getValues('detailsJSON') ?? (form.getValues('details') as string) ?? undefined}
+                      isCreate
+                      initialValue={form.getValues('detailsJSON') ?? (form.getValues('details') as string) ?? undefined}
                     />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>
@@ -281,9 +177,9 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
               />
             </InputRow>
 
-            <ProcedureAssociationSection data={procedure ? { id: procedure.id } : undefined} isEditing={isEditable} isCreate={!isEditable} isEditAllowed={true} />
+            <ProcedureAssociationSection isEditing={false} isCreate isEditAllowed={true} />
             <div className="flex justify-between items-center">
-              <SaveButton disabled={isSubmitting} title={isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Save Procedure'} />
+              <SaveButton disabled={isSubmitting} title={isSubmitting ? 'Creating procedure' : 'Save Procedure'} />
               <div className="flex items-center gap-2">
                 <Switch aria-label="Create another procedure" checked={createMultiple} onCheckedChange={setCreateMultiple} />
                 <span>Create multiple</span>
@@ -292,8 +188,8 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
           </div>
 
           <div className="shrink-0 w-[380px] space-y-4">
-            <AuthorityCard form={form} isEditing={true} inputClassName="w-[162px]" editAllowed={true} isCreate={true} approver={procedure?.approver} delegate={procedure?.delegate} />
-            <StatusCard form={form} metadata={metadata} />
+            <AuthorityCard form={form} isEditing={true} inputClassName="w-[162px]" editAllowed={true} isCreate={true} />
+            <StatusCard form={form} />
             <TagsCard form={form} />
           </div>
         </form>

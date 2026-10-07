@@ -1,5 +1,6 @@
 'use client'
 
+import { type TPersistOptions } from './persist-form-field'
 import React, { useEffect, useId, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
@@ -17,7 +18,7 @@ import { type SlideoutMenuAction } from './slideout-header'
 import { SlideoutFormActions } from './slideout-form-actions'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import type { BulkDeletePayload } from './types'
 import { getBulkActionFailureDescription } from './bulk-action-feedback'
 import { useSession } from 'next-auth/react'
@@ -33,7 +34,7 @@ export interface RenderFieldsProps<TData, TUpdateInput extends object> {
   isFormInitialized: boolean
   internalEditing: string | null
   setInternalEditing: InternalEditingType
-  handleUpdateField: (input: TUpdateInput) => Promise<void>
+  handleUpdateField: (input: TUpdateInput, options?: TPersistOptions) => Promise<void>
   isEditAllowed: boolean
 }
 
@@ -52,7 +53,7 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   }
 
   updateMutation?: {
-    mutateAsync: (params: { id: string; input: TUpdateInput }) => Promise<TUpdateData>
+    mutateAsync: (params: { id: string; input: Partial<TUpdateInput> }) => Promise<TUpdateData>
     isPending: boolean
   }
 
@@ -72,7 +73,8 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   formId?: string
 
   buildPayload?: (data: TFormData) => Promise<TUpdateInput | TCreateInput>
-  buildUndiffedPayload?: (data: TFormData) => Partial<TUpdateInput>
+  updateFields?: TFieldMappers<TFormData, TUpdateInput>
+  buildChangeExtras?: (data: TFormData) => Partial<TUpdateInput>
   onSaved?: (params: { formData: TFormData; created: TCreateData | null; entityId: string | null }) => Promise<void>
   normalizeData?: (data: TData) => Partial<TFormData>
   createDefaultValues?: NoInfer<DefaultValues<TFormData>>
@@ -107,7 +109,8 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     data,
     isFetching,
     buildPayload,
-    buildUndiffedPayload,
+    updateFields,
+    buildChangeExtras,
     onSaved,
     normalizeData,
     createDefaultValues,
@@ -130,7 +133,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
 
   const { reset } = form
   const { isDirty } = form.formState
-  const buildChangedInput = useChangedInput(form)
+  const buildDirtyInput = useDirtyInput(form)
   const queryClient = useQueryClient()
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
@@ -235,9 +238,8 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   }
 
   const onSubmit = async (formData: TFormData) => {
-    if (!buildPayload) return
     try {
-      if (isCreate && createMutation) {
+      if (isCreate && createMutation && buildPayload) {
         const created = await createMutation.mutateAsync((await buildPayload(formData)) as TCreateInput)
 
         const postSaveSucceeded = await runPostSave({ formData, created, entityId: null })
@@ -252,10 +254,13 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
 
         onClose?.()
       } else if (id && updateMutation) {
-        const changedInput = { ...(await buildChangedInput(formData, async (values: TFormData) => (await buildPayload(values)) as TUpdateInput)), ...buildUndiffedPayload?.(formData) }
+        if (!updateFields) {
+          throw new Error(`${objectTypeName} has no update field mappers`)
+        }
+        const changedInput = await buildDirtyInput(formData, updateFields, { extras: buildChangeExtras?.(formData) })
 
         if (Object.keys(changedInput).length > 0) {
-          await updateMutation.mutateAsync({ id, input: changedInput as TUpdateInput })
+          await updateMutation.mutateAsync({ id, input: changedInput })
           reset(formData)
         } else {
           reset()
@@ -322,8 +327,11 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   const isContentLoading = isFetching && !isCreate
   const showFormActions = !overrideContent && !isContentLoading && ((isCreate && !!createMutation) || (isEditing && !!updateMutation))
 
-  const handleUpdateField = async (input: TUpdateInput) => {
+  const handleUpdateField = async (input: TUpdateInput, options?: TPersistOptions) => {
     if (!id || isEditing || !updateMutation) {
+      if (options?.throwOnError) {
+        throw new Error('Inline save is not available while editing')
+      }
       return
     }
     try {
@@ -338,6 +346,9 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
         title: 'Error',
         description: errorMessage,
       })
+      if (options?.throwOnError) {
+        throw error
+      }
     }
   }
 

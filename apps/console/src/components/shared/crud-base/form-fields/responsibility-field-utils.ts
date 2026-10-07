@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { atomicInputGroup } from '@/hooks/useChangedInput'
 
 export const responsibilityChoiceSchema = z.object({
   type: z.enum(['user', 'group', 'personnel', 'string']),
@@ -84,14 +83,18 @@ type ResponsibilityPayloadMode = 'create' | 'update'
 export type ResponsibilityInputKeys<B extends string, S extends string> =
   `${B}UserID` | `${B}GroupID` | `${B}IdentityHolderID` | S | `clear${Capitalize<B>}User` | `clear${Capitalize<B>}Group` | `clear${Capitalize<B>}IdentityHolder` | `clear${Capitalize<S>}`
 
-export interface ResponsibilityTarget {
+export type ResponsibilityInputKeysWithoutPersonnel<B extends string, S extends string> = Exclude<ResponsibilityInputKeys<B, S>, `${B}IdentityHolderID` | `clear${Capitalize<B>}IdentityHolder`>
+
+export interface ResponsibilityTarget<TInput = object> {
   fieldBaseName: string
   stringFieldName: string
+  allowPersonnel?: boolean
+  readonly input?: TInput
 }
 
 export const responsibilityTargetFor =
   <TInput>() =>
-  <const B extends string, const S extends string = B>(fieldBaseName: ResponsibilityInputKeys<B, S> extends keyof TInput ? B : never, stringFieldName?: S): ResponsibilityTarget => ({
+  <const B extends string, const S extends string = B>(fieldBaseName: ResponsibilityInputKeys<B, S> extends keyof TInput ? B : never, stringFieldName?: S): ResponsibilityTarget<TInput> => ({
     fieldBaseName,
     stringFieldName: stringFieldName ?? fieldBaseName,
   })
@@ -163,13 +166,24 @@ const buildResponsibilityUpdate = (fieldBaseName: string, selection: Responsibil
   }
 }
 
+export const responsibilityTargetWithoutPersonnelFor =
+  <TInput>() =>
+  <const B extends string, const S extends string = B>(
+    fieldBaseName: ResponsibilityInputKeysWithoutPersonnel<B, S> extends keyof TInput ? B : never,
+    stringFieldName?: S,
+  ): ResponsibilityTarget<TInput> => ({
+    fieldBaseName,
+    stringFieldName: stringFieldName ?? fieldBaseName,
+    allowPersonnel: false,
+  })
+
 export function buildResponsibilityPayload(
   fieldBaseName: string,
   selection: ResponsibilitySelection,
   { mode = 'create', allowPersonnel = true, stringFieldName = fieldBaseName }: ResponsibilityPayloadOptions = {},
 ): Record<string, string | boolean | undefined> {
   if (mode === 'update') {
-    return atomicInputGroup(buildResponsibilityUpdate(fieldBaseName, selection, allowPersonnel, stringFieldName))
+    return buildResponsibilityUpdate(fieldBaseName, selection, allowPersonnel, stringFieldName)
   }
 
   if (!selection) {
@@ -208,3 +222,8 @@ export function buildResponsibilityInlineUpdate(
 function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
+
+export const responsibilityInput =
+  <TInput>(target: ResponsibilityTarget<TInput>) =>
+  (selection: ResponsibilitySelection): Partial<TInput> =>
+    buildResponsibilityUpdate(target.fieldBaseName, selection, target.allowPersonnel ?? true, target.stringFieldName) as Partial<TInput>

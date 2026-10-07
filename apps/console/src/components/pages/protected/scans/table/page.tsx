@@ -11,7 +11,15 @@ import { type ScanSheetConfig, type ScanTablePageConfig, type ScanFieldProps, ob
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { type CreateScanInput, ScanScanStatus, ScanScanType, type UpdateScanInput } from '@repo/codegen/src/schema'
-import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import {
+  normalizeEntityData,
+  buildResponsibilityPayload,
+  responsibilityInput,
+  responsibilityTargetFor,
+  responsibilityTargetWithoutPersonnelFor,
+} from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { dateOrClear, orClear, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { type ScanFormData } from '../hooks/use-form-schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import ScanDetailHeader from '../detail/scan-detail-header'
@@ -23,6 +31,23 @@ const normalizeData = (data: ScansNodeNonNull | null | undefined) =>
     performedBy: { user: data?.performedByUser, group: data?.performedByGroup, stringValue: data?.performedBy },
     reviewedBy: { personnel: data?.reviewedByIdentityHolder, user: data?.reviewedByUser, group: data?.reviewedByGroup, stringValue: data?.reviewedBy },
   })
+
+const toDateTimeInput = (value: string | Date) => (value instanceof Date ? value.toISOString() : value)
+
+const SCAN_ASSIGNED_TO = responsibilityTargetFor<UpdateScanInput>()('assignedTo')
+const SCAN_REVIEWED_BY = responsibilityTargetFor<UpdateScanInput>()('reviewedBy')
+const SCAN_PERFORMED_BY = responsibilityTargetWithoutPersonnelFor<UpdateScanInput>()('performedBy')
+
+const SCAN_UPDATE_FIELDS = {
+  environmentName: orClear('clearEnvironmentName'),
+  scopeName: orClear('clearScopeName'),
+  scanSchedule: orClear('clearScanSchedule'),
+  scanDate: dateOrClear('clearScanDate'),
+  nextScanRunAt: dateOrClear('clearNextScanRunAt'),
+  assignedTo: responsibilityInput(SCAN_ASSIGNED_TO),
+  performedBy: responsibilityInput(SCAN_PERFORMED_BY),
+  reviewedBy: responsibilityInput(SCAN_REVIEWED_BY),
+} satisfies TFieldMappers<ScanFormData, UpdateScanInput>
 
 const ScanPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -107,16 +132,16 @@ const ScanPage: React.FC = () => {
     overrideContent: isCreate ? undefined : id && data?.scan ? <ScanDetailView data={data.scan} /> : null,
     buildPayload: async (data) => {
       const { assignedTo, performedBy, reviewedBy, scanDate, nextScanRunAt, ...rest } = data
-      const mode = isCreate ? 'create' : 'update'
       return {
         ...rest,
-        scanDate: scanDate instanceof Date ? scanDate.toISOString() : scanDate,
-        nextScanRunAt: nextScanRunAt instanceof Date ? nextScanRunAt.toISOString() : nextScanRunAt,
-        ...buildResponsibilityPayload('assignedTo', assignedTo, { mode }),
-        ...buildResponsibilityPayload('performedBy', performedBy, { mode, allowPersonnel: false }),
-        ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode }),
+        scanDate: scanDate && toDateTimeInput(scanDate),
+        nextScanRunAt: nextScanRunAt && toDateTimeInput(nextScanRunAt),
+        ...buildResponsibilityPayload('assignedTo', assignedTo),
+        ...buildResponsibilityPayload('performedBy', performedBy),
+        ...buildResponsibilityPayload('reviewedBy', reviewedBy),
       }
     },
+    updateFields: SCAN_UPDATE_FIELDS,
     getName,
     renderFields: (props: ScanFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }

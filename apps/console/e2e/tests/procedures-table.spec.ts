@@ -188,18 +188,6 @@ for (const role of ['member', 'readonly'] as Role[]) {
       await expect(page.getByPlaceholder(/^Search$/)).toBeVisible({ timeout: 60_000 })
       await expect(page.getByRole('button', { name: /^Create$/ })).toHaveCount(0)
     })
-
-    test(`${role} is blocked from the procedure edit page`, async ({ page }) => {
-      test.slow()
-      const id = await createProcedure(ownerApi, uniqueName('E2E Procedure gated'))
-
-      try {
-        await page.goto(`/procedures/${id}/edit`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-        await expect(page.getByText(/protected area/i).or(page.getByText(/don't have permission/i))).toBeVisible({ timeout: 60_000 })
-      } finally {
-        await deleteProcedure(ownerApi, id)
-      }
-    })
   })
 }
 

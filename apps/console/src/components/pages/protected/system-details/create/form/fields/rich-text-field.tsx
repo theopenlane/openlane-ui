@@ -6,7 +6,7 @@ import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import { usePlateChangeGuard } from '@/components/shared/plate/use-plate-change-guard'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import { type Value } from 'platejs'
 import { type SystemDetailFormData } from '../../../hooks/use-form-schema'
 
@@ -18,12 +18,11 @@ type RichTextFieldProps = {
   isEditing: boolean
   isCreate: boolean
   initialValue: string | Value | undefined | null
-  isFormInitialized?: boolean
 }
 
-const RichTextField: React.FC<RichTextFieldProps> = ({ name, label, tooltip, placeholder, isEditing, isCreate, initialValue, isFormInitialized }) => {
-  const { control, formState } = useFormContext<SystemDetailFormData>()
-  const shouldPropagateChange = usePlateChangeGuard(isEditing || isCreate, isFormInitialized)
+const RichTextField: React.FC<RichTextFieldProps> = ({ name, label, tooltip, placeholder, isEditing, isCreate, initialValue }) => {
+  const { control, formState, resetField } = useFormContext<SystemDetailFormData>()
+  const hydrate = usePlateHydration({ resetField })
   const errorMessage = formState.errors[name]?.message
   const showError = typeof errorMessage === 'string'
 
@@ -38,15 +37,7 @@ const RichTextField: React.FC<RichTextFieldProps> = ({ name, label, tooltip, pla
             {tooltip && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>{tooltip}</p>} />}
           </div>
           <FormControl>
-            <PlateEditor
-              onChange={(val) => {
-                if (shouldPropagateChange()) {
-                  field.onChange(val)
-                }
-              }}
-              initialValue={initialValue ?? ''}
-              placeholder={placeholder}
-            />
+            <PlateEditor onChange={field.onChange} onHydrate={hydrate(field.name)} initialValue={initialValue ?? ''} placeholder={placeholder} />
           </FormControl>
           {showError && <p className="text-red-500 text-sm">{errorMessage}</p>}
         </FormItem>

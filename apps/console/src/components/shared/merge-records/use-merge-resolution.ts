@@ -1,4 +1,5 @@
 import { useMemo, useState, useCallback, useEffect } from 'react'
+import { isRecord } from '@/utils/type-guards'
 import type { MergeConfig, MergeFieldConfig, MergeSource, MergeArrayStrategy } from './types'
 
 export const isEmptyValue = (value: unknown): boolean => {
@@ -18,12 +19,9 @@ const areEqualValues = (a: unknown, b: unknown): boolean => {
     const sortedB = [...b].map(String).sort()
     return sortedA.every((v, i) => v === sortedB[i])
   }
-  if (typeof a === 'object' && typeof b === 'object') {
-    try {
-      return JSON.stringify(a) === JSON.stringify(b)
-    } catch {
-      return false
-    }
+  if (isRecord(a) && isRecord(b)) {
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)])
+    return [...keys].every((key) => areEqualValues(a[key], b[key]))
   }
   return false
 }
@@ -77,7 +75,7 @@ export type UseMergeResolutionArgs<TRecord, TUpdateInput> = {
 export type UseMergeResolutionResult<TRecord> = {
   resolvedFields: ResolvedField<TRecord>[]
   visibleFields: ResolvedField<TRecord>[]
-  resolvedRecord: Partial<TRecord>
+  primaryChanges: Partial<TRecord>
   setSource: (fieldKey: string, source: MergeSource) => void
   setArrayStrategy: (fieldKey: string, strategy: MergeArrayStrategy) => void
   emailAliasFold: {
@@ -243,10 +241,10 @@ export const useMergeResolution = <TRecord, TUpdateInput>({ config, fields, prim
 
   const visibleFields = useMemo(() => resolvedFields.filter((f) => f.kind !== 'hidden'), [resolvedFields])
 
-  const resolvedRecord = useMemo<Partial<TRecord>>(() => {
+  const primaryChanges = useMemo<Partial<TRecord>>(() => {
     const out: Record<string, unknown> = {}
     for (const rf of resolvedFields) {
-      if (rf.kind === 'hidden') continue
+      if (rf.kind === 'hidden' || areEqualValues(rf.resolvedValue, rf.primaryValue)) continue
       out[rf.field.key] = rf.resolvedValue
     }
     return out as Partial<TRecord>
@@ -255,7 +253,7 @@ export const useMergeResolution = <TRecord, TUpdateInput>({ config, fields, prim
   return {
     resolvedFields,
     visibleFields,
-    resolvedRecord,
+    primaryChanges,
     setSource,
     setArrayStrategy,
     emailAliasFold: {

@@ -83,6 +83,9 @@ const OrganizationNameForm = () => {
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    if (data.displayName === form.formState.defaultValues?.displayName) {
+      return
+    }
     await updateOrganization({ displayName: data.displayName })
   }
 

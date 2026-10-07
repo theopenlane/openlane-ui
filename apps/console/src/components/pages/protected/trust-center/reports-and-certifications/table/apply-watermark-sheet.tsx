@@ -7,13 +7,15 @@ import { Label } from '@repo/ui/label'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { ChevronDown, Droplet } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { Controller, useForm, useWatch } from 'react-hook-form'
+import { orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ColorInput } from '@/components/shared/color-input/color-input'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
 import { useUpdateTrustCenterWatermarkConfig } from '@/lib/graphql-hooks/trust-center'
-import { TrustCenterWatermarkConfigFont } from '@repo/codegen/src/schema'
+import { TrustCenterWatermarkConfigFont, type UpdateTrustCenterWatermarkConfigInput } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-mapper/trust-center-enum'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
@@ -27,6 +29,8 @@ type WatermarkConfigUI = {
   color?: string | null
   opacity?: number | null
   rotation?: number | null
+  isEnabled?: boolean | null
+  font?: TrustCenterWatermarkConfigFont | null
   file?: {
     presignedURL?: string | null
   } | null
@@ -46,62 +50,72 @@ const DEFAULT_WATERMARK_COLOR = '#000000'
 const DEFAULT_WATERMARK_TYPE = WatermarkTypeEnum.TEXT
 const DEFAULT_WATERMARK_FONT = TrustCenterWatermarkConfigFont.COURIER
 
-const toWatermarkBaseline = (config: WatermarkConfigUI) => ({
+type WatermarkFormValues = {
+  type: WatermarkTypeEnum
+  text: string
+  fontSize?: number
+  color: string
+  opacity?: number
+  rotation?: number
+  font: TrustCenterWatermarkConfigFont
+}
+
+const toOptionalNumber = (value: string | number) => (value === '' ? undefined : Number(value))
+
+const toWatermarkFormValues = (config: WatermarkConfigUI): WatermarkFormValues => ({
+  type: config?.isEnabled === false ? WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG : DEFAULT_WATERMARK_TYPE,
   text: config?.text ?? '',
   fontSize: config?.fontSize ?? 24,
   color: normalizeHexColor(config?.color) ?? DEFAULT_WATERMARK_COLOR,
   opacity: config?.opacity ?? 0.2,
   rotation: config?.rotation ?? -45,
+  font: config?.font ?? DEFAULT_WATERMARK_FONT,
 })
+
+const WATERMARK_UPDATE_FIELDS = {
+  type: (type) => ({ isEnabled: type !== WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG }),
+  text: orClear('clearText'),
+  fontSize: orClear('clearFontSize'),
+  color: (value) => {
+    const color = normalizeHexColor(value)
+    return color ? { color } : { clearColor: true }
+  },
+  opacity: orClear('clearOpacity'),
+  rotation: orClear('clearRotation'),
+  font: orClear('clearFont'),
+} satisfies TFieldMappers<WatermarkFormValues, UpdateTrustCenterWatermarkConfigInput>
 
 const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
   const { id } = watermarkConfig ?? {}
-  const baseline = useMemo(() => toWatermarkBaseline(watermarkConfig), [watermarkConfig])
+  const storedValues = useMemo(() => toWatermarkFormValues(watermarkConfig), [watermarkConfig])
+
+  const form = useForm<WatermarkFormValues>({ defaultValues: storedValues })
+  const { control, register, reset, setValue, formState } = form
+  const buildDirtyInput = useDirtyInput(form)
+  const selected = useWatch({ control, name: 'type' })
+  const disableWatermarkConfig = selected === WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG
 
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-
-  const [wmText, setWmText] = useState(baseline.text)
-  const [wmFontSize, setWmFontSize] = useState(baseline.fontSize)
-
-  const [wmColor, setWmColor] = useState(baseline.color)
-
-  const [wmOpacity, setWmOpacity] = useState(baseline.opacity)
-  const [wmRotation, setWmRotation] = useState(baseline.rotation)
   const [sheetOpen, setSheetOpen] = useState<boolean>(false)
-  const [selected, setSelected] = useState<WatermarkTypeEnum>(DEFAULT_WATERMARK_TYPE)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const { mutateAsync: updateWatermark, isPending: updating } = useUpdateTrustCenterWatermarkConfig()
   const { successNotification, errorNotification } = useNotification()
-  const [selectedFont, setSelectedFont] = useState<TrustCenterWatermarkConfigFont>(DEFAULT_WATERMARK_FONT)
-  const [disableWatermarkConfig, setDisableWatermarkConfig] = useState<boolean>(false)
+
   useEffect(() => {
     setUploadedFile(null)
-    setWmText(baseline.text)
-    setWmFontSize(baseline.fontSize)
-    setWmColor(baseline.color)
-    setWmOpacity(baseline.opacity)
-    setWmRotation(baseline.rotation)
-  }, [baseline])
+    reset(storedValues)
+  }, [storedValues, reset])
 
-  useEffect(() => {
-    setDisableWatermarkConfig(selected === WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG)
-  }, [selected])
-
-  const isWatermarkDirty =
-    !!uploadedFile ||
-    selected !== DEFAULT_WATERMARK_TYPE ||
-    selectedFont !== DEFAULT_WATERMARK_FONT ||
-    wmText !== baseline.text ||
-    wmFontSize !== baseline.fontSize ||
-    wmColor !== baseline.color ||
-    wmOpacity !== baseline.opacity ||
-    wmRotation !== baseline.rotation
+  const isWatermarkDirty = !!uploadedFile || formState.isDirty
 
   const discardAndClose = () => {
     setIsDiscardDialogOpen(false)
     setUploadedFile(null)
+    reset(storedValues)
     setSheetOpen(false)
   }
+
+  const selectType = (type: WatermarkTypeEnum) => setValue('type', type, { shouldDirty: true })
 
   const handleSheetClose = () => {
     if (isWatermarkDirty) {
@@ -117,24 +131,21 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
     setUploadedFile(uploaded.file)
   }
 
-  const handleApplyWatermark = async () => {
-    const normalizedColor = normalizeHexColor(wmColor)
+  const handleApplyWatermark = async (values: WatermarkFormValues) => {
+    const changedInput = await buildDirtyInput<UpdateTrustCenterWatermarkConfigInput>(values, WATERMARK_UPDATE_FIELDS)
+    const input: UpdateTrustCenterWatermarkConfigInput = disableWatermarkConfig ? (changedInput.isEnabled === false ? { isEnabled: false } : {}) : changedInput
+    const watermarkFile = disableWatermarkConfig ? undefined : (uploadedFile ?? undefined)
+
+    if (Object.keys(input).length === 0 && !watermarkFile) {
+      discardAndClose()
+      return
+    }
+
     try {
       await updateWatermark({
         updateTrustCenterWatermarkConfigId: id ?? '',
-        input: disableWatermarkConfig
-          ? {
-              isEnabled: false,
-            }
-          : {
-              ...(wmText ? { text: wmText } : { clearText: true }),
-              ...(wmFontSize ? { fontSize: wmFontSize } : { clearFontSize: true }),
-              ...(normalizedColor ? { color: normalizedColor } : { clearColor: true }),
-              ...(wmRotation ? { rotation: wmRotation } : { clearRotation: true }),
-              ...(selectedFont ? { font: selectedFont } : { clearFont: true }),
-              isEnabled: true,
-            },
-        ...(disableWatermarkConfig ? {} : uploadedFile ? { watermarkFile: uploadedFile } : {}),
+        input,
+        ...(watermarkFile ? { watermarkFile } : {}),
       })
 
       successNotification({
@@ -167,7 +178,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
               onClose={handleSheetClose}
               formActions={
                 <SlideoutFormActions
-                  onSave={handleApplyWatermark}
+                  onSave={form.handleSubmit(handleApplyWatermark)}
                   onCancel={handleSheetClose}
                   isPending={updating}
                   saveLabel={disableWatermarkConfig ? 'Save' : 'Apply watermark'}
@@ -188,7 +199,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                   name="watermark"
                   value={WatermarkTypeEnum.TEXT}
                   checked={selected === WatermarkTypeEnum.TEXT}
-                  onChange={() => setSelected(WatermarkTypeEnum.TEXT)}
+                  onChange={() => selectType(WatermarkTypeEnum.TEXT)}
                   className="sr-only"
                 />
                 <div
@@ -211,7 +222,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                   name="watermark"
                   value={WatermarkTypeEnum.FILE}
                   checked={selected === WatermarkTypeEnum.FILE}
-                  onChange={() => setSelected(WatermarkTypeEnum.FILE)}
+                  onChange={() => selectType(WatermarkTypeEnum.FILE)}
                   className="sr-only"
                 />
                 <div
@@ -233,7 +244,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                   name="watermark"
                   value={WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG}
                   checked={selected === WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG}
-                  onChange={() => setSelected(WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG)}
+                  onChange={() => selectType(WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG)}
                   className="sr-only"
                 />
                 <div
@@ -268,7 +279,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                 <div className="flex gap-7">
                   <div className="flex flex-col gap-3 w-full">
                     <Label className="text-sm">Text watermark</Label>
-                    <Input value={wmText} onChange={(e) => setWmText(e.target.value)} placeholder="Enter watermark text…" />
+                    <Input {...register('text')} placeholder="Enter watermark text…" />
                   </div>
                 </div>
               )}
@@ -286,35 +297,41 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                     <AccordionContent className="mt-4 grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-1">
                         <Label className="text-sm">Font size</Label>
-                        <Input type="number" value={wmFontSize} onChange={(e) => setWmFontSize(Number(e.target.value))} />
+                        <Input type="number" {...register('fontSize', { setValueAs: toOptionalNumber })} />
                       </div>
                       <div className="flex flex-col gap-1">
                         <Label className="text-sm">Font family</Label>
-                        <Select value={selectedFont} onValueChange={(value) => setSelectedFont(value as TrustCenterWatermarkConfigFont)}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select font" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {TrustCenterWatermarkConfigFontOptions.map((font) => (
-                              <SelectItem key={font.value} value={font.value}>
-                                {TrustCenterWatermarkConfigFontMapper[font.value as TrustCenterWatermarkConfigFont]}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Controller
+                          control={control}
+                          name="font"
+                          render={({ field }) => (
+                            <Select value={field.value} onValueChange={(value) => field.onChange(value as TrustCenterWatermarkConfigFont)}>
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select font" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {TrustCenterWatermarkConfigFontOptions.map((font) => (
+                                  <SelectItem key={font.value} value={font.value}>
+                                    {TrustCenterWatermarkConfigFontMapper[font.value as TrustCenterWatermarkConfigFont]}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
                       </div>
                       <div className="flex flex-col gap-1">
-                        <ColorInput label="Color" value={wmColor} onChange={setWmColor} />
+                        <Controller control={control} name="color" render={({ field }) => <ColorInput label="Color" value={field.value} onChange={field.onChange} />} />
                       </div>
 
                       <div className="flex flex-col gap-1">
                         <Label className="text-sm">Opacity</Label>
-                        <Input type="number" step="0.05" min={0} max={1} value={wmOpacity} onChange={(e) => setWmOpacity(Number(e.target.value))} />
+                        <Input type="number" step="0.05" min={0} max={1} {...register('opacity', { setValueAs: toOptionalNumber })} />
                       </div>
 
                       <div className="flex flex-col gap-1">
                         <Label className="text-sm">Rotation (°)</Label>
-                        <Input type="number" value={wmRotation} onChange={(e) => setWmRotation(Number(e.target.value))} />
+                        <Input type="number" {...register('rotation', { setValueAs: toOptionalNumber })} />
                       </div>
                     </AccordionContent>
                   </AccordionItem>

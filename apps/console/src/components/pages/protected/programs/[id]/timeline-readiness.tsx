@@ -50,6 +50,7 @@ const TimelineReadiness = () => {
     const changed = changedTimelineFields(values, initialValues)
 
     if (!Object.values(changed).some(Boolean)) {
+      form.reset(initialValues)
       setIsEditing(false)
       return
     }

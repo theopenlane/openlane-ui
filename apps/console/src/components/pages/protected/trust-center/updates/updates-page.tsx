@@ -4,7 +4,7 @@ import { type UpdateNoteInput } from '@repo/codegen/src/schema'
 import React, { use, useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useWatch } from 'react-hook-form'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import * as z from 'zod'
 import { Keyboard, Megaphone, Pencil, Loader2, Trash2 } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
@@ -27,13 +27,24 @@ import { canEdit } from '@/lib/authz/utils'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
 
-const formSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(280),
-  text: z.string().min(1, 'Update text is required').max(280),
-  notifySubscribers: z.boolean().optional(),
-})
+const buildFormSchema = (requireTitle: boolean) => {
+  const title = z.string().max(280)
+  return z.object({
+    title: requireTitle ? title.min(1, 'Title is required') : title,
+    text: z.string().min(1, 'Update text is required').max(280),
+    notifySubscribers: z.boolean().optional(),
+  })
+}
 
-type UpdateFormValues = z.infer<typeof formSchema>
+const createFormSchema = buildFormSchema(true)
+const editFormSchema = buildFormSchema(false)
+
+type UpdateFormValues = z.infer<ReturnType<typeof buildFormSchema>>
+
+const POST_UPDATE_FIELDS = {
+  title: orClear('clearTitle'),
+  notifySubscribers: omit,
+} satisfies TFieldMappers<UpdateFormValues, UpdateNoteInput>
 
 export default function UpdatesSection() {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -54,16 +65,16 @@ export default function UpdatesSection() {
   const { mutateAsync: updatePost, isPending: isUpdating } = useUpdateTrustCenterPost()
 
   const createForm = useForm<UpdateFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createFormSchema),
     defaultValues: { text: '', title: '', notifySubscribers: false },
   })
 
   const editForm = useForm<UpdateFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(editFormSchema),
     defaultValues: { text: '', title: '' },
   })
 
-  const buildChangedEditInput = useChangedInput(editForm)
+  const buildDirtyEditInput = useDirtyInput(editForm)
 
   const createTextValue = useWatch({ control: createForm.control, name: 'text' })
   const editTextValue = useWatch({ control: editForm.control, name: 'text' })
@@ -89,7 +100,7 @@ export default function UpdatesSection() {
   const handleUpdateSubmit = async (values: UpdateFormValues) => {
     if (!editingPostId) return
     try {
-      const input = await buildChangedEditInput(values, (formValues): UpdateNoteInput => ({ text: formValues.text, title: formValues.title }))
+      const input = await buildDirtyEditInput<UpdateNoteInput>(values, POST_UPDATE_FIELDS)
 
       if (Object.keys(input).length > 0) {
         await updatePost({ updateTrustCenterPostId: editingPostId, input })

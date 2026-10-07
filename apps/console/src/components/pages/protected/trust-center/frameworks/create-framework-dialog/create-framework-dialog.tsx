@@ -3,7 +3,7 @@
 import { type UpdateStandardInput } from '@repo/codegen/src/schema'
 import React, { useEffect, useState, useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { useChangedInput } from '@/hooks/useChangedInput'
+import { omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogTrigger, DialogClose, DialogTitle } from '@repo/ui/dialog'
@@ -24,6 +24,12 @@ const schema = z.object({
 })
 
 type FormData = z.infer<typeof schema>
+
+const STANDARD_UPDATE_FIELDS = {
+  title: (shortName) => ({ shortName }),
+  description: orClear('clearDescription'),
+  logoFile: omit,
+} satisfies TFieldMappers<FormData, UpdateStandardInput>
 
 interface StandardDialogProps {
   trigger: React.ReactNode
@@ -47,7 +53,7 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
   })
 
   const { handleSubmit, reset, formState } = formMethods
-  const buildChangedInput = useChangedInput(formMethods)
+  const buildDirtyInput = useDirtyInput(formMethods)
   const { isSubmitting } = formState
 
   const prefillForm = useCallback(() => {
@@ -64,10 +70,7 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
       resetPagination()
 
       if (isEditMode && standard?.id) {
-        const input = await buildChangedInput(data, (values): UpdateStandardInput => ({
-          shortName: values.title,
-          description: values.description,
-        }))
+        const input = await buildDirtyInput<UpdateStandardInput>(data, STANDARD_UPDATE_FIELDS)
 
         if (Object.keys(input).length > 0 || data.logoFile) {
           await updateStandard({

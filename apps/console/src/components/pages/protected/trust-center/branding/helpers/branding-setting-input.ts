@@ -1,54 +1,61 @@
 import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
+import { isEmptyInputValue, orClear, richTextOrClear, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { type BrandFormValues } from '../brand-schema'
 
-type TSettingInputKey = keyof UpdateTrustCenterSettingInput
+const CLEARABLE_SETTING_FIELDS = [
+  'primaryColor',
+  'foregroundColor',
+  'backgroundColor',
+  'secondaryForegroundColor',
+  'secondaryBackgroundColor',
+  'accentColor',
+  'securityContact',
+  'statusPageURL',
+  'companyName',
+  'companyDescription',
+  'companyDomain',
+] as const
 
-const COLOR_FIELDS = [
-  ['primaryColor', 'clearPrimaryColor'],
-  ['foregroundColor', 'clearForegroundColor'],
-  ['backgroundColor', 'clearBackgroundColor'],
-  ['secondaryForegroundColor', 'clearSecondaryForegroundColor'],
-  ['secondaryBackgroundColor', 'clearSecondaryBackgroundColor'],
-  ['accentColor', 'clearAccentColor'],
-] as const satisfies ReadonlyArray<readonly [TSettingInputKey, TSettingInputKey]>
+type TClearableSettingField = (typeof CLEARABLE_SETTING_FIELDS)[number]
 
-const CLEARABLE_TEXT_FIELDS = [
-  ['securityContact', 'clearSecurityContact'],
-  ['statusPageURL', 'clearStatusPageURL'],
-  ['companyName', 'clearCompanyName'],
-  ['companyDescription', 'clearCompanyDescription'],
-  ['companyDomain', 'clearCompanyDomain'],
-] as const satisfies ReadonlyArray<readonly [TSettingInputKey, TSettingInputKey]>
+type TClearableSettingSource = Partial<Record<TClearableSettingField, string | null>>
 
-type TClearableField = (typeof COLOR_FIELDS)[number][0] | (typeof CLEARABLE_TEXT_FIELDS)[number][0]
+const valueOrClear = (value: string | null | undefined, set: (value: string) => UpdateTrustCenterSettingInput, clear: UpdateTrustCenterSettingInput): UpdateTrustCenterSettingInput =>
+  value === null || value === undefined || isEmptyInputValue(value) ? clear : set(value)
 
-export const clearableSettingInput = (source: Partial<Record<TClearableField, string | null>>): UpdateTrustCenterSettingInput => ({
-  ...COLOR_FIELDS.reduce<UpdateTrustCenterSettingInput>((input, [field, clearKey]) => {
-    const normalized = normalizeHexColor(source[field])
-    return { ...input, ...(normalized ? { [field]: normalized } : { [clearKey]: true }) }
-  }, {}),
-  ...CLEARABLE_TEXT_FIELDS.reduce<UpdateTrustCenterSettingInput>((input, [field, clearKey]) => {
-    const value = source[field]
-    return { ...input, ...(value ? { [field]: value } : { [clearKey]: true }) }
-  }, {}),
-})
+const CLEARABLE_SETTING_INPUTS = {
+  primaryColor: (value) => valueOrClear(normalizeHexColor(value), (primaryColor) => ({ primaryColor }), { clearPrimaryColor: true }),
+  foregroundColor: (value) => valueOrClear(normalizeHexColor(value), (foregroundColor) => ({ foregroundColor }), { clearForegroundColor: true }),
+  backgroundColor: (value) => valueOrClear(normalizeHexColor(value), (backgroundColor) => ({ backgroundColor }), { clearBackgroundColor: true }),
+  secondaryForegroundColor: (value) => valueOrClear(normalizeHexColor(value), (secondaryForegroundColor) => ({ secondaryForegroundColor }), { clearSecondaryForegroundColor: true }),
+  secondaryBackgroundColor: (value) => valueOrClear(normalizeHexColor(value), (secondaryBackgroundColor) => ({ secondaryBackgroundColor }), { clearSecondaryBackgroundColor: true }),
+  accentColor: (value) => valueOrClear(normalizeHexColor(value), (accentColor) => ({ accentColor }), { clearAccentColor: true }),
+  securityContact: (value) => valueOrClear(value, (securityContact) => ({ securityContact }), { clearSecurityContact: true }),
+  statusPageURL: (value) => valueOrClear(value, (statusPageURL) => ({ statusPageURL }), { clearStatusPageURL: true }),
+  companyName: (value) => valueOrClear(value, (companyName) => ({ companyName }), { clearCompanyName: true }),
+  companyDescription: (value) => valueOrClear(value, (companyDescription) => ({ companyDescription }), { clearCompanyDescription: true }),
+  companyDomain: (value) => valueOrClear(value, (companyDomain) => ({ companyDomain }), { clearCompanyDomain: true }),
+} satisfies Record<TClearableSettingField, (value: string | null | undefined) => UpdateTrustCenterSettingInput>
+
+export const clearableSettingInput = (source: TClearableSettingSource): UpdateTrustCenterSettingInput =>
+  CLEARABLE_SETTING_FIELDS.reduce<UpdateTrustCenterSettingInput>((input, field) => ({ ...input, ...CLEARABLE_SETTING_INPUTS[field](source[field]) }), {})
+
+type TSettingKey<K extends keyof UpdateTrustCenterSettingInput> = K
 
 type TBrandingAsset = {
-  fileID: 'logoFileID' | 'faviconFileID'
-  remoteURL: 'logoRemoteURL' | 'faviconRemoteURL'
-  clearFile: 'clearLogoFile' | 'clearFaviconFile'
-  clearRemoteURL: 'clearLogoRemoteURL' | 'clearFaviconRemoteURL'
+  fileID: TSettingKey<'logoFileID' | 'faviconFileID'>
+  remoteURL: TSettingKey<'logoRemoteURL' | 'faviconRemoteURL'>
+  clearFile: TSettingKey<'clearLogoFile' | 'clearFaviconFile'>
+  clearRemoteURL: TSettingKey<'clearLogoRemoteURL' | 'clearFaviconRemoteURL'>
 }
 
 export const LOGO_ASSET = { fileID: 'logoFileID', remoteURL: 'logoRemoteURL', clearFile: 'clearLogoFile', clearRemoteURL: 'clearLogoRemoteURL' } as const satisfies TBrandingAsset
 
 export const FAVICON_ASSET = { fileID: 'faviconFileID', remoteURL: 'faviconRemoteURL', clearFile: 'clearFaviconFile', clearRemoteURL: 'clearFaviconRemoteURL' } as const satisfies TBrandingAsset
 
-export const previewAssetInput = (asset: TBrandingAsset, stagedFile: File | null | undefined, remoteURL: string | null | undefined): UpdateTrustCenterSettingInput => {
-  if (stagedFile) return { [asset.clearRemoteURL]: true }
-  if (remoteURL) return { [asset.remoteURL]: remoteURL, [asset.clearFile]: true }
-  return { [asset.clearRemoteURL]: true }
-}
+const previewAssetInput = (asset: TBrandingAsset, stagedFile: File | null | undefined, remoteURL: string | null | undefined): UpdateTrustCenterSettingInput =>
+  remoteURL && !stagedFile ? { [asset.remoteURL]: remoteURL, [asset.clearFile]: true } : { [asset.clearRemoteURL]: true }
 
 export const publishAssetInput = (
   asset: TBrandingAsset,
@@ -61,3 +68,20 @@ export const publishAssetInput = (
   if (remoteURL) return { [asset.remoteURL]: remoteURL, [asset.clearFile]: true }
   return { [asset.clearFile]: true, [asset.clearRemoteURL]: true }
 }
+
+const previewAssetFieldInput =
+  (asset: TBrandingAsset, file: 'logoFile' | 'faviconFile', remoteURL: 'logoRemoteURL' | 'faviconRemoteURL') =>
+  (_value: File | string | null | undefined, values: BrandFormValues): UpdateTrustCenterSettingInput =>
+    previewAssetInput(asset, values[file], values[remoteURL])
+
+export const BRANDING_PREVIEW_FIELDS = {
+  ...CLEARABLE_SETTING_INPUTS,
+  title: orClear('clearTitle'),
+  overview: richTextOrClear('clearOverview'),
+  font: orClear('clearFont'),
+  themeMode: orClear('clearThemeMode'),
+  logoFile: previewAssetFieldInput(LOGO_ASSET, 'logoFile', 'logoRemoteURL'),
+  logoRemoteURL: previewAssetFieldInput(LOGO_ASSET, 'logoFile', 'logoRemoteURL'),
+  faviconFile: previewAssetFieldInput(FAVICON_ASSET, 'faviconFile', 'faviconRemoteURL'),
+  faviconRemoteURL: previewAssetFieldInput(FAVICON_ASSET, 'faviconFile', 'faviconRemoteURL'),
+} satisfies TFieldMappers<BrandFormValues, UpdateTrustCenterSettingInput>
