@@ -1,7 +1,7 @@
 import { ArrowRight, Box, Server, ShieldAlert, Users } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
+import OnboardingCardProgress from '@/components/pages/protected/onboarding/onboarding-card-progress'
 import { isRecord } from '@/utils/type-guards'
 
 const countArray = (value: unknown): number => (Array.isArray(value) ? value.length : 0)
@@ -22,7 +22,7 @@ export const domainScanStats = (data: unknown) => {
 }
 
 type OnboardingReadyCardProps = {
-  totalSteps: number
+  stepLabel?: string
   scanData: unknown
   hasScanReport: boolean
   primaryDomain?: string
@@ -30,19 +30,12 @@ type OnboardingReadyCardProps = {
   onLeave: () => void
 }
 
-const OnboardingReadyCard = ({ totalSteps, scanData, hasScanReport, primaryDomain, onReview, onLeave }: OnboardingReadyCardProps) => {
+const OnboardingReadyCard = ({ stepLabel, scanData, hasScanReport, primaryDomain, onReview, onLeave }: OnboardingReadyCardProps) => {
   const stats = domainScanStats(scanData)
 
   return (
     <Card className="w-full min-h-96 p-5 sm:p-8 shadow-lg rounded-xl">
-      <div className="flex flex-col gap-3 mb-8 w-full">
-        <Badge variant="primary" className="w-fit uppercase tracking-wide border-primary/24">
-          Step {totalSteps} of {totalSteps}
-        </Badge>
-        <div className="relative h-1.5 w-full rounded-full bg-border overflow-hidden">
-          <div className="absolute inset-y-0 left-0 w-full bg-primary rounded-full" />
-        </div>
-      </div>
+      <OnboardingCardProgress label={stepLabel} progress={1} />
 
       <div className="space-y-2 mb-6">
         <h2 className="text-xl font-semibold">Your setup is ready</h2>

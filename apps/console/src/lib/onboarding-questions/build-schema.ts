@@ -1,4 +1,5 @@
 import { z, type ZodTypeAny } from 'zod'
+import { COMPANY_NAME_KEY } from './question-keys'
 import { type OnboardingQuestion, type OnboardingStep } from './types'
 
 export const DOMAIN_REGEX = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
@@ -28,7 +29,7 @@ const buildFieldSchema = (question: OnboardingQuestion): ZodTypeAny => {
       if (question.format === 'email') {
         return z.string().email('Enter a valid email address').or(z.literal('')).optional()
       }
-      if (question.key === 'company_name') {
+      if (question.key === COMPANY_NAME_KEY) {
         return z.string().min(3, 'Company name requires at least 3 characters').or(z.literal('')).optional()
       }
       return z.string().optional()
@@ -102,6 +103,8 @@ export const getRequiredKeysForStep = (step: OnboardingStep, values: Record<stri
   allQuestionsForStep(step)
     .filter((question) => question.required && isQuestionVisible(question, values))
     .map((question) => question.key)
+
+export const isStepIncomplete = (step: OnboardingStep, values: Record<string, unknown>): boolean => getRequiredKeysForStep(step, values).some((key) => !isAnswered(values[key]))
 
 export const getVisibleKeysForStep = (step: OnboardingStep, values: Record<string, unknown>): string[] =>
   allQuestionsForStep(step)

@@ -1,8 +1,8 @@
 import { Fragment } from 'react'
 import { Handshake, ShieldCheck, Sparkles } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
+import OnboardingCardProgress from '@/components/pages/protected/onboarding/onboarding-card-progress'
 import { type OnboardingCard } from '@/lib/onboarding-questions/types'
 
 const TRIAL_CARD_ICONS: Record<string, typeof ShieldCheck> = {
@@ -13,23 +13,16 @@ const TRIAL_CARD_ICONS: Record<string, typeof ShieldCheck> = {
 const DOMAIN_PLACEHOLDER = '{{domain}}'
 
 type OnboardingTransitionCardProps = {
-  totalSteps: number
+  stepLabel?: string
   title: string
   description: string
   cards: OnboardingCard[]
   primaryDomain?: string
 }
 
-const OnboardingTransitionCard = ({ totalSteps, title, description, cards, primaryDomain }: OnboardingTransitionCardProps) => (
+const OnboardingTransitionCard = ({ stepLabel, title, description, cards, primaryDomain }: OnboardingTransitionCardProps) => (
   <Card className="w-full min-h-96 p-5 sm:p-8 shadow-lg rounded-xl">
-    <div className="flex flex-col gap-3 mb-8">
-      <Badge variant="primary" className="w-fit uppercase tracking-wide border-primary/24">
-        Step {totalSteps} of {totalSteps}
-      </Badge>
-      <div className="relative h-1.5 w-full rounded-full bg-border overflow-hidden">
-        <div className="absolute inset-y-0 left-0 w-full bg-primary rounded-full transition-all" />
-      </div>
-    </div>
+    <OnboardingCardProgress label={stepLabel} progress={1} />
 
     <div className="space-y-2 mb-8">
       <h2 className="text-xl font-semibold">{title}</h2>

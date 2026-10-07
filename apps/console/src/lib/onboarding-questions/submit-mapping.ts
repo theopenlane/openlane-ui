@@ -1,4 +1,5 @@
 import { type CreateOnboardingInput } from '@repo/codegen/src/schema'
+import { COMPANY_DOMAINS_KEY, COMPANY_NAME_KEY } from './question-keys'
 import { type OnboardingQuestion } from './types'
 
 const OTHER_OPTION_VALUE = 'other'
@@ -7,8 +8,8 @@ const AUDITOR_STATUS_WANTS_RECOMMENDATIONS = 'recommendations'
 const VCISO_PREFERENCE_CONNECT = 'connect_vciso_partner'
 
 export const MAPPED_QUESTION_KEYS = new Set([
-  'company_name',
-  'company_domains',
+  COMPANY_NAME_KEY,
+  COMPANY_DOMAINS_KEY,
   'company_size',
   'company_sector',
   'company_sector_other',
@@ -56,6 +57,11 @@ const readOtherable = (values: Record<string, unknown>, key: string, otherKey: s
   return value === OTHER_OPTION_VALUE ? readString(values, otherKey) : value
 }
 
+const withoutEmptyValues = (record: Record<string, string>): Record<string, string> | undefined => {
+  const entries = Object.entries(record).filter(([, value]) => value !== '')
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined
+}
+
 export const getUnmappedQuestionKeys = (questions: OnboardingQuestion[]): string[] => questions.filter((question) => !MAPPED_QUESTION_KEYS.has(question.key)).map((question) => question.key)
 
 export const getSelectedFrameworkLabels = (questions: OnboardingQuestion[], values: Record<string, unknown>): string[] => {
@@ -78,16 +84,16 @@ export const buildOnboardingInput = (questions: OnboardingQuestion[], values: Re
   )
 
   return {
-    companyName: readString(values, 'company_name'),
-    domains: readStringArray(values, 'company_domains'),
-    companyDetails: {
+    companyName: readString(values, COMPANY_NAME_KEY),
+    domains: readStringArray(values, COMPANY_DOMAINS_KEY),
+    companyDetails: withoutEmptyValues({
       size: readString(values, 'company_size'),
       sector: readOtherable(values, 'company_sector', 'company_sector_other'),
-    },
-    userDetails: {
+    }),
+    userDetails: withoutEmptyValues({
       role: readOtherable(values, 'user_role', 'user_role_other'),
       department: readString(values, 'user_department'),
-    },
+    }),
     compliance: {
       frameworks: readStringArray(values, 'frameworks'),
       other_framework_description: readString(values, 'other_framework_description') || undefined,
