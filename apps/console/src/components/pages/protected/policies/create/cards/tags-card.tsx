@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useMemo } from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { Tag } from 'lucide-react'
-import { type UseFormReturn } from 'react-hook-form'
+import { type UseFormReturn, useWatch } from 'react-hook-form'
 import { InputRow } from '@repo/ui/input'
 import { FormControl, FormField } from '@repo/ui/form'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
@@ -17,24 +17,15 @@ type TTagsCardProps = {
   form: UseFormReturn<CreatePolicyFormData>
 }
 
+const toTagOptions = (tags: CreatePolicyFormData['tags']): Option[] => tags.flatMap((tag) => (tag ? [{ value: tag, label: tag }] : []))
+
 const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
-  const [tagValues, setTagValues] = useState<Option[]>([])
   const { tagOptions } = useGetTags()
+  const tags = useWatch({ control: form.control, name: 'tags' })
+  const tagValues = useMemo(() => toTagOptions(tags), [tags])
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRoles()
   const canCreateTags = canEdit(permission?.roles, session)
-
-  useEffect(() => {
-    if (form.getValues('tags')) {
-      const tags = form.getValues('tags').map((item) => {
-        return {
-          value: item,
-          label: item,
-        } as Option
-      })
-      setTagValues(tags)
-    }
-  }, [form])
 
   return (
     <Card className="p-4">
@@ -61,18 +52,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
                         creatable={canCreateTags}
                         value={tagValues}
                         options={tagOptions}
-                        onChange={(selectedOptions) => {
-                          const options = selectedOptions.map((option) => option.value)
-                          field.onChange(options)
-                          setTagValues(
-                            selectedOptions.map((item) => {
-                              return {
-                                value: item.value,
-                                label: item.label,
-                              }
-                            }),
-                          )
-                        }}
+                        onChange={(selectedOptions) => field.onChange(selectedOptions.map((option) => option.value))}
                       />
                     </FormControl>
                     {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}

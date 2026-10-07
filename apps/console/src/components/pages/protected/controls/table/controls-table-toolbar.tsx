@@ -14,6 +14,7 @@ import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { controlOwnedByUserWhere } from '@/lib/control-where'
 import { type ControlWhereInput } from '@repo/codegen/src/schema'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
+import { organizationStandardsWhere } from '@/constants/standards'
 import { Button } from '@repo/ui/button'
 import { BulkEditControlsDialog } from '../bulk-edit/bulk-edit-controls'
 import { hasPermission } from '@/lib/authz/utils'
@@ -109,17 +110,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   const { currentOrgId } = useOrganization()
 
   const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({
-    where: {
-      hasControlsWith: [
-        {
-          hasOwnerWith: [
-            {
-              id: currentOrgId,
-            },
-          ],
-        },
-      ],
-    },
+    where: organizationStandardsWhere(currentOrgId),
   })
 
   const { successNotification, errorNotification } = useNotification()

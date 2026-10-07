@@ -29,6 +29,7 @@ import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-rout
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { organizationStandardsWhere } from '@/constants/standards'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -78,13 +79,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
   const isSearching = useDebounce(searching, 200)
   const { currentOrgId } = useOrganization()
   const { standardOptions, isSuccess: isStandardsSuccess } = useStandardsSelect({
-    where: {
-      hasControlsWith: [
-        {
-          hasOwnerWith: [{ id: currentOrgId }],
-        },
-      ],
-    },
+    where: organizationStandardsWhere(currentOrgId),
     enabled: Boolean(currentOrgId),
   })
   const { tagOptions: rawTagOptions, isSuccess: isTagsSuccess } = useGetTags()

@@ -40,8 +40,21 @@ export const controlSystemInstruction =
 
 export const policySystemInstruction = process.env.POLICY_SYSTEM_INSTRUCTION?.trimEnd() ?? ''
 
-export const policyPrompt = (policyName: string) =>
-  `Generate a formal policy document for "${policyName}" based on the following requirements.\n\n` + (process.env.NEXT_PUBLIC_AI_POLICY_PROMPT?.trimEnd() ?? '')
+const policyFrameworkInstruction = (frameworks: string[]) => {
+  if (frameworks.length === 0) return ''
+  const single = frameworks.length === 1
+  return (
+    `Write the policy in the context of the following compliance ${single ? 'framework' : 'frameworks'}: ${frameworks.join(', ')}. ` +
+    `Align the policy's requirements, terminology, and references with ${single ? 'this framework' : 'these frameworks'}. ` +
+    `Prioritize the selected ${single ? 'framework' : 'frameworks'} when deciding what requirements or references to include. ` +
+    `Do not introduce requirements from other frameworks unless explicitly requested in the additional context.`
+  )
+}
+
+export const policyPrompt = (policyName: string, frameworks: string[]) =>
+  [`Generate a formal policy document for "${policyName}" based on the following requirements.`, process.env.NEXT_PUBLIC_AI_POLICY_PROMPT?.trimEnd() ?? '', policyFrameworkInstruction(frameworks)]
+    .filter(Boolean)
+    .join('\n\n')
 
 export const temperature = process.env.TEMPERATURE ? parseFloat(process.env.TEMPERATURE) : 0.1
 export const maxOutputTokens = process.env.MAX_OUTPUT_TOKENS ? parseInt(process.env.MAX_OUTPUT_TOKENS) : 5000

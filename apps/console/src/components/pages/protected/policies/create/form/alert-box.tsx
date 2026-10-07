@@ -8,20 +8,20 @@ import { Button } from '@repo/ui/button'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { INTEGRATIONS_DOCUMENT_FILTER_URL } from '@/constants'
 import Link from 'next/link'
-import { BookOpenIcon, ChevronDown, FileTextIcon, InfoIcon, LinkIcon, LoaderCircle, Sparkles, X } from 'lucide-react'
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { BookOpenIcon, ChevronDown, FileTextIcon, InfoIcon, LinkIcon, LoaderCircle, Sparkles } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useRouter } from 'next/navigation'
 import { PolicyTemplateBrowser } from '@/components/shared/github-selector/policy-selector'
-import { Input } from '@repo/ui/input'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useSession } from 'next-auth/react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { aiEnabled, policyPrompt } from '@repo/dally/ai'
 import type { UseFormReturn } from 'react-hook-form'
 import type { CreatePolicyFormData } from '../hooks/use-form-schema'
+import { withFrameworkTags } from '@/constants/standards'
+import { GeneratePolicyDialog, type TGeneratePolicyRequest } from './generate-policy-dialog'
 
 // Define the editor ref type
 interface EditorRef {
@@ -43,11 +43,8 @@ const HelperText = ({ form, editorRef, initialAIPolicyName }: THelperProps) => {
   const router = useRouter()
   const [isHelperOpen, setIsHelperOpen] = useState(true)
 
-  const [showGenerateDialog, setShowGenerateDialog] = useState(false)
-  const [tempPolicyName, setTempPolicyName] = useState('')
-  const policyNameId = useId()
-  const additionalContextId = useId()
-  const [additionalContext, setAdditionalContext] = useState('')
+  const [generateDialogPolicyName, setGenerateDialogPolicyName] = useState<string | null>(null)
+  const [pendingFrameworkNames, setPendingFrameworkNames] = useState<string[]>([])
 
   const [showTemplateBrowser, setShowTemplateBrowser] = useState(false)
   const [isCreatingFromTemplate, setIsCreatingFromTemplate] = useState(false)
@@ -61,20 +58,29 @@ const HelperText = ({ form, editorRef, initialAIPolicyName }: THelperProps) => {
   const handleInsertIntoEditor = (text: string) => {
     const trimmed = text.replace(/^\s+/, '')
     editorRef.current.insertContent(trimmed, true)
+    if (pendingFrameworkNames.length > 0) {
+      form.setValue('tags', withFrameworkTags(form.getValues('tags'), pendingFrameworkNames), { shouldDirty: true })
+    }
+    setPendingFrameworkNames([])
+    clearSuggestions()
+  }
+
+  const handleDismissSuggestions = () => {
+    setPendingFrameworkNames([])
     clearSuggestions()
   }
 
   const openGenerateDialog = useCallback((policyName: string) => {
     if (!aiEnabled) return
-    setTempPolicyName(policyName.trim())
-    setAdditionalContext('')
-    setShowGenerateDialog(true)
+    setGenerateDialogPolicyName(policyName.trim())
   }, [])
 
   const handleGenerateClick = () => openGenerateDialog(form.getValues('name'))
 
-  const generatePolicy = (policyName: string, context: string) => {
-    if (!aiEnabled) return
+  const handleGenerate = ({ policyName, additionalContext, frameworkNames }: TGeneratePolicyRequest) => {
+    form.setValue('name', policyName, { shouldDirty: true, shouldValidate: true })
+    setPendingFrameworkNames(frameworkNames)
+    setGenerateDialogPolicyName(null)
 
     const baseContext = {
       organization: {
@@ -83,10 +89,10 @@ const HelperText = ({ form, editorRef, initialAIPolicyName }: THelperProps) => {
       user: {
         name: sessionData?.user?.name || '',
       },
-      additionalContext: context,
+      additionalContext,
     }
 
-    getAISuggestions('policy', policyPrompt(policyName), baseContext)
+    getAISuggestions('policy', policyPrompt(policyName, frameworkNames), baseContext)
   }
 
   const autoOpenedRef = useRef(false)
@@ -95,18 +101,6 @@ const HelperText = ({ form, editorRef, initialAIPolicyName }: THelperProps) => {
     autoOpenedRef.current = true
     openGenerateDialog(form.getValues('name') || initialAIPolicyName)
   }, [initialAIPolicyName, openGenerateDialog, form])
-
-  const handleGenerateSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    const policyName = tempPolicyName.trim()
-    if (!policyName) return
-
-    form.setValue('name', policyName, { shouldDirty: true, shouldValidate: true })
-    generatePolicy(policyName, additionalContext.trim())
-    setShowGenerateDialog(false)
-  }
 
   const handleTemplateFileSelect = async (file: TUploadedFile) => {
     setIsCreatingFromTemplate(true)
@@ -211,80 +205,17 @@ const HelperText = ({ form, editorRef, initialAIPolicyName }: THelperProps) => {
 
             {/* AI Suggestions Panel */}
             {aiEnabled
-              ? activeSection === 'policy' && <AISuggestionsPanel suggestions={parsedSuggestions} loading={loading} onDismiss={clearSuggestions} onInsert={handleInsertIntoEditor} variant="inline" />
+              ? activeSection === 'policy' && (
+                  <AISuggestionsPanel suggestions={parsedSuggestions} loading={loading} onDismiss={handleDismissSuggestions} onInsert={handleInsertIntoEditor} variant="inline" />
+                )
               : null}
           </div>
         )}
       </div>
 
-      {aiEnabled &&
-        showGenerateDialog &&
-        createPortal(
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-secondary rounded-xl shadow-2xl max-w-md w-full animate-in fade-in zoom-in duration-200">
-              {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center">
-                    <Sparkles className="h-5 w-5 text-primary-400" />
-                  </div>
-                  <h3 className="text-lg font-semibold">Policy Details</h3>
-                </div>
-                <Button variant="icon" type="button" onClick={() => setShowGenerateDialog(false)} className="transition-colors">
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-
-              <form onSubmit={handleGenerateSubmit} className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2" htmlFor={policyNameId}>
-                    Policy Name
-                  </label>
-                  <Input
-                    id={policyNameId}
-                    type="text"
-                    value={tempPolicyName}
-                    onChange={(e) => setTempPolicyName(e.target.value)}
-                    placeholder="e.g., Access Control Policy"
-                    autoFocus
-                    className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                  />
-                </div>
-
-                <p className="text-sm opacity-70">Give your policy a descriptive name. AI will use this to generate relevant content.</p>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2" htmlFor={additionalContextId}>
-                    Additional Context <span className="opacity-60"> (optional)</span>
-                  </label>
-                  <textarea
-                    id={additionalContextId}
-                    value={additionalContext}
-                    onChange={(e) => setAdditionalContext(e.target.value)}
-                    placeholder="E.g., specific systems, teams, regulations, or requirements this policy should cover."
-                    className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all min-h-[80px]"
-                  />
-                </div>
-
-                <p className="text-sm opacity-70">Provide any extra details or requirement to use within the policy</p>
-
-                {/* Actions */}
-                <div className="flex gap-3 pt-2">
-                  <CancelButton className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors" onClick={() => setShowGenerateDialog(false)}></CancelButton>
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    disabled={!tempPolicyName.trim()}
-                    className="flex-1 px-4 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-                  >
-                    Generate Policy
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </div>,
-          document.body,
-        )}
+      {aiEnabled && generateDialogPolicyName !== null && (
+        <GeneratePolicyDialog initialPolicyName={generateDialogPolicyName} onClose={() => setGenerateDialogPolicyName(null)} onGenerate={handleGenerate} />
+      )}
 
       <PolicyTemplateBrowser isOpen={showTemplateBrowser} onClose={() => setShowTemplateBrowser(false)} onFileSelect={handleTemplateFileSelect} />
 
