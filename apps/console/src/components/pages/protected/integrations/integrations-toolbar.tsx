@@ -13,10 +13,10 @@ type Props = {
 const IntegrationsToolbar = ({ installedCount, searchQuery, setSearchQuery }: Props) => (
   <div className="my-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
     <TabsList className="w-fit flex-nowrap">
-      <TabsTrigger value={INTEGRATIONS_TABS.browse} className="whitespace-nowrap px-3">
+      <TabsTrigger value={INTEGRATIONS_TABS.browse} className="px-3">
         Browse Integrations
       </TabsTrigger>
-      <TabsTrigger value={INTEGRATIONS_TABS.installed} className="whitespace-nowrap px-3">
+      <TabsTrigger value={INTEGRATIONS_TABS.installed} className="px-3">
         Installed ({installedCount})
       </TabsTrigger>
     </TabsList>

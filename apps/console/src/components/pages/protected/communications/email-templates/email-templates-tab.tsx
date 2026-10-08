@@ -123,15 +123,9 @@ export const EmailTemplatesTab: React.FC = () => {
         <div className="grow flex flex-row items-center gap-2 justify-end">
           <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)} className="shrink-0">
             <TabsList className="flex-nowrap">
-              <TabsTrigger value="all" className="whitespace-nowrap">
-                All
-              </TabsTrigger>
-              <TabsTrigger value="active" className="whitespace-nowrap">
-                Active
-              </TabsTrigger>
-              <TabsTrigger value="inactive" className="whitespace-nowrap">
-                Inactive
-              </TabsTrigger>
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="active">Active</TabsTrigger>
+              <TabsTrigger value="inactive">Inactive</TabsTrigger>
             </TabsList>
           </Tabs>
           <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={handleCreate} {...tableActionAnchor(ObjectTypes.EMAIL_TEMPLATE, 'create')}>
