@@ -30,15 +30,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ vendor, associations, isEditi
 
       <Tabs value={activeSubTab} onValueChange={(v) => setActiveSubTab(v as SubTab)} variant="solid">
         <TabsList className="w-fit">
-          <TabsTrigger value="domains" className="whitespace-nowrap">
-            Domains
-          </TabsTrigger>
-          <TabsTrigger value="security" className="whitespace-nowrap">
-            Security Settings
-          </TabsTrigger>
-          <TabsTrigger value="dependencies" className="whitespace-nowrap">
-            Dependencies
-          </TabsTrigger>
+          <TabsTrigger value="domains">Domains</TabsTrigger>
+          <TabsTrigger value="security">Security Settings</TabsTrigger>
+          <TabsTrigger value="dependencies">Dependencies</TabsTrigger>
         </TabsList>
 
         <TabsContent value="domains">
