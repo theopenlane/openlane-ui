@@ -81,7 +81,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
 
   return (
     <ImportFlowLayout
-      heading={`Import ${toLowerLabel(entityLabelPlural)}`}
+      route={route}
       exit={exit}
       state={state}
       canContinue={canContinue}

@@ -2,22 +2,13 @@ import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
 import { inlineCsv } from '../utils/files'
-import { expectImportPage, uploadCsvAndAssert, uploadCsvToSingleStepDialogAndAssert } from '../utils/mutations'
+import { expectImportPage, uploadCsvAndAssert } from '../utils/mutations'
 import { createControl, getFirstStandardWithControl, getOwnerApi } from '../utils/api'
 import { uniqueRef } from '../utils/unique'
 
 const openControlsToolbar = async (page: Page) => {
   await page.goto('/controls', { waitUntil: 'domcontentloaded', timeout: 180_000 })
   await expect(page.getByRole('button', { name: 'Action' })).toBeVisible({ timeout: 60_000 })
-}
-
-const openBulkDialog = async (page: Page, item: string) => {
-  await page.getByRole('button', { name: 'Action' }).click()
-  await page.getByRole('button', { name: new RegExp(item) }).click({ timeout: 30_000 })
-
-  const dialog = page.getByRole('dialog')
-  await expect(dialog).toBeVisible({ timeout: 30_000 })
-  return dialog
 }
 
 interface ImportTarget {
@@ -28,6 +19,7 @@ interface ImportTarget {
 
 const CUSTOM_CONTROLS: ImportTarget = { item: 'Upload Custom Controls', importType: 'control', heading: /^Import controls$/ }
 const CONTROL_MAPPINGS: ImportTarget = { item: 'Upload Control Mappings', importType: 'mappedcontrol', heading: /^Import control mappings$/ }
+const FROM_STANDARDS: ImportTarget = { item: 'Upload From Standard', importType: 'control', heading: /^Import controls from standards$/ }
 
 const openImportPage = async (page: Page, { item, importType, heading }: ImportTarget) => {
   await page.getByRole('button', { name: 'Action' }).click()
@@ -36,18 +28,8 @@ const openImportPage = async (page: Page, { item, importType, heading }: ImportT
   return expectImportPage(page, importType, heading)
 }
 
-test.describe('controls — bulk upload dialogs and import pages', () => {
-  test('"Upload From Standard" opens the single-step standards dialog with a disabled Upload', async ({ page }) => {
-    test.slow()
-    await openControlsToolbar(page)
-
-    const dialog = await openBulkDialog(page, 'Upload From Standard')
-    await expect(dialog.getByRole('heading', { name: 'Bulk Upload From Standards' })).toBeVisible({ timeout: 15_000 })
-    await expect(dialog.getByText('CSV Format')).toBeVisible()
-    await expect(dialog.getByRole('button', { name: /^Upload$/ })).toBeDisabled()
-  })
-
-  for (const target of [CUSTOM_CONTROLS, CONTROL_MAPPINGS]) {
+test.describe('controls — bulk upload import pages', () => {
+  for (const target of [FROM_STANDARDS, CUSTOM_CONTROLS, CONTROL_MAPPINGS]) {
     test(`"${target.item}" opens the import wizard on the upload step`, async ({ page }) => {
       test.slow()
       await openControlsToolbar(page)
@@ -151,15 +133,17 @@ test.describe('controls — mapping and clone CSV submit', () => {
     test.skip(!standard, 'no standard with controls available in this environment')
 
     await openControlsToolbar(page)
-    const dialog = await openBulkDialog(page, 'Upload From Standard')
+    const scope = await openImportPage(page, FROM_STANDARDS)
+    await expect(page).toHaveURL(/[?&]source=standards(?:[&#]|$)/)
 
-    await uploadCsvToSingleStepDialogAndAssert({
+    await uploadCsvAndAssert({
       page,
-      dialog,
+      scope,
       fileName: 'from-standard.csv',
-      rows: `standard_short_name,ref_codes\n${standard?.shortName},["${standard?.refCode}"]\n`,
+      rows: `StandardShortName,RefCode\n${standard?.shortName},${standard?.refCode}\n`,
       operationName: 'CloneBulkCSVControl',
-      expectToast: 'Controls Created',
+      expectToast: 'Controls imported',
+      returnsTo: '/controls',
     })
   })
 })

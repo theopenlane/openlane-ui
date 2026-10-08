@@ -11,7 +11,7 @@ import { useImportExit } from '@/components/shared/record-import/lib/use-import-
 import { MAP_STEP, UPLOAD_STEP, useRecordImport } from '@/components/shared/record-import/lib/use-record-import'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { pluralizeWithCount, toLowerLabel } from '@/utils/strings'
+import { pluralizeWithCount } from '@/utils/strings'
 import { SUBPROCESSOR_IMPORT_FIELD_SET } from './subprocessor-import-fields'
 import { SubprocessorMatchStep } from './subprocessor-match-step'
 import { useSubprocessorImport } from './use-subprocessor-import'
@@ -66,7 +66,7 @@ export const SubprocessorImportFlow: React.FC<TSubprocessorImportFlowProps> = ({
 
   return (
     <ImportFlowLayout
-      heading={`Import ${toLowerLabel(entityLabelPlural)}`}
+      route={route}
       exit={exit}
       state={state}
       canContinue={canContinue}
