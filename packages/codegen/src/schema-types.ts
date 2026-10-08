@@ -75,6 +75,7 @@ export interface Scalars {
   TestingProcedures: { input: any; output: any }
   /** The builtin Time type */
   Time: { input: any; output: any }
+  TrustCenterNDARequestSetting: { input: any; output: any }
   /**
    * The `Upload` scalar type represents a file upload.
    * This scalar is typically used to handle file uploads in GraphQL mutations.
@@ -11361,6 +11362,8 @@ export interface CreateTrustCenterSettingInput {
   accentColor?: InputMaybe<Scalars['String']['input']>
   /** whether the trust center accepts new subscriber registrations; when false, subscriber creation for the trust center is blocked */
   allowSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  /** rules for approving trust center NDA requests */
+  autoApprovalRules?: InputMaybe<Scalars['TrustCenterNDARequestSetting']['input']>
   /** background color for the trust center */
   backgroundColor?: InputMaybe<Scalars['String']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -11371,6 +11374,8 @@ export interface CreateTrustCenterSettingInput {
   /** company name for the trust center, defaults to the organization's display name */
   companyName?: InputMaybe<Scalars['String']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** enable auto approval rules, this is different from requiring approvals */
+  enableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
   /** environment of the trust center */
   environment?: InputMaybe<TrustCenterSettingTrustCenterEnvironment>
   faviconFileID?: InputMaybe<Scalars['ID']['input']>
@@ -49079,6 +49084,7 @@ export interface TrustCenterNdaRequest extends Node {
   approvedByUser?: Maybe<User>
   /** ID of the user who approved the request */
   approvedByUserID?: Maybe<Scalars['ID']['output']>
+  autoApproved?: Maybe<Scalars['Boolean']['output']>
   blockedGroups: GroupConnection
   /** company name of the requester */
   companyName?: Maybe<Scalars['String']['output']>
@@ -49222,6 +49228,7 @@ export enum TrustCenterNdaRequestTrustCenterNdaRequestStatus {
   APPROVED = 'APPROVED',
   DECLINED = 'DECLINED',
   NEEDS_APPROVAL = 'NEEDS_APPROVAL',
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
   REQUESTED = 'REQUESTED',
   SIGNED = 'SIGNED',
 }
@@ -49266,6 +49273,11 @@ export interface TrustCenterNdaRequestWhereInput {
   approvedByUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
   approvedByUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   approvedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** auto_approved field predicates */
+  autoApproved?: InputMaybe<Scalars['Boolean']['input']>
+  autoApprovedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  autoApprovedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  autoApprovedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** company_name field predicates */
   companyName?: InputMaybe<Scalars['String']['input']>
   companyNameContains?: InputMaybe<Scalars['String']['input']>
@@ -49489,6 +49501,8 @@ export interface TrustCenterSetting extends Node {
   accentColor?: Maybe<Scalars['String']['output']>
   /** whether the trust center accepts new subscriber registrations; when false, subscriber creation for the trust center is blocked */
   allowSubscribers?: Maybe<Scalars['Boolean']['output']>
+  /** rules for approving trust center NDA requests */
+  autoApprovalRules?: Maybe<Scalars['TrustCenterNDARequestSetting']['output']>
   /** background color for the trust center */
   backgroundColor?: Maybe<Scalars['String']['output']>
   blockedGroups: GroupConnection
@@ -49501,6 +49515,8 @@ export interface TrustCenterSetting extends Node {
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
+  /** enable auto approval rules, this is different from requiring approvals */
+  enableAutoApproval?: Maybe<Scalars['Boolean']['output']>
   /** environment of the trust center */
   environment?: Maybe<TrustCenterSettingTrustCenterEnvironment>
   faviconFile?: Maybe<File>
@@ -49741,6 +49757,11 @@ export interface TrustCenterSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** enable_auto_approval field predicates */
+  enableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
+  enableAutoApprovalIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  enableAutoApprovalNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  enableAutoApprovalNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** environment field predicates */
   environment?: InputMaybe<TrustCenterSettingTrustCenterEnvironment>
   environmentIn?: InputMaybe<Array<TrustCenterSettingTrustCenterEnvironment>>
@@ -56610,16 +56631,20 @@ export interface UpdateTrustCenterSettingInput {
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** whether the trust center accepts new subscriber registrations; when false, subscriber creation for the trust center is blocked */
   allowSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  /** rules for approving trust center NDA requests */
+  autoApprovalRules?: InputMaybe<Scalars['TrustCenterNDARequestSetting']['input']>
   /** background color for the trust center */
   backgroundColor?: InputMaybe<Scalars['String']['input']>
   clearAccentColor?: InputMaybe<Scalars['Boolean']['input']>
   clearAllowSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  clearAutoApprovalRules?: InputMaybe<Scalars['Boolean']['input']>
   clearBackgroundColor?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyName?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
   clearFaviconFile?: InputMaybe<Scalars['Boolean']['input']>
   clearFaviconRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearFont?: InputMaybe<Scalars['Boolean']['input']>
@@ -56646,6 +56671,8 @@ export interface UpdateTrustCenterSettingInput {
   companyDomain?: InputMaybe<Scalars['String']['input']>
   /** company name for the trust center, defaults to the organization's display name */
   companyName?: InputMaybe<Scalars['String']['input']>
+  /** enable auto approval rules, this is different from requiring approvals */
+  enableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
   faviconFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the favicon */
   faviconRemoteURL?: InputMaybe<Scalars['String']['input']>
