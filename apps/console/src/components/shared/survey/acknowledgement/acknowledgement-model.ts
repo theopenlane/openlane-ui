@@ -1,6 +1,6 @@
 import { ComponentCollection, PanelModel, QuestionCompositeModel, QuestionExpressionModel, QuestionSignaturePadModel, Serializer, type LocalizableString, type Question } from 'survey-core'
 import { formatDate, formatDateTime } from '@/utils/date'
-import { ACKNOWLEDGEMENT_QUESTION_TYPE, DEFAULT_ACKNOWLEDGEMENT_STATEMENT, DEFAULT_ACKNOWLEDGEMENT_TITLE, isTypedSignature, readAcknowledgementValue } from './acknowledgement-type'
+import { ACKNOWLEDGEMENT_QUESTION_TYPE, DEFAULT_ACKNOWLEDGEMENT_STATEMENT, DEFAULT_ACKNOWLEDGEMENT_TITLE, isAcknowledgementSigned, isTypedSignature, readAcknowledgementValue } from './acknowledgement-type'
 import { renderTypedSignature, TYPED_SIGNATURE_HEIGHT, TYPED_SIGNATURE_STYLE_COUNT, TYPED_SIGNATURE_WIDTH } from './typed-signature'
 import './acknowledgement.css'
 
@@ -202,8 +202,7 @@ const syncTypedSignature = (question: Question) => {
 const recordSignedAt = (question: Question) => {
   const signedAt = contentQuestion(question, SIGNED_AT_FIELD)
   if (!signedAt) return
-  const { acknowledged, fullName, signature } = readAcknowledgementValue(question.value)
-  if (acknowledged && fullName?.trim() && signature) signedAt.value = new Date().toISOString()
+  if (isAcknowledgementSigned(readAcknowledgementValue(question.value))) signedAt.value = new Date().toISOString()
   else if (!signedAt.isEmpty()) signedAt.clearValue()
 }
 

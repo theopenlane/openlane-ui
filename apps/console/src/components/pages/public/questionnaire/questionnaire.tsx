@@ -9,7 +9,7 @@ import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import 'survey-core/survey-core.min.css'
 import '@/styles/questionnaire/survey-viewer.css'
-import { jwtDecode } from 'jwt-decode'
+import { decodeQuestionnaireToken } from '@/lib/questionnaire-token'
 import { useQuestionnaire, useSubmitQuestionnaire, useResendQuestionnaireLink } from '@/lib/query-hooks/questionnaire'
 import { attachSurveyProgressText } from '@/components/shared/survey/survey-progress-text'
 import { lightTheme } from '@/styles/questionnaire/theme-light'
@@ -22,24 +22,8 @@ interface QuestionnairePageProps {
   token?: string
 }
 
-interface JWTPayload {
-  email?: string | null
-  assessment_id: string
-  exp?: number
-}
-
-const decodeJWT = (token: string): JWTPayload | null => {
-  try {
-    const decoded: JWTPayload = jwtDecode(token)
-    return decoded
-  } catch (error) {
-    console.error('Error decoding JWT:', error)
-    return null
-  }
-}
-
 const isTokenExpired = (token: string): boolean => {
-  const decoded = decodeJWT(token)
+  const decoded = decodeQuestionnaireToken(token)
   if (!decoded?.exp) return false
   return Date.now() >= decoded.exp * 1000
 }
@@ -57,7 +41,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     return isTokenExpired(token)
   }, [token])
 
-  const decodedToken = useMemo(() => (token ? decodeJWT(token) : null), [token])
+  const decodedToken = useMemo(() => (token ? decodeQuestionnaireToken(token) : null), [token])
 
   const hasTokenEmail = useMemo(() => Boolean(decodedToken?.email?.trim()), [decodedToken])
 
@@ -88,8 +72,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
       return false
     }
 
-    const decoded = decodeJWT(token)
-    const anonEmail = decoded?.email
+    const anonEmail = decodedToken?.email
     const sessionEmail = sessionData?.user?.email
 
     // user authenticated already but this is an anon questionnaire so they should be able
@@ -105,7 +88,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     }
 
     return false
-  }, [token, sessionData])
+  }, [token, decodedToken, sessionData])
 
   const { data: questionnaireResponse, isLoading: loading } = useQuestionnaire({
     token,
@@ -205,8 +188,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     }
 
     if (emailMismatch) {
-      const decoded = decodeJWT(token)
-      const anonEmail = decoded?.email
+      const anonEmail = decodedToken?.email
 
       if (!anonEmail) {
         errorNotification({
@@ -220,7 +202,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
         })
       }
     }
-  }, [token, emailMismatch, errorNotification])
+  }, [token, decodedToken, emailMismatch, errorNotification])
 
   if (emailMismatch) {
     return (

@@ -1,5 +1,7 @@
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { type NextRequest, NextResponse } from 'next/server'
+import { isRecord } from '@/utils/type-guards'
+import { buildSignatureMetadata, withAcknowledgementSignatureMetadata } from '@/lib/server/acknowledgement-signature'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,9 +56,12 @@ export async function POST(req: NextRequest) {
     const token = authHeader.substring(7)
     const body = await req.json()
 
-    if (!body.data) {
+    if (!isRecord(body.data)) {
       return NextResponse.json({ success: false, message: 'Missing data field in request body' }, { status: 400 })
     }
+
+    const isDraft = body.isDraft === true
+    const answers = withAcknowledgementSignatureMetadata(body.data, isDraft ? null : buildSignatureMetadata(req, token))
 
     const response = await secureFetch(`${process.env.API_REST_URL}/questionnaire`, {
       method: 'POST',
@@ -64,7 +69,7 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ data: body.data, is_draft: body.isDraft ?? false }),
+      body: JSON.stringify({ data: answers, is_draft: isDraft }),
     })
 
     const data = await response.json()
