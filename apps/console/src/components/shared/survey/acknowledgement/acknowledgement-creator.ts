@@ -1,7 +1,7 @@
 import { settings } from 'survey-core'
 import { editorLocalization } from 'survey-creator-core'
 import { ACKNOWLEDGEMENT_QUESTION_TYPE } from './acknowledgement-type'
-import './acknowledgement-model'
+import './acknowledgement-signature'
 
 const enLocale = editorLocalization.getLocale('en')
 
