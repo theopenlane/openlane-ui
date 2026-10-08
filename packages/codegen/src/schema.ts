@@ -151,103 +151,6 @@ export interface UpdateBulkActionPlanMutation {
   updateBulkActionPlan: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
-export type AssessmentPolicysWithFilterQueryVariables = Exact<{
-  where?: Types.AssessmentPolicyWhereInput | null | undefined
-  orderBy?: Array<Types.AssessmentPolicyOrder> | Types.AssessmentPolicyOrder | null | undefined
-  first?: number | null | undefined
-  after?: any
-  last?: number | null | undefined
-  before?: any
-}>
-
-export interface AssessmentPolicysWithFilterQuery {
-  assessmentPolicies: {
-    totalCount: number
-    edges: Array<{
-      node: {
-        assessmentID: string
-        createdAt: any
-        createdBy: string | null
-        id: string
-        internalPolicyID: string
-        policyRevision: string | null
-        updatedAt: any
-        updatedBy: string | null
-        updatedByImpersonator: string | null
-      } | null
-    } | null> | null
-    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
-  }
-}
-
-export type AssessmentPolicyQueryVariables = Exact<{
-  assessmentPolicyId: string
-}>
-
-export interface AssessmentPolicyQuery {
-  assessmentPolicy: {
-    assessmentID: string
-    createdAt: any
-    createdBy: string | null
-    id: string
-    internalPolicyID: string
-    policyRevision: string | null
-    updatedAt: any
-    updatedBy: string | null
-    updatedByImpersonator: string | null
-  }
-}
-
-export type CreateAssessmentPolicyMutationVariables = Exact<{
-  input: Types.CreateAssessmentPolicyInput
-}>
-
-export interface CreateAssessmentPolicyMutation {
-  createAssessmentPolicy: { assessmentPolicy: { id: string } }
-}
-
-export type UpdateAssessmentPolicyMutationVariables = Exact<{
-  updateAssessmentPolicyId: string
-  input: Types.UpdateAssessmentPolicyInput
-}>
-
-export interface UpdateAssessmentPolicyMutation {
-  updateAssessmentPolicy: { assessmentPolicy: { id: string } }
-}
-
-export type DeleteAssessmentPolicyMutationVariables = Exact<{
-  deleteAssessmentPolicyId: string
-}>
-
-export interface DeleteAssessmentPolicyMutation {
-  deleteAssessmentPolicy: { deletedID: string }
-}
-
-export type CreateBulkCsvAssessmentPolicyMutationVariables = Exact<{
-  input: any
-}>
-
-export interface CreateBulkCsvAssessmentPolicyMutation {
-  createBulkCSVAssessmentPolicy: { assessmentPolicies: Array<{ id: string }> | null }
-}
-
-export type DeleteBulkAssessmentPolicyMutationVariables = Exact<{
-  ids: Array<string> | string
-}>
-
-export interface DeleteBulkAssessmentPolicyMutation {
-  deleteBulkAssessmentPolicy: { deletedIDs: Array<string>; notDeletedIDs: Array<string> | null; error: string | null }
-}
-
-export type UpdateBulkAssessmentPolicyMutationVariables = Exact<{
-  ids: Array<string> | string
-  input: Types.UpdateAssessmentPolicyInput
-}>
-
-export interface UpdateBulkAssessmentPolicyMutation {
-  updateBulkAssessmentPolicy: { updatedIDs: Array<string> | null }
-}
-
 export type AssessmentResponsesWithFilterQueryVariables = Exact<{
   where?: Types.AssessmentResponseWhereInput | null | undefined
   orderBy?: Array<Types.AssessmentResponseOrder> | Types.AssessmentResponseOrder | null | undefined
@@ -476,6 +379,14 @@ export type CreateBulkAssessmentPolicyMutationVariables = Exact<{
 
 export interface CreateBulkAssessmentPolicyMutation {
   createBulkAssessmentPolicy: { assessmentPolicies: Array<{ id: string }> | null }
+}
+
+export type DeleteBulkAssessmentPolicyMutationVariables = Exact<{
+  ids: Array<string> | string
+}>
+
+export interface DeleteBulkAssessmentPolicyMutation {
+  deleteBulkAssessmentPolicy: { deletedIDs: Array<string>; notDeletedIDs: Array<string> | null; error: string | null }
 }
 
 export type CreateAssessmentTemplateMutationVariables = Exact<{
