@@ -4,7 +4,7 @@ import React, { type ComponentType } from 'react'
 import dynamic from 'next/dynamic'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { RecordImportSkeleton } from '@/components/shared/record-import/import-page-gate'
-import { IMPORT_TRUST_CENTER_PARAM, IMPORT_VENDOR_PARAM, type TImportableObjectType, type TImportScope, type TImportScopeParam } from '@/components/shared/record-import/lib/import-routes'
+import { type TImportableObjectType, type TImportScope, type TImportScopeKey } from '@/components/shared/record-import/lib/import-routes'
 
 const loading = () => <RecordImportSkeleton />
 
@@ -38,12 +38,16 @@ const IMPORT_RUNNERS: Record<TImportableObjectType, ComponentType> = {
 const VendorContactsImportPage = dynamic(() => import('@/components/pages/protected/vendors/detail/tabs/contacts/vendor-contacts-import-page'), { loading })
 const TrustCenterSubscribersImportPage = dynamic(() => import('@/components/pages/protected/trust-center/subscribers/import/trust-center-subscribers-import-page'), { loading })
 
-const VendorContactsRunner: React.FC<{ id: string }> = ({ id }) => <VendorContactsImportPage vendorId={id} />
-const TrustCenterSubscribersRunner: React.FC<{ id: string }> = ({ id }) => <TrustCenterSubscribersImportPage trustCenterId={id} />
+const ControlsFromStandardsImportPage = dynamic(() => import('@/components/pages/protected/controls/import/control-standards-import-page'), { loading })
 
-const SCOPED_IMPORT_RUNNERS: Record<TImportScopeParam, ComponentType<{ id: string }>> = {
-  [IMPORT_VENDOR_PARAM]: VendorContactsRunner,
-  [IMPORT_TRUST_CENTER_PARAM]: TrustCenterSubscribersRunner,
+const VendorContactsRunner: React.FC<{ value: string }> = ({ value }) => <VendorContactsImportPage vendorId={value} />
+const TrustCenterSubscribersRunner: React.FC<{ value: string }> = ({ value }) => <TrustCenterSubscribersImportPage trustCenterId={value} />
+const ControlsFromStandardsRunner: React.FC = () => <ControlsFromStandardsImportPage />
+
+const SCOPED_IMPORT_RUNNERS: Record<TImportScopeKey, ComponentType<{ value: string }>> = {
+  vendorContacts: VendorContactsRunner,
+  trustCenterSubscribers: TrustCenterSubscribersRunner,
+  controlsFromStandards: ControlsFromStandardsRunner,
 }
 
 type TImportRunnerProps = {
@@ -53,8 +57,8 @@ type TImportRunnerProps = {
 
 export const ImportRunner: React.FC<TImportRunnerProps> = ({ entityType, scope }) => {
   if (scope) {
-    const ScopedRunner = SCOPED_IMPORT_RUNNERS[scope.param]
-    return <ScopedRunner key={`${scope.param}:${scope.id}`} id={scope.id} />
+    const ScopedRunner = SCOPED_IMPORT_RUNNERS[scope.key]
+    return <ScopedRunner key={`${scope.key}:${scope.value}`} value={scope.value} />
   }
 
   const Runner = IMPORT_RUNNERS[entityType]

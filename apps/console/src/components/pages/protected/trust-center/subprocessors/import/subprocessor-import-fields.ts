@@ -41,6 +41,5 @@ export const SUBPROCESSOR_IMPORT_FIELD_SET: TStaticFieldSet = {
       aliases: ['logo', 'logo url', 'icon'],
     }),
   ],
-  requiredGroups: [[NAME_FIELD]],
   primaryField: 'name',
 }

@@ -86,10 +86,15 @@ export const withFixedFields = (fieldSet: TDestinationFieldSet, fixedFields: rea
   }
 }
 
-export type TStaticFieldSet = Omit<TDestinationFieldSet, 'fixedFields' | 'uniqueFields'> & Partial<Pick<TDestinationFieldSet, 'uniqueFields'>>
+export type TStaticFieldSet = Omit<TDestinationFieldSet, 'fixedFields' | 'uniqueFields' | 'requiredGroups'> & Partial<Pick<TDestinationFieldSet, 'uniqueFields'>>
+
+const requiredGroupsOf = (fields: TDestinationField[]): TDestinationField[][] => {
+  const anyOf = fields.filter((field) => field.requirement === 'oneOf')
+  return [...fields.filter((field) => field.requirement === 'required').map((field) => [field]), ...(anyOf.length > 0 ? [anyOf] : [])]
+}
 
 export const staticImportDestination = (fieldSet: TStaticFieldSet, exampleFilename: string): TImportDestination => ({
-  fieldSet: { fixedFields: [], uniqueFields: [], ...fieldSet },
+  fieldSet: { fixedFields: [], uniqueFields: [], requiredGroups: requiredGroupsOf(fieldSet.fields), ...fieldSet },
   exampleCsv: serializeCsv(
     fieldSet.fields.map((field) => field.name),
     [fieldSet.fields.map((field) => field.example ?? '')],

@@ -10,14 +10,13 @@ import { Checkbox } from '@repo/ui/checkbox'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import Menu from '@/components/shared/menu/menu'
-import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-dialog'
 import { REPORT_FILTER_OPTIONS, type ReportFilterId } from './report-filter-options'
 import ReportFilterCheckbox from './report-filter-checkbox'
 import ReportToolbarAction from './report-toolbar-action'
 import ReportToolbarFilterLabel from './report-toolbar-filter-label'
 import { HIDE_BELOW_1300, HIDE_BELOW_1400, ICON_ONLY_BELOW_1300, TOOLBAR_CONTAINER } from '@/constants/toolbar'
 import MenuItem from '@/components/shared/menu/menu-item'
-import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { controlsFromStandardsImportRoute, IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { reportActionAnchor } from '@/components/shared/element-anchor/element-anchor'
@@ -73,7 +72,6 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
 
   const openImport = useOpenImport()
   const [programPopoverOpen, setProgramPopoverOpen] = useState(false)
-  const [isCloneOpen, setIsCloneOpen] = useState(false)
 
   const expandLabel = allExpanded ? 'Collapse all' : 'Expand all'
 
@@ -189,8 +187,8 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
                     {...reportActionAnchor(ObjectTypes.CONTROL, 'upload-from-standard')}
                     icon={<Upload size={16} strokeWidth={2} />}
                     onSelect={() => {
-                      setIsCloneOpen(true)
                       close()
+                      openImport(controlsFromStandardsImportRoute)
                     }}
                   >
                     Upload From Standard
@@ -218,7 +216,6 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
                 </>
               )}
             />
-            <BulkCSVCloneControlDialog open={isCloneOpen} onOpenChange={setIsCloneOpen} />
           </>
         ) : null}
         {createAllowed && showActions && (
