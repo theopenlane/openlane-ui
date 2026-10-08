@@ -18,6 +18,7 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import NdaRequestsTable from './table/nda-requests-table.tsx'
+import { NdaAutoApprovalSettings } from './components/nda-auto-approval-settings'
 import { NdaApprovalGroupCard } from './components/nda-approval-group-card'
 import { ObjectTypes } from '@repo/codegen/src/type-names.ts'
 import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
@@ -44,7 +45,7 @@ const NDAsPage = () => {
   const trustCenterSetting = trustCenter?.setting
   const ndaApprovalRequired = !!trustCenterSetting?.ndaApprovalRequired
 
-  const handleUpdateApproverGroup = (input: UpdateTrustCenterSettingInput) => {
+  const handleUpdateSetting = (input: UpdateTrustCenterSettingInput) => {
     if (!trustCenterSetting?.id) return
     updateTrustCenterSetting({ id: trustCenterSetting.id, input })
   }
@@ -174,21 +175,25 @@ const NDAsPage = () => {
                 </div>
                 <Switch
                   checked={ndaApprovalRequired}
-                  onCheckedChange={(checked) => {
-                    if (!trustCenterSetting?.id) return
-                    updateTrustCenterSetting({
-                      id: trustCenterSetting.id,
-                      input: { ndaApprovalRequired: checked },
-                    })
-                  }}
+                  onCheckedChange={(checked) => handleUpdateSetting({ ndaApprovalRequired: checked })}
                   disabled={isUpdatingSetting || !trustCenterSetting?.id || !canEditTc}
                 />
               </div>
+              {ndaApprovalRequired && (
+                <NdaAutoApprovalSettings
+                  enabled={!!trustCenterSetting?.enableAutoApproval}
+                  rules={trustCenterSetting?.autoApprovalRules}
+                  disabled={isUpdatingSetting || !trustCenterSetting?.id || !canEditTc}
+                  onUpdate={handleUpdateSetting}
+                />
+              )}
               {ndaApprovalRequired ? (
                 <div className="rounded-md border border-nda-approval-info-border bg-nda-approval-info-bg px-4 py-3 text-sm text-nda-approval-info-text">
                   <div className="flex items-center gap-2">
                     <span className="h-1.5 w-1.5 mr-3 rounded-full bg-nda-approval-info-dot shadow-[0_0_0_4px_var(--color-nda-approval-info-dot-shadow)]" />
-                    <span>Approval requests will appear in the Needs Approval queue.</span>
+                    <span>
+                      {trustCenterSetting?.enableAutoApproval ? 'Automatic approval rules will be applied to incoming NDA requests.' : 'Approval requests will appear in the Needs Approval queue.'}
+                    </span>
                   </div>
                 </div>
               ) : (
@@ -205,7 +210,7 @@ const NDAsPage = () => {
         {ndaApprovalRequired && (
           <div className="mt-4">
             <h3 className="text-lg font-medium">Approval Notification Recipients</h3>
-            <NdaApprovalGroupCard selectedGroup={trustCenterSetting?.ndaApproverGroup} canEdit={canEditTc} disabled={isUpdatingSetting} onSelect={handleUpdateApproverGroup} />
+            <NdaApprovalGroupCard selectedGroup={trustCenterSetting?.ndaApproverGroup} canEdit={canEditTc} disabled={isUpdatingSetting} onSelect={handleUpdateSetting} />
           </div>
         )}
         <div className="mt-4 min-w-0">

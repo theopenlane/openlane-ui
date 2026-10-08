@@ -91,6 +91,12 @@ export const IMPORT_FIELDS: Readonly<Record<string, Readonly<Record<string, Impo
     workflowEligibleMarker: { kind: 'boolean', description: 'internal marker field for workflow eligibility, not exposed in API' },
     workflowObjectRefIDs: { kind: 'id', list: true },
   },
+  AssessmentPolicy: {
+    assessmentID: { kind: 'id' },
+    internalPolicyID: { kind: 'id' },
+    ownerID: { kind: 'id' },
+    policyRevision: { kind: 'string', description: 'the revision of the internal policy when it was added to the assessment' },
+  },
   Asset: {
     accessModelID: { kind: 'id' },
     accessModelName: { kind: 'string', description: 'the access_model of the asset' },
@@ -1924,7 +1930,7 @@ export const IMPORT_FIELDS: Readonly<Record<string, Readonly<Record<string, Impo
     lastName: { kind: 'string', description: 'last name of the requester' },
     reason: { kind: 'string', description: 'reason for the NDA request' },
     signedAt: { kind: 'date', description: 'timestamp when the NDA was signed' },
-    status: { kind: 'enum', enumValues: ['APPROVED', 'DECLINED', 'NEEDS_APPROVAL', 'REQUESTED', 'SIGNED'], description: 'status of the NDA request' },
+    status: { kind: 'enum', enumValues: ['APPROVED', 'DECLINED', 'NEEDS_APPROVAL', 'PENDING_APPROVAL', 'REQUESTED', 'SIGNED'], description: 'status of the NDA request' },
     tags: { kind: 'string', list: true, description: 'tags associated with the object' },
     trustCenterDocIDs: { kind: 'id', list: true },
     trustCenterID: { kind: 'id' },
