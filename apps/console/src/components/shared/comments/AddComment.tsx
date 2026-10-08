@@ -9,7 +9,7 @@ import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { type TElement, type Value } from 'platejs'
 
 type TProps = {
-  onSuccess: (data: TComments) => void
+  onSuccess: (data: TComments) => Promise<void> | void
 }
 
 const AddComment: React.FC<TProps> = (props: TProps) => {
@@ -18,16 +18,24 @@ const AddComment: React.FC<TProps> = (props: TProps) => {
   const userId = session?.user?.userId
   const { data } = useGetCurrentUser(userId)
   const [comment, setComment] = useState<Value>([])
+  const [isSaving, setIsSaving] = useState(false)
 
-  const handleSaveComment = () => {
+  const handleSaveComment = async () => {
     if (!comment || comment.length === 0) {
       return
     }
-    setComment([])
-    setClearData(true)
-    props.onSuccess({
-      comment,
-    })
+    setIsSaving(true)
+    try {
+      await props.onSuccess({
+        comment,
+      })
+      setComment([])
+      setClearData(true)
+    } catch {
+      return
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleDetailsChange = (value: Value) => {
@@ -48,8 +56,8 @@ const AddComment: React.FC<TProps> = (props: TProps) => {
           <div className="flex-1 border rounded-lg p-2 w-full flex flex-col space-y-2">
             <PlateEditor onChange={handleDetailsChange} variant="minimal" styleVariant="comment" clearData={clearData} onClear={() => setClearData(false)} placeholder="Add a comment" />
             <div className="flex justify-end items-center">
-              <Button disabled={isCommentEmpty(comment)} type="button" iconPosition="left" onClick={() => handleSaveComment()}>
-                Send
+              <Button disabled={isSaving || isCommentEmpty(comment)} type="button" iconPosition="left" onClick={() => handleSaveComment()}>
+                {isSaving ? 'Sending...' : 'Send'}
               </Button>
             </div>
           </div>

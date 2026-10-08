@@ -4137,6 +4137,23 @@ export interface GetFindingAssociationsTimelineQuery {
   }
 }
 
+export type GetFindingCommentsQueryVariables = Exact<{
+  findingId: string
+}>
+
+export interface GetFindingCommentsQuery {
+  finding: { id: string; comments: { totalCount: number; edges: Array<{ node: { id: string; createdAt: any; createdBy: string | null; text: string } | null } | null> | null } }
+}
+
+export type UpdateFindingCommentMutationVariables = Exact<{
+  updateFindingCommentId: string
+  input: Types.UpdateNoteInput
+}>
+
+export interface UpdateFindingCommentMutation {
+  updateFindingComment: { finding: { id: string } }
+}
+
 export type GroupSettingsWithFilterQueryVariables = Exact<{
   where?: Types.GroupSettingWhereInput | null | undefined
   orderBy?: Array<Types.GroupSettingOrder> | Types.GroupSettingOrder | null | undefined
@@ -10332,6 +10349,23 @@ export interface GetVulnerabilityAssociationsTimelineQuery {
     scans: { edges: Array<{ node: { id: string; target: string; createdAt: any; createdBy: string | null } | null } | null> | null }
     remediations: { edges: Array<{ node: { id: string; title: string | null; displayID: string; createdAt: any } | null } | null> | null }
   }
+}
+
+export type GetVulnerabilityCommentsQueryVariables = Exact<{
+  vulnerabilityId: string
+}>
+
+export interface GetVulnerabilityCommentsQuery {
+  vulnerability: { id: string; comments: { totalCount: number; edges: Array<{ node: { id: string; createdAt: any; createdBy: string | null; text: string } | null } | null> | null } }
+}
+
+export type UpdateVulnerabilityCommentMutationVariables = Exact<{
+  updateVulnerabilityCommentId: string
+  input: Types.UpdateNoteInput
+}>
+
+export interface UpdateVulnerabilityCommentMutation {
+  updateVulnerabilityComment: { vulnerability: { id: string } }
 }
 
 export type WorkflowAssignmentTargetsWithFilterQueryVariables = Exact<{
