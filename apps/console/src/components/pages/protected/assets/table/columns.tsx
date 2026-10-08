@@ -10,6 +10,7 @@ import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 import { TruncatedCell } from '@repo/ui/data-table'
+import { GLOBAL_ENUM_FIELD } from '@/lib/graphql-hooks/custom-type-enum'
 
 export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
   return [
@@ -17,7 +18,7 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
     { accessorKey: 'name', header: 'Name', size: 100, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'displayName', header: 'Display Name', size: 120, cell: ({ cell }) => cell.getValue() || '' },
-    { accessorKey: 'accessModelName', header: 'Access Model', size: 140, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="asset" field="accessModel" /> },
+    { accessorKey: 'accessModelName', header: 'Access Model', size: 140, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field={GLOBAL_ENUM_FIELD.accessModel} /> },
     {
       accessorKey: 'assetDataClassificationName',
       header: 'Data Classification',
@@ -43,7 +44,7 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
       size: 160,
       cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
-    { accessorKey: 'criticalityName', header: 'Criticality', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="asset" field="criticality" /> },
+    { accessorKey: 'criticalityName', header: 'Criticality', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field={GLOBAL_ENUM_FIELD.criticality} /> },
     {
       accessorKey: 'description',
       header: 'Description',
@@ -67,7 +68,7 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
       accessorKey: 'encryptionStatusName',
       header: 'Encryption Status',
       size: 140,
-      cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="asset" field="encryptionStatus" />,
+      cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field={GLOBAL_ENUM_FIELD.encryptionStatus} />,
     },
     { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     { accessorKey: 'estimatedMonthlyCost', header: 'Est. Monthly Cost', size: 120 },
@@ -90,7 +91,7 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
     { accessorKey: 'purchaseDate', header: 'Purchase Date', size: 120, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     { accessorKey: 'region', header: 'Region', size: 120 },
     { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
-    { accessorKey: 'securityTierName', header: 'Security Tier', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="asset" field="securityTier" /> },
+    { accessorKey: 'securityTierName', header: 'Security Tier', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field={GLOBAL_ENUM_FIELD.securityTier} /> },
     { accessorKey: 'sourceIdentifier', header: 'Source Identifier', size: 120 },
     {
       accessorKey: 'sourceType',
