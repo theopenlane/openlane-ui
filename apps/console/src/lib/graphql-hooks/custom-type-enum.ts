@@ -26,6 +26,20 @@ export type CustomTypeEnumOption = Option & { color?: string; description?: stri
 
 export const GLOBAL_ENUM_OBJECT_TYPE = ''
 
+export const GLOBAL_ENUM_FIELD = {
+  environment: 'environment',
+  scope: 'scope',
+  accessModel: 'access_model',
+  encryptionStatus: 'encryption_status',
+  securityTier: 'security_tier',
+  criticality: 'criticality',
+} as const
+
+const GLOBAL_ENUM_FIELDS: ReadonlySet<string> = new Set(Object.values(GLOBAL_ENUM_FIELD))
+
+const resolveEnumObjectType = (objectType: string | null | undefined, field: string | null | undefined) =>
+  objectType === null || (!!field && GLOBAL_ENUM_FIELDS.has(field)) ? GLOBAL_ENUM_OBJECT_TYPE : objectType
+
 export const invalidateCustomTypeEnums = (queryClient: QueryClient) => queryClient.invalidateQueries({ queryKey: ['customTypeEnums'] })
 
 export const invalidateCustomTypeEnumsForName = (queryClient: QueryClient, name?: string | null) => {
@@ -74,7 +88,7 @@ const useAllCustomTypeEnums = () => {
 export const useGetCustomTypeEnums = ({ where }: { where?: CustomTypeEnumWhereInput } = {}) => {
   const { allEdges, ...queryRest } = useAllCustomTypeEnums()
 
-  const objectType = where?.objectType === null ? GLOBAL_ENUM_OBJECT_TYPE : where?.objectType
+  const objectType = resolveEnumObjectType(where?.objectType, where?.field)
   const field = where?.field
 
   const filteredEdges = useMemo(() => {
@@ -223,7 +237,7 @@ export const useCreatableEnumOptions = ({ objectType, field, isEditAllowed }: { 
 
   const onCreateOption = resolvedEditAllowed
     ? async (value: string) => {
-        await createEnum({ name: value, objectType: objectType ?? '', field })
+        await createEnum({ name: value, objectType: resolveEnumObjectType(objectType, field) ?? GLOBAL_ENUM_OBJECT_TYPE, field })
       }
     : undefined
 

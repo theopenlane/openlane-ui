@@ -11,7 +11,7 @@ import { type AssetSheetConfig, type AssetFieldProps, objectType } from '@/compo
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { AssetAssetType, AssetSourceType, type AssetQuery, type CreateAssetInput, type UpdateAssetInput, type GetAssetAssociationsQuery } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions, GLOBAL_ENUM_FIELD } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
@@ -76,14 +76,14 @@ const AssetDetailsSheet: React.FC<AssetDetailsSheetProps> = ({ queryParamKey }) 
     },
   }
 
-  const { enumOptions: accessModelOptions, onCreateOption: createAccessModel } = useCreatableEnumOptions({ objectType: 'asset', field: 'accessModel' })
+  const { enumOptions: accessModelOptions, onCreateOption: createAccessModel } = useCreatableEnumOptions({ field: GLOBAL_ENUM_FIELD.accessModel })
   const { enumOptions: assetDataClassificationOptions, onCreateOption: createDataClassification } = useCreatableEnumOptions({ objectType: 'asset', field: 'dataClassification' })
   const { enumOptions: assetSubtypeOptions, onCreateOption: createSubtype } = useCreatableEnumOptions({ objectType: 'asset', field: 'subtype' })
-  const { enumOptions: criticalityOptions, onCreateOption: createCriticality } = useCreatableEnumOptions({ objectType: 'asset', field: 'criticality' })
-  const { enumOptions: encryptionStatusOptions, onCreateOption: createEncryptionStatus } = useCreatableEnumOptions({ objectType: 'asset', field: 'encryptionStatus' })
+  const { enumOptions: criticalityOptions, onCreateOption: createCriticality } = useCreatableEnumOptions({ field: GLOBAL_ENUM_FIELD.criticality })
+  const { enumOptions: encryptionStatusOptions, onCreateOption: createEncryptionStatus } = useCreatableEnumOptions({ field: GLOBAL_ENUM_FIELD.encryptionStatus })
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
-  const { enumOptions: securityTierOptions, onCreateOption: createSecurityTier } = useCreatableEnumOptions({ objectType: 'asset', field: 'securityTier' })
+  const { enumOptions: securityTierOptions, onCreateOption: createSecurityTier } = useCreatableEnumOptions({ field: GLOBAL_ENUM_FIELD.securityTier })
   const tagOptions = useGetTags()
 
   const assetSourceTypeOptions = Object.values(AssetSourceType).map((value) => ({ value, label: getEnumLabel(value as string) }))
