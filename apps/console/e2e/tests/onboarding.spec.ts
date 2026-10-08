@@ -74,7 +74,7 @@ test.describe('onboarding', () => {
     await companyNameInput(page).fill(companyName)
     await nextButton(page).click()
 
-    await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /^Compliance Setup$/ })).toBeVisible()
     await backButton(page).click()
 
     await expect(page.getByRole('heading', { name: /^Company Info$/ })).toBeVisible()
@@ -137,25 +137,29 @@ test.describe('onboarding', () => {
     await expect(nextButton(page)).toBeDisabled()
   })
 
-  test('the User Info department selection persists across forward/back navigation', async ({ page }) => {
-    const email = await freshUser('dept')
+  test('a Support Preferences select answer persists across back/forward', async ({ page }) => {
+    const email = await freshUser('select')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    await companyNameInput(page).fill('Department Co')
-    await nextButton(page).click()
-    await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
-
-    const deptTrigger = () => page.getByLabel('Department')
-    await deptTrigger().click()
-    await page.getByRole('option', { name: 'Security', exact: true }).click()
-    await expect(deptTrigger()).toContainText('Security')
-
+    await companyNameInput(page).fill('Select Co')
     await nextButton(page).click()
     await expect(page.getByRole('heading', { name: /^Compliance Setup$/ })).toBeVisible()
-    await backButton(page).click()
+    await nextButton(page).click()
+    await expect(page.getByRole('heading', { name: /^Starting Point$/ })).toBeVisible()
+    await nextButton(page).click()
+    await expect(page.getByRole('heading', { name: /^Support Preferences$/ })).toBeVisible()
 
-    await expect(deptTrigger()).toContainText('Security')
+    const auditorTrigger = () => page.getByLabel('Are you currently working with an auditor?')
+    await auditorTrigger().click()
+    await page.getByRole('option', { name: 'Not yet', exact: true }).click()
+    await expect(auditorTrigger()).toContainText('Not yet')
+
+    await backButton(page).click()
+    await expect(page.getByRole('heading', { name: /^Starting Point$/ })).toBeVisible()
+    await nextButton(page).click()
+
+    await expect(auditorTrigger()).toContainText('Not yet')
   })
 
   test('a Starting Point boolean answer persists across back/forward', async ({ page }) => {
@@ -164,8 +168,6 @@ test.describe('onboarding', () => {
     await ensureOnboardingRoute(page)
 
     await companyNameInput(page).fill('Boolean Co')
-    await nextButton(page).click()
-    await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
     await nextButton(page).click()
     await expect(page.getByRole('heading', { name: /^Compliance Setup$/ })).toBeVisible()
     await nextButton(page).click()
@@ -194,7 +196,7 @@ test.describe('onboarding', () => {
 
     await companyNameInput(page).fill(`Early Exit Co ${Date.now().toString(36)}`)
     await nextButton(page).click()
-    await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /^Compliance Setup$/ })).toBeVisible()
 
     await expect(exitLink).toBeVisible({ timeout: 10_000 })
     await expect(page.getByText(/use general template for my account/).filter({ visible: true })).toBeVisible()
