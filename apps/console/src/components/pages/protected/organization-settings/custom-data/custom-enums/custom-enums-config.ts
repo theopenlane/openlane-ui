@@ -1,5 +1,5 @@
 import { type CustomTypeEnumWhereInput } from '@repo/codegen/src/schema'
-import { GLOBAL_ENUM_FIELD, GLOBAL_ENUM_OBJECT_TYPE } from '@/lib/graphql-hooks/custom-type-enum'
+import { FILE_CATEGORY_ENUM, GLOBAL_ENUM_FIELD, GLOBAL_ENUM_OBJECT_TYPE } from '@/lib/graphql-hooks/custom-type-enum'
 import {
   Drill,
   type LucideIcon,
@@ -25,6 +25,7 @@ import {
   GitBranch,
   ShieldAlert,
   SearchCheck,
+  Files,
 } from 'lucide-react'
 
 export type EnumGroupConfig = {
@@ -58,6 +59,12 @@ export const ENUM_GROUP_MAP: Record<string, EnumGroupConfig> = {
     field: GLOBAL_ENUM_FIELD.scope,
     objectType: GLOBAL_ENUM_GROUP,
     icon: Focus,
+  },
+  'File Categories': {
+    label: 'File Categories',
+    field: FILE_CATEGORY_ENUM.field,
+    objectType: GLOBAL_ENUM_GROUP,
+    icon: Files,
   },
   'Task Kinds': {
     label: 'Task Kinds',

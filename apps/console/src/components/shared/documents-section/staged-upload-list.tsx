@@ -7,8 +7,8 @@ import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { formatFileSize } from '@/utils/strings'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
-import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
-import { FILE_CATEGORY_ENUM, type StagedUpload } from './staged-upload'
+import { useCreatableEnumOptions, FILE_CATEGORY_ENUM } from '@/lib/graphql-hooks/custom-type-enum'
+import { type StagedUpload } from './staged-upload'
 
 type StagedUploadListProps = {
   uploads: StagedUpload[]

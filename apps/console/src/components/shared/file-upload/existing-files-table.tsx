@@ -8,8 +8,8 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { SELECT_COLUMN_ID } from '@repo/ui/pinned-columns'
 import { Input } from '@repo/ui/input'
 import { type TableKeyValue } from '@repo/ui/table-key'
-import { type CustomTypeEnumWhereInput, type FileWhereInput } from '@repo/codegen/src/schema'
-import { GLOBAL_ENUM_OBJECT_TYPE, useGetCustomTypeEnums, type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
+import { type FileWhereInput } from '@repo/codegen/src/schema'
+import { FILE_CATEGORY_ENUM, useGetCustomTypeEnums, type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { getFileActionsColumn } from '@/components/shared/file-table/file-actions-column'
 import { getFileDisplayName } from '@/components/shared/file-table/columns'
@@ -30,15 +30,13 @@ type TProps = {
   defaultCategory?: string
 }
 
-const FILE_CATEGORY_ENUM_WHERE: CustomTypeEnumWhereInput = { objectType: GLOBAL_ENUM_OBJECT_TYPE, field: 'category' }
-
 const ALL_CATEGORIES = 'all'
 const ALL_CATEGORIES_OPTION: CustomTypeEnumOption = { value: ALL_CATEGORIES, label: 'All categories' }
 
 const ExistingFilesTable: React.FC<TProps> = ({ tableKey, selectedFileIds, onSelect, onDeselect, where, defaultCategory }) => {
   const [category, setCategory] = useState(defaultCategory ?? ALL_CATEGORIES)
   const categorySelectId = useId()
-  const { enumOptions } = useGetCustomTypeEnums({ where: FILE_CATEGORY_ENUM_WHERE })
+  const { enumOptions } = useGetCustomTypeEnums({ where: FILE_CATEGORY_ENUM })
 
   const categoryOptions = useMemo(() => {
     const options = [ALL_CATEGORIES_OPTION, ...enumOptions.map((option) => ({ ...option, label: toHumanLabel(option.label) }))]

@@ -35,6 +35,8 @@ export const GLOBAL_ENUM_FIELD = {
   criticality: 'criticality',
 } as const
 
+export const FILE_CATEGORY_ENUM = { objectType: GLOBAL_ENUM_OBJECT_TYPE, field: 'category' } as const
+
 const GLOBAL_ENUM_FIELDS: ReadonlySet<string> = new Set(Object.values(GLOBAL_ENUM_FIELD))
 
 const resolveEnumObjectType = (objectType: string | null | undefined, field: string | null | undefined) =>
