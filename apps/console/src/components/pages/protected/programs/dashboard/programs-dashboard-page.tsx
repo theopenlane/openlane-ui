@@ -163,9 +163,7 @@ const ProgramsDashboardPage = () => {
           </div>
           <Tabs value={filterStatus} onValueChange={(v) => setFilterStatus(v as 'ARCHIVED' | 'ACTIVE')} className="space-y-4 ">
             <TabsList className="size-fit min-w-[18px]">
-              <TabsTrigger value="ACTIVE" className="whitespace-nowrap">
-                Active Programs
-              </TabsTrigger>
+              <TabsTrigger value="ACTIVE">Active Programs</TabsTrigger>
               <TabsTrigger value="ARCHIVED">Archived</TabsTrigger>
             </TabsList>
           </Tabs>

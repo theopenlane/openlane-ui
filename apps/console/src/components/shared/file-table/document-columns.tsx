@@ -7,8 +7,7 @@ import { createRowActionsColumn } from '@/components/shared/crud-base/columns/ro
 import { fileDownload } from '@/components/shared/lib/export'
 import { useNotification, type TErrorProps } from '@/hooks/useNotification'
 import { type TExportColumn } from '@/utils/exportToCSV'
-import { useCreatableEnumOptions, type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
-import { FILE_CATEGORY_ENUM } from '@/components/shared/documents-section/staged-upload'
+import { useCreatableEnumOptions, type CustomTypeEnumOption, FILE_CATEGORY_ENUM } from '@/lib/graphql-hooks/custom-type-enum'
 import { createFileCategoryColumn, fileNameColumn, getFileCategory, getFileDisplayName, originalFileNameColumn, type TFile } from './columns'
 
 const VIEW_EVIDENCE_ICON = <Eye size={16} />

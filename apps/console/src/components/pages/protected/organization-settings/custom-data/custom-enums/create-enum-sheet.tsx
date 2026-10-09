@@ -19,7 +19,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 import { useCustomTypeEnum, useCreateCustomTypeEnum, useUpdateCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enum'
-import { ENUM_GROUP_MAP } from './custom-enums-config'
+import { ENUM_GROUP_MAP, fromApiObjectType, isGlobalEnumGroup, toApiObjectType } from './custom-enums-config'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -97,10 +97,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
 
   const selectedObjectType = useWatch({ control, name: 'objectType' })
 
-  const isGlobal = useMemo(() => {
-    const config = ENUM_GROUP_MAP[filter]
-    return config?.isGlobal || false
-  }, [filter])
+  const isGlobal = isGlobalEnumGroup(ENUM_GROUP_MAP[filter])
 
   const selectedEnumType = useMemo(() => {
     const config = ENUM_GROUP_MAP[filter]
@@ -138,11 +135,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
 
   const onSubmit = async (data: FormData) => {
     try {
-      // Remove objectType if it's 'global', there is not object type in this case
-      const payload = { ...data }
-      if (payload.objectType === 'global') {
-        payload.objectType = ''
-      }
+      const payload = { ...data, objectType: toApiObjectType(data.objectType) }
 
       if (isEditMode && id) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -174,7 +167,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
         name: name ?? '',
         description: description ?? '',
         color: normalizeHexColor(color) ?? getRandomColor(),
-        objectType: objectType ?? '',
+        objectType: fromApiObjectType(objectType),
         field: field ?? '',
       })
     } else if (isCreate) {

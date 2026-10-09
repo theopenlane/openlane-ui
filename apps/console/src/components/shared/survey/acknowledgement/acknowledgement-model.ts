@@ -1,12 +1,13 @@
-import { ComponentCollection, QuestionCompositeModel, QuestionExpressionModel, QuestionSignaturePadModel, Serializer, type LocalizableString, type Question } from 'survey-core'
+import { ComponentCollection, PanelModel, QuestionCompositeModel, QuestionExpressionModel, QuestionSignaturePadModel, Serializer, type LocalizableString, type Question } from 'survey-core'
 import { formatDate, formatDateTime } from '@/utils/date'
-import { ACKNOWLEDGEMENT_QUESTION_TYPE, DEFAULT_ACKNOWLEDGEMENT_STATEMENT, DEFAULT_ACKNOWLEDGEMENT_TITLE, readAcknowledgementValue } from './acknowledgement-type'
+import { ACKNOWLEDGEMENT_QUESTION_TYPE, DEFAULT_ACKNOWLEDGEMENT_STATEMENT, DEFAULT_ACKNOWLEDGEMENT_TITLE, isTypedSignature, readAcknowledgementValue } from './acknowledgement-type'
+import { renderTypedSignature, TYPED_SIGNATURE_HEIGHT, TYPED_SIGNATURE_STYLE_COUNT, TYPED_SIGNATURE_WIDTH } from './typed-signature'
 import './acknowledgement.css'
 
 const ACKNOWLEDGEMENT_REQUIRED_MESSAGE = 'Check the box to confirm the acknowledgement.'
 
 const SIGNED_AT_QUESTION_TYPE = 'acknowledgementsignedat'
-const SIGNATURE_QUESTION_TYPE = 'acknowledgementsignature'
+export const SIGNATURE_QUESTION_TYPE = 'acknowledgementsignature'
 const SIGNATURE_CSS_CLASS = 'ol-acknowledgement-signature'
 const SIGNATURE_INK_COLOR = '#000000'
 const SIGNED_AT_CSS_CLASS = 'ol-acknowledgement-signed-at'
@@ -49,13 +50,25 @@ class QuestionAcknowledgementSignedAtModel extends QuestionExpressionModel {
 
 Serializer.addClass(SIGNED_AT_QUESTION_TYPE, [], () => new QuestionAcknowledgementSignedAtModel(''), 'expression')
 
-class QuestionAcknowledgementSignatureModel extends QuestionSignaturePadModel {
+const SIGNATURE_METHODS = ['typed', 'drawn'] as const
+
+export type TSignatureMethod = (typeof SIGNATURE_METHODS)[number]
+
+export const isSignatureMethod = (value: string): value is TSignatureMethod => SIGNATURE_METHODS.some((method) => method === value)
+
+type TTypedSignatureStatus = 'idle' | 'rendering' | 'failed'
+
+export class QuestionAcknowledgementSignatureModel extends QuestionSignaturePadModel {
+  private typedStyleIndex = 0
+  private typedRenderRequest = 0
+  private stashedDrawnSignature: string | undefined
+
   getType(): string {
     return SIGNATURE_QUESTION_TYPE
   }
 
   getTemplate(): string {
-    return 'signaturepad'
+    return SIGNATURE_QUESTION_TYPE
   }
 
   protected getCssType(): string {
@@ -63,7 +76,90 @@ class QuestionAcknowledgementSignatureModel extends QuestionSignaturePadModel {
   }
 
   get locRenderedPlaceholder(): LocalizableString {
-    return this.getLocalizableString(this.parent?.isReadOnly ? 'placeholderReadOnly' : 'placeholder')
+    return this.getLocalizableString(this.isSurveyReadOnly ? 'placeholderReadOnly' : 'placeholder')
+  }
+
+  get isSurveyReadOnly(): boolean {
+    return !!this.parent?.isReadOnly
+  }
+
+  get signatureMethod(): TSignatureMethod {
+    const chosen: TSignatureMethod | undefined = this.getPropertyValue('signatureMethod')
+    return chosen ?? (this.isEmpty() || isTypedSignature(this.value) ? 'typed' : 'drawn')
+  }
+
+  get signerName(): string {
+    const fullName = this.parent instanceof PanelModel ? this.parent.getQuestionByName(FULL_NAME_FIELD)?.value : undefined
+    return typeof fullName === 'string' ? fullName.trim() : ''
+  }
+
+  get typedSignatureStatus(): TTypedSignatureStatus {
+    return this.getPropertyValue('typedSignatureStatus', 'idle')
+  }
+
+  get canChangeSignature(): boolean {
+    return !this.isReadOnly && !this.isDesignMode
+  }
+
+  selectSignatureMethod(method: TSignatureMethod) {
+    if (!this.canChangeSignature || method === this.signatureMethod) return
+    if (method === 'drawn') {
+      this.cancelTypedRender()
+      this.setPropertyValue('signatureMethod', method)
+      this.value = this.stashedDrawnSignature
+      return
+    }
+    if (!isTypedSignature(this.value)) this.stashedDrawnSignature = this.isEmpty() ? undefined : this.value
+    this.setPropertyValue('signatureMethod', method)
+    this.syncTypedSignature()
+  }
+
+  regenerateTypedSignature() {
+    this.typedStyleIndex = (this.typedStyleIndex + 1) % TYPED_SIGNATURE_STYLE_COUNT
+    this.syncTypedSignature()
+  }
+
+  syncTypedSignature() {
+    if (!this.canChangeSignature || this.signatureMethod !== 'typed') return
+    const name = this.signerName
+    if (!name) {
+      this.cancelTypedRender()
+      this.clearValue()
+      return
+    }
+    const request = ++this.typedRenderRequest
+    this.setPropertyValue('typedSignatureStatus', 'rendering')
+    this.value = undefined
+    renderTypedSignature(name, this.typedStyleIndex, SIGNATURE_INK_COLOR).then(
+      (signature) => this.finishTypedSignature(request, signature),
+      () => this.finishTypedSignature(request, undefined),
+    )
+  }
+
+  onSurveyValueChanged(newValue: string | undefined): void {
+    super.onSurveyValueChanged(newValue)
+    this.fillMissingTypedSignature()
+  }
+
+  protected onReadOnlyChanged(): void {
+    super.onReadOnlyChanged()
+    this.fillMissingTypedSignature()
+  }
+
+  private fillMissingTypedSignature() {
+    if (this.isEmpty() && this.typedSignatureStatus === 'idle' && this.signerName) this.syncTypedSignature()
+  }
+
+  private cancelTypedRender() {
+    this.typedRenderRequest++
+    this.setPropertyValue('typedSignatureStatus', 'idle')
+  }
+
+  private finishTypedSignature(request: number, signature: string | undefined) {
+    if (request !== this.typedRenderRequest || this.isDisposed) return
+    if (!this.canChangeSignature) return this.cancelTypedRender()
+    this.setPropertyValue('typedSignatureStatus', signature ? 'idle' : 'failed')
+    this.value = signature
   }
 }
 
@@ -98,6 +194,11 @@ const PROPERTY_APPLIERS: Record<string, (question: Question) => void> = {
   lockUntilAcknowledged: applyLock,
 }
 
+const syncTypedSignature = (question: Question) => {
+  const signature = contentQuestion(question, SIGNATURE_FIELD)
+  if (signature instanceof QuestionAcknowledgementSignatureModel) signature.syncTypedSignature()
+}
+
 const recordSignedAt = (question: Question) => {
   const signedAt = contentQuestion(question, SIGNED_AT_FIELD)
   if (!signedAt) return
@@ -127,8 +228,8 @@ if (!ComponentCollection.Instance.getCustomQuestionByName(ACKNOWLEDGEMENT_QUESTI
         title: 'Signature',
         placeholder: 'Sign here',
         placeholderReadOnly: 'Not signed',
-        signatureWidth: 600,
-        signatureHeight: 200,
+        signatureWidth: TYPED_SIGNATURE_WIDTH,
+        signatureHeight: TYPED_SIGNATURE_HEIGHT,
         signatureAutoScaleEnabled: true,
         dataFormat: 'svg',
         penColor: SIGNATURE_INK_COLOR,
@@ -152,7 +253,9 @@ if (!ComponentCollection.Instance.getCustomQuestionByName(ACKNOWLEDGEMENT_QUESTI
       return name === ACKNOWLEDGED_FIELD && newValue !== true ? undefined : newValue
     },
     onValueChanged(question, name) {
-      if (name !== SIGNED_AT_FIELD && !question.isReadOnly && !question.isDesignMode) recordSignedAt(question)
+      if (question.isReadOnly || question.isDesignMode) return
+      if (name === FULL_NAME_FIELD) syncTypedSignature(question)
+      if (name !== SIGNED_AT_FIELD) recordSignedAt(question)
     },
     getErrorText(question) {
       return !question.isEmpty() && !readAcknowledgementValue(question.value).acknowledged ? ACKNOWLEDGEMENT_REQUIRED_MESSAGE : ''

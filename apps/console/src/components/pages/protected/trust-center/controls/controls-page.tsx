@@ -349,18 +349,10 @@ export default function ControlsPage() {
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FilterTab)} className="shrink-0">
           <TabsList className="flex-nowrap">
-            <TabsTrigger value="all" className="whitespace-nowrap">
-              All ({tabCounts.all})
-            </TabsTrigger>
-            <TabsTrigger value="added" className="whitespace-nowrap">
-              Added ({tabCounts.added})
-            </TabsTrigger>
-            <TabsTrigger value="not-added" className="whitespace-nowrap">
-              Not Added ({tabCounts['not-added']})
-            </TabsTrigger>
-            <TabsTrigger value="recommended" className="whitespace-nowrap">
-              Recommended ({tabCounts.recommended})
-            </TabsTrigger>
+            <TabsTrigger value="all">All ({tabCounts.all})</TabsTrigger>
+            <TabsTrigger value="added">Added ({tabCounts.added})</TabsTrigger>
+            <TabsTrigger value="not-added">Not Added ({tabCounts['not-added']})</TabsTrigger>
+            <TabsTrigger value="recommended">Recommended ({tabCounts.recommended})</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>

@@ -48,7 +48,7 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
   return (
     <div className="flex flex-col gap-4">
       <Tabs value={activeTab} onValueChange={(tab) => onActiveTabChange(tab as TargetTab)}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-4 *:truncate">
           <TabsTrigger value="personnel">Personnel</TabsTrigger>
           <TabsTrigger value="contacts">Contacts</TabsTrigger>
           <TabsTrigger value="csv">Upload CSV</TabsTrigger>
