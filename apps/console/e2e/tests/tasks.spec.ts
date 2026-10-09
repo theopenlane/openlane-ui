@@ -4,7 +4,7 @@ import { seedLoggedInUser } from '../utils/seedUser'
 
 import { RUN_ID } from '../utils/constants'
 import { createTask, readField, type ApiSession, getOwnerApi } from '../utils/api'
-import { bulkEditAndSave, selectFirstMatchingRow } from '../utils/mutations'
+import { bulkEditAndSave, selectFirstMatchingRow, waitForMutation } from '../utils/mutations'
 import { openCreateTaskDialog } from '../utils/tasks'
 import { uniqueName } from '../utils/unique'
 import { slideoutEdit } from '../utils/slideout'
@@ -228,7 +228,7 @@ test.describe('tasks — detail sheet (seeded)', () => {
     await expect(markComplete).toBeDisabled({ timeout: 15_000 })
   })
 
-  test('saving a detail-sheet edit on an uncategorised task is blocked by the required category', async ({ page }) => {
+  test('a detail-sheet edit on an uncategorised task saves and sends only the edited field', async ({ page }) => {
     const original = taskTitle('edit')
     const id = await createTask(ownerApi, original)
 
@@ -238,10 +238,12 @@ test.describe('tasks — detail sheet (seeded)', () => {
 
     await slideoutEdit(sheet).click()
     await sheet.getByLabel('Title').fill(`${original} edited`)
+    const pendingUpdate = waitForMutation(page, 'UpdateTask')
     await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
-    await expect(sheet.getByText('Invalid category')).toBeVisible({ timeout: 20_000 })
-    await expect(page.getByText(/task updated/i)).toHaveCount(0)
+    const update = await pendingUpdate
+    expect(update.request().postDataJSON().variables.input).toEqual({ title: `${original} edited` })
+    await expect(sheet.getByText('Invalid category')).toHaveCount(0)
   })
 
   test('the Completed quick filter activates from the Filter menu', async ({ page }) => {

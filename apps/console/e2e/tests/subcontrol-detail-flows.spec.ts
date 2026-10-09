@@ -3,6 +3,7 @@ import type { Locator, Page } from '@playwright/test'
 import { test, expect, readManifest } from '../fixtures/auth'
 import { createSubcontrol, deleteSubcontrol, getOwnerApi, type ApiSession } from '../utils/api'
 import { uniqueName, uniqueRef } from '../utils/unique'
+import { waitForMutation } from '../utils/mutations'
 
 const toast = (page: Page, title: string) => page.getByText(title, { exact: true })
 
@@ -103,9 +104,14 @@ test.describe('subcontrols — control implementations', () => {
     await page.getByRole('button', { name: 'Implementation actions' }).last().click()
     await page.getByRole('button', { name: 'Edit', exact: true }).click()
     await expect(sheet(page).getByRole('button', { name: /^Save( Changes)?$/ })).toBeVisible({ timeout: 30_000 })
+    await sheet(page).getByText('Details', { exact: true }).locator('..').locator('[contenteditable="true"]').click()
+    await page.keyboard.type('Enforced through SSO and quarterly access reviews.')
+    const pendingUpdate = waitForMutation(page, 'UpdateControlImplementation')
     await sheet(page)
       .getByRole('button', { name: /^Save( Changes)?$/ })
       .click()
+    const update = await pendingUpdate
+    expect(Object.keys(update.request().postDataJSON().variables.input)).toEqual(['details'])
     await expect(toast(page, 'Control Implementation updated')).toBeVisible({ timeout: 60_000 })
 
     await page.getByRole('button', { name: 'Implementation actions' }).last().click()
