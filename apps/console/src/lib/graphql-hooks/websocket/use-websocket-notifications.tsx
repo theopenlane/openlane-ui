@@ -63,12 +63,20 @@ const updateReadState = (current: Notification[], ids: string[], readAt: string 
 }
 
 export function useWebsocketNotifications() {
-  const { status } = useSession()
+  const { data: session, status } = useSession()
+  const activeOrganizationId = session?.user?.activeOrganizationId
   const { client: wsClient } = useWebSocketClient()
   const { mutateAsync } = useMarkNotificationsAsRead()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [liveNotifications, setLiveNotifications] = useState<Notification[]>([])
   const [subscriptionStartedAt, setSubscriptionStartedAt] = useState<number | null>(null)
+  const [notificationsOrganizationId, setNotificationsOrganizationId] = useState(activeOrganizationId)
+
+  if (notificationsOrganizationId !== activeOrganizationId) {
+    setNotificationsOrganizationId(activeOrganizationId)
+    setNotifications([])
+    setLiveNotifications([])
+  }
 
   useEffect(() => {
     if (status !== 'authenticated') {
@@ -84,10 +92,6 @@ export function useWebsocketNotifications() {
     }
 
     let isActive = true
-
-    // a new client means a new token (e.g. org switch), so drop the previous org's notifications
-    setNotifications([])
-    setLiveNotifications([])
     setSubscriptionStartedAt(Date.now())
 
     const unsubscribe = wsClient.subscribe(
@@ -96,6 +100,9 @@ export function useWebsocketNotifications() {
       },
       {
         next: (value) => {
+          if (!isActive) {
+            return
+          }
           const data = value.data as unknown as SubscriptionData
           const newNotification = data?.notificationCreated
 
@@ -118,7 +125,7 @@ export function useWebsocketNotifications() {
       isActive = false
       unsubscribe()
     }
-  }, [wsClient, status])
+  }, [wsClient, status, activeOrganizationId])
 
   const markAsRead = useCallback(
     async (id: string) => {
