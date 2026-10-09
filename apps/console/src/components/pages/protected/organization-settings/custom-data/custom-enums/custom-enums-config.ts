@@ -1,4 +1,5 @@
 import { type CustomTypeEnumWhereInput } from '@repo/codegen/src/schema'
+import { FILE_CATEGORY_ENUM, GLOBAL_ENUM_FIELD, GLOBAL_ENUM_OBJECT_TYPE } from '@/lib/graphql-hooks/custom-type-enum'
 import {
   Drill,
   type LucideIcon,
@@ -24,15 +25,23 @@ import {
   GitBranch,
   ShieldAlert,
   SearchCheck,
+  Files,
 } from 'lucide-react'
 
 export type EnumGroupConfig = {
   label: string
   objectType?: string
-  isGlobal?: boolean
   field?: string
   icon: LucideIcon
 }
+
+export const GLOBAL_ENUM_GROUP = 'global'
+
+export const isGlobalEnumGroup = (config?: EnumGroupConfig) => config?.objectType === GLOBAL_ENUM_GROUP
+
+export const toApiObjectType = (objectType: string) => (objectType === GLOBAL_ENUM_GROUP ? GLOBAL_ENUM_OBJECT_TYPE : objectType)
+
+export const fromApiObjectType = (objectType?: string | null) => objectType || GLOBAL_ENUM_GROUP
 
 export const ENUM_GROUP_MAP: Record<string, EnumGroupConfig> = {
   'All Enums': {
@@ -41,17 +50,21 @@ export const ENUM_GROUP_MAP: Record<string, EnumGroupConfig> = {
   },
   Environments: {
     label: 'Environments',
-    field: 'environment',
-    objectType: 'global',
-    isGlobal: true,
+    field: GLOBAL_ENUM_FIELD.environment,
+    objectType: GLOBAL_ENUM_GROUP,
     icon: Globe2,
   },
   Scopes: {
     label: 'Scopes',
-    field: 'scope',
-    objectType: 'global',
-    isGlobal: true,
+    field: GLOBAL_ENUM_FIELD.scope,
+    objectType: GLOBAL_ENUM_GROUP,
     icon: Focus,
+  },
+  'File Categories': {
+    label: 'File Categories',
+    field: FILE_CATEGORY_ENUM.field,
+    objectType: GLOBAL_ENUM_GROUP,
+    icon: Files,
   },
   'Task Kinds': {
     label: 'Task Kinds',
@@ -119,29 +132,28 @@ export const ENUM_GROUP_MAP: Record<string, EnumGroupConfig> = {
     field: 'dataClassification',
     icon: Folder,
   },
-
   'Access Models': {
     label: 'Access Models',
-    objectType: 'asset',
-    field: 'accessModel',
+    objectType: GLOBAL_ENUM_GROUP,
+    field: GLOBAL_ENUM_FIELD.accessModel,
     icon: ScanEye,
   },
   'Encryption Statuses': {
     label: 'Encryption Statuses',
-    objectType: 'asset',
-    field: 'encryptionStatus',
+    objectType: GLOBAL_ENUM_GROUP,
+    field: GLOBAL_ENUM_FIELD.encryptionStatus,
     icon: EarthLock,
   },
   'Security Tiers': {
     label: 'Security Tiers',
-    objectType: 'asset',
-    field: 'securityTier',
+    objectType: GLOBAL_ENUM_GROUP,
+    field: GLOBAL_ENUM_FIELD.securityTier,
     icon: Layers,
   },
   'Criticality Levels': {
     label: 'Criticality Levels',
-    objectType: 'asset',
-    field: 'criticality',
+    objectType: GLOBAL_ENUM_GROUP,
+    field: GLOBAL_ENUM_FIELD.criticality,
     icon: CircleGauge,
   },
   'Relationship States': {
@@ -184,7 +196,7 @@ export const getEnumFilter = (view: string, search: string): CustomTypeEnumWhere
 
   if (!config || view === 'All Enums') return filter
 
-  if (config.objectType) filter.objectType = config.objectType === 'global' ? null : config.objectType
+  if (config.objectType) filter.objectType = toApiObjectType(config.objectType)
   if (config.field) filter.field = config.field
 
   return filter

@@ -4,17 +4,18 @@ import { useMemo } from 'react'
 import { useAsset, useUpdateAsset, useDeleteAsset, useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
 import { type AssetQuery, type UpdateAssetInput } from '@repo/codegen/src/schema'
 import type { MergeConfig, MergeFieldOverrides } from '../types'
+import { GLOBAL_ENUM_FIELD } from '@/lib/graphql-hooks/custom-type-enum'
 
 type Asset = NonNullable<AssetQuery['asset']>
 
 const fieldOverrides: MergeFieldOverrides<Asset> = {
   description: { label: 'Description', type: 'longText' },
-  accessModelName: { label: 'Access model', type: 'customEnum', customEnum: { objectType: 'asset', field: 'accessModel' } },
+  accessModelName: { label: 'Access model', type: 'customEnum', customEnum: { field: GLOBAL_ENUM_FIELD.accessModel } },
   assetDataClassificationName: { label: 'Data classification', type: 'customEnum', customEnum: { objectType: 'asset', field: 'dataClassification' } },
   assetSubtypeName: { label: 'Subtype', type: 'customEnum', customEnum: { objectType: 'asset', field: 'subtype' } },
-  criticalityName: { label: 'Criticality', type: 'customEnum', customEnum: { objectType: 'asset', field: 'criticality' } },
-  encryptionStatusName: { label: 'Encryption status', type: 'customEnum', customEnum: { objectType: 'asset', field: 'encryptionStatus' } },
-  securityTierName: { label: 'Security tier', type: 'customEnum', customEnum: { objectType: 'asset', field: 'securityTier' } },
+  criticalityName: { label: 'Criticality', type: 'customEnum', customEnum: { field: GLOBAL_ENUM_FIELD.criticality } },
+  encryptionStatusName: { label: 'Encryption status', type: 'customEnum', customEnum: { field: GLOBAL_ENUM_FIELD.encryptionStatus } },
+  securityTierName: { label: 'Security tier', type: 'customEnum', customEnum: { field: GLOBAL_ENUM_FIELD.securityTier } },
   cpe: { label: 'CPE', type: 'text' },
   containsPii: { label: 'Contains PII', type: 'boolean' },
 }

@@ -16,7 +16,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 import { AssetAssetType, AssetSourceType, type AssetQuery, type CreateAssetInput, type UpdateAssetInput, type GetAssetAssociationsQuery } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions, GLOBAL_ENUM_FIELD } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
@@ -96,7 +96,7 @@ const AssetPage: React.FC = () => {
   const bulkEditMutation = baseBulkEditMutation
 
   const { enumOptions: accessModelOptions, onCreateOption: createAccessModel } = useCreatableEnumOptions({
-    field: 'accessModel',
+    field: GLOBAL_ENUM_FIELD.accessModel,
   })
 
   const { enumOptions: assetDataClassificationOptions, onCreateOption: createDataClassification } = useCreatableEnumOptions({
@@ -110,11 +110,11 @@ const AssetPage: React.FC = () => {
   })
 
   const { enumOptions: criticalityOptions, onCreateOption: createCriticality } = useCreatableEnumOptions({
-    field: 'criticality',
+    field: GLOBAL_ENUM_FIELD.criticality,
   })
 
   const { enumOptions: encryptionStatusOptions, onCreateOption: createEncryptionStatus } = useCreatableEnumOptions({
-    field: 'encryptionStatus',
+    field: GLOBAL_ENUM_FIELD.encryptionStatus,
   })
 
   const assetSourceTypeOptions = Object.values(AssetSourceType).map((value) => ({
@@ -136,7 +136,7 @@ const AssetPage: React.FC = () => {
   })
 
   const { enumOptions: securityTierOptions, onCreateOption: createSecurityTier } = useCreatableEnumOptions({
-    field: 'securityTier',
+    field: GLOBAL_ENUM_FIELD.securityTier,
   })
 
   const tagOptions = useGetTags()

@@ -1,7 +1,4 @@
 import { type FileMetadataInput } from '@repo/codegen/src/schema'
-import { GLOBAL_ENUM_OBJECT_TYPE } from '@/lib/graphql-hooks/custom-type-enum'
-
-export const FILE_CATEGORY_ENUM = { objectType: GLOBAL_ENUM_OBJECT_TYPE, field: 'category' } as const
 
 export type StagedUpload = {
   id: string

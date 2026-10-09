@@ -5,6 +5,10 @@ export const ACKNOWLEDGEMENT_QUESTION_TYPE = 'acknowledgement'
 export const DEFAULT_ACKNOWLEDGEMENT_TITLE = 'Acknowledgement'
 export const DEFAULT_ACKNOWLEDGEMENT_STATEMENT = 'I acknowledge that I’ve read and understand the documents above.'
 
+export const TYPED_SIGNATURE_PREFIX = `data:image/svg+xml;charset=utf-8,${encodeURIComponent('<svg data-signature-method="typed"')}`
+
+export const isTypedSignature = (value: unknown): value is string => typeof value === 'string' && value.startsWith(TYPED_SIGNATURE_PREFIX)
+
 export type TAcknowledgementValue = {
   acknowledged?: boolean
   fullName?: string
