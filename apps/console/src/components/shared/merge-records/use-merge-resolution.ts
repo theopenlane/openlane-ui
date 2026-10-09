@@ -1,5 +1,6 @@
 import { useMemo, useState, useCallback, useEffect } from 'react'
-import type { MergeConfig, MergeFieldConfig, MergeSource, MergeArrayStrategy } from './types'
+import { isDeepEqual } from '@/utils/input-diff'
+import type { MergeConfig, MergeFieldConfig, MergeFieldType, MergeSource, MergeArrayStrategy } from './types'
 
 export const isEmptyValue = (value: unknown): boolean => {
   if (value === null || value === undefined) return true
@@ -9,23 +10,14 @@ export const isEmptyValue = (value: unknown): boolean => {
   return false
 }
 
-const areEqualValues = (a: unknown, b: unknown): boolean => {
-  if (a === b) return true
-  if (a === null || b === null || a === undefined || b === undefined) return false
-  if (Array.isArray(a) && Array.isArray(b)) {
+const areEqualValues = (type: MergeFieldType, a: unknown, b: unknown): boolean => {
+  if (type === 'tags' && Array.isArray(a) && Array.isArray(b)) {
     if (a.length !== b.length) return false
     const sortedA = [...a].map(String).sort()
     const sortedB = [...b].map(String).sort()
     return sortedA.every((v, i) => v === sortedB[i])
   }
-  if (typeof a === 'object' && typeof b === 'object') {
-    try {
-      return JSON.stringify(a) === JSON.stringify(b)
-    } catch {
-      return false
-    }
-  }
-  return false
+  return isDeepEqual(a, b)
 }
 
 const unionArrays = (primary: unknown, secondary: unknown): string[] => {
@@ -77,7 +69,7 @@ export type UseMergeResolutionArgs<TRecord, TUpdateInput> = {
 export type UseMergeResolutionResult<TRecord> = {
   resolvedFields: ResolvedField<TRecord>[]
   visibleFields: ResolvedField<TRecord>[]
-  resolvedRecord: Partial<TRecord>
+  primaryChanges: Partial<TRecord>
   setSource: (fieldKey: string, source: MergeSource) => void
   setArrayStrategy: (fieldKey: string, strategy: MergeArrayStrategy) => void
   emailAliasFold: {
@@ -150,7 +142,7 @@ export const useMergeResolution = <TRecord, TUpdateInput>({ config, fields, prim
         }
       }
 
-      if (areEqualValues(primaryValue, secondaryValue)) {
+      if (areEqualValues(field.type, primaryValue, secondaryValue)) {
         return {
           field,
           kind: 'hidden' as const,
@@ -243,10 +235,10 @@ export const useMergeResolution = <TRecord, TUpdateInput>({ config, fields, prim
 
   const visibleFields = useMemo(() => resolvedFields.filter((f) => f.kind !== 'hidden'), [resolvedFields])
 
-  const resolvedRecord = useMemo<Partial<TRecord>>(() => {
+  const primaryChanges = useMemo<Partial<TRecord>>(() => {
     const out: Record<string, unknown> = {}
     for (const rf of resolvedFields) {
-      if (rf.kind === 'hidden') continue
+      if (rf.kind === 'hidden' || areEqualValues(rf.field.type, rf.resolvedValue, rf.primaryValue)) continue
       out[rf.field.key] = rf.resolvedValue
     }
     return out as Partial<TRecord>
@@ -255,7 +247,7 @@ export const useMergeResolution = <TRecord, TUpdateInput>({ config, fields, prim
   return {
     resolvedFields,
     visibleFields,
-    resolvedRecord,
+    primaryChanges,
     setSource,
     setArrayStrategy,
     emailAliasFold: {

@@ -64,7 +64,7 @@ const RelatedControlsSelector: React.FC<TRelatedControlsSelectorProps> = ({ form
 
   const toggleId = (field: TRelatedItem['field'], id: string, checked: boolean) => {
     const current = form.getValues(field)
-    form.setValue(field, checked ? [...current, id] : current.filter((value) => value !== id))
+    form.setValue(field, checked ? [...current, id] : current.filter((value) => value !== id), { shouldDirty: true })
   }
 
   const setGroupSelection = (items: TRelatedItem[], checked: boolean) => {
@@ -74,7 +74,7 @@ const RelatedControlsSelector: React.FC<TRelatedControlsSelectorProps> = ({ form
         return
       }
       const current = form.getValues(field)
-      form.setValue(field, checked ? Array.from(new Set([...current, ...groupIds])) : current.filter((id) => !groupIds.has(id)))
+      form.setValue(field, checked ? Array.from(new Set([...current, ...groupIds])) : current.filter((id) => !groupIds.has(id)), { shouldDirty: true })
     }
 
     apply('linkedControlIDs')

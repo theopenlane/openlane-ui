@@ -18,7 +18,7 @@ const formSchema = z.object({
   }),
   procedureKindName: z.string().optional(),
   reviewDue: z.date().optional().nullable(),
-  tags: z.array(z.string().optional()),
+  tags: z.array(z.string()),
   programIDs: z.array(z.string()).optional(),
   riskIDs: z.array(z.string()).optional(),
   internalPolicyIDs: z.array(z.string()).optional(),

@@ -21,7 +21,8 @@ import '@/components/shared/survey/survey-creator-types'
 import { surveyLicenseKey } from '@repo/dally/auth'
 import { useCreateTemplate, useGetTemplate, useUpdateTemplate } from '@/lib/graphql-hooks/template'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { TemplateDocumentType } from '@repo/codegen/src/schema'
+import { diffBuiltInput } from '@/utils/input-diff'
+import { TemplateDocumentType, type UpdateTemplateInput } from '@repo/codegen/src/schema'
 
 const enLocale = editorLocalization.getLocale('en')
 
@@ -32,6 +33,14 @@ const creatorOptions = {
   isAutoSave: false,
   showThemeTab: true,
 }
+
+type TSurveyJSON = { title?: string; description?: string }
+
+const buildTemplateUpdateInput = (jsonconfig: TSurveyJSON): UpdateTemplateInput => ({
+  name: jsonconfig.title || 'Untitled Template',
+  jsonconfig,
+  templateType: TemplateDocumentType.DOCUMENT,
+})
 
 // Register the SurveyJS license key
 slk(surveyLicenseKey as string)
@@ -44,6 +53,7 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
   const creatorRef = useRef<SurveyCreator>(new SurveyCreator(creatorOptions))
   // eslint-disable-next-line react-hooks/refs -- SurveyCreator is a mutable third-party object, stable across renders
   const creator = creatorRef.current
+  const baselineRef = useRef<TSurveyJSON | undefined>(undefined)
 
   const themeContext = useTheme()
   const theme = themeContext.resolvedTheme as 'light' | 'dark' | 'white' | undefined
@@ -81,27 +91,26 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
   useEffect(() => {
     if (templateResult?.template?.jsonconfig) {
       creator.JSON = templateResult.template.jsonconfig
+      baselineRef.current = creator.JSON
     }
   }, [creator, templateResult])
 
   const { mutateAsync: createTemplateData } = useCreateTemplate()
   const { mutateAsync: updateTemplateData } = useUpdateTemplate()
 
-  const saveTemplate = async (data: { title?: string; description?: string }) => {
+  const saveTemplate = async (data: TSurveyJSON) => {
     if (input.existingId) {
       try {
-        await updateTemplateData({
-          updateTemplateId: input.existingId,
-          input: {
-            name: data.title || 'Untitled Template',
-            jsonconfig: data,
-            templateType: TemplateDocumentType.DOCUMENT,
-          },
-        })
+        const baseline = baselineRef.current
+        const updateInput = diffBuiltInput(buildTemplateUpdateInput(data), baseline && buildTemplateUpdateInput(baseline))
 
-        successNotification({
-          title: 'Template updated successfully',
-        })
+        if (Object.keys(updateInput).length > 0) {
+          await updateTemplateData({ updateTemplateId: input.existingId, input: updateInput })
+          baselineRef.current = data
+          successNotification({
+            title: 'Template updated successfully',
+          })
+        }
 
         router.push(`/automation/questionnaires/templates`)
       } catch (error) {

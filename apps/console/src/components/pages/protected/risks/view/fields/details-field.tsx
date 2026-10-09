@@ -2,6 +2,7 @@
 
 import { Controller, useFormContext } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import React from 'react'
 import { type RiskDiscussionFieldsFragment } from '@repo/codegen/src/schema'
 import { type Value } from 'platejs'
@@ -21,7 +22,8 @@ type TDetailsFieldProps = {
 }
 
 const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, initialValue, isEditAllowed = true, clearData, onCleared, discussionData, isCreate }) => {
-  const { control } = useFormContext()
+  const { control, resetField } = useFormContext()
+  const hydrate = usePlateHydration({ resetField })
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
@@ -51,6 +53,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, initialValue, i
             entity={discussionData}
             onClear={() => onCleared?.()}
             initialValue={initialValue}
+            onHydrate={hydrate(field.name)}
             onChange={(val) => {
               field.onChange(val)
             }}

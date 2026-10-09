@@ -75,8 +75,8 @@ export function useMapControls({ controlData, subcontrolData, droppedControls, t
       }
     })
 
-    form.setValue(controlField, newControlIds)
-    form.setValue(subcontrolField, newSubcontrolIds)
+    form.setValue(controlField, newControlIds, { shouldDirty: true })
+    form.setValue(subcontrolField, newSubcontrolIds, { shouldDirty: true })
     setContextMenu(null)
   }
 

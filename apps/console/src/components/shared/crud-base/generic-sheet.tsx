@@ -1,5 +1,6 @@
 'use client'
 
+import { type TPersistOptions } from './persist-form-field'
 import React, { useEffect, useId, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
@@ -17,6 +18,7 @@ import { type SlideoutMenuAction } from './slideout-header'
 import { SlideoutFormActions } from './slideout-form-actions'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
+import { useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import type { BulkDeletePayload } from './types'
 import { getBulkActionFailureDescription } from './bulk-action-feedback'
 import { useSession } from 'next-auth/react'
@@ -25,14 +27,14 @@ export interface InternalEditingType {
   (field: string | null): void
 }
 
-export interface RenderFieldsProps<TData, TUpdateInput> {
+export interface RenderFieldsProps<TData, TUpdateInput extends object> {
   isEditing: boolean
   isCreate: boolean
   data?: TData
   isFormInitialized: boolean
   internalEditing: string | null
   setInternalEditing: InternalEditingType
-  handleUpdateField: (input: TUpdateInput) => Promise<void>
+  handleUpdateField: (input: TUpdateInput, options?: TPersistOptions) => Promise<void>
   isEditAllowed: boolean
 }
 
@@ -40,7 +42,7 @@ export interface RenderHeaderProps {
   close: () => void
 }
 
-export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData> {
+export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData, TUpdateInput extends object, TUpdateData, TCreateInput, TCreateData> {
   objectType: ObjectTypes
   displayName?: string
   form: UseFormReturn<TFormData>
@@ -50,9 +52,13 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
     isPending: boolean
   }
 
-  updateMutation?: {
-    mutateAsync: (params: { id: string; input: TUpdateInput }) => Promise<TUpdateData>
-    isPending: boolean
+  update?: {
+    mutation: {
+      mutateAsync: (params: { id: string; input: Partial<TUpdateInput> }) => Promise<TUpdateData>
+      isPending: boolean
+    }
+    fields: TFieldMappers<TFormData, TUpdateInput>
+    buildChangeExtras?: (data: TFormData) => Partial<TUpdateInput>
   }
 
   deleteMutation?: {
@@ -86,7 +92,7 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   initialWidth?: string | number
 }
 
-export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>(
+export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdateInput extends object, TUpdateData, TCreateInput, TCreateData>(
   config: GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>,
 ) {
   const [isEditing, setIsEditing] = useState(false)
@@ -97,7 +103,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
 
   const {
     form,
-    updateMutation,
+    update,
     createMutation,
     deleteMutation,
     objectType,
@@ -127,6 +133,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
 
   const { reset } = form
   const { isDirty } = form.formState
+  const buildDirtyInput = useDirtyInput(form)
   const queryClient = useQueryClient()
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
@@ -136,7 +143,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   const isCreate = isCreateMode !== undefined ? isCreateMode : searchParams.get('create') === 'true'
 
   const permissionRoles = useObjectPermissionRoles(objectType, id)
-  const isEditAllowed = !!updateMutation && canEdit(permissionRoles, session)
+  const isEditAllowed = !!update && canEdit(permissionRoles, session)
   const isDeleteAllowed = !!deleteMutation && canDelete(permissionRoles)
 
   const objectTypeName = objectType.charAt(0).toUpperCase() + objectType.slice(1).toLowerCase()
@@ -231,12 +238,9 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   }
 
   const onSubmit = async (formData: TFormData) => {
-    if (!buildPayload) return
     try {
-      const payload = await buildPayload(formData)
-
-      if (isCreate && createMutation) {
-        const created = await createMutation.mutateAsync(payload as TCreateInput)
+      if (isCreate && createMutation && buildPayload) {
+        const created = await createMutation.mutateAsync((await buildPayload(formData)) as TCreateInput)
 
         const postSaveSucceeded = await runPostSave({ formData, created, entityId: null })
 
@@ -249,8 +253,15 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
         }
 
         onClose?.()
-      } else if (id && updateMutation) {
-        await updateMutation.mutateAsync({ id, input: payload as TUpdateInput })
+      } else if (id && update) {
+        const changedInput = await buildDirtyInput(formData, update.fields, { extras: update.buildChangeExtras?.(formData) })
+
+        if (Object.keys(changedInput).length > 0) {
+          await update.mutation.mutateAsync({ id, input: changedInput })
+          reset(formData)
+        } else {
+          reset()
+        }
 
         const postSaveSucceeded = await runPostSave({ formData, created: null, entityId: id })
 
@@ -309,16 +320,19 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
         }
       : undefined
 
-  const isSavePending = (updateMutation?.isPending || createMutation?.isPending) ?? false
+  const isSavePending = (update?.mutation.isPending || createMutation?.isPending) ?? false
   const isContentLoading = isFetching && !isCreate
-  const showFormActions = !overrideContent && !isContentLoading && ((isCreate && !!createMutation) || (isEditing && !!updateMutation))
+  const showFormActions = !overrideContent && !isContentLoading && ((isCreate && !!createMutation) || (isEditing && !!update))
 
-  const handleUpdateField = async (input: TUpdateInput) => {
-    if (!id || isEditing || !updateMutation) {
+  const handleUpdateField = async (input: TUpdateInput, options?: TPersistOptions) => {
+    if (!id || isEditing || !update) {
+      if (options?.throwOnError) {
+        throw new Error(isEditing ? 'Inline save is not available while editing' : 'Inline save is not available')
+      }
       return
     }
     try {
-      await updateMutation.mutateAsync({ id, input })
+      await update.mutation.mutateAsync({ id, input })
       successNotification({
         title: updateSuccessTitle,
         description: updateSuccessDescription,
@@ -329,6 +343,9 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
         title: 'Error',
         description: errorMessage,
       })
+      if (options?.throwOnError) {
+        throw error
+      }
     }
   }
 

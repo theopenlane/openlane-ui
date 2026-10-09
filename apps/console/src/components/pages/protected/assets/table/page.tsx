@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { type AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useBulkEditAsset, useGetAssetAssociations } from '@/lib/graphql-hooks/asset'
+import { type AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useBulkEditAsset } from '@/lib/graphql-hooks/asset'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
@@ -13,18 +13,18 @@ import { type AssetSheetConfig, type AssetTablePageConfig, type AssetFieldProps,
 import { getColumns } from './columns'
 import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type Value } from 'platejs'
-import { AssetAssetType, AssetSourceType, type AssetQuery, type CreateAssetInput, type UpdateAssetInput, type GetAssetAssociationsQuery } from '@repo/codegen/src/schema'
+import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
+import { AssetAssetType, AssetSourceType, type AssetQuery, type CreateAssetInput, type UpdateAssetInput } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useCreatableEnumOptions, GLOBAL_ENUM_FIELD } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
-import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { ASSET_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import { MergeRecordsSheet } from '@/components/shared/merge-records/merge-records-sheet'
 import { mergeMenuAction } from '@/components/shared/crud-base/slideout-header'
 import { assetMergeConfig } from '@/components/shared/merge-records/configs/asset-merge-config'
 import { useCanEditObject } from '@/components/shared/crud-base/use-object-permission'
+import { ASSET_UPDATE_FIELDS } from '../hooks/asset-update-fields'
 
 const normalizeData = (data: AssetQuery['asset']) =>
   normalizeEntityData(data, {
@@ -46,19 +46,6 @@ const AssetPage: React.FC = () => {
   const scanId = searchParams.get('scanId')
   const { data, isLoading } = useAsset(id || undefined)
   const canEditAsset = useCanEditObject(objectType, id)
-  const { data: associationsData } = useGetAssetAssociations(id || undefined)
-  const extractAssociations = useCallback((assocData: GetAssetAssociationsQuery) => {
-    const asset = assocData.asset
-    return {
-      scanIDs: (asset.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      entityIDs: (asset.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      identityHolderIDs: (asset.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      controlIDs: (asset.controls?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      subcontrolIDs: (asset.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      internalPolicyIDs: (asset.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-    }
-  }, [])
-  const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
 
   const plateEditorHelper = usePlateEditor()
 
@@ -175,26 +162,21 @@ const AssetPage: React.FC = () => {
     form,
     data: id ? data?.asset : undefined,
     isFetching: isLoading,
-    updateMutation,
     createMutation,
     deleteMutation,
     buildPayload: async (data) => {
       const { controlIDs, subcontrolIDs, internalPolicyIDs, scanIDs, entityIDs, identityHolderIDs, internalOwner, ...rest } = data
-      const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
-      const associationPayload = buildAssociationPayload(
-        ASSET_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, subcontrolIDs, internalPolicyIDs, scanIDs, entityIDs, identityHolderIDs },
-        isCreate,
-        initialAssociationsRef.current,
-      )
+      const description = (await plateToHtmlOrNull(rest.description, plateEditorHelper)) ?? undefined
+      const associationPayload = buildAssociationPayload(ASSET_ASSOCIATION_CONFIG.associationKeys, { controlIDs, subcontrolIDs, internalPolicyIDs, scanIDs, entityIDs, identityHolderIDs }, true, {})
 
       return {
         ...rest,
         description,
         ...associationPayload,
-        ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
+        ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'create' }),
       }
     },
+    update: { mutation: updateMutation, fields: ASSET_UPDATE_FIELDS },
     normalizeData,
     getName,
     renderFields: (props: AssetFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),

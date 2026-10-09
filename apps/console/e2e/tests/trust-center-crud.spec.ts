@@ -635,6 +635,7 @@ test.describe('trust-center — document bulk actions and watermark', () => {
     await page.getByRole('button', { name: /^Watermark$/ }).click()
     await expect(page.getByText('Watermark Document')).toBeVisible({ timeout: 30_000 })
 
+    await page.getByText('Text Watermark', { exact: true }).click()
     await page.getByPlaceholder('Enter watermark text…').fill(`E2E ${Date.now().toString(36)}`)
 
     await expectMutationOk(page, 'UpdateTrustCenterWatermarkConfig', async () => {
@@ -762,10 +763,11 @@ test.describe('trust-center — subprocessor edit and delete', () => {
     await expect(sheet.getByText('Hosting').first()).toBeVisible({ timeout: 30_000 })
 
     const description = `edited by e2e ${Date.now().toString(36)}`
-    const descriptionBox = sheet.getByRole('textbox').last()
-    if (await descriptionBox.isVisible().catch(() => false)) await descriptionBox.fill(description)
+    const descriptionBox = sheet.getByPlaceholder('Short description')
+    await expect(descriptionBox).toBeVisible({ timeout: 30_000 })
+    await descriptionBox.fill(description)
 
-    await expectMutationOk(page, 'UpdateTrustCenterSubprocessor', async () => {
+    await expectMutationOk(page, 'UpdateSubprocessor', async () => {
       await save.click()
     })
     await expect(toast(page, 'Subprocessor Updated')).toBeVisible({ timeout: 30_000 })

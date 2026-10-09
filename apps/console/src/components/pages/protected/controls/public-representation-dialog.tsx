@@ -8,13 +8,13 @@ import { type Value } from 'platejs'
 import { docsHelpAvailable } from '@repo/dally/ai'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { plainTextToPlateValue } from '@/components/shared/plate/plate-utils'
+import { isPlateValueEmpty, plainTextToPlateValue, stringToPlateValue } from '@/components/shared/plate/plate-utils'
 import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import { useGetAllControlImplementations } from '@/lib/graphql-hooks/control-implementation'
 import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objective'
 import { controlAssociationFilter } from '@/lib/graphql-hooks/control-association'
-import { ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { ControlObjectiveObjectiveStatus, type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import { useSuggestPublicRepresentation } from '@/hooks/useDocsHelp'
 import { useNotification } from '@/hooks/useNotification'
 import { Callout } from '@/components/shared/callout/callout'
@@ -90,14 +90,29 @@ const PublicRepresentationDialog: React.FC<PublicRepresentationDialogProps> = ({
     }
   }
 
-  const handleSave = async () => {
+  const buildInput = async (): Promise<(UpdateControlInput & UpdateSubcontrolInput) | null> => {
+    if (isPlateValueEmpty(value)) {
+      return isPlateValueEmpty(existing) ? null : { clearPublicRepresentation: true }
+    }
+
     const publicRepresentation = typeof value === 'string' ? value : await convertToHtml(value)
+    const isUnchanged = publicRepresentation === existing || publicRepresentation === (await convertToHtml(stringToPlateValue(existing) ?? []))
+    return isUnchanged ? null : { publicRepresentation }
+  }
+
+  const handleSave = async () => {
+    const input = await buildInput()
+
+    if (!input) {
+      onOpenChange(false)
+      return
+    }
 
     try {
       if (isSubcontrol) {
-        await updateSubcontrol({ updateSubcontrolId: subcontrolId, input: { publicRepresentation } })
+        await updateSubcontrol({ updateSubcontrolId: subcontrolId, input })
       } else {
-        await updateControl({ updateControlId: controlId, input: { publicRepresentation } })
+        await updateControl({ updateControlId: controlId, input })
       }
       successNotification({ title: 'Public representation saved' })
       onOpenChange(false)

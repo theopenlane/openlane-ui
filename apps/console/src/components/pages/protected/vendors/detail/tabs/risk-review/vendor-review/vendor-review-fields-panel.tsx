@@ -6,6 +6,7 @@ import { Panel } from '@repo/ui/panel'
 import { Input } from '@repo/ui/input'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { ReadOnlyField } from '@/components/shared/read-only-field/read-only-field'
 import { ReviewDocumentsSection } from '@/components/pages/protected/reviews/create/form/fields/documents-section'
@@ -24,6 +25,7 @@ type TVendorReviewFieldsPanelProps = {
 
 const VendorReviewFieldsPanel: React.FC<TVendorReviewFieldsPanelProps> = ({ form, isEditing, reviewId, savedDescription, onStagedFilesChange, onExistingFileIdsChange }) => {
   const { convertToReadOnly } = usePlateEditor()
+  const hydrate = usePlateHydration(form)
   const description = useMemo(() => (savedDescription ? convertToReadOnly(savedDescription) : null), [savedDescription, convertToReadOnly])
 
   return (
@@ -53,7 +55,7 @@ const VendorReviewFieldsPanel: React.FC<TVendorReviewFieldsPanelProps> = ({ form
               <FormItem>
                 <FormLabel>Review Description</FormLabel>
                 <FormControl>
-                  <PlateEditor onChange={field.onChange} initialValue={savedDescription} placeholder={DESCRIPTION_PLACEHOLDER} />
+                  <PlateEditor onChange={field.onChange} onHydrate={hydrate(field.name)} initialValue={savedDescription} placeholder={DESCRIPTION_PLACEHOLDER} />
                 </FormControl>
               </FormItem>
             )}

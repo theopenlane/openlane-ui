@@ -8,13 +8,14 @@ import DomainsSection from './domains-section'
 import SecuritySection from './security-section'
 import DependenciesSection from './dependencies-section'
 import ProvidedServicesSection from './provided-services-section'
+import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 
 interface OverviewTabProps {
   vendor: EntityQuery['entity']
   associations?: GetEntityAssociationsQuery
   isEditing: boolean
   canEdit: boolean
-  handleUpdateField: (input: UpdateEntityInput) => Promise<void>
+  handleUpdateField: (input: UpdateEntityInput, options?: TPersistOptions) => Promise<void>
 }
 
 type SubTab = 'domains' | 'security' | 'dependencies'
@@ -24,7 +25,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ vendor, associations, isEditi
 
   return (
     <div className="space-y-6">
-      <DescriptionField isEditing={isEditing} isCreate={false} initialValue={typeof vendor.description === 'string' ? vendor.description : null} isFormInitialized />
+      <DescriptionField isEditing={isEditing} isCreate={false} initialValue={typeof vendor.description === 'string' ? vendor.description : null} />
 
       <ProvidedServicesSection vendor={vendor} isEditing={isEditing} canEdit={canEdit} handleUpdateField={handleUpdateField} />
 

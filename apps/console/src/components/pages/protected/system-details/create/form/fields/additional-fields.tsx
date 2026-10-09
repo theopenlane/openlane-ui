@@ -9,7 +9,8 @@ import { type InternalEditingType } from '@/components/shared/crud-base/generic-
 import { type SystemDetailQuery, type UpdateSystemDetailInput } from '@repo/codegen/src/schema'
 import { type EnumOptions } from '../../../table/types'
 import RichTextField from './rich-text-field'
-import { getEdgeIds } from '@/components/shared/object-association/utils'
+import { getAssociationInput, getEdgeIds } from '@/components/shared/object-association/utils'
+import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -18,22 +19,11 @@ interface AdditionalFieldsProps {
   data?: SystemDetailQuery['systemDetail'] | undefined
   internalEditing: string | null
   setInternalEditing: InternalEditingType
-  handleUpdateField?: (input: UpdateSystemDetailInput) => Promise<void>
+  handleUpdateField?: (input: UpdateSystemDetailInput, options?: TPersistOptions) => Promise<void>
   enumOptions: EnumOptions
-  isFormInitialized?: boolean
 }
 
-export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
-  isEditing,
-  isEditAllowed,
-  isCreate = false,
-  data,
-  internalEditing,
-  setInternalEditing,
-  handleUpdateField,
-  enumOptions,
-  isFormInitialized,
-}) => {
+export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing, handleUpdateField, enumOptions }) => {
   const sharedFieldProps = {
     isEditing,
     isEditAllowed,
@@ -62,7 +52,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
             isEditing={isEditing}
             isCreate={isCreate}
             initialValue={data?.description}
-            isFormInitialized={isFormInitialized}
           />
         </CardContent>
       </Card>
@@ -91,7 +80,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
             isEditing={isEditing}
             isCreate={isCreate}
             initialValue={revisionHistoryInitialValue}
-            isFormInitialized={isFormInitialized}
           />
         </CardContent>
       </Card>
@@ -128,10 +116,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
               label="Platforms"
               options={enumOptions.platformIDsOptions}
               initialSelectedIds={getEdgeIds(data?.platforms?.edges)}
-              buildUpdateInput={(selectedIds, initialIds) => ({
-                addPlatformIDs: selectedIds.filter((id) => !initialIds.includes(id)),
-                removePlatformIDs: initialIds.filter((id) => !selectedIds.includes(id)),
-              })}
+              buildUpdateInput={(selectedIds, initialIds) => getAssociationInput({ platformIDs: initialIds }, { platformIDs: selectedIds })}
               {...sharedFieldProps}
             />
             <MultiSelectField<UpdateSystemDetailInput>
@@ -139,10 +124,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
               label="Programs"
               options={enumOptions.programIDsOptions}
               initialSelectedIds={getEdgeIds(data?.programs?.edges)}
-              buildUpdateInput={(selectedIds, initialIds) => ({
-                addProgramIDs: selectedIds.filter((id) => !initialIds.includes(id)),
-                removeProgramIDs: initialIds.filter((id) => !selectedIds.includes(id)),
-              })}
+              buildUpdateInput={(selectedIds, initialIds) => getAssociationInput({ programIDs: initialIds }, { programIDs: selectedIds })}
               {...sharedFieldProps}
             />
           </div>

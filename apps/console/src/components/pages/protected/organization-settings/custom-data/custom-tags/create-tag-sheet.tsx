@@ -1,7 +1,9 @@
 'use client'
 
+import { type UpdateTagDefinitionInput } from '@repo/codegen/src/schema'
 import React, { useEffect, useState } from 'react'
 import { FormProvider, useForm, useController } from 'react-hook-form'
+import { omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { LoaderCircle } from 'lucide-react'
@@ -37,6 +39,24 @@ type FormData = z.infer<typeof schema>
 
 const DEFAULT_TAG_COLOR = '#6366f1'
 
+const BLANK_TAG_FORM: FormData = { name: '', aliases: '', description: '', color: DEFAULT_TAG_COLOR }
+
+const parseAliases = (aliases: string | undefined) =>
+  aliases
+    ?.split(',')
+    .map((alias) => alias.trim())
+    .filter(Boolean) ?? []
+
+const TAG_UPDATE_FIELDS = {
+  name: omit,
+  description: orClear('clearDescription'),
+  color: orClear('clearColor'),
+  aliases: (value) => {
+    const aliases = parseAliases(value)
+    return aliases.length > 0 ? { aliases } : { clearAliases: true }
+  },
+} satisfies TFieldMappers<FormData, UpdateTagDefinitionInput>
+
 export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => void }) => {
   const params = useSearchParams()
   const { replace } = useSmartRouter()
@@ -51,32 +71,34 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
 
   const [open, setOpen] = useState(false)
 
-  const { data: tagData, isLoading: isLoadingDetails } = useGetTagDetails(id)
+  const { data: tagData, isLoading: isLoadingDetails, isPlaceholderData } = useGetTagDetails(id)
   const { mutateAsync: createTag, isPending: isCreating } = useCreateTag()
   const { mutateAsync: updateTag, isPending: isUpdating } = useUpdateTag()
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: '',
-      aliases: '',
-      description: '',
-      color: DEFAULT_TAG_COLOR,
-    },
+    defaultValues: BLANK_TAG_FORM,
   })
 
-  const { control, handleSubmit, reset, setValue } = formMethods
+  const { control, handleSubmit, reset } = formMethods
+  const buildDirtyInput = useDirtyInput(formMethods)
   const { field: colorField } = useController({ name: 'color', control })
 
   useEffect(() => {
-    if (tagData?.tagDefinition) {
-      const t = tagData.tagDefinition
-      setValue('name', t.name ?? '')
-      setValue('aliases', Array.isArray(t.aliases) ? t.aliases.join(', ') : (t.aliases ?? ''))
-      setValue('description', t.description ?? '')
-      setValue('color', normalizeHexColor(t.color) ?? DEFAULT_TAG_COLOR)
+    if (!open) return
+    if (!id) {
+      if (isCreate) reset(BLANK_TAG_FORM)
+      return
     }
-  }, [tagData, setValue])
+    const t = tagData?.tagDefinition
+    if (!t || t.id !== id || isPlaceholderData) return
+    reset({
+      name: t.name ?? '',
+      aliases: Array.isArray(t.aliases) ? t.aliases.join(', ') : (t.aliases ?? ''),
+      description: t.description ?? '',
+      color: normalizeHexColor(t.color) ?? DEFAULT_TAG_COLOR,
+    })
+  }, [open, id, isCreate, tagData, isPlaceholderData, reset])
 
   useEffect(() => {
     if (id || isCreate) {
@@ -89,36 +111,25 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
   const handleOpenChange = (val: boolean) => {
     if (!val) {
       replace({ id: null, create: null })
-      setTimeout(() => {
-        reset({ name: '', aliases: '', description: '', color: DEFAULT_TAG_COLOR })
-      }, 300)
     }
   }
 
   const onSubmit = async (data: FormData) => {
     try {
-      const formattedAliases = data.aliases
-        ?.split(',')
-        .map((a) => a.trim())
-        .filter(Boolean)
-
       if (isEditMode && id) {
-        await updateTag({
-          updateTagDefinitionId: id,
-          input: {
-            description: data.description,
-            color: data.color,
-            aliases: formattedAliases,
-          },
-        })
-        successNotification({ title: 'Tag updated' })
+        const input = await buildDirtyInput<UpdateTagDefinitionInput>(data, TAG_UPDATE_FIELDS)
+
+        if (Object.keys(input).length > 0) {
+          await updateTag({ updateTagDefinitionId: id, input })
+          successNotification({ title: 'Tag updated' })
+        }
       } else {
         await createTag({
           input: {
             name: data.name,
             description: data.description,
             color: data.color,
-            aliases: formattedAliases,
+            aliases: parseAliases(data.aliases),
           },
         })
         successNotification({ title: 'Tag created' })
@@ -131,6 +142,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
   }
 
   const isPending = isCreating || isUpdating
+  const isLoadingTag = isLoadingDetails || (isEditMode && isPlaceholderData)
 
   const tagHeading = isCreate ? 'Create Custom Tag' : (tagData?.tagDefinition?.name ?? 'Custom Tag')
 
@@ -145,7 +157,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
             title={tagHeading}
             onClose={() => handleOpenChange(false)}
             formActions={
-              canEditTags && !isLoadingDetails ? (
+              canEditTags && !isLoadingTag ? (
                 <SlideoutFormActions
                   formId={TAG_FORM_ID}
                   onCancel={() => handleOpenChange(false)}
@@ -158,7 +170,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
           />
         }
       >
-        {isLoadingDetails ? (
+        {isLoadingTag ? (
           <div className="flex items-center justify-center h-64">
             <LoaderCircle className="animate-spin text-muted-foreground" size={32} />
           </div>

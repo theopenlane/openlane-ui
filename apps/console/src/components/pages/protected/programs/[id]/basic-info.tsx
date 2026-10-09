@@ -4,8 +4,8 @@ import { onActivateKeyDown } from '@repo/ui/lib/a11y'
 import { useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { Card } from '@repo/ui/cardpanel'
 import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useForm, Controller, FormProvider, type Path, type FieldValues, type UseFormReturn } from 'react-hook-form'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useForm, useWatch, Controller, FormProvider, type Path, type FieldValues, type UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@repo/ui/input'
@@ -16,7 +16,8 @@ import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { Textarea } from '@repo/ui/textarea'
 import { Pencil } from 'lucide-react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
+import { ProgramProgramStatus, type GetProgramBasicInfoQuery, type UpdateProgramInput } from '@repo/codegen/src/schema'
 import { useGetOrgMemberships, useUserSelect } from '@/lib/graphql-hooks/member'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -42,11 +43,27 @@ const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  programOwnerId: z.string().optional(),
+  programOwnerID: z.string().optional(),
   frameworkName: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
+
+const PROGRAM_BASIC_INFO_UPDATE_FIELDS = {
+  description: orClear('clearDescription'),
+  tags: orClear('clearTags'),
+  programOwnerID: orClear('clearProgramOwner'),
+  frameworkName: orClear('clearFrameworkName'),
+  name: passthrough,
+} satisfies TFieldMappers<FormValues, UpdateProgramInput>
+
+const toFormValues = (program: GetProgramBasicInfoQuery['program']): FormValues => ({
+  name: program.name ?? '',
+  description: program.description ?? '',
+  tags: program.tags ?? [],
+  programOwnerID: program.programOwnerID ?? '',
+  frameworkName: program.frameworkName ?? '',
+})
 
 const BasicInformation = () => {
   const { data: session } = useSession()
@@ -72,7 +89,6 @@ const BasicInformation = () => {
   const canManageCategories = isEditAllowed && program?.status !== ProgramProgramStatus.ARCHIVED
 
   const [isEditing, setIsEditing] = useState(false)
-  const [tagValues, setTagValues] = useState<{ value: string; label: string }[]>([])
 
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
@@ -89,57 +105,37 @@ const BasicInformation = () => {
       tags: program?.tags ?? [],
     },
   })
+  const buildDirtyInput = useDirtyInput(form)
+  const tags = useWatch({ control: form.control, name: 'tags' })
+  const tagValues = useMemo(() => (tags ?? []).map((tag) => ({ label: tag, value: tag })), [tags])
+
+  const isEditingRef = useRef(isEditing)
+  useEffect(() => {
+    isEditingRef.current = isEditing
+  }, [isEditing])
 
   useEffect(() => {
-    if (program) {
-      form.reset({
-        name: program.name ?? '',
-        description: program.description ?? '',
-        tags: program.tags ?? [],
-        programOwnerId: program.programOwnerID ?? '',
-        frameworkName: program?.frameworkName ?? '',
-      })
-
-      setTagValues(
-        (program.tags ?? []).map((tag) => ({
-          label: tag,
-          value: tag,
-        })),
-      )
+    if (program && !isEditingRef.current) {
+      form.reset(toFormValues(program))
     }
   }, [program, form])
 
   const handleCancel = () => {
-    if (program) {
-      form.reset({
-        name: program.name ?? '',
-        description: program.description ?? '',
-        tags: program.tags ?? [],
-      })
-
-      setTagValues(
-        (program.tags ?? []).map((tag) => ({
-          label: tag,
-          value: tag,
-        })),
-      )
-    }
-
+    form.reset(program ? toFormValues(program) : undefined)
     setIsEditing(false)
   }
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await updateProgram({
-        updateProgramId: id,
-        input: {
-          name: values.name,
-          description: values.description ?? null,
-          tags: values.tags ?? [],
-          programOwnerID: values.programOwnerId || undefined,
-          frameworkName: values.frameworkName,
-        },
-      })
+      const input = await buildDirtyInput<UpdateProgramInput>(values, PROGRAM_BASIC_INFO_UPDATE_FIELDS)
+
+      if (Object.keys(input).length === 0) {
+        form.reset()
+        setIsEditing(false)
+        return
+      }
+
+      await updateProgram({ updateProgramId: id, input })
 
       successNotification({
         title: 'Program updated',
@@ -147,6 +143,7 @@ const BasicInformation = () => {
       })
 
       queryClient.invalidateQueries({ queryKey: ['programs', id] })
+      form.reset(values)
       setIsEditing(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -233,7 +230,6 @@ const BasicInformation = () => {
                         onChange={(selected) => {
                           const values = selected.map((s) => s.value)
                           field.onChange(values)
-                          setTagValues(selected)
                         }}
                       />
                     )}
@@ -266,7 +262,7 @@ const BasicInformation = () => {
             <Label className="block w-56 shrink-0">Program Owner</Label>
             <div className="flex-1">
               <Controller
-                name="programOwnerId"
+                name="programOwnerID"
                 control={form.control}
                 render={({ field }) =>
                   isEditing ? (
@@ -304,7 +300,7 @@ interface FrameworkFieldProps<T extends FieldValues> {
   name: Path<T>
 }
 
-export function FrameworkField<T extends FieldValues>({ form, program, isEditing, isEditAllowed, standardOptionsNormalized, name }: FrameworkFieldProps<T>) {
+export const FrameworkField = <T extends FieldValues>({ form, program, isEditing, isEditAllowed, standardOptionsNormalized, name }: FrameworkFieldProps<T>) => {
   const [query, setQuery] = useState(program?.frameworkName || '')
   const [showSuggestions, setShowSuggestions] = useState(false)
 

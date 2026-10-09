@@ -20,13 +20,29 @@ interface RiskDecisionDialogProps {
 
 export const RiskDecisionDialog: React.FC<RiskDecisionDialogProps> = ({ open, onOpenChange, isLoading, internalEditing, setInternalEditing, handleUpdate }) => {
   const [saving, setSaving] = useState(false)
-  const { getValues } = useFormContext<EditRisksFormData>()
+  const { getValues, getFieldState, setValue, resetField } = useFormContext<EditRisksFormData>()
+  const [decisionOnOpen] = useState(() => ({ value: getValues('riskDecision'), wasDirty: getFieldState('riskDecision').isDirty }))
+
+  const discardDecision = () => {
+    if (decisionOnOpen.wasDirty) {
+      setValue('riskDecision', decisionOnOpen.value, { shouldDirty: true })
+    } else {
+      resetField('riskDecision')
+    }
+  }
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      discardDecision()
+    }
+    onOpenChange(nextOpen)
+  }
 
   const handleSave = async () => {
     setSaving(true)
     try {
       const selectedDecision = getValues('riskDecision')
-      await handleUpdate({ riskDecision: selectedDecision as RiskRiskDecision })
+      await handleUpdate({ riskDecision: selectedDecision })
       onOpenChange(false)
     } finally {
       setSaving(false)
@@ -34,7 +50,7 @@ export const RiskDecisionDialog: React.FC<RiskDecisionDialogProps> = ({ open, on
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle>Set Risk Decision</DialogTitle>
@@ -53,7 +69,7 @@ export const RiskDecisionDialog: React.FC<RiskDecisionDialogProps> = ({ open, on
           />
         </div>
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
             Cancel
           </Button>
           <Button type="button" onClick={handleSave} disabled={saving || isLoading}>

@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import { ExportExportFormat, ExportExportType, type ProcedureDiscussionFieldsFragment, type ProcedureByIdFragment } from '@repo/codegen/src/schema.ts'
 import { type EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import { type Value } from 'platejs'
@@ -19,6 +20,7 @@ type TDetailsFieldProps = {
 }
 
 const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure, discussionData }) => {
+  const hydrate = usePlateHydration(form)
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
@@ -48,6 +50,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure
             initialValue={procedure?.detailsJSON ? (procedure?.detailsJSON as Value) : (procedure?.details ?? undefined)}
             entity={discussionData}
             onChange={field.onChange}
+            onHydrate={hydrate(field.name)}
             placeholder="Write your procedure description"
           />
         )}

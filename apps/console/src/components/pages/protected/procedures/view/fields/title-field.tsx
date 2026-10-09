@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { FormControl, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
@@ -15,13 +16,14 @@ import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hov
 type TTitleFieldProps = {
   isEditing: boolean
   form: UseFormReturn<EditProcedureMetadataFormData>
-  handleUpdate: (val: UpdateProcedureInput) => void
+  handleUpdate: (val: UpdateProcedureInput, options?: TPersistOptions) => Promise<void> | void
   initialData: string
   editAllowed: boolean
 }
 
 const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate, initialData, editAllowed }) => {
   const [internalEditing, setInternalEditing] = useState(false)
+  const persistField = usePersistFormField<EditProcedureMetadataFormData>()
 
   const handleClick = () => {
     if (!isEditing && editAllowed) {
@@ -39,9 +41,8 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate,
 
     if (!value.trim()) return
 
-    handleUpdate({ name: value })
-
     setInternalEditing(false)
+    void persistField('name', value, (options) => handleUpdate({ name: value }, options))
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -52,7 +53,7 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate,
 
   useEscapeKey(() => {
     if (internalEditing) {
-      form.setValue('name', initialData)
+      form.resetField('name')
       setInternalEditing(false)
     }
   })

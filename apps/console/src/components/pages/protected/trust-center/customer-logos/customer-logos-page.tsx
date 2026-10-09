@@ -16,6 +16,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { type UpdateTrustCenterEntityInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 
 export default function CustomerLogosPage() {
@@ -45,16 +46,18 @@ export default function CustomerLogosPage() {
     }
   }
 
-  const onUpdate = async ({ id, url, logoFile }: { id: string; url?: string; logoFile?: File }) => {
+  const onUpdate = async ({ id, input, logoFile }: { id: string; input: UpdateTrustCenterEntityInput; logoFile?: File }): Promise<boolean> => {
     try {
       await updateEntity({
-        input: { url },
+        input,
         updateTrustCenterEntityId: id,
         logoFile: logoFile,
       })
       successNotification({ title: 'Customer updated' })
+      return true
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+      return false
     }
   }
 

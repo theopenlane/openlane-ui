@@ -5,7 +5,7 @@ import { Tag } from 'lucide-react'
 import { type UseFormReturn } from 'react-hook-form'
 import { InputRow } from '@repo/ui/input'
 import { FormControl, FormField } from '@repo/ui/form'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import MultipleSelector from '@repo/ui/multiple-selector'
 import { type RiskFieldsFragment, type UpdateRiskInput } from '@repo/codegen/src/schema'
 import { type EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import useClickOutside from '@/hooks/useClickOutside'
@@ -70,11 +70,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
   useEscapeKey(
     () => {
       setInternalEditing(false)
-      const options: Option[] = (risk?.tags ?? []).filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item }))
-      form.setValue(
-        'tags',
-        options.map((opt) => opt.value),
-      )
+      form.resetField('tags')
     },
     { enabled: internalEditing },
   )

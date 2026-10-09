@@ -11,7 +11,7 @@ import { GenericDetailsSheet, type RenderFieldsProps } from '@/components/shared
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import useFormSchema, { type TFormData } from './form/use-form-schema'
 import { ControlImplementationFields } from './form/control-implementation-fields'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { CONTROL_IMPLEMENTATION_UPDATE_FIELDS } from './form/build-update-input'
 
 type Props = {
   queryParamKey?: string
@@ -29,7 +29,6 @@ const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'c
 
   const { data: node, isLoading } = useGetControlImplementationById(entityId)
   const { form } = useFormSchema()
-  const plateEditorHelper = usePlateEditor()
 
   const baseUpdateMutation = useUpdateControlImplementation()
   const baseDeleteMutation = useDeleteControlImplementation()
@@ -61,21 +60,9 @@ const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'c
     (data: ControlImplementationFieldsFragment): Partial<TFormData> => ({
       details: data.details ?? '',
       status: data.status ?? undefined,
-      implementationDate: data.implementationDate ? new Date(data.implementationDate) : undefined,
+      implementationDate: data.implementationDate ? new Date(data.implementationDate) : null,
     }),
     [],
-  )
-
-  const buildPayload = useCallback(
-    async (formData: TFormData): Promise<UpdateControlImplementationInput> => {
-      const details = typeof formData.details === 'string' ? formData.details || undefined : formData.details ? await plateEditorHelper.convertToHtml(formData.details) : undefined
-      return {
-        details,
-        status: formData.status,
-        implementationDate: formData.implementationDate,
-      }
-    },
-    [plateEditorHelper],
   )
 
   const renderFields = useCallback(
@@ -116,9 +103,8 @@ const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'c
       entityId={entityId}
       data={node}
       isFetching={isLoading}
-      updateMutation={updateMutation}
       deleteMutation={deleteMutation}
-      buildPayload={buildPayload}
+      update={{ mutation: updateMutation, fields: CONTROL_IMPLEMENTATION_UPDATE_FIELDS }}
       normalizeData={normalizeData}
       getName={() => null}
       renderFields={renderFields}

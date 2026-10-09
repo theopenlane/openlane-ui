@@ -16,10 +16,10 @@ import { useOrganization } from '@/hooks/useOrganization'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { normalizeEntityData, responsibilityInput, responsibilityTargetFor } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { dateOrClear, isEmptyInputValue, omit, orClear, richTextOrClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { type UpdateEntityInput, type EntityQuery } from '@repo/codegen/src/schema'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
@@ -31,13 +31,80 @@ import VendorDetailHeader from './vendor-detail-header'
 import VendorPropertiesSidebar from './vendor-properties-sidebar'
 import VendorDetailTabs from './tabs/vendor-detail-tabs'
 import type { EditVendorFormData } from '../hooks/use-form-schema'
+import { vendorRiskScoreInput } from '@/lib/vendor-risk-rating'
+import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { useSession } from 'next-auth/react'
+
+const vendorResponsibilityTarget = responsibilityTargetFor<UpdateEntityInput>()
+const VENDOR_INTERNAL_OWNER = vendorResponsibilityTarget('internalOwner')
+const VENDOR_REVIEWER = vendorResponsibilityTarget('reviewedBy')
 
 interface VendorDetailPageProps {
   vendorId: string
 }
 
 type VendorFormValues = EditVendorFormData
+
+const numericInput = (
+  raw: number | string | null | undefined,
+  toInput: (value: number) => Partial<UpdateEntityInput>,
+  clearInput: Partial<UpdateEntityInput>,
+  isAccepted: (value: number) => boolean,
+): Partial<UpdateEntityInput> => {
+  if (isEmptyInputValue(raw)) {
+    return clearInput
+  }
+
+  const value = Number(raw)
+  return isAccepted(value) ? toInput(value) : {}
+}
+
+const VENDOR_UPDATE_FIELDS = {
+  name: (name) => ({ name }),
+  displayName: orClear('clearDisplayName'),
+  description: richTextOrClear('clearDescription'),
+  domains: orClear('clearDomains'),
+  status: orClear('clearStatus'),
+  tags: orClear('clearTags'),
+  annualSpend: (annualSpend: number | string | null | undefined) => numericInput(annualSpend, (value) => ({ annualSpend: value }), { clearAnnualSpend: true }, Number.isFinite),
+  approvedForUse: orClear('clearApprovedForUse'),
+  autoRenews: orClear('clearAutoRenews'),
+  billingModel: orClear('clearBillingModel'),
+  contractEndDate: dateOrClear('clearContractEndDate'),
+  contractRenewalAt: dateOrClear('clearContractRenewalAt'),
+  contractStartDate: dateOrClear('clearContractStartDate'),
+  entityRelationshipStateName: orClear('clearEntityRelationshipStateName'),
+  entitySecurityQuestionnaireStatusName: orClear('clearEntitySecurityQuestionnaireStatusName'),
+  entitySourceTypeName: orClear('clearEntitySourceTypeName'),
+  environmentName: orClear('clearEnvironmentName'),
+  hasSoc2: orClear('clearHasSoc2'),
+  internalOwner: responsibilityInput(VENDOR_INTERNAL_OWNER),
+  lastReviewedAt: dateOrClear('clearLastReviewedAt'),
+  mfaEnforced: orClear('clearMfaEnforced'),
+  mfaSupported: orClear('clearMfaSupported'),
+  nextReviewAt: dateOrClear('clearNextReviewAt'),
+  providedServices: orClear('clearProvidedServices'),
+  renewalRisk: orClear('clearRenewalRisk'),
+  reviewedBy: responsibilityInput(VENDOR_REVIEWER),
+  riskRating: omit,
+  riskScore: vendorRiskScoreInput,
+  scopeName: orClear('clearScopeName'),
+  soc2PeriodEnd: dateOrClear('clearSoc2PeriodEnd'),
+  spendCurrency: orClear('clearSpendCurrency'),
+  statusPageURL: orClear('clearStatusPageURL'),
+  reviewFrequency: orClear('clearReviewFrequency'),
+  terminationNoticeDays: (terminationNoticeDays: number | string | null | undefined) =>
+    numericInput(terminationNoticeDays, (value) => ({ terminationNoticeDays: value }), { clearTerminationNoticeDays: true }, Number.isInteger),
+  tier: orClear('clearTier'),
+  assetIDs: omit,
+  internalPolicyIDs: omit,
+  subcontrolIDs: omit,
+  scanIDs: omit,
+  campaignIDs: omit,
+  identityHolderIDs: omit,
+  contactIDs: omit,
+  ssoEnforced: orClear('clearSSOEnforced'),
+} satisfies TFieldMappers<VendorFormValues, UpdateEntityInput>
 
 const normalizeData = (data: EntityQuery['entity']) =>
   normalizeEntityData(data, {
@@ -58,11 +125,9 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
   const { data: permission } = useAccountRoles(ObjectTypes.ENTITY, vendorId)
   const { mutateAsync: updateEntity } = useUpdateEntity()
   const { mutateAsync: deleteEntity } = useDeleteEntity()
-  const { convertToHtml } = usePlateEditor()
 
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [initialValues, setInitialValues] = useState<Partial<VendorFormValues>>({})
 
   const hasScrollbar = useHasScrollbar([isEditing, data?.entity, associationsData?.entity])
 
@@ -71,6 +136,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
   })
 
   const { isDirty } = form.formState
+  const buildDirtyInput = useDirtyInput(form)
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   useEffect(() => {
@@ -124,34 +190,21 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
         reviewedBy: normalized.reviewedBy as ResponsibilitySelection,
       }
       form.reset(newValues)
-      setInitialValues(newValues)
     }
   }, [data?.entity, form])
 
   const onSubmit = async (values: VendorFormValues) => {
     try {
-      const changedFields: Partial<VendorFormValues> = {}
-      for (const key of Object.keys(values) as Array<keyof VendorFormValues>) {
-        if (JSON.stringify(values[key]) !== JSON.stringify(initialValues[key])) {
-          Object.assign(changedFields, { [key]: values[key] })
-        }
-      }
-
-      const { internalOwner, reviewedBy, description, ...rest } = changedFields
-      const descriptionHtml = description === undefined ? undefined : Array.isArray(description) ? await convertToHtml(description) : description
-      const input: UpdateEntityInput = {
-        ...rest,
-        ...(description !== undefined ? { description: descriptionHtml } : {}),
-        ...(internalOwner ? buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'update' }) : {}),
-        ...(reviewedBy ? buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: 'update' }) : {}),
-      } as UpdateEntityInput
+      const input = await buildDirtyInput<UpdateEntityInput>(values, VENDOR_UPDATE_FIELDS)
 
       if (Object.keys(input).length === 0) {
+        form.reset()
         setIsEditing(false)
         return
       }
 
       await updateEntity({ updateEntityId: vendorId, input })
+      form.reset(values)
 
       successNotification({
         title: 'Vendor updated',
@@ -166,7 +219,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    form.reset(initialValues as VendorFormValues)
+    form.reset()
     setIsEditing(false)
   }
 
@@ -175,7 +228,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
     setIsEditing(true)
   }
 
-  const handleUpdateField = async (input: UpdateEntityInput, options?: { throwOnError?: boolean }) => {
+  const handleUpdateField = async (input: UpdateEntityInput, options?: TPersistOptions) => {
     try {
       await updateEntity({ updateEntityId: vendorId, input })
       successNotification({

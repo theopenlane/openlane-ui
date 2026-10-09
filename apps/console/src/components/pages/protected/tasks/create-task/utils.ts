@@ -1,8 +1,5 @@
-import type usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type CreateTaskFormData, type EditTaskFormData } from '../hooks/use-form-schema'
+import { type CreateTaskFormData } from '../hooks/use-form-schema'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
-import { capitalizeFirstLetter } from '@/lib/auth/utils/strings'
-import { type Value } from 'platejs'
 import { type GetTaskAssociationsQuery, type TaskQuery } from '@repo/codegen/src/schema'
 import { buildAssociationIds, buildAssociationItems, type TAssociationItem } from '@/components/shared/object-association/association-items'
 import { type AssociationSectionKey } from '@/components/shared/object-association/object-association-config'
@@ -10,47 +7,6 @@ import { getLinkedPrograms } from '@/components/shared/object-association/utils'
 import { type TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData'
 
 export type TTaskCopyMode = 'duplicate' | 'template'
-
-const generateAssociationPayload = (original: TObjectAssociationMap, updated: TObjectAssociationMap) => {
-  const payload: Record<string, string[]> = {}
-
-  const allKeys = new Set([...Object.keys(original), ...Object.keys(updated)])
-
-  allKeys.forEach((key) => {
-    const prev = original[key] ?? []
-    const next = updated[key] ?? []
-
-    const add = next.filter((id) => !prev.includes(id))
-    const remove = prev.filter((id) => !next.includes(id))
-
-    if (add.length > 0) payload[`add${capitalizeFirstLetter(key)}`] = add
-    if (remove.length > 0) payload[`remove${capitalizeFirstLetter(key)}`] = remove
-  })
-
-  return payload
-}
-
-export const buildTaskPayload = async (
-  data: EditTaskFormData,
-  plateEditorHelper: ReturnType<typeof usePlateEditor>,
-  initialAssociations: TObjectAssociationMap,
-  updatedAssociations: TObjectAssociationMap,
-) => {
-  const details = data?.details ? await plateEditorHelper.convertToHtml(data.details as Value) : undefined
-  return {
-    taskKindName: data?.taskKindName,
-    due: data?.due ? new Date(data.due).toISOString() : undefined,
-    title: data?.title,
-    details,
-    assigneeID: data?.assigneeID,
-    status: data?.status,
-    clearAssignee: !data?.assigneeID,
-    clearDue: !data?.due,
-    tags: data.tags,
-    isTemplate: data.isTemplate,
-    ...generateAssociationPayload(initialAssociations, updatedAssociations),
-  }
-}
 
 export const TASK_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'programs', 'procedures', 'policies', 'controlObjectives', 'risks', 'groups'] as const satisfies readonly AssociationSectionKey[]
 

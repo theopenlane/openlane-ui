@@ -1,3 +1,4 @@
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { activatable } from '@repo/ui/lib/a11y'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
@@ -29,7 +30,7 @@ export const EditableSelectFromQuery = ({
   name: string
   isEditing: boolean
   icon: React.ReactNode
-  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput, options?: TPersistOptions) => Promise<void>
   isEditAllowed: boolean
   iconAndLabelVisible?: boolean
   hasGap?: boolean
@@ -47,6 +48,7 @@ export const EditableSelectFromQuery = ({
   const { data: categoriesData } = useGetControlCategories({ enabled: isEditing || isActive })
   const { data: subcategoriesData } = useGetControlSubcategories({ enabled: isEditing || isActive })
   const { getValues } = useFormContext()
+  const persistField = usePersistFormField()
   const [input, setInput] = useState('')
   const [open, setOpen] = useState(false)
 
@@ -108,16 +110,16 @@ export const EditableSelectFromQuery = ({
                 }
                 return
               }
-              if (!isEditing) {
-                handleUpdate?.({ [name]: val })
-              }
-
-              field.onChange(val)
               if (isControlled) {
                 setActiveField?.(null)
               } else {
                 setInternalEditing(false)
               }
+              if (!isEditing && handleUpdate) {
+                void persistField(name, val, (options) => handleUpdate({ [name]: val }, options))
+                return
+              }
+              field.onChange(val)
             }
             if (!editing) {
               return (

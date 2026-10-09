@@ -12,13 +12,26 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCreateEmailTemplate, useUpdateEmailTemplate, useEmailTemplate, useEmailTemplateCatalog, usePreviewEmailTemplateHtml } from '@/lib/graphql-hooks/email-template'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { EmailTemplateNotificationTemplateFormat, EmailTemplateTemplateContext } from '@repo/codegen/src/schema'
+import { diffBuiltInput } from '@/utils/input-diff'
+import { EmailTemplateNotificationTemplateFormat, EmailTemplateTemplateContext, type UpdateEmailTemplateInput } from '@repo/codegen/src/schema'
 import { EmailTemplateBasicFields } from './email-template-basic-fields'
 import { EmailTemplateConfiguration } from './email-template-configuration'
 import { EmailTemplateVariables } from './email-template-variables'
 import { EmailTemplatePreview } from './email-template-preview'
 
 const LIST_PATH = '/automation/email-templates'
+
+type EmailTemplateEditorValues = {
+  name: string
+  active: boolean
+  defaults: Record<string, unknown>
+}
+
+const buildUpdateInput = (values: EmailTemplateEditorValues): UpdateEmailTemplateInput => ({
+  name: values.name.trim(),
+  defaults: values.defaults,
+  active: values.active,
+})
 
 const EditorCard: React.FC<{ title: string; children: React.ReactNode; className?: string; bodyClassName?: string }> = ({ title, children, className, bodyClassName }) => (
   <div className={cn('flex flex-col rounded-lg border border-border bg-card overflow-hidden', className)}>
@@ -43,6 +56,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
   const [selectedKey, setSelectedKey] = useState('')
   const [configData, setConfigData] = useState<Record<string, unknown>>({})
   const initializedIdRef = useRef<string | null>(null)
+  const baselineRef = useRef<EmailTemplateEditorValues | undefined>(undefined)
 
   const { entries, isLoading: isCatalogLoading } = useEmailTemplateCatalog()
   const { data: templateData, isLoading: isLoadingTemplate } = useEmailTemplate(isEditMode ? templateId : undefined)
@@ -98,6 +112,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
     setName(t.name)
     setSelectedKey(t.key)
     setConfigData(t.defaults ?? {})
+    baselineRef.current = { name: t.name, active: t.active, defaults: t.defaults ?? {} }
     initializedIdRef.current = templateId ?? null
   }, [isEditMode, templateData, templateId])
 
@@ -113,16 +128,12 @@ export const EmailTemplateEditorPage: React.FC = () => {
 
     try {
       if (templateId) {
-        await updateEmailTemplate({
-          updateEmailTemplateId: templateId,
-          input: {
-            name: name.trim(),
-            defaults: configData,
-            locale: templateData?.emailTemplate?.locale ?? 'en',
-            active,
-          },
-        })
-        successNotification({ title: 'Email template updated' })
+        const baseline = baselineRef.current
+        const input = diffBuiltInput(buildUpdateInput({ name, active, defaults: configData }), baseline && buildUpdateInput(baseline))
+        if (Object.keys(input).length > 0) {
+          await updateEmailTemplate({ updateEmailTemplateId: templateId, input })
+          successNotification({ title: 'Email template updated' })
+        }
       } else {
         await createEmailTemplate({
           input: {

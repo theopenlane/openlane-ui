@@ -1,7 +1,9 @@
 'use client'
 
+import { type UpdateStandardInput } from '@repo/codegen/src/schema'
 import React, { useEffect, useState, useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogTrigger, DialogClose, DialogTitle } from '@repo/ui/dialog'
@@ -22,6 +24,12 @@ const schema = z.object({
 })
 
 type FormData = z.infer<typeof schema>
+
+const STANDARD_UPDATE_FIELDS = {
+  title: (shortName) => ({ shortName }),
+  description: orClear('clearDescription'),
+  logoFile: omit,
+} satisfies TFieldMappers<FormData, UpdateStandardInput>
 
 interface StandardDialogProps {
   trigger: React.ReactNode
@@ -45,6 +53,7 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
   })
 
   const { handleSubmit, reset, formState } = formMethods
+  const buildDirtyInput = useDirtyInput(formMethods)
   const { isSubmitting } = formState
 
   const prefillForm = useCallback(() => {
@@ -61,14 +70,16 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
       resetPagination()
 
       if (isEditMode && standard?.id) {
-        await updateStandard({
-          updateStandardId: standard?.id,
-          input: {
-            shortName: data.title,
-            description: data.description,
-          },
-          logoFile: data.logoFile ?? undefined,
-        })
+        const input = await buildDirtyInput<UpdateStandardInput>(data, STANDARD_UPDATE_FIELDS)
+
+        if (Object.keys(input).length > 0 || data.logoFile) {
+          await updateStandard({
+            updateStandardId: standard?.id,
+            input,
+            logoFile: data.logoFile ?? undefined,
+          })
+        }
+        reset({ ...data, logoFile: undefined })
 
         successNotification({ title: 'Standard updated', description: 'Changes have been saved.' })
       } else {

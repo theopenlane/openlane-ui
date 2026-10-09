@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
@@ -16,8 +16,10 @@ import { useOrganization } from '@/hooks/useOrganization'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
+import { normalizeEntityData, responsibilityInput, responsibilityTargetFor } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { dateOrClear, omit, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { type UpdateIdentityHolderInput, type IdentityHolderQuery } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
@@ -30,6 +32,38 @@ import PersonnelPropertiesSidebar from './personnel-properties-sidebar'
 import PersonnelDetailTabs from './tabs/personnel-detail-tabs'
 import type { EditPersonnelFormData } from '../hooks/use-form-schema'
 import { useSession } from 'next-auth/react'
+
+const PERSONNEL_INTERNAL_OWNER = responsibilityTargetFor<UpdateIdentityHolderInput>()('internalOwner')
+
+const PERSONNEL_UPDATE_FIELDS = {
+  emailAliases: orClear('clearEmailAliases'),
+  title: orClear('clearTitle'),
+  department: orClear('clearDepartment'),
+  team: orClear('clearTeam'),
+  location: orClear('clearLocation'),
+  phoneNumber: orClear('clearPhoneNumber'),
+  isOpenlaneUser: orClear('clearIsOpenlaneUser'),
+  startDate: dateOrClear('clearStartDate'),
+  endDate: dateOrClear('clearEndDate'),
+  externalUserID: orClear('clearExternalUserID'),
+  externalReferenceID: orClear('clearExternalReferenceID'),
+  environmentName: orClear('clearEnvironmentName'),
+  scopeName: orClear('clearScopeName'),
+  tags: orClear('clearTags'),
+  internalOwner: responsibilityInput(PERSONNEL_INTERNAL_OWNER),
+  assetIDs: omit,
+  controlIDs: omit,
+  subcontrolIDs: omit,
+  entityIDs: omit,
+  campaignIDs: omit,
+  internalPolicyIDs: omit,
+  taskIDs: omit,
+  email: passthrough,
+  fullName: passthrough,
+  identityHolderType: passthrough,
+  isActive: passthrough,
+  status: passthrough,
+} satisfies TFieldMappers<EditPersonnelFormData, UpdateIdentityHolderInput>
 
 interface PersonnelDetailPageProps {
   personnelId: string
@@ -60,8 +94,11 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
   const { mutateAsync: deleteIdentityHolder } = useDeleteIdentityHolder()
 
   const [isEditing, setIsEditing] = useState(false)
+  const isEditingRef = useRef(isEditing)
+  useEffect(() => {
+    isEditingRef.current = isEditing
+  }, [isEditing])
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [initialValues, setInitialValues] = useState<Partial<EditPersonnelFormData>>({})
 
   const hasScrollbar = useHasScrollbar([isEditing, data?.identityHolder, associationsData?.identityHolder])
 
@@ -70,6 +107,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
   })
 
   const { isDirty } = form.formState
+  const buildDirtyInput = useDirtyInput(form)
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   useEffect(() => {
@@ -107,27 +145,15 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
         internalOwner: normalized.internalOwner as ResponsibilitySelection,
       }
       form.reset(newValues)
-      setInitialValues(newValues)
     }
   }, [data?.identityHolder, form, isDirty])
 
   const onSubmit = async (values: EditPersonnelFormData) => {
     try {
-      const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
-        const initialValue = initialValues[key as keyof EditPersonnelFormData]
-        if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
-          acc[key] = value
-        }
-        return acc
-      }, {})
-
-      const { internalOwner, ...rest } = changedFields
-      const input: UpdateIdentityHolderInput = {
-        ...rest,
-        ...(internalOwner ? buildResponsibilityPayload('internalOwner', internalOwner as ResponsibilitySelection, { mode: 'update' }) : {}),
-      } as UpdateIdentityHolderInput
+      const input = await buildDirtyInput<UpdateIdentityHolderInput>(values, PERSONNEL_UPDATE_FIELDS)
 
       if (Object.keys(input).length === 0) {
+        form.reset()
         setIsEditing(false)
         return
       }
@@ -135,7 +161,6 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
       await updateIdentityHolder({ updateIdentityHolderId: personnelId, input })
 
       form.reset(values)
-      setInitialValues(values)
 
       successNotification({
         title: 'Personnel updated',
@@ -150,7 +175,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    form.reset(initialValues as EditPersonnelFormData)
+    form.reset()
     setIsEditing(false)
   }
 
@@ -159,10 +184,12 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
     setIsEditing(true)
   }
 
-  const handleUpdateField = async (input: UpdateIdentityHolderInput, options?: { throwOnError?: boolean }) => {
+  const handleUpdateField = async (input: UpdateIdentityHolderInput, options?: TPersistOptions) => {
     try {
       await updateIdentityHolder({ updateIdentityHolderId: personnelId, input })
-      form.reset(form.getValues())
+      if (!isEditingRef.current) {
+        form.reset(form.getValues())
+      }
       successNotification({
         title: 'Personnel updated',
         description: 'The personnel record was successfully updated.',

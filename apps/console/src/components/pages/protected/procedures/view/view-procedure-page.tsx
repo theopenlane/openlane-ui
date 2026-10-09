@@ -29,18 +29,47 @@ import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { dateOrClear, omit, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
+import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
+import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { ASSOCIATION_REMOVAL_CONFIG, PROCEDURE_ASSOCIATION_SECTIONS, buildAssociationSections } from '@/components/shared/object-association/object-association-config'
 import Loading from '@/app/(protected)/procedures/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { type Value } from 'platejs'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
+
+const PROCEDURE_UPDATE_FIELDS = {
+  details: omit,
+  detailsJSON: async (detailsJSON, _values, { converter }) => {
+    if (detailsJSON === undefined) {
+      return {}
+    }
+
+    const details = await plateToHtmlOrNull(detailsJSON, converter)
+    return details ? { detailsJSON, details } : { clearDetails: true, clearDetailsJSON: true }
+  },
+  revision: (revision) => (revision ? { revision } : {}),
+  status: orClear('clearStatus'),
+  approvalRequired: orClear('clearApprovalRequired'),
+  reviewFrequency: orClear('clearReviewFrequency'),
+  procedureKindName: orClear('clearProcedureKindName'),
+  reviewDue: dateOrClear('clearReviewDue'),
+  tags: orClear('clearTags'),
+  approverID: orClear('clearApprover'),
+  delegateID: orClear('clearDelegate'),
+  programIDs: omit,
+  procedureIDs: omit,
+  controlObjectiveIDs: omit,
+  controlIDs: omit,
+  taskIDs: omit,
+  name: passthrough,
+} satisfies TFieldMappers<EditProcedureMetadataFormData, UpdateProcedureInput>
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -51,6 +80,7 @@ const ViewProcedurePage: React.FC = () => {
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
   const procedure = data?.procedure
   const { form } = useFormSchema()
+  const buildDirtyInput = useDirtyInput(form)
   const [isEditing, setIsEditing] = useState(false)
   const [editingField, setEditingField] = useState<string | null>(null)
   const queryClient = useQueryClient()
@@ -67,7 +97,6 @@ const ViewProcedurePage: React.FC = () => {
   const [dataInitialized, setDataInitialized] = useState(false)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
   const { data: discussionData } = useGetProcedureDiscussionById(procedureId)
-  const plateEditorHelper = usePlateEditor()
 
   const { data: assocData } = useGetProcedureAssociationsById(procedureId, !isDeleting)
 
@@ -102,7 +131,7 @@ const ViewProcedurePage: React.FC = () => {
         approvalRequired: procedure?.approvalRequired ?? true,
         status: procedure.status ?? ProcedureDocumentStatus.DRAFT,
         procedureKindName: procedure.procedureKindName ?? '',
-        reviewDue: procedure.reviewDue ? new Date(procedure.reviewDue as string) : undefined,
+        reviewDue: procedure.reviewDue ? new Date(procedure.reviewDue as string) : null,
         reviewFrequency: procedure.reviewFrequency ?? ProcedureFrequency.YEARLY,
         revision: procedure.revision ?? '',
         approverID: procedure.approver?.id,
@@ -144,42 +173,15 @@ const ViewProcedurePage: React.FC = () => {
       return
     }
     try {
-      const { revision, approverID, delegateID, details: _details, detailsJSON, ...restData } = data
-      const input: UpdateProcedureInput = {
-        ...restData,
-        tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+      const input = await buildDirtyInput<UpdateProcedureInput>(data, PROCEDURE_UPDATE_FIELDS)
+
+      if (Object.keys(input).length === 0) {
+        form.reset()
+        setIsEditing(false)
+        return
       }
 
-      if (detailsJSON !== undefined) {
-        input.detailsJSON = detailsJSON
-        input.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
-      }
-
-      if (approverID) {
-        input.approverID = approverID
-      } else if (procedure.approver?.id) {
-        input.clearApprover = true
-      }
-
-      if (delegateID) {
-        input.delegateID = delegateID
-      } else if (procedure.delegate?.id) {
-        input.clearDelegate = true
-      }
-
-      if (revision && revision !== (procedure?.revision ?? '')) {
-        input.revision = revision
-      }
-
-      const formData: {
-        updateProcedureId: string
-        input: UpdateProcedureInput
-      } = {
-        updateProcedureId: procedure?.id,
-        input,
-      }
-
-      await updateProcedure(formData)
+      await updateProcedure({ updateProcedureId: procedure.id, input })
 
       successNotification({
         title: 'Procedure Updated',
@@ -199,7 +201,7 @@ const ViewProcedurePage: React.FC = () => {
     }
   }
 
-  const handleUpdateField = async (input: UpdateProcedureInput, options?: { throwOnError?: boolean }) => {
+  const handleUpdateField = async (input: UpdateProcedureInput, options?: TPersistOptions) => {
     if (!procedure?.id) {
       return
     }

@@ -72,7 +72,7 @@ export interface TTableProps<TWhereInput> {
 export interface GenericTablePageConfig<
   TEntity extends { id: string },
   TFormData extends FieldValues,
-  TUpdateInput,
+  TUpdateInput extends object,
   TUpdateData,
   TCreateInput,
   TCreateData,
@@ -162,7 +162,7 @@ export interface GenericTablePageConfig<
 export function GenericTablePage<
   TEntity extends { id: string },
   TFormData extends FieldValues,
-  TUpdateInput,
+  TUpdateInput extends object,
   TUpdateData,
   TCreateInput,
   TCreateData,

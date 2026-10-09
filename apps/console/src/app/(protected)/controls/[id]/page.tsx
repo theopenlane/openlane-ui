@@ -28,8 +28,8 @@ import { ASSOCIATION_REMOVAL_CONFIG, CONTROL_ASSOCIATION_SECTIONS, buildAssociat
 import { useUpdateControlWithFindingLinks } from '@/components/shared/object-association/finding-control-links'
 import Loading from './loading.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils.ts'
+import { buildControlUpdateFields, type TControlFormValues } from '@/components/pages/protected/controls/build-control-update-input'
+import { orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -50,25 +50,21 @@ import { useSetDocsHelpTopic } from '@/components/shared/docs-help/docs-help-con
 import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
 import { Callout } from '@/components/shared/callout/callout.tsx'
 
-interface FormValues {
-  refCode: string
-  description: Value | string
-  descriptionJSON?: Value
-  delegateID: string
-  controlOwnerID: string
-  responsiblePartyID: string
-  category?: string
-  subcategory?: string
+type FormValues = TControlFormValues & {
   status: ControlControlStatus
-  mappedCategories: string[]
   source?: ControlControlSource
-  sourceName?: string
-  referenceID?: string
-  auditorReferenceID?: string
-  title: string
   controlKindName?: string
-  publicRepresentation?: Value | string
+  externalUUID?: string
 }
+
+const buildControlPageUpdateFields = (isSourceFramework: boolean) =>
+  ({
+    ...buildControlUpdateFields(isSourceFramework),
+    status: orClear('clearStatus'),
+    source: orClear('clearSource'),
+    controlKindName: orClear('clearControlKindName'),
+    externalUUID: orClear('clearExternalUUID'),
+  }) satisfies TFieldMappers<FormValues, UpdateControlInput>
 
 const initialDataObj = {
   refCode: '',
@@ -83,6 +79,7 @@ const initialDataObj = {
   mappedCategories: [],
   title: '',
   sourceName: '',
+  externalUUID: '',
   publicRepresentation: '',
 }
 
@@ -97,7 +94,6 @@ const ControlDetailsPage: React.FC = () => {
   const { data, isLoading, isError } = useGetControlById(id)
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const { data: permission } = useAccountRoles(ObjectTypes.CONTROL, id)
   const { data: orgPermission } = useOrganizationRoles()
 
@@ -107,7 +103,6 @@ const ControlDetailsPage: React.FC = () => {
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
   const { mutateAsync: deleteControl } = useDeleteControl()
-  const { convertToHtml } = usePlateEditor()
   const { data: discussionData } = useGetControlDiscussionById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
@@ -156,62 +151,16 @@ const ControlDetailsPage: React.FC = () => {
   })
 
   const { isDirty } = form.formState
+  const buildDirtyInput = useDirtyInput(form)
 
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
-        if (key === 'publicRepresentation') return acc
-        const initialValue = initialValues[key as keyof FormValues]
-        if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
-          acc[key] = value
-        }
-        return acc
-      }, {})
-
-      if (changedFields.descriptionJSON) {
-        changedFields.descriptionJSON = values?.descriptionJSON
-        changedFields.description = await convertToHtml(values.descriptionJSON as Value)
-      }
-
-      const currentPR = values.publicRepresentation
-      if (Array.isArray(currentPR)) {
-        if (isPlateValueEmpty(currentPR)) {
-          if (initialValues.publicRepresentation) {
-            changedFields.publicRepresentation = undefined
-          }
-        } else {
-          const newHtml = await convertToHtml(currentPR as Value)
-          if (newHtml !== initialValues.publicRepresentation) {
-            changedFields.publicRepresentation = newHtml
-          }
-        }
-      }
-
-      if (isSourceFramework) {
-        delete changedFields.title
-        delete changedFields.refCode
-        delete changedFields.descriptionJSON
-        delete changedFields.description
-      }
-
-      const PERSON_FIELD_CLEAR_KEYS: Record<string, string> = {
-        delegateID: 'clearDelegate',
-        controlOwnerID: 'clearControlOwner',
-        responsiblePartyID: 'clearResponsibleParty',
-      }
-
-      const input = Object.entries(changedFields).reduce<Record<string, unknown>>((acc, [key, value]) => {
-        if (key in PERSON_FIELD_CLEAR_KEYS && !value) {
-          acc[PERSON_FIELD_CLEAR_KEYS[key]] = true
-        } else {
-          acc[key] = value || undefined
-        }
-        return acc
-      }, {}) as UpdateControlInput
+      const input = await buildDirtyInput<UpdateControlInput>(values, buildControlPageUpdateFields(isSourceFramework))
 
       if (Object.keys(input).length === 0) {
+        form.reset()
         setIsEditing(false)
         return
       }
@@ -220,6 +169,8 @@ const ControlDetailsPage: React.FC = () => {
         updateControlId: id ?? '',
         input,
       })
+
+      form.reset(values)
 
       successNotification({
         title: 'Control updated',
@@ -236,7 +187,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    form.reset(initialValues)
+    form.reset()
     setIsEditing(false)
   }
 
@@ -322,9 +273,10 @@ const ControlDetailsPage: React.FC = () => {
         title: data.control.title || '',
         controlKindName: data.control?.controlKindName || undefined,
         publicRepresentation: data.control.publicRepresentation || '',
+        sourceName: data.control.sourceName || '',
+        externalUUID: data.control.externalUUID || '',
       }
-      form.reset(newValues)
-      setInitialValues(newValues)
+      form.reset(newValues, { keepDirtyValues: true })
     }
   }, [data?.control, form])
 
@@ -333,6 +285,7 @@ const ControlDetailsPage: React.FC = () => {
   }
   if (isError || !data?.control) return <div className="p-4 text-red-500">Control not found</div>
   const control: ControlByIdNode = data?.control
+  const storedDescriptionJSON = control.descriptionJSON ? (control.descriptionJSON as Value) : undefined
   const isVerified = control.controlImplementations?.edges?.some((edge) => !!edge?.node?.verificationDate) ?? false
 
   const mainContent = (
@@ -343,9 +296,9 @@ const ControlDetailsPage: React.FC = () => {
             <TitleField
               isEditAllowed={!isSourceFramework && canEdit(permission?.roles, sessionData)}
               isEditing={isEditing}
-              initialRefCode={initialValues.refCode}
-              initialTitle={initialValues.title}
-              handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
+              initialRefCode={control.refCode || ''}
+              initialTitle={control.title || ''}
+              handleUpdate={handleUpdateField}
               referenceFramework={control.referenceFramework}
             />
             {isVerified && (
@@ -385,10 +338,10 @@ const ControlDetailsPage: React.FC = () => {
       )}
       <DescriptionField
         isEditing={isEditing}
-        initialValue={initialValues.descriptionJSON ?? initialValues.description}
+        initialValue={storedDescriptionJSON ?? control.description ?? ''}
         isEditAllowed={!isSourceFramework && canEdit(permission?.roles, sessionData)}
         discussionData={discussionData?.control}
-        systemCreated={!initialValues.descriptionJSON && !!initialValues.description}
+        systemCreated={!storedDescriptionJSON && !!control.description}
         source={control.source ?? undefined}
       />
 

@@ -12,6 +12,7 @@ import { type InternalEditingType } from '../generic-sheet'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { cn } from '@repo/ui/lib/utils'
+import { type TPersistOptions, usePersistFormField } from '../persist-form-field'
 
 interface MultiSelectFieldProps<TUpdateInput> {
   name: string
@@ -21,7 +22,7 @@ interface MultiSelectFieldProps<TUpdateInput> {
   isCreate?: boolean
   options: Option[]
   initialSelectedIds: string[]
-  handleUpdate?: (input: TUpdateInput) => Promise<void>
+  handleUpdate?: (input: TUpdateInput, options?: TPersistOptions) => Promise<void>
   buildUpdateInput: (selectedIds: string[], initialIds: string[]) => TUpdateInput
   internalEditing: string | null
   setInternalEditing: InternalEditingType
@@ -48,7 +49,8 @@ export const MultiSelectField = <TUpdateInput,>({
   layout = 'vertical',
   labelClassName,
 }: MultiSelectFieldProps<TUpdateInput>) => {
-  const { control, setValue, watch } = useFormContext()
+  const { control, resetField, watch } = useFormContext()
+  const persistFormField = usePersistFormField()
   const triggerRef = useRef<HTMLDivElement>(null)
 
   const isFieldEditing = internalEditing === name
@@ -63,7 +65,7 @@ export const MultiSelectField = <TUpdateInput,>({
     if (!isEditing && !isCreate && handleUpdate) {
       const changed = selectedIds.length !== initialSelectedIds.length || selectedIds.some((id) => !initialSelectedIds.includes(id))
       if (changed) {
-        await handleUpdate(buildUpdateInput(selectedIds, initialSelectedIds))
+        await persistFormField(name, selectedIds, (options) => handleUpdate(buildUpdateInput(selectedIds, initialSelectedIds), options))
       }
     }
   }
@@ -82,7 +84,7 @@ export const MultiSelectField = <TUpdateInput,>({
 
   useEscapeKey(
     () => {
-      setValue(name, initialSelectedIds)
+      resetField(name)
       setInternalEditing(null)
     },
     { enabled: isFieldEditing },

@@ -11,7 +11,8 @@ import TableComponent from './table/table'
 import { type CreateActionPlanInput, type UpdateActionPlanInput, type ActionPlanWhereInput, ActionPlanDocumentStatus, ActionPlanPriority } from '@repo/codegen/src/schema'
 import { useSearchParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type Value } from 'platejs'
+import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
+import { ACTION_PLAN_UPDATE_FIELDS } from './hooks/action-plan-update-fields'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 type Props = {
@@ -27,7 +28,6 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
-  const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useActionPlan(id || undefined)
 
   const getName = useCallback((actionPlan: ActionPlansNodeNonNull) => {
@@ -63,15 +63,12 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
     data: id ? data?.actionPlan : undefined,
     isFetching: isLoading,
     buildPayload: async (formData) => {
-      const description = formData.descriptionJSON ? await plateEditorHelper.convertToHtml(formData.descriptionJSON as Value) : undefined
+      const description = (await plateToHtmlOrNull(formData.descriptionJSON, plateEditorHelper)) ?? undefined
       const payload = { ...formData, description, descriptionJSON: undefined }
-      if (isCreate && createInitialPayload) {
-        return { ...createInitialPayload, ...payload }
-      }
-      return { ...payload }
+      return createInitialPayload ? { ...createInitialPayload, ...payload } : payload
     },
+    update: { mutation: updateMutation, fields: ACTION_PLAN_UPDATE_FIELDS },
     getName,
-    updateMutation,
     createMutation,
     deleteMutation,
     renderFields: (props: ActionPlanFieldProps) => getFieldsToRender(props),

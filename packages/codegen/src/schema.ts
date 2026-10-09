@@ -8808,7 +8808,7 @@ export interface TasksWithFilterQuery {
         sourceKey: string | null
         metadata: any
         assigner: { displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
-        assignee: { displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
+        assignee: { id: string; displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -9723,6 +9723,7 @@ export interface GetTrustCenterQuery {
           opacity: number | null
           rotation: number | null
           isEnabled: boolean | null
+          font: Types.TrustCenterWatermarkConfigFont | null
           file: { presignedURL: string | null } | null
         } | null
       } | null

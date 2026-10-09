@@ -158,7 +158,6 @@ export const getFieldsToRender = (props: ReviewFieldProps, enumOptions: EnumOpti
         isEditing={props.isEditing}
         isCreate={props.isCreate}
         initialValue={props.isCreate ? '' : ((props.data as ReviewQuery['review'])?.details ?? '')}
-        isFormInitialized={props.isFormInitialized}
       />
       <AdditionalFields
         isEditing={props.isEditing}

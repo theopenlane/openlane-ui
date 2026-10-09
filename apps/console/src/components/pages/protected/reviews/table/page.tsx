@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useCallback, useRef } from 'react'
+import React, { useRef } from 'react'
 import useFormSchema, { bulkEditFieldSchema, type ReviewFormData } from '../hooks/use-form-schema'
 
-import { type ReviewsNodeNonNull, useReview, useCreateReview, useUpdateReview, useBulkDeleteReview, useBulkEditReview, useGetReviewAssociations } from '@/lib/graphql-hooks/review'
+import { type ReviewsNodeNonNull, useReview, useCreateReview, useBulkDeleteReview, useBulkEditReview } from '@/lib/graphql-hooks/review'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, mapReviewFilterKey, visibilityFields } from './table-config'
@@ -12,12 +12,11 @@ import { getColumns } from './columns'
 import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '../create/utils'
-import { type CreateReviewInput, type UpdateReviewInput, type GetReviewAssociationsQuery } from '@repo/codegen/src/schema'
+import { type CreateReviewInput, type UpdateReviewInput } from '@repo/codegen/src/schema'
 import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
-import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import ReviewSheetResolver from '../common/review-sheet-resolver'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -30,24 +29,6 @@ const ReviewPage: React.FC = () => {
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useReview(id || undefined)
-  const { data: associationsData } = useGetReviewAssociations(id || undefined)
-
-  const extractAssociations = useCallback((assocData: GetReviewAssociationsQuery) => {
-    const review = assocData.review
-    return {
-      controlIDs: (review.controls?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      subcontrolIDs: (review.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      remediationIDs: (review.remediations?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      entityIDs: (review.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      taskIDs: (review.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      assetIDs: (review.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      programIDs: (review.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      riskIDs: (review.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-    }
-  }, [])
-
-  const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
-
   const plateEditorHelper = usePlateEditor()
 
   const stagedFilesRef = useRef<File[]>([])
@@ -57,15 +38,9 @@ const ReviewPage: React.FC = () => {
     return data?.title
   }
 
-  const baseUpdateMutation = useUpdateReview()
   const baseCreateMutation = useCreateReview()
   const baseBulkDeleteMutation = useBulkDeleteReview()
   const bulkEditMutation = useBulkEditReview()
-
-  const updateMutation = {
-    isPending: baseUpdateMutation.isPending,
-    mutateAsync: async (params: { id: string; input: UpdateReviewInput }) => baseUpdateMutation.mutateAsync({ updateReviewId: params.id, input: params.input }),
-  }
 
   const createMutation = {
     isPending: baseCreateMutation.isPending,
@@ -116,20 +91,16 @@ const ReviewPage: React.FC = () => {
     entityId: null,
     data: isCreate ? data?.review : undefined,
     isFetching: isLoading,
-    updateMutation,
     createMutation,
     deleteMutation,
     buildPayload: async (data) => {
       const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, riskIDs, ...rest } = data
-      const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper, {
-        dirtyFields: form.formState.dirtyFields,
-        useClearFlags: !isCreate,
-      })
+      const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper)
       const associationPayload = buildAssociationPayload(
         REVIEW_ASSOCIATION_CONFIG.associationKeys,
         { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, riskIDs },
-        isCreate,
-        initialAssociationsRef.current,
+        true,
+        {},
       )
 
       return {

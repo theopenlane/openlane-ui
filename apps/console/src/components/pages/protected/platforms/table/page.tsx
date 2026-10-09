@@ -7,10 +7,10 @@ import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema from '../hooks/use-form-schema'
 
-import { PlatformPlatformStatus, type UpdatePlatformInput, type CreatePlatformInput } from '@repo/codegen/src/schema'
+import { PlatformPlatformStatus, type CreatePlatformInput } from '@repo/codegen/src/schema'
 import { type EditPlatformFormData } from '../hooks/use-form-schema'
 import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { useCreatePlatform, useUpdatePlatform, useDeletePlatform } from '@/lib/graphql-hooks/platform'
+import { useCreatePlatform, useDeletePlatform } from '@/lib/graphql-hooks/platform'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
@@ -27,16 +27,9 @@ const PlatformPage: React.FC = () => {
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
-  const isCreate = searchParams.get('create') === 'true'
 
-  const baseUpdateMutation = useUpdatePlatform()
   const baseCreateMutation = useCreatePlatform()
   const baseDeleteMutation = useDeletePlatform()
-
-  const updateMutation = {
-    isPending: baseUpdateMutation.isPending,
-    mutateAsync: async (params: { id: string; input: UpdatePlatformInput }) => baseUpdateMutation.mutateAsync({ updatePlatformId: params.id, input: params.input }),
-  }
 
   const createMutation = {
     isPending: baseCreateMutation.isPending,
@@ -70,7 +63,6 @@ const PlatformPage: React.FC = () => {
     form,
     data: id ? undefined : undefined,
     isFetching: false,
-    updateMutation,
     createMutation,
     deleteMutation,
     buildPayload: async (data) => {
@@ -90,9 +82,9 @@ const PlatformPage: React.FC = () => {
         dataFlowSummary,
         trustBoundaryDescription,
         // Default to the current user when no owner explicitly selected — backend requires this for authorization
-        platformOwnerID: platformOwner?.type === 'user' ? platformOwner.value : isCreate ? (session?.user?.id ?? undefined) : undefined,
-        ...buildResponsibilityPayload('businessOwner', businessOwner, { mode: isCreate ? 'create' : 'update' }),
-        ...buildResponsibilityPayload('technicalOwner', technicalOwner, { mode: isCreate ? 'create' : 'update' }),
+        platformOwnerID: platformOwner?.type === 'user' ? platformOwner.value : (session?.user?.userId ?? undefined),
+        ...buildResponsibilityPayload('businessOwner', businessOwner, { mode: 'create' }),
+        ...buildResponsibilityPayload('technicalOwner', technicalOwner, { mode: 'create' }),
       } as CreatePlatformInput
     },
     normalizeData: (data) => {

@@ -3,9 +3,13 @@
 import { type UseFormReturn } from 'react-hook-form'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
+import { useDirtyInput } from '@/hooks/useDirtyInput'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type TFormData } from './use-form-schema'
+import { CONTROL_IMPLEMENTATION_UPDATE_FIELDS } from './build-update-input'
+import { type UpdateControlImplementationInput } from '@repo/codegen/src/schema'
 import { ControlImplementationFields } from './control-implementation-fields'
 import { useCreateControlImplementation, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementation'
 import { Callout } from '@/components/shared/callout/callout'
@@ -27,32 +31,46 @@ export const CreateControlImplementationForm = ({
   const { successNotification, errorNotification } = useNotification()
   const isEditing = !!defaultValues
   const isSubcontrol = !!subcontrolId
-  const { convertToHtml } = usePlateEditor()
+  const plateEditorHelper = usePlateEditor()
+  const buildDirtyInput = useDirtyInput(form)
   const { handleSubmit } = form
 
   const { mutateAsync: createImplementation } = useCreateControlImplementation()
   const { mutateAsync: updateImplementation } = useUpdateControlImplementation()
 
-  const onSubmit = async (data: TFormData) => {
-    const details = typeof data.details === 'string' ? data.details || undefined : data.details ? await convertToHtml(data.details) : undefined
+  const updateImplementationFromForm = async (implementationId: string, data: TFormData) => {
+    const input = await buildDirtyInput<UpdateControlImplementationInput>(data, CONTROL_IMPLEMENTATION_UPDATE_FIELDS)
 
-    const basePayload = {
-      ...data,
-      details,
+    if (Object.keys(input).length === 0) {
+      form.reset()
+      onSuccess()
+      return
     }
 
+    await updateImplementation({ updateControlImplementationId: implementationId, input })
+    successNotification({ title: 'Control Implementation updated' })
+    onSuccess()
+  }
+
+  const createImplementationFromForm = async (data: TFormData) => {
+    const details = (await plateToHtmlOrNull(data.details, plateEditorHelper)) ?? undefined
+
+    await createImplementation({
+      ...data,
+      details,
+      ...(isSubcontrol ? { subcontrolIDs: [subcontrolId as string] } : { controlIDs: [id as string] }),
+    })
+    successNotification({ title: 'Control Implementation created' })
+    onSuccess()
+  }
+
+  const onSubmit = async (data: TFormData) => {
     try {
       if (isEditing) {
-        await updateImplementation({ updateControlImplementationId: defaultValues.id, input: basePayload })
-        successNotification({ title: 'Control Implementation updated' })
+        await updateImplementationFromForm(defaultValues.id, data)
       } else {
-        await createImplementation({
-          ...basePayload,
-          ...(isSubcontrol ? { subcontrolIDs: [subcontrolId as string] } : { controlIDs: [id as string] }),
-        })
-        successNotification({ title: 'Control Implementation created' })
+        await createImplementationFromForm(data)
       }
-      onSuccess()
     } catch (error) {
       errorNotification({ title: isEditing ? 'Update failed' : 'Create failed', description: parseErrorMessage(error) })
     }

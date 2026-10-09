@@ -22,6 +22,7 @@ import { Trash2, PencilIcon, NetworkIcon, Laptop, Building2, User, Users, Copy, 
 import Menu from '@/components/shared/menu/menu'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { associationsInput, orClear, richTextOrClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { PlatformPlatformStatus, type UpdatePlatformInput } from '@repo/codegen/src/schema'
 import PlatformAssetsTable from './platform-assets-table'
 import PlatformVendorsTable from './platform-vendors-table'
@@ -30,11 +31,10 @@ import { CollapsibleHtml } from './collapsible-html'
 import { PlatformDiagramsSection } from './platform-diagrams-section'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import useFormSchema, { type EditPlatformFormData, type PlatformLinkField } from '../hooks/use-form-schema'
-import { buildResponsibilityPayload, normalizeResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import useFormSchema, { type EditPlatformFormData } from '../hooks/use-form-schema'
+import { normalizeResponsibilityField, responsibilityInput, responsibilityTargetFor } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { toHumanLabel } from '@/utils/strings'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
-import { type Value } from 'platejs'
 import StepBasicInfo from '../create/steps/step-basic-info'
 import StepBusinessPurpose from '../create/steps/step-business-purpose'
 import StepDataFlow from '../create/steps/step-data-flow'
@@ -57,12 +57,40 @@ const STATUS_VARIANT: Record<PlatformPlatformStatus, 'green' | 'secondary'> = {
   [PlatformPlatformStatus.RETIRED]: 'secondary',
 }
 
+const platformResponsibilityTarget = responsibilityTargetFor<UpdatePlatformInput>()
+const PLATFORM_BUSINESS_OWNER = platformResponsibilityTarget('businessOwner')
+const PLATFORM_TECHNICAL_OWNER = platformResponsibilityTarget('technicalOwner')
+const PLATFORM_INTERNAL_OWNER = platformResponsibilityTarget('internalOwner')
+const PLATFORM_SECURITY_OWNER = platformResponsibilityTarget('securityOwner')
+
+const PLATFORM_UPDATE_FIELDS = {
+  description: orClear('clearDescription'),
+  businessPurpose: richTextOrClear('clearBusinessPurpose'),
+  dataFlowSummary: richTextOrClear('clearDataFlowSummary'),
+  trustBoundaryDescription: richTextOrClear('clearTrustBoundaryDescription'),
+  environmentName: orClear('clearEnvironmentName'),
+  scopeName: orClear('clearScopeName'),
+  containsPii: orClear('clearContainsPii'),
+  platformOwner: (platformOwner) => (platformOwner?.type === 'user' && platformOwner.value ? { platformOwnerID: platformOwner.value } : { clearPlatformOwner: true }),
+  businessOwner: responsibilityInput(PLATFORM_BUSINESS_OWNER),
+  technicalOwner: responsibilityInput(PLATFORM_TECHNICAL_OWNER),
+  internalOwner: responsibilityInput(PLATFORM_INTERNAL_OWNER),
+  securityOwner: responsibilityInput(PLATFORM_SECURITY_OWNER),
+  assetIDs: associationsInput('assetIDs'),
+  outOfScopeAssetIDs: associationsInput('outOfScopeAssetIDs'),
+  entityIDs: associationsInput('entityIDs'),
+  outOfScopeVendorIDs: associationsInput('outOfScopeVendorIDs'),
+  name: passthrough,
+  status: passthrough,
+} satisfies TFieldMappers<EditPlatformFormData, UpdatePlatformInput>
+
 const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onCreatePlatform }) => {
   const router = useRouter()
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
   const plateEditorHelper = usePlateEditor()
   const { form } = useFormSchema()
+  const buildDirtyInput = useDirtyInput(form)
 
   const { data, isLoading } = usePlatform(platformId)
   const { inScopeAssets, outOfScopeAssets, isPending: isAssetsPending, isSuccess: isAssetsLoaded, error: assetsError } = usePlatformAssets(platformId)
@@ -154,65 +182,16 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
     form.reset()
   }
 
-  const baselineLinkIDs = (field: PlatformLinkField) => new Set((form.formState.defaultValues?.[field] ?? []).filter((id): id is string => !!id))
-
-  const buildPayload = async (data: EditPlatformFormData): Promise<UpdatePlatformInput> => {
-    const { businessOwner, technicalOwner, platformOwner, internalOwner, securityOwner, entityIDs, outOfScopeVendorIDs, assetIDs, outOfScopeAssetIDs, ...rest } = data
-
-    const currentAssetIDs = baselineLinkIDs('assetIDs')
-    const currentOutOfScopeAssetIDs = baselineLinkIDs('outOfScopeAssetIDs')
-    const currentEntityIDs = baselineLinkIDs('entityIDs')
-    const currentOutOfScopeVendorIDs = baselineLinkIDs('outOfScopeVendorIDs')
-
-    const newAssetIDs = new Set(assetIDs ?? [])
-    const newOutOfScopeAssetIDs = new Set(outOfScopeAssetIDs ?? [])
-    const newEntityIDs = new Set(entityIDs ?? [])
-    const newOutOfScopeVendorIDs = new Set(outOfScopeVendorIDs ?? [])
-
-    const addAssetIDs = [...newAssetIDs].filter((id) => !currentAssetIDs.has(id))
-    const removeAssetIDs = [...currentAssetIDs].filter((id) => !newAssetIDs.has(id))
-    const addOutOfScopeAssetIDs = [...newOutOfScopeAssetIDs].filter((id) => !currentOutOfScopeAssetIDs.has(id))
-    const removeOutOfScopeAssetIDs = [...currentOutOfScopeAssetIDs].filter((id) => !newOutOfScopeAssetIDs.has(id))
-    const addEntityIDs = [...newEntityIDs].filter((id) => !currentEntityIDs.has(id))
-    const removeEntityIDs = [...currentEntityIDs].filter((id) => !newEntityIDs.has(id))
-    const addOutOfScopeVendorIDs = [...newOutOfScopeVendorIDs].filter((id) => !currentOutOfScopeVendorIDs.has(id))
-    const removeOutOfScopeVendorIDs = [...currentOutOfScopeVendorIDs].filter((id) => !newOutOfScopeVendorIDs.has(id))
-
-    const [businessPurpose, dataFlowSummary, trustBoundaryDescription] = await Promise.all([
-      rest.businessPurpose ? plateEditorHelper.convertToHtml(rest.businessPurpose as Value) : undefined,
-      rest.dataFlowSummary ? plateEditorHelper.convertToHtml(rest.dataFlowSummary as Value) : undefined,
-      rest.trustBoundaryDescription ? plateEditorHelper.convertToHtml(rest.trustBoundaryDescription as Value) : undefined,
-    ])
-    return {
-      name: rest.name,
-      description: rest.description || undefined,
-      status: rest.status,
-      scopeName: rest.scopeName,
-      environmentName: rest.environmentName,
-      containsPii: rest.containsPii,
-      businessPurpose,
-      dataFlowSummary,
-      trustBoundaryDescription,
-      platformOwnerID: platformOwner?.type === 'user' ? platformOwner.value : undefined,
-      clearPlatformOwner: !platformOwner || platformOwner.type !== 'user' ? true : undefined,
-      ...buildResponsibilityPayload('businessOwner', businessOwner, { mode: 'update' }),
-      ...buildResponsibilityPayload('technicalOwner', technicalOwner, { mode: 'update' }),
-      ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'update' }),
-      ...buildResponsibilityPayload('securityOwner', securityOwner, { mode: 'update' }),
-      addAssetIDs: addAssetIDs.length ? addAssetIDs : undefined,
-      removeAssetIDs: removeAssetIDs.length ? removeAssetIDs : undefined,
-      addOutOfScopeAssetIDs: addOutOfScopeAssetIDs.length ? addOutOfScopeAssetIDs : undefined,
-      removeOutOfScopeAssetIDs: removeOutOfScopeAssetIDs.length ? removeOutOfScopeAssetIDs : undefined,
-      addEntityIDs: addEntityIDs.length ? addEntityIDs : undefined,
-      removeEntityIDs: removeEntityIDs.length ? removeEntityIDs : undefined,
-      addOutOfScopeVendorIDs: addOutOfScopeVendorIDs.length ? addOutOfScopeVendorIDs : undefined,
-      removeOutOfScopeVendorIDs: removeOutOfScopeVendorIDs.length ? removeOutOfScopeVendorIDs : undefined,
-    } as UpdatePlatformInput
-  }
-
   const onSubmit = async (data: EditPlatformFormData) => {
     try {
-      const input = await buildPayload(data)
+      const input = await buildDirtyInput<UpdatePlatformInput>(data, PLATFORM_UPDATE_FIELDS)
+
+      if (Object.keys(input).length === 0) {
+        form.reset()
+        setIsEditing(false)
+        return
+      }
+
       await updatePlatformMutation({ updatePlatformId: platformId, input })
       successNotification({ title: 'Platform updated', description: 'The platform was successfully updated.' })
       setIsEditing(false)

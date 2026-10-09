@@ -9,7 +9,7 @@ import { type Value } from 'platejs'
 export const controlImplementationSchema = z.object({
   details: z.custom<Value | string>().optional(),
   status: z.enum(ControlImplementationDocumentStatus).optional(),
-  implementationDate: z.date().optional(),
+  implementationDate: z.date().nullable().optional(),
   controlIDs: z.array(z.string()).optional(),
 })
 

@@ -35,7 +35,7 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
           id: openedWith.id,
           details: openedWith.details ?? '',
           status: openedWith.status ?? ControlImplementationDocumentStatus.DRAFT,
-          implementationDate: openedWith.implementationDate ? new Date(openedWith.implementationDate) : undefined,
+          implementationDate: openedWith.implementationDate ? new Date(openedWith.implementationDate) : null,
         }
       : undefined
   }, [openedWith])

@@ -5,7 +5,7 @@ import {
   useGetPolicyDiscussionById,
   useUpdateInternalPolicy,
 } from '@/lib/graphql-hooks/internal-policy'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import useFormSchema, { type EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
@@ -33,14 +33,15 @@ import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { dateOrClear, omit, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
+import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { ASSOCIATION_REMOVAL_CONFIG, POLICY_ASSOCIATION_SECTIONS, buildAssociationSections } from '@/components/shared/object-association/object-association-config'
 import Loading from '@/app/(protected)/policies/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { type Value } from 'platejs'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { canonicalizeDetails } from '@/components/shared/plate/plate-utils'
+import { canonicalizeDetails, plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -60,6 +61,45 @@ type TViewPolicyPage = {
 const MAPPING_SETTLE_INTERVAL_MS = 1500
 const MAPPING_SETTLE_ATTEMPTS = 6
 
+const isPlateValue = (value: unknown): value is Value => Array.isArray(value)
+
+const buildPolicyUpdateFields = (isDetailsEditable: boolean) =>
+  ({
+    details: omit,
+    detailsJSON: async (detailsJSON, { revision }, { defaultValues, converter }) => {
+      if (!isDetailsEditable) {
+        return {}
+      }
+
+      const isRevisionOverridden = !!revision && revision !== defaultValues?.revision
+      const storedDetails = defaultValues?.detailsJSON
+      const isContentChanged = !!detailsJSON && (!isPlateValue(storedDetails) || canonicalizeDetails(storedDetails) !== canonicalizeDetails(detailsJSON))
+      const revisionBump: Partial<UpdateInternalPolicyInput> = !isRevisionOverridden && isContentChanged ? { RevisionBump: VersionBump.MINOR } : {}
+
+      if (detailsJSON === undefined) {
+        return revisionBump
+      }
+
+      const details = await plateToHtmlOrNull(detailsJSON, converter)
+      return { ...(details ? { detailsJSON, details } : { clearDetails: true, clearDetailsJSON: true }), ...revisionBump }
+    },
+    revision: (revision) => (revision ? { revision } : {}),
+    status: orClear('clearStatus'),
+    approvalRequired: orClear('clearApprovalRequired'),
+    reviewFrequency: orClear('clearReviewFrequency'),
+    internalPolicyKindName: orClear('clearInternalPolicyKindName'),
+    reviewDue: dateOrClear('clearReviewDue'),
+    tags: orClear('clearTags'),
+    approverID: orClear('clearApprover'),
+    delegateID: orClear('clearDelegate'),
+    programIDs: omit,
+    procedureIDs: omit,
+    controlObjectiveIDs: omit,
+    controlIDs: omit,
+    taskIDs: omit,
+    name: passthrough,
+  }) satisfies TFieldMappers<EditPolicyMetadataFormData, UpdateInternalPolicyInput>
+
 const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { data: session } = useSession()
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
@@ -67,6 +107,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
   const policy = data?.internalPolicy
   const { form } = useFormSchema()
+  const buildDirtyInput = useDirtyInput(form)
   const [isEditing, setIsEditing] = useState(false)
   const [editingField, setEditingField] = useState<string | null>(null)
   const queryClient = useQueryClient()
@@ -85,7 +126,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const [dataInitialized, setDataInitialized] = useState(false)
-  const initialDetailsCanonicalRef = useRef<string | null>(null)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
   const { data: assocData, isLoading: assocLoading } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
 
@@ -121,7 +161,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     return () => clearInterval(timer)
   }, [justCreated, settlingMappings, mappedControlCount, policyId, queryClient, router])
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
-  const plateEditorHelper = usePlateEditor()
   const isExternalReference = policy?.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
   const isIntegration = policy?.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION
   const hasFile = !!policy?.file
@@ -167,14 +206,13 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         approvalRequired: policy?.approvalRequired ?? true,
         status: policy.status ?? InternalPolicyDocumentStatus.DRAFT,
         internalPolicyKindName: policy.internalPolicyKindName ?? '',
-        reviewDue: policy.reviewDue ? new Date(policy.reviewDue as string) : undefined,
+        reviewDue: policy.reviewDue ? new Date(policy.reviewDue as string) : null,
         reviewFrequency: policy.reviewFrequency ?? InternalPolicyFrequency.YEARLY,
         revision: policy.revision ?? '',
         approverID: policy.approver?.id,
         delegateID: policy.delegate?.id,
       })
 
-      initialDetailsCanonicalRef.current = policy.detailsJSON ? canonicalizeDetails(policy.detailsJSON) : null
       setDataInitialized(true)
     }
   }, [policy, form, dataInitialized])
@@ -212,44 +250,15 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       }
 
       try {
-        const { revision, approverID, delegateID, details: _details, detailsJSON, ...restData } = data
-        const input: UpdateInternalPolicyInput = {
-          ...restData,
-          tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+        const input = await buildDirtyInput<UpdateInternalPolicyInput>(data, buildPolicyUpdateFields(!isExternalReference && !isIntegration))
+
+        if (Object.keys(input).length === 0) {
+          form.reset()
+          setIsEditing(false)
+          return
         }
 
-        if (detailsJSON !== undefined && !isExternalReference && !isIntegration) {
-          input.detailsJSON = detailsJSON
-          input.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
-        }
-
-        if (approverID) {
-          input.approverID = approverID
-        } else if (policy.approver?.id) {
-          input.clearApprover = true
-        }
-
-        if (delegateID) {
-          input.delegateID = delegateID
-        } else if (policy.delegate?.id) {
-          input.clearDelegate = true
-        }
-
-        if (revision && revision !== (policy?.revision ?? '')) {
-          input.revision = revision
-        } else if (detailsJSON && initialDetailsCanonicalRef.current !== null && canonicalizeDetails(detailsJSON) !== initialDetailsCanonicalRef.current) {
-          input.RevisionBump = VersionBump.MINOR
-        }
-
-        const formData: {
-          updateInternalPolicyId: string
-          input: UpdateInternalPolicyInput
-        } = {
-          updateInternalPolicyId: policy?.id,
-          input,
-        }
-
-        await updatePolicy(formData)
+        await updatePolicy({ updateInternalPolicyId: policy.id, input })
 
         successNotification({
           title: 'Policy Updated',
@@ -268,7 +277,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         })
       }
     },
-    [policy, plateEditorHelper, updatePolicy, successNotification, errorNotification, queryClient, policyId, initialDetailsCanonicalRef, isExternalReference, isIntegration],
+    [policy, updatePolicy, successNotification, errorNotification, queryClient, policyId, isExternalReference, isIntegration, buildDirtyInput, form],
   )
 
   const handleFormSubmit = useCallback(
@@ -278,7 +287,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     [form, onSubmitHandler],
   )
 
-  const handleUpdateField = async (input: UpdateInternalPolicyInput, options?: { throwOnError?: boolean }) => {
+  const handleUpdateField = async (input: UpdateInternalPolicyInput, options?: TPersistOptions) => {
     if (!policy?.id) {
       return
     }

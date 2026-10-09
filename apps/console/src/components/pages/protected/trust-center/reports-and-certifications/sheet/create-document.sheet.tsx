@@ -1,13 +1,14 @@
 'use client'
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import { omit, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
+import { TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus, type UpdateTrustCenterDocInput } from '@repo/codegen/src/schema'
 import { useCreateTrustCenterDoc, useDeleteTrustCenterDoc, useGetTrustCenterDocById, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center-doc'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useNotification } from '@/hooks/useNotification'
@@ -36,19 +37,30 @@ import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
 
-const schema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  category: z.string().min(1, 'Category is required'),
-  visibility: z.enum(TrustCenterDocTrustCenterDocumentVisibility, {
-    error: (issue) => (issue.input === undefined ? 'Visibility is required' : undefined),
-  }),
-  tags: z.array(z.string()).optional(),
-  file: z.instanceof(File).optional(),
-  status: z.enum(TrustCenterDocWatermarkStatus).optional(),
-  standardID: z.string().optional(),
-})
+const buildSchema = (requireCategory: boolean) =>
+  z.object({
+    title: z.string().min(1, 'Title is required'),
+    category: z.string().refine((value) => !requireCategory || value.length > 0, { error: 'Category is required' }),
+    visibility: z.enum(TrustCenterDocTrustCenterDocumentVisibility, {
+      error: (issue) => (issue.input === undefined ? 'Visibility is required' : undefined),
+    }),
+    tags: z.array(z.string()).optional(),
+    file: z.instanceof(File).optional(),
+    status: z.enum(TrustCenterDocWatermarkStatus).optional(),
+    standardID: z.string().optional(),
+  })
 
-type FormData = z.infer<typeof schema>
+type FormData = z.infer<ReturnType<typeof buildSchema>>
+
+const DOCUMENT_UPDATE_FIELDS = {
+  category: (category) => (category ? { trustCenterDocKindName: category } : { clearTrustCenterDocKindName: true, clearTrustCenterDocKind: true }),
+  visibility: orClear('clearVisibility'),
+  tags: orClear('clearTags'),
+  file: omit,
+  status: omit,
+  standardID: orClear('clearStandard'),
+  title: passthrough,
+} satisfies TFieldMappers<FormData, UpdateTrustCenterDocInput>
 
 export const CreateDocumentSheet: React.FC = () => {
   const router = useRouter()
@@ -88,6 +100,7 @@ export const CreateDocumentSheet: React.FC = () => {
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? null
   const watermarkEnabled = trustCenterData?.trustCenters?.edges?.[0]?.node?.watermarkConfig?.isEnabled ?? null
   const [isWatermarkEnabled, setIsWatermarkEnabled] = useState(watermarkEnabled ?? false)
+  const schema = useMemo(() => buildSchema(!isEditMode), [isEditMode])
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -100,6 +113,7 @@ export const CreateDocumentSheet: React.FC = () => {
   })
 
   const { handleSubmit, reset, formState, control } = formMethods
+  const buildDirtyInput = useDirtyInput(formMethods)
   const visibilityValue = useWatch({ control, name: 'visibility' })
   const { isSubmitting } = formState
 
@@ -117,10 +131,10 @@ export const CreateDocumentSheet: React.FC = () => {
   const handleFileUpload = (uploaded: TUploadedFile | null) => {
     if (uploaded?.file) {
       setUploadedFile(uploaded.file)
-      formMethods.setValue('file', uploaded.file, { shouldValidate: true })
+      formMethods.setValue('file', uploaded.file, { shouldValidate: true, shouldDirty: true })
     } else {
       setUploadedFile(null)
-      formMethods.setValue('file', undefined, { shouldValidate: true })
+      formMethods.setValue('file', undefined, { shouldValidate: true, shouldDirty: true })
     }
   }
 
@@ -129,17 +143,16 @@ export const CreateDocumentSheet: React.FC = () => {
       if (!trustCenterID) throw new Error('Trust Center ID not found.')
 
       if (isEditMode) {
-        await updateDoc({
-          input: {
-            title: data.title,
-            trustCenterDocKindName: data.category,
-            visibility: data.visibility,
-            tags: data.tags ?? [],
-            ...(data.standardID ? { standardID: data.standardID } : { clearStandard: true }),
-          },
-          updateTrustCenterDocId: documentId ?? '',
-          trustCenterDocFile: data.file,
-        })
+        const input = await buildDirtyInput<UpdateTrustCenterDocInput>(data, DOCUMENT_UPDATE_FIELDS)
+
+        if (Object.keys(input).length > 0 || data.file) {
+          await updateDoc({
+            input,
+            updateTrustCenterDocId: documentId ?? '',
+            trustCenterDocFile: data.file,
+          })
+        }
+        reset({ ...data, file: undefined })
 
         successNotification({
           title: 'Document Updated',

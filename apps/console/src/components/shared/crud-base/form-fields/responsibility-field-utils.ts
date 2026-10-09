@@ -83,14 +83,18 @@ type ResponsibilityPayloadMode = 'create' | 'update'
 export type ResponsibilityInputKeys<B extends string, S extends string> =
   `${B}UserID` | `${B}GroupID` | `${B}IdentityHolderID` | S | `clear${Capitalize<B>}User` | `clear${Capitalize<B>}Group` | `clear${Capitalize<B>}IdentityHolder` | `clear${Capitalize<S>}`
 
-export interface ResponsibilityTarget {
+export type ResponsibilityInputKeysWithoutPersonnel<B extends string, S extends string> = Exclude<ResponsibilityInputKeys<B, S>, `${B}IdentityHolderID` | `clear${Capitalize<B>}IdentityHolder`>
+
+export interface ResponsibilityTarget<TInput = object> {
   fieldBaseName: string
   stringFieldName: string
+  allowPersonnel?: boolean
+  readonly input?: TInput
 }
 
 export const responsibilityTargetFor =
   <TInput>() =>
-  <const B extends string, const S extends string = B>(fieldBaseName: ResponsibilityInputKeys<B, S> extends keyof TInput ? B : never, stringFieldName?: S): ResponsibilityTarget => ({
+  <const B extends string, const S extends string = B>(fieldBaseName: ResponsibilityInputKeys<B, S> extends keyof TInput ? B : never, stringFieldName?: S): ResponsibilityTarget<TInput> => ({
     fieldBaseName,
     stringFieldName: stringFieldName ?? fieldBaseName,
   })
@@ -110,61 +114,76 @@ function getClearFieldNames(fieldBaseName: string, stringFieldName: string): { c
   }
 }
 
+const buildResponsibilityUpdate = (fieldBaseName: string, selection: ResponsibilitySelection, allowPersonnel: boolean, stringFieldName: string): Record<string, string | boolean | undefined> => {
+  const { clearUser, clearGroup, clearString, clearPersonnel } = getClearFieldNames(fieldBaseName, stringFieldName)
+  const clearPersonnelFields = allowPersonnel ? { [clearPersonnel]: true } : {}
+
+  if (!selection) {
+    return {
+      ...clearPersonnelFields,
+      [clearUser]: true,
+      [clearGroup]: true,
+      [clearString]: true,
+    }
+  }
+
+  if (selection.value === '') {
+    return {
+      [clearString]: true,
+    }
+  }
+
+  if (selection.noClearOtherFields) {
+    return { [`${fieldBaseName}ID`]: selection.value }
+  }
+
+  switch (selection.type) {
+    case 'user':
+      return {
+        ...clearPersonnelFields,
+        [`${fieldBaseName}UserID`]: selection.value,
+        [clearGroup]: true,
+        [clearString]: true,
+      }
+    case 'group':
+      return {
+        [`${fieldBaseName}GroupID`]: selection.value,
+        ...clearPersonnelFields,
+        [clearUser]: true,
+        [clearString]: true,
+      }
+    case 'personnel':
+      return { [`${fieldBaseName}IdentityHolderID`]: selection.value, [clearUser]: true, [clearGroup]: true, [clearString]: true }
+    case 'string':
+      return {
+        [stringFieldName]: selection.value,
+        ...clearPersonnelFields,
+        [clearUser]: true,
+        [clearGroup]: true,
+      }
+    default:
+      return {}
+  }
+}
+
+export const responsibilityTargetWithoutPersonnelFor =
+  <TInput>() =>
+  <const B extends string, const S extends string = B>(
+    fieldBaseName: ResponsibilityInputKeysWithoutPersonnel<B, S> extends keyof TInput ? B : never,
+    stringFieldName?: S,
+  ): ResponsibilityTarget<TInput> => ({
+    fieldBaseName,
+    stringFieldName: stringFieldName ?? fieldBaseName,
+    allowPersonnel: false,
+  })
+
 export function buildResponsibilityPayload(
   fieldBaseName: string,
   selection: ResponsibilitySelection,
   { mode = 'create', allowPersonnel = true, stringFieldName = fieldBaseName }: ResponsibilityPayloadOptions = {},
 ): Record<string, string | boolean | undefined> {
   if (mode === 'update') {
-    const { clearUser, clearGroup, clearString, clearPersonnel } = getClearFieldNames(fieldBaseName, stringFieldName)
-    const clearPersonnelFields = allowPersonnel ? { [clearPersonnel]: true } : {}
-
-    if (!selection) {
-      return {
-        ...clearPersonnelFields,
-        [clearUser]: true,
-        [clearGroup]: true,
-        [clearString]: true,
-      }
-    }
-
-    if (selection.value === '') {
-      return {
-        [clearString]: true,
-      }
-    }
-
-    if (selection.noClearOtherFields) {
-      return { [`${fieldBaseName}ID`]: selection.value }
-    }
-
-    switch (selection.type) {
-      case 'user':
-        return {
-          ...clearPersonnelFields,
-          [`${fieldBaseName}UserID`]: selection.value,
-          [clearGroup]: true,
-          [clearString]: true,
-        }
-      case 'group':
-        return {
-          [`${fieldBaseName}GroupID`]: selection.value,
-          ...clearPersonnelFields,
-          [clearUser]: true,
-          [clearString]: true,
-        }
-      case 'personnel':
-        return { [`${fieldBaseName}IdentityHolderID`]: selection.value, [clearUser]: true, [clearGroup]: true, [clearString]: true }
-      case 'string':
-        return {
-          [stringFieldName]: selection.value,
-          ...clearPersonnelFields,
-          [clearUser]: true,
-          [clearGroup]: true,
-        }
-      default:
-        return {}
-    }
+    return buildResponsibilityUpdate(fieldBaseName, selection, allowPersonnel, stringFieldName)
   }
 
   if (!selection) {
@@ -189,6 +208,9 @@ export function buildResponsibilityPayload(
   }
 }
 
+export const buildResponsibilityCreatePayload = (target: ResponsibilityTarget, selection: ResponsibilitySelection) =>
+  buildResponsibilityPayload(target.fieldBaseName, selection, { mode: 'create', stringFieldName: target.stringFieldName })
+
 export function buildResponsibilityInlineUpdate(
   fieldBaseName: string,
   selection: ResponsibilitySelection,
@@ -200,3 +222,8 @@ export function buildResponsibilityInlineUpdate(
 function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
+
+export const responsibilityInput =
+  <TInput>(target: ResponsibilityTarget<TInput>) =>
+  (selection: ResponsibilitySelection): Partial<TInput> =>
+    buildResponsibilityUpdate(target.fieldBaseName, selection, target.allowPersonnel ?? true, target.stringFieldName) as Partial<TInput>

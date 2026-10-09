@@ -12,8 +12,10 @@ import { useContact, useUpdateContact } from '@/lib/graphql-hooks/contact'
 import { ContactUserStatus, type UpdateContactInput } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useDirtyInput } from '@/hooks/useDirtyInput'
 import { LoaderCircle } from 'lucide-react'
 import useContactFormSchema, { type AddContactFormData } from './use-contact-form-schema'
+import { CONTACT_SCALAR_UPDATE_FIELDS } from '@/components/pages/protected/contacts/hooks/contact-update-fields'
 
 const STATUS_OPTIONS = enumToOptions(ContactUserStatus)
 const CONTACT_FORM_ID = 'edit-contact-form'
@@ -30,6 +32,7 @@ const ContactDetailSheet: React.FC<ContactDetailSheetProps> = ({ contactId, onCl
   const { mutateAsync: updateContact, isPending } = useUpdateContact()
   const { successNotification, errorNotification } = useNotification()
   const { form } = useContactFormSchema()
+  const buildDirtyInput = useDirtyInput(form)
 
   useEffect(() => {
     if (contact) {
@@ -48,14 +51,7 @@ const ContactDetailSheet: React.FC<ContactDetailSheetProps> = ({ contactId, onCl
   const handleSubmit = async (data: AddContactFormData) => {
     if (!contact) return
 
-    const input: UpdateContactInput = {}
-    const fields = ['fullName', 'email', 'company', 'title', 'phoneNumber', 'address'] as const
-    for (const field of fields) {
-      if (data[field] !== (contact[field] ?? '')) {
-        input[field] = data[field] || undefined
-      }
-    }
-    if (data.status !== contact.status) input.status = data.status
+    const input = await buildDirtyInput<UpdateContactInput>(data, CONTACT_SCALAR_UPDATE_FIELDS)
 
     if (Object.keys(input).length === 0) {
       onClose()

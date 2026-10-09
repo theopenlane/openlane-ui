@@ -106,6 +106,7 @@ export const GET_ALL_TRUST_CENTERS = gql`
             opacity
             rotation
             isEnabled
+            font
           }
         }
       }

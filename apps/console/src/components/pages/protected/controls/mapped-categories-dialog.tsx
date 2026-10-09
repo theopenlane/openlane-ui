@@ -8,8 +8,6 @@ import { useFormContext } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useGetStandards } from '@/lib/graphql-hooks/standard'
 import { FolderIcon } from 'lucide-react'
-import { useParams } from 'next/navigation'
-import { useUpdateControl } from '@/lib/graphql-hooks/control'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
@@ -18,14 +16,17 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
-const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
-  const { id } = useParams<{ id: string }>()
+type TMappedCategoriesDialogProps = {
+  onClose: () => void
+  onSave: (selected: string[]) => Promise<void>
+}
+
+const MappedCategoriesDialog = ({ onClose, onSave }: TMappedCategoriesDialogProps) => {
   const [open, setOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
   const [selectedStandardId, setSelectedStandardId] = useState<string | 'all'>('all')
   const standardsId = useId()
-
-  const { mutateAsync: updateControl, isPending } = useUpdateControl()
 
   const [pagination, setPagination] = useOrgTablePagination(
     {
@@ -37,7 +38,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
     TableKeyEnum.CONTROLS_MAPPED_CATEGORIES,
   )
 
-  const { setValue, getValues } = useFormContext()
+  const { getValues } = useFormContext()
   const { data, isLoading } = useGetStandards({})
 
   const standards = useMemo(() => {
@@ -69,18 +70,17 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
   }
 
   const handleSave = async () => {
-    setValue('mappedCategories', selected)
-    setOpen(false)
-    if (!id) {
-      return
+    const current: string[] = getValues('mappedCategories') ?? []
+    const unchanged = current.length === selected.length && current.every((category) => selected.includes(category))
+    if (!unchanged) {
+      setIsSaving(true)
+      try {
+        await onSave(selected)
+      } finally {
+        setIsSaving(false)
+      }
     }
-
-    await updateControl({
-      updateControlId: id ?? '',
-      input: {
-        mappedCategories: selected,
-      },
-    })
+    setOpen(false)
     onClose()
   }
 
@@ -208,7 +208,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
                 onClose()
               }}
             ></CancelButton>
-            <SaveButton onClick={handleSave} isSaving={isPending} />
+            <SaveButton onClick={handleSave} isSaving={isSaving} disabled={isSaving} />
           </div>
         </DialogContent>
       </Dialog>

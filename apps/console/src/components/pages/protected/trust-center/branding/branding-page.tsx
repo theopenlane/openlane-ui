@@ -2,7 +2,7 @@
 
 import { type TrustCenterPreviewSetting, type TrustCenterSetting, useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
+import { TrustCenterSettingTrustCenterThemeMode, type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
 import { PageHeading } from '@repo/ui/page-heading'
 import { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { type UpdateTrustCenterSettingsArgs, useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
@@ -25,6 +25,8 @@ import { getBrandingPreviewDifference } from './helpers/preview-difference'
 import { UnpublishedChangesWarning } from './section-warning'
 import { useFixedToolbarOffset } from '@/hooks/useFixedToolbarOffset'
 import { buildPreviewUrl } from './helpers/preview-url'
+import { BRANDING_PREVIEW_FIELDS, clearableSettingInput, FAVICON_ASSET, LOGO_ASSET, publishAssetInput, revertAssetInput } from './helpers/branding-setting-input'
+import { useDirtyInput } from '@/hooks/useDirtyInput'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -61,6 +63,8 @@ const BrandPage: React.FC = () => {
     reset,
     formState: { isDirty },
   } = methods
+
+  const buildDirtyInput = useDirtyInput(methods)
 
   const [isFormSettled, setIsFormSettled] = useState(false)
   const hasUnsavedChanges = isFormSettled && isDirty
@@ -112,74 +116,58 @@ const BrandPage: React.FC = () => {
   const hasPreviewDifference = useMemo(() => getBrandingPreviewDifference(setting, previewSetting), [setting, previewSetting])
   const unpublishedWarning = <UnpublishedChangesWarning previewUrl={previewUrl} />
 
-  const setColorOrClear = (value: string | null | undefined, colorKey: string, clearKey: string) => {
-    const normalized = normalizeHexColor(value)
-    return normalized ? { [colorKey]: normalized } : { [clearKey]: true }
+  const buildSettingInput = async (values: BrandFormValues): Promise<UpdateTrustCenterSettingInput> => ({
+    ...clearableSettingInput(values),
+    font: values.font,
+    themeMode: values.themeMode,
+    title: values.title,
+    overview: typeof values.overview === 'string' ? values.overview.trim() : values.overview ? await convertToHtml(values.overview) : '',
+  })
+
+  const buildPublishInput = async (values: BrandFormValues): Promise<UpdateTrustCenterSettingInput> => ({
+    ...(await buildSettingInput(values)),
+    ...publishAssetInput(LOGO_ASSET, values.logoFile, previewSetting?.logoFile?.id, values.logoRemoteURL),
+    ...publishAssetInput(FAVICON_ASSET, values.faviconFile, previewSetting?.faviconFile?.id, values.faviconRemoteURL),
+  })
+
+  const stagedUploads = (values: BrandFormValues): Pick<UpdateTrustCenterSettingsArgs, 'logoFile' | 'faviconFile'> => ({
+    logoFile: values.logoFile ?? undefined,
+    faviconFile: values.faviconFile ?? undefined,
+  })
+
+  const savePreview = async (values: BrandFormValues) => {
+    if (!previewSetting?.id) return
+
+    const input = await buildDirtyInput<UpdateTrustCenterSettingInput>(values, BRANDING_PREVIEW_FIELDS)
+    const uploads = stagedUploads(values)
+
+    if (Object.keys(input).length === 0 && !uploads.logoFile && !uploads.faviconFile) {
+      reset()
+      return
+    }
+
+    await updateTrustCenterSetting({ id: previewSetting.id, input, ...uploads })
   }
 
-  const onSubmit = async (values: BrandFormValues, action: 'preview' | 'publish') => {
-    const targetSettingId = action === 'preview' ? previewSetting?.id : setting?.id
-    if (!targetSettingId) return
+  const publish = async (values: BrandFormValues) => {
+    if (!setting?.id) return
 
-    const overviewValue = values.overview
-    const overview = typeof overviewValue === 'string' ? overviewValue.trim() : overviewValue ? await convertToHtml(overviewValue) : ''
+    const input = await buildPublishInput(values)
+    const published = await updateTrustCenterSetting({ id: setting.id, input, ...stagedUploads(values) })
+    if (!published) return
 
-    const payload: UpdateTrustCenterSettingsArgs = {
-      id: targetSettingId,
-      input: {
-        ...setColorOrClear(values.primaryColor, 'primaryColor', 'clearPrimaryColor'),
-        ...setColorOrClear(values.foregroundColor, 'foregroundColor', 'clearForegroundColor'),
-        ...setColorOrClear(values.backgroundColor, 'backgroundColor', 'clearBackgroundColor'),
-        ...setColorOrClear(values.secondaryForegroundColor, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
-        ...setColorOrClear(values.secondaryBackgroundColor, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
-        ...setColorOrClear(values.accentColor, 'accentColor', 'clearAccentColor'),
-        font: values.font,
-        themeMode: values.themeMode,
-        title: values.title,
-        overview,
-        ...(values.securityContact ? { securityContact: values.securityContact } : { clearSecurityContact: true }),
-        ...(values.statusPageURL ? { statusPageURL: values.statusPageURL } : { clearStatusPageURL: true }),
-        ...(values.companyName ? { companyName: values.companyName } : { clearCompanyName: true }),
-        ...(values.companyDescription ? { companyDescription: values.companyDescription } : { clearCompanyDescription: true }),
-        ...(values.companyDomain ? { companyDomain: values.companyDomain } : { clearCompanyDomain: true }),
-      },
-    }
-
-    if (values.logoFile) {
-      payload.logoFile = values.logoFile
-      payload.input.clearLogoRemoteURL = true
-    } else if (action === 'publish' && previewSetting?.logoFile?.id) {
-      payload.input.logoFileID = previewSetting.logoFile.id
-      payload.input.clearLogoRemoteURL = true
-    } else if (values.logoRemoteURL) {
-      payload.input.logoRemoteURL = values.logoRemoteURL
-      payload.input.clearLogoFile = true
-    }
-
-    if (values.faviconFile) {
-      payload.faviconFile = values.faviconFile
-      payload.input.clearFaviconRemoteURL = true
-    } else if (action === 'publish' && previewSetting?.faviconFile?.id) {
-      payload.input.faviconFileID = previewSetting.faviconFile.id
-      payload.input.clearFaviconRemoteURL = true
-    } else if (values.faviconRemoteURL) {
-      payload.input.faviconRemoteURL = values.faviconRemoteURL
-      payload.input.clearFaviconFile = true
-    }
-
-    const resp = await updateTrustCenterSetting(payload)
-
-    if (action === 'publish' && previewSetting?.id) {
-      await updateTrustCenterSetting({
+    if (previewSetting?.id) {
+      const mirrored = await updateTrustCenterSetting({
         id: previewSetting.id,
         input: {
-          ...payload.input,
-          logoFileID: resp?.trustCenterSetting.logoFile?.id,
-          logoRemoteURL: resp?.trustCenterSetting.logoRemoteURL,
-          faviconFileID: resp?.trustCenterSetting.faviconFile?.id,
-          faviconRemoteURL: resp?.trustCenterSetting.faviconRemoteURL,
+          ...input,
+          logoFileID: published.trustCenterSetting.logoFile?.id,
+          logoRemoteURL: published.trustCenterSetting.logoRemoteURL,
+          faviconFileID: published.trustCenterSetting.faviconFile?.id,
+          faviconRemoteURL: published.trustCenterSetting.faviconRemoteURL,
         },
       })
+      if (!mirrored) return
     }
     setIsConfirmationDialogOpen(false)
   }
@@ -189,31 +177,13 @@ const BrandPage: React.FC = () => {
     updateTrustCenterSetting({
       id: previewSetting.id,
       input: {
+        ...clearableSettingInput(setting),
         title: setting.title,
         overview: setting.overview,
-        ...(setting.securityContact ? { securityContact: setting.securityContact } : { clearSecurityContact: true }),
-        ...(setting.statusPageURL ? { statusPageURL: setting.statusPageURL } : { clearStatusPageURL: true }),
-        ...setColorOrClear(setting.primaryColor, 'primaryColor', 'clearPrimaryColor'),
-        ...setColorOrClear(setting.foregroundColor, 'foregroundColor', 'clearForegroundColor'),
-        ...setColorOrClear(setting.backgroundColor, 'backgroundColor', 'clearBackgroundColor'),
-        ...setColorOrClear(setting.accentColor, 'accentColor', 'clearAccentColor'),
-        ...setColorOrClear(setting.secondaryForegroundColor, 'secondaryForegroundColor', 'clearSecondaryForegroundColor'),
-        ...setColorOrClear(setting.secondaryBackgroundColor, 'secondaryBackgroundColor', 'clearSecondaryBackgroundColor'),
         ...(setting.font ? { font: setting.font } : { clearFont: true }),
         themeMode: setting.themeMode,
-        ...(setting.logoFile?.id
-          ? { logoFileID: setting.logoFile.id, clearLogoRemoteURL: true }
-          : setting.logoRemoteURL
-            ? { logoRemoteURL: setting.logoRemoteURL, clearLogoFile: true }
-            : { clearLogoFile: true, clearLogoRemoteURL: true }),
-        ...(setting.faviconFile?.id
-          ? { faviconFileID: setting.faviconFile.id, clearFaviconRemoteURL: true }
-          : setting.faviconRemoteURL
-            ? { faviconRemoteURL: setting.faviconRemoteURL, clearFaviconFile: true }
-            : { clearFaviconFile: true, clearFaviconRemoteURL: true }),
-        ...(setting.companyName ? { companyName: setting.companyName } : { clearCompanyName: true }),
-        ...(setting.companyDescription ? { companyDescription: setting.companyDescription } : { clearCompanyDescription: true }),
-        ...(setting.companyDomain ? { companyDomain: setting.companyDomain } : { clearCompanyDomain: true }),
+        ...revertAssetInput(LOGO_ASSET, setting.logoFile?.id, setting.logoRemoteURL),
+        ...revertAssetInput(FAVICON_ASSET, setting.faviconFile?.id, setting.faviconRemoteURL),
       },
     })
   }
@@ -233,7 +203,7 @@ const BrandPage: React.FC = () => {
             hasUnsavedChanges={hasUnsavedChanges}
             hasPreviewChanges={hasPreviewDifference.any}
             isPreviewAvailable={hasPreviewDifference.comparable}
-            onPreview={handleSubmit((v) => onSubmit(v, 'preview'))}
+            onPreview={handleSubmit(savePreview)}
             onRevert={handleRevert}
             onPublish={() => setIsConfirmationDialogOpen(true)}
           />
@@ -260,7 +230,7 @@ const BrandPage: React.FC = () => {
         <ConfirmationDialog
           open={isConfirmationDialogOpen}
           onOpenChange={setIsConfirmationDialogOpen}
-          onConfirm={handleSubmit((v) => onSubmit(v, 'publish'))}
+          onConfirm={handleSubmit(publish)}
           confirmationText="Publish"
           title="Publish"
           description="Publishing will apply these changes to your live site..."

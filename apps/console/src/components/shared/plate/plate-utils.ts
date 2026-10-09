@@ -16,6 +16,7 @@ export const plainTextToPlateValue = (input: string | null | undefined): Value =
 
 export const isPlateValueEmpty = (value: Value | string | undefined | null, editor?: SlateEditor): boolean => {
   if (!value) return true
+  if (typeof value === 'string' && detectFormat(value) !== 'html') return value.trim() === ''
 
   const { editor: parsedEditor, nodes } = typeof value === 'string' ? deserializeToPlate(value) : { editor: null, nodes: value }
   if (!nodes || nodes.length === 0) return true
@@ -32,7 +33,7 @@ export const isPlateValueEmpty = (value: Value | string | undefined | null, edit
   return true
 }
 
-type TPlateHtmlConverter = Pick<ReturnType<typeof usePlateEditor>, 'convertToHtml'>
+export type TPlateHtmlConverter = Pick<ReturnType<typeof usePlateEditor>, 'convertToHtml'>
 
 export const plateToHtmlOrNull = async (value: Value | string | undefined | null, converter: TPlateHtmlConverter): Promise<string | null> => {
   if (!value || isPlateValueEmpty(value)) {

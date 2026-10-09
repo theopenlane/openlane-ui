@@ -16,6 +16,7 @@ import { mapEntityDiscussions, type TDiscussionEntity, useDiscussionUsers } from
 
 export type TPlateEditorProps = {
   onChange?: (data: Value) => void
+  onHydrate?: (data: Value) => void
   initialValue?: string | Value
   variant?: TPlateEditorVariants
   styleVariant?: TPlateEditorStyleVariant
@@ -40,6 +41,7 @@ export interface PlateEditorRef {
 
 const PlateEditor = ({
   onChange,
+  onHydrate,
   initialValue,
   variant = 'basic',
   styleVariant,
@@ -178,8 +180,10 @@ const PlateEditor = ({
         editor.tf.reset()
         editor.tf.insertNodes(slateNodes, { at: [0], removeEmpty: true })
       }
+
+      onHydrate?.(stripDraftCommentMarks(editor.children as Value))
     }
-  }, [editor, initialValue, plateEditor])
+  }, [editor, initialValue, plateEditor, onHydrate])
 
   useEffect(() => {
     if (clearData) {

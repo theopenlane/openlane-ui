@@ -51,7 +51,6 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
 
   const normalizedValues = useMemo(() => {
     if (!openedWith) return undefined
-    const RevisionBump: VersionBump | undefined = openedWith.status === ControlObjectiveObjectiveStatus.DRAFT ? VersionBump.DRAFT : undefined
     return {
       id: openedWith.id,
       name: openedWith.name ?? '',
@@ -62,7 +61,7 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
       category: openedWith.category ?? '',
       subcategory: openedWith.subcategory ?? '',
       revision: openedWith.revision ?? '',
-      RevisionBump,
+      RevisionBump: openedWith.status === ControlObjectiveObjectiveStatus.DRAFT ? VersionBump.DRAFT : undefined,
     }
   }, [openedWith])
 

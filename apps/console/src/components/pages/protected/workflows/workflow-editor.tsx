@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
@@ -14,6 +14,7 @@ import { WorkflowVisualEditor } from '@/components/workflows/workflow-visual-edi
 import { WorkflowFormEditor } from '@/components/workflows/workflow-form-editor'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { diffBuiltInput } from '@/utils/input-diff'
 import { useWorkflowMetadata } from '@/lib/graphql-hooks/workflows'
 import { useWorkflowDefinition, useCreateWorkflowDefinition, useUpdateWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
 import { getWorkflowTemplateById } from '@/lib/workflow-templates'
@@ -56,6 +57,57 @@ const sanitizeActions = (actions: WorkflowAction[]): WorkflowAction[] =>
     return { ...action, params }
   })
 
+type WorkflowEditorValues = {
+  name: string
+  description: string
+  schemaType: string
+  workflowKind: WorkflowDefinitionWorkflowKind
+  approvalTiming: ApprovalTiming
+  active: boolean
+  draft: boolean
+  isDefault: boolean
+  cooldownSeconds: number
+  triggers: WorkflowTrigger[]
+  conditions: WorkflowCondition[]
+  actions: WorkflowAction[]
+}
+
+const buildWorkflowDocument = (values: WorkflowEditorValues): WorkflowDocument => {
+  const isApproval = values.workflowKind === WorkflowDefinitionWorkflowKind.APPROVAL
+
+  return {
+    name: values.name.trim(),
+    description: values.description.trim() || undefined,
+    schemaType: values.schemaType,
+    workflowKind: values.workflowKind,
+    approvalTiming: isApproval ? values.approvalTiming : undefined,
+    approvalSubmissionMode: isApproval ? DEFAULT_APPROVAL_SUBMISSION_MODE : undefined,
+    version: DEFAULT_VERSION,
+    targets: {},
+    triggers: values.triggers,
+    conditions: values.conditions,
+    actions: sanitizeActions(values.actions),
+    metadata: {},
+  }
+}
+
+const buildUpdateInput = (values: WorkflowEditorValues): UpdateWorkflowDefinitionInput => {
+  const description = values.description.trim()
+
+  return {
+    name: values.name.trim(),
+    description: description || undefined,
+    clearDescription: description ? undefined : true,
+    schemaType: values.schemaType,
+    workflowKind: values.workflowKind,
+    active: values.active,
+    draft: values.draft,
+    isDefault: values.isDefault,
+    cooldownSeconds: values.cooldownSeconds,
+    definitionJSON: buildWorkflowDocument(values),
+  }
+}
+
 export default function WorkflowEditor() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -85,6 +137,7 @@ export default function WorkflowEditor() {
   const [conditions, setConditions] = useState<WorkflowCondition[]>([])
   const [actions, setActions] = useState<WorkflowAction[]>([])
   const [editorMode, setEditorMode] = useState<'visual' | 'form'>(templateId ? 'form' : 'visual')
+  const baselineRef = useRef<WorkflowEditorValues | undefined>(undefined)
 
   useEffect(() => {
     if (!objectTypes.length || schemaType) return
@@ -99,18 +152,34 @@ export default function WorkflowEditor() {
     const document = parseDefinitionJSON(wd?.definitionJSON)
     const isClone = !workflowId && !!cloneFromId
 
-    setName(isClone ? `Copy of ${wd?.name ?? ''}` : (wd?.name ?? document.name ?? ''))
-    setDescription(wd?.description ?? document.description ?? '')
-    setSchemaType(wd?.schemaType ?? document.schemaType ?? '')
-    setWorkflowKind(wd?.workflowKind ?? document.workflowKind ?? WorkflowDefinitionWorkflowKind.APPROVAL)
-    setApprovalTiming(normalizeApprovalTiming(document?.approvalTiming))
-    setActive(wd?.active ?? true)
-    setDraft(isClone ? true : (wd?.draft ?? false))
-    setIsDefault(isClone ? false : (wd?.isDefault ?? false))
-    setCooldownSeconds(wd?.cooldownSeconds ?? 0)
-    setTriggers(document.triggers ?? [])
-    setConditions(document.conditions ?? [])
-    setActions(document.actions ?? [])
+    const loaded: WorkflowEditorValues = {
+      name: isClone ? `Copy of ${wd?.name ?? ''}` : (wd?.name ?? document.name ?? ''),
+      description: wd?.description ?? document.description ?? '',
+      schemaType: wd?.schemaType ?? document.schemaType ?? '',
+      workflowKind: wd?.workflowKind ?? document.workflowKind ?? WorkflowDefinitionWorkflowKind.APPROVAL,
+      approvalTiming: normalizeApprovalTiming(document?.approvalTiming),
+      active: wd?.active ?? true,
+      draft: isClone ? true : (wd?.draft ?? false),
+      isDefault: isClone ? false : (wd?.isDefault ?? false),
+      cooldownSeconds: wd?.cooldownSeconds ?? 0,
+      triggers: document.triggers ?? [],
+      conditions: document.conditions ?? [],
+      actions: document.actions ?? [],
+    }
+
+    setName(loaded.name)
+    setDescription(loaded.description)
+    setSchemaType(loaded.schemaType)
+    setWorkflowKind(loaded.workflowKind)
+    setApprovalTiming(loaded.approvalTiming)
+    setActive(loaded.active)
+    setDraft(loaded.draft)
+    setIsDefault(loaded.isDefault)
+    setCooldownSeconds(loaded.cooldownSeconds)
+    setTriggers(loaded.triggers)
+    setConditions(loaded.conditions)
+    setActions(loaded.actions)
+    baselineRef.current = isClone ? undefined : loaded
 
     setInitialized(true)
   }, [definition, initialized, workflowId, cloneFromId])
@@ -158,40 +227,20 @@ export default function WorkflowEditor() {
       return
     }
 
-    const workflowDocument: WorkflowDocument = {
-      name: name.trim(),
-      description: description.trim() || undefined,
-      schemaType,
-      workflowKind,
-      approvalTiming: workflowKind === WorkflowDefinitionWorkflowKind.APPROVAL ? approvalTiming : undefined,
-      approvalSubmissionMode: workflowKind === WorkflowDefinitionWorkflowKind.APPROVAL ? DEFAULT_APPROVAL_SUBMISSION_MODE : undefined,
-      version: DEFAULT_VERSION,
-      targets: {},
-      triggers,
-      conditions,
-      actions: sanitizeActions(actions),
-      metadata: {},
-    }
+    const values: WorkflowEditorValues = { name, description, schemaType, workflowKind, approvalTiming, active, draft, isDefault, cooldownSeconds, triggers, conditions, actions }
 
     try {
       if (workflowId) {
-        const input: UpdateWorkflowDefinitionInput = {
-          name: name.trim(),
-          description: description.trim() || undefined,
-          schemaType,
-          workflowKind,
-          active,
-          draft,
-          isDefault,
-          cooldownSeconds,
-          definitionJSON: workflowDocument,
-        }
+        const baseline = baselineRef.current
+        const input = diffBuiltInput(buildUpdateInput(values), baseline && buildUpdateInput(baseline))
 
-        await updateMutation.mutateAsync({ updateWorkflowDefinitionId: workflowId, input })
-        successNotification({
-          title: 'Workflow updated',
-          description: 'Your workflow definition was updated successfully.',
-        })
+        if (Object.keys(input).length > 0) {
+          await updateMutation.mutateAsync({ updateWorkflowDefinitionId: workflowId, input })
+          successNotification({
+            title: 'Workflow updated',
+            description: 'Your workflow definition was updated successfully.',
+          })
+        }
       } else {
         const input: CreateWorkflowDefinitionInput = {
           name: name.trim(),
@@ -202,7 +251,7 @@ export default function WorkflowEditor() {
           draft,
           isDefault,
           cooldownSeconds,
-          definitionJSON: workflowDocument,
+          definitionJSON: buildWorkflowDocument(values),
         }
 
         await createMutation.mutateAsync({ input: input })

@@ -25,7 +25,14 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { useSession } from 'next-auth/react'
-import useTimelineReadinessFormSchema, { changedTimelineFields, type TimelineReadinessFormValues } from './hooks/use-timeline-readiness-form-schema'
+import { dateOrClear, passthrough, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
+import useTimelineReadinessFormSchema, { type TimelineReadinessFormValues } from './hooks/use-timeline-readiness-form-schema'
+
+const TIMELINE_UPDATE_FIELDS = {
+  status: passthrough,
+  startDate: dateOrClear('clearStartDate'),
+  endDate: dateOrClear('clearEndDate'),
+} satisfies TFieldMappers<TimelineReadinessFormValues, UpdateProgramInput>
 
 const TimelineReadiness = () => {
   const { id } = useParams<{ id: string }>()
@@ -45,35 +52,15 @@ const TimelineReadiness = () => {
   const { form, initialValues } = useTimelineReadinessFormSchema(program)
 
   const { handleSubmit, control } = form
+  const buildDirtyInput = useDirtyInput(form)
 
   const onSubmit = async (values: TimelineReadinessFormValues) => {
-    const changed = changedTimelineFields(values, initialValues)
+    const input = await buildDirtyInput<UpdateProgramInput>(values, TIMELINE_UPDATE_FIELDS)
 
-    if (!Object.values(changed).some(Boolean)) {
+    if (Object.keys(input).length === 0) {
+      form.reset(initialValues)
       setIsEditing(false)
       return
-    }
-
-    const input: UpdateProgramInput = {}
-
-    if (changed.status) {
-      input.status = values.status
-    }
-
-    if (changed.startDate) {
-      if (values.startDate) {
-        input.startDate = values.startDate
-      } else {
-        input.clearStartDate = true
-      }
-    }
-
-    if (changed.endDate) {
-      if (values.endDate) {
-        input.endDate = values.endDate
-      } else {
-        input.clearEndDate = true
-      }
     }
 
     try {

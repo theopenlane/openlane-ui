@@ -1,7 +1,7 @@
 'use client'
 
 import { activatable } from '@repo/ui/lib/a11y'
-import React, { useState } from 'react'
+import React, { useEffect, useEffectEvent, useState } from 'react'
 import { Sheet, SheetContent, SheetTrigger } from '@repo/ui/sheet'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
@@ -14,17 +14,17 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useWatch } from 'react-hook-form'
+import { associationsInput, omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { usePathname } from 'next/navigation'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { useCreateAPIToken, useCreatePersonalAccessToken, useUpdateApiToken, useUpdatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
 import { ScopesSelector } from '@/components/shared/scopes-selector/scopes-selector'
-import { type Organization, type OrganizationSetting } from '@repo/codegen/src/schema'
+import { type Organization, type OrganizationSetting, type UpdateApiTokenInput, type UpdatePersonalAccessTokenInput } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
-import { buildOrganizationsInput } from './utils'
-import useFormSchema, { type TokenFormData } from './hooks/use-form-schema'
+import useFormSchema, { tokenFormValuesFrom, type TokenFormData } from './hooks/use-form-schema'
 import { useSSOAuthorize } from './hooks/sso'
 import { Callout } from '@/components/shared/callout/callout'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
@@ -50,6 +50,26 @@ enum STEP {
   CREATE = 'CREATE',
   CREATED = 'CREATED',
 }
+
+const expiryInput = (_value: Date | boolean | undefined, { expiryDate, noExpire }: TokenFormData) => (expiryDate && !noExpire ? { expiresAt: expiryDate } : { clearExpiresAt: true })
+
+const API_TOKEN_UPDATE_FIELDS = {
+  name: omit,
+  description: orClear('clearDescription'),
+  expiryDate: expiryInput,
+  noExpire: expiryInput,
+  organizationIDs: omit,
+  scopes: (scopes) => ({ scopes: scopes ?? [] }),
+} satisfies TFieldMappers<TokenFormData, UpdateApiTokenInput>
+
+const PERSONAL_ACCESS_TOKEN_UPDATE_FIELDS = {
+  name: omit,
+  description: orClear('clearDescription'),
+  expiryDate: expiryInput,
+  noExpire: expiryInput,
+  organizationIDs: associationsInput('organizationIDs'),
+  scopes: omit,
+} satisfies TFieldMappers<TokenFormData, UpdatePersonalAccessTokenInput>
 
 const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, onOpenChange: controlledOnOpenChange }: PersonalApiKeyDialogProps) => {
   const path = usePathname()
@@ -85,7 +105,17 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
   const [createdTokenId, setCreatedTokenId] = useState<string>('')
   const { handleSSOAuthorize, isAuthorizingSSO } = useSSOAuthorize({ isApiKeyPage, isEditMode, editTokenId: editToken?.id, createdTokenId })
 
-  const { form, initialOrgIds } = useFormSchema({ isApiKeyPage, isEditMode, editToken })
+  const { form } = useFormSchema({ isApiKeyPage, isEditMode, editToken })
+  const buildDirtyInput = useDirtyInput(form)
+
+  const seedEditForm = useEffectEvent(() => form.reset(tokenFormValuesFrom({ isEditMode, editToken })))
+  const editTokenId = editToken?.id
+
+  useEffect(() => {
+    if (open && editTokenId) {
+      seedEditForm()
+    }
+  }, [open, editTokenId])
 
   const noExpire = useWatch({ control: form.control, name: 'noExpire' })
 
@@ -94,32 +124,28 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
     successNotification({ title: 'Token copied!' })
   }
 
-  const descriptionInput = (description?: string) => (description ? { description } : { clearDescription: true })
-
-  const expiryInput = (expiryDate?: Date, noExpire?: boolean) => (expiryDate && !noExpire ? { expiresAt: expiryDate } : { clearExpiresAt: true })
-
   const handleEdit = async (values: TokenFormData) => {
     if (!editToken) return
+    let sent = false
     if (isApiKeyPage) {
-      await updateApiToken({
-        updateApiTokenId: editToken.id,
-        input: {
-          ...descriptionInput(values.description),
-          ...expiryInput(values.expiryDate, values.noExpire),
-          scopes: values.scopes ?? [],
-        },
-      })
+      const input = await buildDirtyInput<UpdateApiTokenInput>(values, API_TOKEN_UPDATE_FIELDS)
+
+      if (Object.keys(input).length > 0) {
+        await updateApiToken({ updateApiTokenId: editToken.id, input })
+        sent = true
+      }
     } else {
-      await updatePersonalAccessToken({
-        updatePersonalAccessTokenId: editToken.id,
-        input: {
-          ...descriptionInput(values.description),
-          ...expiryInput(values.expiryDate, values.noExpire),
-          ...buildOrganizationsInput(initialOrgIds, values.organizationIDs || [], 'OrganizationIDs'),
-        },
-      })
+      const input = await buildDirtyInput<UpdatePersonalAccessTokenInput>(values, PERSONAL_ACCESS_TOKEN_UPDATE_FIELDS)
+
+      if (Object.keys(input).length > 0) {
+        await updatePersonalAccessToken({ updatePersonalAccessTokenId: editToken.id, input })
+        sent = true
+      }
     }
-    successNotification({ title: 'Token updated successfully!' })
+    form.reset(values)
+    if (sent) {
+      successNotification({ title: 'Token updated successfully!' })
+    }
     handleOpenChange(false)
   }
 

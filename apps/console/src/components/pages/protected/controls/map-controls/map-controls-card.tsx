@@ -71,11 +71,11 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
         .filter((id) => !subcontrolIds.includes(id))
 
       if (newControlIds.length > 0) {
-        setValue(controlField, [...controlIds, ...newControlIds])
+        setValue(controlField, [...controlIds, ...newControlIds], { shouldDirty: true })
       }
 
       if (newSubcontrolIds.length > 0) {
-        setValue(subcontrolField, [...subcontrolIds, ...newSubcontrolIds])
+        setValue(subcontrolField, [...subcontrolIds, ...newSubcontrolIds], { shouldDirty: true })
       }
     } catch (err) {
       console.error('Invalid drop payload', err)
@@ -93,12 +93,14 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
       setValue(
         controlField,
         ids.filter((i: string) => i !== control.id),
+        { shouldDirty: true },
       )
     } else if (control.__typename === ObjectTypes.SUBCONTROL) {
       const ids = getValues(subcontrolField) || []
       setValue(
         subcontrolField,
         ids.filter((i: string) => i !== control.id),
+        { shouldDirty: true },
       )
     }
   }

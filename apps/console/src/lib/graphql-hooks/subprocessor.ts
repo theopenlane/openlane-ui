@@ -114,6 +114,8 @@ export const useUpdateSubprocessor = () => {
       queryClient.invalidateQueries({
         queryKey: ['subprocessors'],
       })
+      queryClient.invalidateQueries({ queryKey: ['trustCenterSubprocessors'] })
+      queryClient.invalidateQueries({ queryKey: ['trustCenterSubprocessor'] })
     },
   })
 }
