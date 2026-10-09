@@ -21,9 +21,9 @@ export type CalendarPopoverProps<T extends FieldValues> = {
   disableFuture?: boolean
   onChange?: (val: Date | null) => void
   showNowButton?: boolean
-  portal?: boolean
   side?: 'top' | 'bottom' | 'left' | 'right'
   align?: 'start' | 'center' | 'end'
+  contentRef?: React.Ref<HTMLDivElement>
 }
 
 const CalendarPopover = <T extends FieldValues>({
@@ -38,9 +38,9 @@ const CalendarPopover = <T extends FieldValues>({
   disableFuture,
   onChange,
   showNowButton,
-  portal,
   side,
   align = 'start',
+  contentRef,
 }: CalendarPopoverProps<T>) => {
   const todayDate = defaultToday ? new Date() : undefined
   const defaultAddDaysDate = defaultAddDays ? addDays(new Date(), defaultAddDays) : undefined
@@ -134,17 +134,11 @@ const CalendarPopover = <T extends FieldValues>({
           <CalendarIcon className="h-4 w-4 opacity-50" />
         </div>
       </div>
-      {portal ? (
-        <PopoverPortal>
-          <PopoverContent className={calendarPopoverStyle()} align={align} side={side}>
-            {calendarContent}
-          </PopoverContent>
-        </PopoverPortal>
-      ) : (
-        <PopoverContent className={calendarPopoverStyle()} align={align} side={side}>
+      <PopoverPortal>
+        <PopoverContent ref={contentRef} className={calendarPopoverStyle()} align={align} side={side}>
           {calendarContent}
         </PopoverContent>
-      )}
+      </PopoverPortal>
     </Popover>
   )
 }
