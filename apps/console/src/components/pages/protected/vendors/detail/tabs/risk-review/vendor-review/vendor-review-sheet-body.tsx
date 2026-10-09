@@ -40,6 +40,8 @@ type TVendorReviewSheetBodyProps = {
   onClose: () => void
 }
 
+type TStoredReviewState = Pick<ReviewsNodeNonNull, 'id' | 'status' | 'approved' | 'approvedAt' | 'reviewedAt'>
+
 const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, review, canEditVendor, onClose }) => {
   const isCreate = !review
   const { data: session } = useSession()
@@ -50,7 +52,7 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
   const [isEditing, setIsEditing] = useState(isCreate)
   const [pendingAction, setPendingAction] = useState<TVendorReviewAction | null>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [createdReviewId, setCreatedReviewId] = useState<string | null>(null)
+  const [createdReview, setCreatedReview] = useState<TStoredReviewState | null>(null)
 
   const stagedFilesRef = useRef<File[]>([])
   const existingFileIdsRef = useRef<string[]>([])
@@ -60,7 +62,7 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
   const { form } = useVendorReviewFormSchema(initialValues)
   const buildDirtyInput = useDirtyInput(form)
   const savedDescription = review?.details ?? ''
-  const reviewId = review?.id ?? createdReviewId ?? undefined
+  const reviewId = review?.id ?? createdReview?.id
 
   const permissionRoles = useObjectPermissionRoles(ObjectTypes.REVIEW, review?.id)
   const editAllowed = canEdit(permissionRoles, session)
@@ -90,7 +92,8 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
     const completes = nextStatus === ReviewReviewStatus.COMPLETED
 
     try {
-      const existingReviewId = review?.id ?? createdReviewId
+      const storedReview: TStoredReviewState | null = review ?? createdReview
+      const existingReviewId = storedReview?.id
       let didCreate = false
       let didUpdate = false
 
@@ -103,9 +106,12 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
 
         const reviewInput: UpdateReviewInput = {
           ...changedInput,
-          ...(nextStatus ? { status: nextStatus } : {}),
-          ...(approves ? { approved: true, approvedAt: now } : action === 'draft' ? { approved: false, clearApprovedAt: true } : {}),
-          ...(action === 'draft' ? { clearReviewedAt: true } : completes && !review?.reviewedAt ? { reviewedAt: now } : {}),
+          ...(nextStatus && nextStatus !== storedReview?.status ? { status: nextStatus } : {}),
+          ...(approves && !storedReview?.approved ? { approved: true, approvedAt: now } : {}),
+          ...(action === 'draft' && storedReview?.approved ? { approved: false } : {}),
+          ...(action === 'draft' && storedReview?.approvedAt ? { clearApprovedAt: true } : {}),
+          ...(action === 'draft' && storedReview?.reviewedAt ? { clearReviewedAt: true } : {}),
+          ...(completes && !storedReview?.reviewedAt ? { reviewedAt: now } : {}),
         }
         const input: UpdateReviewInput = Object.keys(reviewInput).length > 0 ? { ...reviewInput, ...contextBackfill } : reviewInput
 
@@ -135,7 +141,13 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
         const result = await createReview({ input, reviewFiles: stagedFilesRef.current.length > 0 ? stagedFilesRef.current : undefined })
         stagedFilesRef.current = []
         existingFileIdsRef.current = []
-        setCreatedReviewId(result.createReview.review.id)
+        setCreatedReview({
+          id: result.createReview.review.id,
+          status: nextStatus ?? ReviewReviewStatus.IN_PROGRESS,
+          approved: approves,
+          approvedAt: approves ? now : null,
+          reviewedAt: completes ? now : null,
+        })
         didCreate = true
 
         queryClient.invalidateQueries({ queryKey: ['entities'] })
