@@ -84,6 +84,10 @@ export function useWebsocketNotifications() {
     }
 
     let isActive = true
+
+    // a new client means a new token (e.g. org switch), so drop the previous org's notifications
+    setNotifications([])
+    setLiveNotifications([])
     setSubscriptionStartedAt(Date.now())
 
     const unsubscribe = wsClient.subscribe(
