@@ -16,11 +16,11 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import IntegrationDefinitionSkeleton from './integration-definition-skeleton'
 import { Callout } from '@/components/shared/callout/callout'
 import { Button } from '@repo/ui/button'
-import { filterFinalizedIntegrationsForProvider, resolveSchemaRoot } from '@/lib/integrations/utils'
+import { filterFinalizedIntegrationsForProvider, operationSchemaEntries, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { providerSupportsDocumentSync, providerSupportsPrimaryDirectory } from '@/lib/integrations/flow'
 import { writePendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { CREDENTIALS_PREFIX, USER_INPUT_PREFIX, useIntegrationSchemaForm } from './schema-form'
+import { CREDENTIALS_PREFIX, useIntegrationSchemaForm } from './schema-form'
 import InstalledIntegrationCard from './installed-integration-card'
 import PrimaryDirectoryPromptDialog from './primary-directory-prompt-dialog'
 import DocumentSyncPromptDialog from './document-sync-prompt-dialog'
@@ -115,13 +115,15 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
   const selectedCredential = credentialEntries[schemaCredentialIndex]
   const credentialSchema = useMemo(() => resolveSchemaRoot(selectedCredential?.schema), [selectedCredential?.schema])
   const userInputSchema = useMemo(() => resolveSchemaRoot(provider?.userInputSchema), [provider?.userInputSchema])
+  const operationSchemas = useMemo(() => operationSchemaEntries(provider), [provider])
   const { formMethods, initialValues, sections } = useIntegrationSchemaForm({
     credentialSchema,
     userInputSchema,
+    operationSchemas,
   })
 
   const credentialSections = useMemo(() => sections.filter((s) => s.prefix === CREDENTIALS_PREFIX), [sections])
-  const userInputSections = useMemo(() => sections.filter((s) => s.prefix === USER_INPUT_PREFIX), [sections])
+  const configurationSections = useMemo(() => sections.filter((s) => s.prefix !== CREDENTIALS_PREFIX), [sections])
 
   const {
     reset,
@@ -174,6 +176,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     provider,
     credentialSchema,
     userInputSchema,
+    operationSchemas,
     credentialRef: selectedCredential?.ref,
     initialValues,
     reset,
@@ -266,7 +269,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
           onSubmit={handleSubmit}
           formMethods={formMethods}
           credentialSections={credentialSections}
-          userInputSections={userInputSections}
+          configurationSections={configurationSections}
           isSubmitting={isSubmitting}
           selectedCredentialIndex={selectedCredentialIndex}
           onSelectCredential={handleSelectCredential}
