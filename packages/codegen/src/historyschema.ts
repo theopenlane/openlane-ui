@@ -316,6 +316,120 @@ export interface CreateAssessmentMutation {
   }
 }
 
+export type CreateAssessmentWithPoliciesMutationVariables = Exact<{
+  assessmentInput: Types.CreateAssessmentInput
+  policies?: Array<Types.AssessmentPoliciesInput> | Types.AssessmentPoliciesInput | null | undefined
+}>
+
+export interface CreateAssessmentWithPoliciesMutation {
+  createAssessmentWithPolicies: { assessment: { id: string; name: string; responseDueDuration: number | null } }
+}
+
+export type GetAssessmentPolicyAttestationsQueryVariables = Exact<{
+  assessmentId: string
+}>
+
+export interface GetAssessmentPolicyAttestationsQuery {
+  assessment: { id: string; policyAttestations: { edges: Array<{ node: { id: string; internalPolicyID: string; policyRevision: string | null } | null } | null> | null } }
+}
+
+export type GetPolicyAcknowledgementsQueryVariables = Exact<{
+  policyId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetPolicyAcknowledgementsQuery {
+  internalPolicy: {
+    id: string
+    assessments: {
+      totalCount: number
+      pageInfo: { startCursor: any; endCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+      edges: Array<{
+        node: {
+          id: string
+          name: string
+          policyAttestations: { edges: Array<{ node: { internalPolicyID: string; policyRevision: string | null } | null } | null> | null }
+          campaigns: { edges: Array<{ node: { id: string; status: Types.CampaignCampaignStatus; dueDate: string | null } | null } | null> | null }
+          sentResponses: { totalCount: number }
+          completedResponses: { totalCount: number }
+          latestDueResponse: { edges: Array<{ node: { dueDate: any } | null } | null> | null }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type GetAssessmentResponsesPageQueryVariables = Exact<{
+  assessmentId: string
+  where?: Types.AssessmentResponseWhereInput | null | undefined
+  orderBy?: Array<Types.AssessmentResponseOrder> | Types.AssessmentResponseOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+  withDocument?: boolean
+}>
+
+export interface GetAssessmentResponsesPageQuery {
+  assessment: {
+    id: string
+    assessmentResponses: {
+      totalCount: number
+      pageInfo: { startCursor: any; endCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+      edges: Array<{
+        node: {
+          id: string
+          email: string | null
+          displayName: string | null
+          status: Types.AssessmentResponseAssessmentResponseStatus
+          sendAttempts: number
+          assignedAt: any
+          dueDate: any
+          completedAt: any
+          emailDeliveredAt: any
+          identityHolder: { id: string; fullName: string } | null
+          document?: { id: string; data: any } | null
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type GetPolicyAcknowledgementCountQueryVariables = Exact<{
+  policyId: string
+}>
+
+export interface GetPolicyAcknowledgementCountQuery {
+  internalPolicy: { id: string; assessments: { totalCount: number } }
+}
+
+export type GetAssessmentJsonconfigQueryVariables = Exact<{
+  assessmentId: string
+}>
+
+export interface GetAssessmentJsonconfigQuery {
+  assessment: { id: string; jsonconfig: any }
+}
+
+export type CreateBulkAssessmentPolicyMutationVariables = Exact<{
+  input?: Array<Types.CreateAssessmentPolicyInput> | Types.CreateAssessmentPolicyInput | null | undefined
+}>
+
+export interface CreateBulkAssessmentPolicyMutation {
+  createBulkAssessmentPolicy: { assessmentPolicies: Array<{ id: string }> | null }
+}
+
+export type DeleteBulkAssessmentPolicyMutationVariables = Exact<{
+  ids: Array<string> | string
+}>
+
+export interface DeleteBulkAssessmentPolicyMutation {
+  deleteBulkAssessmentPolicy: { deletedIDs: Array<string>; notDeletedIDs: Array<string> | null; error: string | null }
+}
+
 export type CreateAssessmentTemplateMutationVariables = Exact<{
   input: Types.CreateAssessmentTemplateInput
 }>
@@ -3651,7 +3765,20 @@ export type GetExportQueryVariables = Exact<{
 }>
 
 export interface GetExportQuery {
-  export: { status: Types.ExportExportStatus; files: { edges: Array<{ node: { presignedURL: string | null } | null } | null> | null } }
+  export: {
+    id: string
+    status: Types.ExportExportStatus
+    errorMessage: string | null
+    files: { edges: Array<{ node: { id: string; providedFileName: string; providedFileSize: number | null; detectedMimeType: string | null } | null } | null> | null }
+  }
+}
+
+export type GetExportFileContentQueryVariables = Exact<{
+  fileId: string
+}>
+
+export interface GetExportFileContentQuery {
+  file: { id: string; base64: string | null }
 }
 
 export type GetExportsQueryVariables = Exact<{
@@ -4784,6 +4911,15 @@ export interface GetInternalPoliciesListQuery {
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
   }
+}
+
+export type SearchInternalPolicyDocumentsQueryVariables = Exact<{
+  where?: Types.InternalPolicyWhereInput | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface SearchInternalPolicyDocumentsQuery {
+  internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; revision: string | null } | null } | null> | null }
 }
 
 export type GetAllInternalPoliciesQueryVariables = Exact<{
@@ -6844,6 +6980,12 @@ export interface GetEvidenceStatsQuery {
   accepted: { totalCount: number }
 }
 
+export type GetProgramFrameworkNamesQueryVariables = Exact<{ [key: string]: never }>
+
+export interface GetProgramFrameworkNamesQuery {
+  programs: { edges: Array<{ node: { id: string; frameworkName: string | null } | null } | null> | null }
+}
+
 export type GetProgramDashboardQueryVariables = Exact<{
   where?: Types.ProgramWhereInput | null | undefined
 }>
@@ -8424,6 +8566,23 @@ export interface DeleteBulkSubprocessorsMutation {
   deleteBulkSubprocessor: { deletedIDs: Array<string>; notDeletedIDs: Array<string>; error: string | null }
 }
 
+export type GetSubprocessorCatalogQueryVariables = Exact<{
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetSubprocessorCatalogQuery {
+  subprocessors: { edges: Array<{ node: { id: string; name: string; systemOwned: boolean | null } | null } | null> | null; pageInfo: { endCursor: any; hasNextPage: boolean } }
+}
+
+export type CreateBulkSubprocessorMutationVariables = Exact<{
+  input?: Array<Types.CreateSubprocessorInput> | Types.CreateSubprocessorInput | null | undefined
+}>
+
+export interface CreateBulkSubprocessorMutation {
+  createBulkSubprocessor: { subprocessors: Array<{ id: string; name: string }> | null }
+}
+
 export type CreateSubscriberMutationVariables = Exact<{
   input: Types.CreateSubscriberInput
 }>
@@ -9308,14 +9467,6 @@ export interface UpdateTrustCenterFaqCommentMutation {
   updateTrustCenterFAQComment: { trustCenterFAQ: { id: string } }
 }
 
-export type CreateBulkCsvTrustCenterFaqMutationVariables = Exact<{
-  input: any
-}>
-
-export interface CreateBulkCsvTrustCenterFaqMutation {
-  createBulkCSVTrustCenterFAQ: { trustCenterFAQs: Array<{ id: string }> | null }
-}
-
 export type DeleteBulkTrustCenterFaqMutationVariables = Exact<{
   ids: Array<string> | string
 }>
@@ -9331,6 +9482,14 @@ export type UpdateBulkTrustCenterFaqMutationVariables = Exact<{
 
 export interface UpdateBulkTrustCenterFaqMutation {
   updateBulkTrustCenterFAQ: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
+}
+
+export type CreateBulkTrustCenterFaqMutationVariables = Exact<{
+  input?: Array<Types.CreateTrustCenterFaqInput> | Types.CreateTrustCenterFaqInput | null | undefined
+}>
+
+export interface CreateBulkTrustCenterFaqMutation {
+  createBulkTrustCenterFAQ: { trustCenterFAQs: Array<{ id: string }> | null }
 }
 
 export type GetTrustCenterNdaFilesQueryVariables = Exact<{
@@ -9419,6 +9578,23 @@ export interface DeleteBulkTrustCenterNdaRequestMutation {
   deleteBulkTrustCenterNDARequest: { deletedIDs: Array<string>; notDeletedIDs: Array<string>; error: string | null }
 }
 
+export type CreateBulkCsvTrustCenterNdaRequestMutationVariables = Exact<{
+  input: any
+}>
+
+export interface CreateBulkCsvTrustCenterNdaRequestMutation {
+  createBulkCSVTrustCenterNDARequest: { trustCenterNDARequests: Array<{ id: string }> | null }
+}
+
+export type GetTrustCenterNdaRequestEmailsQueryVariables = Exact<{
+  where?: Types.TrustCenterNdaRequestWhereInput | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface GetTrustCenterNdaRequestEmailsQuery {
+  trustCenterNdaRequests: { edges: Array<{ node: { id: string; email: string } | null } | null> | null }
+}
+
 export type GetTrustCenterSubprocessorsQueryVariables = Exact<{
   where?: Types.TrustCenterSubprocessorWhereInput | null | undefined
   first?: number | null | undefined
@@ -9494,6 +9670,23 @@ export interface GetTrustCenterSubprocessorByIdQuery {
   }
 }
 
+export type GetTrustCenterSubprocessorLinksQueryVariables = Exact<{
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetTrustCenterSubprocessorLinksQuery {
+  trustCenterSubprocessors: { edges: Array<{ node: { id: string; subprocessor: { id: string; name: string } } | null } | null> | null; pageInfo: { endCursor: any; hasNextPage: boolean } }
+}
+
+export type CreateBulkTrustCenterSubprocessorMutationVariables = Exact<{
+  input?: Array<Types.CreateTrustCenterSubprocessorInput> | Types.CreateTrustCenterSubprocessorInput | null | undefined
+}>
+
+export interface CreateBulkTrustCenterSubprocessorMutation {
+  createBulkTrustCenterSubprocessor: { trustCenterSubprocessors: Array<{ id: string }> | null }
+}
+
 export type GetTrustCenterQueryVariables = Exact<{ [key: string]: never }>
 
 export interface GetTrustCenterQuery {
@@ -9533,6 +9726,8 @@ export interface GetTrustCenterQuery {
           logoRemoteURL: string | null
           securityContact: string | null
           ndaApprovalRequired: boolean | null
+          enableAutoApproval: boolean | null
+          autoApprovalRules: any
           notifySubscribersOnSubprocessorChange: boolean | null
           allowSubscribers: boolean | null
           ndaApproverGroupID: string | null

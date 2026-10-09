@@ -9685,6 +9685,8 @@ export interface GetTrustCenterQuery {
           logoRemoteURL: string | null
           securityContact: string | null
           ndaApprovalRequired: boolean | null
+          enableAutoApproval: boolean | null
+          autoApprovalRules: any
           notifySubscribersOnSubprocessorChange: boolean | null
           allowSubscribers: boolean | null
           ndaApproverGroupID: string | null
