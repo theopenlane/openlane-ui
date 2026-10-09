@@ -69,8 +69,6 @@ export const isEmptyInputValue = (value: unknown): boolean =>
   (Array.isArray(value) && value.length === 0) ||
   (value instanceof Date && Number.isNaN(value.getTime()))
 
-const isEmptyHtml = (html: string): boolean => !/<(img|iframe|video|audio|embed|object|hr|table)\b/i.test(html) && html.replace(/<[^>]*>|&nbsp;/g, '').trim() === ''
-
 const toDateInput = (value: unknown): unknown => (value instanceof Date ? value.toISOString() : value)
 
 const isValueRule = (rule: unknown): rule is TValueRule<TValueRuleKind, string> => isRecord(rule) && typeof rule.kind === 'string' && typeof rule.clearKey === 'string'
@@ -80,7 +78,7 @@ const isRuleless = (rule: unknown): boolean => rule === undefined || rule === om
 const applyValueRule = async (rule: TValueRule<TValueRuleKind, string>, name: string, value: unknown, converter: TPlateHtmlConverter): Promise<[string, unknown]> => {
   if (rule.kind === 'richText') {
     if (typeof value === 'string') {
-      return isEmptyHtml(value) ? [rule.clearKey, true] : [name, value]
+      return isPlateValueEmpty(value) ? [rule.clearKey, true] : [name, value]
     }
     return Array.isArray(value) && !isPlateValueEmpty(value) ? [name, await converter.convertToHtml(value)] : [rule.clearKey, true]
   }

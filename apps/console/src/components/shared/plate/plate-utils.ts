@@ -16,6 +16,7 @@ export const plainTextToPlateValue = (input: string | null | undefined): Value =
 
 export const isPlateValueEmpty = (value: Value | string | undefined | null, editor?: SlateEditor): boolean => {
   if (!value) return true
+  if (typeof value === 'string' && detectFormat(value) !== 'html') return value.trim() === ''
 
   const { editor: parsedEditor, nodes } = typeof value === 'string' ? deserializeToPlate(value) : { editor: null, nodes: value }
   if (!nodes || nodes.length === 0) return true
