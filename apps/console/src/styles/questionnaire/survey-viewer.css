@@ -32,6 +32,16 @@
   margin-top: 4px;
 }
 
+.sd-root-modern .sv-header__content--static {
+  --sjs2-layout-component-survey-header-padding-horizontal: 40px;
+  max-width: none;
+  margin-inline: 0;
+}
+
+.sd-root-modern .sv-header--mobile {
+  padding-inline: 40px;
+}
+
 /* static and responsive modes disagree on page padding (40px vs 0), which threw the
    title/progress alignment off between the public page and the in-app viewer — zero it
    in both so every surface shares the card's 40px content edge */
