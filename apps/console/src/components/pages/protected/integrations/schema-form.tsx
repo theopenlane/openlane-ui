@@ -11,7 +11,7 @@ import { Switch } from '@repo/ui/switch'
 import { Textarea } from '@repo/ui/textarea'
 import { Check, Copy, Lock, RefreshCw } from 'lucide-react'
 import { toHumanLabel } from '@/utils/strings'
-import { type IntegrationSchemaNode, type IntegrationSchemaProperty } from '@/lib/integrations/types'
+import { type IntegrationOperationSchemaEntry, type IntegrationSchemaNode, type IntegrationSchemaProperty } from '@/lib/integrations/types'
 import {
   type FormValues,
   type SchemaSection,
@@ -39,10 +39,12 @@ type SchemaFieldProps = {
 type UseIntegrationSchemaFormOptions = {
   credentialSchema?: IntegrationSchemaNode
   userInputSchema?: IntegrationSchemaNode
+  operationSchemas?: IntegrationOperationSchemaEntry[]
   credentialSectionMeta?: { title: string; description: string }
   userInputSectionMeta?: { title: string; description: string }
-  existingUserInputValues?: Record<string, unknown>
 }
+
+const NO_OPERATION_SCHEMAS: IntegrationOperationSchemaEntry[] = []
 
 export const SchemaField = ({ fieldKey, fieldName, property, required }: SchemaFieldProps) => {
   const { control } = useFormContext<FormValues>()
@@ -171,22 +173,11 @@ export const SchemaField = ({ fieldKey, fieldName, property, required }: SchemaF
   )
 }
 
-export function IntegrationSchemaSections({
-  sections,
-  hideDescriptions,
-  spacing = 'space-y-2',
-  hideFieldKeys,
-}: {
-  sections: SchemaSection[]
-  hideDescriptions?: boolean
-  spacing?: string
-  hideFieldKeys?: Set<string>
-}) {
+export function IntegrationSchemaSections({ sections, hideDescriptions, spacing = 'space-y-2' }: { sections: SchemaSection[]; hideDescriptions?: boolean; spacing?: string }) {
   return (
     <>
       {sections.map((section) => {
-        const allFields = getResolvedSchemaFields(section.schema)
-        const fields = hideFieldKeys ? allFields.filter((f) => !hideFieldKeys.has(f.nestedPath[0])) : allFields
+        const fields = getResolvedSchemaFields(section.schema)
         if (fields.length === 0) {
           return null
         }
@@ -195,6 +186,7 @@ export function IntegrationSchemaSections({
 
         return (
           <div key={section.prefix}>
+            {section.operation ? <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">{section.title}</p> : null}
             {!hideDescriptions && section.description ? <p className="mb-4 text-xs text-muted-foreground">{section.description}</p> : null}
 
             <div className={spacing}>
@@ -223,10 +215,10 @@ export function IntegrationSchemaSections({
   )
 }
 
-export function useIntegrationSchemaForm({ credentialSchema, userInputSchema, credentialSectionMeta, userInputSectionMeta }: UseIntegrationSchemaFormOptions) {
+export function useIntegrationSchemaForm({ credentialSchema, userInputSchema, operationSchemas = NO_OPERATION_SCHEMAS, credentialSectionMeta, userInputSectionMeta }: UseIntegrationSchemaFormOptions) {
   const sections = useMemo(
-    () => buildSections(credentialSchema, userInputSchema, credentialSectionMeta, userInputSectionMeta),
-    [credentialSchema, credentialSectionMeta, userInputSchema, userInputSectionMeta],
+    () => buildSections(credentialSchema, userInputSchema, operationSchemas, credentialSectionMeta, userInputSectionMeta),
+    [credentialSchema, credentialSectionMeta, operationSchemas, userInputSchema, userInputSectionMeta],
   )
   const initialValues = useMemo(() => buildInitialValues(sections), [sections])
   const zodSchema = useMemo(() => buildZodSchema(sections), [sections])

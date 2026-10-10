@@ -1,6 +1,14 @@
 import { type GetIntegrationsQuery } from '@repo/codegen/src/schema'
-import { countFinalizedIntegrationsForProvider, parseIntegrationErrorMessage, primaryCredentialRef, primaryCredentialSchema, resolveSchemaRoot, schemaHasProperties } from './utils'
-import { type IntegrationConfigurationResult, type IntegrationProvider, type StartIntegrationResponse } from './types'
+import {
+  countFinalizedIntegrationsForProvider,
+  operationSchemaEntries,
+  parseIntegrationErrorMessage,
+  primaryCredentialRef,
+  primaryCredentialSchema,
+  resolveSchemaRoot,
+  schemaHasProperties,
+} from './utils'
+import { type IntegrationConfigurationResult, type IntegrationOperationConfigPayload, type IntegrationProvider, type StartIntegrationResponse } from './types'
 
 export const PRIMARY_DIRECTORY_FIELD = 'primaryDirectory'
 export const PRIMARY_DOCUMENT_FIELD = 'primary'
@@ -9,6 +17,7 @@ type StartIntegrationOptions = {
   credentialRef?: string
   installationId?: string
   userInput?: Record<string, unknown>
+  operationConfig?: IntegrationOperationConfigPayload
 }
 
 type SaveIntegrationConfigurationOptions = {
@@ -17,6 +26,11 @@ type SaveIntegrationConfigurationOptions = {
   credentialRef?: string
   body?: Record<string, unknown>
   userInput?: Record<string, unknown>
+  operationConfig?: IntegrationOperationConfigPayload
+}
+
+function hasEntries(value?: Record<string, unknown>): value is Record<string, unknown> {
+  return value != null && Object.keys(value).length > 0
 }
 
 export function providerHasCredentialSchema(provider?: IntegrationProvider): boolean {
@@ -25,6 +39,10 @@ export function providerHasCredentialSchema(provider?: IntegrationProvider): boo
 
 export function providerHasUserInputSchema(provider?: IntegrationProvider): boolean {
   return schemaHasProperties(provider?.userInputSchema)
+}
+
+export function providerHasOperationConfigSchema(provider?: IntegrationProvider): boolean {
+  return operationSchemaEntries(provider).length > 0
 }
 
 export function providerSupportsAuth(provider?: IntegrationProvider): boolean {
@@ -46,7 +64,7 @@ export function providerSupportsInstalledConfiguration(provider?: IntegrationPro
     return false
   }
 
-  return providerHasCredentialSchema(provider) || providerHasUserInputSchema(provider)
+  return providerHasCredentialSchema(provider) || providerHasUserInputSchema(provider) || providerHasOperationConfigSchema(provider)
 }
 
 export function queryFinalizedIntegrationCountForProvider(data: GetIntegrationsQuery | undefined, provider: IntegrationProvider): number {
@@ -110,7 +128,8 @@ export async function saveIntegrationConfiguration(options: SaveIntegrationConfi
       installationId: options.installationId,
       credentialRef: options.credentialRef,
       body: options.body ?? {},
-      userInput: options.userInput ?? {},
+      userInput: hasEntries(options.userInput) ? options.userInput : undefined,
+      operationConfig: hasEntries(options.operationConfig) ? options.operationConfig : undefined,
     }),
   })
 
@@ -135,8 +154,14 @@ function buildStartRequestBody(provider: IntegrationProvider, options?: StartInt
     body.integrationId = options.installationId
   }
 
-  if (options?.userInput && Object.keys(options.userInput).length > 0) {
-    body.userInput = options.userInput
+  const userInput = options?.userInput
+  if (hasEntries(userInput)) {
+    body.userInput = userInput
+  }
+
+  const operationConfig = options?.operationConfig
+  if (hasEntries(operationConfig)) {
+    body.operationConfig = operationConfig
   }
 
   return body

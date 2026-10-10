@@ -22,7 +22,7 @@ type IntegrationSetupWizardProps = {
   provider: IntegrationProvider
   connectionLabel?: string
   credentialSections: SchemaSection[]
-  userInputSections: SchemaSection[]
+  configurationSections: SchemaSection[]
   isAuth: boolean
   isSubmitting: boolean
   formMethods: UseFormReturn<FormValues>
@@ -37,7 +37,7 @@ const IntegrationSetupWizard = ({
   provider,
   connectionLabel,
   credentialSections,
-  userInputSections,
+  configurationSections,
   isAuth,
   isSubmitting,
   formMethods,
@@ -50,10 +50,10 @@ const IntegrationSetupWizard = ({
 
   const steps = useMemo<WizardStep[]>(
     () =>
-      [...credentialSections, ...userInputSections].flatMap((section) =>
+      [...credentialSections, ...configurationSections].flatMap((section) =>
         buildFieldEntries(getResolvedSchemaFields(section.schema)).map((entry) => ({ prefix: section.prefix, sectionTitle: section.title, entry })),
       ),
-    [credentialSections, userInputSections],
+    [credentialSections, configurationSections],
   )
 
   const [stepIndex, setStepIndex] = useState(0)

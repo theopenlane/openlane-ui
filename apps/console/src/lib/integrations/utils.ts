@@ -1,8 +1,10 @@
 import { PLATFORM_DOCS_URL } from '@/constants/docs'
+import { toHumanLabel } from '@/utils/strings'
 import {
   type AvailableIntegrationNode,
   type IntegrationCredentialEntry,
   type IntegrationNode,
+  type IntegrationOperationSchemaEntry,
   type IntegrationProvider,
   type IntegrationProviderMatchFields,
   type IntegrationSchemaNode,
@@ -332,8 +334,19 @@ export function resolveConnectionEntry(provider?: IntegrationProvider, credentia
   return provider.connections?.find((connection) => connection.credentialRef === activeCredentialRef)
 }
 
-export function disabledOperationConfigKeys(provider?: IntegrationProvider): Set<string> {
-  return new Set((provider?.operations ?? []).filter((op) => op.disabledForAll).map((op) => op.name.charAt(0).toLowerCase() + op.name.slice(1)))
+export function operationSchemaEntries(provider?: IntegrationProvider, storedSchemas?: Record<string, unknown>): IntegrationOperationSchemaEntry[] {
+  return (provider?.operations ?? []).flatMap((op) => {
+    if (!op.stored || op.disabledForAll) {
+      return []
+    }
+
+    const schema = resolveSchemaRoot((storedSchemas?.[op.name] ?? op.input?.schema) as IntegrationSchemaNode | undefined)
+    if (!schemaHasProperties(schema)) {
+      return []
+    }
+
+    return [{ name: op.name, title: toHumanLabel(op.name), description: op.description, schema: schema as IntegrationSchemaNode }]
+  })
 }
 
 export function resolveManageUrl(provider: IntegrationProvider | undefined, connectionEntry: ReturnType<typeof resolveConnectionEntry>, externalId: string, externalName: string): string | null {

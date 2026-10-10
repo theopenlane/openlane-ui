@@ -10,7 +10,7 @@ import { Separator } from '@repo/ui/separator'
 import { type IntegrationProvider, type IntegrationConnectionEntry } from '@/lib/integrations/types'
 import { type FormValues, type SchemaSection } from '@/lib/integrations/schema'
 import { type GuideLiveValues } from '@/lib/integrations/setup-guide-content'
-import { disabledOperationConfigKeys, resolveConnectionEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
+import { resolveConnectionEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { CREDENTIALS_PREFIX, IntegrationSchemaSections } from './schema-form'
 import ConnectionMetaSection from './connection-meta-section'
 import IntegrationSetupGuide from './integration-setup-guide'
@@ -24,7 +24,7 @@ type CredentialConnectionSectionProps = {
   onSubmit: (formValues: Record<string, unknown>) => void
   formMethods: UseFormReturn<FormValues>
   credentialSections: SchemaSection[]
-  userInputSections: SchemaSection[]
+  configurationSections: SchemaSection[]
   isSubmitting: boolean
   selectedCredentialIndex: number
   onSelectCredential: (index: number) => void
@@ -38,15 +38,13 @@ const CredentialConnectionSection = ({
   onSubmit,
   formMethods,
   credentialSections,
-  userInputSections,
+  configurationSections,
   isSubmitting,
   selectedCredentialIndex,
   onSelectCredential,
 }: CredentialConnectionSectionProps) => {
   const credentialEntries = provider.credentialSchemas ?? []
-  const hasUserInputFields = userInputSections.length > 0
-
-  const disabledConfigKeys = useMemo(() => disabledOperationConfigKeys(provider), [provider])
+  const hasUserInputFields = configurationSections.length > 0
 
   const [wizardOpen, setWizardOpen] = useState(false)
   const activeEntry = credentialEntries[selectedCredentialIndex]
@@ -121,7 +119,7 @@ const CredentialConnectionSection = ({
                               <h4 className="text-xs font-medium text-foreground mb-2">CREDENTIALS</h4>
                               {connection?.meta && Object.keys(connection.meta).length > 0 ? <ConnectionMetaSection meta={connection.meta} /> : null}
                               {hasFields ? (
-                                <IntegrationSchemaSections sections={credentialSections} hideFieldKeys={disabledConfigKeys} />
+                                <IntegrationSchemaSections sections={credentialSections} />
                               ) : isAuth ? (
                                 <p className="text-xs text-muted-foreground">No credentials to manage - you will be redirected to authorize access</p>
                               ) : (
@@ -146,7 +144,9 @@ const CredentialConnectionSection = ({
                                 <Separator vertical className="mx-6 w-fit self-stretch" separatorClass="h-full" />
                                 <div className="flex-1 min-w-0">
                                   <h4 className="text-xs font-medium text-foreground mb-2">CONFIGURATION</h4>
-                                  <IntegrationSchemaSections sections={userInputSections} hideFieldKeys={disabledConfigKeys} />
+                                  <div className="space-y-4">
+                                    <IntegrationSchemaSections sections={configurationSections} />
+                                  </div>
                                 </div>
                               </>
                             ) : null}
@@ -167,7 +167,7 @@ const CredentialConnectionSection = ({
           provider={provider}
           connectionLabel={activeEntry?.name}
           credentialSections={credentialSections}
-          userInputSections={userInputSections}
+          configurationSections={configurationSections}
           isAuth={activeIsAuth}
           isSubmitting={isSubmitting}
           formMethods={formMethods}

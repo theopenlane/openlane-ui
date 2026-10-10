@@ -8917,6 +8917,8 @@ export interface CreateEntityInput {
   environmentName?: InputMaybe<Scalars['String']['input']>
   /** stable identifier assigned by the source system, used for integration ingest deduplication */
   externalID?: InputMaybe<Scalars['String']['input']>
+  /** whether this system-owned row is published for organizations to adopt */
+  externallyVisible?: InputMaybe<Scalars['Boolean']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** whether the entity has an active SOC 2 report */
@@ -15628,6 +15630,7 @@ export interface EmailTemplateWhereInput {
 
 export interface Entity extends Node {
   __typename?: 'Entity'
+  adoptedEntities: EntityConnection
   /** common matching names that should match with the entity */
   aliases?: Maybe<Array<Scalars['String']['output']>>
   /** annual spend associated with the entity */
@@ -15643,6 +15646,12 @@ export interface Entity extends Node {
   billingModel?: Maybe<Scalars['String']['output']>
   blockedGroups: GroupConnection
   campaigns: CampaignConnection
+  /** the system-owned catalog entity this entity was adopted from */
+  catalogEntity?: Maybe<Entity>
+  /** the system-owned catalog entity this entity was adopted from */
+  catalogEntityID?: Maybe<Scalars['ID']['output']>
+  /** the lookup key of the catalog entity this entity was adopted from */
+  catalogEntityKey?: Maybe<Scalars['String']['output']>
   contacts: ContactConnection
   /** end date for the entity contract */
   contractEndDate?: Maybe<Scalars['DateTime']['output']>
@@ -15687,6 +15696,8 @@ export interface Entity extends Node {
   environmentName?: Maybe<Scalars['String']['output']>
   /** stable identifier assigned by the source system, used for integration ingest deduplication */
   externalID?: Maybe<Scalars['String']['output']>
+  /** whether this system-owned row is published for organizations to adopt */
+  externallyVisible?: Maybe<Scalars['Boolean']['output']>
   files: FileConnection
   findings: FindingConnection
   /** whether the entity has an active SOC 2 report */
@@ -15809,6 +15820,15 @@ export interface Entity extends Node {
   vendorMetadata?: Maybe<Scalars['Map']['output']>
   vendorRiskScores: VendorRiskScoreConnection
   vulnerabilities: VulnerabilityConnection
+}
+
+export interface EntityAdoptedEntitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
 }
 
 export interface EntityAssessmentResponsesArgs {
@@ -16501,6 +16521,30 @@ export interface EntityWhereInput {
   billingModelNEQ?: InputMaybe<Scalars['String']['input']>
   billingModelNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   billingModelNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** catalog_entity_id field predicates */
+  catalogEntityID?: InputMaybe<Scalars['ID']['input']>
+  catalogEntityIDContains?: InputMaybe<Scalars['ID']['input']>
+  catalogEntityIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  catalogEntityIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  catalogEntityIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  catalogEntityIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  catalogEntityIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  catalogEntityIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  catalogEntityIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  catalogEntityIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  catalogEntityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** catalog_entity_key field predicates */
+  catalogEntityKey?: InputMaybe<Scalars['String']['input']>
+  catalogEntityKeyContains?: InputMaybe<Scalars['String']['input']>
+  catalogEntityKeyContainsFold?: InputMaybe<Scalars['String']['input']>
+  catalogEntityKeyEqualFold?: InputMaybe<Scalars['String']['input']>
+  catalogEntityKeyHasPrefix?: InputMaybe<Scalars['String']['input']>
+  catalogEntityKeyHasSuffix?: InputMaybe<Scalars['String']['input']>
+  catalogEntityKeyIn?: InputMaybe<Array<Scalars['String']['input']>>
+  catalogEntityKeyIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  catalogEntityKeyNEQ?: InputMaybe<Scalars['String']['input']>
+  catalogEntityKeyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  catalogEntityKeyNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** contract_end_date field predicates */
   contractEndDate?: InputMaybe<Scalars['DateTime']['input']>
   contractEndDateGT?: InputMaybe<Scalars['DateTime']['input']>
@@ -16691,6 +16735,14 @@ export interface EntityWhereInput {
   externalIDNEQ?: InputMaybe<Scalars['String']['input']>
   externalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   externalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** externally_visible field predicates */
+  externallyVisible?: InputMaybe<Scalars['Boolean']['input']>
+  externallyVisibleIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externallyVisibleNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  externallyVisibleNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** adopted_entities edge predicates */
+  hasAdoptedEntities?: InputMaybe<Scalars['Boolean']['input']>
+  hasAdoptedEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
   /** assessment_responses edge predicates */
   hasAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
   hasAssessmentResponsesWith?: InputMaybe<Array<AssessmentResponseWhereInput>>
@@ -16706,6 +16758,9 @@ export interface EntityWhereInput {
   /** campaigns edge predicates */
   hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
+  /** catalog_entity edge predicates */
+  hasCatalogEntity?: InputMaybe<Scalars['Boolean']['input']>
+  hasCatalogEntityWith?: InputMaybe<Array<EntityWhereInput>>
   /** contacts edge predicates */
   hasContacts?: InputMaybe<Scalars['Boolean']['input']>
   hasContactsWith?: InputMaybe<Array<ContactWhereInput>>
@@ -23659,6 +23714,7 @@ export interface Integration extends Node {
   /** the name of the integration */
   name: Scalars['String']['output']
   notificationTemplates: NotificationTemplateConnection
+  operationConfig?: Maybe<Scalars['JSON']['output']>
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -26590,6 +26646,8 @@ export interface Mutation {
   __typename?: 'Mutation'
   /** Reassign a workflow assignment to new targets */
   adminReassignWorkflowAssignment: WorkflowAssignmentReassignPayload
+  /** adoptEntity copies the externally visible system-owned entity into the organization, returning the organization's copy; idempotent per organization */
+  adoptEntity: EntityCreatePayload
   /** Update multiple existing nda requests as approved */
   approveNDARequests: BulkUpdateStatusPayload
   /** Approve a workflow assignment and apply the proposed changes */
@@ -27774,6 +27832,11 @@ export interface Mutation {
 
 export interface MutationAdminReassignWorkflowAssignmentArgs {
   input: ReassignWorkflowAssignmentInput
+}
+
+export interface MutationAdoptEntityArgs {
+  catalogID: Scalars['ID']['input']
+  input?: InputMaybe<CreateEntityInput>
 }
 
 export interface MutationApproveNdaRequestsArgs {
@@ -38030,6 +38093,8 @@ export interface Query {
   emailTemplateSearch?: Maybe<EmailTemplateConnection>
   emailTemplates: EmailTemplateConnection
   entities: EntityConnection
+  /** entitiesCatalog lists the externally visible system-owned entities available for adoption */
+  entitiesCatalog: EntityConnection
   /** Look up entity by ID */
   entity: Entity
   /** Search across Entity objects */
@@ -38728,6 +38793,15 @@ export interface QueryEmailTemplatesArgs {
 }
 
 export interface QueryEntitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
+}
+
+export interface QueryEntitiesCatalogArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -52505,6 +52579,7 @@ export interface UpdateEntityInput {
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalID?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternallyVisible?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearHasSoc2?: InputMaybe<Scalars['Boolean']['input']>
@@ -52587,6 +52662,8 @@ export interface UpdateEntityInput {
   environmentName?: InputMaybe<Scalars['String']['input']>
   /** stable identifier assigned by the source system, used for integration ingest deduplication */
   externalID?: InputMaybe<Scalars['String']['input']>
+  /** whether this system-owned row is published for organizations to adopt */
+  externallyVisible?: InputMaybe<Scalars['Boolean']['input']>
   /** whether the entity has an active SOC 2 report */
   hasSoc2?: InputMaybe<Scalars['Boolean']['input']>
   /** internal notes about the object creation, this field is only available to system admins */

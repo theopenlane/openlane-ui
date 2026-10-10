@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { toHumanLabel } from '@/utils/strings'
 import { collectRequiredSchemaFields, resolveSchemaNode, schemaHasProperties } from '@/lib/integrations/utils'
-import { type IntegrationSchemaNode, type IntegrationSchemaProperty } from '@/lib/integrations/types'
+import { type IntegrationOperationConfigPayload, type IntegrationOperationSchemaEntry, type IntegrationSchemaNode, type IntegrationSchemaProperty } from '@/lib/integrations/types'
 
 export type FormValues = Record<string, unknown>
 
@@ -10,6 +10,7 @@ export type SchemaSection = {
   prefix: string
   schema: IntegrationSchemaNode
   title: string
+  operation?: string
 }
 
 export type ResolvedSchemaField = {
@@ -23,8 +24,10 @@ export type ResolvedSchemaField = {
 export type NormalizedIntegrationFormPayloads = {
   credentialPayload: { missingRequired: string[]; payload: Record<string, unknown> }
   hasCredentialPayload: boolean
+  hasOperationConfigPayload: boolean
   hasUserInputPayload: boolean
   missingRequired: string[]
+  operationConfigPayload: IntegrationOperationConfigPayload
   userInputPayload: { missingRequired: string[]; payload: Record<string, unknown> }
 }
 
@@ -33,10 +36,16 @@ const URL_SCHEMA = z.string().url()
 
 export const CREDENTIALS_PREFIX = 'credentials__'
 export const USER_INPUT_PREFIX = 'userInput__'
+const OPERATION_CONFIG_PREFIX = 'operationConfig__'
+
+function operationConfigPrefix(operationName: string): string {
+  return `${OPERATION_CONFIG_PREFIX}${operationName}__`
+}
 
 export function buildSections(
   credentialSchema: IntegrationSchemaNode | undefined,
   userInputSchema: IntegrationSchemaNode | undefined,
+  operationSchemas: IntegrationOperationSchemaEntry[],
   credentialSectionMeta?: { title: string; description: string },
   userInputSectionMeta?: { title: string; description: string },
 ): SchemaSection[] {
@@ -57,6 +66,16 @@ export function buildSections(
       schema: userInputSchema as IntegrationSchemaNode,
       title: userInputSectionMeta?.title ?? 'Configuration',
       description: userInputSectionMeta?.description ?? 'These settings control installation-specific behavior defined by the integration',
+    })
+  }
+
+  for (const entry of operationSchemas) {
+    sections.push({
+      prefix: operationConfigPrefix(entry.name),
+      schema: entry.schema,
+      title: entry.title,
+      description: entry.description ?? '',
+      operation: entry.name,
     })
   }
 
@@ -113,16 +132,30 @@ export function buildZodSchema(sections: SchemaSection[]): z.ZodObject<Record<st
 export function normalizeIntegrationFormPayloads(
   credentialSchema: IntegrationSchemaNode | undefined,
   userInputSchema: IntegrationSchemaNode | undefined,
+  operationSchemas: IntegrationOperationSchemaEntry[],
   values: FormValues,
 ): NormalizedIntegrationFormPayloads {
   const credentialPayload = normalizeSectionPayload(credentialSchema, values, CREDENTIALS_PREFIX)
   const userInputPayload = normalizeSectionPayload(userInputSchema, values, USER_INPUT_PREFIX)
+  const operationConfigPayload: IntegrationOperationConfigPayload = {}
+  const operationMissingRequired: string[] = []
+
+  for (const entry of operationSchemas) {
+    const { payload, missingRequired } = normalizeSectionPayload(entry.schema, values, operationConfigPrefix(entry.name))
+    operationMissingRequired.push(...missingRequired.map((label) => `${entry.title}: ${label}`))
+
+    if (Object.keys(payload).length > 0) {
+      operationConfigPayload[entry.name] = payload
+    }
+  }
 
   return {
     credentialPayload,
     hasCredentialPayload: Object.keys(credentialPayload.payload).length > 0,
+    hasOperationConfigPayload: Object.keys(operationConfigPayload).length > 0,
     hasUserInputPayload: Object.keys(userInputPayload.payload).length > 0,
-    missingRequired: [...credentialPayload.missingRequired, ...userInputPayload.missingRequired],
+    missingRequired: [...credentialPayload.missingRequired, ...userInputPayload.missingRequired, ...operationMissingRequired],
+    operationConfigPayload,
     userInputPayload,
   }
 }

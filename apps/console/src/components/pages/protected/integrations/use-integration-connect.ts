@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
-import { type IntegrationProvider, type IntegrationSchemaNode } from '@/lib/integrations/types'
+import { type IntegrationOperationConfigPayload, type IntegrationOperationSchemaEntry, type IntegrationProvider, type IntegrationSchemaNode } from '@/lib/integrations/types'
 import { resolveConnectionEntry } from '@/lib/integrations/utils'
 import { connectViaAuth, saveIntegrationConfiguration } from '@/lib/integrations/flow'
 import { normalizeIntegrationFormPayloads } from '@/lib/integrations/schema'
@@ -17,6 +17,7 @@ type UseIntegrationConnectOptions = {
   provider: IntegrationProvider | undefined
   credentialSchema: IntegrationSchemaNode | undefined
   userInputSchema: IntegrationSchemaNode | undefined
+  operationSchemas: IntegrationOperationSchemaEntry[]
   credentialRef: string | undefined
   initialValues: Record<string, unknown>
   reset: (values: Record<string, unknown>) => void
@@ -24,33 +25,39 @@ type UseIntegrationConnectOptions = {
   onRedirect: () => void
 }
 
-export function useIntegrationConnect({ provider, credentialSchema, userInputSchema, credentialRef, initialValues, reset, onSuccess, onRedirect }: UseIntegrationConnectOptions) {
+export function useIntegrationConnect({ provider, credentialSchema, userInputSchema, operationSchemas, credentialRef, initialValues, reset, onSuccess, onRedirect }: UseIntegrationConnectOptions) {
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const [isConnecting, setIsConnecting] = useState(false)
   const [webhookDetails, setWebhookDetails] = useState<WebhookDetails | null>(null)
 
-  const handleAuthConnect = useCallback(async () => {
-    if (!provider) {
-      return
-    }
+  const startAuth = useCallback(
+    async (operationConfig?: IntegrationOperationConfigPayload) => {
+      if (!provider) {
+        return
+      }
 
-    setIsConnecting(true)
+      setIsConnecting(true)
 
-    try {
-      await connectViaAuth(provider, {
-        credentialRef,
-        onRedirect,
-      })
-    } catch (error) {
-      errorNotification({
-        title: `Failed to connect ${provider.displayName}`,
-        description: error instanceof Error ? error.message : 'Unexpected error while starting the integration flow.',
-      })
-    } finally {
-      setIsConnecting(false)
-    }
-  }, [provider, credentialRef, onRedirect, errorNotification])
+      try {
+        await connectViaAuth(provider, {
+          credentialRef,
+          operationConfig,
+          onRedirect,
+        })
+      } catch (error) {
+        errorNotification({
+          title: `Failed to connect ${provider.displayName}`,
+          description: error instanceof Error ? error.message : 'Unexpected error while starting the integration flow.',
+        })
+      } finally {
+        setIsConnecting(false)
+      }
+    },
+    [provider, credentialRef, onRedirect, errorNotification],
+  )
+
+  const handleAuthConnect = useCallback(() => startAuth(), [startAuth])
 
   const handleSubmit = useCallback(
     async (formValues: Record<string, unknown>) => {
@@ -58,7 +65,12 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
         return
       }
 
-      const { credentialPayload, hasCredentialPayload, hasUserInputPayload, missingRequired, userInputPayload } = normalizeIntegrationFormPayloads(credentialSchema, userInputSchema, formValues)
+      const { credentialPayload, hasCredentialPayload, hasOperationConfigPayload, hasUserInputPayload, missingRequired, operationConfigPayload, userInputPayload } = normalizeIntegrationFormPayloads(
+        credentialSchema,
+        userInputSchema,
+        operationSchemas,
+        formValues,
+      )
 
       if (missingRequired.length > 0) {
         errorNotification({
@@ -73,7 +85,7 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
 
       if (!hasCredentialPayload && !hasUserInputPayload) {
         if (connectionHasAuth) {
-          await handleAuthConnect()
+          await startAuth(hasOperationConfigPayload ? operationConfigPayload : undefined)
           return
         }
 
@@ -89,6 +101,7 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
           await connectViaAuth(provider, {
             credentialRef,
             userInput: userInputPayload.payload,
+            operationConfig: operationConfigPayload,
             onRedirect,
           })
 
@@ -104,6 +117,7 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
           credentialRef,
           body: credentialPayload.payload,
           userInput: userInputPayload.payload,
+          operationConfig: operationConfigPayload,
         })
 
         if (configResult.webhookEndpointUrl && configResult.webhookSecret) {
@@ -128,7 +142,7 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
         })
       }
     },
-    [provider, credentialSchema, userInputSchema, credentialRef, initialValues, onSuccess, onRedirect, reset, queryClient, handleAuthConnect, successNotification, errorNotification],
+    [provider, credentialSchema, userInputSchema, operationSchemas, credentialRef, initialValues, onSuccess, onRedirect, reset, queryClient, startAuth, successNotification, errorNotification],
   )
 
   return {

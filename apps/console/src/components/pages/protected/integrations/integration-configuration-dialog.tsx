@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { type IntegrationProvider, type IntegrationSchemaNode } from '@/lib/integrations/types'
-import { disabledOperationConfigKeys, resolveConnectionEntry, resolveCredentialEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
+import { operationSchemaEntries, resolveConnectionEntry, resolveCredentialEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { connectViaAuth, saveIntegrationConfiguration } from '@/lib/integrations/flow'
 import { IntegrationSchemaSections, normalizeIntegrationFormPayloads, useIntegrationSchemaForm } from './schema-form'
 import { Callout } from '@/components/shared/callout/callout'
@@ -22,18 +22,18 @@ type Props = {
   installationId?: string
   credentialRef?: string
   config?: Record<string, unknown>
+  operationConfig?: Record<string, unknown>
   credentials?: Record<string, unknown>
   onAuthFlowStarted?: (provider: IntegrationProvider) => void
 }
 
-const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installationId, credentialRef, config, credentials, onAuthFlowStarted }: Props) => {
+const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installationId, credentialRef, config, operationConfig, credentials, onAuthFlowStarted }: Props) => {
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
   const isExistingInstallation = Boolean(installationId)
 
   const activeCredentialEntry = useMemo(() => resolveCredentialEntry(provider, credentialRef), [provider, credentialRef])
   const activeCredentialRef = credentialRef ?? activeCredentialEntry?.ref
-  const disabledConfigKeys = useMemo(() => disabledOperationConfigKeys(provider), [provider])
 
   const credentialSchema = useMemo(
     () => resolveSchemaRoot((isExistingInstallation && credentials ? credentials : activeCredentialEntry?.schema) as IntegrationSchemaNode | undefined),
@@ -53,12 +53,14 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
     [isExistingInstallation],
   )
 
+  const operationSchemas = useMemo(() => operationSchemaEntries(provider, isExistingInstallation ? operationConfig : undefined), [provider, isExistingInstallation, operationConfig])
+
   // Combined form — used for new installations where creds and settings are submitted together
-  const combined = useIntegrationSchemaForm({ credentialSchema, userInputSchema, userInputSectionMeta })
+  const combined = useIntegrationSchemaForm({ credentialSchema, userInputSchema, operationSchemas, userInputSectionMeta })
 
   // Separate forms — used for existing installation tabs so each section validates independently
   const credForm = useIntegrationSchemaForm({ credentialSchema })
-  const settingsForm = useIntegrationSchemaForm({ userInputSchema, userInputSectionMeta })
+  const settingsForm = useIntegrationSchemaForm({ userInputSchema, operationSchemas, userInputSectionMeta })
 
   const { reset: resetCombined } = combined.formMethods
   const { reset: resetCred } = credForm.formMethods
@@ -94,7 +96,12 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
   const onSubmit = async (formValues: Record<string, unknown>) => {
     if (!provider) return
 
-    const { credentialPayload, hasCredentialPayload, hasUserInputPayload, missingRequired, userInputPayload } = normalizeIntegrationFormPayloads(credentialSchema, userInputSchema, formValues)
+    const { credentialPayload, hasCredentialPayload, hasOperationConfigPayload, hasUserInputPayload, missingRequired, operationConfigPayload, userInputPayload } = normalizeIntegrationFormPayloads(
+      credentialSchema,
+      userInputSchema,
+      operationSchemas,
+      formValues,
+    )
 
     if (missingRequired.length > 0) {
       errorNotification({ title: `Missing required fields for ${provider.displayName}`, description: missingRequired.join(', ') })
@@ -109,6 +116,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
           credentialRef: activeCredentialRef,
           installationId,
           userInput: userInputPayload.payload,
+          operationConfig: operationConfigPayload,
           onRedirect: () => onAuthFlowStarted?.(provider),
         })
         successNotification({ title: `Continue connecting ${provider.displayName}`, description: `Redirecting to ${provider.displayName} to finish setup.` })
@@ -116,12 +124,19 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
         return
       }
 
-      if (!hasCredentialPayload && !hasUserInputPayload) {
+      if (!hasCredentialPayload && !hasUserInputPayload && !hasOperationConfigPayload) {
         onOpenChange(false)
         return
       }
 
-      await saveIntegrationConfiguration({ definitionId: provider.id, installationId, credentialRef: activeCredentialRef, body: credentialPayload.payload, userInput: userInputPayload.payload })
+      await saveIntegrationConfiguration({
+        definitionId: provider.id,
+        installationId,
+        credentialRef: activeCredentialRef,
+        body: credentialPayload.payload,
+        userInput: userInputPayload.payload,
+        operationConfig: operationConfigPayload,
+      })
       queryClient.invalidateQueries({ queryKey: ['integrations'] })
       successNotification({ title: `${provider.displayName} configured`, description: 'Integration credentials were saved successfully.' })
       onOpenChange(false)
@@ -134,7 +149,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
   const onSubmitCredentials = async (formValues: Record<string, unknown>) => {
     if (!provider) return
 
-    const { credentialPayload, hasCredentialPayload, missingRequired } = normalizeIntegrationFormPayloads(credentialSchema, undefined, formValues)
+    const { credentialPayload, hasCredentialPayload, missingRequired } = normalizeIntegrationFormPayloads(credentialSchema, undefined, [], formValues)
 
     if (!hasCredentialPayload) {
       onOpenChange(false)
@@ -147,7 +162,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
     }
 
     try {
-      await saveIntegrationConfiguration({ definitionId: provider.id, installationId, credentialRef: activeCredentialRef, body: credentialPayload.payload, userInput: {} })
+      await saveIntegrationConfiguration({ definitionId: provider.id, installationId, credentialRef: activeCredentialRef, body: credentialPayload.payload })
       queryClient.invalidateQueries({ queryKey: ['integrations'] })
       successNotification({ title: `${provider.displayName} credentials updated`, description: 'Credentials were updated successfully.' })
       onOpenChange(false)
@@ -160,9 +175,14 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
   const onSubmitSettings = async (formValues: Record<string, unknown>) => {
     if (!provider) return
 
-    const { hasUserInputPayload, missingRequired, userInputPayload } = normalizeIntegrationFormPayloads(undefined, userInputSchema, formValues)
+    const { hasOperationConfigPayload, hasUserInputPayload, missingRequired, operationConfigPayload, userInputPayload } = normalizeIntegrationFormPayloads(
+      undefined,
+      userInputSchema,
+      operationSchemas,
+      formValues,
+    )
 
-    if (!hasUserInputPayload) {
+    if (!hasUserInputPayload && !hasOperationConfigPayload) {
       onOpenChange(false)
       return
     }
@@ -173,7 +193,14 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
     }
 
     try {
-      await saveIntegrationConfiguration({ definitionId: provider.id, installationId, credentialRef: activeCredentialRef, body: {}, userInput: userInputPayload.payload })
+      await saveIntegrationConfiguration({
+        definitionId: provider.id,
+        installationId,
+        credentialRef: activeCredentialRef,
+        body: {},
+        userInput: userInputPayload.payload,
+        operationConfig: operationConfigPayload,
+      })
       queryClient.invalidateQueries({ queryKey: ['integrations'] })
       successNotification({ title: `${provider.displayName} settings updated`, description: 'Settings were updated successfully.' })
       onOpenChange(false)
@@ -226,7 +253,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
                     <Callout variant="warning" title="Updating Credentials" className="mb-[30px]">
                       We only load non-sensitive values. When saving, the entire form is validated—so you'll need to re-enter any required values that aren’t pre-filled (like secrets).
                     </Callout>
-                    <IntegrationSchemaSections sections={credForm.sections} hideDescriptions hideFieldKeys={disabledConfigKeys} />
+                    <IntegrationSchemaSections sections={credForm.sections} hideDescriptions />
                   </div>
                 </form>
               </FormProvider>
@@ -236,7 +263,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
               <FormProvider {...settingsForm.formMethods}>
                 <form id={settingsFormId} onSubmit={settingsForm.formMethods.handleSubmit(onSubmitSettings)} className="flex flex-1 flex-col overflow-hidden">
                   <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
-                    <IntegrationSchemaSections sections={settingsForm.sections} hideDescriptions hideFieldKeys={disabledConfigKeys} />
+                    <IntegrationSchemaSections sections={settingsForm.sections} hideDescriptions />
                   </div>
                 </form>
               </FormProvider>
@@ -247,7 +274,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
             <form id={combinedFormId} onSubmit={combined.formMethods.handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-hidden">
               <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
                 {combined.sections.length === 0 ? <p className="text-sm text-muted-foreground">No additional input is required for this integration.</p> : null}
-                <IntegrationSchemaSections sections={combined.sections} hideFieldKeys={disabledConfigKeys} />
+                <IntegrationSchemaSections sections={combined.sections} />
               </div>
             </form>
           </FormProvider>

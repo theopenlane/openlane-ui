@@ -10,6 +10,7 @@ type ConfigRequestBody = {
   credentialRef?: string
   body?: Record<string, unknown>
   userInput?: Record<string, unknown>
+  operationConfig?: Record<string, Record<string, unknown>>
 }
 
 export async function POST(request: NextRequest) {
@@ -37,7 +38,8 @@ export async function POST(request: NextRequest) {
         integrationId: payload.installationId,
         credentialRef: payload.credentialRef,
         body: payload.body ?? {},
-        userInput: payload.userInput ?? {},
+        userInput: payload.userInput,
+        operationConfig: payload.operationConfig,
       }),
     })
 
