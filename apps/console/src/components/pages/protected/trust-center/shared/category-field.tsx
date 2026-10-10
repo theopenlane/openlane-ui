@@ -15,6 +15,8 @@ interface CategoryFieldProps {
   clearable?: boolean
 }
 
+export const categoryEnumWhere = (objectType: ObjectTypes) => ({ objectType: objectToSnakeCase(objectType), field: 'kind' })
+
 export const CategoryField = ({ objectType, isEditing, canCreate, clearable = false }: CategoryFieldProps) => {
   const {
     control,
@@ -23,7 +25,7 @@ export const CategoryField = ({ objectType, isEditing, canCreate, clearable = fa
   } = useFormContext<{ category?: string }>()
 
   const { enumOptions, isLoading } = useGetCustomTypeEnums({
-    where: { objectType: objectToSnakeCase(objectType), field: 'kind' },
+    where: categoryEnumWhere(objectType),
   })
 
   const selectedValue = watch('category')

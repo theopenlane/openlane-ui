@@ -8542,6 +8542,18 @@ export interface CreateBulkSubprocessorMutation {
   createBulkSubprocessor: { subprocessors: Array<{ id: string; name: string }> | null }
 }
 
+export type GetVendorSubprocessorMatchesQueryVariables = Exact<{
+  entityId: string
+  name: string
+}>
+
+export interface GetVendorSubprocessorMatchesQuery {
+  trustCenters: { edges: Array<{ node: { id: string; subprocessorURL: string | null } | null } | null> | null }
+  listed: { edges: Array<{ node: { id: string; subprocessor: { id: string; name: string } } | null } | null> | null }
+  linked: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+  sameName: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+}
+
 export type CreateSubscriberMutationVariables = Exact<{
   input: Types.CreateSubscriberInput
 }>
