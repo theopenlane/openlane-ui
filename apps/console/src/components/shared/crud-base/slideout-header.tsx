@@ -3,10 +3,10 @@
 import React from 'react'
 import { SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { DropdownMenuItem } from '@repo/ui/dropdown-menu'
 import { cn } from '@repo/ui/lib/utils'
 import { ArrowLeft, ArrowRightLeft, Ellipsis, LinkIcon, Pencil, Trash2, X } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
+import { MenuActionItem, orderMenuActions } from '@/components/shared/menu/menu-action-item'
 
 export type SlideoutMenuAction = {
   key: string
@@ -65,8 +65,6 @@ export const deleteMenuAction = (onClick: () => void, options?: { disabled?: boo
   onClick,
 })
 
-const orderMenuActions = (actions: SlideoutMenuAction[]) => [...actions.filter((a) => !a.destructive), ...actions.filter((a) => a.destructive)]
-
 const SingleMenuAction = ({ label, icon, onClick, disabled, destructive }: SlideoutMenuAction) =>
   icon ? (
     <Button variant="secondary" size="icon-sm" icon={icon} className={cn(destructive && '[&_svg]:text-destructive')} descriptiveTooltipText={label} onClick={onClick} disabled={disabled} />
@@ -94,7 +92,7 @@ export const SlideoutHeader = ({
   const TitleTag = titleAs ?? SheetTitle
   const editBelongsInMenu = !!onEdit && !!primaryAction
 
-  const resolvedMenuActions = orderMenuActions(
+  const resolvedMenuActions = orderMenuActions<SlideoutMenuAction>(
     editBelongsInMenu && !formActions ? [{ key: 'edit', label: 'Edit', icon: <Pencil size={16} strokeWidth={2} />, onClick: onEdit, disabled: editDisabled }, ...menuActions] : menuActions,
   )
 
@@ -128,11 +126,8 @@ export const SlideoutHeader = ({
           {resolvedMenuActions.length > 1 && (
             <Menu
               trigger={<Button variant="secondary" size="icon-sm" icon={<Ellipsis size={16} />} descriptiveTooltipText="More actions" />}
-              content={resolvedMenuActions.map(({ key, label, icon, onClick, disabled, destructive }) => (
-                <DropdownMenuItem key={key} onSelect={onClick} disabled={disabled} className={cn('flex items-center gap-2 px-1', destructive && 'text-destructive')}>
-                  {icon}
-                  <span>{label}</span>
-                </DropdownMenuItem>
+              content={resolvedMenuActions.map((action) => (
+                <MenuActionItem key={action.key} action={action} />
               ))}
             />
           )}

@@ -72,8 +72,7 @@ test.describe('registry — platform detail', () => {
 
     try {
       await openPlatformDetail(page, id, name)
-      await page.getByRole('button', { name: 'Action' }).click()
-      await page.getByRole('button', { name: /^Edit$/ }).click()
+      await page.getByRole('button', { name: 'Edit platform', exact: true }).click()
 
       const field = page.getByPlaceholder('Briefly describe this platform...')
       await expect(field).toBeEditable({ timeout: 60_000 })
@@ -96,8 +95,7 @@ test.describe('registry — platform detail', () => {
 
     try {
       await openPlatformDetail(page, id, name)
-      await page.getByRole('button', { name: 'Action' }).click()
-      await page.getByRole('button', { name: /^Edit$/ }).click()
+      await page.getByRole('button', { name: 'Edit platform', exact: true }).click()
 
       const field = page.getByPlaceholder('Briefly describe this platform...')
       await expect(field).toBeEditable({ timeout: 60_000 })
@@ -120,7 +118,7 @@ test.describe('registry — platform detail', () => {
     try {
       await openPlatformDetail(page, id, name)
       await page.getByRole('button', { name: 'Action' }).click()
-      await page.getByRole('button', { name: /^Delete$/ }).click()
+      await page.getByRole('menuitem', { name: /^Delete$/ }).click()
 
       const confirmation = page.getByRole('alertdialog')
       await expect(confirmation.getByRole('heading', { name: /^Delete Platform$/ })).toBeVisible({ timeout: 20_000 })

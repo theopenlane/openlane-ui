@@ -138,7 +138,7 @@ test.describe('automation — campaigns (seeded)', () => {
     await expect(page.getByRole('button', { name: /^Launch$/ })).toBeVisible({ timeout: 45_000 })
 
     await page.getByRole('button', { name: 'Action' }).click()
-    await page.getByRole('button', { name: /^Delete campaign$/ }).click()
+    await page.getByRole('menuitem', { name: /^Delete campaign$/ }).click()
 
     const dialog = page.getByRole('alertdialog')
     await expect(dialog).toBeVisible({ timeout: 10_000 })
@@ -343,9 +343,9 @@ test.describe('automation — campaign detail inline edits (seeded)', () => {
     await page.getByRole('button', { name: 'Action', exact: true }).click()
 
     const actionMenu = page.getByRole('menu')
-    await expect(actionMenu.getByRole('button', { name: /^Cancel campaign$/ })).toBeVisible({ timeout: 10_000 })
-    await expect(actionMenu.getByRole('button', { name: /^Delete campaign$/ })).toBeVisible()
-    await expect(actionMenu.getByRole('button', { name: /^Send test email$/ })).toBeVisible()
+    await expect(actionMenu.getByRole('menuitem', { name: /^Cancel campaign$/ })).toBeVisible({ timeout: 10_000 })
+    await expect(actionMenu.getByRole('menuitem', { name: /^Delete campaign$/ })).toBeVisible()
+    await expect(actionMenu.getByRole('menuitem', { name: /^Send test email$/ })).toBeVisible()
   })
 })
 

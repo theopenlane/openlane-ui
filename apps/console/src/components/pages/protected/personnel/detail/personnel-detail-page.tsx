@@ -11,7 +11,6 @@ import { useIdentityHolder, useGetIdentityHolderAssociations, useUpdateIdentityH
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit, canDelete } from '@/lib/authz/utils'
 import { useNotification } from '@/hooks/useNotification'
-import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useOrganization } from '@/hooks/useOrganization'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
@@ -62,8 +61,6 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [initialValues, setInitialValues] = useState<Partial<EditPersonnelFormData>>({})
-
-  const hasScrollbar = useHasScrollbar([isEditing, data?.identityHolder, associationsData?.identityHolder])
 
   const form = useForm<EditPersonnelFormData>({
     defaultValues: {},
@@ -261,15 +258,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Personnel - ${personnel.fullName}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout
-            sidebarTitle="Details"
-            sidebarContent={sidebarContent}
-            slideOpen={isEditing}
-            minWidth={430}
-            collapsedContentClassName="pr-6"
-            collapsedButtonClassName="-translate-x-4"
-            hasScrollbar={hasScrollbar}
-          >
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} slideOpen={isEditing} minWidth={430} collapsedContentClassName="pr-6">
             {mainContent}
           </SlideBarLayout>
         </form>

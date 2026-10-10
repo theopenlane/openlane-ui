@@ -203,23 +203,22 @@ test.describe('policies — detail page UI (seeded)', () => {
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
 
     await page.getByTestId('policy-actions-menu').click()
-    await page.getByRole('button', { name: /^Manage Permissions$/ }).click()
+    await page.getByRole('menuitem', { name: /^Manage Permissions$/ }).click()
 
     const sheet = page.getByRole('dialog')
     await expect(sheet.getByText(/^Manage permission$/)).toBeVisible({ timeout: 10_000 })
     await expect(sheet.getByText(/^Group list$/)).toBeVisible({ timeout: 10_000 })
   })
 
-  test('Create policy navigates to the create form (ISS-2924)', async ({ page }) => {
+  test('the policy detail page offers no Create policy action (ISS-3166)', async ({ page }) => {
     const name = uniquePolicyName()
     const id = await createInternalPolicy(ownerApi, name)
 
     await page.goto(`/policies/${id}/view`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByTestId('policy-actions-menu')).toBeVisible({ timeout: 20_000 })
 
-    await page.getByRole('link', { name: 'Create policy' }).click()
-
-    await page.waitForURL(/\/policies\/create(\?|$)/, { timeout: 20_000 })
+    await expect(page.getByRole('link', { name: 'Create policy' })).toHaveCount(0)
   })
 })
 

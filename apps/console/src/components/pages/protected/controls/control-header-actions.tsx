@@ -1,16 +1,14 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
-import { CopyPlus, PencilIcon, MoreHorizontal, Trash2, Sparkles } from 'lucide-react'
+import { CopyPlus } from 'lucide-react'
 import { hasPermission, canDelete, canEdit } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
-import Menu from '@/components/shared/menu/menu.tsx'
-import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
 import type { TAccessRole } from '@/types/authz'
 import { useSession } from 'next-auth/react'
-import MenuItem from '@/components/shared/menu/menu-item'
+import { deleteMenuAction } from '@/components/shared/crud-base/slideout-header'
+import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 interface ControlHeaderActionsProps {
   controlId: string
@@ -30,52 +28,24 @@ const ControlHeaderActions: React.FC<ControlHeaderActionsProps> = ({ controlId, 
   const canDeleteControl = canDelete(permissionRoles)
   const canCloneControl = showClone && hasPermission(orgPermissionRoles, AccessEnum.CanCreateControl, session)
 
-  if (isEditing) {
-    return (
-      <div className="flex gap-2 justify-end">
-        <Button variant="secondary" className="h-8 px-2!" onClick={onAskAI} icon={<Sparkles size={16} />}>
-          Ask AI
-        </Button>
-        <CancelButton onClick={onCancel} />
-        <SaveButton />
-      </div>
-    )
-  }
-
   return (
-    <div className="flex gap-2 justify-end">
-      <Button variant="secondary" className="h-8 px-2!" onClick={onAskAI} icon={<Sparkles size={16} />}>
-        Ask AI
-      </Button>
-      {canEditControl && (
-        <Button type="button" variant="secondary" onClick={onEdit} aria-label="Edit control" icon={<PencilIcon size={16} strokeWidth={2} />} iconPosition="left">
-          Edit
-        </Button>
-      )}
-      {(canCloneControl || canDeleteControl) && (
-        <Menu
-          trigger={
-            <Button type="button" variant="secondary" className="h-8 px-2" data-testid="control-actions-menu">
-              <MoreHorizontal size={16} />
-            </Button>
-          }
-          content={
-            <>
-              {canCloneControl && (
-                <MenuItem href={`/controls/${controlId}/clone-control?mapControlId=${controlId}`} icon={<CopyPlus size={16} strokeWidth={2} />}>
-                  Clone Control
-                </MenuItem>
-              )}
-              {canDeleteControl && (
-                <MenuItem icon={<Trash2 size={16} strokeWidth={2} />} onSelect={onDeleteClick} data-testid="control-delete-button" destructive>
-                  Delete
-                </MenuItem>
-              )}
-            </>
-          }
-        />
-      )}
-    </div>
+    <DetailHeaderActions
+      isEditing={isEditing}
+      onCancel={onCancel}
+      onAskAI={onAskAI}
+      onEdit={canEditControl ? onEdit : undefined}
+      editLabel="Edit control"
+      menuAnchor={elementAnchor('control-actions-menu')}
+      menuActions={[
+        canCloneControl && {
+          key: 'clone',
+          label: 'Clone Control',
+          icon: <CopyPlus size={16} strokeWidth={2} />,
+          href: `/controls/${controlId}/clone-control?mapControlId=${controlId}`,
+        },
+        canDeleteControl && { ...deleteMenuAction(onDeleteClick), anchor: elementAnchor('control-delete-button') },
+      ]}
+    />
   )
 }
 

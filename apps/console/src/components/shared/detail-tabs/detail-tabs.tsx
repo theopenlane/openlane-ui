@@ -10,13 +10,14 @@ type TDetailTabsProps<T extends string> = {
   state: TDetailTabsState<T>
   badges?: Partial<Record<T, number>>
   counts?: Partial<Record<T, number>>
+  end?: React.ReactNode
   children: React.ReactNode
 }
 
-const DetailTabs = <T extends string>({ state, badges, counts, children }: TDetailTabsProps<T>) => (
+const DetailTabs = <T extends string>({ state, badges, counts, end, children }: TDetailTabsProps<T>) => (
   <Tabs value={state.activeTab} onValueChange={state.onTabChange} variant="underline">
     <div className="mb-6">
-      <ScrollableTabsList trailing={<CustomizeTabsMenu state={state} />}>
+      <ScrollableTabsList trailing={<CustomizeTabsMenu state={state} />} end={end}>
         <TabsList className="w-max gap-2">
           {state.shownTabs.map(({ value, label }, index) => {
             const badgeCount = badges?.[value] ?? 0

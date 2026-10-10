@@ -220,7 +220,7 @@ test.describe('campaigns — test email and reminders', () => {
 
     await page.goto(`/automation/campaigns/${campaignId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await page.getByRole('button', { name: 'Action' }).first().click()
-    await page.getByRole('button', { name: 'Send test email' }).last().click()
+    await page.getByRole('menuitem', { name: 'Send test email' }).click()
 
     const dialog = page.getByRole('dialog')
     await expect(dialog.getByRole('heading', { name: 'Send Test Email' })).toBeVisible({ timeout: 30_000 })
