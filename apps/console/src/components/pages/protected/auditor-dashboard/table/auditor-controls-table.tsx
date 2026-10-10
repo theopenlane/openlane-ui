@@ -12,13 +12,15 @@ import { type VisibilityState } from '@repo/ui/table-types'
 import { type WhereCondition } from '@/types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
-import { ControlOrderField, type ControlWhereInput, type EvidenceWhereInput, ExportExportFormat, ExportExportType } from '@repo/codegen/src/schema'
+import { ControlControlStatus, ControlOrderField, type ControlWhereInput, type EvidenceWhereInput, ExportExportFormat, ExportExportType } from '@repo/codegen/src/schema'
 import { useGetAuditorDashboardControls } from '@/lib/graphql-hooks/control'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { createStatusPredicate } from '@/components/shared/table-filter/allowed-statuses'
+import { hasStatusCondition } from '@/components/shared/table-filter/has-status-condition'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import CreateControlReviewSheet from '@/components/pages/protected/controls/quick-actions/create-control-review-sheet'
@@ -34,6 +36,7 @@ import { getAuditorDashboardColumns, getAuditorDashboardMappedColumns, type Audi
 import useFileExport from '@/components/shared/export/use-file-export'
 import {
   AUDITOR_CONTROL_BASE_EXPORT_FIELDS,
+  AUDITOR_DASHBOARD_BASELINE_STATUS_WHERE,
   AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES,
   AUDITOR_DASHBOARD_DEFAULT_SORT,
   AUDITOR_DASHBOARD_SORT_FIELDS,
@@ -126,11 +129,16 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
     const generated = whereGenerator<ControlWhereInput>(filters, createAuditorControlsFilterMapper(programId))
 
     const base: ControlWhereInput = { hasProgramsWith: [{ id: programId }], ...generated }
+    if (!hasStatusCondition(generated)) {
+      base.and = [...(base.and ?? []), AUDITOR_DASHBOARD_BASELINE_STATUS_WHERE]
+    }
     if (debouncedSearch) {
       base.and = [...(base.and ?? []), { or: [{ refCodeContainsFold: debouncedSearch }, { titleContainsFold: debouncedSearch }] }]
     }
     return base
   }, [programId, filters, debouncedSearch])
+
+  const isStatusAllowed = useMemo(() => createStatusPredicate(where, Object.values(ControlControlStatus)), [where])
 
   const { controls, paginationMeta, isLoading, isFetching } = useGetAuditorDashboardControls({ programId, where, orderBy, pagination, includeVars, enabled: filters !== null })
 
@@ -144,12 +152,12 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
           ...control,
           evidenceItems,
           linkedPolicies,
-          mappedControls: getProgramScopedMappedControls({ relatedControls: control.relatedControls, controlId: control.id, programFrameworks }),
+          mappedControls: getProgramScopedMappedControls({ relatedControls: control.relatedControls, controlId: control.id, programFrameworks, isStatusAllowed }),
           review: getControlReview(reviews),
           lastReviewed: getControlLastReviewed(reviews),
         }
       }),
-    [controls, programFrameworks],
+    [controls, programFrameworks, isStatusAllowed],
   )
 
   const exportFilters = useMemo(() => JSON.stringify({ hasProgramsWith: [{ id: programId }] } satisfies EvidenceWhereInput), [programId])
