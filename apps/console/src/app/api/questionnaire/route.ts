@@ -1,7 +1,7 @@
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { type NextRequest, NextResponse } from 'next/server'
 import { isRecord } from '@/utils/type-guards'
-import { buildSignatureMetadata, withAcknowledgementSignatureMetadata } from '@/lib/server/acknowledgement-signature'
+import { buildSignatureMetadata, withSignatureMetadata } from '@/lib/server/signature-metadata'
 
 export const dynamic = 'force-dynamic'
 
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     }
 
     const isDraft = body.isDraft === true
-    const answers = withAcknowledgementSignatureMetadata(body.data, isDraft ? null : buildSignatureMetadata(req, token))
+    const answers = withSignatureMetadata(body.data, isDraft ? null : buildSignatureMetadata(req, token))
 
     const response = await secureFetch(`${process.env.API_REST_URL}/questionnaire`, {
       method: 'POST',
