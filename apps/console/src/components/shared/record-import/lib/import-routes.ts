@@ -4,7 +4,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { type Crumb } from '@/providers/BreadcrumbContext'
 import { type TAccessRole } from '@/types/authz'
-import { pluralizeTypeName, toHumanLabel } from '@/utils/strings'
+import { pluralizeTypeName, toHumanLabel, toLowerLabel } from '@/utils/strings'
 
 export type TImportPermission = AccessEnum | 'edit' | null
 
@@ -27,6 +27,9 @@ type TImportRouteDetails = {
   gate?: ObjectTypes
   reorderable?: boolean
   importNotice?: string
+  title?: string
+  heading?: string
+  subheading?: string
 }
 
 export type TImportRoute = TImportRouteDetails & { href: string }
@@ -168,8 +171,10 @@ export type TImportableObjectType = keyof typeof IMPORT_ROUTE_DETAILS
 
 const IMPORT_PATH = '/import'
 export const IMPORT_TYPE_PARAM = 'type'
-export const IMPORT_VENDOR_PARAM = 'vendorId'
-export const IMPORT_TRUST_CENTER_PARAM = 'trustCenterId'
+const IMPORT_VENDOR_PARAM = 'vendorId'
+const IMPORT_TRUST_CENTER_PARAM = 'trustCenterId'
+const IMPORT_SOURCE_PARAM = 'source'
+const STANDARDS_SOURCE = 'standards'
 
 const importHref = (entityType: TImportableObjectType, extra: Record<string, string> = {}): string =>
   `${IMPORT_PATH}?${new URLSearchParams({ [IMPORT_TYPE_PARAM]: entityType.toLowerCase(), ...extra })}`
@@ -180,6 +185,12 @@ export const IMPORT_ROUTES = Object.fromEntries(IMPORTABLE_TYPES.map((entityType
   TImportableObjectType,
   TImportRoute
 >
+
+type TImportRouteLabels = Pick<TImportRoute, 'title' | 'heading' | 'displayName' | 'displayNamePlural'>
+
+export const importHeading = (route: TImportRouteLabels): string => route.heading ?? `Import ${toLowerLabel(importDisplayNamePlural(route))}`
+
+const importTitle = (route: TImportRouteLabels): string => route.title ?? `Import ${importDisplayNamePlural(route)}`
 
 export const resolveImportType = (value: string | undefined): TImportableObjectType | undefined => IMPORTABLE_TYPES.find((entityType) => entityType.toLowerCase() === value?.toLowerCase())
 
@@ -204,28 +215,59 @@ export const trustCenterSubscribersImportRoute = (trustCenterId: string): TImpor
   gate: ObjectTypes.TRUST_CENTER,
 })
 
+export const controlsFromStandardsImportRoute: TImportRoute = {
+  ...IMPORT_ROUTE_DETAILS[ObjectTypes.CONTROL],
+  href: importHref(ObjectTypes.CONTROL, { [IMPORT_SOURCE_PARAM]: STANDARDS_SOURCE }),
+  title: 'Import Controls from Standards',
+  heading: 'Import controls from standards',
+  subheading: 'Upload controls that reference one of our supported standards. Each row is cloned from the standard, so the control stays up to date as future changes are published upstream.',
+  importNotice: 'Subcontrols of a cloned control that are not listed in your file are marked Not Applicable.',
+}
+
+type TImportScopeDefinition = {
+  entityType: TImportableObjectType
+  param: string
+  accepts?: (value: string) => boolean
+  route: (value: string) => TImportRoute
+}
+
 const IMPORT_SCOPES = {
-  [IMPORT_VENDOR_PARAM]: { entityType: ObjectTypes.CONTACT, route: (vendorId: string) => vendorContactsImportRoute(vendorId, '') },
-  [IMPORT_TRUST_CENTER_PARAM]: { entityType: ObjectTypes.SUBSCRIBER, route: trustCenterSubscribersImportRoute },
-} as const satisfies Record<string, { entityType: TImportableObjectType; route: (id: string) => TImportRoute }>
+  vendorContacts: { entityType: ObjectTypes.CONTACT, param: IMPORT_VENDOR_PARAM, route: (vendorId: string) => vendorContactsImportRoute(vendorId, '') },
+  trustCenterSubscribers: { entityType: ObjectTypes.SUBSCRIBER, param: IMPORT_TRUST_CENTER_PARAM, route: trustCenterSubscribersImportRoute },
+  controlsFromStandards: {
+    entityType: ObjectTypes.CONTROL,
+    param: IMPORT_SOURCE_PARAM,
+    accepts: (value: string) => value === STANDARDS_SOURCE,
+    route: () => controlsFromStandardsImportRoute,
+  },
+} as const satisfies Record<string, TImportScopeDefinition>
 
-export type TImportScopeParam = keyof typeof IMPORT_SCOPES
+export type TImportScopeKey = keyof typeof IMPORT_SCOPES
 
-export const IMPORT_SCOPE_PARAMS = Object.keys(IMPORT_SCOPES) as TImportScopeParam[]
+export type TImportScopeParam = (typeof IMPORT_SCOPES)[TImportScopeKey]['param']
 
-export type TImportScope = { param: TImportScopeParam; id: string }
+const IMPORT_SCOPE_KEYS = Object.keys(IMPORT_SCOPES) as TImportScopeKey[]
+
+export type TImportScope = { key: TImportScopeKey; value: string }
 
 export type TImportTarget = { entityType: TImportableObjectType; scope?: TImportScope; gate: ObjectTypes; title: string }
 
-export const resolveImportTarget = (type: string | undefined, readScopeId: (param: TImportScopeParam) => string | undefined): TImportTarget | undefined => {
+const resolveImportScope = (entityType: TImportableObjectType, readParam: (param: TImportScopeParam) => string | undefined): TImportScope | undefined => {
+  for (const key of IMPORT_SCOPE_KEYS) {
+    const definition: TImportScopeDefinition = IMPORT_SCOPES[key]
+    const value = definition.entityType === entityType ? readParam(IMPORT_SCOPES[key].param) : undefined
+    if (value && (definition.accepts?.(value) ?? true)) return { key, value }
+  }
+  return undefined
+}
+
+export const resolveImportTarget = (type: string | undefined, readParam: (param: TImportScopeParam) => string | undefined): TImportTarget | undefined => {
   const entityType = resolveImportType(type)
   if (!entityType) return undefined
 
-  const param = IMPORT_SCOPE_PARAMS.find((candidate) => IMPORT_SCOPES[candidate].entityType === entityType && readScopeId(candidate))
-  const id = param && readScopeId(param)
-  const scope: TImportScope | undefined = param && id ? { param, id } : undefined
-  const route = scope ? IMPORT_SCOPES[scope.param].route(scope.id) : IMPORT_ROUTES[entityType]
-  return { entityType, scope, gate: route.gate ?? entityType, title: `Import ${importDisplayNamePlural(route)}` }
+  const scope = resolveImportScope(entityType, readParam)
+  const route = scope ? IMPORT_SCOPES[scope.key].route(scope.value) : IMPORT_ROUTES[entityType]
+  return { entityType, scope, gate: route.gate ?? entityType, title: importTitle(route) }
 }
 
 export const canImportWith = (permission: TImportPermission, roles: TAccessRole[] | undefined, session: Session | null): boolean => {

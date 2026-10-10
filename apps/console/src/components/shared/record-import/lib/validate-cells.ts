@@ -44,6 +44,12 @@ export const toEnumToken = (value: string): string =>
     .join('_')
     .toUpperCase()
 
+export const enumCanonicalizer = (meta: ImportFieldMeta | undefined): ((value: string) => string) | undefined => {
+  if (meta?.kind !== 'enum' || meta.list) return undefined
+  const valueByToken = new Map((meta.enumValues ?? []).map((value) => [toEnumToken(value), value]))
+  return (value) => (value ? (valueByToken.get(toEnumToken(value)) ?? value) : value)
+}
+
 const isValidUrl = (value: string): boolean => {
   if (value.length > MAX_URL_LENGTH) return false
   try {
@@ -121,10 +127,12 @@ const suggestEnumValue = (value: string, enumValues: readonly string[]): string 
   return candidates.length === 1 ? candidates[0] : undefined
 }
 
+const ANY_VALUE_RULE: TItemRule = { expected: 'a value in every row', isValid: () => true }
+
 const fieldRule = (field: TDestinationField, dateOrder: TDateOrder | undefined): TItemRule | null => {
   if (field.format === 'url') return URL_RULE
-  if (!field.meta) return null
-  return dateOrder ? dateRule(field.meta, dateOrder) : itemRule(field.meta)
+  const rule = field.meta ? (dateOrder ? dateRule(field.meta, dateOrder) : itemRule(field.meta)) : null
+  return rule ?? (field.blankIsInvalid ? ANY_VALUE_RULE : null)
 }
 
 const checkCells = (rows: string[][], columnIndex: number, field: TDestinationField, dateOrder: TDateOrder | undefined): TColumnCellCheck | null => {
@@ -138,7 +146,7 @@ const checkCells = (rows: string[][], columnIndex: number, field: TDestinationFi
     if (rule.normalize) return rule.normalize(cell)
     return (meta.list ? splitListCell(cell) : [cell])?.every(rule.isValid) ? cell : null
   }
-  const blankIsInvalid = meta.timestamp === true && !meta.list
+  const blankIsInvalid = field.blankIsInvalid === true || (meta.timestamp === true && !meta.list)
   const resolved = new Map<string, string | null>()
   const invalid = new Map<string, number[]>()
   const conversions = new Map<string, string>()

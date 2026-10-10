@@ -7,11 +7,14 @@ import { Button } from '@repo/ui/button'
 import { PageHeading } from '@repo/ui/page-heading'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ImportStepNav } from './import-step-nav'
+import { importHeading, type TImportRoute } from './lib/import-routes'
 import { type TImportExit } from './lib/use-import-exit'
 import { type TImportFlowState } from './lib/use-record-import'
 
+const DEFAULT_SUBHEADING = "Upload your file and we'll help you map the columns to Openlane fields."
+
 type TImportFlowLayoutProps = {
-  heading: string
+  route: TImportRoute
   exit: TImportExit
   state: TImportFlowState
   canContinue: boolean
@@ -21,7 +24,7 @@ type TImportFlowLayoutProps = {
   children: React.ReactNode
 }
 
-export const ImportFlowLayout: React.FC<TImportFlowLayoutProps> = ({ heading, exit, state, canContinue, isBusy, footerHint, finalAction, children }) => {
+export const ImportFlowLayout: React.FC<TImportFlowLayoutProps> = ({ route, exit, state, canContinue, isBusy, footerHint, finalAction, children }) => {
   const navGuard = useNavigationGuard({ enabled: Boolean(state.parsed) && !exit.isFinished })
 
   return (
@@ -30,7 +33,7 @@ export const ImportFlowLayout: React.FC<TImportFlowLayoutProps> = ({ heading, ex
         <Button variant="secondary" icon={<ArrowLeft size={16} />} iconPosition="left" onClick={exit.leave} disabled={isBusy}>
           {exit.backLabel}
         </Button>
-        <PageHeading heading={heading} subheading="Upload your file and we'll help you map the columns to Openlane fields." />
+        <PageHeading heading={importHeading(route)} subheading={route.subheading ?? DEFAULT_SUBHEADING} />
       </div>
 
       <ImportStepNav steps={state.steps} current={state.step} />

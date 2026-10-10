@@ -19,7 +19,6 @@ import { Button } from '@repo/ui/button'
 import { BulkEditControlsDialog } from '../bulk-edit/bulk-edit-controls'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { BulkCSVCloneControlDialog } from '../bulk-csv-clone-control-dialog'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
@@ -37,7 +36,7 @@ import { type TQuickFilter } from '@/components/shared/table-filter/table-filter
 import { type Session } from 'next-auth'
 import MenuItem from '@/components/shared/menu/menu-item'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
-import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { controlsFromStandardsImportRoute, IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
@@ -105,7 +104,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   }, [session?.user?.userId])
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
-  const [isCloneOpen, setIsCloneOpen] = useState(false)
   const [isUpdateOpen, setIsUpdateOpen] = useState(false)
   const { currentOrgId } = useOrganization()
 
@@ -227,8 +225,8 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                       {...tableActionAnchor(ObjectTypes.CONTROL, 'upload-from-standard')}
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
-                        setIsCloneOpen(true)
                         close()
+                        openImport(controlsFromStandardsImportRoute)
                       }}
                     >
                       Upload From Standard
@@ -267,7 +265,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                   </>
                 )}
               />
-              <BulkCSVCloneControlDialog open={isCloneOpen} onOpenChange={setIsCloneOpen} />
               <BulkCSVUpdateControlDialog open={isUpdateOpen} onOpenChange={setIsUpdateOpen} />
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.CONTROL} />
