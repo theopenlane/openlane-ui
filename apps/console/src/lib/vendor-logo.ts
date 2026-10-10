@@ -22,3 +22,22 @@ export const toVendorLogoHost = (domain: string): string | null => {
 export const buildVendorLogoProxyUrl = (host: string, size: number = VENDOR_LOGO_SIZE.default): string => `/api/vendor-logo?domain=${encodeURIComponent(host)}&sz=${size}`
 
 export const getVendorLogoUrl = (logoFile?: { base64?: string | null } | null): string | undefined => (logoFile?.base64 ? toBase64DataUri(logoFile.base64) : undefined)
+
+export const fetchLogoAsFile = async (logoUrl: string): Promise<File> => {
+  if (logoUrl.startsWith('data:')) {
+    const [header, data] = logoUrl.split(',')
+    const mimeType = header.split(':')[1].split(';')[0]
+    const binaryString = atob(data)
+    const bytes = new Uint8Array(binaryString.length)
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i)
+    }
+    const extension = mimeType.includes('png') ? '.png' : mimeType.includes('svg') ? '.svg' : '.jpg'
+    return new File([bytes], `logo${extension}`, { type: mimeType })
+  }
+  const response = await fetch(logoUrl)
+  if (!response.ok) throw new Error('Failed to fetch logo')
+  const blob = await response.blob()
+  const extension = blob.type.includes('png') ? '.png' : blob.type.includes('svg') ? '.svg' : '.jpg'
+  return new File([blob], `logo${extension}`, { type: blob.type })
+}

@@ -88,3 +88,43 @@ export const CREATE_BULK_SUBPROCESSOR = gql`
     }
   }
 `
+
+export const GET_VENDOR_SUBPROCESSOR_MATCHES = gql`
+  query GetVendorSubprocessorMatches($entityId: ID!, $name: String!) {
+    trustCenters(first: 1) {
+      edges {
+        node {
+          id
+          subprocessorURL
+        }
+      }
+    }
+    listed: trustCenterSubprocessors(where: { hasSubprocessorWith: [{ or: [{ hasEntitiesWith: [{ id: $entityId }] }, { nameEqualFold: $name }] }] }, first: 1) {
+      edges {
+        node {
+          id
+          subprocessor {
+            id
+            name
+          }
+        }
+      }
+    }
+    linked: subprocessors(where: { hasEntitiesWith: [{ id: $entityId }] }, first: 1, orderBy: [{ field: created_at, direction: ASC }]) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+    sameName: subprocessors(where: { systemOwned: false, nameEqualFold: $name }, first: 1, orderBy: [{ field: created_at, direction: ASC }]) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+  }
+`

@@ -5,8 +5,13 @@ import { useFormContext } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
-import { MoreHorizontal, Trash2, Building2, PencilIcon, CogIcon, CheckIcon, PlusIcon } from 'lucide-react'
-import { canDelete } from '@/lib/authz/utils'
+import { MoreHorizontal, Trash2, Building2, PencilIcon, CogIcon, CheckIcon, PlusIcon, ServerIcon } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { canDelete, hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import Menu from '@/components/shared/menu/menu'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -22,6 +27,7 @@ import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import { MergeMenuItem } from '@/components/shared/merge-records/merge-menu-item'
 import { vendorMergeConfig } from '@/components/shared/merge-records/configs/vendor-merge-config'
 import MenuItem from '@/components/shared/menu/menu-item'
+import { AddToTrustCenterDialog } from './add-to-trust-center/add-to-trust-center-dialog'
 
 interface VendorDetailHeaderProps {
   vendor: EntityQuery['entity']
@@ -37,6 +43,11 @@ interface VendorDetailHeaderProps {
 
 const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditing, canEditVendor, onEdit, onCancel, onDeleteClick, permissionRoles, handleUpdateField, onMergeComplete }) => {
   const canDeleteVendor = canDelete(permissionRoles)
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const hasTrustCenter = useHasObjectType(ObjectTypes.TRUST_CENTER)
+  const canAddToTrustCenter = canEditVendor && hasTrustCenter && hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor, session)
+  const [addToTrustCenterOpen, setAddToTrustCenterOpen] = useState(false)
   const showMenu = canEditVendor || canDeleteVendor
   const { setValue, register } = useFormContext()
   const [inlineEditing, setInlineEditing] = useState<'name' | 'displayName' | null>(null)
@@ -180,12 +191,13 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
               )}
               {showMenu && (
                 <Menu
+                  closeOnSelect
                   trigger={
                     <Button type="button" variant="secondary" className="h-8 px-2" aria-label="Vendor actions">
                       <MoreHorizontal size={16} />
                     </Button>
                   }
-                  content={
+                  content={(close) => (
                     <>
                       {canEditVendor && !hasIntegration && matchedProvider && (
                         <MenuItem href={`/automation/integrations/${matchedProvider.id}?vendorId=${vendor.id}`} icon={<PlusIcon size={16} strokeWidth={2} />}>
@@ -197,6 +209,17 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
                           Configure Integration
                         </MenuItem>
                       )}
+                      {canAddToTrustCenter && (
+                        <MenuItem
+                          icon={<ServerIcon size={16} strokeWidth={2} />}
+                          onSelect={() => {
+                            close()
+                            setAddToTrustCenterOpen(true)
+                          }}
+                        >
+                          Add to Trust Center
+                        </MenuItem>
+                      )}
                       {canEditVendor && <MergeMenuItem primaryId={vendor.id} config={vendorMergeConfig} onMergeComplete={onMergeComplete} />}
                       {canDeleteVendor && (
                         <MenuItem icon={<Trash2 size={16} strokeWidth={2} />} onSelect={onDeleteClick} destructive>
@@ -204,13 +227,15 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
                         </MenuItem>
                       )}
                     </>
-                  }
+                  )}
                 />
               )}
             </>
           )}
         </div>
       </div>
+
+      {canAddToTrustCenter && <AddToTrustCenterDialog vendor={vendor} open={addToTrustCenterOpen} onOpenChange={setAddToTrustCenterOpen} />}
 
       <VendorLogoDialog
         open={logoDialogOpen}
