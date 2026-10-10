@@ -10,28 +10,6 @@ export interface OAuthUserRequest {
   accessToken: string
 }
 
-export interface WebfingerConfig {
-  success: boolean
-  enforced: boolean
-  provider: string
-  organization_id: string
-}
-
-export const checkWebfinger = async (email: string): Promise<WebfingerConfig | null> => {
-  try {
-    const webfingerResponse = await secureFetch(`${openlaneAPIUrl}/.well-known/webfinger?resource=acct:${encodeURIComponent(email as string)}`)
-    const ssoConfig = await webfingerResponse.json()
-
-    if (ssoConfig.success && ssoConfig.enforced && ssoConfig.provider !== 'NONE' && ssoConfig.organization_id) {
-      return ssoConfig as WebfingerConfig
-    }
-  } catch (error) {
-    console.error('failed to check webfinger:', error)
-  }
-
-  return null
-}
-
 export const getSSORedirect = async (organizationId: string): Promise<{ redirect_uri: string; organization_id: string } | null> => {
   try {
     const ssoResponse = await secureFetch(`/api/auth/sso`, {
@@ -51,16 +29,6 @@ export const getSSORedirect = async (organizationId: string): Promise<{ redirect
     }
   } catch (ssoError) {
     console.error('failed to get SSO redirect:', ssoError)
-  }
-
-  return null
-}
-
-export const checkSSOEnforcement = async (email: string): Promise<{ redirect_uri: string; organization_id: string } | null> => {
-  const webfingerConfig = await checkWebfinger(email)
-
-  if (webfingerConfig) {
-    return await getSSORedirect(webfingerConfig.organization_id)
   }
 
   return null
