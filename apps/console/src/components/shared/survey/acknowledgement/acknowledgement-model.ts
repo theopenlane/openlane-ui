@@ -9,7 +9,8 @@ import {
   isTypedSignature,
   readAcknowledgementValue,
 } from './acknowledgement-type'
-import { renderTypedSignature, TYPED_SIGNATURE_HEIGHT, TYPED_SIGNATURE_STYLE_COUNT, TYPED_SIGNATURE_WIDTH } from './typed-signature'
+import { FULL_WIDTH_SIGNATURE_PAD, SIGNATURE_PAD_QUESTION_TYPE } from '../signature-pad/signature-pad-type'
+import { renderTypedSignature, TYPED_SIGNATURE_STYLE_COUNT } from './typed-signature'
 import './acknowledgement.css'
 
 const ACKNOWLEDGEMENT_REQUIRED_MESSAGE = 'Check the box to confirm the acknowledgement.'
@@ -79,7 +80,7 @@ export class QuestionAcknowledgementSignatureModel extends QuestionSignaturePadM
   }
 
   protected getCssType(): string {
-    return 'signaturepad'
+    return SIGNATURE_PAD_QUESTION_TYPE
   }
 
   get locRenderedPlaceholder(): LocalizableString {
@@ -170,7 +171,7 @@ export class QuestionAcknowledgementSignatureModel extends QuestionSignaturePadM
   }
 }
 
-Serializer.addClass(SIGNATURE_QUESTION_TYPE, [], () => new QuestionAcknowledgementSignatureModel(''), 'signaturepad')
+Serializer.addClass(SIGNATURE_QUESTION_TYPE, [], () => new QuestionAcknowledgementSignatureModel(''), SIGNATURE_PAD_QUESTION_TYPE)
 
 const contentQuestion = (question: Question, name: string) => (question instanceof QuestionCompositeModel ? question.contentPanel.getQuestionByName(name) : null)
 
@@ -234,9 +235,7 @@ if (!ComponentCollection.Instance.getCustomQuestionByName(ACKNOWLEDGEMENT_QUESTI
         title: 'Signature',
         placeholder: 'Sign here',
         placeholderReadOnly: 'Not signed',
-        signatureWidth: TYPED_SIGNATURE_WIDTH,
-        signatureHeight: TYPED_SIGNATURE_HEIGHT,
-        signatureAutoScaleEnabled: true,
+        ...FULL_WIDTH_SIGNATURE_PAD,
         dataFormat: 'svg',
         penColor: SIGNATURE_INK_COLOR,
       },
