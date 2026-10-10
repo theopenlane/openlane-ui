@@ -9,6 +9,8 @@ export const TYPED_SIGNATURE_PREFIX = `data:image/svg+xml;charset=utf-8,${encode
 
 export const isTypedSignature = (value: unknown): value is string => typeof value === 'string' && value.startsWith(TYPED_SIGNATURE_PREFIX)
 
+export const ACKNOWLEDGEMENT_SIGNATURE_METADATA_FIELD = 'signatureMetadata'
+
 export type TAcknowledgementValue = {
   acknowledged?: boolean
   fullName?: string
@@ -26,6 +28,8 @@ export const readAcknowledgementValue = (value: unknown): TAcknowledgementValue 
     signedAt: typeof signedAt === 'string' ? signedAt : undefined,
   }
 }
+
+export const isAcknowledgementSigned = ({ acknowledged, fullName, signature }: TAcknowledgementValue): boolean => Boolean(acknowledged && fullName?.trim() && signature)
 
 export const renderAcknowledgementAnswer = (value: unknown): string => {
   const { acknowledged, fullName, signature, signedAt } = readAcknowledgementValue(value)
