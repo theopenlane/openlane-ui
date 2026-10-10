@@ -171,15 +171,14 @@ test.describe('procedures — detail page UI (seeded)', () => {
     await expect(page.getByRole('heading', { level: 3, name: /^Properties$/ })).toBeVisible({ timeout: 15_000 })
   })
 
-  test('Edit from the actions menu opens inline edit mode with Save/Cancel', async ({ page }) => {
+  test('Edit opens inline edit mode with Save/Cancel', async ({ page }) => {
     const name = uniqueProcedureName()
     const id = await createProcedure(ownerApi, name)
 
     await page.goto(`/procedures/${id}/view`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
 
-    await page.getByTestId('procedure-actions-menu').click()
-    await page.getByRole('button', { name: /^Edit$/ }).click()
+    await page.getByRole('button', { name: 'Edit procedure', exact: true }).click()
 
     await expect(page.getByRole('button', { name: /^Cancel$/ })).toBeVisible({ timeout: 10_000 })
     await expect(page.getByRole('button', { name: /^save( changes)?$/i })).toBeVisible({ timeout: 10_000 })
@@ -193,7 +192,7 @@ test.describe('procedures — detail page UI (seeded)', () => {
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
 
     await page.getByTestId('procedure-actions-menu').click()
-    await page.getByRole('button', { name: /^Manage Permissions$/ }).click()
+    await page.getByRole('menuitem', { name: /^Manage Permissions$/ }).click()
 
     const sheet = page.getByRole('dialog')
     await expect(sheet.getByText(/^Manage permission$/)).toBeVisible({ timeout: 10_000 })

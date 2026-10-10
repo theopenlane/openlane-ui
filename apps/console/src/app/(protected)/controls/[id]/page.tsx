@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useParams, useRouter } from 'next/navigation'
 import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, type ControlByIdNode } from '@/lib/graphql-hooks/control'
 import { useQueryClient } from '@tanstack/react-query'
@@ -118,7 +117,6 @@ const ControlDetailsPage: React.FC = () => {
     mappingConnection: associationsData?.control?.controlMappings,
     updateControl: updateControlEntity,
   })
-  const hasScrollbar = useHasScrollbar([isEditing, data?.control, associationsData?.control])
 
   const helpControl = data?.control
   const helpControlTitle = [helpControl?.referenceFramework, helpControl?.refCode].filter(Boolean).join(' ')
@@ -429,15 +427,7 @@ const ControlDetailsPage: React.FC = () => {
     <>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout
-            sidebarTitle="Details"
-            sidebarContent={sidebarContent}
-            slideOpen={isEditing}
-            minWidth={430}
-            collapsedContentClassName="pr-6"
-            collapsedButtonClassName="-translate-x-4"
-            hasScrollbar={hasScrollbar}
-          >
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} slideOpen={isEditing} minWidth={430} collapsedContentClassName="pr-6">
             {mainContent}
           </SlideBarLayout>
         </form>

@@ -9,7 +9,6 @@ import { InfoIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { type UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
-import { Separator } from '@repo/ui/separator'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type TTitleFieldProps = {
@@ -77,19 +76,16 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate,
       />
     </div>
   ) : (
-    <>
-      <HoverPencilWrapper showPencil={editAllowed} className={`inline-flex ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onPencilClick={editAllowed ? handleClick : undefined}>
-        <h1
-          onDoubleClick={() => {
-            if (editAllowed) handleClick()
-          }}
-          className="text-3xl font-semibold pr-5"
-        >
-          {form.getValues('name')}
-        </h1>
-      </HoverPencilWrapper>
-      <Separator separatorClass="bg-divider mt-[24px]" />
-    </>
+    <HoverPencilWrapper showPencil={editAllowed} className={`inline-flex ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onPencilClick={editAllowed ? handleClick : undefined}>
+      <h1
+        onDoubleClick={() => {
+          if (editAllowed) handleClick()
+        }}
+        className="text-3xl font-semibold pr-5"
+      >
+        {form.getValues('name')}
+      </h1>
+    </HoverPencilWrapper>
   )
 }
 

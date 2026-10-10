@@ -616,8 +616,8 @@ test.describe('registry — personnel view + delete + bulk', () => {
     await page.waitForURL(/\/registry\/personnel\/[^/]+$/, { timeout: 30_000 })
 
     await expect(page.getByRole('button', { name: 'Edit personnel' })).toBeVisible({ timeout: 20_000 })
-    await page.locator('button:has(svg.lucide-ellipsis), button:has(svg.lucide-more-horizontal)').last().click()
-    await page.getByRole('button', { name: /^Delete$/ }).click()
+    await page.getByTestId('personnel-actions-menu').click()
+    await page.getByRole('menuitem', { name: /^Delete$/ }).click()
 
     const confirm = page.getByRole('alertdialog')
     await expect(confirm.getByText('Delete Personnel')).toBeVisible({ timeout: 10_000 })

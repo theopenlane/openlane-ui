@@ -3,17 +3,15 @@
 import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
-import { MoreHorizontal, Trash2, PencilIcon, TriangleAlert } from 'lucide-react'
+import { TriangleAlert } from 'lucide-react'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
-import Menu from '@/components/shared/menu/menu'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { type GetRiskByIdQuery, type UpdateRiskInput } from '@repo/codegen/src/schema'
 import { cn } from '@repo/ui/lib/utils'
-import MenuItem from '@/components/shared/menu/menu-item'
+import { deleteMenuAction } from '@/components/shared/crud-base/slideout-header'
+import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 interface RiskDetailHeaderProps {
   risk: GetRiskByIdQuery['risk']
@@ -59,7 +57,7 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
         autoFocus
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
-        className={'text-2xl font-semibold h-auto py-1 min-w-180'}
+        className="text-2xl font-semibold h-auto py-1 w-full"
         onBlur={() => handleBlur(field)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') e.currentTarget.blur()
@@ -78,12 +76,12 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
     <>
       <div className="flex justify-between items-start gap-4">
         <div className="flex items-start gap-4 min-w-0 flex-1">
-          <div className="roup/logo relative flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden border-0 p-0 cursor-pointer">
+          <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden border-0 p-0 cursor-pointer">
             <TriangleAlert size={24} className="text-muted-foreground" />
           </div>
-          <div className="flex flex-col gap-1 min-w-0">
+          <div className="flex flex-col gap-1 min-w-0 flex-1">
             {isEditing ? (
-              <Input {...register('name')} className="text-2xl font-semibold h-auto py-1 min-w-180" />
+              <Input {...register('name')} className="text-2xl font-semibold h-auto py-1 w-full" />
             ) : inlineEditing === 'name' ? (
               renderInlineField('name')
             ) : (
@@ -111,36 +109,14 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {isEditing ? (
-            <div className="flex gap-2 justify-end">
-              <CancelButton onClick={onCancel} />
-              <SaveButton />
-            </div>
-          ) : (
-            <>
-              {canEditRisk && (
-                <Button type="button" variant="secondary" onClick={onEdit} aria-label="Edit risk" icon={<PencilIcon size={16} strokeWidth={2} />} iconPosition="left">
-                  Edit
-                </Button>
-              )}
-              {canDeleteRisk && (
-                <Menu
-                  trigger={
-                    <Button type="button" variant="secondary" className="h-8 px-2" data-testid="risk-actions-menu">
-                      <MoreHorizontal size={16} />
-                    </Button>
-                  }
-                  content={
-                    <MenuItem icon={<Trash2 size={16} strokeWidth={2} />} onSelect={onDeleteClick} data-testid="risk-delete-button" destructive>
-                      Delete
-                    </MenuItem>
-                  }
-                />
-              )}
-            </>
-          )}
-        </div>
+        <DetailHeaderActions
+          isEditing={isEditing}
+          onCancel={onCancel}
+          onEdit={canEditRisk ? onEdit : undefined}
+          editLabel="Edit risk"
+          menuAnchor={elementAnchor('risk-actions-menu')}
+          menuActions={[canDeleteRisk && { ...deleteMenuAction(onDeleteClick), anchor: elementAnchor('risk-delete-button') }]}
+        />
       </div>
     </>
   )

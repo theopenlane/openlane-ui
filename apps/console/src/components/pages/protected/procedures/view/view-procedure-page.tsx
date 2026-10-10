@@ -6,8 +6,7 @@ import useFormSchema, { type EditProcedureMetadataFormData } from '@/components/
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/procedures/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/procedures/view/fields/title-field.tsx'
-import { Button } from '@repo/ui/button'
-import { LockOpen, PencilIcon } from 'lucide-react'
+import { LockOpen } from 'lucide-react'
 import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/procedures/view/cards/properties-card.tsx'
 import HistoricalCard from '@/components/pages/protected/procedures/view/cards/historical-card.tsx'
@@ -16,12 +15,14 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedure'
 import { ProcedureDocumentStatus, ProcedureFrequency, type UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
-import { Trash2 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { useDeleteProcedure } from '@/lib/graphql-hooks/procedure'
-import Menu from '@/components/shared/menu/menu.tsx'
+import { deleteMenuAction } from '@/components/shared/crud-base/slideout-header'
+import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
+import { Separator } from '@repo/ui/separator'
+import { ReadOnlyToolbarPortalContext } from '@repo/ui/components/editor/read-only-toolbar-portal.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -36,8 +37,6 @@ import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { type Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
@@ -52,6 +51,7 @@ const ViewProcedurePage: React.FC = () => {
   const procedure = data?.procedure
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
+  const [toolbarSlot, setToolbarSlot] = useState<HTMLDivElement | null>(null)
   const [editingField, setEditingField] = useState<string | null>(null)
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
@@ -245,64 +245,40 @@ const ViewProcedurePage: React.FC = () => {
     return null
   }
 
-  const menuComponent = (
-    <div className="space-y-4">
-      {isEditing ? (
-        <div className="flex gap-2 justify-end">
-          <CancelButton onClick={handleCancel}></CancelButton>
-          <SaveButton disabled={isSaving} isSaving={isSaving} />
-        </div>
-      ) : (
-        <div className="flex gap-2 justify-end">
-          {!editAllowed && !deleteAllowed ? (
-            <></>
-          ) : (
-            <Menu
-              triggerAnchor={elementAnchor('procedure-actions-menu')}
-              content={
-                <>
-                  {editAllowed && (
-                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2 " onClick={handleEdit}>
-                      <PencilIcon size={16} strokeWidth={2} />
-                      <span>Edit</span>
-                    </Button>
-                  )}
-                  {deleteAllowed && (
-                    <>
-                      <Button size="sm" variant="transparent" className="flex justify-start space-x-2 " data-testid="procedure-delete-button" onClick={() => setIsDeleteDialogOpen(true)}>
-                        <Trash2 size={16} strokeWidth={2} />
-                        <span>Delete</span>
-                      </Button>
-                      <ConfirmationDialog
-                        open={isDeleteDialogOpen}
-                        onOpenChange={setIsDeleteDialogOpen}
-                        onConfirm={handleDeleteProcedure}
-                        title={`Delete Procedure`}
-                        description={
-                          <>
-                            This action cannot be undone. This will permanently remove <b>{procedure.name}</b> from the organization.
-                          </>
-                        }
-                      />
-                      <Button size="sm" variant="transparent" className="flex justify-start space-x-2 " onClick={() => setShowPermissionsSheet(true)}>
-                        <LockOpen size={16} strokeWidth={2} />
-                        <span>Manage Permissions</span>
-                      </Button>
-                    </>
-                  )}
-                </>
-              }
-            />
-          )}
-        </div>
-      )}
-    </div>
+  const headerActions = (
+    <DetailHeaderActions
+      isEditing={isEditing}
+      onCancel={handleCancel}
+      isSaving={isSaving}
+      onEdit={editAllowed ? handleEdit : undefined}
+      editLabel="Edit procedure"
+      menuAnchor={elementAnchor('procedure-actions-menu')}
+      menuActions={
+        deleteAllowed
+          ? [
+              { key: 'manage-permissions', label: 'Manage Permissions', icon: <LockOpen size={16} strokeWidth={2} />, onClick: () => setShowPermissionsSheet(true) },
+              { ...deleteMenuAction(() => setIsDeleteDialogOpen(true)), anchor: elementAnchor('procedure-delete-button') },
+            ]
+          : undefined
+      }
+    />
   )
 
   const mainContent = (
     <div className="p-2">
-      <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={procedure.name} editAllowed={editAllowed} />
-      <DetailsField isEditing={isEditing} form={form} procedure={procedure} discussionData={discussionData?.procedure} />
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={procedure.name} editAllowed={editAllowed} />
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {!isEditing && <div ref={setToolbarSlot} />}
+          {headerActions}
+        </div>
+      </div>
+      {!isEditing && <Separator separatorClass="bg-divider mt-[24px]" />}
+      <ReadOnlyToolbarPortalContext value={toolbarSlot}>
+        <DetailsField isEditing={isEditing} form={form} procedure={procedure} discussionData={discussionData?.procedure} />
+      </ReadOnlyToolbarPortalContext>
     </div>
   )
 
@@ -341,11 +317,24 @@ const ViewProcedurePage: React.FC = () => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Procedures - ${data.procedure.name}`}</title>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmitHandler)}>
-          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing} minWidth={430}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} slideOpen={isEditing} minWidth={430}>
             {mainContent}
           </SlideBarLayout>
         </form>
       </Form>
+      {deleteAllowed && (
+        <ConfirmationDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          onConfirm={handleDeleteProcedure}
+          title="Delete Procedure"
+          description={
+            <>
+              This action cannot be undone. This will permanently remove <b>{procedure.name}</b> from the organization.
+            </>
+          }
+        />
+      )}
       <ManagePermissionSheet open={showPermissionsSheet} onOpenChange={(val) => setShowPermissionsSheet(val)} />
     </>
   )

@@ -1,7 +1,8 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
+import { ReadOnlyToolbarPortalContext } from '@repo/ui/components/editor/read-only-toolbar-portal.ts'
 import { type GetInternalPolicyAssociationsByIdQuery, type InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 import DetailTabs from '@/components/shared/detail-tabs/detail-tabs'
 import { type TDetailTab, useDetailTabs } from '@/components/shared/detail-tabs/use-detail-tabs'
@@ -32,6 +33,7 @@ type TPolicyDetailTabsProps = {
 
 export const PolicyDetailTabs = ({ policy, policyPanel, procedures, procedureCount, onSendAcknowledgementRequest }: TPolicyDetailTabsProps) => {
   const { count: acknowledgementCount, isResolving } = usePolicyAcknowledgementCount(policy.id)
+  const [toolbarSlot, setToolbarSlot] = useState<HTMLDivElement | null>(null)
   const tabs = useDetailTabs({
     page: 'policy',
     tabs: POLICY_TABS,
@@ -41,8 +43,10 @@ export const PolicyDetailTabs = ({ policy, policyPanel, procedures, procedureCou
   })
 
   return (
-    <DetailTabs state={tabs} counts={{ procedures: procedureCount, acknowledgements: acknowledgementCount }}>
-      <TabsContent value="policy">{policyPanel}</TabsContent>
+    <DetailTabs state={tabs} counts={{ procedures: procedureCount, acknowledgements: acknowledgementCount }} end={<div ref={setToolbarSlot} />}>
+      <TabsContent value="policy">
+        <ReadOnlyToolbarPortalContext value={toolbarSlot}>{policyPanel}</ReadOnlyToolbarPortalContext>
+      </TabsContent>
 
       <TabsContent value="procedures">
         <LinkedProcedures procedures={procedures} />

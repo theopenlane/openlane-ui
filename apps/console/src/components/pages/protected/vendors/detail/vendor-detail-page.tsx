@@ -11,7 +11,6 @@ import { useEntity, useGetEntityAssociations, useUpdateEntity, useDeleteEntity }
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { useNotification } from '@/hooks/useNotification'
-import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useOrganization } from '@/hooks/useOrganization'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
@@ -63,8 +62,6 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [initialValues, setInitialValues] = useState<Partial<VendorFormValues>>({})
-
-  const hasScrollbar = useHasScrollbar([isEditing, data?.entity, associationsData?.entity])
 
   const form = useForm<VendorFormValues>({
     defaultValues: {},
@@ -266,15 +263,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Vendors - ${vendor.displayName || vendor.name}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout
-            sidebarTitle="Details"
-            sidebarContent={sidebarContent}
-            slideOpen={isEditing}
-            minWidth={430}
-            collapsedContentClassName="pr-6"
-            collapsedButtonClassName="-translate-x-4"
-            hasScrollbar={hasScrollbar}
-          >
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} slideOpen={isEditing} minWidth={430} collapsedContentClassName="pr-6">
             {mainContent}
           </SlideBarLayout>
         </form>

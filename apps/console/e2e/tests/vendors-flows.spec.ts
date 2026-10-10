@@ -79,8 +79,8 @@ test.describe('registry — vendor detail', () => {
 
     try {
       await openVendor(page, id, name)
-      await page.getByRole('button', { name: 'Vendor actions' }).click()
-      await page.getByRole('button', { name: /^Delete$/ }).click()
+      await page.getByTestId('vendor-actions-menu').click()
+      await page.getByRole('menuitem', { name: /^Delete$/ }).click()
 
       const confirmation = page.getByRole('alertdialog')
       await expect(confirmation.getByRole('heading', { name: /^Delete Vendor$/ })).toBeVisible({ timeout: 15_000 })

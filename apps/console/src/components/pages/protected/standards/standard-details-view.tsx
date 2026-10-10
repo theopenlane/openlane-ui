@@ -9,6 +9,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { Button } from '@repo/ui/button'
+import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
 import { hasPermission } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { ObjectWithDetailsSkeleton } from '@/components/shared/skeleton/object-with-slideout-skeleton'
@@ -62,9 +63,20 @@ const StandardDetailsView: React.FC<TStandardDetailsViewProps> = ({ standardId, 
 
   const mainContent = (
     <div className="flex flex-col gap-7">
-      <div className="flex flex-row gap-7 items-center">
-        <StandardsIconMapper shortName={standard?.shortName ?? ''} />
-        <PageHeading heading={standard?.name || 'Standard Details'} className="mb-3" />
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex min-w-0 flex-row items-center gap-7">
+          <StandardsIconMapper shortName={standard?.shortName ?? ''} />
+          <PageHeading heading={standard?.name || 'Standard Details'} />
+        </div>
+        <DetailHeaderActions
+          actions={
+            hasPermission(permission?.roles, AccessEnum.CanCreateControl, session) && (
+              <Button variant="secondary" onClick={() => setIsDialogOpen(true)}>
+                {selectedControls.length > 0 ? `Add Controls (${selectedControls.length})` : 'Add Controls'}
+              </Button>
+            )
+          }
+        />
       </div>
       <p className="">{standard?.description}</p>
       <div className="flex gap-14 w-full">
@@ -87,24 +99,8 @@ const StandardDetailsView: React.FC<TStandardDetailsViewProps> = ({ standardId, 
 
   const detailsCard = <StandardDetailsCard standardId={standardId} />
 
-  const menuComponent = (
-    <div>
-      {hasPermission(permission?.roles, AccessEnum.CanCreateControl, session) && (
-        <Button
-          variant="secondary"
-          className="h-8 !px-2"
-          onClick={() => {
-            setIsDialogOpen(true)
-          }}
-        >
-          {selectedControls.length > 0 ? `Add Controls (${selectedControls.length})` : 'Add Controls'}
-        </Button>
-      )}
-    </div>
-  )
-
   return (
-    <SlideBarLayout sidebarTitle="Details" menu={menuComponent} sidebarContent={detailsCard}>
+    <SlideBarLayout sidebarTitle="Details" sidebarContent={detailsCard}>
       {mainContent}
     </SlideBarLayout>
   )
