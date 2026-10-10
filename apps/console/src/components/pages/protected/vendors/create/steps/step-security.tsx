@@ -47,7 +47,6 @@ const StepSecurity: React.FC = () => {
                 <FormControl>
                   <CalendarPopover
                     disableFuture
-                    portal
                     field={{
                       value: field.value ? new Date(field.value) : null,
                       onChange: (val: Date | null) => field.onChange(val ? new Date(val).toISOString() : undefined),
