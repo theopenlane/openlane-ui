@@ -4,8 +4,13 @@ import React, { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
-import { Building2, PencilIcon, CogIcon, CheckIcon, PlusIcon } from 'lucide-react'
-import { canDelete } from '@/lib/authz/utils'
+import { Building2, PencilIcon, CogIcon, CheckIcon, PlusIcon, ServerIcon } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { canDelete, hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { VendorLogoDialog } from '../vendor-logo-dialog'
 import { useUpdateEntityLogo } from '@/lib/graphql-hooks/entity'
@@ -20,6 +25,7 @@ import { vendorMergeConfig } from '@/components/shared/merge-records/configs/ven
 import { deleteMenuAction, mergeMenuAction } from '@/components/shared/crud-base/slideout-header'
 import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { AddToTrustCenterDialog } from './add-to-trust-center/add-to-trust-center-dialog'
 
 interface VendorDetailHeaderProps {
   vendor: EntityQuery['entity']
@@ -36,6 +42,11 @@ interface VendorDetailHeaderProps {
 const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditing, canEditVendor, onEdit, onCancel, onDeleteClick, permissionRoles, handleUpdateField, onMergeComplete }) => {
   const canDeleteVendor = canDelete(permissionRoles)
   const [mergeOpen, setMergeOpen] = useState(false)
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const hasTrustCenter = useHasObjectType(ObjectTypes.TRUST_CENTER)
+  const canAddToTrustCenter = canEditVendor && hasTrustCenter && hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor, session)
+  const [addToTrustCenterOpen, setAddToTrustCenterOpen] = useState(false)
   const { setValue, register } = useFormContext()
   const [inlineEditing, setInlineEditing] = useState<'name' | 'displayName' | null>(null)
   const [localValue, setLocalValue] = useState('')
@@ -186,6 +197,12 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
                 icon: <CogIcon size={16} strokeWidth={2} />,
                 href: `/automation/integrations/${integrationDefId}`,
               },
+            canAddToTrustCenter && {
+              key: 'add-to-trust-center',
+              label: 'Add to Trust Center',
+              icon: <ServerIcon size={16} strokeWidth={2} />,
+              onClick: () => setAddToTrustCenterOpen(true),
+            },
             canEditVendor && mergeMenuAction(() => setMergeOpen(true)),
             canDeleteVendor && deleteMenuAction(onDeleteClick),
           ]}
@@ -193,6 +210,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
       </div>
 
       {canEditVendor && <MergeRecordsSheet open={mergeOpen} onOpenChange={setMergeOpen} config={vendorMergeConfig} primaryId={vendor.id} onMergeComplete={onMergeComplete} />}
+      {canAddToTrustCenter && <AddToTrustCenterDialog vendor={vendor} open={addToTrustCenterOpen} onOpenChange={setAddToTrustCenterOpen} />}
 
       <VendorLogoDialog
         open={logoDialogOpen}

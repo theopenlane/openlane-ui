@@ -1,5 +1,13 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { CREATE_SUBPROCESSOR, UPDATE_SUBPROCESSOR, GET_SUBPROCESSORS, DELETE_BULK_SUBPROCESSORS, GET_SUBPROCESSOR_CATALOG, CREATE_BULK_SUBPROCESSOR } from '@repo/codegen/query/subprocessor'
+import {
+  CREATE_SUBPROCESSOR,
+  UPDATE_SUBPROCESSOR,
+  GET_SUBPROCESSORS,
+  DELETE_BULK_SUBPROCESSORS,
+  GET_SUBPROCESSOR_CATALOG,
+  CREATE_BULK_SUBPROCESSOR,
+  GET_VENDOR_SUBPROCESSOR_MATCHES,
+} from '@repo/codegen/query/subprocessor'
 import {
   type CreateSubprocessorMutation,
   type CreateSubprocessorMutationVariables,
@@ -13,12 +21,15 @@ import {
   type GetSubprocessorCatalogQueryVariables,
   type CreateBulkSubprocessorMutation,
   type CreateBulkSubprocessorMutationVariables,
+  type GetVendorSubprocessorMatchesQuery,
+  type GetVendorSubprocessorMatchesQueryVariables,
   OrderDirection,
   SubprocessorOrderField,
 } from '@repo/codegen/src/schema'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { fetchAllConnectionNodes } from './fetch-all-connection-nodes'
+import { getNodes } from './connection'
 
 import { type TPagination } from '@repo/ui/pagination-types'
 
@@ -151,5 +162,28 @@ export const useCreateBulkSubprocessor = () => {
 
   return useMutation<CreateBulkSubprocessorMutation, unknown, CreateBulkSubprocessorMutationVariables>({
     mutationFn: (variables) => client.request<CreateBulkSubprocessorMutation, CreateBulkSubprocessorMutationVariables>(CREATE_BULK_SUBPROCESSOR, variables),
+  })
+}
+
+export type TVendorSubprocessorMatch = NonNullable<NonNullable<NonNullable<GetVendorSubprocessorMatchesQuery['linked']['edges']>[number]>['node']> & { isLinkedToVendor: boolean }
+
+export const useVendorSubprocessorMatch = ({ entityId, name }: GetVendorSubprocessorMatchesQueryVariables) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery({
+    queryKey: ['subprocessors', 'vendorMatch', entityId, name],
+    queryFn: () => client.request<GetVendorSubprocessorMatchesQuery, GetVendorSubprocessorMatchesQueryVariables>(GET_VENDOR_SUBPROCESSOR_MATCHES, { entityId, name }),
+    select: (data) => {
+      const trustCenter = getNodes(data.trustCenters)[0]
+      const linked = getNodes(data.linked)[0]
+      const sameName = getNodes(data.sameName)[0]
+      const subprocessor: TVendorSubprocessorMatch | null = linked ? { ...linked, isLinkedToVendor: true } : sameName ? { ...sameName, isLinkedToVendor: false } : null
+      return {
+        trustCenter,
+        listedSubprocessor: getNodes(data.listed)[0]?.subprocessor ?? null,
+        subprocessor,
+      }
+    },
+    placeholderData: undefined,
   })
 }

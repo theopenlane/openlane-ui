@@ -137,9 +137,7 @@ export const useBulkDeleteTrustCenterSubprocessors = () => {
   return useMutation<DeleteBulkTrustCenterSubprocessorsMutation, unknown, DeleteBulkTrustCenterSubprocessorsMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_BULK_TRUST_CENTER_SUBPROCESSORS, variables),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trustCenterSubprocessors'] })
-    },
+    onSuccess: () => invalidateSubprocessorQueries(queryClient),
   })
 }
 
@@ -149,11 +147,7 @@ export const useDeleteTrustCenterSubprocessor = () => {
   return useMutation<DeleteTrustCenterSubprocessorMutation, unknown, DeleteTrustCenterSubprocessorMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_TRUST_CENTER_SUBPROCESSOR, variables),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['trustCenterSubprocessors'],
-      })
-    },
+    onSuccess: () => invalidateSubprocessorQueries(queryClient),
   })
 }
 

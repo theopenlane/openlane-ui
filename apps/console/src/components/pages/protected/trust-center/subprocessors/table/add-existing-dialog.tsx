@@ -9,8 +9,9 @@ import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SubprocessorSelectField } from '../sheet/form-fields/subprocessor-select-field'
-import { CountriesField } from '../sheet/form-fields/countries-field'
+import { CountriesField } from '../../shared/countries-field'
 import { CategoryField } from '../../shared/category-field'
+import { subprocessorListingSchema } from '../../shared/subprocessor-listing-schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useCreateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
@@ -19,10 +20,8 @@ import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
 
-const schema = z.object({
+const schema = subprocessorListingSchema.extend({
   subprocessorID: z.string().min(1, 'Please select a subprocessor'),
-  category: z.string().min(1, 'Category is required'),
-  countries: z.array(z.string()).min(1, 'Select at least one country'),
 })
 
 type FormData = z.infer<typeof schema>
