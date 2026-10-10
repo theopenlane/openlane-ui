@@ -8,6 +8,13 @@ const outputPath = path.join(__dirname, '..', 'src', 'report-schema.generated.ts
 
 const OWNER_FIELD = 'ownerID'
 
+const ORG_SCOPED_PARENT_EDGES = ['trustCenter']
+
+const isOrgScoped = (nodeType) => {
+  const names = new Set(nodeType.fields.map((field) => field.name))
+  return names.has(OWNER_FIELD) || ORG_SCOPED_PARENT_EDGES.some((edge) => names.has(edge) && names.has(`${edge}ID`))
+}
+
 const SENSITIVE_FIELDS = ['credentials', 'credentialSet', 'secretName', 'secretValue', 'clientSecret', 'privateKey', 'password']
 
 const SENSITIVE_EDGE_TARGETS = ['Hush', 'APIToken', 'PersonalAccessToken', 'Webauthn', 'TFASetting']
@@ -250,7 +257,7 @@ const buildEntities = (types, query, edgeTypes, enums, unknownPredicates, object
 
     if (field.name.toLowerCase() !== pluralizeTypeName(nodeType.name).toLowerCase()) continue
     if (isExcludedType(nodeType.name)) continue
-    if (!nodeType.fields.some((f) => f.name === OWNER_FIELD)) continue
+    if (!isOrgScoped(nodeType)) continue
 
     const objectType = objectTypes.get(nodeType.name.toLowerCase())
     if (!objectType) continue
