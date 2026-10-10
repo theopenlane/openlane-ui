@@ -44,6 +44,7 @@ export const useRecommendationsFeed = ({ source, excludeTerminal }: Recommendati
           color: taskKindOptions.find((option) => option.value === task.taskKindName)?.color ?? '',
         },
         source: (task.source ?? SuggestedTaskSource.RECOMMENDATIONS) as SuggestedTaskSourceValue,
+        sourceKey: task.sourceKey ?? null,
         metadata: (task.metadata ?? {}) as SuggestedTaskMetadata,
       })),
     [tasks, taskKindOptions],

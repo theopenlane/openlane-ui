@@ -35,5 +35,6 @@ export interface SuggestedTask {
   taskKind: SuggestedTaskKind
   availableAt?: string
   source: SuggestedTaskSourceValue
+  sourceKey: string | null
   metadata: SuggestedTaskMetadata
 }
