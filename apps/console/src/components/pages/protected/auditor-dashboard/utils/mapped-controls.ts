@@ -1,4 +1,5 @@
 import { type AuditorDashboardRelatedControl } from '@/lib/graphql-hooks/control'
+import { type ControlControlStatus } from '@repo/codegen/src/schema'
 
 const CUSTOM_FRAMEWORK_LABEL = 'CUSTOM'
 
@@ -13,10 +14,13 @@ type GetProgramScopedMappedControlsArgs = {
   relatedControls?: AuditorDashboardRelatedControl[] | null
   controlId: string
   programFrameworks: Set<string>
+  isStatusAllowed?: (status: ControlControlStatus | null) => boolean
 }
 
-export const getProgramScopedMappedControls = ({ relatedControls, controlId, programFrameworks }: GetProgramScopedMappedControlsArgs): AuditorDashboardRelatedControl[] => {
-  const inScope = (relatedControls ?? []).filter((related) => related.id !== controlId && isInProgramScope(related, programFrameworks)).sort(compareForDisplay)
+export const getProgramScopedMappedControls = ({ relatedControls, controlId, programFrameworks, isStatusAllowed }: GetProgramScopedMappedControlsArgs): AuditorDashboardRelatedControl[] => {
+  const inScope = (relatedControls ?? [])
+    .filter((related) => related.id !== controlId && isInProgramScope(related, programFrameworks) && (isStatusAllowed?.(related.status) ?? true))
+    .sort(compareForDisplay)
 
   const byKey = new Map<string, AuditorDashboardRelatedControl>()
 
