@@ -4,6 +4,7 @@ export const SIGNATURE_PAD_QUESTION_TYPE = 'signaturepad'
 export const SIGNATURE_PAD_WIDTH = 600
 export const SIGNATURE_PAD_HEIGHT = 200
 export const SIGNATURE_METADATA_FIELD = 'signatureMetadata'
+export const SIGNATURE_INK_COLOR = '#000000'
 
 export const FULL_WIDTH_SIGNATURE_PAD = {
   signatureWidth: SIGNATURE_PAD_WIDTH,

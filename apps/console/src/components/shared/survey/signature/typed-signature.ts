@@ -1,6 +1,6 @@
 import { signatureFontFamilies } from '@/fonts/signature'
 import { SIGNATURE_PAD_HEIGHT, SIGNATURE_PAD_WIDTH } from '../signature-pad/signature-pad-type'
-import { TYPED_SIGNATURE_PREFIX } from './acknowledgement-type'
+import { TYPED_SIGNATURE_PREFIX } from './signature-type'
 
 const SIGNATURE_PIXEL_RATIO = 2
 const SIGNATURE_PADDING_X = 40

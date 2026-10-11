@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { isAcknowledgementSigned, readAcknowledgementValue } from '@/components/shared/survey/acknowledgement/acknowledgement-type'
+import { isSignedValue, readSignatureValue } from '@/components/shared/survey/signature/signature-type'
 import { isSignaturePadValue, SIGNATURE_METADATA_FIELD } from '@/components/shared/survey/signature-pad/signature-pad-type'
 import { decodeQuestionnaireToken } from '@/lib/questionnaire-token'
 import { getClientIp, getForwardedFor } from '@/lib/server/client-ip'
@@ -46,15 +46,15 @@ const stampSignatureMetadata = (record: TAnswers, metadata: TSignatureMetadata |
   return stamped
 }
 
-const withAcknowledgementSignatureMetadata = (data: unknown, metadata: TSignatureMetadata | null): unknown => {
-  if (Array.isArray(data)) return data.map((item) => withAcknowledgementSignatureMetadata(item, metadata))
+const withSignedRecordMetadata = (data: unknown, metadata: TSignatureMetadata | null): unknown => {
+  if (Array.isArray(data)) return data.map((item) => withSignedRecordMetadata(item, metadata))
   if (!isRecord(data)) return data
   const answer = mapAnswers(data, metadata)
-  return isAcknowledgementSigned(readAcknowledgementValue(data)) ? stampSignatureMetadata(answer, metadata) : answer
+  return isSignedValue(readSignatureValue(data)) ? stampSignatureMetadata(answer, metadata) : answer
 }
 
 const mapAnswers = (answers: TAnswers, metadata: TSignatureMetadata | null): TAnswers =>
-  Object.fromEntries(Object.entries(answers).map(([key, value]) => [key, withAcknowledgementSignatureMetadata(value, metadata)]))
+  Object.fromEntries(Object.entries(answers).map(([key, value]) => [key, withSignedRecordMetadata(value, metadata)]))
 
 const isSignaturePadStamp = (value: unknown): boolean => isRecord(value) && typeof value.timestamp === 'string' && Array.isArray(value.signatures)
 
