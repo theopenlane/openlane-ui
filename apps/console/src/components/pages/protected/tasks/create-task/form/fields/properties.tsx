@@ -185,6 +185,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
               render={({ field }) => (
                 <div className="w-[250px]" ref={triggerRef}>
                   <CalendarPopover
+                    contentRef={popoverRef}
                     field={{
                       ...field,
                       onChange: (newDate) => {

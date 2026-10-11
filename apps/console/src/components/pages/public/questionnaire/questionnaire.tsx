@@ -6,14 +6,10 @@ import { Survey } from 'survey-react-ui'
 import { type ITheme } from 'survey-core'
 import { createSurveyModel } from '@/components/shared/survey/survey-model'
 import { useSession } from 'next-auth/react'
-import { useTheme } from 'next-themes'
-import 'survey-core/survey-core.min.css'
 import '@/styles/questionnaire/survey-viewer.css'
 import { jwtDecode } from 'jwt-decode'
 import { useQuestionnaire, useSubmitQuestionnaire, useResendQuestionnaireLink } from '@/lib/query-hooks/questionnaire'
 import { attachSurveyProgressText } from '@/components/shared/survey/survey-progress-text'
-import { lightTheme } from '@/styles/questionnaire/theme-light'
-import { darkTheme } from '@/styles/questionnaire/theme-dark'
 import { CircleCheckBig, MailCheck } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { recaptchaSiteKey } from '@repo/dally/auth'
@@ -49,7 +45,6 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
   const [linkResent, setLinkResent] = useState(false)
   const { errorNotification } = useNotification()
   const { data: sessionData } = useSession()
-  const { resolvedTheme } = useTheme()
   const resendLink = useResendQuestionnaireLink()
 
   const tokenExpired = useMemo(() => {
@@ -122,9 +117,16 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     submitRef.current = submitQuestionnaire
   }, [submitQuestionnaire])
 
+  // a questionnaire may some day ship its own embedded theme; when it does, honor it and
+  // drop the openlane-branded page decorations (see questionnaire-background.css)
+  const customTheme = useMemo(() => {
+    const theme = (questionnaireData as { theme?: ITheme } | null)?.theme
+    return theme && typeof theme === 'object' ? theme : null
+  }, [questionnaireData])
+
   const survey = useMemo(() => {
     if (!questionnaireData || !token) return null
-    const surveyModel = createSurveyModel(questionnaireData)
+    const surveyModel = createSurveyModel(questionnaireData, customTheme ?? undefined)
     attachSurveyProgressText(surveyModel)
 
     if (savedData) {
@@ -132,7 +134,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     }
 
     return surveyModel
-  }, [questionnaireData, token, savedData])
+  }, [questionnaireData, token, savedData, customTheme])
 
   useEffect(() => {
     if (!survey || !token) return
@@ -171,24 +173,6 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
       }
     })
   }, [survey, token, hasTokenEmail])
-
-  // a questionnaire may some day ship its own embedded theme; when it does, honor it and
-  // drop the openlane-branded page decorations (see questionnaire-background.css)
-  const customTheme = useMemo(() => {
-    const theme = (questionnaireData as { theme?: ITheme } | null)?.theme
-    return theme && typeof theme === 'object' ? theme : null
-  }, [questionnaireData])
-
-  useEffect(() => {
-    if (!survey) return
-    if (customTheme) {
-      survey.applyTheme(customTheme)
-    } else if (resolvedTheme === 'dark') {
-      survey.applyTheme(darkTheme as ITheme)
-    } else {
-      survey.applyTheme(lightTheme)
-    }
-  }, [survey, resolvedTheme, customTheme])
 
   useEffect(() => {
     document.documentElement.toggleAttribute('data-survey-custom-theme', !!customTheme)

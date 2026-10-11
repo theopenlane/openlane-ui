@@ -7,7 +7,7 @@
 }
 
 .sd-root-modern .sd-container-modern {
-  background-color: var(--ol-survey-panel-backcolor, #fff);
+  background-color: var(--color-homepage-card);
   border-radius: 12px;
   max-width: 1024px;
   margin: 0 auto;
@@ -30,6 +30,16 @@
 
 .sd-root-modern .sd-container-modern__title .sd-description {
   margin-top: 4px;
+}
+
+.sd-root-modern .sv-header__content--static {
+  --sjs2-layout-component-survey-header-padding-horizontal: 40px;
+  max-width: none;
+  margin-inline: 0;
+}
+
+.sd-root-modern .sv-header--mobile {
+  padding-inline: 40px;
 }
 
 /* static and responsive modes disagree on page padding (40px vs 0), which threw the
@@ -124,7 +134,7 @@
   font-size: 13px;
   font-weight: 600;
   line-height: 14px;
-  color: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
+  color: var(--muted-foreground);
 }
 
 /* navigation actions (save draft / back / next / complete) centered under the form */

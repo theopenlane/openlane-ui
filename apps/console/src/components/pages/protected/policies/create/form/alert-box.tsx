@@ -170,7 +170,7 @@ const HelperText = ({ form, editorRef, initialAIPolicyName }: THelperProps) => {
             )}
 
             {/* Action buttons */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               {aiEnabled && <AIAssistButton onGetSuggestions={handleGenerateClick} loading={loading && activeSection === 'policy'} label="Generate with AI" variant="primary" />}
 
               <Button

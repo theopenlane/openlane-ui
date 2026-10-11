@@ -1,4 +1,6 @@
 import { OBJECT_TYPE_PERMISSIONS_CONFIG, type TypesWithPermissions } from '@repo/codegen/src/type-names'
+import { REPORT_ENTITIES } from '@repo/codegen/src/report-schema.generated'
+import { excludeSystemOwnedWhere } from '@/lib/report/report-filters'
 import { Checkbox } from '@repo/ui/checkbox'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { type GroupPermissionWhereInput } from '@repo/codegen/src/schema'
@@ -61,6 +63,8 @@ export const generateGroupsPermissionsWhere = ({
   if (!selectedObject || !selectedGroup) return { where: {} }
 
   const config = OBJECT_TYPE_PERMISSIONS_CONFIG[selectedObject]
+  const entity = REPORT_ENTITIES.find((entity) => entity.queryName === config.responseObjectKey)
+  const systemOwnedFilter = entity ? excludeSystemOwnedWhere(entity) : null
   const baseWhere = {
     [config.searchAttribute]: debouncedSearchValue,
   }
@@ -77,7 +81,7 @@ export const generateGroupsPermissionsWhere = ({
 
   return {
     where: {
-      and: [baseWhere, exclusionFilter],
+      and: [baseWhere, exclusionFilter, ...(systemOwnedFilter ? [systemOwnedFilter] : [])],
     },
   }
 }
