@@ -2,26 +2,19 @@
 
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Label } from '@repo/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { cn } from '@repo/ui/lib/utils'
-import { CircleCheck, Clock, ExternalLink, Wand } from 'lucide-react'
+import { CircleCheck, Clock, Wand } from 'lucide-react'
 import { type BrandFormValues } from '../brand-schema'
 import SectionWarning from '../section-warning'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
-import { useBrandingDomainOptions } from '../helpers/use-branding-domain-options'
 import { usePullBrandingFromDomain } from '../helpers/use-pull-branding-from-domain'
-import { useBrandingPullWindow } from '../helpers/use-branding-pull-window'
+import { useDomainScanWindow } from '@/components/shared/domain-branding/use-domain-scan-window'
+import { useOrganizationDomainOptions } from '@/components/shared/domain-branding/use-organization-domain-options'
+import { getDomainScanBlockedReason } from '@/components/shared/domain-branding/domain-scan-blocked-reason'
+import { DomainSelectField } from '@/components/shared/domain-branding/domain-select-field'
 
 const DOMAIN_SELECT_ID = 'branding-domain-pull-domain'
-const ORGANIZATION_SETTINGS_HREF = '/organization-settings/general-settings'
-const MANAGE_DOMAINS_TOOLTIP = 'Update the domains available in Organization Settings.'
-const NO_DOMAIN_REASON = 'No domain is associated with this organization yet. Add one in Organization Settings, then try again.'
-const SCAN_HISTORY_UNAVAILABLE_REASON = "We couldn't check whether a domain scan is already running. Please try again later."
 
 const PULL_SUMMARY = ['Colors, fonts, logo, and favicon', 'Applies to preview settings only', 'Uploaded assets stay unchanged', 'Nothing goes live until you publish']
 
@@ -34,49 +27,24 @@ export const BrandingDomainPull = ({ isReadOnly, onPulled }: BrandingDomainPullP
   const [open, setOpen] = useState(false)
   const [pickedDomain, setPickedDomain] = useState('')
 
-  const { formState } = useFormContext<BrandFormValues>()
-  const { domainOptions, isLoadingDomains, refetchDomains } = useBrandingDomainOptions(!isReadOnly)
-  const { isPulling, pullBrandingFromDomain } = usePullBrandingFromDomain(onPulled)
-  const { isCheckingWindow, scanHistoryUnavailable, runningScanTarget, pullAvailableIn } = useBrandingPullWindow(!isReadOnly)
+  const { formState, watch } = useFormContext<BrandFormValues>()
+  const { domainOptions, isLoadingDomains, refetchDomains } = useOrganizationDomainOptions(!isReadOnly, watch('companyDomain'))
+  const { isDetecting: isPulling, detectBranding } = usePullBrandingFromDomain(onPulled)
+  const { isCheckingWindow, scanHistoryUnavailable, runningScanTarget, availableIn } = useDomainScanWindow(!isReadOnly)
 
   const selectedDomain = domainOptions.includes(pickedDomain) ? pickedDomain : (domainOptions[0] ?? '')
-  const hasSingleDomain = domainOptions.length === 1
   const isCheckingBlockers = isCheckingWindow || isLoadingDomains
-
-  const getBlockedReason = (): string | null => {
-    if (isCheckingBlockers) return null
-    if (scanHistoryUnavailable) return SCAN_HISTORY_UNAVAILABLE_REASON
-    if (domainOptions.length === 0) return NO_DOMAIN_REASON
-    if (pullAvailableIn) return `Your organization can run one domain scan an hour. You can pull branding again in ${pullAvailableIn}.`
-    if (runningScanTarget) return `A domain scan for ${runningScanTarget} is already running. We'll let you know when it's done.`
-    return null
-  }
-
-  const blockedReason = getBlockedReason()
+  const blockedReason = getDomainScanBlockedReason({ isChecking: isCheckingBlockers, scanHistoryUnavailable, hasDomains: domainOptions.length > 0, availableIn, runningScanTarget }, 'pull branding')
 
   const handlePull = async () => {
     if (!selectedDomain) return
-    const started = await pullBrandingFromDomain(selectedDomain)
+    const started = await detectBranding(selectedDomain)
     if (started) {
       setOpen(false)
     }
   }
 
   if (isReadOnly) return null
-
-  const manageDomainsLink = (
-    <SystemTooltip
-      content={MANAGE_DOMAINS_TOOLTIP}
-      side="top"
-      portal
-      icon={
-        <Link href={ORGANIZATION_SETTINGS_HREF} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary text-xs font-medium underline">
-          Manage Domains
-          <ExternalLink size={12} />
-        </Link>
-      }
-    />
-  )
 
   const triggerButton = (
     <Button
@@ -126,27 +94,7 @@ export const BrandingDomainPull = ({ isReadOnly, onPulled }: BrandingDomainPullP
           </ul>
 
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor={DOMAIN_SELECT_ID} className="text-sm">
-                Domain
-              </Label>
-              <Select value={selectedDomain} onValueChange={setPickedDomain} disabled={hasSingleDomain}>
-                <SelectTrigger id={DOMAIN_SELECT_ID}>
-                  <SelectValue placeholder="Select a domain" />
-                </SelectTrigger>
-                <SelectContent>
-                  {domainOptions.map((domain) => (
-                    <SelectItem key={domain} value={domain}>
-                      {domain}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className={cn('flex items-center gap-2', hasSingleDomain ? 'justify-between' : 'justify-end')}>
-                {hasSingleDomain && <p className="text-xs text-muted-foreground">Only one domain available.</p>}
-                {manageDomainsLink}
-              </div>
-            </div>
+            <DomainSelectField id={DOMAIN_SELECT_ID} domains={domainOptions} value={selectedDomain} onValueChange={setPickedDomain} />
 
             {formState.isDirty && <SectionWarning className="mb-0" message="You have unsaved edits on this page. They will be replaced by the branding we pull." />}
           </div>
