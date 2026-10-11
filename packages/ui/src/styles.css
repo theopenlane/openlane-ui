@@ -7,6 +7,7 @@
 @custom-variant dark (&:is(.dark *));
 @source "../../../packages/ui/src/**/*.{js,ts,jsx,tsx}";
 @source inline("border-controls border-subcontrols border-controlObjectives border-policies border-procedures border-programs border-tasks border-risks border-evidences border-groups border-scans border-campaigns border-assets border-entities border-identityHolders border-reviews border-findings border-remediations border-vulnerabilities border-actionPlans");
+@source inline("bg-input bg-accent border-border text-foreground text-btn-primary-text font-normal font-medium font-semibold text-xs text-sm text-base text-lg text-2xl leading-normal leading-snug tracking-tight");
 
 @variant dark (&:where(.dark, .dark *));
 
@@ -39,7 +40,7 @@
     @apply bg-background text-foreground font-normal;
   }
   input {
-    background: var(--input);
+    background: var(--color-input);
   }
   [type='text']:focus,
   [type='password']:focus,
@@ -489,7 +490,6 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-diagram-accent: var(--diagram-accent);
-  --radius: var(--radius);
   --color-panel-bg: var(--card);
   --color-panel-text: var(--card-foreground);
   --color-panel-border: var(--border);
@@ -990,9 +990,6 @@
 .button-icon svg {
   width: 1rem;
   height: 1rem;
-}
-.svc-json-editor-tab__content-area {
-  background-color: var(--color-bg);
 }
 @keyframes custom-pulse {
   50% {

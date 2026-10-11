@@ -7,7 +7,7 @@
 }
 
 .sd-root-modern .sd-container-modern {
-  background-color: var(--ol-survey-panel-backcolor, #fff);
+  background-color: var(--color-homepage-card);
   border-radius: 12px;
   max-width: 1024px;
   margin: 0 auto;
@@ -134,7 +134,7 @@
   font-size: 13px;
   font-weight: 600;
   line-height: 14px;
-  color: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
+  color: var(--muted-foreground);
 }
 
 /* navigation actions (save draft / back / next / complete) centered under the form */
