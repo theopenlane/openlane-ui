@@ -366,7 +366,7 @@ test.describe('programs — advanced-setup date validation', () => {
     await advanceToGeneralInfo(page)
     await page.getByPlaceholder('Program Test').fill(programName('adv-date'))
 
-    const endDateTrigger = page.getByRole('button', { name: /select a date|\d{4}/i }).nth(1)
+    const endDateTrigger = page.getByRole('button', { name: 'Open calendar' }).nth(1)
     await endDateTrigger.click()
     for (let i = 0; i < 15; i++) {
       await page.getByRole('button', { name: /go to the previous month/i }).click()

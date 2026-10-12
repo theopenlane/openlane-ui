@@ -15,7 +15,13 @@ function useClickOutsideWithPortal<T extends HTMLElement = HTMLElement>(callback
 
     const handleClick = (event: MouseEvent) => {
       const isInside = refArray.some((ref) => ref.current?.contains(event.target as Node))
-      if (!isInside) callback()
+      if (isInside) return
+
+      const focused = document.activeElement
+      if (focused instanceof HTMLElement && refArray.some((ref) => ref.current?.contains(focused))) {
+        focused.blur()
+      }
+      callback()
     }
 
     document.addEventListener('mousedown', handleClick)

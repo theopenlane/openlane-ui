@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test'
+import { format } from 'date-fns'
 
 import { test, expect } from '../fixtures/auth'
 import { createCustomTypeEnum, deleteCustomTypeEnum, getOwnerApi, gql, type ApiSession } from '../utils/api'
@@ -68,13 +69,14 @@ test.describe('procedures — create form', () => {
     test.slow()
     await openCreate(page)
 
-    const calendar = page.getByRole('button', { name: /Select a date/ }).first()
+    const calendar = page.getByRole('button', { name: 'Open calendar' }).first()
     await expect(calendar).toBeVisible({ timeout: 30_000 })
     await calendar.click()
 
-    await pickCalendarDay(page, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000))
+    const reviewDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+    await pickCalendarDay(page, reviewDate)
 
-    await expect(page.getByRole('button', { name: /Select a date/ })).toHaveCount(0, { timeout: 20_000 })
+    await expect(page.getByPlaceholder('MM/DD/YYYY').first()).toHaveValue(format(reviewDate, 'MM/dd/yyyy'), { timeout: 20_000 })
   })
 
   test('a tag typed into the Tags card is attached to the created procedure', async ({ page }) => {
