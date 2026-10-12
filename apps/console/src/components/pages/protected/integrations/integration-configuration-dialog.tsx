@@ -22,12 +22,12 @@ type Props = {
   installationId?: string
   credentialRef?: string
   config?: Record<string, unknown>
-  operationConfig?: Record<string, unknown>
+  storedOperationSchemas?: Record<string, IntegrationSchemaNode>
   credentials?: Record<string, unknown>
   onAuthFlowStarted?: (provider: IntegrationProvider) => void
 }
 
-const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installationId, credentialRef, config, operationConfig, credentials, onAuthFlowStarted }: Props) => {
+const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installationId, credentialRef, config, storedOperationSchemas, credentials, onAuthFlowStarted }: Props) => {
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
   const isExistingInstallation = Boolean(installationId)
@@ -53,7 +53,10 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
     [isExistingInstallation],
   )
 
-  const operationSchemas = useMemo(() => operationSchemaEntries(provider, isExistingInstallation ? operationConfig : undefined), [provider, isExistingInstallation, operationConfig])
+  const operationSchemas = useMemo(
+    () => operationSchemaEntries(provider, isExistingInstallation ? (storedOperationSchemas ?? {}) : undefined),
+    [provider, isExistingInstallation, storedOperationSchemas],
+  )
 
   // Combined form — used for new installations where creds and settings are submitted together
   const combined = useIntegrationSchemaForm({ credentialSchema, userInputSchema, operationSchemas, userInputSectionMeta })

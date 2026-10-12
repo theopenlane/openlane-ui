@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
-import { type IntegrationOperationConfigPayload, type IntegrationOperationSchemaEntry, type IntegrationProvider, type IntegrationSchemaNode } from '@/lib/integrations/types'
+import { type IntegrationOperationSchemaEntry, type IntegrationProvider, type IntegrationSchemaNode } from '@/lib/integrations/types'
 import { resolveConnectionEntry } from '@/lib/integrations/utils'
 import { connectViaAuth, saveIntegrationConfiguration } from '@/lib/integrations/flow'
 import { normalizeIntegrationFormPayloads } from '@/lib/integrations/schema'
@@ -31,33 +31,27 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
   const [isConnecting, setIsConnecting] = useState(false)
   const [webhookDetails, setWebhookDetails] = useState<WebhookDetails | null>(null)
 
-  const startAuth = useCallback(
-    async (operationConfig?: IntegrationOperationConfigPayload) => {
-      if (!provider) {
-        return
-      }
+  const handleAuthConnect = useCallback(async () => {
+    if (!provider) {
+      return
+    }
 
-      setIsConnecting(true)
+    setIsConnecting(true)
 
-      try {
-        await connectViaAuth(provider, {
-          credentialRef,
-          operationConfig,
-          onRedirect,
-        })
-      } catch (error) {
-        errorNotification({
-          title: `Failed to connect ${provider.displayName}`,
-          description: error instanceof Error ? error.message : 'Unexpected error while starting the integration flow.',
-        })
-      } finally {
-        setIsConnecting(false)
-      }
-    },
-    [provider, credentialRef, onRedirect, errorNotification],
-  )
-
-  const handleAuthConnect = useCallback(() => startAuth(), [startAuth])
+    try {
+      await connectViaAuth(provider, {
+        credentialRef,
+        onRedirect,
+      })
+    } catch (error) {
+      errorNotification({
+        title: `Failed to connect ${provider.displayName}`,
+        description: error instanceof Error ? error.message : 'Unexpected error while starting the integration flow.',
+      })
+    } finally {
+      setIsConnecting(false)
+    }
+  }, [provider, credentialRef, onRedirect, errorNotification])
 
   const handleSubmit = useCallback(
     async (formValues: Record<string, unknown>) => {
@@ -83,9 +77,9 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
       const selectedConnection = resolveConnectionEntry(provider, credentialRef)
       const connectionHasAuth = selectedConnection?.auth != null
 
-      if (!hasCredentialPayload && !hasUserInputPayload) {
+      if (!hasCredentialPayload && !hasUserInputPayload && !hasOperationConfigPayload) {
         if (connectionHasAuth) {
-          await startAuth(hasOperationConfigPayload ? operationConfigPayload : undefined)
+          await handleAuthConnect()
           return
         }
 
@@ -142,7 +136,7 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
         })
       }
     },
-    [provider, credentialSchema, userInputSchema, operationSchemas, credentialRef, initialValues, onSuccess, onRedirect, reset, queryClient, startAuth, successNotification, errorNotification],
+    [provider, credentialSchema, userInputSchema, operationSchemas, credentialRef, initialValues, onSuccess, onRedirect, reset, queryClient, handleAuthConnect, successNotification, errorNotification],
   )
 
   return {

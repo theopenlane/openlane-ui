@@ -29,9 +29,7 @@ type SaveIntegrationConfigurationOptions = {
   operationConfig?: IntegrationOperationConfigPayload
 }
 
-function hasEntries(value?: Record<string, unknown>): value is Record<string, unknown> {
-  return value != null && Object.keys(value).length > 0
-}
+const hasEntries = (value?: Record<string, unknown>): value is Record<string, unknown> => value != null && Object.keys(value).length > 0
 
 export function providerHasCredentialSchema(provider?: IntegrationProvider): boolean {
   return schemaHasProperties(primaryCredentialSchema(provider))
@@ -41,9 +39,9 @@ export function providerHasUserInputSchema(provider?: IntegrationProvider): bool
   return schemaHasProperties(provider?.userInputSchema)
 }
 
-export function providerHasOperationConfigSchema(provider?: IntegrationProvider): boolean {
-  return operationSchemaEntries(provider).length > 0
-}
+export const providerHasOperationConfigSchema = (provider?: IntegrationProvider): boolean => operationSchemaEntries(provider).length > 0
+
+export const providerHasInstallationSettings = (provider?: IntegrationProvider): boolean => providerHasUserInputSchema(provider) || providerHasOperationConfigSchema(provider)
 
 export function providerSupportsAuth(provider?: IntegrationProvider): boolean {
   return Boolean(provider?.hasAuth)
@@ -64,7 +62,7 @@ export function providerSupportsInstalledConfiguration(provider?: IntegrationPro
     return false
   }
 
-  return providerHasCredentialSchema(provider) || providerHasUserInputSchema(provider) || providerHasOperationConfigSchema(provider)
+  return providerHasCredentialSchema(provider) || providerHasInstallationSettings(provider)
 }
 
 export function queryFinalizedIntegrationCountForProvider(data: GetIntegrationsQuery | undefined, provider: IntegrationProvider): number {

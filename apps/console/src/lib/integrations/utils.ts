@@ -334,20 +334,19 @@ export function resolveConnectionEntry(provider?: IntegrationProvider, credentia
   return provider.connections?.find((connection) => connection.credentialRef === activeCredentialRef)
 }
 
-export function operationSchemaEntries(provider?: IntegrationProvider, storedSchemas?: Record<string, unknown>): IntegrationOperationSchemaEntry[] {
-  return (provider?.operations ?? []).flatMap((op) => {
+export const operationSchemaEntries = (provider?: IntegrationProvider, storedSchemas?: Record<string, IntegrationSchemaNode>): IntegrationOperationSchemaEntry[] =>
+  (provider?.operations ?? []).flatMap((op) => {
     if (!op.stored || op.disabledForAll) {
       return []
     }
 
-    const schema = resolveSchemaRoot((storedSchemas?.[op.name] ?? op.input?.schema) as IntegrationSchemaNode | undefined)
-    if (!schemaHasProperties(schema)) {
+    const schema = resolveSchemaRoot(storedSchemas ? storedSchemas[op.name] : op.input?.schema)
+    if (!schema || !schemaHasProperties(schema)) {
       return []
     }
 
-    return [{ name: op.name, title: toHumanLabel(op.name), description: op.description, schema: schema as IntegrationSchemaNode }]
+    return [{ name: op.name, title: toHumanLabel(op.name), description: op.description, schema }]
   })
-}
 
 export function resolveManageUrl(provider: IntegrationProvider | undefined, connectionEntry: ReturnType<typeof resolveConnectionEntry>, externalId: string, externalName: string): string | null {
   if (!connectionEntry?.auth || !externalId) return null

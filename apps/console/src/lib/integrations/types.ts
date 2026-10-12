@@ -164,7 +164,7 @@ export type RawDefinition = {
   credentialRegistrations?: IntegrationCredentialEntry[]
   connections?: IntegrationConnectionEntry[]
   operatorConfig?: { schema?: IntegrationSchemaNode }
-  userInput?: { name?: string; schema?: IntegrationSchemaNode }
+  userInput?: { schema?: IntegrationSchemaNode }
   operations?: IntegrationOperationMetadata[]
   webhooks?: { name: string; events?: { name: string }[] }[]
 }
