@@ -1,6 +1,7 @@
 import type { ImportFieldMeta } from '@repo/codegen/src/import-fields.generated'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatList } from '@/utils/strings'
+import { isValidUrl } from '@/utils/normalizeUrl'
 import { isUlid } from '@/lib/validators'
 import { inferDateOrder, isAmbiguousDate, isCanonicalDate, normalizeLooseDate, type TDateOrder } from '@/utils/loose-date'
 import type { TDestinationField, TValueMap } from './types'
@@ -29,9 +30,6 @@ const GO_BOOLEANS = new Set(['1', 't', 'T', 'TRUE', 'true', 'True', '0', 'f', 'F
 const YES_NO = /^(yes|no)$/i
 const LIST_DELIMITERS = [';', '|', ',']
 const MIN_SUGGESTION_LENGTH = 3
-const MAX_URL_LENGTH = 2048
-const URL_HOST = /^[a-z0-9-]+(\.[a-z0-9-]+)+\.?$/i
-const URL_SCHEME = /^[a-z][a-z0-9+.-]*:\/\//i
 
 export const toEnumToken = (value: string): string =>
   value
@@ -43,15 +41,6 @@ export const toEnumToken = (value: string): string =>
     .filter(Boolean)
     .join('_')
     .toUpperCase()
-
-const isValidUrl = (value: string): boolean => {
-  if (value.length > MAX_URL_LENGTH) return false
-  try {
-    return URL_HOST.test(new URL(URL_SCHEME.test(value) ? value : `http://${value}`).host)
-  } catch {
-    return false
-  }
-}
 
 const NOT_JSON = Symbol('not-json')
 
