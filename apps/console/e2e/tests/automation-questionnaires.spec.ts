@@ -201,22 +201,21 @@ test('all response-due presets are selectable and the saved duration persists', 
 test('a custom response due date is saved and restored in the editor', async ({ page }) => {
   const name = uniqueName('E2E Questionnaire custom due date')
   const targetDate = addDays(new Date(), 14)
-  const formattedTarget = format(targetDate, 'PPP')
+  const formattedTarget = format(targetDate, 'MM/dd/yyyy')
   const id = await createAssessment(ownerApi, name)
 
   try {
     await openQuestionnaireEditor(page, id)
     await selectEditorOption(page, 'Response Due', 'Custom')
-    const dateButton = page.getByRole('button', { name: /\w+ \d{1,2}(?:st|nd|rd|th), \d{4}/ })
-    await dateButton.click()
+    await page.getByRole('button', { name: 'Open calendar' }).click()
     await page.getByRole('button', { name: calendarDayName(targetDate) }).click()
-    await expect(dateButton).toContainText(formattedTarget)
+    await expect(page.getByRole('textbox', { name: 'Date' })).toHaveValue(formattedTarget)
     await saveSurvey(page)
     await page.waitForURL(new RegExp(`/automation/questionnaires/${id}$`), { timeout: 30_000 })
 
     await openQuestionnaireEditor(page, id)
     await expect(editorSelect(page, 'Response Due')).toContainText('Custom')
-    await expect(page.getByRole('button', { name: new RegExp(escapeRegExp(formattedTarget)) })).toBeVisible({ timeout: 30_000 })
+    await expect(page.getByRole('textbox', { name: 'Date' })).toHaveValue(formattedTarget, { timeout: 30_000 })
   } finally {
     await deleteAssessment(ownerApi, id)
   }

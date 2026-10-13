@@ -55,12 +55,13 @@ const SelectContent = ({
   className,
   children,
   position = 'popper',
+  container,
   ref,
   ...props
-}: React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> & SelectVariants & { ref?: React.Ref<React.ElementRef<typeof SelectPrimitive.Content>> }) => {
+}: React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> & SelectVariants & { container?: HTMLElement | null; ref?: React.Ref<React.ElementRef<typeof SelectPrimitive.Content>> }) => {
   const styles = selectStyles({ position })
   return (
-    <SelectPrimitive.Portal>
+    <SelectPrimitive.Portal container={container}>
       <SelectPrimitive.Content ref={ref} className={cn(styles.content(), className)} position={position} {...props}>
         <SelectScrollUpButton />
         <SelectPrimitive.Viewport className={cn(styles.viewport())}>{children}</SelectPrimitive.Viewport>
