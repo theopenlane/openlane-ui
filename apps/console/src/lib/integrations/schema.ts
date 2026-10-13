@@ -38,9 +38,7 @@ export const CREDENTIALS_PREFIX = 'credentials__'
 export const USER_INPUT_PREFIX = 'userInput__'
 const OPERATION_CONFIG_PREFIX = 'operationConfig__'
 
-function operationConfigPrefix(operationName: string): string {
-  return `${OPERATION_CONFIG_PREFIX}${operationName}__`
-}
+const operationConfigPrefix = (operationName: string): string => `${OPERATION_CONFIG_PREFIX}${operationName}__`
 
 export function buildSections(
   credentialSchema: IntegrationSchemaNode | undefined,

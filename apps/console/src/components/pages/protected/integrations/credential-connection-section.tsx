@@ -44,7 +44,7 @@ const CredentialConnectionSection = ({
   onSelectCredential,
 }: CredentialConnectionSectionProps) => {
   const credentialEntries = provider.credentialSchemas ?? []
-  const hasUserInputFields = configurationSections.length > 0
+  const hasConfigurationFields = configurationSections.length > 0
 
   const [wizardOpen, setWizardOpen] = useState(false)
   const activeEntry = credentialEntries[selectedCredentialIndex]
@@ -105,7 +105,7 @@ const CredentialConnectionSection = ({
                           provider={provider}
                           connectionLabel={entry.name}
                           className="shrink-0"
-                          onStartWizard={!isAuth && (hasFields || hasUserInputFields) ? () => handleStartWizard(index) : undefined}
+                          onStartWizard={!isAuth && (hasFields || hasConfigurationFields) ? () => handleStartWizard(index) : undefined}
                           liveValues={getLiveValues(connection)}
                           onOpen={() => onSelectCredential(index)}
                         />
@@ -127,7 +127,7 @@ const CredentialConnectionSection = ({
                               )}
 
                               <div className="mt-3">
-                                {isAuth && !hasFields && !hasUserInputFields ? (
+                                {isAuth && !hasFields && !hasConfigurationFields ? (
                                   <Button type="button" onClick={onAuthConnect} disabled={isConnecting || !provider.active}>
                                     {isConnecting ? 'Initializing...' : 'Connect'}
                                   </Button>
@@ -139,7 +139,7 @@ const CredentialConnectionSection = ({
                               </div>
                             </div>
 
-                            {hasUserInputFields ? (
+                            {hasConfigurationFields ? (
                               <>
                                 <Separator vertical className="mx-6 w-fit self-stretch" separatorClass="h-full" />
                                 <div className="flex-1 min-w-0">

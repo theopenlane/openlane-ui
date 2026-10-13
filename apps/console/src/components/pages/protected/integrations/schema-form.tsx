@@ -26,7 +26,7 @@ import {
 } from '@/lib/integrations/schema'
 import { useNotification } from '@/hooks/useNotification'
 
-export { CREDENTIALS_PREFIX, normalizeIntegrationFormPayloads, USER_INPUT_PREFIX, buildFieldEntries, getResolvedSchemaFields } from '@/lib/integrations/schema'
+export { CREDENTIALS_PREFIX, normalizeIntegrationFormPayloads, buildFieldEntries, getResolvedSchemaFields } from '@/lib/integrations/schema'
 export type { FieldEntry, FormValues, NormalizedIntegrationFormPayloads, SchemaSection } from '@/lib/integrations/schema'
 
 type SchemaFieldProps = {
@@ -186,7 +186,7 @@ export function IntegrationSchemaSections({ sections, hideDescriptions, spacing 
 
         return (
           <div key={section.prefix}>
-            {section.operation ? <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">{section.title}</p> : null}
+            {section.operation ? <h5 className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">{section.title}</h5> : null}
             {!hideDescriptions && section.description ? <p className="mb-4 text-xs text-muted-foreground">{section.description}</p> : null}
 
             <div className={spacing}>
