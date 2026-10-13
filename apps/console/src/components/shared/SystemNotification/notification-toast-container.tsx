@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import * as ToastPrimitives from '@radix-ui/react-toast'
 import { Bell, X } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
+import { TruncatedCell } from '@repo/ui/truncated-cell'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { currentLocationPath } from '@/utils/return-to'
@@ -81,8 +82,16 @@ const SingleNotificationToast = ({ data, onOpenChange, onView }: ToastItemProps)
     >
       <BellIconContainer />
       <div className="min-w-0 flex-1">
-        <ToastPrimitives.Title className="truncate text-sm font-semibold text-foreground">{notification?.title}</ToastPrimitives.Title>
-        {notification?.body && <ToastPrimitives.Description className="truncate text-xs text-muted-foreground mt-0.5">{notification.body}</ToastPrimitives.Description>}
+        <ToastPrimitives.Title className="text-sm font-semibold text-foreground">
+          <TruncatedCell portal>{notification?.title}</TruncatedCell>
+        </ToastPrimitives.Title>
+        {notification?.body && (
+          <ToastPrimitives.Description className="mt-0.5 text-xs text-muted-foreground">
+            <TruncatedCell lineClamp={2} portal className="wrap-break-word">
+              {notification.body}
+            </TruncatedCell>
+          </ToastPrimitives.Description>
+        )}
         {hasUrl && (
           <p className="mt-1.5 text-xs font-medium" style={{ color: BELL_COLOR }}>
             View →
