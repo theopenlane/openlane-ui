@@ -1,6 +1,7 @@
 import { activatable } from '@repo/ui/lib/a11y'
 import { formatTimeSince } from '@/utils/date'
 import { cn } from '@repo/ui/lib/utils'
+import { TruncatedCell } from '@repo/ui/truncated-cell'
 import React from 'react'
 
 import { ShieldCheck, Fingerprint, AlertTriangle, FileCheck, NotebookPen, AlertCircleIcon, ListChecks, ScrollText } from 'lucide-react'
@@ -14,7 +15,7 @@ interface NotificationRowProps {
   onRead: (id: string) => void
 }
 
-export function NotificationRow({ notification, onRead }: NotificationRowProps) {
+export const NotificationRow = ({ notification, onRead }: NotificationRowProps) => {
   const router = useRouter()
   const isUnread = !notification.readAt
   const handleClick = async () => {
@@ -30,8 +31,12 @@ export function NotificationRow({ notification, onRead }: NotificationRowProps) 
         <NotificationIcon objectType={notification.objectType} />
       </div>
       <div className="min-w-0 flex-1">
-        <div className={cn('truncate text-sm font-medium', isUnread && 'font-semibold')}>{notification.title}</div>
-        <div className="truncate text-xs text-muted-foreground">{notification.body}</div>
+        <TruncatedCell portal className={cn('text-sm font-medium', isUnread && 'font-semibold')}>
+          {notification.title}
+        </TruncatedCell>
+        <TruncatedCell portal lineClamp={2} className="wrap-break-word text-xs text-muted-foreground">
+          {notification.body}
+        </TruncatedCell>
       </div>
       <div className="flex flex-col items-end gap-1">
         <span className="text-[10px] text-muted-foreground">{formatTimeSince(notification.createdAt)}</span>

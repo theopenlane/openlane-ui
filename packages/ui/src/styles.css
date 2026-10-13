@@ -1012,4 +1012,5 @@ body[data-row-dragging] * {
   --editor-z-fixed-toolbar: 60;
   --editor-z-floating-toolbar: 70;
   --z-page-sticky-bar: 65;
+  --z-tooltip: 10001;
 }

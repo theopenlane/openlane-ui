@@ -107,8 +107,10 @@ const Providers = ({ children }: ProvidersProps) => {
               <NotificationsProvider>
                 <BreadcrumbProvider>
                   {devrevChatEnabled && <InitPlugSDK />}
-                  <AppTooltipProvider>{children}</AppTooltipProvider>
-                  <NotificationToastContainer />
+                  <AppTooltipProvider>
+                    {children}
+                    <NotificationToastContainer />
+                  </AppTooltipProvider>
                 </BreadcrumbProvider>
               </NotificationsProvider>
             </WebSocketProvider>

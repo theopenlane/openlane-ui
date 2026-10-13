@@ -310,10 +310,7 @@ test.describe('programs — timeline & readiness (seeded)', () => {
     const id = await createProgram(ownerApi, uniqueProgramName())
     await openTimelineEdit(page, id)
 
-    await page
-      .getByRole('button', { name: /select a date/i })
-      .nth(1)
-      .click()
+    await page.getByRole('button', { name: 'Open calendar' }).nth(1).click()
     await page.getByRole('button', { name: /go to the previous month/i }).click()
     await page
       .getByRole('button', { name: new RegExp('(^|\\s)15(th|st|nd|rd)?(,|$|\\s)', 'i') })

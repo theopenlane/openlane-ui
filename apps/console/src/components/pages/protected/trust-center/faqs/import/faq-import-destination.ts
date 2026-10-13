@@ -16,7 +16,6 @@ const fields: TDestinationField[] = Object.entries(FAQ_IMPORT_FIELDS).map(([name
 export const FAQ_IMPORT_DESTINATION: TImportDestination = staticImportDestination(
   {
     fields,
-    requiredGroups: fields.filter((field) => field.requirement === 'required').map((field) => [field]),
     primaryField: 'Question',
   },
   'trust-center-faqs',

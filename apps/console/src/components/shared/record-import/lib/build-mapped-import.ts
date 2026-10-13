@@ -1,4 +1,5 @@
 import { serializeCsv } from './delimited-file'
+import { enumCanonicalizer } from './validate-cells'
 import type { TDateOrder } from '@/utils/loose-date'
 import type { TCellConversion, TColumnMapping, TDestinationField, TMappedImport, TSourceColumn, TValueMap } from './types'
 
@@ -29,6 +30,13 @@ export const buildImportPlan = ({ columns, fields, mapping }: { columns: TSource
   const valueMaps = sourceIndexes.map((sourceIndex) => (sourceIndex === undefined ? undefined : mapping[sourceIndex]?.valueMap))
   const conversions = sourceIndexes.map((sourceIndex) => (sourceIndex === undefined ? undefined : mapping[sourceIndex]?.conversion))
   const fallbacks = usedFields.map((field) => field.autoValue ?? '')
+  const canonicalizers = usedFields.map((field) => enumCanonicalizer(field.meta))
+  const readValue = (row: string[], position: number): string => {
+    const sourceIndex = sourceIndexes[position]
+    if (sourceIndex === undefined) return fallbacks[position]
+    const value = readCell(row, sourceIndex, valueMaps[position], conversions[position])
+    return canonicalizers[position]?.(value) ?? value
+  }
 
   return {
     headers: usedFields.map((field) => field.name),
@@ -42,7 +50,7 @@ export const buildImportPlan = ({ columns, fields, mapping }: { columns: TSource
       const conversion = conversions[position]
       return conversion ? [{ label: field.label, rowCount: conversion.rowCount, dateOrder: conversion.dateOrder }] : []
     }),
-    buildRow: (row) => sourceIndexes.map((sourceIndex, position) => (sourceIndex === undefined ? fallbacks[position] : readCell(row, sourceIndex, valueMaps[position], conversions[position]))),
+    buildRow: (row) => usedFields.map((_field, position) => readValue(row, position)),
   }
 }
 

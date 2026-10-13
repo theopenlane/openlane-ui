@@ -72,7 +72,7 @@ test('editing every supported task field in the detail sheet persists after relo
       .click()
     await page.getByRole('option', { name: owner.displayName, exact: true }).click()
 
-    await sheet.getByRole('button', { name: 'Select a date:' }).click()
+    await sheet.getByRole('button', { name: 'Open calendar' }).click()
     await pickCalendarDay(page, dueDate)
 
     await sheet

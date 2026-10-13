@@ -289,7 +289,7 @@ test.describe('tasks — detail sheet inline edits (seeded)', () => {
     await dueRow.hover()
     await dueRow.getByRole('button', { name: /^Edit$/ }).click()
 
-    await sheet.getByRole('button', { name: /Select a date:/ }).click()
+    await sheet.getByRole('button', { name: 'Open calendar' }).click()
     await expect(page.getByRole('grid').first()).toBeVisible({ timeout: 10_000 })
   })
 

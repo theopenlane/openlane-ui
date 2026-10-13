@@ -225,7 +225,7 @@ function TooltipContent({
   return (
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
-        className={cn('z-50 w-fit origin-(--radix-tooltip-content-transform-origin) text-balance rounded-md bg-primary px-3 py-1.5 text-primary-foreground text-xs', className)}
+        className={cn('z-50 w-fit origin-(--radix-tooltip-content-transform-origin) text-balance rounded-md bg-primary px-3 py-1.5 text-btn-primary-text text-xs', className)}
         data-slot="tooltip-content"
         sideOffset={sideOffset}
         {...props}
