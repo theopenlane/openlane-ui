@@ -10,9 +10,8 @@ import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
 import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
-import { type ResponsibilitySelection } from './responsibility-field-utils'
+import { type ResponsibilitySelection, getCustomValueError, getCustomValueLabel, getResponsibilitySearchPlaceholder } from './responsibility-field-utils'
 import { PersonnelOptionItem } from './personnel-option-item'
-import { isValidEmail } from '@/lib/validators'
 import { ResponsibilitySelectionLabel } from './responsibility-type-icon'
 import { cn } from '@repo/ui/lib/utils'
 
@@ -50,11 +49,12 @@ export const ResponsibilityPicker: React.FC<ResponsibilityPickerProps> = ({ allo
     [filteredUsers, filteredGroups, normalizedSearchText],
   )
 
-  const customEmailLabel = `Use "${term}" as custom email`
+  const customValueLabel = getCustomValueLabel('email', term)
 
   const handleSelect = (selection: ResponsibilitySelection) => {
-    if (selection?.type === 'string' && !isValidEmail(selection.value)) {
-      errorNotification({ title: 'Invalid email', description: 'Custom values must be a valid email address' })
+    const customValueError = getCustomValueError('email', selection)
+    if (customValueError) {
+      errorNotification(customValueError)
       return
     }
 
@@ -81,7 +81,7 @@ export const ResponsibilityPicker: React.FC<ResponsibilityPickerProps> = ({ allo
         sideOffset={4}
       >
         <Command shouldFilter={false}>
-          <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} searching={isSearching} />
+          <CommandInput placeholder={getResponsibilitySearchPlaceholder('email', allowPersonnel)} value={searchText} onValueChange={setSearchText} searching={isSearching} />
           <CommandList className="max-h-[min(300px,var(--radix-popover-content-available-height,300px))]">
             <CommandEmpty>{isSearching ? 'Searching...' : 'No results found.'}</CommandEmpty>
             {value && (
@@ -137,8 +137,8 @@ export const ResponsibilityPicker: React.FC<ResponsibilityPickerProps> = ({ allo
                 <CommandGroup heading="Custom">
                   <CommandItem value={`custom-${term}`} onSelect={() => handleSelect({ type: 'string', value: term, displayName: term })}>
                     <Type className="mr-2 h-4 w-4" />
-                    <span className="truncate" title={customEmailLabel}>
-                      {customEmailLabel}
+                    <span className="truncate" title={customValueLabel}>
+                      {customValueLabel}
                     </span>
                   </CommandItem>
                 </CommandGroup>

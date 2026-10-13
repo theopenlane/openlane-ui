@@ -128,6 +128,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
               name="performedBy"
               fieldBaseName="performedBy"
               allowPersonnel={false}
+              customValue="text"
               label="Performed By"
               isEditing={isEditing}
               isEditAllowed={isEditAllowed}
