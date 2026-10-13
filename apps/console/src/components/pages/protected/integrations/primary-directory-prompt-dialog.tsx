@@ -83,7 +83,7 @@ const PrimaryDirectoryPromptDialog = ({ open, onOpenChange, provider, integratio
           <div className="flex flex-1 flex-col gap-6 p-8">
             <DialogHeader>
               <DialogTitle className="text-2xl">Make this your primary directory?</DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">Openlane uses a primary directory as the source of truth for personnel identity and status.</DialogDescription>
+              <DialogDescription>Openlane uses a primary directory as the source of truth for personnel identity and status.</DialogDescription>
             </DialogHeader>
 
             <ul className="flex flex-col gap-4">

@@ -251,7 +251,7 @@ const BrandPage: React.FC = () => {
             warning={hasPreviewDifference.theme ? unpublishedWarning : null}
             setting={setting}
             cnameRecord={cnameRecord}
-            pullAction={<BrandingDomainPull isReadOnly={isReadOnly} onPulled={handleBrandingPulled} />}
+            pullAction={<BrandingDomainPull isReadOnly={isReadOnly} previewSetting={previewSetting} onPulled={handleBrandingPulled} />}
           />
 
           <BrandingAssetsSection isReadOnly={isReadOnly} warning={hasPreviewDifference.assets ? unpublishedWarning : null} />

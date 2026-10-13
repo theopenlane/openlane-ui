@@ -11,19 +11,29 @@ import { cn } from '@repo/ui/lib/utils'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCreateEmailTemplate, useUpdateEmailTemplate, useEmailTemplate, useEmailTemplateCatalog, usePreviewEmailTemplateHtml } from '@/lib/graphql-hooks/email-template'
 import { useNotification } from '@/hooks/useNotification'
+import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EmailTemplateNotificationTemplateFormat, EmailTemplateTemplateContext } from '@repo/codegen/src/schema'
 import { EmailTemplateBasicFields } from './email-template-basic-fields'
 import { EmailTemplateConfiguration } from './email-template-configuration'
 import { EmailTemplateVariables } from './email-template-variables'
 import { EmailTemplatePreview } from './email-template-preview'
+import { EmailTemplateBrandingDetect } from './email-template-branding-detect'
+import { applyEmailBranding, type TEmailBrandingSuggestion } from './email-template-branding'
 
 const LIST_PATH = '/automation/email-templates'
 
-const EditorCard: React.FC<{ title: string; children: React.ReactNode; className?: string; bodyClassName?: string }> = ({ title, children, className, bodyClassName }) => (
+const EditorCard: React.FC<{ title: string; action?: React.ReactNode; children: React.ReactNode; className?: string; bodyClassName?: string }> = ({
+  title,
+  action,
+  children,
+  className,
+  bodyClassName,
+}) => (
   <div className={cn('flex flex-col rounded-lg border border-border bg-card overflow-hidden', className)}>
-    <div className="shrink-0 px-4 py-3">
+    <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 px-4 py-3">
       <span className="text-sm font-semibold">{title}</span>
+      {action}
     </div>
     <div className={cn('min-h-0 border-t border-border px-4 py-4', bodyClassName)}>{children}</div>
   </div>
@@ -49,6 +59,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
   const { mutateAsync: createEmailTemplate, isPending: isCreating } = useCreateEmailTemplate()
   const { mutateAsync: updateEmailTemplate, isPending: isUpdating } = useUpdateEmailTemplate()
   const { successNotification, errorNotification } = useNotification()
+  const { currentOrgId } = useOrganization()
   const [, copyToClipboard] = useCopyToClipboard()
 
   const isPending = isCreating || isUpdating
@@ -102,6 +113,8 @@ export const EmailTemplateEditorPage: React.FC = () => {
   }, [isEditMode, templateData, templateId])
 
   const handleCancel = () => router.push(LIST_PATH)
+
+  const applyBranding = (suggestions: TEmailBrandingSuggestion[]) => setConfigData((current) => applyEmailBranding(current, suggestions))
 
   const copyVariableToken = (variableName: string) => {
     copyToClipboard(`{{ .${variableName} }}`)
@@ -171,7 +184,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
               <EmailTemplateBasicFields name={name} onNameChange={setName} />
             </EditorCard>
 
-            <EditorCard title="Configuration">
+            <EditorCard title="Configuration" action={selectedEntry && <EmailTemplateBrandingDetect key={currentOrgId} schema={selectedEntry.configSchema} onApply={applyBranding} />}>
               <EmailTemplateConfiguration
                 isCatalogLoading={isCatalogLoading}
                 isCatalogDrift={isCatalogDrift}
