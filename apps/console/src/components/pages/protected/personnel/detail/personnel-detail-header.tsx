@@ -2,19 +2,17 @@
 
 import React, { useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
-import { MoreHorizontal, Trash2, User, PencilIcon } from 'lucide-react'
+import { User } from 'lucide-react'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
-import Menu from '@/components/shared/menu/menu'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { IdentityHolderUserStatus, type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
 import { UserStatusBadge } from '@/components/shared/enum-mapper/user-status-enum'
-import { MergeMenuItem } from '@/components/shared/merge-records/merge-menu-item'
+import { MergeRecordsSheet } from '@/components/shared/merge-records/merge-records-sheet'
 import { personnelMergeConfig } from '@/components/shared/merge-records/configs/personnel-merge-config'
-import MenuItem from '@/components/shared/menu/menu-item'
+import { deleteMenuAction, mergeMenuAction } from '@/components/shared/crud-base/slideout-header'
+import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 interface PersonnelDetailHeaderProps {
   personnel: IdentityHolderQuery['identityHolder']
@@ -44,6 +42,7 @@ const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({
   const [localValue, setLocalValue] = useState('')
   const originalValueRef = useRef<string>('')
   const escapedRef = useRef(false)
+  const [mergeOpen, setMergeOpen] = useState(false)
 
   const handleBlur = async () => {
     if (escapedRef.current) {
@@ -71,7 +70,7 @@ const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({
 
   return (
     <div className="flex justify-between items-start gap-4">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 min-w-0 flex-1">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden">
           {personnel.avatarRemoteURL ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -80,7 +79,7 @@ const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({
             <User size={24} className="text-muted-foreground" />
           )}
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 min-w-0 flex-1">
           <div className="flex items-center gap-2 min-w-0">
             {isEditing ? (
               <Input {...register('fullName')} className="text-2xl font-semibold h-auto py-1" />
@@ -134,41 +133,15 @@ const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        {isEditing ? (
-          <div className="flex gap-2 justify-end">
-            <CancelButton onClick={onCancel} />
-            <SaveButton />
-          </div>
-        ) : (
-          <>
-            {canEditPersonnel && (
-              <Button type="button" variant="secondary" onClick={onEdit} aria-label="Edit personnel" icon={<PencilIcon size={16} strokeWidth={2} />} iconPosition="left">
-                Edit
-              </Button>
-            )}
-            {(canEditPersonnel || canDeletePersonnel) && (
-              <Menu
-                trigger={
-                  <Button type="button" variant="secondary" className="h-8 px-2">
-                    <MoreHorizontal size={16} />
-                  </Button>
-                }
-                content={
-                  <>
-                    {canEditPersonnel && <MergeMenuItem primaryId={personnel.id} config={personnelMergeConfig} onMergeComplete={onMergeComplete} />}
-                    {canDeletePersonnel && (
-                      <MenuItem icon={<Trash2 size={16} strokeWidth={2} />} onSelect={onDeleteClick} destructive>
-                        Delete
-                      </MenuItem>
-                    )}
-                  </>
-                }
-              />
-            )}
-          </>
-        )}
-      </div>
+      <DetailHeaderActions
+        isEditing={isEditing}
+        onCancel={onCancel}
+        onEdit={canEditPersonnel ? onEdit : undefined}
+        editLabel="Edit personnel"
+        menuAnchor={elementAnchor('personnel-actions-menu')}
+        menuActions={[canEditPersonnel && mergeMenuAction(() => setMergeOpen(true)), canDeletePersonnel && deleteMenuAction(onDeleteClick)]}
+      />
+      {canEditPersonnel && <MergeRecordsSheet open={mergeOpen} onOpenChange={setMergeOpen} config={personnelMergeConfig} primaryId={personnel.id} onMergeComplete={onMergeComplete} />}
     </div>
   )
 }

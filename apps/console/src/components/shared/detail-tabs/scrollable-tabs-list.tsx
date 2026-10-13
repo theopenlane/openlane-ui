@@ -7,9 +7,10 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 type ScrollableTabsListProps = {
   children: React.ReactNode
   trailing?: React.ReactNode
+  end?: React.ReactNode
 }
 
-const ScrollableTabsList: React.FC<ScrollableTabsListProps> = ({ children, trailing }) => {
+const ScrollableTabsList: React.FC<ScrollableTabsListProps> = ({ children, trailing, end }) => {
   const tabsScrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
@@ -64,6 +65,7 @@ const ScrollableTabsList: React.FC<ScrollableTabsListProps> = ({ children, trail
         )}
       </div>
       {trailing && <div className="mb-px shrink-0">{trailing}</div>}
+      {end && <div className="mb-px ml-auto shrink-0">{end}</div>}
       <div className="pointer-events-none absolute inset-x-0 bottom-0.5 left-0.5 h-px shadow-[inset_0_-1px_0_0_var(--color-border)]" />
     </div>
   )
