@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { isValidEmail } from '@/lib/validators'
 
 export const responsibilityChoiceSchema = z.object({
   type: z.enum(['user', 'group', 'personnel', 'string']),
@@ -12,6 +13,36 @@ export const responsibilityFieldSchema = responsibilityChoiceSchema.optional().n
 export type ResponsibilitySelection = z.infer<typeof responsibilityFieldSchema>
 
 export type ResponsibilityChoice = z.infer<typeof responsibilityChoiceSchema>
+
+export type TResponsibilityCustomValue = 'email' | 'text'
+
+type TResponsibilityCustomValueRule = {
+  noun: string
+  inputHint: string
+  validation?: { isValid: (value: string) => boolean; title: string; description: string }
+}
+
+const RESPONSIBILITY_CUSTOM_VALUE_RULES: Record<TResponsibilityCustomValue, TResponsibilityCustomValueRule> = {
+  email: {
+    noun: 'email',
+    inputHint: 'a name/email',
+    validation: { isValid: isValidEmail, title: 'Invalid email', description: 'Custom values must be a valid email address' },
+  },
+  text: { noun: 'value', inputHint: 'a custom value' },
+}
+
+export const getResponsibilitySearchPlaceholder = (kind: TResponsibilityCustomValue, withPersonnel: boolean) =>
+  `Search users, groups${withPersonnel ? ', personnel' : ''}, or type ${RESPONSIBILITY_CUSTOM_VALUE_RULES[kind].inputHint}...`
+
+export const getCustomValueLabel = (kind: TResponsibilityCustomValue, term: string) => `Use "${term}" as custom ${RESPONSIBILITY_CUSTOM_VALUE_RULES[kind].noun}`
+
+export const getCustomValueError = (kind: TResponsibilityCustomValue, selection: ResponsibilitySelection) => {
+  const { validation } = RESPONSIBILITY_CUSTOM_VALUE_RULES[kind]
+  if (selection?.type !== 'string' || !validation || validation.isValid(selection.value)) {
+    return null
+  }
+  return { title: validation.title, description: validation.description }
+}
 
 export interface ResponsibilityFieldInput {
   user?: { id?: string; displayName?: string } | null
