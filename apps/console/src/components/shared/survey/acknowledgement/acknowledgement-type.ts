@@ -18,6 +18,12 @@ export type TAcknowledgementValue = {
   signedAt?: string
 }
 
+export const ACKNOWLEDGEMENT_SIGNED_AT_FIELD = 'signedAt' satisfies keyof TAcknowledgementValue
+
+const ACKNOWLEDGEMENT_ANSWER_FIELDS: ReadonlyArray<Exclude<keyof TAcknowledgementValue, typeof ACKNOWLEDGEMENT_SIGNED_AT_FIELD>> = ['acknowledged', 'fullName', 'signature']
+
+export const hasAcknowledgementFields = (record: Record<string, unknown>): boolean => ACKNOWLEDGEMENT_ANSWER_FIELDS.some((field) => Object.hasOwn(record, field))
+
 export const readAcknowledgementValue = (value: unknown): TAcknowledgementValue => {
   if (!isRecord(value)) return {}
   const { acknowledged, fullName, signature, signedAt } = value

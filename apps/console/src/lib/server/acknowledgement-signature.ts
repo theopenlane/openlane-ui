@@ -1,11 +1,16 @@
-import { ACKNOWLEDGEMENT_SIGNATURE_METADATA_FIELD, isAcknowledgementSigned, readAcknowledgementValue } from '@/components/shared/survey/acknowledgement/acknowledgement-type'
+import {
+  ACKNOWLEDGEMENT_SIGNATURE_METADATA_FIELD,
+  ACKNOWLEDGEMENT_SIGNED_AT_FIELD,
+  hasAcknowledgementFields,
+  isAcknowledgementSigned,
+  readAcknowledgementValue,
+} from '@/components/shared/survey/acknowledgement/acknowledgement-type'
 import { decodeQuestionnaireToken } from '@/lib/questionnaire-token'
-import { getClientIp, getForwardedFor } from '@/lib/server/client-ip'
+import { getClientIp } from '@/lib/server/client-ip'
 import { isRecord } from '@/utils/type-guards'
 
 export type TAcknowledgementSignatureMetadata = {
   ipAddress: string
-  forwardedFor?: string
   userAgent: string
   timestamp: string
   tokenSubject?: string
@@ -13,11 +18,12 @@ export type TAcknowledgementSignatureMetadata = {
   preview: boolean
 }
 
+const SERVER_STAMPED_FIELDS: ReadonlySet<string> = new Set([ACKNOWLEDGEMENT_SIGNED_AT_FIELD, ACKNOWLEDGEMENT_SIGNATURE_METADATA_FIELD])
+
 export const buildSignatureMetadata = (req: Request, token: string): TAcknowledgementSignatureMetadata => {
   const claims = decodeQuestionnaireToken(token)
   return {
     ipAddress: getClientIp(req),
-    forwardedFor: getForwardedFor(req),
     userAgent: req.headers.get('user-agent') ?? 'unknown',
     timestamp: new Date().toISOString(),
     tokenSubject: claims?.user_id || undefined,
@@ -26,12 +32,17 @@ export const buildSignatureMetadata = (req: Request, token: string): TAcknowledg
   }
 }
 
-export const withAcknowledgementSignatureMetadata = (data: unknown, metadata: TAcknowledgementSignatureMetadata | null): unknown => {
-  if (Array.isArray(data)) return data.map((item) => withAcknowledgementSignatureMetadata(item, metadata))
-  if (!isRecord(data)) return data
-  const isSignedAcknowledgement = isAcknowledgementSigned(readAcknowledgementValue(data))
-  const answer = Object.fromEntries(
-    Object.entries(data).flatMap(([key, value]) => (isSignedAcknowledgement && key === ACKNOWLEDGEMENT_SIGNATURE_METADATA_FIELD ? [] : [[key, withAcknowledgementSignatureMetadata(value, metadata)]])),
-  )
-  return isSignedAcknowledgement && metadata ? { ...answer, [ACKNOWLEDGEMENT_SIGNATURE_METADATA_FIELD]: metadata } : answer
+const stampRecord = (record: Record<string, unknown>, metadata: TAcknowledgementSignatureMetadata | null): Record<string, unknown> => {
+  const isAcknowledgement = hasAcknowledgementFields(record)
+  const clientFields = Object.fromEntries(Object.entries(record).flatMap(([key, value]) => (isAcknowledgement && SERVER_STAMPED_FIELDS.has(key) ? [] : [[key, stampAnswer(value, metadata)]])))
+  if (!metadata || !isAcknowledgementSigned(readAcknowledgementValue(record))) return clientFields
+  return { ...clientFields, [ACKNOWLEDGEMENT_SIGNED_AT_FIELD]: metadata.timestamp, [ACKNOWLEDGEMENT_SIGNATURE_METADATA_FIELD]: metadata }
 }
+
+const stampAnswer = (value: unknown, metadata: TAcknowledgementSignatureMetadata | null): unknown => {
+  if (Array.isArray(value)) return value.map((item) => stampAnswer(item, metadata))
+  return isRecord(value) ? stampRecord(value, metadata) : value
+}
+
+export const withServerSignatureFields = (answers: Record<string, unknown>, metadata: TAcknowledgementSignatureMetadata | null): Record<string, unknown> =>
+  Object.fromEntries(Object.entries(answers).map(([name, value]) => [name, stampAnswer(value, metadata)]))

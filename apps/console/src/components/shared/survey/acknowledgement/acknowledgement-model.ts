@@ -1,6 +1,14 @@
 import { ComponentCollection, PanelModel, QuestionCompositeModel, QuestionExpressionModel, QuestionSignaturePadModel, Serializer, type LocalizableString, type Question } from 'survey-core'
 import { formatDate, formatDateTime } from '@/utils/date'
-import { ACKNOWLEDGEMENT_QUESTION_TYPE, DEFAULT_ACKNOWLEDGEMENT_STATEMENT, DEFAULT_ACKNOWLEDGEMENT_TITLE, isAcknowledgementSigned, isTypedSignature, readAcknowledgementValue } from './acknowledgement-type'
+import {
+  ACKNOWLEDGEMENT_QUESTION_TYPE,
+  ACKNOWLEDGEMENT_SIGNED_AT_FIELD,
+  DEFAULT_ACKNOWLEDGEMENT_STATEMENT,
+  DEFAULT_ACKNOWLEDGEMENT_TITLE,
+  isAcknowledgementSigned,
+  isTypedSignature,
+  readAcknowledgementValue,
+} from './acknowledgement-type'
 import { renderTypedSignature, TYPED_SIGNATURE_HEIGHT, TYPED_SIGNATURE_STYLE_COUNT, TYPED_SIGNATURE_WIDTH } from './typed-signature'
 import './acknowledgement.css'
 
@@ -14,7 +22,6 @@ const SIGNED_AT_CSS_CLASS = 'ol-acknowledgement-signed-at'
 const ACKNOWLEDGED_FIELD = 'acknowledged'
 const FULL_NAME_FIELD = 'fullName'
 const SIGNATURE_FIELD = 'signature'
-const SIGNED_AT_FIELD = 'signedAt'
 const SIGNING_FIELDS = [FULL_NAME_FIELD, SIGNATURE_FIELD]
 const ACKNOWLEDGED_CONDITION = `{composite.${ACKNOWLEDGED_FIELD}} = true`
 
@@ -200,7 +207,7 @@ const syncTypedSignature = (question: Question) => {
 }
 
 const recordSignedAt = (question: Question) => {
-  const signedAt = contentQuestion(question, SIGNED_AT_FIELD)
+  const signedAt = contentQuestion(question, ACKNOWLEDGEMENT_SIGNED_AT_FIELD)
   if (!signedAt) return
   if (isAcknowledgementSigned(readAcknowledgementValue(question.value))) signedAt.value = new Date().toISOString()
   else if (!signedAt.isEmpty()) signedAt.clearValue()
@@ -233,7 +240,7 @@ if (!ComponentCollection.Instance.getCustomQuestionByName(ACKNOWLEDGEMENT_QUESTI
         dataFormat: 'svg',
         penColor: SIGNATURE_INK_COLOR,
       },
-      { type: SIGNED_AT_QUESTION_TYPE, name: SIGNED_AT_FIELD, titleLocation: 'hidden' },
+      { type: SIGNED_AT_QUESTION_TYPE, name: ACKNOWLEDGEMENT_SIGNED_AT_FIELD, titleLocation: 'hidden' },
     ],
     onUpdateQuestionCssClasses(_question, element, cssClasses) {
       if (element instanceof QuestionAcknowledgementSignatureModel) cssClasses.root = `${cssClasses.root} ${SIGNATURE_CSS_CLASS}`
@@ -254,7 +261,7 @@ if (!ComponentCollection.Instance.getCustomQuestionByName(ACKNOWLEDGEMENT_QUESTI
     onValueChanged(question, name) {
       if (question.isReadOnly || question.isDesignMode) return
       if (name === FULL_NAME_FIELD) syncTypedSignature(question)
-      if (name !== SIGNED_AT_FIELD) recordSignedAt(question)
+      if (name !== ACKNOWLEDGEMENT_SIGNED_AT_FIELD) recordSignedAt(question)
     },
     getErrorText(question) {
       return !question.isEmpty() && !readAcknowledgementValue(question.value).acknowledged ? ACKNOWLEDGEMENT_REQUIRED_MESSAGE : ''
