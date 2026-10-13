@@ -1,11 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import * as z from 'zod'
 import { Plus, Eye, Loader2 } from 'lucide-react'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
@@ -16,13 +13,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCreateTrustCenterEntity } from '@/lib/graphql-hooks/trust-center-entity'
 import type { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import { normalizeUrl } from '@/utils/normalizeUrl'
-
-const formSchema = z.object({
-  name: z.string().min(1, 'Customer name is required'),
-  url: z.string().optional(),
-})
-
-type TFormValues = z.infer<typeof formSchema>
+import { useCreateCustomerLogoForm, type TCreateCustomerLogoFormValues } from './hooks/use-customer-logo-form-schema'
 
 type CreateCustomerLogosProps = {
   trustCenterID: string
@@ -36,10 +27,7 @@ export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateC
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createEntity, isPending: isCreating } = useCreateTrustCenterEntity()
 
-  const form = useForm<TFormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { name: '', url: '' },
-  })
+  const form = useCreateCustomerLogoForm()
 
   const handleUpload = (uploaded: TUploadedFile) => {
     if (!uploaded.file) return
@@ -47,7 +35,7 @@ export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateC
     setPreview(URL.createObjectURL(uploaded.file))
   }
 
-  const onSubmit = async (values: TFormValues) => {
+  const onSubmit = async (values: TCreateCustomerLogoFormValues) => {
     try {
       await createEntity({
         input: {
@@ -84,11 +72,11 @@ export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateC
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Customer Name</FormLabel>
+                  <FormLabel required>Customer Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter company name..." className="bg-background" {...field} />
                   </FormControl>
-                  {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -102,6 +90,7 @@ export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateC
                   <FormControl>
                     <Input placeholder="https://example.com" className="bg-background" {...field} />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

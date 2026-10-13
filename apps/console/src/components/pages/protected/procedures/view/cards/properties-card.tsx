@@ -301,19 +301,18 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
               control={form.control}
               render={({ field }) => (
                 <>
-                  <div ref={reviewPopoverRef}>
-                    <CalendarPopover
-                      field={field}
-                      onChange={(date) => {
-                        if (!isEditing && date !== procedure.reviewDue) {
-                          handleUpdate?.({ reviewDue: date })
-                        }
-                        setEditingField(null)
-                      }}
-                      disabledFrom={new Date()}
-                      required
-                    />
-                  </div>
+                  <CalendarPopover
+                    field={field}
+                    contentRef={reviewPopoverRef}
+                    onChange={(date) => {
+                      if (!isEditing && date !== procedure.reviewDue) {
+                        handleUpdate?.({ reviewDue: date })
+                      }
+                      setEditingField(null)
+                    }}
+                    disabledFrom={new Date()}
+                    required
+                  />
                   {form.formState.errors.reviewDue && <p className="text-red-500 text-sm">{form.formState.errors.reviewDue.message}</p>}
                 </>
               )}

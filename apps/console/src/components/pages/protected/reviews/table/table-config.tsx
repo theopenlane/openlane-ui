@@ -25,6 +25,8 @@ export const breadcrumbs = [
   { label: 'Reviews', href: '/exposure/reviews' },
 ]
 
+export const bulkEditFieldLabels = { programIDs: 'Programs' }
+
 export const REVIEW_REMAPPED_FILTER_KEYS = ['reviewType'] as const
 
 const ReviewType = { CONTROL: 'CONTROL', VENDOR: 'VENDOR' } as const

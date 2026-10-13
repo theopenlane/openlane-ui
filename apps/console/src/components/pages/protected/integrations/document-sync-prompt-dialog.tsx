@@ -66,7 +66,7 @@ const DocumentSyncPromptDialog = ({ open, onOpenChange, provider, integration }:
         <div className="flex flex-1 flex-col gap-6 p-8">
           <DialogHeader>
             <DialogTitle className="text-2xl">Set up {provider.displayName} document sync</DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">Choose whether Openlane should pull documents from {provider.displayName} by default.</DialogDescription>
+            <DialogDescription>Choose whether Openlane should pull documents from {provider.displayName} by default.</DialogDescription>
           </DialogHeader>
 
           <div className="flex items-start justify-between gap-4 rounded-lg border p-4">

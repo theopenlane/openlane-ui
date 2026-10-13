@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useMemo, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
@@ -51,6 +52,8 @@ const groupByDate = <T extends { createdAt?: string | null }>(items: T[]): { lab
   return Array.from(groups.entries()).map(([label, items]) => ({ label, items }))
 }
 
+const isNotificationTopic = (value: string | null): value is NotificationNotificationTopic => Object.values(NotificationNotificationTopic).includes(value as NotificationNotificationTopic)
+
 const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
   { label: 'Notifications', href: '/notifications' },
@@ -59,13 +62,19 @@ const breadcrumbs = [
 const NotificationsPage = () => {
   const { notifications, markAsRead, markAllAsRead } = useNotificationsContext()
   const { setCrumbs } = React.use(BreadcrumbContext)
-  const [topicFilter, setTopicFilter] = useState<TopicFilter>('ALL')
+  const router = useRouter()
+  const topicParam = useSearchParams().get('topic')
+  const topicFilter: TopicFilter = isNotificationTopic(topicParam) ? topicParam : 'ALL'
   const [showUnreadOnly, setShowUnreadOnly] = useState(false)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
   useEffect(() => {
     setCrumbs(breadcrumbs)
   }, [setCrumbs])
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE)
+  }, [topicFilter])
 
   const exportIDs = notifications.flatMap((n) => {
     if (n.topic === NotificationNotificationTopic.EXPORT && n.data?.export_id) {
@@ -93,8 +102,7 @@ const NotificationsPage = () => {
   const unreadCount = useMemo(() => notifications.filter((n) => !n.readAt).length, [notifications])
 
   const handleTopicChange = (topic: TopicFilter) => {
-    setTopicFilter(topic)
-    setVisibleCount(PAGE_SIZE)
+    router.replace(topic === 'ALL' ? '/notifications' : `/notifications?topic=${topic}`, { scroll: false })
   }
 
   return (

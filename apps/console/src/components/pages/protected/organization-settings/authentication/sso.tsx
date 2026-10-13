@@ -833,7 +833,6 @@ const SSOPage = () => {
                           onRemove={removeJitDomain}
                           error={jitDomainError}
                           isPending={isSavingJitDomains}
-                          addOnEnter
                         />
                       </div>
                     )}
@@ -859,7 +858,6 @@ const SSOPage = () => {
                     onRemove={removeExemptDomain}
                     error={exemptDomainError}
                     isPending={isSavingDomains}
-                    addOnEnter
                   />
                   <div className="space-y-2 pt-1">
                     <div className="flex items-start gap-2 text-sm text-muted-foreground">

@@ -1,56 +1,27 @@
 'use client'
 
 import { use, useEffect, useReducer, useRef, useState } from 'react'
-import { SurveyCreatorComponent, SurveyCreator } from 'survey-creator-react'
-import { type ITheme, slk } from 'survey-core'
-import { editorLocalization } from 'survey-creator-core'
-import { useTheme } from 'next-themes'
+import { SurveyCreatorComponent } from 'survey-creator-react'
+import { type ICreatorOptions } from 'survey-creator-core'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-
-import 'survey-core/survey-core.min.css'
-import 'survey-creator-core/survey-creator-core.min.css'
-
-import { lightTheme } from '@/styles/questionnaire/theme-light'
-import { darkTheme } from '@/styles/questionnaire/theme-dark'
+import { createSurveyCreator } from '@/components/shared/survey/survey-creator'
 import { useNotification } from '@/hooks/useNotification'
 import { Panel } from '@repo/ui/panel'
 import { useRouter } from 'next/navigation'
 
 import '@/styles/questionnaire/custom.css'
-import '@/components/shared/survey/survey-creator-types'
-import { surveyLicenseKey } from '@repo/dally/auth'
 import { useCreateAssessmentWithPolicies, useGetAssessment, useUpdateAssessment } from '@/lib/graphql-hooks/assessment'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { initialQuestionnaireEditorState, NO_DUE_DATE_DURATION, questionnaireEditorReducer, type TQuestionnaireEditorAction, UNTITLED_QUESTIONNAIRE } from './questionnaire-editor-state'
 import { QuestionnaireEditorToolbar } from './questionnaire-editor-toolbar'
 
-const enLocale = editorLocalization.getLocale('en')
-
-const customThemeName = 'Openlane'
 const JSON_EDITOR_TAB = 'json'
-
-if (lightTheme.themeName) enLocale.theme.names[lightTheme.themeName] = customThemeName
-if (darkTheme.themeName) enLocale.theme.names[darkTheme.themeName] = customThemeName
 
 const creatorOptions = {
   showLogicTab: true,
   isAutoSave: false,
-  showThemeTab: true,
   showSaveButton: false,
-}
-
-const createSurveyCreator = () => {
-  const creator = new SurveyCreator(creatorOptions)
-  creator.toolbox.forceCompact = false
-
-  const themeTabPlugin = creator.themeEditor
-  themeTabPlugin.addTheme(lightTheme, true)
-  themeTabPlugin.addTheme(darkTheme as ITheme, true)
-
-  return creator
-}
-
-slk(surveyLicenseKey as string)
+} satisfies ICreatorOptions
 
 const getSaveDisabledReason = ({ activeTab, isModified }: { activeTab: string; isModified: boolean }) => {
   if (activeTab === JSON_EDITOR_TAB) return 'Leave the JSON Editor to apply your changes before saving'
@@ -65,7 +36,7 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
 
   const [questionnaireEditorState, dispatchQuestionnaireEditorState] = useReducer(questionnaireEditorReducer, initialQuestionnaireEditorState)
   const { assessmentType, responseDueDuration } = questionnaireEditorState
-  const [creator] = useState(() => createSurveyCreator())
+  const [creator] = useState(() => createSurveyCreator(creatorOptions))
   const creatorRef = useRef(creator)
   const [isModified, setIsModified] = useState(false)
   const [activeTab, setActiveTab] = useState(creator.activeTab)
@@ -92,13 +63,6 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
       { label: 'Questionnaire Editor', href: '/automation/questionnaires/questionnaire-editor' },
     ])
   }, [setCrumbs])
-
-  const themeContext = useTheme()
-  const theme = themeContext.resolvedTheme as 'light' | 'dark' | 'white' | undefined
-
-  useEffect(() => {
-    creator.applyCreatorTheme(theme === 'dark' ? (darkTheme as ITheme) : lightTheme)
-  }, [creator, theme])
 
   const { data: assessmentResult } = useGetAssessment(input.existingId)
 

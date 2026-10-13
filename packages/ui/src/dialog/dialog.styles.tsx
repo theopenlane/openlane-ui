@@ -13,7 +13,7 @@ export const dialogStyles = tv({
     header: 'flex flex-col space-y-1.5 sm:text-left',
     footer: 'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2',
     title: 'text-lg font-semibold leading-none tracking-tight',
-    description: 'text-oxford-blue-800 dark:text-oxford-blue-100',
+    description: 'text-sm text-muted-foreground',
   },
 })
 

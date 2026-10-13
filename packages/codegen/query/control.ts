@@ -738,6 +738,7 @@ export const GET_AUDITOR_DASHBOARD_CONTROLS = gql`
             id
             refCode
             referenceFramework
+            status
             isSubcontrol
             parentControlID
           }
