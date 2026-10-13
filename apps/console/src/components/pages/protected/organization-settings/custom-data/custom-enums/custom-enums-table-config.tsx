@@ -9,7 +9,7 @@ import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 
-import ColorCell from '../shared/color-cell'
+import { colorColumn } from '../shared/color-column'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { formatDate, formatDateSince } from '@/utils/date'
 import { CustomTypeEnumOrderField, type User } from '@repo/codegen/src/schema'
@@ -34,6 +34,17 @@ const TypeBadge = ({ systemOwned }: { systemOwned?: boolean | null }) => (
 
 export const useGetCustomEnumColumns = ({ onEdit, onDelete, userMap, tokenMap, canEditEnum = true }: ColumnsParams) => {
   const { mutateAsync: updateEnum } = useUpdateCustomTypeEnum()
+
+  const colorCol = useMemo(
+    () =>
+      colorColumn<CustomTypeEnumNodeNonNull>({
+        canEdit: canEditEnum,
+        onSave: async (id, color) => {
+          await updateEnum({ id, input: { color } })
+        },
+      }),
+    [canEditEnum, updateEnum],
+  )
 
   const columns = useMemo<ColumnDef<CustomTypeEnumNodeNonNull>[]>(() => {
     const actionsCol: ColumnDef<CustomTypeEnumNodeNonNull> = {
@@ -111,21 +122,7 @@ export const useGetCustomEnumColumns = ({ onEdit, onDelete, userMap, tokenMap, c
         cell: ({ getValue }) => <span>{(getValue() as string) || '-'}</span>,
         size: 140,
       },
-      {
-        id: 'color',
-        header: 'Color',
-        cell: ({ row }) => (
-          <ColorCell
-            id={row.original.id}
-            initialColor={row.original.color}
-            disabled={!!row.original.systemOwned || !canEditEnum}
-            onSave={async (id, color) => {
-              await updateEnum({ id, input: { color } })
-            }}
-          />
-        ),
-        size: 60,
-      },
+      colorCol,
       {
         accessorKey: 'createdBy',
         header: 'Created By',
@@ -152,7 +149,7 @@ export const useGetCustomEnumColumns = ({ onEdit, onDelete, userMap, tokenMap, c
       },
       ...(canEditEnum ? [actionsCol] : []),
     ]
-  }, [onEdit, onDelete, userMap, tokenMap, updateEnum, canEditEnum])
+  }, [onEdit, onDelete, userMap, tokenMap, colorCol, canEditEnum])
 
   const mappedColumns = useMemo(() => {
     return columns

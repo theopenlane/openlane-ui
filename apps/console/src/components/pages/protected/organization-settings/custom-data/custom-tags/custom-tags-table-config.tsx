@@ -8,7 +8,7 @@ import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import ColorCell from '../shared/color-cell'
+import { colorColumn } from '../shared/color-column'
 import { FALLBACK_COLOR } from '../shared/constants'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
 import { useUpdateTag } from '@/lib/graphql-hooks/tag-definition'
@@ -29,6 +29,17 @@ type ColumnsParams = {
 
 export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, tokenMap, canEditTags = true, canDeleteTags = true }: ColumnsParams) => {
   const { mutateAsync: updateTag } = useUpdateTag()
+
+  const colorCol = useMemo(
+    () =>
+      colorColumn<TagDefinition>({
+        canEdit: canEditTags,
+        onSave: async (id, color) => {
+          await updateTag({ updateTagDefinitionId: id, input: { color } })
+        },
+      }),
+    [canEditTags, updateTag],
+  )
 
   const columns = useMemo<ColumnDef<TagDefinition>[]>(() => {
     const actionsCol: ColumnDef<TagDefinition> = {
@@ -88,24 +99,7 @@ export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, tokenMap, ca
         cell: ({ row }) => <TruncatedCell className="text-sm text-muted-foreground line-clamp-2 whitespace-normal">{row.original.description || '—'}</TruncatedCell>,
         size: 200,
       },
-      {
-        id: 'color',
-        header: 'Color',
-        cell: ({ row }) => (
-          <ColorCell
-            id={row.original.id}
-            initialColor={row.original.color}
-            disabled={!!row.original.systemOwned || !canEditTags}
-            onSave={async (id, color) => {
-              await updateTag({
-                updateTagDefinitionId: id,
-                input: { color },
-              })
-            }}
-          />
-        ),
-        size: 60,
-      },
+      colorCol,
       {
         accessorKey: 'createdBy',
         header: 'Created By',
@@ -132,7 +126,7 @@ export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, tokenMap, ca
       },
       ...(canEditTags || canDeleteTags ? [actionsCol] : []),
     ]
-  }, [onEdit, onDelete, userMap, tokenMap, updateTag, canEditTags, canDeleteTags])
+  }, [onEdit, onDelete, userMap, tokenMap, colorCol, canEditTags, canDeleteTags])
 
   const mappedColumns = useMemo(() => {
     return columns

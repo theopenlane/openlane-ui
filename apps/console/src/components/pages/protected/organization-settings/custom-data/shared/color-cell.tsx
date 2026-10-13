@@ -1,9 +1,8 @@
 'use client'
 
-import { Pencil, Check, X } from 'lucide-react'
+import { Loader2, Pencil } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
-import useClickOutside from '@/hooks/useClickOutside'
+import { useEffect, useEffectEvent, useId, useRef, useState } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
@@ -11,129 +10,122 @@ import { FALLBACK_COLOR } from './constants'
 
 type ColorCellProps = {
   id: string
+  label: string
   initialColor?: string | null
   disabled?: boolean
   onSave: (id: string, newColor: string) => Promise<void>
 }
 
-const ColorCell = ({ id, initialColor, disabled, onSave }: ColorCellProps) => {
+const ColorCell = ({ id, label, initialColor, disabled, onSave }: ColorCellProps) => {
   const { successNotification, errorNotification } = useNotification()
+  const pickerId = useId()
 
-  const initial = useMemo(() => normalizeHexColor(initialColor) ?? FALLBACK_COLOR, [initialColor])
-  const [draft, setDraft] = useState(initial)
+  const initial = normalizeHexColor(initialColor) ?? FALLBACK_COLOR
+  const [prevInitial, setPrevInitial] = useState(initial)
+  const [color, setColor] = useState({ saved: initial, draft: initial })
+  const [pickerPreview, setPickerPreview] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
 
-  const inputRef = useRef<HTMLInputElement | null>(null)
-
-  const normalizedDraft = normalizeHexColor(draft)
-  const isDirty = (normalizedDraft ?? draft).toLowerCase() !== initial.toLowerCase()
-
-  useEffect(() => {
-    setDraft(initial)
-  }, [initial])
-
-  const handleSave = useCallback(
-    async (e?: React.SyntheticEvent) => {
-      e?.stopPropagation()
-      const normalized = normalizeHexColor(draft)
-      if (disabled || isSaving || !isDirty || !normalized) return
-
-      setIsSaving(true)
-      try {
-        await onSave(id, normalized.toUpperCase())
-        successNotification({
-          title: 'Success',
-          description: 'Color updated successfully',
-        })
-      } catch (error) {
-        errorNotification({
-          title: 'Update Failed',
-          description: parseErrorMessage(error),
-        })
-        setDraft(initial)
-      } finally {
-        setIsSaving(false)
-      }
-    },
-    [disabled, isSaving, isDirty, draft, id, onSave, initial, successNotification, errorNotification],
-  )
-
-  const handleCancel = useCallback(
-    (e?: React.SyntheticEvent) => {
-      e?.stopPropagation()
-      setDraft(initial)
-    },
-    [initial],
-  )
-
-  const containerRef = useClickOutside(() => {
-    if (isDirty && !isSaving) handleCancel()
-  })
-
-  const openColorPicker = () => {
-    if (disabled || isSaving) return
-    inputRef.current?.click()
+  if (initial !== prevInitial) {
+    setPrevInitial(initial)
+    setColor({ saved: initial, draft: initial })
   }
 
+  const pickerRef = useRef<HTMLInputElement | null>(null)
+  const isLocked = !!disabled || isSaving
+  const normalizedDraft = normalizeHexColor(color.draft)
+  const swatch = pickerPreview ?? normalizedDraft ?? color.saved
+
+  const revert = () => setColor((current) => ({ ...current, draft: current.saved }))
+
+  const commit = async (value: string) => {
+    const normalized = normalizeHexColor(value)
+    if (!normalized) {
+      revert()
+      return
+    }
+    setColor((current) => ({ ...current, draft: normalized }))
+    if (normalized === color.saved) return
+
+    setIsSaving(true)
+    try {
+      await onSave(id, normalized.toUpperCase())
+      setColor({ saved: normalized, draft: normalized })
+      successNotification({ title: 'Success', description: 'Color updated successfully' })
+    } catch (error) {
+      revert()
+      errorNotification({ title: 'Update Failed', description: parseErrorMessage(error) })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const onPickerCommit = useEffectEvent((value: string) => {
+    setPickerPreview(null)
+    commit(value)
+  })
+
+  useEffect(() => {
+    const picker = pickerRef.current
+    if (!picker) return
+    const handlePickerCommit = () => onPickerCommit(picker.value)
+    picker.addEventListener('change', handlePickerCommit)
+    return () => picker.removeEventListener('change', handlePickerCommit)
+  }, [])
+
+  const cursor = isLocked ? 'cursor-not-allowed' : 'cursor-pointer'
+
   return (
-    <div
-      ref={containerRef}
-      className={cn(
-        'group inline-flex items-center gap-1 px-1.5 py-1 rounded-md transition-all border border-transparent',
-        disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-muted',
-        isDirty && 'bg-accent/50',
-      )}
-      role="button"
-      tabIndex={0}
-      onClick={openColorPicker}
-      onKeyDown={(event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') return
-        event.preventDefault()
-        openColorPicker()
-      }}
-    >
-      <div className="relative flex items-center shrink-0">
-        <div
-          className={cn('h-4 w-4 rounded-full border border-border shadow-sm transition-transform', isSaving && 'animate-pulse opacity-50', isDirty && 'scale-110')}
-          style={{ backgroundColor: normalizedDraft ?? initial }}
+    <div className={cn('group inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 transition-colors', disabled ? 'opacity-50' : 'hover:bg-muted focus-within:bg-muted')}>
+      <label className={cn('relative flex shrink-0 items-center', cursor)}>
+        <input
+          ref={pickerRef}
+          id={pickerId}
+          type="color"
+          aria-label={`Pick color for ${label}`}
+          value={swatch}
+          disabled={isLocked}
+          className="peer sr-only"
+          onChange={(e) => setPickerPreview(e.currentTarget.value)}
+          onBlur={() => setPickerPreview(null)}
         />
-        <input ref={inputRef} type="color" value={normalizedDraft ?? initial} className="sr-only h-8" disabled={disabled || isSaving} onChange={(e) => setDraft(e.currentTarget.value.toUpperCase())} />
-      </div>
+        <span
+          className={cn(
+            'h-4 w-4 rounded-full border border-border shadow-sm peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-1',
+            isSaving && 'animate-pulse opacity-50',
+          )}
+          style={{ backgroundColor: swatch }}
+        />
+      </label>
 
       <input
         type="text"
-        value={draft}
+        aria-label={`Hex color for ${label}`}
+        value={color.draft}
         maxLength={7}
-        onChange={(e) => setDraft(e.target.value.toUpperCase())}
-        onClick={(e) => e.stopPropagation()}
+        spellCheck={false}
+        disabled={isLocked}
+        onChange={(e) => setColor((current) => ({ ...current, draft: e.target.value }))}
+        onBlur={(e) => commit(e.currentTarget.value)}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') handleSave(e)
-          if (e.key === 'Escape') handleCancel(e)
+          if (e.key === 'Enter') e.currentTarget.blur()
+          if (e.key === 'Escape') revert()
         }}
-        disabled={disabled || isSaving}
         className={cn(
-          'w-14 bg-transparent border-none p-0 text-[11px] font-mono uppercase focus:ring-0 focus:outline-none',
-          isDirty ? 'text-foreground font-bold' : 'text-muted-foreground',
-          !normalizedDraft && isDirty && 'text-destructive',
+          'w-16 bg-transparent border-none p-0 text-xs font-mono uppercase text-muted-foreground focus:text-foreground focus:ring-0 focus:outline-none disabled:cursor-not-allowed',
+          !normalizedDraft && 'text-destructive focus:text-destructive',
         )}
       />
 
-      <div className="flex items-center gap-1 ml-1 min-w-10">
-        {isSaving ? (
-          <span className="text-[10px] text-muted-foreground animate-pulse">...</span>
-        ) : isDirty ? (
-          <>
-            <button onClick={handleSave} disabled={!normalizedDraft} className="text-green-600 hover:bg-green-500/10 p-0.5 rounded">
-              <Check className="h-3.5 w-3.5" />
-            </button>
-            <button onClick={handleCancel} className="text-destructive hover:bg-destructive/10 p-0.5 rounded">
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </>
-        ) : (
-          !disabled && <Pencil className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-        )}
-      </div>
+      {isSaving ? (
+        <Loader2 className="h-3 w-3 shrink-0 animate-spin text-muted-foreground" aria-hidden />
+      ) : (
+        !disabled && (
+          <label htmlFor={pickerId} className={cn('shrink-0', cursor)}>
+            <Pencil className="h-3 w-3 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100" aria-hidden />
+          </label>
+        )
+      )}
     </div>
   )
 }
