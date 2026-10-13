@@ -7,6 +7,7 @@ import { TruncatedCell } from '@repo/ui/data-table'
 import { activatable } from '@repo/ui/lib/a11y'
 import { cn } from '@repo/ui/lib/utils'
 import type { SetupChecklistItem, SetupChecklistItemStatus } from '@/hooks/useSetupChecklist'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 type SetupChecklistStatusMeta = { label: string; labelClass: string; markerClass: string; markerActionClass?: string; order: number }
 
@@ -29,6 +30,8 @@ export const SETUP_CHECKLIST_STATUS: Record<SetupChecklistItemStatus, SetupCheck
   },
 }
 
+export const SETUP_CHECKLIST_ANCHOR = 'setup-checklist'
+
 const MARKER_BASE = 'group/marker flex h-5 w-5 shrink-0 items-center justify-center gap-0 rounded-full border p-0 transition-colors duration-200'
 const MARKER_CHECK = 'size-3!'
 
@@ -47,15 +50,18 @@ const SetupChecklistItemCard = ({ task, onOpen, onComplete }: SetupChecklistItem
   const status = SETUP_CHECKLIST_STATUS[task.itemStatus]
   const isDone = task.itemStatus === 'done'
   const detailsId = useId()
+  const cardAnchor = task.sourceKey ? elementAnchor(SETUP_CHECKLIST_ANCHOR, task.sourceKey) : undefined
+  const completeAnchor = task.sourceKey ? elementAnchor(SETUP_CHECKLIST_ANCHOR, task.sourceKey, 'complete') : undefined
 
   return (
     <div
+      {...cardAnchor}
       aria-label={task.title}
       aria-describedby={task.details ? detailsId : undefined}
       className="flex min-w-0 cursor-pointer flex-col gap-3 rounded-lg border border-homepage-card-border bg-homepage-card-item-transparent px-4 py-3 transition-colors duration-200 hover:border-muted-foreground focus-visible:border-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       {...activatable(() => onOpen(task))}
     >
-      <div className="flex items-center justify-between gap-2">
+      <div className="pointer-events-none flex items-center justify-between gap-2">
         {isDone ? (
           <span className={cn(MARKER_BASE, status.markerClass)}>
             <StatusGlyph status={task.itemStatus} />
@@ -65,7 +71,8 @@ const SetupChecklistItemCard = ({ task, onOpen, onComplete }: SetupChecklistItem
             type="button"
             variant="icon"
             descriptiveTooltipText="Mark complete"
-            className={cn(MARKER_BASE, status.markerClass, status.markerActionClass)}
+            className={cn(MARKER_BASE, 'pointer-events-auto', status.markerClass, status.markerActionClass)}
+            {...completeAnchor}
             onClick={(event) => {
               event.stopPropagation()
               onComplete(task.id)
@@ -77,10 +84,10 @@ const SetupChecklistItemCard = ({ task, onOpen, onComplete }: SetupChecklistItem
         )}
         <span className={cn('text-xs font-medium', status.labelClass)}>{status.label}</span>
       </div>
-      <div className="min-w-0">
+      <div className="pointer-events-none min-w-0">
         <p className="pb-1 text-sm font-medium">{task.title}</p>
         {task.details && (
-          <div id={detailsId}>
+          <div id={detailsId} className="pointer-events-auto">
             <TruncatedCell lineClamp={3} className="text-xs text-muted-foreground" portal>
               {task.details}
             </TruncatedCell>

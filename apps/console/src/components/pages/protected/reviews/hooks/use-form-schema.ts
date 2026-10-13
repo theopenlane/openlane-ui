@@ -34,7 +34,7 @@ const formSchema = z.object({
   riskIDs: z.array(z.string()).optional(),
 })
 
-export const bulkEditFieldSchema = z.object({
+const bulkEditScalarFieldSchema = z.object({
   status: z.enum(ReviewReviewStatus).optional().nullable(),
   category: z.string().optional(),
   classification: z.string().optional(),
@@ -46,6 +46,14 @@ export const bulkEditFieldSchema = z.object({
   approvedAt: z.date().optional().nullable(),
   reportedAt: z.date().optional().nullable(),
 })
+
+const bulkEditAssociationSchema = z.object({
+  programIDs: z.array(z.string()).optional(),
+})
+
+export const bulkEditFieldSchema = bulkEditScalarFieldSchema.extend(bulkEditAssociationSchema.shape)
+
+export type ReviewBulkEditAssociations = z.infer<typeof bulkEditAssociationSchema>
 
 export type ReviewFormData = z.infer<typeof formSchema>
 

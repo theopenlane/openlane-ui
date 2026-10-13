@@ -14,7 +14,6 @@ import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permiss
 import { canDelete, canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useNotification } from '@/hooks/useNotification'
-import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useOrganization } from '@/hooks/useOrganization'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
@@ -69,8 +68,6 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   const [inlineEditField, setInlineEditField] = useState<InlineEditField | null>(null)
 
   const plateEditorHelper = usePlateEditor()
-
-  const hasScrollbar = useHasScrollbar([isEditing, data?.risk, associationsData?.risk])
 
   const form = useForm<RiskFormValues>({
     defaultValues: {},
@@ -368,15 +365,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Risks - ${risk.name}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout
-            sidebarTitle="Details"
-            sidebarContent={sidebarContent}
-            slideOpen={isEditing}
-            minWidth={430}
-            collapsedContentClassName="pr-6"
-            collapsedButtonClassName="-translate-x-4"
-            hasScrollbar={hasScrollbar}
-          >
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} slideOpen={isEditing} minWidth={430} collapsedContentClassName="pr-6">
             {mainContent}
           </SlideBarLayout>
         </form>

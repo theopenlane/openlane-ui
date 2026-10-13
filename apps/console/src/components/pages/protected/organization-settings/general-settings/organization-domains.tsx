@@ -106,7 +106,6 @@ const OrganizationDomains = () => {
             emptyText="No domains yet."
             inputLabel="Organization domain"
             addLabel="Add Domain"
-            addOnEnter
           />
           {domains.length === 0 && <p className="text-xs text-muted-foreground">{FIRST_DOMAIN_WARNING}</p>}
           <Button type="button" variant="secondary" onClick={stopEditing}>
