@@ -4781,6 +4781,7 @@ export interface GetIntegrationsQuery {
         scopeName: string | null
         credentials: any
         config: any
+        operationConfig: any
       } | null
     } | null> | null
   }

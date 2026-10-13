@@ -10,7 +10,7 @@ import { Separator } from '@repo/ui/separator'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { type IntegrationHealth, type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
 import { getInstalledIntegrationConfig, installedIntegrationDisplayName, readIntegrationUserInput, resolveConnectionEntry, resolveCredentialEntry, resolveManageUrl } from '@/lib/integrations/utils'
-import { PRIMARY_DOCUMENT_FIELD, providerHasUserInputSchema } from '@/lib/integrations/flow'
+import { PRIMARY_DOCUMENT_FIELD, providerHasInstallationSettings } from '@/lib/integrations/flow'
 import { useDisconnectIntegration, useIntegrationHealthCheck } from '@/lib/query-hooks/integrations'
 import { integrationHealthBadge } from '@/lib/integrations/health'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
@@ -37,7 +37,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
   const displayName = installedIntegrationDisplayName(integration, providers)
   const integrationConfig = getInstalledIntegrationConfig(integration, providers)
   const provider = integrationConfig?.provider
-  const hasUserInput = providerHasUserInputSchema(provider)
+  const hasSettings = providerHasInstallationSettings(provider)
   const isPrimaryDocument = readIntegrationUserInput(integration)[PRIMARY_DOCUMENT_FIELD] === true
 
   const meta: IntegrationMetadata | undefined = integration.metadata ?? undefined
@@ -131,7 +131,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
               {healthCheck.isPending ? 'Checking...' : 'Health Check'}
             </Button>
           ) : null}
-          {!linkToDetail && canManage && hasUserInput ? (
+          {!linkToDetail && canManage && hasSettings ? (
             <Button variant="secondary" icon={<Settings className="size-4" />} iconPosition="left" onClick={() => setConfigOpen(true)}>
               Configure
             </Button>
@@ -156,6 +156,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
         installationId={integration.id}
         credentialRef={credentialRefName || undefined}
         config={integration.config ?? undefined}
+        storedOperationSchemas={integration.operationConfig ?? undefined}
         credentials={integration.credentials ?? undefined}
       />
 

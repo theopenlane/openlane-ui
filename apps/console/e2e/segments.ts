@@ -92,6 +92,7 @@ export const SEGMENTS: Record<string, string[]> = {
     'exports-members-groups.spec.ts',
     'integrations-config-form.spec.ts',
     'integrations-health-filter.spec.ts',
+    'integrations-operation-config.spec.ts',
     'integrations.spec.ts',
     'org-authentication-domains.spec.ts',
     'organization-settings.spec.ts',

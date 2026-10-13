@@ -3,6 +3,7 @@ import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { type NextRequest, NextResponse } from 'next/server'
 import { parseProxyResponse } from '../proxy-response'
+import { type IntegrationOperationConfigPayload } from '@/lib/integrations/types'
 
 type ConfigRequestBody = {
   definitionId?: string
@@ -10,6 +11,7 @@ type ConfigRequestBody = {
   credentialRef?: string
   body?: Record<string, unknown>
   userInput?: Record<string, unknown>
+  operationConfig?: IntegrationOperationConfigPayload
 }
 
 export async function POST(request: NextRequest) {
@@ -37,7 +39,8 @@ export async function POST(request: NextRequest) {
         integrationId: payload.installationId,
         credentialRef: payload.credentialRef,
         body: payload.body ?? {},
-        userInput: payload.userInput ?? {},
+        userInput: payload.userInput,
+        operationConfig: payload.operationConfig,
       }),
     })
 
