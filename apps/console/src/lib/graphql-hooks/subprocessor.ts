@@ -165,7 +165,7 @@ export const useCreateBulkSubprocessor = () => {
   })
 }
 
-export type TVendorSubprocessorMatch = NonNullable<NonNullable<NonNullable<GetVendorSubprocessorMatchesQuery['linked']['edges']>[number]>['node']> & { isLinkedToVendor: boolean }
+export type TVendorSubprocessorMatch = NonNullable<NonNullable<NonNullable<GetVendorSubprocessorMatchesQuery['linked']['edges']>[number]>['node']> & { needsVendorLink: boolean }
 
 export const useVendorSubprocessorMatch = ({ entityId, name }: GetVendorSubprocessorMatchesQueryVariables) => {
   const { client } = useGraphQLClient()
@@ -177,7 +177,14 @@ export const useVendorSubprocessorMatch = ({ entityId, name }: GetVendorSubproce
       const trustCenter = getNodes(data.trustCenters)[0]
       const linked = getNodes(data.linked)[0]
       const sameName = getNodes(data.sameName)[0]
-      const subprocessor: TVendorSubprocessorMatch | null = linked ? { ...linked, isLinkedToVendor: true } : sameName ? { ...sameName, isLinkedToVendor: false } : null
+      const catalog = getNodes(data.catalog)[0]
+      const subprocessor: TVendorSubprocessorMatch | null = linked
+        ? { ...linked, needsVendorLink: false }
+        : sameName
+          ? { ...sameName, needsVendorLink: true }
+          : catalog
+            ? { ...catalog, needsVendorLink: false }
+            : null
       return {
         trustCenter,
         listedSubprocessor: getNodes(data.listed)[0]?.subprocessor ?? null,

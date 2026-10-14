@@ -126,5 +126,13 @@ export const GET_VENDOR_SUBPROCESSOR_MATCHES = gql`
         }
       }
     }
+    catalog: subprocessors(where: { systemOwned: true, nameEqualFold: $name }, first: 1, orderBy: [{ field: created_at, direction: ASC }]) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
   }
 `

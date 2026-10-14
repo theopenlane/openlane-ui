@@ -82,7 +82,7 @@ export const AddToTrustCenterForm = ({ vendor, canLinkVendor, existingSubprocess
       const subprocessorID = existing?.id ?? createdIdRef.current ?? (await createVendorSubprocessor())
       await createTrustCenterSubprocessor({ input: { subprocessorID, countries, trustCenterSubprocessorKindName: category } })
       successNotification({ title: 'Added to Trust Center', description: `${preview.name} is now listed as a subprocessor on your Trust Center.` })
-      if (canLinkVendor && existing && !existing.isLinkedToVendor) await linkExistingToVendor(existing.id)
+      if (canLinkVendor && existing?.needsVendorLink) await linkExistingToVendor(existing.id)
       onAdded()
     } catch (error) {
       errorNotification({ title: 'Could not add to Trust Center', description: parseErrorMessage(error) })

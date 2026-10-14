@@ -8560,6 +8560,7 @@ export interface GetVendorSubprocessorMatchesQuery {
   listed: { edges: Array<{ node: { id: string; subprocessor: { id: string; name: string } } | null } | null> | null }
   linked: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
   sameName: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+  catalog: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
 }
 
 export type CreateSubscriberMutationVariables = Exact<{
