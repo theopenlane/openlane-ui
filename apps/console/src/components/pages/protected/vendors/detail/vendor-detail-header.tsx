@@ -45,7 +45,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   const { data: session } = useSession()
   const { data: orgPermission } = useOrganizationRoles()
   const hasTrustCenter = useHasObjectType(ObjectTypes.TRUST_CENTER)
-  const canAddToTrustCenter = canEditVendor && hasTrustCenter && hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor, session)
+  const canAddToTrustCenter = hasTrustCenter && hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor, session)
   const [addToTrustCenterOpen, setAddToTrustCenterOpen] = useState(false)
   const { setValue, register } = useFormContext()
   const [inlineEditing, setInlineEditing] = useState<'name' | 'displayName' | null>(null)
@@ -210,7 +210,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
       </div>
 
       {canEditVendor && <MergeRecordsSheet open={mergeOpen} onOpenChange={setMergeOpen} config={vendorMergeConfig} primaryId={vendor.id} onMergeComplete={onMergeComplete} />}
-      {canAddToTrustCenter && <AddToTrustCenterDialog vendor={vendor} open={addToTrustCenterOpen} onOpenChange={setAddToTrustCenterOpen} />}
+      {canAddToTrustCenter && <AddToTrustCenterDialog vendor={vendor} canLinkVendor={canEditVendor} open={addToTrustCenterOpen} onOpenChange={setAddToTrustCenterOpen} />}
 
       <VendorLogoDialog
         open={logoDialogOpen}

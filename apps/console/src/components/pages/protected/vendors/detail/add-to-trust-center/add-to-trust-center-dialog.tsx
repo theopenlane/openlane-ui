@@ -17,18 +17,19 @@ type TVendor = EntityQuery['entity']
 
 type TAddToTrustCenterDialogProps = {
   vendor: TVendor
+  canLinkVendor: boolean
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export const AddToTrustCenterDialog = ({ vendor, open, onOpenChange }: TAddToTrustCenterDialogProps) => (
+export const AddToTrustCenterDialog = ({ vendor, canLinkVendor, open, onOpenChange }: TAddToTrustCenterDialogProps) => (
   <Dialog open={open} onOpenChange={onOpenChange}>
     <DialogContent className="max-w-xl">
       <DialogHeader>
         <DialogTitle>Add to Trust Center</DialogTitle>
         <DialogDescription>List this vendor as a subprocessor on your Trust Center.</DialogDescription>
       </DialogHeader>
-      <AddToTrustCenterBody vendor={vendor} onClose={() => onOpenChange(false)} />
+      <AddToTrustCenterBody vendor={vendor} canLinkVendor={canLinkVendor} onClose={() => onOpenChange(false)} />
     </DialogContent>
   </Dialog>
 )
@@ -49,7 +50,7 @@ const Notice = ({ variant, message, onClose, showSubprocessorsLink }: { variant:
   </>
 )
 
-const AddToTrustCenterBody = ({ vendor, onClose }: { vendor: TVendor; onClose: () => void }) => {
+const AddToTrustCenterBody = ({ vendor, canLinkVendor, onClose }: { vendor: TVendor; canLinkVendor: boolean; onClose: () => void }) => {
   const { data, isPending, isError } = useVendorSubprocessorMatch({ entityId: vendor.id, name: vendorSubprocessorName(vendor) })
 
   if (isError) {
@@ -81,5 +82,5 @@ const AddToTrustCenterBody = ({ vendor, onClose }: { vendor: TVendor; onClose: (
     return <Notice variant="info" message={`${listedSubprocessor.name} is already listed as a subprocessor on your Trust Center.`} onClose={onClose} showSubprocessorsLink />
   }
 
-  return <AddToTrustCenterForm vendor={vendor} existingSubprocessor={subprocessor} onCancel={onClose} onAdded={onClose} />
+  return <AddToTrustCenterForm vendor={vendor} canLinkVendor={canLinkVendor} existingSubprocessor={subprocessor} onCancel={onClose} onAdded={onClose} />
 }

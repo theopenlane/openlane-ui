@@ -9,11 +9,11 @@ export const vendorSubprocessorName = (vendor: TVendor): string => vendorDisplay
 
 export const vendorSubprocessorDescription = (vendor: TVendor): string => (vendor.description ? htmlToText(vendor.description).trim() : '')
 
-export const toVendorSubprocessorInput = (vendor: TVendor): CreateSubprocessorInput => {
+export const toVendorSubprocessorInput = (vendor: TVendor, { linkVendor }: { linkVendor: boolean }): CreateSubprocessorInput => {
   const description = vendorSubprocessorDescription(vendor)
   return {
     name: vendorSubprocessorName(vendor),
-    entityIDs: [vendor.id],
+    ...(linkVendor && { entityIDs: [vendor.id] }),
     ...(description && { description }),
     ...(vendor.tags?.length && { tags: vendor.tags }),
   }

@@ -27,12 +27,13 @@ const CATEGORY_WHERE = categoryEnumWhere(ObjectTypes.TRUST_CENTER_SUBPROCESSOR)
 
 type TAddToTrustCenterFormProps = {
   vendor: EntityQuery['entity']
+  canLinkVendor: boolean
   existingSubprocessor: TVendorSubprocessorMatch | null
   onCancel: () => void
   onAdded: () => void
 }
 
-export const AddToTrustCenterForm = ({ vendor, existingSubprocessor, onCancel, onAdded }: TAddToTrustCenterFormProps) => {
+export const AddToTrustCenterForm = ({ vendor, canLinkVendor, existingSubprocessor, onCancel, onAdded }: TAddToTrustCenterFormProps) => {
   const { data: session } = useSession()
   const { data: orgPermission } = useOrganizationRoles()
   const canCreateCategory = hasPermission(orgPermission?.roles, AccessEnum.CanCreateCustomTypeEnum, session)
@@ -63,7 +64,7 @@ export const AddToTrustCenterForm = ({ vendor, existingSubprocessor, onCancel, o
   const createDisabledReason = !existing && !canCreateSubprocessor ? 'You do not have permission to create subprocessors.' : undefined
 
   const createVendorSubprocessor = async (): Promise<string> => {
-    const result = await createSubprocessor({ input: toVendorSubprocessorInput(vendor), logoFile: preview.logoUrl ? await fetchLogoAsFile(preview.logoUrl) : undefined })
+    const result = await createSubprocessor({ input: toVendorSubprocessorInput(vendor, { linkVendor: canLinkVendor }), logoFile: preview.logoUrl ? await fetchLogoAsFile(preview.logoUrl) : undefined })
     createdIdRef.current = result.createSubprocessor.subprocessor.id
     return createdIdRef.current
   }
@@ -81,7 +82,7 @@ export const AddToTrustCenterForm = ({ vendor, existingSubprocessor, onCancel, o
       const subprocessorID = existing?.id ?? createdIdRef.current ?? (await createVendorSubprocessor())
       await createTrustCenterSubprocessor({ input: { subprocessorID, countries, trustCenterSubprocessorKindName: category } })
       successNotification({ title: 'Added to Trust Center', description: `${preview.name} is now listed as a subprocessor on your Trust Center.` })
-      if (existing && !existing.isLinkedToVendor) await linkExistingToVendor(existing.id)
+      if (canLinkVendor && existing && !existing.isLinkedToVendor) await linkExistingToVendor(existing.id)
       onAdded()
     } catch (error) {
       errorNotification({ title: 'Could not add to Trust Center', description: parseErrorMessage(error) })
