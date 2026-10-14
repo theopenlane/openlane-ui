@@ -12,7 +12,6 @@ import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName } from './types'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
-import { useSession } from 'next-auth/react'
 
 const TableComponent = ({
   onSortChange,
@@ -25,11 +24,8 @@ const TableComponent = ({
   onHasChange,
   selectedItems,
   setSelectedItems,
-  canEdit,
-  permission,
 }: TTableProps<ActionPlanWhereInput>) => {
   const { replace } = useSmartRouter()
-  const { data: session } = useSession()
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -67,15 +63,6 @@ const TableComponent = ({
   useEffect(() => {
     onHasChange?.(!!hasItems)
   }, [hasItems, onHasChange])
-
-  useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canEdit(permission.roles, session),
-      }))
-    }
-  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 

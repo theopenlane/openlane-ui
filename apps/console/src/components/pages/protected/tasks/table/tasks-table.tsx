@@ -17,6 +17,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
+import { useSelectColumnVisibility } from '@/components/shared/column-visibility-menu/use-select-column-visibility'
 
 type TTasksTableProps = {
   onSortChange?: (next: SortCondition<TaskOrderField>[]) => void
@@ -94,14 +95,7 @@ const TasksTable = ({
     }
   }, [hasTasks, onHasTasksChange])
 
-  useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canEdit(permission.roles, session),
-      }))
-    }
-  }, [permission?.roles, setColumnVisibility, canEdit, session])
+  const effectiveColumnVisibility = useSelectColumnVisibility(columnVisibility, canEdit(permission?.roles, session))
 
   useQueryErrorNotification({ error, description: 'Failed to load tasks' })
 
@@ -134,7 +128,7 @@ const TasksTable = ({
         pageInfo: data?.tasks?.pageInfo,
         isLoading: isFetching,
       }}
-      columnVisibility={columnVisibility}
+      columnVisibility={effectiveColumnVisibility}
       setColumnVisibility={setColumnVisibility}
       tableKey={TableKeyEnum.TASK}
     />

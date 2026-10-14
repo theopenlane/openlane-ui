@@ -26,6 +26,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
+import { useSelectColumnVisibility } from '@/components/shared/column-visibility-menu/use-select-column-visibility'
 
 const RiskTable: React.FC = () => {
   const router = useRouter()
@@ -109,14 +110,7 @@ const RiskTable: React.FC = () => {
     [userMap, tokenMap, convertToReadOnly, selectedRisks, isEditAllowed],
   )
 
-  useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: isEditAllowed,
-      }))
-    }
-  }, [permission?.roles, isEditAllowed])
+  const effectiveColumnVisibility = useSelectColumnVisibility(columnVisibility, isEditAllowed)
 
   useEffect(() => {
     setCrumbs([
@@ -187,7 +181,7 @@ const RiskTable: React.FC = () => {
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
-        columnVisibility={columnVisibility}
+        columnVisibility={effectiveColumnVisibility}
         setColumnVisibility={setColumnVisibility}
         sorting={orderBy}
         tableKey={TableKeyEnum.RISK}

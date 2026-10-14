@@ -28,6 +28,7 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 import { useSession } from 'next-auth/react'
+import { useSelectColumnVisibility } from '@/components/shared/column-visibility-menu/use-select-column-visibility'
 
 export const PoliciesTable = () => {
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.INTERNAL_POLICY)
@@ -151,14 +152,7 @@ export const PoliciesTable = () => {
 
   useQueryErrorNotification({ error, description: 'Failed to load policies' })
 
-  useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canEdit(permission.roles, session),
-      }))
-    }
-  }, [permission?.roles, session])
+  const effectiveColumnVisibility = useSelectColumnVisibility(columnVisibility, canEdit(permission?.roles, session))
 
   useEffect(() => {
     setCrumbs([
@@ -207,7 +201,7 @@ export const PoliciesTable = () => {
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
-        columnVisibility={columnVisibility}
+        columnVisibility={effectiveColumnVisibility}
         setColumnVisibility={setColumnVisibility}
         tableKey={TableKeyEnum.INTERNAL_POLICY}
       />

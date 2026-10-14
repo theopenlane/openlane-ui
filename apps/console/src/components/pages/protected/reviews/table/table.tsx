@@ -13,7 +13,6 @@ import { REVIEWS_SORT_FIELDS } from './table-config'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
 import { isUlid } from '@/lib/validators'
-import { useSession } from 'next-auth/react'
 
 const TableComponent = ({
   onSortChange,
@@ -26,12 +25,9 @@ const TableComponent = ({
   onHasChange,
   selectedItems,
   setSelectedItems,
-  canEdit,
-  permission,
   rowHref,
 }: TTableProps<ReviewWhereInput>) => {
   const { replace } = useSmartRouter()
-  const { data: session } = useSession()
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -75,15 +71,6 @@ const TableComponent = ({
       onHasChange(hasItems)
     }
   }, [hasItems, onHasChange])
-
-  useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canEdit(permission.roles, session),
-      }))
-    }
-  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 
