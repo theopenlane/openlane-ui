@@ -11,6 +11,9 @@ const FILLER_TOKENS = new Set(['at', 'on', 'the', 'of', 'date', 'last'])
 const PLURAL_SUFFIX = /s$/
 const MIN_SINGULAR_LENGTH = 3
 
+const REF_CODE = 'refcode'
+const REF_CODE_LOOKUP = `${REF_CODE}s`
+
 const looksLikeReferenceCode = (column: TSourceColumn): boolean => {
   if (!CODE_HEADER.test(normalizeFieldName(column.header))) return false
   if (column.values.length === 0) return false
@@ -19,7 +22,7 @@ const looksLikeReferenceCode = (column: TSourceColumn): boolean => {
   return segmented / column.values.length >= MIN_SEGMENTED_VALUE_RATIO
 }
 
-const VALUE_SHAPE_MATCHERS = new Map<string, (column: TSourceColumn) => boolean>([['refcode', looksLikeReferenceCode]])
+const VALUE_SHAPE_MATCHERS = new Map<string, (column: TSourceColumn) => boolean>([[REF_CODE, looksLikeReferenceCode]])
 
 const singular = (token: string): string => {
   const trimmed = token.replace(PLURAL_SUFFIX, '')
@@ -63,6 +66,7 @@ const buildFieldIndex = ({ fields, primaryField }: TDestinationFieldSet, entityL
   const byAlias = new Map<string, string>()
   const fieldsByTokenKey = new Map<string, string[]>()
   const shapeMatchers: { field: string; matches: (column: TSourceColumn) => boolean }[] = []
+  const refCodeLookups: string[] = []
   const entityTokens = new Set(entityLabels.flatMap((label) => wordTokens(toHumanLabel(label))).map(singular))
 
   const addAlias = (alias: string, field: string) => {
@@ -73,6 +77,7 @@ const buildFieldIndex = ({ fields, primaryField }: TDestinationFieldSet, entityL
     const normalized = normalizeFieldName(field.name)
     exactHeaders.add(field.name)
     if (!byNormalizedHeader.has(normalized)) byNormalizedHeader.set(normalized, field.name)
+    if (normalized.endsWith(REF_CODE_LOOKUP)) refCodeLookups.push(field.name)
     if (!field.fuzzyMatchable) return
 
     if (!byFuzzyNormalizedHeader.has(normalized)) byFuzzyNormalizedHeader.set(normalized, field.name)
@@ -89,8 +94,9 @@ const buildFieldIndex = ({ fields, primaryField }: TDestinationFieldSet, entityL
 
   const primary = fields.find((field) => field.name === primaryField && field.fuzzyMatchable)
   const entityNames = new Set(primary ? entityLabels.flatMap((label) => [label, pluralizeTypeName(label)]).map(normalizeFieldName) : [])
+  const refCodeLookupField = refCodeLookups.length === 1 ? refCodeLookups[0] : undefined
 
-  return { exactHeaders, byNormalizedHeader, byFuzzyNormalizedHeader, byAlias, fieldsByTokenKey, shapeMatchers, primaryField: primary?.name, entityNames, entityTokens }
+  return { exactHeaders, byNormalizedHeader, byFuzzyNormalizedHeader, byAlias, fieldsByTokenKey, shapeMatchers, primaryField: primary?.name, entityNames, entityTokens, refCodeLookupField }
 }
 
 type TFieldIndex = ReturnType<typeof buildFieldIndex>
@@ -107,6 +113,8 @@ const findCandidate = (column: TSourceColumn, index: TFieldIndex): TCandidate | 
   if (alias) return { field: alias, confidence: 'alias' }
 
   if (index.primaryField && index.entityNames.has(normalizedHeader)) return { field: index.primaryField, confidence: 'suggested' }
+
+  if (index.refCodeLookupField && normalizedHeader === REF_CODE_LOOKUP) return { field: index.refCodeLookupField, confidence: 'suggested' }
 
   const headerTokens = wordTokens(toHumanLabel(column.header))
   const ownTokens = withoutLeadingEntityTokens(headerTokens, index.entityTokens)
