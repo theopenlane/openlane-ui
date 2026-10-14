@@ -105,15 +105,6 @@ const TableComponent = ({
     }
   }, [hasItems, onHasChange])
 
-  useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canEdit(permission.roles, session),
-      }))
-    }
-  }, [permission?.roles, setColumnVisibility, canEdit, session])
-
   useQueryErrorNotification({ error: queryError, description: `Failed to load ${objectName.toLowerCase()}` })
 
   const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)

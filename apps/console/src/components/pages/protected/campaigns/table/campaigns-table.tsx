@@ -15,6 +15,7 @@ import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
+import { useSelectColumnVisibility } from '@/components/shared/column-visibility-menu/use-select-column-visibility'
 
 type TCampaignsTableProps = {
   onSortChange?: (next: SortCondition<CampaignOrderField>[]) => void
@@ -71,14 +72,7 @@ const CampaignsTable = ({
     }
   }, [hasCampaigns, onHasCampaignsChange])
 
-  useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canEdit(permission.roles, session),
-      }))
-    }
-  }, [permission?.roles, session, canEdit, setColumnVisibility])
+  const effectiveColumnVisibility = useSelectColumnVisibility(columnVisibility, canEdit(permission?.roles, session))
 
   useQueryErrorNotification({ error, description: 'Failed to load campaigns' })
 
@@ -102,7 +96,7 @@ const CampaignsTable = ({
         pageInfo: data?.campaigns?.pageInfo,
         isLoading: isFetching,
       }}
-      columnVisibility={columnVisibility}
+      columnVisibility={effectiveColumnVisibility}
       setColumnVisibility={setColumnVisibility}
       noResultsText="No campaigns found"
       tableKey={TableKeyEnum.CAMPAIGN}

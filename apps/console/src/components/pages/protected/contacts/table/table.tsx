@@ -78,15 +78,6 @@ const TableComponent = ({
 
   const canEditRows = canEdit(permission?.roles, session)
 
-  useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canEditRows,
-      }))
-    }
-  }, [permission?.roles, setColumnVisibility, canEditRows])
-
   const { rowDragDrop, mergeSheet } = useMergeDragDrop({
     config: contactMergeConfig,
     enabled: canEditRows && canDelete(permission?.roles),

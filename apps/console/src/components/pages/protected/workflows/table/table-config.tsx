@@ -54,7 +54,6 @@ export const getFilterFields = () =>
 export const WORKFLOW_SORT_FIELDS = enumToSortFields(WorkflowDefinitionOrderField)
 
 export const visibilityFields = {
-  select: false,
   displayID: false,
   revision: false,
   systemOwned: false,

@@ -18,6 +18,7 @@ import { getSubprocessorsColumns, type SubprocessorTableItem } from './table/tab
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import { useSelectColumnVisibility } from '@/components/shared/column-visibility-menu/use-select-column-visibility'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import useFileExport from '@/components/shared/export/use-file-export'
@@ -117,9 +118,7 @@ const SubprocessorsPage = () => {
     }
   }, [savedSubprocessorURL])
 
-  useEffect(() => {
-    setColumnVisibility((prev) => ({ ...prev, select: canEditSubprocessor }))
-  }, [canEditSubprocessor])
+  const effectiveColumnVisibility = useSelectColumnVisibility(columnVisibility, canEditSubprocessor)
 
   const persistSubprocessorURL = async (trimmed: string) => {
     await updateTrustCenter({
@@ -347,7 +346,7 @@ const SubprocessorsPage = () => {
               onPaginationChange={setPagination}
               paginationMeta={paginationMeta}
               loading={filters === null || isLoading || searching}
-              columnVisibility={columnVisibility}
+              columnVisibility={effectiveColumnVisibility}
               tableKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS}
             />
           </>

@@ -12,7 +12,6 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { getColumns } from './columns'
 import { SYSTEM_DETAILS_SORT_FIELDS } from './table-config'
 import { objectName, tableKey } from './types'
-import { useSession } from 'next-auth/react'
 
 const TableComponent = ({
   onSortChange,
@@ -25,11 +24,8 @@ const TableComponent = ({
   onHasChange,
   selectedItems,
   setSelectedItems,
-  canEdit,
-  permission,
 }: TTableProps<SystemDetailWhereInput>) => {
   const { replace } = useSmartRouter()
-  const { data: session } = useSession()
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) {
@@ -81,15 +77,6 @@ const TableComponent = ({
       onHasChange(hasItems)
     }
   }, [hasItems, onHasChange])
-
-  useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canEdit(permission.roles, session),
-      }))
-    }
-  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 

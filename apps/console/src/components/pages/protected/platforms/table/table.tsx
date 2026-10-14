@@ -12,7 +12,6 @@ import { getColumns } from './columns'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
 import { isUlid } from '@/lib/validators'
-import { useSession } from 'next-auth/react'
 
 const TableComponent = ({
   onSortChange,
@@ -25,8 +24,6 @@ const TableComponent = ({
   onHasChange,
   selectedItems,
   setSelectedItems,
-  canEdit,
-  permission,
   onRowClick,
   rowHref,
 }: TTableProps<PlatformWhereInput>) => {
@@ -53,8 +50,6 @@ const TableComponent = ({
     enabled: true,
   })
 
-  const { data: session } = useSession()
-
   const userIds = useMemo(() => {
     if (!items) return []
     const ids = new Set<string>()
@@ -75,15 +70,6 @@ const TableComponent = ({
       onHasChange(hasItems)
     }
   }, [hasItems, onHasChange])
-
-  useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canEdit(permission.roles, session),
-      }))
-    }
-  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}s` })
 
