@@ -19,6 +19,13 @@ const ReviewSummaryPanel: React.FC<TReviewSummaryPanelProps> = ({ review }) => {
     <Panel className="p-4 flex flex-col gap-4">
       <p className="text-lg font-medium">Review</p>
 
+      {review?.summary?.trim() && (
+        <div className="flex flex-col gap-1">
+          <span className="text-sm text-muted-foreground">Summary</span>
+          <p className="text-sm whitespace-pre-wrap break-words">{review.summary}</p>
+        </div>
+      )}
+
       <div className="flex flex-col gap-1">
         <span className="text-sm text-muted-foreground">Test Applied</span>
         {review?.details ? <div className="text-sm">{convertToReadOnly(review.details)}</div> : <span className="text-sm">{EMPTY_VALUE}</span>}
