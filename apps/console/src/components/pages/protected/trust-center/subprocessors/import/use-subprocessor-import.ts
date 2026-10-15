@@ -4,11 +4,12 @@ import { useCallback, useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { resolveCountryCode } from '@repo/ui/country-list'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { buildMappedImport, type TImportPlan } from '@/components/shared/record-import/lib/build-mapped-import'
 import { type TImportIssue, type TParsedDelimitedFile } from '@/components/shared/record-import/lib/types'
 import { describeRows } from '@/components/shared/record-import/lib/validate-mapping'
-import { type CustomTypeEnumOption, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { type TSubprocessorListingDefaults } from '@/components/pages/protected/trust-center/shared/subprocessor-listing-defaults'
+import { splitCategoriesKey, SUBPROCESSOR_CATEGORY_WHERE, toCategoriesKey, withChosenCategoryOptions } from '@/components/pages/protected/trust-center/shared/category-options'
 import { useCreateBulkSubprocessor, useSubprocessorCatalog } from '@/lib/graphql-hooks/subprocessor'
 import { invalidateSubprocessorQueries, useCreateBulkTrustCenterSubprocessor, useTrustCenterSubprocessorLinks } from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -17,7 +18,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { chunk } from '@/utils/async'
 import { companyNameKey } from '@/utils/company-name'
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'
-import { formatList, objectToSnakeCase, pluralizeWithCount } from '@/utils/strings'
+import { formatList, pluralizeWithCount } from '@/utils/strings'
 import {
   isActiveRow,
   parseSourceRows,
@@ -26,7 +27,6 @@ import {
   toCreateSubprocessorInput,
   toCreateTrustCenterSubprocessorInput,
   type TCountryValueMap,
-  type TImportDefaults,
   type TLinkedSubprocessors,
   type TResolvedRow,
   type TRowEdit,
@@ -35,10 +35,9 @@ import {
 import { buildCatalogIndex, matchCatalogSubprocessor, type TCatalogSubprocessor } from './subprocessor-matching'
 
 const BATCH_SIZE = 100
-const EMPTY_DEFAULTS: TImportDefaults = { countries: [], category: '' }
+const EMPTY_DEFAULTS: TSubprocessorListingDefaults = { countries: [], category: '' }
 const NO_EDITS: Readonly<Record<number, TRowEdit>> = {}
 const NO_COUNTRY_MAPPINGS: TCountryValueMap = {}
-const CATEGORY_KEY_SEPARATOR = '\u0000'
 
 const rowIssue = (id: string, rows: TResolvedRow[], message: string): TImportIssue => ({
   id,
@@ -49,9 +48,7 @@ const rowIssue = (id: string, rows: TResolvedRow[], message: string): TImportIss
 })
 
 const unknownCategoriesKey = (rows: TResolvedRow[], known: ReadonlyMap<string, string>): string =>
-  [...new Set(rows.map((row) => row.category).filter((category) => category && !known.has(category.toLowerCase())))].join(CATEGORY_KEY_SEPARATOR)
-
-const splitCategoriesKey = (key: string): string[] => (key ? key.split(CATEGORY_KEY_SEPARATOR) : [])
+  toCategoriesKey(rows.map((row) => row.category).filter((category) => !known.has(category.toLowerCase())))
 
 type TEditsState = { plan: TImportPlan | null; edits: Readonly<Record<number, TRowEdit>> }
 
@@ -70,11 +67,11 @@ export const useSubprocessorImport = ({ parsed, plan, enabled }: TUseSubprocesso
 
   const catalogQuery = useSubprocessorCatalog({ enabled })
   const linksQuery = useTrustCenterSubprocessorLinks({ enabled })
-  const { enumOptions: categoryOptions } = useGetCustomTypeEnums({ where: { objectType: objectToSnakeCase(ObjectTypes.TRUST_CENTER_SUBPROCESSOR), field: 'kind' } })
+  const { enumOptions: categoryOptions } = useGetCustomTypeEnums({ where: SUBPROCESSOR_CATEGORY_WHERE })
   const { mutateAsync: createBulkSubprocessor } = useCreateBulkSubprocessor()
   const { mutateAsync: createBulkTrustCenterSubprocessor } = useCreateBulkTrustCenterSubprocessor()
 
-  const [defaults, setDefaults] = useState<TImportDefaults>(EMPTY_DEFAULTS)
+  const [defaults, setDefaults] = useState<TSubprocessorListingDefaults>(EMPTY_DEFAULTS)
   const [countryValueMap, setCountryValueMap] = useState<TCountryValueMap>(NO_COUNTRY_MAPPINGS)
   const [createdIds, setCreatedIds] = useState<ReadonlyMap<string, string>>(() => new Map())
   const [editsState, setEditsState] = useState<TEditsState>({ plan: null, edits: NO_EDITS })
@@ -127,10 +124,7 @@ export const useSubprocessorImport = ({ parsed, plan, enabled }: TUseSubprocesso
   const newCategoriesKey = useMemo(() => unknownCategoriesKey(activeRows, knownCategories), [activeRows, knownCategories])
   const newCategories = useMemo(() => splitCategoriesKey(newCategoriesKey), [newCategoriesKey])
   const fileCategoriesKey = useMemo(() => unknownCategoriesKey(rows, knownCategories), [rows, knownCategories])
-  const categorySelectOptions = useMemo<CustomTypeEnumOption[]>(
-    () => [...categoryOptions, ...splitCategoriesKey(fileCategoriesKey).map((category) => ({ value: category, label: category }))],
-    [categoryOptions, fileCategoriesKey],
-  )
+  const categorySelectOptions = useMemo(() => withChosenCategoryOptions(categoryOptions, splitCategoriesKey(fileCategoriesKey)), [categoryOptions, fileCategoriesKey])
 
   const blockingIssues = useMemo(() => {
     const issues: TImportIssue[] = []

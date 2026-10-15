@@ -8,10 +8,10 @@ import { type EntityQuery } from '@repo/codegen/src/schema'
 import { Callout } from '@/components/shared/callout/callout'
 import { StatusLine } from '@/components/shared/status-line/status-line'
 import { useVendorSubprocessorMatch } from '@/lib/graphql-hooks/subprocessor'
+import { subprocessorListingBlockedReason } from '@/components/pages/protected/trust-center/shared/subprocessor-listing-availability'
+import { SUBPROCESSORS_HREF } from '@/components/pages/protected/trust-center/subprocessors/subprocessor-routes'
 import { AddToTrustCenterForm } from './add-to-trust-center-form'
-import { vendorSubprocessorName } from './vendor-subprocessor'
-
-const SUBPROCESSORS_HREF = '/trust-center/subprocessors'
+import { resolveVendorSubprocessorTarget, vendorSubprocessorName } from '@/components/pages/protected/trust-center/shared/vendor-subprocessor'
 
 type TVendor = EntityQuery['entity']
 
@@ -61,26 +61,17 @@ const AddToTrustCenterBody = ({ vendor, canLinkVendor, onClose }: { vendor: TVen
     return <StatusLine>Checking your Trust Center...</StatusLine>
   }
 
-  const { trustCenter, listedSubprocessor, subprocessor } = data
+  const { trustCenter, matches } = data
+  const target = resolveVendorSubprocessorTarget(matches)
+  const blockedReason = subprocessorListingBlockedReason(trustCenter)
 
-  if (!trustCenter) {
-    return <Notice variant="info" message="Your organization does not have a Trust Center yet. Set one up before adding subprocessors to it." onClose={onClose} />
+  if (blockedReason) {
+    return <Notice variant="info" message={blockedReason} onClose={onClose} showSubprocessorsLink={!!trustCenter} />
   }
 
-  if (trustCenter.subprocessorURL) {
-    return (
-      <Notice
-        variant="info"
-        message="Your Trust Center links to an external subprocessor list. Switch it to managing subprocessors in Openlane before adding vendors."
-        onClose={onClose}
-        showSubprocessorsLink
-      />
-    )
+  if (target.kind === 'listed') {
+    return <Notice variant="info" message={`${target.subprocessor.name} is already listed as a subprocessor on your Trust Center.`} onClose={onClose} showSubprocessorsLink />
   }
 
-  if (listedSubprocessor) {
-    return <Notice variant="info" message={`${listedSubprocessor.name} is already listed as a subprocessor on your Trust Center.`} onClose={onClose} showSubprocessorsLink />
-  }
-
-  return <AddToTrustCenterForm vendor={vendor} canLinkVendor={canLinkVendor} existingSubprocessor={subprocessor} onCancel={onClose} onAdded={onClose} />
+  return <AddToTrustCenterForm vendor={vendor} canLinkVendor={canLinkVendor} existingTarget={target.kind === 'new' ? null : target} onCancel={onClose} onAdded={onClose} />
 }

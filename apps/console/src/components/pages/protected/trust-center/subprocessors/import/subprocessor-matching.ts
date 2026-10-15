@@ -1,5 +1,7 @@
 import { bigramProfile, companyNameKey, diceSimilarity, type TBigramProfile } from '@/utils/company-name'
 
+export const subprocessorNameKey = (name: string): string => name.trim().toLowerCase()
+
 export type TCatalogSubprocessor = {
   id: string
   name: string
@@ -49,7 +51,7 @@ export const buildCatalogIndex = (catalog: TCatalogSubprocessor[]): TCatalogInde
     const compactKey = compact(key)
     const entry: TIndexedSubprocessor = { ...subprocessor, compactKey, tokens: new Set(key.split(' ').filter(Boolean)), profile: bigramProfile(compactKey) }
     index.entries.push(entry)
-    push(index.byName, subprocessor.name.trim().toLowerCase(), entry)
+    push(index.byName, subprocessorNameKey(subprocessor.name), entry)
     push(index.byCompactKey, compactKey, entry)
     push(index.byInitials, initials(key), entry)
   })
@@ -83,7 +85,7 @@ const isContainedMatch = (tokens: Set<string>, entry: TIndexedSubprocessor): boo
 }
 
 export const matchCatalogSubprocessor = (name: string, index: TCatalogIndex): TCatalogMatch | null => {
-  const exact = index.byName.get(name.trim().toLowerCase())
+  const exact = index.byName.get(subprocessorNameKey(name))
   if (exact) return { subprocessor: preferSystemOwned(exact), confidence: 'exact' }
 
   const key = companyNameKey(name)

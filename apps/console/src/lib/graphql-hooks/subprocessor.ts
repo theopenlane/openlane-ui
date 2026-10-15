@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   CREATE_SUBPROCESSOR,
@@ -7,6 +8,7 @@ import {
   GET_SUBPROCESSOR_CATALOG,
   CREATE_BULK_SUBPROCESSOR,
   GET_VENDOR_SUBPROCESSOR_MATCHES,
+  GET_VENDOR_SUBPROCESSOR_CANDIDATES,
 } from '@repo/codegen/query/subprocessor'
 import {
   type CreateSubprocessorMutation,
@@ -23,15 +25,27 @@ import {
   type CreateBulkSubprocessorMutationVariables,
   type GetVendorSubprocessorMatchesQuery,
   type GetVendorSubprocessorMatchesQueryVariables,
+  type GetVendorSubprocessorCandidatesQuery,
+  type GetVendorSubprocessorCandidatesQueryVariables,
+  type EntityWhereInput,
   OrderDirection,
   SubprocessorOrderField,
+  EntityOrderField,
 } from '@repo/codegen/src/schema'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { type QueryClient, useQuery, useMutation } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { fetchAllConnectionNodes } from './fetch-all-connection-nodes'
 import { getNodes } from './connection'
+import { vendorEntitiesWhere } from './entity'
 
 import { type TPagination } from '@repo/ui/pagination-types'
+
+const VENDOR_SUBPROCESSOR_CANDIDATES_KEY = ['entities', 'subprocessorCandidates'] as const
+
+export const invalidateSubprocessorRecordQueries = (queryClient: QueryClient) => {
+  queryClient.invalidateQueries({ queryKey: ['subprocessors'] })
+  queryClient.invalidateQueries({ queryKey: VENDOR_SUBPROCESSOR_CANDIDATES_KEY })
+}
 
 type UseGetSubprocessorsArgs = {
   where?: GetSubprocessorsQueryVariables['where']
@@ -93,9 +107,7 @@ export const useCreateSubprocessor = () => {
     },
 
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['subprocessors'],
-      })
+      invalidateSubprocessorRecordQueries(queryClient)
     },
   })
 }
@@ -122,9 +134,7 @@ export const useUpdateSubprocessor = () => {
     },
 
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['subprocessors'],
-      })
+      invalidateSubprocessorRecordQueries(queryClient)
     },
   })
 }
@@ -136,7 +146,7 @@ export const useBulkDeleteSubprocessors = () => {
     mutationFn: async (variables: { ids: string[] }) => client.request<DeleteBulkSubprocessorsMutation, DeleteBulkControlMutationVariables>(DELETE_BULK_SUBPROCESSORS, variables),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subprocessors'] })
+      invalidateSubprocessorRecordQueries(queryClient)
     },
   })
 }
@@ -165,32 +175,54 @@ export const useCreateBulkSubprocessor = () => {
   })
 }
 
-export type TVendorSubprocessorMatch = NonNullable<NonNullable<NonNullable<GetVendorSubprocessorMatchesQuery['linked']['edges']>[number]>['node']> & { needsVendorLink: boolean }
-
 export const useVendorSubprocessorMatch = ({ entityId, name }: GetVendorSubprocessorMatchesQueryVariables) => {
   const { client } = useGraphQLClient()
 
   return useQuery({
     queryKey: ['subprocessors', 'vendorMatch', entityId, name],
     queryFn: () => client.request<GetVendorSubprocessorMatchesQuery, GetVendorSubprocessorMatchesQueryVariables>(GET_VENDOR_SUBPROCESSOR_MATCHES, { entityId, name }),
-    select: (data) => {
-      const trustCenter = getNodes(data.trustCenters)[0]
-      const linked = getNodes(data.linked)[0]
-      const sameName = getNodes(data.sameName)[0]
-      const catalog = getNodes(data.catalog)[0]
-      const subprocessor: TVendorSubprocessorMatch | null = linked
-        ? { ...linked, needsVendorLink: false }
-        : sameName
-          ? { ...sameName, needsVendorLink: true }
-          : catalog
-            ? { ...catalog, needsVendorLink: false }
-            : null
-      return {
-        trustCenter,
-        listedSubprocessor: getNodes(data.listed)[0]?.subprocessor ?? null,
-        subprocessor,
-      }
-    },
+    select: (data) => ({
+      trustCenter: getNodes(data.trustCenters)[0],
+      matches: {
+        listed: getNodes(data.listed)[0]?.subprocessor,
+        linked: getNodes(data.linked)[0],
+        ownSameName: getNodes(data.sameName)[0],
+        catalogSameName: getNodes(data.catalog)[0],
+      },
+    }),
     placeholderData: undefined,
   })
+}
+
+export type TVendorSubprocessorCandidate = NonNullable<NonNullable<NonNullable<GetVendorSubprocessorCandidatesQuery['entities']['edges']>[number]>['node']>
+
+type TUseVendorSubprocessorCandidatesArgs = {
+  where?: EntityWhereInput
+  pagination: TPagination
+  enabled?: boolean
+}
+
+export const useVendorSubprocessorCandidates = ({ where, pagination, enabled = true }: TUseVendorSubprocessorCandidatesArgs) => {
+  const { client } = useGraphQLClient()
+  const vendorWhere = vendorEntitiesWhere(where)
+
+  const queryResult = useQuery({
+    queryKey: [...VENDOR_SUBPROCESSOR_CANDIDATES_KEY, vendorWhere, pagination.page, pagination.pageSize],
+    queryFn: () =>
+      client.request<GetVendorSubprocessorCandidatesQuery, GetVendorSubprocessorCandidatesQueryVariables>(GET_VENDOR_SUBPROCESSOR_CANDIDATES, {
+        where: vendorWhere,
+        orderBy: [{ field: EntityOrderField.name, direction: OrderDirection.ASC }],
+        ...pagination.query,
+      }),
+    enabled,
+  })
+
+  const vendors = useMemo(() => getNodes(queryResult.data?.entities), [queryResult.data])
+
+  const paginationMeta = useMemo(
+    () => ({ totalCount: queryResult.data?.entities.totalCount ?? 0, pageInfo: queryResult.data?.entities.pageInfo, isLoading: queryResult.isPending }),
+    [queryResult.data, queryResult.isPending],
+  )
+
+  return { ...queryResult, vendors, paginationMeta }
 }
