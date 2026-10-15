@@ -7,19 +7,18 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { type FindingFormData } from '../../../hooks/use-form-schema'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import { usePlateChangeGuard } from '@/components/shared/plate/use-plate-change-guard'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import { type Value } from 'platejs'
 
 type DescriptionFieldProps = {
   isEditing: boolean
   isCreate: boolean
   initialValue: string | Value | undefined | null
-  isFormInitialized?: boolean
 }
 
-const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate, initialValue, isFormInitialized }) => {
-  const { control, formState } = useFormContext<FindingFormData>()
-  const shouldPropagateChange = usePlateChangeGuard(isEditing || isCreate, isFormInitialized)
+const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate, initialValue }) => {
+  const { control, formState, resetField } = useFormContext<FindingFormData>()
+  const hydrate = usePlateHydration({ resetField })
 
   return isEditing || isCreate ? (
     <FormField
@@ -32,15 +31,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a detailed description of the finding</p>} />
           </div>
           <FormControl>
-            <PlateEditor
-              onChange={(val) => {
-                if (shouldPropagateChange()) {
-                  field.onChange(val)
-                }
-              }}
-              initialValue={initialValue ?? ''}
-              placeholder="Write your finding description"
-            />
+            <PlateEditor onChange={field.onChange} onHydrate={hydrate(field.name)} initialValue={initialValue ?? ''} placeholder="Write your finding description" />
           </FormControl>
           {formState.errors.description && <p className="text-red-500 text-sm">{formState.errors.description.message}</p>}
         </FormItem>

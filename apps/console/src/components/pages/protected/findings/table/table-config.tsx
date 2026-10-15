@@ -166,7 +166,6 @@ export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOpt
         isEditing={props.isEditing}
         isCreate={props.isCreate}
         initialValue={props.isCreate ? '' : (findingData?.description ?? '')}
-        isFormInitialized={props.isFormInitialized}
       />
       <AdditionalFields
         isEditing={props.isEditing}

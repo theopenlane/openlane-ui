@@ -2,14 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useForm, Controller, FormProvider } from 'react-hook-form'
-import type { Resolver } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
 import { CircleCheck, CircleX } from 'lucide-react'
 import { SetAuditorDialog } from './set-auditor-dialog'
 import { Button } from '@repo/ui/button'
 import { Pencil } from 'lucide-react'
 import { useUpdateProgram } from '@/lib/graphql-hooks/program'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
@@ -17,7 +15,9 @@ import { isValidEmail } from '@/lib/validators'
 import { Input } from '@repo/ui/input'
 import SetReadyForAuditorDialog from './set-ready-for-auditor-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { useDirtyInput } from '@/hooks/useDirtyInput'
+import { AUDITOR_UPDATE_FIELDS, setAuditorSchema, toAuditorFormValues, type SetAuditorFormValues } from './auditor-update-fields'
+import { ProgramProgramStatus, type UpdateProgramInput } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
@@ -35,17 +35,6 @@ interface ProgramAuditorProps {
   isReady?: boolean
   programStatus: ProgramProgramStatus
 }
-
-const setAuditorSchema = z.object({
-  auditorName: z.string().optional().nullable(),
-  auditorEmail: z.string().optional().nullable(),
-  auditFirm: z.string().optional(),
-  auditorReadComments: z.boolean().default(false),
-  auditorWriteComments: z.boolean().default(false),
-  auditorReady: z.boolean().default(false),
-})
-
-type SetAuditorFormValues = z.infer<typeof setAuditorSchema>
 
 const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAuditorProps) => {
   const hasAuditor = !!(firm || name || email)
@@ -67,27 +56,15 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
   }
 
   const form = useForm<SetAuditorFormValues>({
-    resolver: zodResolver(setAuditorSchema) as Resolver<SetAuditorFormValues>,
-    defaultValues: {
-      auditorName: name ?? '',
-      auditorEmail: email ?? '',
-      auditFirm: firm ?? '',
-      auditorReadComments: false,
-      auditorWriteComments: false,
-      auditorReady: false,
-    },
+    resolver: zodResolver(setAuditorSchema),
+    defaultValues: toAuditorFormValues({ auditor: name, auditorEmail: email, auditFirm: firm }),
   })
+
+  const buildDirtyInput = useDirtyInput(form)
 
   useEffect(() => {
     if (name || email || firm) {
-      form.reset({
-        auditorName: name ?? '',
-        auditorEmail: email ?? '',
-        auditFirm: firm ?? '',
-        auditorReadComments: false,
-        auditorWriteComments: false,
-        auditorReady: false,
-      })
+      form.reset(toAuditorFormValues({ auditor: name, auditorEmail: email, auditFirm: firm }))
       setIsEligibleForAuditorSet(true)
     }
     setIsEditing(false)
@@ -106,19 +83,21 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
       return
     }
     try {
-      await updateProgram({
-        updateProgramId: id ?? '',
-        input: {
-          ...(values.auditFirm === '' ? { clearAuditFirm: true } : { auditFirm: values.auditFirm }),
-          ...(values.auditorName === '' ? { clearAuditor: true } : { auditor: values.auditorName }),
-          ...(values.auditorEmail === '' ? { clearAuditorEmail: true } : { auditorEmail: values.auditorEmail }),
-        },
-      })
+      const input = await buildDirtyInput<UpdateProgramInput>(values, AUDITOR_UPDATE_FIELDS)
+
+      if (Object.keys(input).length === 0) {
+        form.reset()
+        setIsEditing(false)
+        return
+      }
+
+      await updateProgram({ updateProgramId: id ?? '', input })
       successNotification({
         title: 'Auditor updated',
         description: 'Auditor saved successfully.',
       })
       queryClient.invalidateQueries({ queryKey: ['programs', id] })
+      form.reset(values)
       setIsEditing(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -201,13 +180,9 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
                 <span className="w-32 flex shrink-0">Name:</span>
                 <div className="flex flex-col gap-1.5">
                   {isEditing && (
-                    <Controller
-                      control={control}
-                      name="auditorName"
-                      render={({ field }) => <Input {...field} value={field.value ?? ''} className="w-[180px]" placeholder="Amy Shields" />}
-                    ></Controller>
+                    <Controller control={control} name="auditor" render={({ field }) => <Input {...field} value={field.value ?? ''} className="w-[180px]" placeholder="Amy Shields" />}></Controller>
                   )}
-                  {form.formState.errors.auditorName && <p className="text-red-500 text-sm">{form.formState.errors.auditorName.message}</p>}
+                  {form.formState.errors.auditor && <p className="text-red-500 text-sm">{form.formState.errors.auditor.message}</p>}
                 </div>
               </div>
               <div className="flex border-b pb-2.5 gap-2 items-center">

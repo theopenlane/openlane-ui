@@ -23,7 +23,7 @@ type TPropertiesCardProps = {
 
 type Fields = 'riskKindName' | 'riskCategoryName' | 'score' | 'impact' | 'likelihood' | 'status'
 
-const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, isEditing, isEditAllowed = true, handleUpdate, activeField, setActiveField }) => {
+const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isCreate, isEditing, isEditAllowed = true, handleUpdate, activeField, setActiveField }) => {
   const { control } = form
   const [internalEditingField, setInternalEditingField] = useState<Fields | null>(null)
   const isControlled = activeField !== undefined && setActiveField !== undefined
@@ -41,8 +41,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
 
   useEscapeKey(() => {
     if (editingField) {
-      const value = risk?.[editingField as Fields]
-      form.setValue(editingField as Fields, value || '')
+      form.resetField(editingField as Fields)
       if (isControlled) {
         setActiveField?.(null)
       } else {

@@ -1,3 +1,4 @@
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
@@ -33,7 +34,7 @@ export const EditableSelect = ({
   name: string
   isEditing: boolean
   options: (Option & { color?: string; description?: string })[]
-  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput, options?: TPersistOptions) => Promise<void>
   isEditAllowed: boolean
   activeField?: string | null
   setActiveField?: (field: string | null) => void
@@ -41,6 +42,7 @@ export const EditableSelect = ({
   onCreateOption?: (value: string) => Promise<void>
 }) => {
   const { control, getValues } = useFormContext()
+  const persistField = usePersistFormField()
   const [internalEditing, setInternalEditing] = useState(false)
   const resolvedFieldId = fieldId ?? name
   const isControlled = activeField !== undefined && setActiveField !== undefined
@@ -69,11 +71,12 @@ export const EditableSelect = ({
       closeEditing()
       return
     }
-    if (!isEditing) {
-      handleUpdate?.({ [name]: value })
+    closeEditing()
+    if (!isEditing && handleUpdate) {
+      void persistField(name, value, (options) => handleUpdate({ [name]: value }, options))
+      return
     }
     onFieldChange?.(value)
-    closeEditing()
   }
 
   const triggerRef = useRef<HTMLDivElement>(null)

@@ -3,9 +3,10 @@
 import React, { useMemo, useState } from 'react'
 import { Tag } from 'lucide-react'
 import { type UseFormReturn } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { InputRow } from '@repo/ui/input'
 import { FormControl, FormField } from '@repo/ui/form'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import MultipleSelector from '@repo/ui/multiple-selector'
 import { type InternalPolicyByIdFragment, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import { type CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
 import useClickOutside from '@/hooks/useClickOutside'
@@ -22,7 +23,7 @@ type TTagsCardProps = {
   policy: InternalPolicyByIdFragment
   isEditing: boolean
   editAllowed: boolean
-  handleUpdate?: (val: UpdateInternalPolicyInput) => void
+  handleUpdate?: (val: UpdateInternalPolicyInput, options?: TPersistOptions) => Promise<void> | void
   activeField?: string | null
   setActiveField?: (field: string | null) => void
 }
@@ -38,6 +39,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
       setInternalInternalEditing(value)
     }
   }
+  const persistField = usePersistFormField<CreatePolicyFormData>()
   const { tagOptions } = useGetTags()
   const { data: permission } = useOrganizationRoles()
   const { data: session } = useSession()
@@ -45,12 +47,10 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
 
   const tags = form.watch('tags')
   const tagValues = useMemo(() => {
-    return (tags ?? [])
-      .filter((item): item is string => typeof item === 'string')
-      .map((item) => ({
-        value: item,
-        label: item,
-      }))
+    return (tags ?? []).map((item) => ({
+      value: item,
+      label: item,
+    }))
   }, [tags])
 
   const wrapperRef = useClickOutside(() => {
@@ -61,7 +61,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
     if (changed && handleUpdate) {
-      handleUpdate({ tags: next })
+      void persistField('tags', next, (options) => handleUpdate({ tags: next }, options))
     }
 
     setInternalEditing(false)
@@ -70,11 +70,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
   useEscapeKey(
     () => {
       setInternalEditing(false)
-      const options: Option[] = (policy?.tags ?? []).filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item }))
-      form.setValue(
-        'tags',
-        options.map((opt) => opt.value),
-      )
+      form.resetField('tags')
     },
     { enabled: internalEditing },
   )

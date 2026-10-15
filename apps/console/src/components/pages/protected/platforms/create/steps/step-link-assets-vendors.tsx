@@ -50,7 +50,7 @@ const LinkItemsField: React.FC<LinkItemsFieldProps> = ({ fieldName, oppositeFiel
           <FormControl>
             <SearchableItemSelect
               selectedIds={selectedIds}
-              onSelectedIdsChange={(ids) => form.setValue(fieldName, ids as never)}
+              onSelectedIdsChange={(ids) => form.setValue(fieldName, ids as never, { shouldDirty: true })}
               items={items}
               isLoading={isLoading}
               filterItems

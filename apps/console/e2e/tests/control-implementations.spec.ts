@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test'
 
 import { test, expect, readManifest } from '../fixtures/auth'
+import { waitForMutation } from '../utils/mutations'
 
 const toast = (page: Page, title: string) => page.getByText(title, { exact: true })
 
@@ -46,9 +47,15 @@ test.describe('controls — control implementations (seeded control)', () => {
 
     await openItemAction(page, 'Edit')
     await expect(sheet(page).getByRole('button', { name: /^Save( Changes)?$/ })).toBeVisible({ timeout: 30_000 })
+    const detailsEditor = sheet(page).getByText('Details', { exact: true }).locator('..').locator('[contenteditable="true"]')
+    await detailsEditor.click()
+    await page.keyboard.type('Enforced through SSO and quarterly access reviews.')
+    const pendingUpdate = waitForMutation(page, 'UpdateControlImplementation')
     await sheet(page)
       .getByRole('button', { name: /^Save( Changes)?$/ })
       .click()
+    const update = await pendingUpdate
+    expect(Object.keys(update.request().postDataJSON().variables.input)).toEqual(['details'])
     await expect(toast(page, 'Control Implementation updated')).toBeVisible({ timeout: 60_000 })
 
     await openItemAction(page, 'Delete')

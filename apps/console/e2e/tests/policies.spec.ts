@@ -95,17 +95,16 @@ test.describe('policies — edit', () => {
     await expect(original_h1).toBeVisible({ timeout: 15_000 })
 
     const updated = policyName('edit-new')
+    const titleInput = page.getByRole('textbox').first()
     await expect(async () => {
-      const h1 = page.getByRole('heading', { level: 1 }).first()
-      await h1.dispatchEvent('dblclick')
-      const titleInput = page.getByRole('textbox').first()
+      await page.getByRole('heading', { level: 1 }).first().dispatchEvent('dblclick')
       await expect(titleInput).toBeVisible({ timeout: 2_000 })
-      await titleInput.fill(updated)
-      await expectMutationOk(page, 'UpdateInternalPolicy', async () => {
-        await titleInput.press('Enter')
-      })
-      await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 10_000 })
-    }).toPass({ timeout: 60_000 })
+    }).toPass({ timeout: 30_000 })
+    await titleInput.fill(updated)
+    await expectMutationOk(page, 'UpdateInternalPolicy', async () => {
+      await titleInput.press('Enter')
+    })
+    await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 30_000 })
 
     await page.reload()
     await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 30_000 })

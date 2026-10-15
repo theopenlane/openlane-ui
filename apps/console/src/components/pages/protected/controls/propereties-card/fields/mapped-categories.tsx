@@ -7,12 +7,16 @@ import { Property } from './property'
 
 export const MappedCategories = ({
   isEditing,
+  isEditAllowed,
   data,
   activeField,
   setActiveField,
   fieldId,
+  onSave,
 }: {
   isEditing: boolean
+  isEditAllowed: boolean
+  onSave: (selected: string[]) => Promise<void>
   data?: ControlByIdNode | SubcontrolByIdNode
   activeField?: string | null
   setActiveField?: (field: string | null) => void
@@ -22,10 +26,10 @@ export const MappedCategories = ({
   const resolvedFieldId = fieldId ?? 'mappedCategories'
   const isControlled = activeField !== undefined && setActiveField !== undefined
   const isActive = isControlled ? activeField === resolvedFieldId : internalEditing
-  const editing = isEditing || isActive
+  const editing = isEditAllowed && (isEditing || isActive)
 
   const handleClick = () => {
-    if (!isEditing) {
+    if (!isEditing && isEditAllowed) {
       if (isControlled) {
         setActiveField?.(resolvedFieldId)
       } else {
@@ -47,6 +51,7 @@ export const MappedCategories = ({
   if (editing) {
     return (
       <MappedCategoriesDialog
+        onSave={onSave}
         onClose={() => {
           if (isControlled) {
             setActiveField?.(null)
@@ -59,8 +64,8 @@ export const MappedCategories = ({
   }
 
   return (
-    <div onDoubleClick={handleClick} className="cursor-pointer ">
-      <Property label="Mapped categories" value={(data?.mappedCategories ?? []).join(',\n')} onPencilClick={handleClick} />
+    <div onDoubleClick={handleClick} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
+      <Property label="Mapped categories" value={(data?.mappedCategories ?? []).join(',\n')} onPencilClick={isEditAllowed ? handleClick : undefined} />
     </div>
   )
 }

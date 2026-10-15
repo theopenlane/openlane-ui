@@ -62,13 +62,13 @@ const AllowedDomains = () => {
       return
     }
 
-    await updateSetting({ allowedEmailDomains: [...domains, trimmed], allowMatchingDomainsAutojoin: true }, 'Allowed domains updated successfully.')
+    await updateSetting({ allowedEmailDomains: [...domains, trimmed] }, 'Allowed domains updated successfully.')
     setNewDomain('')
   }
 
   const removeDomain = async (domainToRemove: string) => {
-    const updated = domains.filter((d) => d !== domainToRemove)
-    await updateSetting({ allowedEmailDomains: updated, allowMatchingDomainsAutojoin: updated.length > 0 ? undefined : false }, 'Domain removed successfully.')
+    const remaining = domains.filter((d) => d !== domainToRemove)
+    await updateSetting(remaining.length > 0 ? { allowedEmailDomains: remaining } : { clearAllowedEmailDomains: true }, 'Domain removed successfully.')
   }
 
   const onSwitchChange = async (checked: boolean) => {
@@ -100,7 +100,7 @@ const AllowedDomains = () => {
               <p className="text-sm text-muted-foreground">Automatically allow users with verified email addresses from approved domains to join this organization.</p>
               <Badge variant={allowAutoJoin ? 'green' : 'secondary'}>{allowAutoJoin ? '● Enabled' : '● Disabled'}</Badge>
             </div>
-            <Button variant={allowAutoJoin ? 'destructive' : 'secondary'} onClick={() => onSwitchChange(!allowAutoJoin)} disabled={domainCount === 0} className="shrink-0">
+            <Button variant={allowAutoJoin ? 'destructive' : 'secondary'} onClick={() => onSwitchChange(!allowAutoJoin)} disabled={domainCount === 0 && !allowAutoJoin} className="shrink-0">
               <Lock className="h-4 w-4 mr-2" />
               {allowAutoJoin ? 'Disable Auto Join' : 'Enable Auto Join'}
             </Button>

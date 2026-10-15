@@ -229,7 +229,10 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
                         displayLabel={item.selectedObject.selectOptionEnum}
                         onToggle={() => setCollapsedAssociations((prev) => ({ ...prev, [item.id]: !prev[item.id] }))}
                       >
-                        <BulkEditSingleObjectAssociation objectType={item.selectedObject.objectType} onChange={(map) => form.setValue(`fieldsArray.${index}.selectedAssociations`, map)} />
+                        <BulkEditSingleObjectAssociation
+                          objectType={item.selectedObject.objectType}
+                          onChange={(map) => form.setValue(`fieldsArray.${index}.selectedAssociations`, map, { shouldDirty: true })}
+                        />
                       </BulkEditAssociationCollapsible>
                     )}
                   </div>

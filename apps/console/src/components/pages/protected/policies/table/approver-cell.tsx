@@ -18,10 +18,7 @@ const ApproverCell: React.FC<TApproverCellProps> = ({ approver, policyId }) => {
     try {
       await updatePolicy({
         updateInternalPolicyId: policyId,
-        input: {
-          approverID: data.id,
-          clearApprover: !data.id,
-        },
+        input: data.id ? { approverID: data.id } : { clearApprover: true },
       })
       await helpers.queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
       helpers.notifySuccess()

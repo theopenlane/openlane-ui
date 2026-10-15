@@ -42,6 +42,7 @@ const OrganizationNameForm = () => {
       displayName: '',
     },
   })
+  const { dirtyFields } = form.formState
 
   useEffect(() => {
     if (currentOrganization) {
@@ -83,6 +84,9 @@ const OrganizationNameForm = () => {
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    if (!dirtyFields.displayName) {
+      return
+    }
     await updateOrganization({ displayName: data.displayName })
   }
 

@@ -52,7 +52,7 @@ export const MergeRecordsSheet = <TRecord extends object, TUpdateInput, TEntity 
     [primary, config.fieldOverrides, config.excludeFields, config.entityType, config.schemaExcludeFields],
   )
 
-  const { visibleFields, resolvedFields, resolvedRecord, setSource, setArrayStrategy, emailAliasFold } = useMergeResolution({ config, fields, primary, secondary })
+  const { visibleFields, resolvedFields, primaryChanges, setSource, setArrayStrategy, emailAliasFold } = useMergeResolution({ config, fields, primary, secondary })
 
   const edgeTransfer = useMergeEdgeTransfer({ entityType: config.entityType, primaryId, secondaryId: open ? secondaryId : null, excludeEdges: config.excludeEdges })
   const customExtras = primary && secondary && config.preSaveInputExtras ? config.preSaveInputExtras({ primary, secondary }) : null
@@ -108,8 +108,9 @@ export const MergeRecordsSheet = <TRecord extends object, TUpdateInput, TEntity 
 
   const confirmMerge = () => {
     if (!secondaryId || !canMerge) return
-    const fieldInput = { ...config.toUpdateInput(resolvedRecord), ...(customExtras?.data ?? {}) } as TUpdateInput
-    runMerge(secondaryId, fieldInput)
+    const extras = customExtras?.data ?? {}
+    const hasFieldChanges = Object.keys(primaryChanges).length > 0 || Object.keys(extras).length > 0
+    runMerge(secondaryId, hasFieldChanges ? ({ ...config.toUpdateInput(primaryChanges), ...extras } as TUpdateInput) : null)
   }
 
   const loadingBothSides = isPrimaryLoading || (secondaryId !== null && isSecondaryLoading)
