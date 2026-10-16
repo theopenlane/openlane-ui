@@ -9786,6 +9786,7 @@ export interface CreateNoteInput {
   discussionID?: InputMaybe<Scalars['ID']['input']>
   evidenceID?: InputMaybe<Scalars['ID']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  findingID?: InputMaybe<Scalars['ID']['input']>
   internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   /** whether the note has been edited */
   isEdited?: InputMaybe<Scalars['Boolean']['input']>
@@ -9807,6 +9808,7 @@ export interface CreateNoteInput {
   title?: InputMaybe<Scalars['String']['input']>
   trustCenterFaqIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -27701,6 +27703,8 @@ export interface Mutation {
   updateExport: ExportUpdatePayload
   /** Update an existing finding */
   updateFinding: FindingUpdatePayload
+  /** Update an existing finding comment */
+  updateFindingComment: FindingUpdatePayload
   /** Update an existing findingControl */
   updateFindingControl: FindingControlUpdatePayload
   /** Update an existing group */
@@ -27820,6 +27824,8 @@ export interface Mutation {
   updateVendorScoringConfig: VendorScoringConfigUpdatePayload
   /** Update an existing vulnerability */
   updateVulnerability: VulnerabilityUpdatePayload
+  /** Update an existing vulnerability comment */
+  updateVulnerabilityComment: VulnerabilityUpdatePayload
   /** Update an existing workflowDefinition */
   updateWorkflowDefinition: WorkflowDefinitionUpdatePayload
   /** Update the proposed changes for a workflow proposal */
@@ -30107,6 +30113,13 @@ export interface MutationUpdateFindingArgs {
   input: UpdateFindingInput
 }
 
+export interface MutationUpdateFindingCommentArgs {
+  id: Scalars['ID']['input']
+  input: UpdateNoteInput
+  noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  noteFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
+}
+
 export interface MutationUpdateFindingControlArgs {
   id: Scalars['ID']['input']
   input: UpdateFindingControlInput
@@ -30466,6 +30479,13 @@ export interface MutationUpdateVendorScoringConfigArgs {
 export interface MutationUpdateVulnerabilityArgs {
   id: Scalars['ID']['input']
   input: UpdateVulnerabilityInput
+}
+
+export interface MutationUpdateVulnerabilityCommentArgs {
+  id: Scalars['ID']['input']
+  input: UpdateNoteInput
+  noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  noteFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
 }
 
 export interface MutationUpdateWorkflowDefinitionArgs {
@@ -30874,6 +30894,7 @@ export interface Note extends Node {
   displayID: Scalars['String']['output']
   evidence?: Maybe<Evidence>
   files: FileConnection
+  finding?: Maybe<Finding>
   id: Scalars['ID']['output']
   internalPolicy?: Maybe<InternalPolicy>
   /** whether the note has been edited */
@@ -30906,6 +30927,7 @@ export interface Note extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
+  vulnerability?: Maybe<Vulnerability>
 }
 
 export interface NoteFilesArgs {
@@ -31027,6 +31049,9 @@ export interface NoteWhereInput {
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
+  /** finding edge predicates */
+  hasFinding?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingWith?: InputMaybe<Array<FindingWhereInput>>
   /** internal_policy edge predicates */
   hasInternalPolicy?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPolicyWith?: InputMaybe<Array<InternalPolicyWhereInput>>
@@ -31054,6 +31079,9 @@ export interface NoteWhereInput {
   hasTrustCenterFaqs?: InputMaybe<Scalars['Boolean']['input']>
   hasTrustCenterFaqsWith?: InputMaybe<Array<TrustCenterFaqWhereInput>>
   hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
+  /** vulnerability edge predicates */
+  hasVulnerability?: InputMaybe<Scalars['Boolean']['input']>
+  hasVulnerabilityWith?: InputMaybe<Array<VulnerabilityWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -53123,6 +53151,7 @@ export interface UpdateFindingInput {
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCheckResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addComment?: InputMaybe<CreateNoteInput>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -53237,6 +53266,7 @@ export interface UpdateFindingInput {
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  deleteComment?: InputMaybe<Scalars['ID']['input']>
   /** long form description of the finding */
   description?: InputMaybe<Scalars['String']['input']>
   /** display name for the finding when provided by the source */
@@ -54093,6 +54123,7 @@ export interface UpdateNoteInput {
   clearDiscussion?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearFinding?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicy?: InputMaybe<Scalars['Boolean']['input']>
   clearNoteRef?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedure?: InputMaybe<Scalars['Boolean']['input']>
@@ -54104,9 +54135,11 @@ export interface UpdateNoteInput {
   clearTitle?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterFaqs?: InputMaybe<Scalars['Boolean']['input']>
+  clearVulnerability?: InputMaybe<Scalars['Boolean']['input']>
   controlID?: InputMaybe<Scalars['ID']['input']>
   discussionID?: InputMaybe<Scalars['ID']['input']>
   evidenceID?: InputMaybe<Scalars['ID']['input']>
+  findingID?: InputMaybe<Scalars['ID']['input']>
   internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   /** whether the note has been edited */
   isEdited?: InputMaybe<Scalars['Boolean']['input']>
@@ -54126,6 +54159,7 @@ export interface UpdateNoteInput {
   /** the title of the note */
   title?: InputMaybe<Scalars['String']['input']>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -57044,6 +57078,7 @@ export interface UpdateVulnerabilityInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addComment?: InputMaybe<CreateNoteInput>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57162,6 +57197,7 @@ export interface UpdateVulnerabilityInput {
   cveID?: InputMaybe<Scalars['String']['input']>
   /** CWE identifiers associated with the vulnerability */
   cweIds?: InputMaybe<Array<Scalars['String']['input']>>
+  deleteComment?: InputMaybe<Scalars['ID']['input']>
   /** scope of the dependency such as runtime or development */
   dependencyScope?: InputMaybe<Scalars['String']['input']>
   /** long form description of the vulnerability */
