@@ -1,0 +1,87 @@
+# Nightly console e2e. Point a Buildkite pipeline at this file
+# (`buildkite-agent pipeline upload .buildkite/e2e/pipeline.yaml`) and give it a schedule
+# in Pipeline Settings → Schedules. Every run starts core's own compose stack plus the
+# console layer in docker-compose.yml, so no staging environment is involved. See README.md.
+env:
+  # core ref the compose files and dev configs come from (core's compose runs the api at :latest)
+  E2E_CORE_REF: main
+  # core's riverboat compose defaults to arm64; the garage agents are x86
+  RIVERBOAT_TAG: amd64-latest
+  E2E_WORKERS: '4'
+  E2E_PORT: '3001'
+
+steps:
+  - label: ':performing_arts: console e2e %n'
+    key: 'e2e'
+    parallelism: 6
+    timeout_in_minutes: 75
+    agents:
+      queue: self-hosted-garage-vms
+    plugins:
+      # core at the checkout root (its compose files expect to run from there), this repo
+      # at ./console. Own directory per job, removed afterwards, so nothing carries over.
+      - custom-checkout#v1.8.0:
+          skip_checkout: true
+          interpolate_checkout_path: '$$BUILDKITE_BUILD_CHECKOUT_PATH-e2e'
+          delete_checkout: true
+          repos:
+            - url: 'https://github.com/theopenlane/core.git'
+              ref: '$E2E_CORE_REF'
+              # the job's checkout root itself: core's compose files mount ${PWD}/config/...
+              # and the compose plugin runs from the root, so core can't be in a subdir
+              checkout_path: '.'
+              clone_flags: ['--filter=blob:none']
+            - url: '$BUILDKITE_REPO'
+              checkout_path: 'console'
+              clone_flags: ['--filter=blob:none']
+      # core's dev configs, copied as core's ensure-config tasks do (vendored, in this repo)
+      - ./console/.buildkite/plugins/core-dev-config: ~
+      - docker-compose#v5.14.0:
+          run: e2e
+          config:
+            - docker/docker-compose-redis.yml
+            - docker/docker-compose-fga.yml
+            - docker/docker-compose-riverboat.yml
+            - docker/docker-compose-published.yml
+            - console/.buildkite/e2e/docker-compose.yml
+          pull: [api, riverboat]
+    artifact_paths:
+      - 'console/apps/console/e2e/blob-report/*.zip'
+      - 'console/apps/console/e2e/results/junit-*.xml'
+      - 'console/e2e-logs/**/*'
+    retry:
+      automatic:
+        - exit_status: -1 # agent lost
+          limit: 1
+
+  - wait: ~
+    continue_on_failure: true
+
+  - label: ':junit: failures'
+    agents:
+      queue: self-hosted-garage-vms
+    plugins:
+      - junit-annotate#v2.7.0:
+          artifacts: 'console/apps/console/e2e/results/junit-*.xml'
+          context: e2e
+          failure-format: file
+
+  - label: ':bar_chart: HTML report'
+    agents:
+      queue: self-hosted-garage-vms
+    plugins:
+      - artifacts#v1.11.0:
+          download: 'console/apps/console/e2e/blob-report/*.zip'
+      - docker#v5.13.0:
+          image: mcr.microsoft.com/playwright:v1.63.0-noble
+          environment:
+            - PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report
+            - PLAYWRIGHT_HTML_OPEN=never
+          command: ['npx', '-y', 'playwright@1.63.0', 'merge-reports', '--reporter', 'html', 'console/apps/console/e2e/blob-report']
+    artifact_paths:
+      - 'playwright-report/**/*'
+
+notify:
+  # needs the Slack notification service set up for the Buildkite org; set the channel
+  - slack: '#ci-alerts'
+    if: build.state == "failed"

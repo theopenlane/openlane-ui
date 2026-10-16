@@ -1,0 +1,37 @@
+# Console layer for the nightly e2e (see README.md). The stack is core's own compose files,
+# the same set `task core:published` starts; this file is passed last and only adds the
+# test runner. Compose runs from the core checkout root (core's files use ${PWD}), with this
+# repo at ./console; E2E_CONSOLE_DIR overrides that for local runs.
+services:
+  # Shares the api container's network, so localhost:17608 is core and localhost:3001 is the
+  # console, the same addresses (and CORS origin) as a laptop run. The image tag must match
+  # @playwright/test in bun.lock; a mismatch fails fast with "browser not installed".
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.63.0-noble
+    network_mode: 'service:api'
+    ipc: host
+    working_dir: /workdir
+    volumes:
+      - ${E2E_CONSOLE_DIR:-${PWD}/console}:/workdir
+    env_file:
+      - ${E2E_CONSOLE_DIR:-${PWD}/console}/.buildkite/e2e/console.env
+    environment:
+      - CI=1
+      - E2E_PORT=${E2E_PORT:-3001}
+      - E2E_WORKERS=${E2E_WORKERS:-4}
+      - E2E_API_BASE=http://localhost:17608
+      - BUILDKITE_PARALLEL_JOB
+      - BUILDKITE_PARALLEL_JOB_COUNT
+    command: ['bash', '.buildkite/e2e/run-shard.sh']
+    # core's api has no depends_on of its own, so the runner pulls in the rest of the stack
+    depends_on:
+      postgres:
+        condition: service_healthy
+      openfga:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      riverboat:
+        condition: service_started
+      api:
+        condition: service_started

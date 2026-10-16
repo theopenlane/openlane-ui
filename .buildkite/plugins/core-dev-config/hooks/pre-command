@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Core's compose files mount config/.config.yaml and docker/configs/riverboat/.config.yaml,
+# which core's tasks (ensure-config-api, ensure-config-river) copy from the dev examples.
+# Runs in the core checkout root, before the docker-compose plugin starts the stack.
+set -euo pipefail
+
+cd "${BUILDKITE_BUILD_CHECKOUT_PATH}"
+
+copy() {
+  if [[ ! -f "$2" ]]; then
+    echo "copying $1 to $2"
+    cp "$1" "$2"
+  fi
+}
+
+copy config/config-dev.example.yaml config/.config.yaml
+copy docker/configs/riverboat/.config.dev.yaml docker/configs/riverboat/.config.yaml
