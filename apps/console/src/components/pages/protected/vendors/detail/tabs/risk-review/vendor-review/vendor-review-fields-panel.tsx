@@ -18,11 +18,12 @@ type TVendorReviewFieldsPanelProps = {
   isEditing: boolean
   reviewId?: string
   savedDescription: string
+  summary?: string | null
   onStagedFilesChange: (files: File[]) => void
   onExistingFileIdsChange: (fileIds: string[]) => void
 }
 
-const VendorReviewFieldsPanel: React.FC<TVendorReviewFieldsPanelProps> = ({ form, isEditing, reviewId, savedDescription, onStagedFilesChange, onExistingFileIdsChange }) => {
+const VendorReviewFieldsPanel: React.FC<TVendorReviewFieldsPanelProps> = ({ form, isEditing, reviewId, savedDescription, summary, onStagedFilesChange, onExistingFileIdsChange }) => {
   const { convertToReadOnly } = usePlateEditor()
   const description = useMemo(() => (savedDescription ? convertToReadOnly(savedDescription) : null), [savedDescription, convertToReadOnly])
 
@@ -60,7 +61,14 @@ const VendorReviewFieldsPanel: React.FC<TVendorReviewFieldsPanelProps> = ({ form
           />
         </>
       ) : (
-        <ReadOnlyField label="Review Description">{description}</ReadOnlyField>
+        <>
+          {summary?.trim() && (
+            <ReadOnlyField label="Summary">
+              <p className="whitespace-pre-wrap break-words">{summary}</p>
+            </ReadOnlyField>
+          )}
+          <ReadOnlyField label="Review Description">{description}</ReadOnlyField>
+        </>
       )}
 
       <ReviewDocumentsSection reviewId={reviewId} isCreate={!reviewId} isEditAllowed={isEditing} onStagedFilesChange={onStagedFilesChange} onExistingFileIdsChange={onExistingFileIdsChange} />

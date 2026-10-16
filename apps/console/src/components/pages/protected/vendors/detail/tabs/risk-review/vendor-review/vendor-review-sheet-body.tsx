@@ -223,6 +223,7 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
             isEditing={isEditing}
             reviewId={reviewId}
             savedDescription={savedDescription}
+            summary={review?.summary}
             onStagedFilesChange={(files) => {
               stagedFilesRef.current = files
             }}
