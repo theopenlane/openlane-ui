@@ -9,6 +9,7 @@ import { type TUploadedFile } from '@/components/pages/protected/evidence/upload
 import { cn } from '@repo/ui/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { useSuggestedVendorLogos } from './hooks/use-suggested-vendor-logos'
+import { fetchLogoAsFile } from '@/lib/vendor-logo'
 
 interface VendorLogoDialogProps {
   open: boolean
@@ -18,25 +19,6 @@ interface VendorLogoDialogProps {
   domains?: string[]
   onLogoSelect: (file: File) => Promise<void>
   isLoading?: boolean
-}
-
-export const fetchLogoAsFile = async (logoUrl: string): Promise<File> => {
-  if (logoUrl.startsWith('data:')) {
-    const [header, data] = logoUrl.split(',')
-    const mimeType = header.split(':')[1].split(';')[0]
-    const binaryString = atob(data)
-    const bytes = new Uint8Array(binaryString.length)
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i)
-    }
-    const extension = mimeType.includes('png') ? '.png' : mimeType.includes('svg') ? '.svg' : '.jpg'
-    return new File([bytes], `logo${extension}`, { type: mimeType })
-  }
-  const response = await fetch(logoUrl)
-  if (!response.ok) throw new Error('Failed to fetch logo')
-  const blob = await response.blob()
-  const extension = blob.type.includes('png') ? '.png' : blob.type.includes('svg') ? '.svg' : '.jpg'
-  return new File([blob], `logo${extension}`, { type: blob.type })
 }
 
 export const VendorLogoDialog: React.FC<VendorLogoDialogProps> = ({ open, onOpenChange, vendorName, vendorDisplayName, domains, onLogoSelect, isLoading }) => {

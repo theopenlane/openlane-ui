@@ -16,8 +16,9 @@ import { useUpdateSubprocessor } from '@/lib/graphql-hooks/subprocessor'
 import { type UpdateSubprocessorInput } from '@repo/codegen/src/schema'
 
 import { CategoryField } from '../../shared/category-field'
+import { subprocessorListingSchema } from '../../shared/subprocessor-listing-schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { CountriesField } from './form-fields/countries-field'
+import { CountriesField } from '../../shared/countries-field'
 import { copyLinkMenuAction, SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { NameField } from './form-fields/name-field'
@@ -29,9 +30,7 @@ import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
 
-const schema = z.object({
-  category: z.string().min(1, 'Category is required'),
-  countries: z.array(z.string()).min(1, 'Select at least one country'),
+const schema = subprocessorListingSchema.extend({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   uploadMode: z.enum(['file', 'url']).default('file'),

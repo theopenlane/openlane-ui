@@ -1,15 +1,12 @@
 'use client'
 
 import { useFormContext } from 'react-hook-form'
-import { FormField, FormItem, FormControl, FormLabel } from '@repo/ui/form'
+import { FormField, FormItem, FormControl, FormLabel, FormMessage } from '@repo/ui/form'
 import { CountryDropdown } from '@repo/ui/country-dropdown'
 import { CountryFlag } from '@repo/ui/country-flag'
 
 export const CountriesField = ({ isEditing }: { isEditing: boolean }) => {
-  const {
-    control,
-    formState: { errors },
-  } = useFormContext()
+  const { control } = useFormContext()
 
   return (
     <FormField
@@ -22,10 +19,10 @@ export const CountriesField = ({ isEditing }: { isEditing: boolean }) => {
           {isEditing ? (
             <>
               <FormControl>
-                <CountryDropdown value={field.value ?? []} onChange={field.onChange} disabled={!isEditing} placeholder="Select countries" />
+                <CountryDropdown value={field.value ?? []} onChange={field.onChange} placeholder="Select countries" />
               </FormControl>
 
-              {errors.countries && <p className="text-red-500 text-sm mt-1">{String(errors.countries.message)}</p>}
+              <FormMessage />
             </>
           ) : (
             <div className="flex items-center gap-1 flex-wrap mt-2">
