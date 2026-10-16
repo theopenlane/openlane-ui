@@ -194,7 +194,7 @@ export const RiskLabel = ({
 
   if (fieldName === 'riskKindName') {
     return (
-      <div className="text-sm flex items-center">
+      <div className="text-sm flex items-center min-w-0">
         <CustomTypeEnumValue value={riskKindName} options={riskKindOptions ?? []} placeholder="-" />
       </div>
     )
@@ -202,7 +202,7 @@ export const RiskLabel = ({
 
   if (fieldName === 'riskCategoryName') {
     return (
-      <div className="text-sm flex items-center">
+      <div className="text-sm flex items-center min-w-0">
         <CustomTypeEnumValue value={riskCategoryName} options={riskCategoryOptions ?? []} placeholder="-" />
       </div>
     )

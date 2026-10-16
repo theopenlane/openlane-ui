@@ -262,11 +262,11 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
     showIcon: boolean
     labelProps: (value: string | undefined) => { status?: RiskRiskStatus; riskKindName?: string; riskCategoryName?: string }
   }) => (
-    <div>
+    <div className="min-w-0">
       <p className="text-sm text-muted-foreground mb-2">{label}</p>
       <Badge
         variant={variant}
-        className={cn('shrink-0', badgeClassName, canInlineEdit(field) && 'cursor-pointer')}
+        className={cn('max-w-full', badgeClassName, canInlineEdit(field) && 'cursor-pointer')}
         onClick={() => {
           if (canInlineEdit(field)) setInlineEditField(field)
         }}
@@ -317,7 +317,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
         handleUpdateField={handleUpdateField}
       />
 
-      <div className="grid gap-4 sm:grid-cols-[160px_160px_1fr]">
+      <div className="grid gap-4 sm:grid-cols-[160px_minmax(0,max-content)_minmax(0,max-content)]">
         {risk.status &&
           renderInlineBadge({
             field: 'status',
@@ -332,7 +332,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
             field: 'riskKindName',
             label: 'Kind',
             variant: 'secondary',
-            badgeClassName: 'ml-[-10px]',
+            badgeClassName: 'px-0',
             showIcon: false,
             labelProps: (value) => ({ riskKindName: value || undefined }),
           })}
@@ -341,7 +341,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
             field: 'riskCategoryName',
             label: 'Category',
             variant: 'secondary',
-            badgeClassName: 'ml-[-10px]',
+            badgeClassName: 'px-0',
             showIcon: false,
             labelProps: (value) => ({ riskCategoryName: value || undefined }),
           })}
