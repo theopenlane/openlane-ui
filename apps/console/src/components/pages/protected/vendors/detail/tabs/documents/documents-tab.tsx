@@ -23,7 +23,12 @@ import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/
 import Menu from '@/components/shared/menu/menu'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 import { getDocumentExportColumns, useDocumentTableColumns } from '@/components/shared/file-table/document-columns'
-import { Upload, SearchIcon } from 'lucide-react'
+import { type TRowAction } from '@/components/shared/crud-base/columns/row-actions-column'
+import { isPdfFile } from '@/components/shared/file-preview/preview-mime'
+import { LazyReportScanUploadSheet } from '@/components/shared/report-scan-upload/lazy-report-scan-upload-sheet'
+import { useCanCreateScan } from '@/hooks/useCanCreateScan'
+import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-categories'
+import { FileSearch, Upload, SearchIcon } from 'lucide-react'
 import MarkAsEvidenceDialog from './mark-as-evidence-dialog'
 import UnmarkEvidenceDialog from './unmark-evidence-dialog'
 import DeleteDocumentDialog from './delete-document-dialog'
@@ -33,11 +38,12 @@ import { tableActionAnchor } from '@/components/shared/element-anchor/element-an
 
 interface DocumentsTabProps {
   vendorId: string
+  vendorName: string
   canEdit: boolean
   logoFileId?: string | null
 }
 
-const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFileId }) => {
+const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, vendorName, canEdit, logoFileId }) => {
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.ENTITY_FILES)
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.ENTITY_FILES, FileOrderField, [
     {
@@ -53,6 +59,12 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
   const [unmarkEvidenceFile, setUnmarkEvidenceFile] = useState<TFile | null>(null)
   const [deleteFile, setDeleteFile] = useState<TFile | null>(null)
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
+  const [reviewReportFile, setReviewReportFile] = useState<TFile | null>(null)
+  const { canCreateScan } = useCanCreateScan()
+  const extraActions = useMemo<TRowAction<TFile>[]>(
+    () => (canEdit && canCreateScan ? [{ label: `Review ${SOC_2_FRAMEWORK_NAME} report`, icon: <FileSearch size={16} />, onClick: setReviewReportFile, hidden: (file) => !isPdfFile(file) }] : []),
+    [canEdit, canCreateScan],
+  )
 
   const debouncedSearch = useDebounce(searchTerm, 300)
   const fileWhere: FileWhereInput | undefined = (() => {
@@ -123,6 +135,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
     onMarkEvidence: setMarkEvidenceFile,
     onUnmarkEvidence: setUnmarkEvidenceFile,
     onDelete: setDeleteFile,
+    extraActions,
   })
 
   const mappedColumns = getMappedColumns(columns)
@@ -168,6 +181,12 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
       {markEvidenceFile && <MarkAsEvidenceDialog fileId={markEvidenceFile.id} fileName={getFileDisplayName(markEvidenceFile)} vendorId={vendorId} onClose={() => setMarkEvidenceFile(null)} />}
       {unmarkEvidenceFile && <UnmarkEvidenceDialog fileId={unmarkEvidenceFile.id} fileName={getFileDisplayName(unmarkEvidenceFile)} onClose={() => setUnmarkEvidenceFile(null)} />}
       {deleteFile && <DeleteDocumentDialog fileId={deleteFile.id} fileName={getFileDisplayName(deleteFile)} vendorId={vendorId} onClose={() => setDeleteFile(null)} />}
+      {reviewReportFile && (
+        <LazyReportScanUploadSheet
+          mode={{ kind: 'vendor', vendor: { id: vendorId, name: vendorName }, initialReport: { kind: 'existing', fileId: reviewReportFile.id, fileName: getFileDisplayName(reviewReportFile) } }}
+          onClose={() => setReviewReportFile(null)}
+        />
+      )}
       {canEdit && <DocumentsUploadDialog onUpload={handleUpload} isUploading={isUploading} title="Upload Documents" open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen} />}
     </div>
   )

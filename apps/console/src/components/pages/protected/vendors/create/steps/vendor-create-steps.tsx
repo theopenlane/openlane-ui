@@ -9,8 +9,17 @@ import StepVendorLogo from './step-vendor-logo'
 import StepOwnership from './step-ownership'
 import StepSecurity from './step-security'
 import StepUploadImport from './step-upload-import'
+import { type TReportScanFile } from '@/lib/graphql-hooks/report-scan'
 
-export const createVendorSteps = (onStagedFilesChange: (files: File[]) => void, onExistingFileIdsChange: (fileIds: string[]) => void, onLogoFileChange: (file: File | null) => void): StepConfig[] => [
+type TVendorStepHandlers = {
+  onStagedFilesChange: (files: File[]) => void
+  onExistingFileIdsChange: (fileIds: string[]) => void
+  onLogoFileChange: (file: File | null) => void
+  soc2Report: TReportScanFile | null
+  onSoc2ReportChange: (report: TReportScanFile | null) => void
+}
+
+export const createVendorSteps = ({ onStagedFilesChange, onExistingFileIdsChange, onLogoFileChange, soc2Report, onSoc2ReportChange }: TVendorStepHandlers): StepConfig[] => [
   {
     id: 'vendor-info',
     label: 'Vendor Info',
@@ -50,7 +59,7 @@ export const createVendorSteps = (onStagedFilesChange: (files: File[]) => void, 
       mfaSupported: z.boolean().optional(),
       mfaEnforced: z.boolean().optional(),
     }),
-    render: () => <StepSecurity />,
+    render: () => <StepSecurity soc2Report={soc2Report} onSoc2ReportChange={onSoc2ReportChange} />,
   },
   {
     id: 'upload-import',

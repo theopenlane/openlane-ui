@@ -8,7 +8,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { Clock, ClipboardCheck, CalendarClock, SearchIcon } from 'lucide-react'
+import { Clock, ClipboardCheck, CalendarClock, FileSearch, SearchIcon } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
 import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -24,6 +24,13 @@ import { reviewHistoryColumns, isHighRiskTier, mappedReviewColumns, DEFAULT_VISI
 import VendorReviewSheet from './vendor-review/vendor-review-sheet'
 import { useHasRecentReview } from '@/components/pages/protected/reviews/hooks/use-has-recent-review'
 import { Callout } from '@/components/shared/callout/callout'
+import { LazyReportScanUploadSheet } from '@/components/shared/report-scan-upload/lazy-report-scan-upload-sheet'
+import { useCanCreateScan } from '@/hooks/useCanCreateScan'
+import { vendorDisplayName } from '@/lib/graphql-hooks/entity'
+import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-categories'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
+
+const NO_VENDOR_EDIT_REASON = 'You need edit access to this vendor to review its report.'
 
 interface RiskReviewTabProps {
   vendor: EntityQuery['entity']
@@ -35,6 +42,8 @@ interface RiskReviewTabProps {
 const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField, canEdit, isEditing }) => {
   const [now] = useState(() => Date.now())
   const [isCreateReviewOpen, setIsCreateReviewOpen] = useState(false)
+  const [isSoc2ReviewOpen, setIsSoc2ReviewOpen] = useState(false)
+  const { canCreateScan } = useCanCreateScan()
   const [selectedRow, setSelectedRow] = useState<ReviewsNodeNonNull | null>(null)
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -83,7 +92,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
     },
   }
 
-  const riskRating = riskRatingFromScore(vendor.riskScore) ?? vendor.riskRating ?? null
+  const riskRating = vendor.riskRating || riskRatingFromScore(vendor.riskScore) || null
 
   return (
     <div className="space-y-6">
@@ -120,6 +129,13 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
+            {canCreateScan ? (
+              <DisabledReasonTooltip reason={canEdit ? undefined : NO_VENDOR_EDIT_REASON}>
+                <Button type="button" variant="secondary" icon={<FileSearch size={16} />} iconPosition="left" disabled={!canEdit} onClick={() => setIsSoc2ReviewOpen(true)}>
+                  Review {SOC_2_FRAMEWORK_NAME} report
+                </Button>
+              </DisabledReasonTooltip>
+            ) : null}
             <Button icon={<ClipboardCheck size={16} />} iconPosition="left" disabled={!canEdit} onClick={() => setIsCreateReviewOpen(true)}>
               Review
             </Button>
@@ -171,6 +187,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
         />
       </div>
 
+      {isSoc2ReviewOpen && <LazyReportScanUploadSheet mode={{ kind: 'vendor', vendor: { id: vendor.id, name: vendorDisplayName(vendor) } }} onClose={() => setIsSoc2ReviewOpen(false)} />}
       {isCreateReviewOpen && <VendorReviewSheet vendor={vendor} canEditVendor={canEdit} onClose={() => setIsCreateReviewOpen(false)} />}
       {selectedReview && <VendorReviewSheet key={selectedReview.id} vendor={vendor} review={selectedReview} canEditVendor={canEdit} onClose={() => setSelectedRow(null)} />}
     </div>
