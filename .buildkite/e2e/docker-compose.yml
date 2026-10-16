@@ -43,6 +43,8 @@ services:
   openfga:
     ports: !reset []
   api:
+    # same release as the core checkout, E2E_CORE_REF is set by the core-dev-config plugin
+    image: ghcr.io/theopenlane/core:${E2E_CORE_REF:-latest}
     ports: !reset []
     # with no signing keys configured, the dev config's generateKeys has `serve` write
     # private_key.pem to the working directory, which the image's nonroot user can't write

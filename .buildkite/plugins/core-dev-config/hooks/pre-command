@@ -6,6 +6,14 @@ set -euo pipefail
 
 cd "${BUILDKITE_BUILD_CHECKOUT_PATH}"
 
+# newest core release tag, so the checkout matches the published api image
+E2E_CORE_REF="${E2E_CORE_REF:-$(git ls-remote --tags --refs --sort=-v:refname origin 'v*' | awk -F/ '{print $3}' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)}"
+export E2E_CORE_REF
+
+echo "checking out core ${E2E_CORE_REF}"
+git fetch --depth=1 origin tag "${E2E_CORE_REF}"
+git checkout -q "${E2E_CORE_REF}"
+
 copy() {
   if [[ ! -f "$2" ]]; then
     echo "copying $1 to $2"

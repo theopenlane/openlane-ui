@@ -1,5 +1,4 @@
 env:
-  E2E_CORE_BRANCH: main
   RIVERBOAT_TAG: amd64-latest
   E2E_WORKERS: '4'
   E2E_PORT: '3001'
@@ -61,9 +60,9 @@ steps:
           interpolate_checkout_path: '$$BUILDKITE_BUILD_CHECKOUT_PATH-e2e'
           repos:
             - url: 'https://github.com/theopenlane/core.git'
-              ref: 'origin/$E2E_CORE_BRANCH'
+              ref: 'origin/main'
               checkout_path: '.'
-              clone_flags: ['--depth=1', '--single-branch', '--branch=$E2E_CORE_BRANCH']
+              clone_flags: ['--depth=1', '--single-branch', '--branch=main']
             - url: '$BUILDKITE_REPO'
               checkout_path: 'console'
               clone_flags: ['--filter=blob:none']
