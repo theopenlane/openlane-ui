@@ -1,4 +1,4 @@
-import { test, expect, readManifest } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 import { uniqueName } from '../utils/unique'
 import { SAMPLE_PDF, SAMPLE_PNG, uploadFiles } from '../utils/files'
 import { expectMutationOk } from '../utils/mutations'
@@ -16,8 +16,6 @@ import {
 } from '../utils/api'
 import type { Locator, Page } from '@playwright/test'
 import { slideoutMenuAction, slideoutReady } from '../utils/slideout'
-
-const requireDemoOrg = () => test.skip(!readManifest().hasDemoSession, 'no demo-org session — trust center is unprovisioned in the e2e org')
 
 const openTrustCenterPage = async (page: Page, route: string) => {
   await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 180_000 })
@@ -77,7 +75,6 @@ test.describe('trust-center — updates content (seeded demo org)', () => {
 
   test('publishing an update adds it to the feed and clears the form', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/updates')
 
     const title = uniqueName('E2E Update')
@@ -91,7 +88,6 @@ test.describe('trust-center — updates content (seeded demo org)', () => {
 
   test('publishing without a description surfaces the required-field error', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/updates')
 
     const title = uniqueName('E2E Update Rejected')
@@ -105,7 +101,6 @@ test.describe('trust-center — updates content (seeded demo org)', () => {
 
   test('publishing without a title surfaces the required-field error', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/updates')
 
     await page.getByPlaceholder('Write an update...').fill('A body with no title.')
@@ -117,7 +112,6 @@ test.describe('trust-center — updates content (seeded demo org)', () => {
 
   test('the character counter tracks the description length', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/updates')
 
     await expect(page.getByText('280 characters remaining')).toBeVisible({ timeout: 30_000 })
@@ -128,7 +122,6 @@ test.describe('trust-center — updates content (seeded demo org)', () => {
 
   test('editing a published update persists the new title', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/updates')
 
     const title = uniqueName('E2E Update Edit')
@@ -151,7 +144,6 @@ test.describe('trust-center — updates content (seeded demo org)', () => {
 
   test('deleting an update asks for confirmation and removes it from the feed', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/updates')
 
     const title = uniqueName('E2E Update Delete')
@@ -168,7 +160,6 @@ test.describe('trust-center — FAQ content (seeded demo org)', () => {
 
   test('publishing a FAQ adds it to the list and clears the form', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/faqs')
 
     const question = uniqueName('Does E2E encrypt data at rest?')
@@ -181,7 +172,6 @@ test.describe('trust-center — FAQ content (seeded demo org)', () => {
 
   test('a reference link that is not a URL blocks publishing', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/faqs')
 
     await page.getByPlaceholder('Enter a frequently asked question').fill(uniqueName('Invalid link FAQ'))
@@ -195,7 +185,6 @@ test.describe('trust-center — FAQ content (seeded demo org)', () => {
 
   test('editing a FAQ persists the new question', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/faqs')
 
     const question = uniqueName('Where is E2E data stored?')
@@ -218,7 +207,6 @@ test.describe('trust-center — FAQ content (seeded demo org)', () => {
 
   test('deleting a FAQ asks for confirmation and removes it from the list', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/faqs')
 
     const question = uniqueName('Temporary E2E FAQ?')
@@ -263,7 +251,6 @@ test.describe('trust-center — documents (seeded demo org)', () => {
 
   test('the New Document sheet keeps Create disabled until a file is attached', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/documents')
 
     const sheet = await openCreateSheet(page)
@@ -278,7 +265,6 @@ test.describe('trust-center — documents (seeded demo org)', () => {
 
   test('a document can be uploaded, found by search, opened and deleted', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/documents')
 
     const title = uniqueName('E2E Doc')
@@ -307,7 +293,6 @@ test.describe('trust-center — documents (seeded demo org)', () => {
 
   test('the Columns menu lists toggleable document columns', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/documents')
 
     await page.getByRole('button', { name: /^Columns$/ }).click()
@@ -316,7 +301,6 @@ test.describe('trust-center — documents (seeded demo org)', () => {
 
   test('the filter menu exposes the document filter fields', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/documents')
 
     await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
@@ -338,7 +322,6 @@ test.describe('trust-center — subprocessors (seeded demo org)', () => {
 
   test('the Create menu offers both adding an existing subprocessor and a custom one', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/subprocessors')
 
     await openCreateMenu(page)
@@ -347,7 +330,6 @@ test.describe('trust-center — subprocessors (seeded demo org)', () => {
 
   test('the custom subprocessor sheet keeps Create disabled until a logo is supplied', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/subprocessors')
 
     await openCreateMenu(page)
@@ -368,7 +350,6 @@ test.describe('trust-center — subprocessors (seeded demo org)', () => {
 
   test('a logo URL that is not a URL is rejected', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/subprocessors')
 
     await openCreateMenu(page)
@@ -386,7 +367,6 @@ test.describe('trust-center — subprocessors (seeded demo org)', () => {
 
   test('the Add to Trust Center dialog opens from the Create menu', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/subprocessors')
 
     await openCreateMenu(page)
@@ -397,7 +377,6 @@ test.describe('trust-center — subprocessors (seeded demo org)', () => {
 
   test('the subprocessors toolbar exposes search, columns and filters', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/subprocessors')
 
     await expect(page.getByPlaceholder('Search subprocessors...')).toBeVisible({ timeout: 30_000 })
@@ -432,7 +411,6 @@ test.describe('trust-center — customer logos (seeded demo org)', () => {
 
   test('a customer logo can be added and removed again', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/customer-logos')
 
     const name = uniqueName('E2E Customer')
@@ -444,7 +422,6 @@ test.describe('trust-center — customer logos (seeded demo org)', () => {
 
   test('adding a customer without a name surfaces the required-field error', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/customer-logos')
 
     await expect(page.getByPlaceholder('Enter company name...')).toBeVisible({ timeout: 30_000 })
@@ -456,7 +433,6 @@ test.describe('trust-center — customer logos (seeded demo org)', () => {
 
   test('the customer link can be edited after the logo is added', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/customer-logos')
 
     const name = uniqueName('E2E Customer Link')
@@ -479,7 +455,6 @@ test.describe('trust-center — branding (seeded demo org)', () => {
 
   test('the Published branding tab renders the settings read-only', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/branding')
 
     const securityContact = page.getByPlaceholder('security@company.com')
@@ -493,7 +468,6 @@ test.describe('trust-center — branding (seeded demo org)', () => {
 
   test('switching back to Preview restores the editable branding fields', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/branding')
 
     await page.getByRole('tab', { name: 'Published' }).click()
@@ -514,7 +488,6 @@ test.describe('trust-center — subprocessors submit', () => {
 
   test('a custom subprocessor is created from the sheet', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     const name = uniqueName('E2E Subprocessor Create')
     await openTrustCenterPage(page, '/trust-center/subprocessors')
 
@@ -571,7 +544,6 @@ test.describe('trust-center — document bulk actions and watermark', () => {
 
   test('bulk editing selected documents saves the change', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     const title = uniqueName('E2E Doc BulkEdit')
     await openTrustCenterPage(page, '/trust-center/documents')
     await createDocumentViaUi(page, title)
@@ -603,7 +575,6 @@ test.describe('trust-center — document bulk actions and watermark', () => {
 
   test('bulk deleting selected documents removes them', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     const title = uniqueName('E2E Doc BulkDelete')
     await openTrustCenterPage(page, '/trust-center/documents')
     await createDocumentViaUi(page, title)
@@ -629,7 +600,6 @@ test.describe('trust-center — document bulk actions and watermark', () => {
 
   test('the watermark sheet saves its configuration', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/documents')
 
     await page.getByRole('button', { name: /^Watermark$/ }).click()
@@ -650,13 +620,13 @@ test.describe('trust-center — NDA template', () => {
 
   test('an NDA is uploaded and then replaced', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/NDAs')
 
     const upload = page.getByRole('button', { name: /^Upload$/ })
     const replace = page.getByRole('button', { name: /^Replace$/ })
+    await expect(upload.or(replace)).toBeVisible({ timeout: 60_000 })
 
-    if (await upload.isVisible().catch(() => false)) {
+    if (await upload.isVisible()) {
       await upload.click()
       const dialog = page.getByRole('dialog')
       await expect(dialog.getByText('Upload NDA Document')).toBeVisible({ timeout: 30_000 })
@@ -686,7 +656,6 @@ test.describe('trust-center — branding publish', () => {
 
   test('publishing branding persists the security contact on the live setting', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/branding')
 
     const securityContact = page.getByPlaceholder('security@company.com')
@@ -715,7 +684,6 @@ test.describe('trust-center — subscribers', () => {
 
   test('unsubscribing a trust-center subscriber updates their status', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     const demoApi = await getDemoApi()
     const email = `e2e-sub-${Date.now().toString(36)}@example.com`
     await createSubscriber(demoApi, email, await getTrustCenterId(demoApi))
@@ -751,7 +719,6 @@ test.describe('trust-center — subprocessor edit and delete', () => {
 
   test('editing a trust center subprocessor persists the description', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     const { tcSubprocessorId } = await seedAttached('E2E SubEdit')
 
     await openTrustCenterPage(page, `/trust-center/subprocessors?id=${tcSubprocessorId}`)
@@ -773,7 +740,6 @@ test.describe('trust-center — subprocessor edit and delete', () => {
 
   test('deleting a trust center subprocessor removes it from the table', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     const { name } = await seedAttached('E2E SubDelete')
 
     await openTrustCenterPage(page, '/trust-center/subprocessors')
@@ -805,7 +771,6 @@ test.describe('trust-center — custom domain lifecycle', () => {
 
   test('a vanity domain is set and deleted', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/domain')
 
     const setButton = page.getByRole('button', { name: /^Set$/ })
@@ -843,7 +808,6 @@ test.describe('trust-center — frameworks', () => {
 
   test('toggling a framework on and publishing associates it, toggling off removes it', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     const frameworkName = sortsFirst('E2E ToggleFw')
     const demoApi = await getDemoApi()
     const standardId = await createStandard(demoApi, frameworkName, 'E2E Framework')
@@ -888,7 +852,6 @@ test.describe('trust-center — FAQ categories (#2309)', () => {
 
   test('a FAQ published with a category keeps that category through an edit', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
 
     const demoApi = await getDemoApi()
     const category = uniqueName('E2E FaqCategory').replace(/\s+/g, '-')

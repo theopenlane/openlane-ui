@@ -6,11 +6,27 @@ set -euo pipefail
 
 cd "${BUILDKITE_BUILD_CHECKOUT_PATH}"
 
-# newest core release tag, so the checkout matches the published api image
-# awk reads all input, an early-exiting head would SIGPIPE the pipeline under pipefail
-E2E_CORE_REF="${E2E_CORE_REF:-$(git ls-remote --tags --refs --sort=-v:refname origin 'v*' | awk -F/ '!ref && $3 ~ /^v[0-9]+\.[0-9]+\.[0-9]+$/ {ref = $3} END {print ref}')}"
-if [[ -z "${E2E_CORE_REF}" ]]; then
-  echo "no core release tag found" >&2
+# newest core release tag whose api image is published, so the checkout matches the image
+core_image=ghcr.io/theopenlane/core
+max_release_candidates=5
+
+if [[ -z "${E2E_CORE_REF:-}" ]]; then
+  release_tags="$(git ls-remote --tags --refs --sort=-v:refname origin 'v*' | awk -F/ '$3 ~ /^v[0-9]+\.[0-9]+\.[0-9]+$/ {print $3}')"
+  checked=0
+  while read -r tag; do
+    [[ -n "${tag}" ]] || continue
+    if docker manifest inspect "${core_image}:${tag}" >/dev/null 2>&1; then
+      E2E_CORE_REF="${tag}"
+      break
+    fi
+    echo "core ${tag} has no published ${core_image} image yet, trying the previous release" >&2
+    checked=$((checked + 1))
+    [[ ${checked} -lt ${max_release_candidates} ]] || break
+  done <<<"${release_tags}"
+fi
+
+if [[ -z "${E2E_CORE_REF:-}" ]]; then
+  echo "no core release tag with a published ${core_image} image found" >&2
   exit 1
 fi
 export E2E_CORE_REF

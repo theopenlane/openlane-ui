@@ -1,6 +1,4 @@
-import { test, expect, readManifest } from '../fixtures/auth'
-
-const requireDemoOrg = () => test.skip(!readManifest().hasDemoSession, 'no demo-org session — trust center is unprovisioned in the e2e org')
+import { test, expect } from '../fixtures/auth'
 
 test.describe('trust-center — unconfigured org sees the deferred error fallback', () => {
   test('/trust-center/overview shows the "unexpected issue" error page', async ({ page }) => {
@@ -45,7 +43,6 @@ test.describe('trust-center — subprocessor change notifications (#1948)', () =
 
   test('the subprocessors page offers the subscriber-notification switch', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await page.goto('/trust-center/subprocessors', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
     await expect(page.getByText('Email subscribers when subprocessors change', { exact: true })).toBeVisible({ timeout: 30_000 })
@@ -58,7 +55,6 @@ test.describe('trust-center — recommended controls tab (ISS-1917)', () => {
 
   test('the controls page offers all four filter tabs with counts', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await page.goto('/trust-center/controls', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
     await expect(page.getByRole('tab', { name: /^All \(\d+\)$/ })).toBeVisible({ timeout: 90_000 })
@@ -69,7 +65,6 @@ test.describe('trust-center — recommended controls tab (ISS-1917)', () => {
 
   test('selecting Recommended activates that filter', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await page.goto('/trust-center/controls', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
     const recommended = page.getByRole('tab', { name: /^Recommended \(\d+\)$/ })
@@ -86,7 +81,6 @@ test.describe('trust-center — NDA requests table (#2058)', () => {
 
   test('the NDA requests table exposes its column menu', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await page.goto('/trust-center/NDAs', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await expect(page.getByTestId('user-menu-trigger')).toBeAttached({ timeout: 30_000 })
 

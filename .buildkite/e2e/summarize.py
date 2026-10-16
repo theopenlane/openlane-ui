@@ -26,7 +26,7 @@ def summarize(title, context, pattern, step_key, extra=""):
     outcome = step_outcome(step_key)
     body = [f"### {title}", f"**{len(cases) - len(failed) - skipped}** passed · **{len(failed)}** failed · {skipped} skipped · {len(cases)} total · {len(files)} result file(s)", extra]
     if outcome != "passed":
-        body.append(f":warning: The `{step_key}` step's outcome is **{outcome}**; a job that died before writing results is missing from these counts.")
+        body.append(f":warning: The `{step_key}` step finished **{outcome}**; if fewer result files arrived than jobs ran, a job died before writing results and its tests are missing from these counts.")
     if failed:
         body += ["<details><summary>Failed tests</summary>\n", *[f"- `{c.get('name')}` in `{c.get('classname')}`" for c in failed], "</details>"]
     style = "success" if cases and not failed and outcome == "passed" else "error"

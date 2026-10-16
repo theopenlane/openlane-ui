@@ -5,7 +5,7 @@ import { PASSWORD, RUN_ID } from './constants'
 import { loginViaForm } from './login'
 import { completeOnboarding } from './onboarding'
 import { registerAndVerify } from './registerUser'
-import { readManifest } from '../fixtures/auth'
+import { readManifest } from './manifest'
 
 /** Create a brand-new user with their own pristine organization and log them in via the UI. */
 export interface SeedUserOptions {

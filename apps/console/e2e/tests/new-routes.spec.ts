@@ -1,4 +1,4 @@
-import { test, expect, readManifest } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 
 test.describe('auditor dashboard', () => {
   test('/auditor-dashboard renders either the program view or its empty state', async ({ page }) => {
@@ -74,7 +74,6 @@ test.describe('trust center — subscribers', () => {
 
   test('/trust-center/subscribers renders the allow-subscribers panel and search', async ({ page }) => {
     test.slow()
-    test.skip(!readManifest().hasDemoSession, 'no demo-org session — trust center is unprovisioned in the e2e org')
     await page.goto('/trust-center/subscribers', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
     await expect(page.getByRole('heading', { name: /^Subscribers$/ })).toBeVisible({ timeout: 30_000 })

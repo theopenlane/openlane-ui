@@ -7,7 +7,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { useGetControlById, useGetControlRelatedControls } from '@/lib/graphql-hooks/control'
 import { getEdgeNodes } from '@/components/shared/object-association/utils'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
-import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/standards'
+import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/system-standards'
 import { type ControlReviewFormData } from './use-control-review-form-schema'
 
 type TRelatedItem = { id: string; refCode: string; field: 'linkedControlIDs' | 'linkedSubcontrolIDs' }

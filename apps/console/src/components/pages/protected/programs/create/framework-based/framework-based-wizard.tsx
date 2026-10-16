@@ -25,7 +25,8 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import SelectCategoryStep from '../shared/steps/select-category-step'
 import SuggestedControlsStep from '../shared/steps/suggested-controls-step'
 import { useCloneControls } from '@/lib/graphql-hooks/standard'
-import { isSoc2Framework, SOC_2_REQUIRED_CATEGORY } from '@/constants/trust-services-categories'
+import { isSoc2Framework } from '@/constants/trust-services-categories'
+import { SOC_2_REQUIRED_CATEGORY } from '@/constants/trust-services-category-names'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)

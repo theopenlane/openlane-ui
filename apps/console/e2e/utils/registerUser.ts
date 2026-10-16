@@ -15,7 +15,7 @@ interface RegisterResponse {
 }
 
 /** Register a new user and complete email verification. */
-export const registerAndVerify = async (input: RegisterUserInput): Promise<{ email: string; password: string }> => {
+export const registerAndVerify = async (input: RegisterUserInput): Promise<{ id: string; email: string; password: string }> => {
   const password = input.password ?? PASSWORD
   const firstName = input.firstName ?? 'E2E'
   const lastName = input.lastName ?? 'User'
@@ -40,5 +40,5 @@ export const registerAndVerify = async (input: RegisterUserInput): Promise<{ ema
     throw new Error(`verify failed: ${verify.status} ${await verify.text()}`)
   }
 
-  return { email: input.email, password }
+  return { id: body.id, email: input.email, password }
 }

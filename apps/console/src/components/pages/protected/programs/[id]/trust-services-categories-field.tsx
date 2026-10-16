@@ -7,7 +7,8 @@ import { Label } from '@repo/ui/label'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 import { programFrameworkControlsWhere } from '@/constants/standards'
-import { SOC_2_REQUIRED_CATEGORY, sortTrustServicesCategories } from '@/constants/trust-services-categories'
+import { sortTrustServicesCategories } from '@/constants/trust-services-categories'
+import { SOC_2_REQUIRED_CATEGORY } from '@/constants/trust-services-category-names'
 import { useGetControlCategoriesByFramework } from '@/lib/graphql-hooks/control'
 import TrustServicesCategoriesSlideout from './trust-services-categories-slideout'
 

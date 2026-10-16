@@ -1,13 +1,16 @@
 import { chromium, type BrowserContext, type FullConfig } from '@playwright/test'
 import { chmodSync, existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
-import { BASE_URL, PASSWORD, RUN_ID, emailFor } from './utils/constants'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
+
+import { BASE_URL, PASSWORD, RUN_ID, emailFor, isolatedEmailFor } from './utils/constants'
+import { AUTH_DIR, MANIFEST_PATH, readManifest, type AuthManifest, type SeededRoleKey } from './utils/manifest'
 import { registerAndVerify } from './utils/registerUser'
 import { loginViaForm } from './utils/login'
 import { saveStorageState } from './utils/session'
 import { completeOnboarding } from './utils/onboarding'
+import { ensureSystemFixtures } from './utils/system-fixtures'
 import {
   loginViaApi,
   getSharedOrgs,
@@ -21,6 +24,7 @@ import {
   createStandard,
   getTrustCenterId,
   ensureTrustCenter,
+  ensureTrustCenterDocs,
   completeOnboardingTasks,
   type ApiSession,
   type SeedRole,
@@ -28,25 +32,7 @@ import {
 
 /** Runs once per `playwright test` invocation. */
 
-export const AUTH_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '.auth')
-
 const saveAuthState = (context: BrowserContext, role: string): Promise<void> => saveStorageState(context, path.join(AUTH_DIR, `${role}.json`))
-
-type SeededRoleKey = 'admin' | 'superadmin' | 'member' | 'readonly'
-
-export interface AuthManifest {
-  runId: string
-  ownerEmail: string
-  password: string
-  sharedOrgId: string
-  sharedOrgName: string
-  roleEmails: Record<SeededRoleKey, string>
-  sharedControlId: string
-  sharedControlRefCode: string
-  hasDemoSession: boolean
-  demoEmail?: string
-  demoPassword?: string
-}
 
 const ROLE_MAP: Record<SeededRoleKey, SeedRole> = {
   admin: 'ADMIN',
@@ -142,19 +128,18 @@ const capturedSessionWorks = async (): Promise<boolean> => {
 const canReuseAuth = async (): Promise<boolean> => {
   if (process.env.E2E_REUSE_AUTH !== '1') return false
   if (process.env.E2E_RESEED === '1') return false
-  if (!existsSync(path.join(AUTH_DIR, 'manifest.json'))) return false
+  if (!existsSync(MANIFEST_PATH)) return false
+  if (!readManifest().demoEmail) return false
   if (!ROLE_FILES.every((r) => existsSync(path.join(AUTH_DIR, `${r}.json`)))) return false
   return capturedSessionWorks()
 }
-
-let demoEmail: string | undefined
-let demoPassword: string | undefined
 
 const seedTrustCenterFixtures = async (email: string, password: string): Promise<void> => {
   const api = await loginViaApi(email, password)
   await getTrustCenterId(api)
   await createSubprocessor(api, `E2E Subprocessor ${RUN_ID}`)
   await createStandard(api, `E2E Framework ${RUN_ID}`)
+  await ensureTrustCenterDocs(api, DEFAULT_PAGINATION.pageSize + 1, 'E2E Category')
 }
 
 /** Logs the demo profile in through the form, saves its session, and seeds the trust-center fixtures. */
@@ -165,14 +150,11 @@ const captureDemoSession = async (email: string, password: string): Promise<void
     const page = await context.newPage()
     await loginViaForm(page, email, password)
     await page.waitForURL(/\/dashboard/, { timeout: 30_000 })
-    await saveAuthState(context, 'demo')
   } finally {
     await browser.close()
   }
 
   await seedTrustCenterFixtures(email, password)
-  demoEmail = email
-  demoPassword = password
 }
 
 /**
@@ -181,8 +163,8 @@ const captureDemoSession = async (email: string, password: string): Promise<void
  * e2e email domain, so an emailFor() address would be joined to the shared org as a member,
  * which can't create a trust center.
  */
-const provisionDemoAccount = async (): Promise<void> => {
-  const email = `e2e-demo@trust-center-${RUN_ID}.invalid`.toLowerCase()
+const provisionDemoAccount = async (): Promise<string> => {
+  const email = isolatedEmailFor('demo', 'trust-center')
 
   await registerAndVerify({ email })
 
@@ -198,16 +180,7 @@ const provisionDemoAccount = async (): Promise<void> => {
 
   await captureDemoSession(email, PASSWORD)
   console.log(`[global-setup] provisioned a trust-center org for ${email}`)
-}
-
-const setUpDemoSession = async (): Promise<boolean> => {
-  try {
-    await provisionDemoAccount()
-    return true
-  } catch (err) {
-    console.log(`[global-setup] no demo trust-center org (${String(err).slice(0, 160)}) — trust-center specs will skip`)
-    return false
-  }
+  return email
 }
 
 const globalSetup = async (_config: FullConfig): Promise<void> => {
@@ -215,6 +188,8 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
   chmodSync(AUTH_DIR, 0o700)
 
   if (await canReuseAuth()) {
+    const reused = readManifest()
+    await ensureSystemFixtures(await loginViaApi(reused.ownerEmail, reused.password))
     console.log('[global-setup] E2E_REUSE_AUTH set and the captured session still works — reusing e2e/.auth')
     return
   }
@@ -243,6 +218,8 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
   await setDefaultOrg(ownerApi0, ownerSelf.settingId, shared.id)
   const ownerApi = await loginViaApi(ownerEmail)
 
+  await ensureSystemFixtures(ownerApi)
+
   const completed = await completeOnboardingTasks(ownerApi)
   console.log(`[global-setup] completed ${completed} onboarding checklist task(s)`)
 
@@ -255,7 +232,7 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
     roleEmails[role] = await seedRoleUser({ role, ownerApi, sharedOrgId: shared.id })
   }
 
-  const hasDemoSession = await setUpDemoSession()
+  const demoEmail = await provisionDemoAccount()
 
   const manifest: AuthManifest = {
     runId: RUN_ID,
@@ -266,13 +243,11 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
     roleEmails,
     sharedControlId,
     sharedControlRefCode,
-    hasDemoSession,
     demoEmail,
-    demoPassword,
+    demoPassword: PASSWORD,
   }
-  const manifestPath = path.join(AUTH_DIR, 'manifest.json')
-  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), { mode: 0o600 })
-  chmodSync(manifestPath, 0o600)
+  writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2), { mode: 0o600 })
+  chmodSync(MANIFEST_PATH, 0o600)
 }
 
 export default globalSetup

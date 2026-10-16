@@ -6,7 +6,7 @@ import StandardDetailsView from '@/components/pages/protected/standards/standard
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { ObjectWithDetailsSkeleton } from '@/components/shared/skeleton/object-with-slideout-skeleton'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { OPENLANE_BASELINE_STANDARD } from '@/constants/standards'
+import { OPENLANE_BASELINE_STANDARD } from '@/constants/system-standards'
 
 const TemplateControlsPage = () => {
   const { standardId, isLoading, isError } = useSystemStandard(OPENLANE_BASELINE_STANDARD)
