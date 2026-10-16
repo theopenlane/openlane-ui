@@ -16,7 +16,12 @@ steps:
           command:
             - bash
             - -c
-            - mkdir -p test-results && bun install --frozen-lockfile && bun test apps/console/src packages --reporter=junit --reporter-outfile=test-results/junit-unit.xml
+            - |
+              set -euo pipefail
+              trap 'chown -R "$$(stat -c %u:%g /workdir)" /workdir' EXIT
+              mkdir -p test-results
+              bun install --frozen-lockfile
+              bun test apps/console/src packages --reporter=junit --reporter-outfile=test-results/junit-unit.xml
     artifact_paths:
       - 'test-results/junit-unit.xml'
 
@@ -97,7 +102,13 @@ steps:
           environment:
             - PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report
             - PLAYWRIGHT_HTML_OPEN=never
-          command: ['npx', '-y', 'playwright@1.63.0', 'merge-reports', '--reporter', 'html', 'console/apps/console/e2e/blob-report']
+          command:
+            - bash
+            - -c
+            - |
+              set -euo pipefail
+              trap 'chown -R "$$(stat -c %u:%g /workdir)" /workdir' EXIT
+              npx -y playwright@1.63.0 merge-reports --reporter html console/apps/console/e2e/blob-report
     artifact_paths:
       - 'playwright-report/**/*'
 

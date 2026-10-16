@@ -400,21 +400,21 @@ export const createTrustCenterSubprocessor = (sess: ApiSession, trustCenterID: s
     countries,
   })
 
-export const getTrustCenterId = async (sess: ApiSession): Promise<string> => {
+const findTrustCenterId = async (sess: ApiSession): Promise<string | undefined> => {
   const res = await gql<{ trustCenters: { edges: Array<{ node: { id: string } }> } }>(sess, `{ trustCenters(first: 1) { edges { node { id } } } }`)
-  const id = res.data?.trustCenters?.edges?.[0]?.node?.id
+  if (res.errors?.length) throw new Error(`trustCenters: ${JSON.stringify(res.errors).slice(0, 300)}`)
+  return res.data?.trustCenters?.edges?.[0]?.node?.id
+}
+
+export const getTrustCenterId = async (sess: ApiSession): Promise<string> => {
+  const id = await findTrustCenterId(sess)
   if (!id) throw new Error('getTrustCenterId: org has no trust center')
   return id
 }
 
 /** The org's trust center, created if it has none (core allows one per org and creates its live and preview settings). */
-export const ensureTrustCenter = async (sess: ApiSession): Promise<string> => {
-  try {
-    return await getTrustCenterId(sess)
-  } catch {
-    return seedEntity(sess, 'createTrustCenter', 'CreateTrustCenterInput', 'trustCenter', {})
-  }
-}
+export const ensureTrustCenter = async (sess: ApiSession): Promise<string> =>
+  (await findTrustCenterId(sess)) ?? seedEntity(sess, 'createTrustCenter', 'CreateTrustCenterInput', 'trustCenter', {})
 
 export const createIdentityHolder = (sess: ApiSession, fullName: string, email: string): Promise<string> =>
   seedEntity(sess, 'createIdentityHolder', 'CreateIdentityHolderInput', 'identityHolder', { fullName, email })

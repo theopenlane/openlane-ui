@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 
 PORT="${E2E_PORT:-3004}"
 BASE_URL="http://localhost:${PORT}"
-SERVER_LOG="${TMPDIR:-/tmp}/openlane-e2e-prod-server.log"
+SERVER_LOG="${E2E_SERVER_LOG:-${TMPDIR:-/tmp}/openlane-e2e-prod-server.log}"
 SERVER_PID=""
 
 cleanup() {

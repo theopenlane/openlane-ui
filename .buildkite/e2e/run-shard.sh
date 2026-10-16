@@ -22,9 +22,9 @@ bun install --frozen-lockfile
 AUTH_SECRET="$(node -e "process.stdout.write(require('crypto').randomBytes(32).toString('base64'))")"
 export AUTH_SECRET NEXTAUTH_SECRET="${AUTH_SECRET}"
 
-# run-prod-suite.sh writes the console server log under TMPDIR; keep it with the artifacts
+# only the server log goes in the artifacts; TMPDIR also holds the workers' signed-in storage states
 mkdir -p /workdir/e2e-logs
-export TMPDIR=/workdir/e2e-logs
+export E2E_SERVER_LOG="/workdir/e2e-logs/console-server-${SHARD}.log"
 
 export PLAYWRIGHT_BLOB_OUTPUT_DIR=e2e/blob-report
 export PLAYWRIGHT_BLOB_OUTPUT_NAME="report-${SHARD}.zip"
