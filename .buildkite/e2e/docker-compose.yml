@@ -1,6 +1,6 @@
 # Console layer for the nightly e2e (see README.md). The stack is core's own compose files,
-# the same set `task core:published` starts; this file is passed last and only adds the
-# test runner. Compose runs from the core checkout root (core's files use ${PWD}), with this
+# the same set `task core:published` starts; this file is passed last and adds the test
+# runner, plus the few overrides CI needs (no host ports, riverboat on the compose network). Compose runs from the core checkout root (core's files use ${PWD}), with this
 # repo at ./console; E2E_CONSOLE_DIR overrides that for local runs.
 services:
   # Shares the api container's network, so localhost:17608 is core and localhost:3001 is the
@@ -35,3 +35,22 @@ services:
         condition: service_started
       api:
         condition: service_started
+
+  # Core's files publish fixed host ports (5432, 6379, 8080, 17608…), so parallel jobs on one
+  # agent host collide. Everything here talks over the compose network, so drop them.
+  postgres:
+    ports: !reset []
+  redis:
+    ports: !reset []
+  openfga:
+    ports: !reset []
+  api:
+    ports: !reset []
+
+  # riverboat's dev config reaches postgres and the api via host.docker.internal on those host
+  # ports; point it at the services instead (RIVERBOAT_ env, `_` maps to `.`)
+  riverboat:
+    environment:
+      - RIVERBOAT_RIVER_DATABASEHOST=postgres://postgres:password@postgres:5432/jobs?sslmode=disable
+      - RIVERBOAT_RIVER_WORKERS_OPENLANECONFIG_OPENLANEAPIHOST=http://api:17608
+      - RIVERBOAT_RIVER_TRUSTCENTERWORKERS_OPENLANECONFIG_OPENLANEAPIHOST=http://api:17608

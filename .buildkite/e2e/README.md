@@ -44,19 +44,19 @@ Console server logs from each job are in `console/e2e-logs/` in that job's artif
    `buildkite-agent pipeline upload .buildkite/e2e/pipeline.yaml`.
 2. Add a schedule in **Pipeline Settings → Schedules**, for example `0 9 * * *`.
 3. Set the Slack channel in `notify` (the Buildkite org needs the Slack integration).
-4. Agents in `self-hosted-garage-vms` need Docker with compose v2. Core's compose files
-   publish host ports (5432, 6379, 8080, 17608…), so each agent host runs one job at a time.
+4. Agents need Docker with compose v2.24 or later (`docker-compose.yml` uses `!reset` to
+   drop core's host ports, so parallel jobs on one host don't collide).
 
 ## Settings
 
-| Setting          | Where                                 | Default           |                                                                                               |
-| ---------------- | ------------------------------------- | ----------------- | --------------------------------------------------------------------------------------------- |
-| `E2E_CORE_REF`   | `pipeline.yaml` env                   | `main`            | core ref the compose files and dev configs come from; core's compose runs the api at `latest` |
-| `RIVERBOAT_TAG`  | `pipeline.yaml` env                   | `amd64-latest`    | core's riverboat file defaults to `arm64-latest`                                              |
-| bun image        | `pipeline.yaml`                       | `oven/bun:1.3.13` | keep in step with `packageManager` in `package.json`                                          |
-| `parallelism`    | `pipeline.yaml`                       | `6`               | number of shards                                                                              |
-| `E2E_WORKERS`    | `pipeline.yaml` env                   | `4`               | Playwright workers per shard                                                                  |
-| Playwright image | `docker-compose.yml`, `pipeline.yaml` | `v1.63.0-noble`   | must match `@playwright/test` in `bun.lock`                                                   |
+| Setting          | Where                                 | Default           |                                                                                                                                                   |
+| ---------------- | ------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `E2E_CORE_REF`   | `pipeline.yaml` env                   | `origin/main`     | core ref (a remote ref or SHA, since the checkout is reused) the compose files and dev configs come from; core's compose runs the api at `latest` |
+| `RIVERBOAT_TAG`  | `pipeline.yaml` env                   | `amd64-latest`    | core's riverboat file defaults to `arm64-latest`                                                                                                  |
+| bun image        | `pipeline.yaml`                       | `oven/bun:1.3.13` | keep in step with `packageManager` in `package.json`                                                                                              |
+| `parallelism`    | `pipeline.yaml`                       | `6`               | number of shards                                                                                                                                  |
+| `E2E_WORKERS`    | `pipeline.yaml` env                   | `4`               | Playwright workers per shard                                                                                                                      |
+| Playwright image | `docker-compose.yml`, `pipeline.yaml` | `v1.63.0-noble`   | must match `@playwright/test` in `bun.lock`                                                                                                       |
 
 ## Running a shard locally
 
