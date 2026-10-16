@@ -1,71 +1,104 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Check, ExternalLink, FileText, ShieldCheck, Sparkles, X } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
+import React, { useRef, useState } from 'react'
+import { Check, ExternalLink, ShieldCheck, Sparkles } from 'lucide-react'
 import { Button } from '@repo/ui/button'
-import { Card } from '@repo/ui/cardpanel'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
-import { ScanScanType } from '@repo/codegen/src/schema'
 import { Callout } from '@/components/shared/callout/callout'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
-import FileUpload from '@/components/shared/file-upload/file-upload'
-import { pdfAcceptedFileTypes, pdfAcceptedFileTypesShort } from '@/components/shared/file-upload/file-upload-config'
 import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-categories'
+import { SCAN_PERFORMER, type TReportScanPerformer } from '@/constants/scan-performers'
 import { useCompleteTask } from '@/hooks/useCompleteTask'
 import { useNotification } from '@/hooks/useNotification'
 import { useRecommendationsFeed } from '@/hooks/useRecommendationsFeed'
-import { REPORT_SCAN_PERFORMER, useActiveReportScan, useCreateReportScan } from '@/lib/graphql-hooks/report-scan'
+import { REPORT_SCAN_STARTED_NOTIFICATION, type TReportScanFile, useCreateReportScan, useReportScanAvailability } from '@/lib/graphql-hooks/report-scan'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SuggestedTaskKindBadge } from '@/components/pages/protected/overview/suggested-task-kind-badge'
 import { REPORT_SECTION_META } from '../sections'
 import { useSavesToTrustCenter } from '../hooks/use-saves-to-trust-center'
+import { ReportFileField } from './report-file-field'
+import { LooksForCard, type TLooksForItem } from './looks-for-card'
+import { VendorReviewExplainer } from './vendor-review-explainer'
 
-const MAX_REPORT_SIZE_MB = 50
-
-const BYTES_PER_KB = 1024
-
-const BYTES_PER_MB = BYTES_PER_KB * BYTES_PER_KB
-
-const formatReportSize = (bytes: number) => (bytes < BYTES_PER_MB ? `${Math.max(1, Math.round(bytes / BYTES_PER_KB))} KB` : `${(bytes / BYTES_PER_MB).toFixed(1)} MB`)
-
-const LOOKS_FOR = [
+const OWN_LOOKS_FOR: TLooksForItem[] = [
   { icon: REPORT_SECTION_META.platforms.icon, title: 'Platforms and systems', description: 'What your report says is in scope, including the platform, systems, assets and vendors' },
   { icon: REPORT_SECTION_META.groups.icon, title: 'Groups', description: 'The roles your report names as responsible for parts of the program' },
   { icon: REPORT_SECTION_META.controls.icon, title: 'Controls', description: `The controls you operate, and the ${SOC_2_FRAMEWORK_NAME} criteria each one satisfies` },
   { icon: REPORT_SECTION_META.reviews.icon, title: 'Reviews and findings', description: 'The procedures the auditor performed, and anything they noted as an exception' },
 ]
 
+export type TReportScanVendor = { id: string; name: string }
+
+export type TReportScanUploadMode = { kind: 'own'; suggestedTaskId?: string } | { kind: 'vendor'; vendor?: TReportScanVendor; initialReport?: TReportScanFile }
+
+type TModeCopy = {
+  performer: TReportScanPerformer
+  title: (vendor?: TReportScanVendor) => string
+  intro: (vendor?: TReportScanVendor) => string
+  uploadLabel: string
+  submitLabel: string
+  errorTitle: string
+}
+
+const MODE_COPY: Record<TReportScanUploadMode['kind'], TModeCopy> = {
+  own: {
+    performer: SCAN_PERFORMER.REPORT_PARSE,
+    title: () => `Import your ${SOC_2_FRAMEWORK_NAME} report`,
+    intro: () =>
+      `Upload a ${SOC_2_FRAMEWORK_NAME} report to extract information about your systems, vendors, controls, and audit findings. You can review and select what to import before anything is created.`,
+    uploadLabel: `Upload your ${SOC_2_FRAMEWORK_NAME} report`,
+    submitLabel: 'Start import',
+    errorTitle: "We couldn't upload your report",
+  },
+  vendor: {
+    performer: SCAN_PERFORMER.VENDOR_REPORT_REVIEW,
+    title: (vendor) => (vendor ? `Review ${vendor.name}'s ${SOC_2_FRAMEWORK_NAME} report` : `Create a vendor from a ${SOC_2_FRAMEWORK_NAME} report`),
+    intro: (vendor) =>
+      vendor
+        ? `We'll read ${vendor.name}'s ${SOC_2_FRAMEWORK_NAME} report and record a completed review on the vendor, with the auditor's opinion, a risk rating and every exception the auditor found.`
+        : `We'll read the vendor's ${SOC_2_FRAMEWORK_NAME} report, match it to a vendor you already have or create one from the report's name, domains, description and services, and record a completed review on it.`,
+    uploadLabel: `Upload the vendor's ${SOC_2_FRAMEWORK_NAME} report`,
+    submitLabel: 'Start review',
+    errorTitle: "We couldn't start the review",
+  },
+}
+
 type ReportScanUploadSheetProps = {
-  suggestedTaskId?: string
+  mode: TReportScanUploadMode
   onClose: () => void
 }
 
-export const ReportScanUploadSheet = ({ suggestedTaskId, onClose }: ReportScanUploadSheetProps) => {
-  const [file, setFile] = useState<File | null>(null)
+export const ReportScanUploadSheet = ({ mode, onClose }: ReportScanUploadSheetProps) => {
+  const [report, setReport] = useState<TReportScanFile | null>(mode.kind === 'vendor' ? (mode.initialReport ?? null) : null)
+  const copy = MODE_COPY[mode.kind]
+  const submittingRef = useRef(false)
+  const suggestedTaskId = mode.kind === 'own' ? mode.suggestedTaskId : undefined
+  const vendor = mode.kind === 'vendor' ? mode.vendor : undefined
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createReportScan, isPending: isSubmitting } = useCreateReportScan()
   const { completeTask, isCompleting } = useCompleteTask()
   const { suggestions } = useRecommendationsFeed({ enabled: !!suggestedTaskId, excludeTerminal: true })
   const savesToTrustCenter = useSavesToTrustCenter()
-  const { activeReportScan, isPending: isActiveScanPending } = useActiveReportScan()
+  const { canStart, blockedReason } = useReportScanAvailability(copy.performer)
   const suggestion = suggestedTaskId ? suggestions.find((task) => task.id === suggestedTaskId) : undefined
-  const submitDisabledReason = activeReportScan ? `We're still reading ${activeReportScan.target}. You'll get a notification when it's ready, then you can upload another report.` : undefined
 
   const handleClose = () => {
     if (!isSubmitting) onClose()
   }
 
   const handleSubmit = async () => {
-    if (!file) return
+    if (!report || submittingRef.current) return
+    submittingRef.current = true
 
     try {
-      await createReportScan({ input: { scanType: ScanScanType.REPORT, performedBy: REPORT_SCAN_PERFORMER, target: file.name }, scanFiles: [file] })
-      successNotification({ title: 'Processing your report', description: 'Most reports are ready in about 15 minutes. We’ll notify you when yours is ready to review.' })
+      await createReportScan({ performer: copy.performer, report, vendorId: vendor?.id })
+      successNotification(REPORT_SCAN_STARTED_NOTIFICATION[copy.performer])
       onClose()
     } catch (error) {
-      errorNotification({ title: "We couldn't upload your report", description: parseErrorMessage(error) })
+      errorNotification({ title: copy.errorTitle, description: parseErrorMessage(error) })
+    } finally {
+      submittingRef.current = false
     }
   }
 
@@ -84,7 +117,7 @@ export const ReportScanUploadSheet = ({ suggestedTaskId, onClose }: ReportScanUp
         resizable={false}
         header={
           <SlideoutHeader
-            title={`Import your ${SOC_2_FRAMEWORK_NAME} report`}
+            title={copy.title(vendor)}
             aboveTitle={suggestion ? <SuggestedTaskKindBadge taskKind={suggestion.taskKind} /> : undefined}
             onClose={handleClose}
             primaryAction={suggestion ? { label: 'Mark as complete', icon: <Check size={16} />, onClick: () => void handleMarkComplete(), loading: isCompleting } : undefined}
@@ -93,16 +126,9 @@ export const ReportScanUploadSheet = ({ suggestedTaskId, onClose }: ReportScanUp
         footer={
           <div className="flex w-full flex-wrap items-end justify-between gap-3">
             <div className="flex items-center gap-2">
-              <DisabledReasonTooltip reason={submitDisabledReason}>
-                <Button
-                  variant="primary"
-                  icon={<Sparkles size={16} />}
-                  iconPosition="left"
-                  onClick={() => void handleSubmit()}
-                  disabled={!file || isSubmitting || isActiveScanPending || !!submitDisabledReason}
-                  loading={isSubmitting}
-                >
-                  Start import
+              <DisabledReasonTooltip reason={blockedReason}>
+                <Button variant="primary" icon={<Sparkles size={16} />} iconPosition="left" onClick={() => void handleSubmit()} disabled={!report || isSubmitting || !canStart} loading={isSubmitting}>
+                  {copy.submitLabel}
                 </Button>
               </DisabledReasonTooltip>
               <Button variant="secondary" onClick={handleClose} disabled={isSubmitting}>
@@ -130,52 +156,13 @@ export const ReportScanUploadSheet = ({ suggestedTaskId, onClose }: ReportScanUp
             </Callout>
           ) : null}
 
-          <p className="text-sm">
-            Upload a {SOC_2_FRAMEWORK_NAME} report to extract information about your systems, vendors, controls, and audit findings. You can review and select what to import before anything is
-            created.
-          </p>
+          <p className="text-sm">{copy.intro(vendor)}</p>
 
-          {file ? (
-            <Card className="flex items-center gap-4 p-4">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-muted">
-                <FileText size={18} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold" title={file.name}>
-                  {file.name}
-                </p>
-                <p className="text-xs text-muted-foreground">{formatReportSize(file.size)}</p>
-              </div>
-              <Badge variant="outline" className="border-primary/40 text-primary">
-                Ready
-              </Badge>
-              <Button variant="icon" size="icon" icon={<X size={16} />} onClick={() => setFile(null)} descriptiveTooltipText="Remove file" />
-            </Card>
-          ) : (
-            <FileUpload
-              acceptedFileTypes={pdfAcceptedFileTypes}
-              acceptedFileTypesShort={pdfAcceptedFileTypesShort}
-              maxFileSizeInMb={MAX_REPORT_SIZE_MB}
-              multipleFiles={false}
-              inputLabel={`Upload your ${SOC_2_FRAMEWORK_NAME} report`}
-              onFileUpload={(uploaded) => setFile(uploaded.file ?? null)}
-            />
-          )}
+          <ReportFileField value={report} onChange={setReport} vendorId={vendor?.id} uploadLabel={copy.uploadLabel} />
 
-          <Card className="flex flex-col gap-4 p-5">
-            <p className="text-sm font-semibold text-muted-foreground">What we&apos;ll look for</p>
-            {LOOKS_FOR.map(({ icon: Icon, title, description }) => (
-              <div key={title} className="flex items-start gap-3">
-                <Icon size={18} className="mt-0.5 shrink-0 text-primary" />
-                <div>
-                  <p className="text-sm font-semibold">{title}</p>
-                  <p className="text-sm text-muted-foreground">{description}</p>
-                </div>
-              </div>
-            ))}
-          </Card>
+          {mode.kind === 'own' ? <LooksForCard items={OWN_LOOKS_FOR} /> : <VendorReviewExplainer />}
 
-          {savesToTrustCenter ? (
+          {mode.kind === 'own' && savesToTrustCenter ? (
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
               <ShieldCheck size={14} className="shrink-0" />
               Saved to your Trust Center as a private document. You can make it protected or public whenever you&apos;re ready.

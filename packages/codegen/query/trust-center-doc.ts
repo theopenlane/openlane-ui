@@ -65,6 +65,20 @@ export const CREATE_TRUST_CENTER_DOC = gql`
     createTrustCenterDoc(input: $input, trustCenterDocFile: $trustCenterDocFile) {
       trustCenterDoc {
         id
+        title
+        originalFile {
+          id
+          providedFileName
+        }
+        file {
+          id
+          providedFileName
+        }
+        standard {
+          id
+          shortName
+          framework
+        }
       }
     }
   }

@@ -42,9 +42,9 @@ export const buildImportPlan = ({ report, scanId, selection, platformOverrides, 
   const vendorRefOf = (vendorId?: string) => (vendorId ? vendorRefById.get(vendorId) : undefined)
   const assetRefs = selected.assets.map((asset) => existingNameKey(asset.name))
   const selectedControlRefs = new Set(selected.controls.map((control) => control.refCode))
-  const selectedRefCodes = (refCodes: string[]) => refCodes.filter((refCode) => selectedControlRefs.has(refCode))
+  const linkableRefCodes = (refCodes: string[]) => refCodes.filter((refCode) => selectedControlRefs.has(refCode) || Object.hasOwn(existing.controls, refCode))
   const clonesStandard = program.create && !!soc2StandardId
-  const newControls = selected.controls.filter((control) => !existing.controls[control.refCode])
+  const newControls = selected.controls.filter((control) => !Object.hasOwn(existing.controls, control.refCode))
 
   return {
     existing,
@@ -158,7 +158,7 @@ export const buildImportPlan = ({ report, scanId, selection, platformOverrides, 
       : [],
     reviews: selected.reviews.map((review) => ({
       ref: review.id,
-      controlRefs: selectedRefCodes(review.refCodes),
+      controlRefs: linkableRefCodes(review.refCodes),
       input: {
         title: review.title,
         summary: review.summary,
@@ -174,7 +174,7 @@ export const buildImportPlan = ({ report, scanId, selection, platformOverrides, 
     })),
     findings: selected.findings.map((finding) => ({
       ref: finding.id,
-      controlRefs: selectedRefCodes(finding.refCodes),
+      controlRefs: linkableRefCodes(finding.refCodes),
       reviewRef: finding.reviewId,
       input: {
         displayName: findingDisplayName(finding.description),

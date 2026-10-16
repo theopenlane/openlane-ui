@@ -64,7 +64,7 @@ export const ReportScanWizard = ({ scanId, reportName, report }: ReportScanWizar
       vendors: report.vendors.map((vendor) => vendor.name),
       assets: report.assets.map((asset) => asset.name),
       groups: report.groups.map((group) => group.name),
-      controls: report.controls.map((control) => control.refCode),
+      controls: [...new Set([...report.controls.map((control) => control.refCode), ...report.reviews.flatMap((review) => review.refCodes), ...report.findings.flatMap((finding) => finding.refCodes)])],
     }),
     [report, debouncedPlatformNamesKey],
   )

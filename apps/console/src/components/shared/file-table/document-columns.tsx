@@ -3,7 +3,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { Check, X, Download, Eye, Trash2 } from 'lucide-react'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
-import { createRowActionsColumn } from '@/components/shared/crud-base/columns/row-actions-column'
+import { createRowActionsColumn, type TRowAction } from '@/components/shared/crud-base/columns/row-actions-column'
 import { fileDownload } from '@/components/shared/lib/export'
 import { useNotification, type TErrorProps } from '@/hooks/useNotification'
 import { type TExportColumn } from '@/utils/exportToCSV'
@@ -27,6 +27,7 @@ type DocumentColumnsOptions = {
   onMarkEvidence: (file: TFile) => void
   onUnmarkEvidence: (file: TFile) => void
   onDelete: (file: TFile) => void
+  extraActions?: TRowAction<TFile>[]
 }
 
 export const getDocumentExportColumns = (fileToEvidenceMap: Map<string, string>): TExportColumn<TFile>[] => [
@@ -46,6 +47,7 @@ export const getDocumentColumns = ({
   onMarkEvidence,
   onUnmarkEvidence,
   onDelete,
+  extraActions = [],
 }: DocumentColumnsOptions): ColumnDef<TFile>[] => [
   fileNameColumn,
   originalFileNameColumn,
@@ -96,6 +98,7 @@ export const getDocumentColumns = ({
         onClick: onUnmarkEvidence,
         hidden: (file) => !canEdit || !getEvidenceId(file),
       },
+      ...extraActions,
       {
         label: 'Download',
         icon: DOWNLOAD_ICON,
@@ -118,9 +121,10 @@ type DocumentTableColumnsOptions = {
   onMarkEvidence: (file: TFile) => void
   onUnmarkEvidence: (file: TFile) => void
   onDelete: (file: TFile) => void
+  extraActions?: TRowAction<TFile>[]
 }
 
-export const useDocumentTableColumns = ({ canEdit, fileToEvidenceMap, onMarkEvidence, onUnmarkEvidence, onDelete }: DocumentTableColumnsOptions): ColumnDef<TFile>[] => {
+export const useDocumentTableColumns = ({ canEdit, fileToEvidenceMap, onMarkEvidence, onUnmarkEvidence, onDelete, extraActions }: DocumentTableColumnsOptions): ColumnDef<TFile>[] => {
   const router = useRouter()
   const pathname = usePathname()
   const { errorNotification } = useNotification()
@@ -141,7 +145,8 @@ export const useDocumentTableColumns = ({ canEdit, fileToEvidenceMap, onMarkEvid
         onMarkEvidence,
         onUnmarkEvidence,
         onDelete,
+        extraActions,
       }),
-    [canEdit, categoryOptions, errorNotification, fileToEvidenceMap, onMarkEvidence, onUnmarkEvidence, onDelete, router, pathname],
+    [canEdit, categoryOptions, errorNotification, fileToEvidenceMap, onMarkEvidence, onUnmarkEvidence, onDelete, extraActions, router, pathname],
   )
 }

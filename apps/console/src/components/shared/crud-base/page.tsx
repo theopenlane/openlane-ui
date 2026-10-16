@@ -33,6 +33,7 @@ import { type User } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'
 import { MergeModeProvider } from '@/components/shared/merge-records/merge-mode-context'
 import type { BulkDeletePayload, BulkUpdatePayload, ViewEditMode, CreateMode } from './types'
+import { type TMenuAction } from '@/components/shared/menu/menu-action-item'
 import { type Session } from 'next-auth'
 
 type TOrderByInput = { field: string; direction?: OrderDirection }[] | undefined
@@ -132,6 +133,7 @@ export interface GenericTablePageConfig<
     createMode?: CreateMode
     hideCreate?: boolean
     createPermission?: TAccessRole
+    createMenuActions?: TMenuAction[]
     additionalActiveFilterCount?: number
     defaultFilterValues?: TFilterState
     quickFilters?: TQuickFilter[]
@@ -157,6 +159,7 @@ export interface GenericTablePageConfig<
   hideCreate?: boolean
   createPermission?: TAccessRole
   hideBreadcrumbs?: boolean
+  createMenuActions?: TMenuAction[]
 }
 
 export function GenericTablePage<
@@ -416,6 +419,7 @@ export function GenericTablePage<
         createMode={createMode}
         hideCreate={config.hideCreate}
         createPermission={config.createPermission}
+        createMenuActions={config.createMenuActions}
         additionalActiveFilterCount={additionalWhereFilter ? Object.values(additionalWhereFilter).filter((v) => v != null).length : 0}
         defaultFilterValues={defaultFilterValues}
       />

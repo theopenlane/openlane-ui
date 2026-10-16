@@ -10,12 +10,18 @@ import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
 import { EntityEntityStatus, EntityFrequency, EntityVendorTier, type UpdateEntityInput, type CreateEntityInput, type GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { useUpdateEntity, useBulkDeleteEntity, useBulkEditEntity, type EntitiesNodeNonNull, useGetEntityAssociations, useCreateEntityWithFiles } from '@/lib/graphql-hooks/entity'
+import { useUpdateEntity, useBulkDeleteEntity, useBulkEditEntity, type EntitiesNodeNonNull, useGetEntityAssociations, useCreateEntityWithFiles, vendorDisplayName } from '@/lib/graphql-hooks/entity'
 import { useEntity } from '@/lib/graphql-hooks/entity'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import { type EntitySheetConfig, type EntityTablePageConfig, objectType, objectName, displayName, tableKey, exportType, orderFieldEnum, defaultSorting, type EntityFieldProps } from './types'
 import { createVendorSteps } from '../create/steps/vendor-create-steps'
+import { useVendorSoc2ReportReview } from '../create/use-vendor-soc2-report-review'
+import { LazyReportScanUploadSheet } from '@/components/shared/report-scan-upload/lazy-report-scan-upload-sheet'
+import { useCanCreateScan } from '@/hooks/useCanCreateScan'
+import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-categories'
+import { FileSearch } from 'lucide-react'
+import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -64,6 +70,20 @@ const VendorPage: React.FC = () => {
   const [stagedFiles, setStagedFiles] = useState<File[]>([])
   const [existingFileIds, setExistingFileIds] = useState<string[]>([])
   const [stagedLogoFile, setStagedLogoFile] = useState<File | null>(null)
+  const [isSoc2ReviewOpen, setIsSoc2ReviewOpen] = useState(false)
+  const [wasCreateOpen, setWasCreateOpen] = useState(isCreate)
+  const { soc2Report, setSoc2Report, submitReview } = useVendorSoc2ReportReview()
+  const { canCreateScan } = useCanCreateScan()
+
+  if (wasCreateOpen !== isCreate) {
+    setWasCreateOpen(isCreate)
+    if (!isCreate) {
+      setStagedFiles([])
+      setExistingFileIds([])
+      setStagedLogoFile(null)
+      setSoc2Report(null)
+    }
+  }
   const plateEditorHelper = usePlateEditor()
 
   function getName(data: EntitiesNodeNonNull) {
@@ -90,6 +110,8 @@ const VendorPage: React.FC = () => {
       setStagedFiles([])
       setExistingFileIds([])
       setStagedLogoFile(null)
+      const vendorId = result.createEntity.entity.id
+      void submitReview({ vendorId, vendorName: vendorDisplayName({ id: vendorId, name: input.name, displayName: input.displayName }), hasSoc2: !!input.hasSoc2 })
       return result
     },
   }
@@ -188,7 +210,10 @@ const VendorPage: React.FC = () => {
     renderFields: (props: EntityFieldProps) => getFieldsToRender(props, enumOpts, setStagedFiles, setExistingFileIds, enumCreateHandlers),
   }
 
-  const vendorCreateSteps = useMemo(() => createVendorSteps(setStagedFiles, setExistingFileIds, setStagedLogoFile), [setStagedFiles, setExistingFileIds, setStagedLogoFile])
+  const vendorCreateSteps = useMemo(
+    () => createVendorSteps({ onStagedFilesChange: setStagedFiles, onExistingFileIdsChange: setExistingFileIds, onLogoFileChange: setStagedLogoFile, soc2Report, onSoc2ReportChange: setSoc2Report }),
+    [soc2Report, setSoc2Report],
+  )
 
   const tableConfig: EntityTablePageConfig = {
     objectType,
@@ -222,9 +247,25 @@ const VendorPage: React.FC = () => {
       internalOwner: { fieldBaseName: 'internalOwner' },
       reviewedBy: { fieldBaseName: 'reviewedBy' },
     },
+    createMenuActions: canCreateScan
+      ? [
+          {
+            key: 'create-from-soc2-report',
+            label: `Create from ${SOC_2_FRAMEWORK_NAME} report`,
+            icon: <FileSearch size={16} strokeWidth={2} />,
+            anchor: tableActionAnchor(objectType, 'create-from-soc2-report'),
+            onClick: () => setIsSoc2ReviewOpen(true),
+          },
+        ]
+      : undefined,
   }
 
-  return <GenericTablePage {...tableConfig} />
+  return (
+    <>
+      <GenericTablePage {...tableConfig} />
+      {isSoc2ReviewOpen ? <LazyReportScanUploadSheet mode={{ kind: 'vendor' }} onClose={() => setIsSoc2ReviewOpen(false)} /> : null}
+    </>
+  )
 }
 
 export default VendorPage
