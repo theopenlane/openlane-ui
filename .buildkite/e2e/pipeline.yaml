@@ -118,3 +118,7 @@ steps:
           command: ['npx', '-y', 'playwright@1.63.0', 'merge-reports', '--reporter', 'html', 'console/apps/console/e2e/blob-report']
     artifact_paths:
       - 'playwright-report/**/*'
+
+notify:
+  - slack: '#alerts-sink'
+    if: build.source == 'schedule' && build.state == 'failed'

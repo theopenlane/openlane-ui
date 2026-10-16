@@ -1,8 +1,7 @@
-# Nightly console e2e
+# Console e2e tests
 
-Runs the console Playwright suite on a schedule against a core stack the build starts
-itself, so no staging environment is needed. The stack is core's own compose files; this
-directory only adds the console layer.
+Runs the console Playwright suite against a core stack the build starts
+itself. The stack is core's own compose files, this directory only adds the console layer.
 
 | File                         |                                                                                                                                              |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -39,18 +38,10 @@ directory only adds the console layer.
    with their output, the skipped tests, and (e2e) the 10 slowest tests.
 5. **`HTML report`** merges the shards' blob reports into one Playwright report
    (`playwright-report/index.html` in the build artifacts, with traces for failures).
-6. **Slack** is the pipeline's `notify` on a failed build.
+6. **Slack**: the pipeline's `notify` posts when a scheduled (nightly) build fails.
+   Passing nightlies, and builds started by hand or by a push, don't notify.
 
 Console server logs from each job are in `console/e2e-logs/` in that job's artifacts.
-
-## Setup
-
-1. Create a Buildkite pipeline for this repo with the step
-   `buildkite-agent pipeline upload .buildkite/e2e/pipeline.yaml`.
-2. Add a schedule in **Pipeline Settings → Schedules**, for example `0 9 * * *`.
-3. Set the Slack channel in `notify` (the Buildkite org needs the Slack integration).
-4. Agents need Docker with compose v2.24 or later (`docker-compose.yml` uses `!reset` to
-   drop core's host ports, so parallel jobs on one host don't collide).
 
 ## Settings
 
@@ -62,22 +53,3 @@ Console server logs from each job are in `console/e2e-logs/` in that job's artif
 | `parallelism`     | `pipeline.yaml`                       | `6`               | number of shards                                                                                                                           |
 | `E2E_WORKERS`     | `pipeline.yaml` env                   | `4`               | Playwright workers per shard                                                                                                               |
 | Playwright image  | `docker-compose.yml`, `pipeline.yaml` | `v1.63.0-noble`   | must match `@playwright/test` in `bun.lock`                                                                                                |
-
-## Running a shard locally
-
-From a core checkout, pointing `E2E_CONSOLE_DIR` at this repo (the config copies are the
-same ones `task run-api` and `task compose:riverboat` make):
-
-```bash
-cp -n config/config-dev.example.yaml config/.config.yaml
-cp -n docker/configs/riverboat/.config.dev.yaml docker/configs/riverboat/.config.yaml
-export E2E_CONSOLE_DIR=../openlane-ui RIVERBOAT_TAG=arm64-latest   # amd64-latest on x86
-F="-f docker/docker-compose-redis.yml -f docker/docker-compose-fga.yml \
-   -f docker/docker-compose-riverboat.yml -f docker/docker-compose-published.yml \
-   -f $E2E_CONSOLE_DIR/.buildkite/e2e/docker-compose.yml"
-docker compose $F run --rm e2e
-docker compose $F down -v
-```
-
-Use an absolute path for `E2E_CONSOLE_DIR` if relative paths resolve oddly (compose reads
-them against core's `docker/` directory).

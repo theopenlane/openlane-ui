@@ -23,7 +23,6 @@ services:
       - BUILDKITE_PARALLEL_JOB
       - BUILDKITE_PARALLEL_JOB_COUNT
     command: ['bash', '.buildkite/e2e/run-shard.sh']
-    # core's api has no depends_on of its own, so the runner pulls in the rest of the stack
     depends_on:
       postgres:
         condition: service_healthy
@@ -36,8 +35,7 @@ services:
       api:
         condition: service_started
 
-  # Core's files publish fixed host ports (5432, 6379, 8080, 17608…), so parallel jobs on one
-  # agent host collide. Everything here talks over the compose network, so drop them.
+  # talk over compose network, ports will conflict on the same runner
   postgres:
     ports: !reset []
   redis:
@@ -50,8 +48,6 @@ services:
     # private_key.pem to the working directory, which the image's nonroot user can't write
     user: '0:0'
 
-  # riverboat's dev config reaches postgres and the api via host.docker.internal on those host
-  # ports; point it at the services instead (RIVERBOAT_ env, `_` maps to `.`)
   riverboat:
     environment:
       - RIVERBOAT_RIVER_DATABASEHOST=postgres://postgres:password@postgres:5432/jobs?sslmode=disable
