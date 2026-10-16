@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Button } from '@repo/ui/button'
-import { getLinkedIds, setAllLinked, type LinkMap } from '../selection-utils'
+import { getLinkedIds, setAllLinked, type LinkMap } from '../../shared/selection-utils'
 
 type LinkSelectAllToggleProps = {
   targetId: string

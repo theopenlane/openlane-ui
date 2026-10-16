@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Checkbox } from '@repo/ui/checkbox'
-import { setAllSelected } from '../selection-utils'
+import { selectionCheckedState, setAllSelected } from './selection-utils'
 
 type SelectAllCheckboxProps = {
   ids: string[]
@@ -13,9 +13,7 @@ type SelectAllCheckboxProps = {
 export const SelectAllCheckbox = ({ ids, selected, setSelected }: SelectAllCheckboxProps) => {
   if (ids.length === 0) return null
 
-  const selectedCount = ids.filter((id) => selected.has(id)).length
-  const allSelected = selectedCount === ids.length
-  const checkedState: boolean | 'indeterminate' = allSelected ? true : selectedCount > 0 ? 'indeterminate' : false
+  const { selectedCount, allSelected, checkedState } = selectionCheckedState(ids, selected)
 
   return (
     <div role="presentation" onClick={(event) => event.stopPropagation()}>

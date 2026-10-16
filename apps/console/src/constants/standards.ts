@@ -17,6 +17,11 @@ export const OPENLANE_TRUST_CENTER_STANDARD = {
   framework: 'openlane-trust-center',
 } as const satisfies TSystemStandard
 
+export const SOC_2_SYSTEM_STANDARD = {
+  shortName: 'SOC 2',
+  framework: 'soc2',
+} as const satisfies TSystemStandard
+
 const OPENLANE_SYSTEM_STANDARDS = [OPENLANE_BASELINE_STANDARD, OPENLANE_TRUST_CENTER_STANDARD]
 
 export const OPENLANE_SYSTEM_FRAMEWORKS = OPENLANE_SYSTEM_STANDARDS.map((systemStandard) => systemStandard.framework)
