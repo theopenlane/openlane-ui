@@ -12,6 +12,7 @@ import {
   loginViaApi,
   getSharedOrgs,
   getSelf,
+  createSharedOrg,
   addOrgMember,
   memberSeesOrg,
   setDefaultOrg,
@@ -149,9 +150,6 @@ const canReuseAuth = async (): Promise<boolean> => {
 let demoEmail: string | undefined
 let demoPassword: string | undefined
 
-const DEMO_EMAIL = process.env.E2E_DEMO_EMAIL ?? 'peter.parker@theopenlane.io'
-const DEMO_PASSWORD = process.env.E2E_DEMO_PASSWORD ?? 'mattisthebest!'
-
 const seedTrustCenterFixtures = async (email: string, password: string): Promise<void> => {
   const api = await loginViaApi(email, password)
   await getTrustCenterId(api)
@@ -177,47 +175,23 @@ const captureDemoSession = async (email: string, password: string): Promise<void
   demoPassword = password
 }
 
-/** An externally seeded demo account (E2E_DEMO_EMAIL, default peter.parker) whose org already has a trust center. */
-const captureExternalDemoAccount = async (): Promise<boolean> => {
-  try {
-    // an API login fails fast when the account doesn't exist (a fresh core, e.g. CI)
-    await getTrustCenterId(await loginViaApi(DEMO_EMAIL, DEMO_PASSWORD))
-  } catch (err) {
-    console.log(`[global-setup] no external demo account ${DEMO_EMAIL} (${String(err).slice(0, 120)})`)
-    return false
-  }
-
-  await captureDemoSession(DEMO_EMAIL, DEMO_PASSWORD)
-  console.log(`[global-setup] using the seeded trust-center org (${DEMO_EMAIL})`)
-  return true
-}
-
-/** Registers a demo user for this run, onboards it into its own org, and gives that org a trust center. */
+/**
+ * Registers a demo user for this run with its own org and gives that org a trust center.
+ * The user gets its own `.invalid` domain (as seedLoggedInUser does): the shared org allows the
+ * e2e email domain, so an emailFor() address would be joined to the shared org as a member,
+ * which can't create a trust center.
+ */
 const provisionDemoAccount = async (): Promise<void> => {
-  const email = emailFor('demo')
-  const companyName = `E2E Trust Center ${RUN_ID}`
+  const email = `e2e-demo@trust-center-${RUN_ID}.invalid`.toLowerCase()
 
   await registerAndVerify({ email })
 
-  const browser = await chromium.launch()
-  try {
-    const context = await browser.newContext({ baseURL: BASE_URL })
-    const page = await context.newPage()
-    await loginViaForm(page, email, PASSWORD)
-    await completeOnboarding(page, { companyName })
-  } finally {
-    await browser.close()
-  }
-
   const api0 = await loginViaApi(email)
-  const orgs = await getSharedOrgs(api0)
-  const org = orgs.find((o) => o.name === companyName) ?? orgs[0]
-  if (!org) throw new Error('global-setup: demo user has no non-personal org after onboarding')
+  const { settingId } = await getSelf(api0)
+  const orgId = await createSharedOrg(api0, `E2E Trust Center ${RUN_ID}`)
+  await setDefaultOrg(api0, settingId, orgId)
 
-  const self = await getSelf(api0)
-  await setDefaultOrg(api0, self.settingId, org.id)
-
-  // a fresh login so the token carries the new default org
+  // a fresh login so the token carries the new org, which this user owns
   const api = await loginViaApi(email)
   await completeOnboardingTasks(api)
   await ensureTrustCenter(api)
@@ -228,7 +202,7 @@ const provisionDemoAccount = async (): Promise<void> => {
 
 const setUpDemoSession = async (): Promise<boolean> => {
   try {
-    if (!(await captureExternalDemoAccount())) await provisionDemoAccount()
+    await provisionDemoAccount()
     return true
   } catch (err) {
     console.log(`[global-setup] no demo trust-center org (${String(err).slice(0, 160)}) — trust-center specs will skip`)
