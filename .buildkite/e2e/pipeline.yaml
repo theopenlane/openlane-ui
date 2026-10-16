@@ -11,8 +11,28 @@ env:
   E2E_PORT: '3001'
 
 steps:
+  # the repo's unit tests (the root `test` script) first; the e2e shards only start if they pass
+  - label: ':bun: unit tests'
+    key: 'unit'
+    timeout_in_minutes: 20
+    agents:
+      queue: self-hosted-garage-vms
+    plugins:
+      - docker#v5.13.0:
+          # keep in step with packageManager in package.json
+          image: oven/bun:1.3.13
+          environment:
+            - CI=1
+          command:
+            - bash
+            - -c
+            - bun install --frozen-lockfile && bun test apps/console/src packages --reporter=junit --reporter-outfile=test-results/junit-unit.xml
+    artifact_paths:
+      - 'test-results/junit-unit.xml'
+
   - label: ':performing_arts: console e2e %n'
     key: 'e2e'
+    depends_on: 'unit'
     parallelism: 6
     timeout_in_minutes: 75
     agents:
@@ -62,8 +82,9 @@ steps:
       queue: self-hosted-garage-vms
     plugins:
       - junit-annotate#v2.7.0:
-          artifacts: 'console/apps/console/e2e/results/junit-*.xml'
-          context: e2e
+          # unit and e2e results together
+          artifacts: '**/junit-*.xml'
+          context: tests
           failure-format: file
 
   - label: ':bar_chart: HTML report'
@@ -80,8 +101,3 @@ steps:
           command: ['npx', '-y', 'playwright@1.63.0', 'merge-reports', '--reporter', 'html', 'console/apps/console/e2e/blob-report']
     artifact_paths:
       - 'playwright-report/**/*'
-
-notify:
-  # needs the Slack notification service set up for the Buildkite org; set the channel
-  - slack: '#ci-alerts'
-    if: build.state == "failed"

@@ -14,7 +14,10 @@ directory only adds the console layer.
 
 ## How a run works
 
-1. **`console e2e`** runs as `parallelism` jobs. In each one:
+1. **`unit tests`** runs the repo's unit tests (`bun test apps/console/src packages`, the
+   root `test` script) in `oven/bun`, with JUnit output. The e2e shards depend on it, so a
+   unit failure stops the build before any stack is started.
+2. **`console e2e`** runs as `parallelism` jobs. In each one:
    - `custom-checkout` clones core at `E2E_CORE_REF` into the job's directory and this
      repo into `console/`;
    - `core-dev-config` (vendored here) copies core's dev configs into place, as core's
@@ -28,10 +31,10 @@ directory only adds the console layer.
    `localhost:3001` is the console, as on a laptop. Playwright's `--shard` splits the suite
    across the jobs; each writes a blob report and JUnit results as artifacts.
 
-2. **`failures`**: `junit-annotate` adds the failed tests to the build page.
-3. **`HTML report`** merges the shards' blob reports into one Playwright report
+3. **`failures`**: `junit-annotate` adds the failed unit and e2e tests to the build page.
+4. **`HTML report`** merges the shards' blob reports into one Playwright report
    (`playwright-report/index.html` in the build artifacts, with traces for failures).
-4. **Slack** is the pipeline's `notify` on a failed build.
+5. **Slack** is the pipeline's `notify` on a failed build.
 
 Console server logs from each job are in `console/e2e-logs/` in that job's artifacts.
 
@@ -46,13 +49,14 @@ Console server logs from each job are in `console/e2e-logs/` in that job's artif
 
 ## Settings
 
-| Setting          | Where                                 | Default         |                                                                                               |
-| ---------------- | ------------------------------------- | --------------- | --------------------------------------------------------------------------------------------- |
-| `E2E_CORE_REF`   | `pipeline.yaml` env                   | `main`          | core ref the compose files and dev configs come from; core's compose runs the api at `latest` |
-| `RIVERBOAT_TAG`  | `pipeline.yaml` env                   | `amd64-latest`  | core's riverboat file defaults to `arm64-latest`                                              |
-| `parallelism`    | `pipeline.yaml`                       | `6`             | number of shards                                                                              |
-| `E2E_WORKERS`    | `pipeline.yaml` env                   | `4`             | Playwright workers per shard                                                                  |
-| Playwright image | `docker-compose.yml`, `pipeline.yaml` | `v1.63.0-noble` | must match `@playwright/test` in `bun.lock`                                                   |
+| Setting          | Where                                 | Default           |                                                                                               |
+| ---------------- | ------------------------------------- | ----------------- | --------------------------------------------------------------------------------------------- |
+| `E2E_CORE_REF`   | `pipeline.yaml` env                   | `main`            | core ref the compose files and dev configs come from; core's compose runs the api at `latest` |
+| `RIVERBOAT_TAG`  | `pipeline.yaml` env                   | `amd64-latest`    | core's riverboat file defaults to `arm64-latest`                                              |
+| bun image        | `pipeline.yaml`                       | `oven/bun:1.3.13` | keep in step with `packageManager` in `package.json`                                          |
+| `parallelism`    | `pipeline.yaml`                       | `6`               | number of shards                                                                              |
+| `E2E_WORKERS`    | `pipeline.yaml` env                   | `4`               | Playwright workers per shard                                                                  |
+| Playwright image | `docker-compose.yml`, `pipeline.yaml` | `v1.63.0-noble`   | must match `@playwright/test` in `bun.lock`                                                   |
 
 ## Running a shard locally
 
