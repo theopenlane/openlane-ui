@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import type Stripe from 'stripe'
 import { auth } from '@/lib/auth/auth'
 
@@ -18,7 +18,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Missing customerId' }, { status: 400 })
     }
 
-    const schedules: Stripe.ApiList<Stripe.SubscriptionSchedule> = await stripe.subscriptionSchedules.list({
+    const schedules: Stripe.ApiList<Stripe.SubscriptionSchedule> = await getStripe().subscriptionSchedules.list({
       customer: customerId,
       limit: 10,
       expand: ['data.subscription'],
