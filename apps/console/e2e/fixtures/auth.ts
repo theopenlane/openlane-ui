@@ -1,11 +1,12 @@
 import { test as base, expect } from '@playwright/test'
-import { mkdtempSync, readFileSync } from 'node:fs'
+import { mkdtempSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
-import type { AuthManifest } from '../global-setup'
+import { readManifest } from '../utils/manifest'
 import { loginAndSaveState } from '../utils/session'
+
+export { readManifest }
 
 /** Auth fixtures backed by per-worker logins. */
 
@@ -14,23 +15,14 @@ export type Role = 'owner' | 'admin' | 'superadmin' | 'member' | 'readonly'
 /** An externally seeded organization with a provisioned trust center. */
 export type AuthProfile = Role | 'demo'
 
-const AUTH_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '.auth')
-
-export const authFile = (profile: AuthProfile): string => path.join(AUTH_DIR, `${profile}.json`)
-
-export const readManifest = (): AuthManifest => JSON.parse(readFileSync(path.join(AUTH_DIR, 'manifest.json'), 'utf-8')) as AuthManifest
-
 interface Credentials {
   email: string
   password: string
 }
 
-const credentialsForProfile = (profile: AuthProfile): Credentials | undefined => {
+const credentialsForProfile = (profile: AuthProfile): Credentials => {
   const manifest = readManifest()
-  if (profile === 'demo') {
-    if (!manifest.demoEmail || !manifest.demoPassword) return undefined
-    return { email: manifest.demoEmail, password: manifest.demoPassword }
-  }
+  if (profile === 'demo') return { email: manifest.demoEmail, password: manifest.demoPassword }
   return { email: profile === 'owner' ? manifest.ownerEmail : manifest.roleEmails[profile], password: manifest.password }
 }
 
@@ -50,8 +42,6 @@ export const test = base.extend<{ authProfile: AuthProfile }, { sessionFor: Sess
         if (cached) return cached
 
         const credentials = credentialsForProfile(profile)
-        if (!credentials) return authFile(profile)
-
         const outPath = path.join(dir, `${profile}.json`)
         await loginAndSaveState(browser, credentials.email, credentials.password, outPath)
         cache.set(profile, outPath)

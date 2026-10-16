@@ -54,10 +54,10 @@ const CASES: BulkCsvCase[] = [
 
 const importTypeOf = (operationName: string): string => operationName.replace(/^CreateBulkCsv/i, '').toLowerCase()
 
-const openBulkUploadPage = async (page: Page, route: string, importType: string) => {
+const openBulkUploadPage = async (page: Page, route: string, importType: string, menuTestId?: string) => {
   await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
-  const action = page.getByRole('button', { name: 'Action', exact: true })
+  const action = menuTestId ? page.getByTestId(menuTestId) : page.getByRole('button', { name: 'Action', exact: true })
   await expect(action).toBeVisible({ timeout: 60_000 })
   await action.click()
 
@@ -172,7 +172,7 @@ test.describe('bulk CSV imports — bespoke import pages', () => {
     const riskId = await createRisk(ownerApi, uniqueName('E2E Bulk ap risk'))
     const name = uniqueName('E2E Bulk actionplan')
 
-    const scope = await openBulkUploadPage(page, `/exposure/risks/${riskId}?tab=mitigation`, 'actionplan')
+    const scope = await openBulkUploadPage(page, `/exposure/risks/${riskId}?tab=mitigation`, 'actionplan', 'action-plan-table-actions-menu')
 
     await uploadCsvAndAssert({
       page,

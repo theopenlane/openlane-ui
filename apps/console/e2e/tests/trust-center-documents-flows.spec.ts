@@ -1,13 +1,11 @@
 import type { Locator, Page } from '@playwright/test'
 
-import { test, expect, readManifest } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 import { SAMPLE_PDF, uploadFiles } from '../utils/files'
 import { uniqueName } from '../utils/unique'
 import { slideoutEdit, slideoutMenuAction } from '../utils/slideout'
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-
-const requireDemoOrg = () => test.skip(!readManifest().hasDemoSession, 'no demo-org session — trust center is unprovisioned in the e2e org')
 
 const toast = (page: Page, title: string) => page.getByText(title, { exact: true })
 
@@ -64,7 +62,6 @@ test.describe('trust-center — document metadata (seeded demo org)', () => {
 
   test('editing a document title persists through search', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openDocuments(page)
 
     const title = uniqueName('E2E Doc meta')
@@ -119,7 +116,6 @@ test.describe('trust-center — document table controls (seeded demo org)', () =
 
   test('the document table renders its pagination controls', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openDocuments(page)
 
     await expect(page.getByText(/^Page \d+ of \d+$/)).toBeVisible({ timeout: 60_000 })

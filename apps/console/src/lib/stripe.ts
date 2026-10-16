@@ -1,8 +1,16 @@
 import { stripeSecretKey } from '@repo/dally/auth'
 import Stripe from 'stripe'
 
-if (!stripeSecretKey) {
-  throw new Error('Missing STRIPE_SECRET_KEY in .env')
-}
+let client: Stripe | undefined
 
-export const stripe = new Stripe(stripeSecretKey)
+// Created on first use rather than at import, so building or loading a route (e.g. `next build`
+// collecting page data) doesn't require STRIPE_SECRET_KEY; only an actual Stripe call does
+export const getStripe = (): Stripe => {
+  if (!stripeSecretKey) {
+    throw new Error('Missing STRIPE_SECRET_KEY in .env')
+  }
+
+  client ??= new Stripe(stripeSecretKey)
+
+  return client
+}

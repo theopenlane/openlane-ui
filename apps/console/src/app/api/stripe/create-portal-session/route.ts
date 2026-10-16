@@ -1,4 +1,4 @@
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { auth } from '@/lib/auth/auth'
@@ -30,13 +30,13 @@ export async function POST(req: Request) {
 
     if (isBillingSettings) {
       // ✅ Full subscription portal (no flow_data)
-      session = await stripe.billingPortal.sessions.create({
+      session = await getStripe().billingPortal.sessions.create({
         customer: customerId,
         return_url: `${baseUrl}/organization-settings/billing`,
       })
     } else {
       // ✅ Direct payment method update flow
-      session = await stripe.billingPortal.sessions.create({
+      session = await getStripe().billingPortal.sessions.create({
         customer: customerId,
         return_url: `${baseUrl}/organization-settings/billing`,
         flow_data: {

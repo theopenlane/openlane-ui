@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth/auth'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
@@ -32,7 +32,7 @@ const pickTargetPhase = (schedule: Stripe.SubscriptionSchedule): Stripe.Subscrip
 const resolveCoupon = async (couponRef: string | Stripe.Coupon | null): Promise<Stripe.Coupon | null> => {
   if (!couponRef) return null
   if (typeof couponRef === 'string') {
-    return stripe.coupons.retrieve(couponRef)
+    return getStripe().coupons.retrieve(couponRef)
   }
 
   return couponRef
@@ -46,7 +46,7 @@ const resolveCouponsFromPhaseDiscounts = async (discounts: Stripe.SubscriptionSc
       }
 
       if (discountRef.promotion_code) {
-        const promo = typeof discountRef.promotion_code === 'string' ? await stripe.promotionCodes.retrieve(discountRef.promotion_code) : discountRef.promotion_code
+        const promo = typeof discountRef.promotion_code === 'string' ? await getStripe().promotionCodes.retrieve(discountRef.promotion_code) : discountRef.promotion_code
         return resolveCoupon(promo.promotion.coupon)
       }
 
@@ -64,7 +64,7 @@ const resolveCouponsFromPhaseDiscounts = async (discounts: Stripe.SubscriptionSc
 const resolveCouponsFromSubscription = async (subscriptionId?: string | null): Promise<Stripe.Coupon[]> => {
   if (!subscriptionId) return []
 
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId, { expand: ['discounts'] })
+  const subscription = await getStripe().subscriptions.retrieve(subscriptionId, { expand: ['discounts'] })
   if (!subscription.discounts?.length) return []
 
   const coupons = await Promise.all(
@@ -78,7 +78,7 @@ const resolveCouponsFromSubscription = async (subscriptionId?: string | null): P
 }
 
 const resolveCouponsFromCustomer = async (customerId: string): Promise<Stripe.Coupon[]> => {
-  const customer = await stripe.customers.retrieve(customerId, { expand: ['discount'] })
+  const customer = await getStripe().customers.retrieve(customerId, { expand: ['discount'] })
   if (customer.deleted || !customer.discount) return []
 
   const coupon = await resolveCoupon(customer.discount.source.coupon)
@@ -106,7 +106,7 @@ const computeSubtotalCents = async (phase: Stripe.SubscriptionSchedule.Phase): P
   if (missingPriceIds.size > 0) {
     const missingPrices = await Promise.all(
       Array.from(missingPriceIds).map(async (priceId) => {
-        const price = await stripe.prices.retrieve(priceId)
+        const price = await getStripe().prices.retrieve(priceId)
         return [priceId, price.unit_amount ?? 0] as const
       }),
     )
@@ -149,7 +149,7 @@ const applyCoupons = (subtotalCents: number, coupons: Stripe.Coupon[], currency:
 const buildEstimatedUpcomingFromSchedule = async ({ customerId, scheduleId, subscriptionId }: { customerId: string; scheduleId?: string | null; subscriptionId?: string | null }) => {
   if (!scheduleId) return null
 
-  const schedule = await stripe.subscriptionSchedules.retrieve(scheduleId)
+  const schedule = await getStripe().subscriptionSchedules.retrieve(scheduleId)
   const targetPhase = pickTargetPhase(schedule)
   if (!targetPhase) return null
 
@@ -207,7 +207,7 @@ export async function GET(req: Request) {
     } else if (subscriptionId) {
       previewParams.subscription = subscriptionId
     }
-    const upcomingInvoice = await stripe.invoices.createPreview(previewParams)
+    const upcomingInvoice = await getStripe().invoices.createPreview(previewParams)
 
     const totalDiscount = (upcomingInvoice.total_discount_amounts ?? []).reduce((sum, discountAmount) => sum + discountAmount.amount, 0)
 

@@ -1,0 +1,130 @@
+env:
+  RIVERBOAT_TAG: amd64-latest
+  E2E_WORKERS: '4'
+  E2E_PORT: '3001'
+
+steps:
+  - label: ':bun: unit tests'
+    key: 'unit'
+    timeout_in_minutes: 20
+    plugins:
+      - docker#v5.13.0:
+          image: oven/bun:1.3.13
+          environment:
+            - CI=1
+          command:
+            - bash
+            - -c
+            - |
+              set -euo pipefail
+              trap 'chown -R "$$(stat -c %u:%g /workdir)" /workdir' EXIT
+              mkdir -p test-results
+              bun install --frozen-lockfile
+              bun test apps/console/src packages --reporter=junit --reporter-outfile=test-results/junit-unit.xml
+    artifact_paths:
+      - 'test-results/junit-unit.xml'
+
+  - label: ':building_construction: console build'
+    key: 'build'
+    timeout_in_minutes: 30
+    plugins:
+      - docker#v5.13.0:
+          image: mcr.microsoft.com/playwright:v1.63.0-noble
+          env-file:
+            - .buildkite/e2e/console.env
+          environment:
+            - CI=1
+            - HUSKY=0
+          command:
+            - bash
+            - -c
+            - |
+              set -euo pipefail
+              trap 'chown -R "$$(stat -c %u:%g /workdir)" /workdir' EXIT
+              npm install -g bun@1.3.13 >/dev/null
+              bun install --frozen-lockfile
+              cd apps/console
+              bun run build
+              tar --exclude=.next/cache -czf /workdir/console-next.tgz .next
+    artifact_paths:
+      - 'console-next.tgz'
+
+  - label: ':performing_arts: console e2e %n'
+    key: 'e2e'
+    depends_on: ['unit', 'build']
+    parallelism: 6
+    timeout_in_minutes: 75
+    plugins:
+      - custom-checkout#v1.8.0:
+          skip_checkout: true
+          interpolate_checkout_path: '$$BUILDKITE_BUILD_CHECKOUT_PATH-e2e'
+          repos:
+            - url: 'https://github.com/theopenlane/core.git'
+              ref: 'origin/main'
+              checkout_path: '.'
+              clone_flags: ['--depth=1', '--single-branch', '--branch=main']
+            - url: '$BUILDKITE_REPO'
+              checkout_path: 'console'
+              clone_flags: ['--filter=blob:none']
+      - ./console/.buildkite/plugins/core-dev-config: ~
+      - artifacts#v1.11.0:
+          download:
+            - from: 'console-next.tgz'
+              to: 'console/console-next.tgz'
+      - docker-compose#v5.14.0:
+          run: e2e
+          config:
+            - docker/docker-compose-redis.yml
+            - docker/docker-compose-fga.yml
+            - docker/docker-compose-riverboat.yml
+            - docker/docker-compose-published.yml
+            - console/.buildkite/e2e/docker-compose.yml
+    artifact_paths:
+      - 'console/apps/console/e2e/blob-report/*.zip'
+      - 'console/apps/console/e2e/results/junit-*.xml'
+      - 'console/e2e-logs/**/*'
+    retry:
+      automatic:
+        - exit_status: -1
+          limit: 1
+
+  - wait: ~
+    continue_on_failure: true
+
+  - label: ':bar_chart: HTML report'
+    key: 'report'
+    plugins:
+      - artifacts#v1.11.0:
+          download: 'console/apps/console/e2e/blob-report/*.zip'
+      - docker#v5.13.0:
+          image: mcr.microsoft.com/playwright:v1.63.0-noble
+          environment:
+            - PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report
+            - PLAYWRIGHT_HTML_OPEN=never
+          command:
+            - bash
+            - -c
+            - |
+              set -euo pipefail
+              trap 'chown -R "$$(stat -c %u:%g /workdir)" /workdir' EXIT
+              npx -y playwright@1.63.0 merge-reports --reporter html console/apps/console/e2e/blob-report
+    artifact_paths:
+      - 'playwright-report/**/*'
+
+  # one annotation per suite: title, counts, HTML report link (e2e), failures and skips collapsed
+  - label: ':memo: test summary'
+    depends_on: 'report'
+    allow_dependency_failure: true
+    plugins:
+      - docker#v5.13.0:
+          image: python:3.13-alpine
+          mount-buildkite-agent: true
+          environment:
+            - BUILDKITE_ORGANIZATION_SLUG
+            - BUILDKITE_PIPELINE_SLUG
+            - BUILDKITE_BUILD_NUMBER
+          command: ['python3', '.buildkite/e2e/summarize.py']
+
+notify:
+  - slack: '#alerts-sink'
+    if: build.source == 'schedule' && build.state == 'failed'

@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth/auth'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'scheduleId and swaps[] are required' }, { status: 400 })
     }
 
-    const schedule: Stripe.SubscriptionSchedule = await stripe.subscriptionSchedules.retrieve(scheduleId)
+    const schedule: Stripe.SubscriptionSchedule = await getStripe().subscriptionSchedules.retrieve(scheduleId)
 
     const currentPhase = schedule.current_phase
     if (!currentPhase) {
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
       })
     }
 
-    const updated = await stripe.subscriptionSchedules.update(scheduleId, {
+    const updated = await getStripe().subscriptionSchedules.update(scheduleId, {
       phases,
     })
 

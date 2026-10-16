@@ -35,7 +35,8 @@ import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/c
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 import { useSession } from 'next-auth/react'
-import { isSoc2Framework, SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-categories'
+import { isSoc2Framework } from '@/constants/trust-services-categories'
+import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-category-names'
 import TrustServicesCategoriesField from './trust-services-categories-field'
 
 const formSchema = z.object({

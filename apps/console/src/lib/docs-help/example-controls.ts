@@ -1,7 +1,7 @@
 // Turning OL Baseline template controls into editable rows, and deciding
 // whether a suggestion is really a control the org already has
 import { orgAbbreviation, wordTokens } from '@/utils/strings'
-import { OPENLANE_BASELINE_STANDARD } from '@/constants/standards'
+import { OPENLANE_BASELINE_STANDARD } from '@/constants/system-standards'
 
 export type TExistingMatch = { id: string; refCode: string; description?: string | null }
 
