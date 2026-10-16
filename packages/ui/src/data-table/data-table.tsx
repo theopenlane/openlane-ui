@@ -137,6 +137,7 @@ interface BaseDataTableProps<TData extends RowData> {
   pagination?: TPagination | null
   onPaginationChange?: (arg: TPagination) => void
   paginationMeta?: TPaginationMeta
+  manualPagination?: boolean
   pageSizeOptions?: number[]
   wrapperClass?: string
   columnVisibility?: VisibilityState
@@ -346,6 +347,7 @@ export function DataTable<TData extends RowData>({
   pagination,
   onPaginationChange,
   paginationMeta,
+  manualPagination = false,
   pageSizeOptions,
   wrapperClass,
   setColumnVisibility,
@@ -528,6 +530,7 @@ export function DataTable<TData extends RowData>({
     columnResizeMode,
     columnResizeDirection,
     enableColumnResizing: true,
+    manualPagination,
     state: {
       columnFilters,
       columnVisibility: effectiveColumnVisibility,

@@ -9,14 +9,16 @@ import Pagination from '@repo/ui/pagination'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { Callout } from '@/components/shared/callout/callout'
 import { toJson } from '@/lib/report/report-export'
-import { formatCell, rowsForPage, type TReportResult, type TReportRow } from '@/lib/report/report-rows'
+import { formatCell, type TReportResult, type TReportRow } from '@/lib/report/report-rows'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import type { TReportView } from './report-results-toolbar'
 
 type TReportResultsProps = {
   result: TReportResult | undefined
+  rows: TReportRow[]
   error: Error | null
   isLoading: boolean
-  view: 'table' | 'json'
+  view: TReportView
   pagination: TPagination
   onPaginationChange: (pagination: TPagination) => void
 }
@@ -34,7 +36,7 @@ const pageQueryFor = (page: number, pagination: TPagination, totalPages: number,
   return page > pagination.page ? { first: pagination.pageSize, after: pageInfo.endCursor } : { last: pagination.pageSize, before: pageInfo.startCursor }
 }
 
-const ReportResults: React.FC<TReportResultsProps> = ({ result, error, isLoading, view, pagination, onPaginationChange }) => {
+const ReportResults: React.FC<TReportResultsProps> = ({ result, rows, error, isLoading, view, pagination, onPaginationChange }) => {
   const tableColumns = useMemo<ColumnDef<TReportRow>[]>(
     () =>
       (result?.columns ?? []).map((column) => {
@@ -52,8 +54,6 @@ const ReportResults: React.FC<TReportResultsProps> = ({ result, error, isLoading
       }),
     [result?.columns],
   )
-
-  const rows = useMemo(() => (result ? rowsForPage(result, pagination) : []), [pagination, result])
 
   const json = useMemo(() => (result && view === 'json' ? toJson(rows, result.columns) : ''), [result, rows, view])
 
@@ -104,6 +104,7 @@ const ReportResults: React.FC<TReportResultsProps> = ({ result, error, isLoading
       tableKey={undefined}
       noResultsText="No records match this report"
       pagination={pagination}
+      manualPagination
       onPaginationChange={onPaginationChange}
       paginationMeta={{ totalCount: result.totalCount, pageInfo: result.pageInfo, isLoading }}
     />
