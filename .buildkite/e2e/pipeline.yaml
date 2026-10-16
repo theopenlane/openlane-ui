@@ -87,35 +87,8 @@ steps:
   - wait: ~
     continue_on_failure: true
 
-  - label: ':junit: unit summary'
-    key: 'unit-summary'
-    plugins:
-      - junit-annotate#v2.7.0:
-          artifacts: 'test-results/junit-unit.xml'
-          context: unit
-          always-annotate: true
-          report-skipped: true
-          failure-format: file
-
-  - label: ':junit: e2e summary'
-    key: 'e2e-summary'
-    plugins:
-      - junit-annotate#v2.7.0:
-          artifacts: 'console/apps/console/e2e/results/junit-*.xml'
-          context: e2e
-          always-annotate: true
-          report-skipped: true
-          report-slowest: 10
-          failure-format: file
-
-  - label: ':label: label summaries'
-    depends_on: ['unit-summary', 'e2e-summary']
-    allow_dependency_failure: true
-    command:
-      - buildkite-agent annotate --context unit --append $$'\n\n**Unit tests** (`bun test apps/console/src packages`)'
-      - buildkite-agent annotate --context e2e --append $$'\n\n**E2E tests** (Playwright, all shards; failures failed every retry)'
-
   - label: ':bar_chart: HTML report'
+    key: 'report'
     plugins:
       - artifacts#v1.11.0:
           download: 'console/apps/console/e2e/blob-report/*.zip'
@@ -127,6 +100,20 @@ steps:
           command: ['npx', '-y', 'playwright@1.63.0', 'merge-reports', '--reporter', 'html', 'console/apps/console/e2e/blob-report']
     artifact_paths:
       - 'playwright-report/**/*'
+
+  # one annotation per suite: title, counts, HTML report link (e2e), failures and skips collapsed
+  - label: ':memo: test summary'
+    depends_on: 'report'
+    allow_dependency_failure: true
+    plugins:
+      - docker#v5.13.0:
+          image: python:3.13-alpine
+          mount-buildkite-agent: true
+          environment:
+            - BUILDKITE_ORGANIZATION_SLUG
+            - BUILDKITE_PIPELINE_SLUG
+            - BUILDKITE_BUILD_NUMBER
+          command: ['python3', '.buildkite/e2e/summarize.py']
 
 notify:
   - slack: '#alerts-sink'

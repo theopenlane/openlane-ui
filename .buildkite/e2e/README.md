@@ -5,10 +5,11 @@ itself. The stack is core's own compose files, this directory only adds the cons
 
 | File                         |                                                                                                                                              |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pipeline.yaml`              | the pipeline: checkout of core + this repo, sharded test step, failure annotation, merged HTML report, Slack                                 |
-| `docker-compose.yml`         | the console layer over core's compose files: only the `e2e` runner                                                                           |
-| `run-shard.sh`               | runs inside `e2e`: builds and serves the console, runs one Playwright shard                                                                  |
+| `pipeline.yaml`              | the pipeline: checkout of core + this repo, unit tests, console build, sharded e2e, HTML report, test summary, Slack                         |
+| `docker-compose.yml`         | the console layer over core's compose files: the `e2e` runner, no host ports, riverboat and the api adjusted for CI                          |
+| `run-shard.sh`               | runs inside `e2e`: unpacks the shared console build, serves it, runs one Playwright shard                                                    |
 | `../plugins/core-dev-config` | vendored plugin: copies core's dev configs into place (`config/.config.yaml`, riverboat's `.config.yaml`) as core's `ensure-config` tasks do |
+| `summarize.py`               | the `test summary` step: reads the JUnit artifacts and writes the unit and e2e annotations                                                   |
 | `console.env`                | console settings for the run; third-party features (AI, chat, analytics, billing) off                                                        |
 
 ## How a run works
@@ -33,11 +34,11 @@ itself. The stack is core's own compose files, this directory only adds the cons
    `localhost:3001` is the console, as on a laptop. Playwright's `--shard` splits the suite
    across the jobs; each writes a blob report and JUnit results as artifacts.
 
-4. **`unit summary`** / **`e2e summary`**: `junit-annotate` adds one annotation each to every
-   build (`always-annotate`): failed, errored, skipped and total test counts, the failures
-   with their output, the skipped tests, and (e2e) the 10 slowest tests.
-5. **`HTML report`** merges the shards' blob reports into one Playwright report
+4. **`HTML report`** merges the shards' blob reports into one Playwright report
    (`playwright-report/index.html` in the build artifacts, with traces for failures).
+5. **`test summary`** (`summarize.py`) adds one annotation per suite to every build: the
+   title, then passed / failed / skipped counts, a link to the HTML report (e2e),
+   and the failed test names in a collapsed list.
 6. **Slack**: the pipeline's `notify` posts when a scheduled (nightly) build fails.
    Passing nightlies, and builds started by hand or by a push, don't notify.
 
