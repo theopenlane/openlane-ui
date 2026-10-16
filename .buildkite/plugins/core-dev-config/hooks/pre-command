@@ -7,7 +7,12 @@ set -euo pipefail
 cd "${BUILDKITE_BUILD_CHECKOUT_PATH}"
 
 # newest core release tag, so the checkout matches the published api image
-E2E_CORE_REF="${E2E_CORE_REF:-$(git ls-remote --tags --refs --sort=-v:refname origin 'v*' | awk -F/ '{print $3}' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)}"
+# awk reads all input, an early-exiting head would SIGPIPE the pipeline under pipefail
+E2E_CORE_REF="${E2E_CORE_REF:-$(git ls-remote --tags --refs --sort=-v:refname origin 'v*' | awk -F/ '!ref && $3 ~ /^v[0-9]+\.[0-9]+\.[0-9]+$/ {ref = $3} END {print ref}')}"
+if [[ -z "${E2E_CORE_REF}" ]]; then
+  echo "no core release tag found" >&2
+  exit 1
+fi
 export E2E_CORE_REF
 
 echo "checking out core ${E2E_CORE_REF}"
