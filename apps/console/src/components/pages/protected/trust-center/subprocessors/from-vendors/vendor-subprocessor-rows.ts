@@ -1,4 +1,4 @@
-import { type CreateTrustCenterSubprocessorInput } from '@repo/codegen/src/schema'
+import { type CreateTrustCenterSubprocessorInput, type EntityWhereInput } from '@repo/codegen/src/schema'
 import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { getNodes } from '@/lib/graphql-hooks/connection'
 import { type TVendorSubprocessorCandidate } from '@/lib/graphql-hooks/subprocessor'
@@ -51,8 +51,7 @@ const firstByName = (subprocessors: readonly TSubprocessorRef[]): Map<string, TS
   return byName
 }
 
-export const buildSubprocessorIndex = (catalog: readonly TCatalogNode[], listed: readonly (TSubprocessorRef | null | undefined)[], acknowledgedListedIds: ReadonlySet<string>): TSubprocessorIndex => {
-  const listedSubprocessors = listed.filter((subprocessor): subprocessor is TSubprocessorRef => !!subprocessor)
+export const buildSubprocessorIndex = (catalog: readonly TCatalogNode[], listedSubprocessors: readonly TSubprocessorRef[], acknowledgedListedIds: ReadonlySet<string>): TSubprocessorIndex => {
   const oldestFirst = [...catalog].sort(byOldest)
 
   return {
@@ -62,6 +61,16 @@ export const buildSubprocessorIndex = (catalog: readonly TCatalogNode[], listed:
     catalogByName: firstByName(oldestFirst.filter(({ systemOwned }) => systemOwned)),
   }
 }
+
+const vendorNamedWhere = (name: string): EntityWhereInput => ({
+  or: [
+    { displayNameNotNil: true, displayNameEqualFold: name },
+    { displayNameIsNil: true, nameNotNil: true, nameEqualFold: name },
+  ],
+})
+
+export const notListedVendorWhere = (listed: readonly TSubprocessorRef[]): EntityWhereInput | undefined =>
+  listed.length === 0 ? undefined : { not: { or: [{ hasSubprocessorsWith: [{ idIn: listed.map(({ id }) => id) }] }, ...[...firstByName(listed).values()].map(({ name }) => vendorNamedWhere(name))] } }
 
 const resolveVendorTarget = (vendor: TVendorSubprocessorCandidate, index: TSubprocessorIndex, runResult?: TRunSubprocessor): TVendorSubprocessorTarget => {
   const key = subprocessorNameKey(vendorSubprocessorName(vendor))

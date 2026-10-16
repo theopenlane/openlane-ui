@@ -1,19 +1,23 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { LoaderCircle, SearchIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
+import { Label } from '@repo/ui/label'
+import { Switch } from '@repo/ui/switch'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { type TPagination } from '@repo/ui/pagination-types'
+import { type EntityWhereInput } from '@repo/codegen/src/schema'
 import { Callout } from '@/components/shared/callout/callout'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { SubprocessorListingDefaults } from '@/components/pages/protected/trust-center/shared/subprocessor-listing-defaults'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { useNotification } from '@/hooks/useNotification'
+import { mergeWhere } from '@/lib/merge-where'
 import { vendorSearchWhere } from '@/lib/graphql-hooks/entity'
 import { useVendorSubprocessorCandidates } from '@/lib/graphql-hooks/subprocessor'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -26,13 +30,15 @@ import { LOAD_ERROR_MESSAGE, useVendorSubprocessorSelection } from './use-vendor
 const VIEW = { all: 'all', selected: 'selected' } as const
 type TView = (typeof VIEW)[keyof typeof VIEW]
 
-type TSearchPagination = { term: string; pagination: TPagination }
+type TFilteredPagination = { filterKey: string; pagination: TPagination }
 
 export const VendorSubprocessorPicker: React.FC = () => {
   const router = useRouter()
   const { successNotification, errorNotification, warningNotification } = useNotification()
   const {
     resolveRows,
+    notListedWhere,
+    isListedResolved,
     selectedRows,
     activeCount,
     setVendorsSelected,
@@ -54,11 +60,20 @@ export const VendorSubprocessorPicker: React.FC = () => {
   const [view, setView] = useState<TView>(VIEW.all)
   const [selectedPagination, setSelectedPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const { searchText, setSearchText, debouncedTerm, getIsSearching } = useAsyncCommandSearch()
-  const [searchPagination, setSearchPagination] = useState<TSearchPagination>({ term: '', pagination: DEFAULT_PAGINATION })
-  const pagination = searchPagination.term === debouncedTerm ? searchPagination.pagination : DEFAULT_PAGINATION
-  const setPagination = (next: TPagination) => setSearchPagination({ term: debouncedTerm, pagination: next })
+  const [showListed, setShowListed] = useState(false)
+  const showListedId = useId()
+  const hidingListed = !showListed && !!notListedWhere
+  const vendorWhere = mergeWhere<EntityWhereInput>([vendorSearchWhere(debouncedTerm), hidingListed ? notListedWhere : undefined])
+  const filterKey = JSON.stringify(vendorWhere)
+  const [filteredPagination, setFilteredPagination] = useState<TFilteredPagination>({ filterKey, pagination: DEFAULT_PAGINATION })
+  const pagination = filteredPagination.filterKey === filterKey ? filteredPagination.pagination : DEFAULT_PAGINATION
+  const setPagination = (next: TPagination) => setFilteredPagination({ filterKey, pagination: next })
 
-  const candidates = useVendorSubprocessorCandidates({ where: vendorSearchWhere(debouncedTerm), pagination, enabled: !isAdding })
+  const candidates = useVendorSubprocessorCandidates({
+    where: vendorWhere,
+    pagination,
+    enabled: !isAdding && (showListed || isListedResolved),
+  })
   const searching = getIsSearching(candidates.isFetching && !!debouncedTerm)
 
   useEffect(() => syncVisibleVendors(candidates.vendors), [candidates.vendors, syncVisibleVendors])
@@ -98,7 +113,11 @@ export const VendorSubprocessorPicker: React.FC = () => {
     }
   }
 
-  const noResultsText = isAllView ? (debouncedTerm ? 'No vendors match your search.' : 'You have no vendors yet.') : 'No vendors selected.'
+  const noResultsText = (() => {
+    if (!isAllView) return 'No vendors selected.'
+    if (debouncedTerm) return hidingListed ? 'No vendors that are not already listed match your search.' : 'No vendors match your search.'
+    return hidingListed ? 'Every vendor is already listed on your Trust Center.' : 'You have no vendors yet.'
+  })()
 
   return (
     <div className="flex flex-col gap-4">
@@ -156,6 +175,14 @@ export const VendorSubprocessorPicker: React.FC = () => {
               <TabsTrigger value={VIEW.selected}>Selected ({selectedRows.length})</TabsTrigger>
             </TabsList>
           </Tabs>
+          {isAllView && (
+            <div className="flex items-center gap-2">
+              <Switch id={showListedId} checked={showListed} onCheckedChange={setShowListed} />
+              <Label htmlFor={showListedId} className="text-sm">
+                Show already listed
+              </Label>
+            </div>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {selectedRows.length > 0 && (

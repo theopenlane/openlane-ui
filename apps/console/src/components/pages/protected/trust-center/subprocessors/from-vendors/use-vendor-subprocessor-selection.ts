@@ -18,6 +18,7 @@ import { parseErrorMessage, UserFacingError } from '@/utils/graphQlErrorMatcher'
 import { formatTruncatedList, pluralizeWithCount } from '@/utils/strings'
 import {
   buildSubprocessorIndex,
+  notListedVendorWhere,
   resolveVendorRow,
   type TRunSubprocessor,
   toListingInput,
@@ -75,15 +76,11 @@ export const useVendorSubprocessorSelection = () => {
   const { mutateAsync: updateSubprocessor } = useUpdateSubprocessor()
   const { mutateAsync: createBulkTrustCenterSubprocessor } = useCreateBulkTrustCenterSubprocessor()
 
-  const index = useMemo(
-    () =>
-      buildSubprocessorIndex(
-        catalogQuery.data ?? [],
-        (linksQuery.data ?? []).map((link) => link.subprocessor),
-        acknowledgedListedIds,
-      ),
-    [catalogQuery.data, linksQuery.data, acknowledgedListedIds],
-  )
+  const listedSubprocessors = useMemo(() => (linksQuery.data ?? []).flatMap((link) => (link.subprocessor ? [link.subprocessor] : [])), [linksQuery.data])
+  const index = useMemo(() => buildSubprocessorIndex(catalogQuery.data ?? [], listedSubprocessors, acknowledgedListedIds), [catalogQuery.data, listedSubprocessors, acknowledgedListedIds])
+
+  const notListedWhere = useMemo(() => notListedVendorWhere(listedSubprocessors), [listedSubprocessors])
+  const isListedResolved = linksQuery.isSuccess || linksQuery.isError
 
   const rolesData = vendorRolesQuery.data
   const [knownRoles, setKnownRoles] = useState<{ source?: typeof rolesData; roles: NonNullable<typeof rolesData>['object_roles'] }>({ roles: {} })
@@ -243,6 +240,8 @@ export const useVendorSubprocessorSelection = () => {
 
   return {
     resolveRows,
+    notListedWhere,
+    isListedResolved,
     selectedRows,
     activeCount: activeRows.length,
     setVendorsSelected,
