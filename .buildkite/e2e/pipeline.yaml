@@ -88,6 +88,7 @@ steps:
     continue_on_failure: true
 
   - label: ':junit: unit summary'
+    key: 'unit-summary'
     plugins:
       - junit-annotate#v2.7.0:
           artifacts: 'test-results/junit-unit.xml'
@@ -97,6 +98,7 @@ steps:
           failure-format: file
 
   - label: ':junit: e2e summary'
+    key: 'e2e-summary'
     plugins:
       - junit-annotate#v2.7.0:
           artifacts: 'console/apps/console/e2e/results/junit-*.xml'
@@ -105,6 +107,13 @@ steps:
           report-skipped: true
           report-slowest: 10
           failure-format: file
+
+  - label: ':label: label summaries'
+    depends_on: ['unit-summary', 'e2e-summary']
+    allow_dependency_failure: true
+    command:
+      - buildkite-agent annotate --context unit --append $$'\n\n**Unit tests** (`bun test apps/console/src packages`)'
+      - buildkite-agent annotate --context e2e --append $$'\n\n**E2E tests** (Playwright, all shards; failures failed every retry)'
 
   - label: ':bar_chart: HTML report'
     plugins:

@@ -16,12 +16,12 @@ export default defineConfig({
   globalSetup: './e2e/global-setup.ts',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  // One retry absorbs the irreducible timing tail (inline-edit persistence,
-  // Radix menu/dialog interactions) without tripling the cost of a genuine
-  // failure — at 2 retries a broken test burned three full attempts before
-  // reporting. A test that only passes on retry is flaky-test debt, so keep
-  // this low enough that the debt stays visible.
-  retries: 1,
+  // Locally, one retry absorbs the irreducible timing tail (inline-edit persistence,
+  // Radix menu/dialog interactions) without tripling the cost of a genuine failure.
+  // CI (the nightly Buildkite run) gets two: a fresh stack under parallel shards has a
+  // longer tail, and nobody is waiting on it. A test that only passes on retry still
+  // shows as flaky in the HTML report, so the debt stays visible.
+  retries: process.env.CI ? 2 : 1,
   // P0.1 moved the share-safe specs onto the shared storage-state Owner
   // session, so per-test register/login contention no longer caps local
   // concurrency. The bottleneck is now dev-server route compilation, which
