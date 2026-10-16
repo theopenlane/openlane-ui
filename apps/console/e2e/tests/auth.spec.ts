@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 import { emailFor, PASSWORD } from '../utils/constants'
-import { loginViaForm } from '../utils/login'
+import { loginViaForm, waitForLoginMethodCheck } from '../utils/login'
 import { installRecaptchaShim } from '../utils/recaptcha'
 import { registerAndVerify } from '../utils/registerUser'
 import { seedLoggedInUser } from '../utils/seedUser'
@@ -20,14 +20,14 @@ test.describe('auth — login', () => {
     await expect(page).toHaveURL(/\/login(\?|$)/)
   })
 
-  test('webfinger keeps a regular (non-SSO) user on the password screen', async ({ page }) => {
+  test('the login-method check keeps a regular (non-SSO) user on the password screen', async ({ page }) => {
     await page.goto('/login')
 
-    const webfingerResponse = page.waitForResponse(/\/api\/auth\/webfinger/)
+    const loginMethodCheck = waitForLoginMethodCheck(page)
     await page.getByPlaceholder(/Enter your email/i).fill(registeredEmail)
-    const wf = await webfingerResponse
+    const response = await loginMethodCheck
 
-    expect(wf.ok()).toBe(true)
+    expect(response.ok()).toBe(true)
     await expect(page.locator('input[name="password"]')).toBeAttached()
     await expect(page).toHaveURL(/\/login(\?|$)/)
   })
@@ -49,9 +49,9 @@ test.describe('auth — login', () => {
     await page.goto('/login')
 
     const unknown = `nobody-${Date.now().toString(36)}@openlane.test`
-    const webfingerResponse = page.waitForResponse(/\/api\/auth\/webfinger/)
+    const loginMethodCheck = waitForLoginMethodCheck(page)
     await page.getByPlaceholder(/Enter your email/i).fill(unknown)
-    await webfingerResponse
+    await loginMethodCheck
 
     await expect(page).toHaveURL(/\/login(\?|$)/)
     const body = await page.locator('body').textContent()
@@ -72,9 +72,9 @@ test.describe('auth — login', () => {
 
     await page.goto('/login?redirect=/policies')
 
-    const webfingerResponse = page.waitForResponse(/\/api\/auth\/webfinger/)
+    const loginMethodCheck = waitForLoginMethodCheck(page)
     await page.getByPlaceholder(/Enter your email/i).fill(email)
-    await webfingerResponse
+    await loginMethodCheck
     await page.locator('input[name="password"]').fill(PASSWORD)
     await page.getByRole('button', { name: /^login$/i }).click()
 
@@ -292,9 +292,9 @@ test.describe('auth — login method selection (ISS-2475)', () => {
   test('a non-SSO email shows the password field and no SSO affordances', async ({ page }) => {
     await page.goto('/login')
 
-    const webfingerResponse = page.waitForResponse(/\/api\/auth\/webfinger/)
+    const loginMethodCheck = waitForLoginMethodCheck(page)
     await page.getByPlaceholder(/Enter your email/i).fill(ssoTestEmail)
-    await webfingerResponse
+    await loginMethodCheck
 
     await expect(page.locator('input[name="password"]')).toBeAttached({ timeout: 15_000 })
 
@@ -305,9 +305,9 @@ test.describe('auth — login method selection (ISS-2475)', () => {
   test('the password screen offers no redundant "Switch to password" link', async ({ page }) => {
     await page.goto('/login')
 
-    const webfingerResponse = page.waitForResponse(/\/api\/auth\/webfinger/)
+    const loginMethodCheck = waitForLoginMethodCheck(page)
     await page.getByPlaceholder(/Enter your email/i).fill(ssoTestEmail)
-    await webfingerResponse
+    await loginMethodCheck
     await expect(page.locator('input[name="password"]')).toBeAttached({ timeout: 15_000 })
 
     await expect(page.getByText(/Switch to password/i)).toHaveCount(0)
