@@ -12,7 +12,6 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCreateTrustCenterEntity } from '@/lib/graphql-hooks/trust-center-entity'
 import type { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
-import { normalizeUrl } from '@/utils/normalizeUrl'
 import { useCreateCustomerLogoForm, type TCreateCustomerLogoFormValues } from './hooks/use-customer-logo-form-schema'
 
 type CreateCustomerLogosProps = {
@@ -20,20 +19,14 @@ type CreateCustomerLogosProps = {
   onCreated?: () => void
 }
 
-export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateCustomerLogosProps) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
+const CreateCustomerLogo = ({ trustCenterID, onCreated }: CreateCustomerLogosProps) => {
+  const [uploadedLogo, setUploadedLogo] = useState<TUploadedFile | null>(null)
+  const [uploadResetKey, setUploadResetKey] = useState(0)
 
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createEntity, isPending: isCreating } = useCreateTrustCenterEntity()
 
   const form = useCreateCustomerLogoForm()
-
-  const handleUpload = (uploaded: TUploadedFile) => {
-    if (!uploaded.file) return
-    setSelectedFile(uploaded.file)
-    setPreview(URL.createObjectURL(uploaded.file))
-  }
 
   const onSubmit = async (values: TCreateCustomerLogoFormValues) => {
     try {
@@ -43,14 +36,14 @@ export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateC
           name: values.name,
           url: values.url || undefined,
         },
-        logoFile: selectedFile || undefined,
+        logoFile: uploadedLogo?.file,
       })
 
       successNotification({ title: 'Customer added' })
 
       form.reset()
-      setSelectedFile(null)
-      setPreview(null)
+      setUploadedLogo(null)
+      setUploadResetKey((key) => key + 1)
       onCreated?.()
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
@@ -99,9 +92,9 @@ export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateC
               <div>
                 <Label className="mb-2 block text-sm">Preview</Label>
                 <div className="flex h-[110px] w-[110px] items-center justify-center rounded-md border border-muted bg-background">
-                  {preview ? (
+                  {uploadedLogo?.url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={normalizeUrl(preview) ?? ''} alt="Logo preview" className="max-h-24 object-contain p-2" />
+                    <img src={uploadedLogo.url} alt="Logo preview" className="max-h-24 object-contain p-2" />
                   ) : (
                     <Eye className="h-6 w-6 text-muted-foreground" />
                   )}
@@ -111,8 +104,9 @@ export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateC
               <div className="flex-1">
                 <Label className="mb-2 block text-sm">Upload Logo</Label>
                 <FileUpload
+                  key={uploadResetKey}
                   acceptedFileTypes={['image/jpeg', 'image/png', 'image/svg+xml']}
-                  onFileUpload={handleUpload}
+                  onFileUpload={setUploadedLogo}
                   acceptedFileTypesShort={['PNG', 'JPG', 'SVG']}
                   maxFileSizeInMb={5}
                   multipleFiles={false}
@@ -129,3 +123,5 @@ export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateC
     </Card>
   )
 }
+
+export default CreateCustomerLogo
