@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth/auth'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 
@@ -26,9 +26,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'scheduleId, priceId and action are required' }, { status: 400 })
     }
 
-    let schedule = (await stripe.subscriptionSchedules.retrieve(scheduleId)) as Stripe.SubscriptionSchedule
+    let schedule = (await getStripe().subscriptionSchedules.retrieve(scheduleId)) as Stripe.SubscriptionSchedule
 
-    const newPrice = (await stripe.prices.retrieve(priceId)) as Stripe.Price
+    const newPrice = (await getStripe().prices.retrieve(priceId)) as Stripe.Price
 
     if (action === 'subscribe' && !newPrice.recurring) {
       return NextResponse.json(
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
     // Released schedules have no current_phase — recreate a schedule from the released subscription
     if (schedule.status === 'released' && schedule.released_subscription) {
-      schedule = (await stripe.subscriptionSchedules.create({
+      schedule = (await getStripe().subscriptionSchedules.create({
         from_subscription: schedule.released_subscription as string,
       })) as Stripe.SubscriptionSchedule
     }
@@ -119,7 +119,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid action. Use "subscribe" or "unsubscribe".' }, { status: 400 })
     }
 
-    const updated = await stripe.subscriptionSchedules.update(schedule.id, {
+    const updated = await getStripe().subscriptionSchedules.update(schedule.id, {
       phases,
     })
 

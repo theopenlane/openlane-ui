@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import type Stripe from 'stripe'
 import { auth } from '@/lib/auth/auth'
 
@@ -11,8 +11,8 @@ export async function GET() {
   }
 
   try {
-    const products: Stripe.ApiList<Stripe.Product> = await stripe.products.list({ active: true, limit: 100 })
-    const prices: Stripe.ApiList<Stripe.Price> = await stripe.prices.list({ active: true, limit: 100 })
+    const products: Stripe.ApiList<Stripe.Product> = await getStripe().products.list({ active: true, limit: 100 })
+    const prices: Stripe.ApiList<Stripe.Price> = await getStripe().prices.list({ active: true, limit: 100 })
 
     const productsWithPrices = products.data.map((product) => ({
       ...product,

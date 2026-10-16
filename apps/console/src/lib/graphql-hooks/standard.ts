@@ -32,7 +32,8 @@ import {
 } from '@repo/codegen/src/schema'
 import { useMemo } from 'react'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
-import { EXCLUDE_SYSTEM_STANDARDS_WHERE, type TSystemStandard } from '@/constants/standards'
+import { EXCLUDE_SYSTEM_STANDARDS_WHERE } from '@/constants/standards'
+import { type TSystemStandard } from '@/constants/system-standards'
 import { mergeWhere } from '@/lib/merge-where'
 
 type TStandardsQueryArgs = {

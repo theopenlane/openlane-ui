@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { auth } from '@/lib/auth/auth'
 import { belongsToCustomer, isLive, pickLiveSubscription } from './live-subscription'
 
@@ -20,14 +20,16 @@ export async function GET(req: Request) {
     }
 
     if (subscriptionId) {
-      const releasedSubscription = await stripe.subscriptions.retrieve(subscriptionId).catch(() => null)
+      const releasedSubscription = await getStripe()
+        .subscriptions.retrieve(subscriptionId)
+        .catch(() => null)
 
       if (releasedSubscription && belongsToCustomer(releasedSubscription, customerId) && isLive(releasedSubscription)) {
         return NextResponse.json(releasedSubscription)
       }
     }
 
-    const subs = await stripe.subscriptions.list({
+    const subs = await getStripe().subscriptions.list({
       customer: customerId,
       limit: 100,
     })

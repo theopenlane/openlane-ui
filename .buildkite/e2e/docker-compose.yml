@@ -1,0 +1,63 @@
+# Console layer for the nightly e2e (see README.md). The stack is core's own compose files,
+# the same set `task core:published` starts; this file is passed last and adds the test
+# runner, plus the few overrides CI needs (no host ports, riverboat on the compose network). Compose runs from the core checkout root (core's files use ${PWD}), with this
+# repo at ./console; E2E_CONSOLE_DIR overrides that for local runs.
+services:
+  # Shares the api container's network, so localhost:17608 is core and localhost:3001 is the
+  # console, the same addresses (and CORS origin) as a laptop run. The image tag must match
+  # @playwright/test in bun.lock; a mismatch fails fast with "browser not installed".
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.63.0-noble
+    network_mode: 'service:api'
+    ipc: host
+    working_dir: /workdir
+    volumes:
+      - ${E2E_CONSOLE_DIR:-${PWD}/console}:/workdir
+    env_file:
+      - ${E2E_CONSOLE_DIR:-${PWD}/console}/.buildkite/e2e/console.env
+    environment:
+      - CI=1
+      - E2E_PORT=${E2E_PORT:-3001}
+      - E2E_WORKERS=${E2E_WORKERS:-4}
+      - E2E_API_BASE=http://localhost:17608
+      - E2E_FGA_URL=http://openfga:8080
+      - E2E_SEED_SYSTEM_FIXTURES=1
+      - E2E_TRUST_CENTER_CNAME_TARGET=${E2E_TRUST_CENTER_CNAME_TARGET:-cname.demo-dns.com}
+      - BUILDKITE_PARALLEL_JOB
+      - BUILDKITE_PARALLEL_JOB_COUNT
+    command: ['bash', '.buildkite/e2e/run-shard.sh']
+    depends_on:
+      postgres:
+        condition: service_healthy
+      openfga:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      riverboat:
+        condition: service_started
+      api:
+        condition: service_started
+
+  # talk over compose network, ports will conflict on the same runner
+  postgres:
+    ports: !reset []
+  redis:
+    ports: !reset []
+  openfga:
+    ports: !reset []
+  api:
+    # same release as the core checkout, E2E_CORE_REF is set by the core-dev-config plugin
+    image: ghcr.io/theopenlane/core:${E2E_CORE_REF:-latest}
+    ports: !reset []
+    environment:
+      - CORE_SERVER_ENABLEGRAPHSUBSCRIPTIONS=true
+      - CORE_SERVER_TRUSTCENTERCNAMETARGET=${E2E_TRUST_CENTER_CNAME_TARGET:-cname.demo-dns.com}
+    # with no signing keys configured, the dev config's generateKeys has `serve` write
+    # private_key.pem to the working directory, which the image's nonroot user can't write
+    user: '0:0'
+
+  riverboat:
+    environment:
+      - RIVERBOAT_RIVER_DATABASEHOST=postgres://postgres:password@postgres:5432/jobs?sslmode=disable
+      - RIVERBOAT_RIVER_WORKERS_OPENLANECONFIG_OPENLANEAPIHOST=http://api:17608
+      - RIVERBOAT_RIVER_TRUSTCENTERWORKERS_OPENLANECONFIG_OPENLANEAPIHOST=http://api:17608

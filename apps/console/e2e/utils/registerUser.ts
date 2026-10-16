@@ -8,14 +8,14 @@ export interface RegisterUserInput {
 }
 
 interface RegisterResponse {
-  id: string
+  user_id?: string
   email: string
   message: string
   token?: string
 }
 
 /** Register a new user and complete email verification. */
-export const registerAndVerify = async (input: RegisterUserInput): Promise<{ email: string; password: string }> => {
+export const registerAndVerify = async (input: RegisterUserInput): Promise<{ id: string; email: string; password: string }> => {
   const password = input.password ?? PASSWORD
   const firstName = input.firstName ?? 'E2E'
   const lastName = input.lastName ?? 'User'
@@ -34,11 +34,14 @@ export const registerAndVerify = async (input: RegisterUserInput): Promise<{ ema
   if (!body.token) {
     throw new Error('register response missing token — is the backend running with server.dev=true?')
   }
+  if (!body.user_id) {
+    throw new Error(`register response for ${input.email} has no user_id`)
+  }
 
   const verify = await fetch(`${API_BASE}/v1/verify?token=${encodeURIComponent(body.token)}`)
   if (!verify.ok) {
     throw new Error(`verify failed: ${verify.status} ${await verify.text()}`)
   }
 
-  return { email: input.email, password }
+  return { id: body.user_id, email: input.email, password }
 }

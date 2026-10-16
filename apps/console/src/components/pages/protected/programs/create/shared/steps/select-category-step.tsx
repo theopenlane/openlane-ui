@@ -5,7 +5,8 @@ import { useSearchParams } from 'next/navigation'
 import { AlertCircle } from 'lucide-react'
 import { Callout } from '@/components/shared/callout/callout'
 import { TrustServicesCategoryOption } from '@/components/shared/trust-services-categories/trust-services-category-option'
-import { SOC_2_FRAMEWORK_NAME, SOC_2_REQUIRED_CATEGORY, TRUST_SERVICES_CATEGORIES } from '@/constants/trust-services-categories'
+import { TRUST_SERVICES_CATEGORIES } from '@/constants/trust-services-categories'
+import { SOC_2_FRAMEWORK_NAME, SOC_2_REQUIRED_CATEGORY } from '@/constants/trust-services-category-names'
 
 const SelectCategoryStep = () => {
   const { watch, setValue } = useFormContext<{ categories: string[] }>()

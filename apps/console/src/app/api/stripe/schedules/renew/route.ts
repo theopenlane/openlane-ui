@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth/auth'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'scheduleId required' }, { status: 400 })
     }
 
-    const schedule = await stripe.subscriptionSchedules.retrieve(scheduleId)
+    const schedule = await getStripe().subscriptionSchedules.retrieve(scheduleId)
 
     if (!schedule.phases?.length) {
       return NextResponse.json({ error: 'No phases found in schedule' }, { status: 404 })
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No items in last phase' }, { status: 404 })
     }
 
-    const updated: Stripe.SubscriptionSchedule = await stripe.subscriptionSchedules.update(scheduleId, {
+    const updated: Stripe.SubscriptionSchedule = await getStripe().subscriptionSchedules.update(scheduleId, {
       end_behavior: 'release',
       phases: [
         ...schedule.phases.map((p) => ({

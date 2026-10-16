@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import type Stripe from 'stripe'
 import { auth } from '@/lib/auth/auth'
 
@@ -18,7 +18,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Missing customerId' }, { status: 400 })
     }
 
-    const customer = await stripe.customers.retrieve(customerId, {
+    const customer = await getStripe().customers.retrieve(customerId, {
       expand: ['invoice_settings.default_payment_method'],
     })
 
@@ -28,7 +28,7 @@ export async function GET(req: Request) {
 
     const defaultPM = (customer as Stripe.Customer).invoice_settings.default_payment_method
 
-    const paymentMethods = await stripe.paymentMethods.list({
+    const paymentMethods = await getStripe().paymentMethods.list({
       customer: customerId,
       type: 'card',
     })

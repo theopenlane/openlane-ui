@@ -1,9 +1,6 @@
 import { BookLock, Cloud, GlobeLock, Shield, SlidersHorizontal, type LucideIcon } from 'lucide-react'
 import { splitFrameworkNames } from '@/constants/standards'
-
-export const SOC_2_FRAMEWORK_NAME = 'SOC 2'
-
-export const SOC_2_REQUIRED_CATEGORY = 'Security'
+import { SOC_2_FRAMEWORK_NAME, TRUST_SERVICES_CATEGORY_NAMES, type TTrustServicesCategoryName } from '@/constants/trust-services-category-names'
 
 export type TTrustServicesCategory = {
   name: string
@@ -11,17 +8,19 @@ export type TTrustServicesCategory = {
   icon: LucideIcon
 }
 
-export const TRUST_SERVICES_CATEGORIES: readonly TTrustServicesCategory[] = [
-  { name: SOC_2_REQUIRED_CATEGORY, description: 'Protect systems and information against unauthorized access and disclosure.', icon: Shield },
-  { name: 'Availability', description: 'Systems are available for operation and use as committed.', icon: Cloud },
-  { name: 'Confidentiality', description: 'Confidential information is protected according to your commitments.', icon: BookLock },
-  { name: 'Processing Integrity', description: 'Processing is complete, valid, accurate, timely, and authorized.', icon: SlidersHorizontal },
-  { name: 'Privacy', description: 'Personal information is collected, used, retained, and disclosed appropriately.', icon: GlobeLock },
-]
+const TRUST_SERVICES_CATEGORY_DETAILS: Record<TTrustServicesCategoryName, Omit<TTrustServicesCategory, 'name'>> = {
+  Security: { description: 'Protect systems and information against unauthorized access and disclosure.', icon: Shield },
+  Availability: { description: 'Systems are available for operation and use as committed.', icon: Cloud },
+  Confidentiality: { description: 'Confidential information is protected according to your commitments.', icon: BookLock },
+  'Processing Integrity': { description: 'Processing is complete, valid, accurate, timely, and authorized.', icon: SlidersHorizontal },
+  Privacy: { description: 'Personal information is collected, used, retained, and disclosed appropriately.', icon: GlobeLock },
+}
 
-const TRUST_SERVICES_CATEGORY_NAMES = new Set(TRUST_SERVICES_CATEGORIES.map((category) => category.name))
+export const TRUST_SERVICES_CATEGORIES: readonly TTrustServicesCategory[] = TRUST_SERVICES_CATEGORY_NAMES.map((name) => ({ name, ...TRUST_SERVICES_CATEGORY_DETAILS[name] }))
 
-export const isTrustServicesCategory = (name: string): boolean => TRUST_SERVICES_CATEGORY_NAMES.has(name)
+const TRUST_SERVICES_CATEGORY_NAME_SET = new Set<string>(TRUST_SERVICES_CATEGORY_NAMES)
+
+export const isTrustServicesCategory = (name: string): boolean => TRUST_SERVICES_CATEGORY_NAME_SET.has(name)
 
 export const isSoc2Framework = (frameworkName?: string | null): boolean => splitFrameworkNames(frameworkName).some((name) => name.toLowerCase() === SOC_2_FRAMEWORK_NAME.toLowerCase())
 

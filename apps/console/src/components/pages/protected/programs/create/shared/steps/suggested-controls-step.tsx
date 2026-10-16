@@ -16,7 +16,7 @@ import { type MappedControlWhereInput } from '@repo/codegen/src/schema'
 import { type MapControl } from '@/types'
 import { type SuggestedControlMappingGroup } from '../suggested-controls-schema'
 import SuggestedControlRow from './suggested-control-row'
-import { OPENLANE_BASELINE_STANDARD } from '@/constants/standards'
+import { OPENLANE_BASELINE_STANDARD } from '@/constants/system-standards'
 
 type SuggestedControlFormValues = {
   suggestedControlIDs?: string[]

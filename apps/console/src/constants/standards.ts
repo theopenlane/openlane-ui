@@ -1,21 +1,5 @@
 import { type ControlWhereInput, type StandardWhereInput } from '@repo/codegen/src/schema'
-
-export type TSystemStandard = {
-  shortName: string
-  framework: string
-  refCodePrefix?: string
-}
-
-export const OPENLANE_BASELINE_STANDARD = {
-  shortName: 'OL Baseline',
-  framework: 'openlane-standard',
-  refCodePrefix: 'OL-',
-} as const satisfies TSystemStandard
-
-export const OPENLANE_TRUST_CENTER_STANDARD = {
-  shortName: 'OTS',
-  framework: 'openlane-trust-center',
-} as const satisfies TSystemStandard
+import { OPENLANE_BASELINE_STANDARD, OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/system-standards'
 
 const OPENLANE_SYSTEM_STANDARDS = [OPENLANE_BASELINE_STANDARD, OPENLANE_TRUST_CENTER_STANDARD]
 

@@ -1,0 +1,7 @@
+name: core-dev-config
+description: Checks core out at its newest release tag and puts core's dev configs in place before core's compose files start, as core's ensure-config tasks do
+author: https://github.com/theopenlane
+requirements: []
+configuration:
+  properties: {}
+  additionalProperties: false
