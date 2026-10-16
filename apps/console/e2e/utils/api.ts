@@ -407,6 +407,15 @@ export const getTrustCenterId = async (sess: ApiSession): Promise<string> => {
   return id
 }
 
+/** The org's trust center, created if it has none (core allows one per org and creates its live and preview settings). */
+export const ensureTrustCenter = async (sess: ApiSession): Promise<string> => {
+  try {
+    return await getTrustCenterId(sess)
+  } catch {
+    return seedEntity(sess, 'createTrustCenter', 'CreateTrustCenterInput', 'trustCenter', {})
+  }
+}
+
 export const createIdentityHolder = (sess: ApiSession, fullName: string, email: string): Promise<string> =>
   seedEntity(sess, 'createIdentityHolder', 'CreateIdentityHolderInput', 'identityHolder', { fullName, email })
 

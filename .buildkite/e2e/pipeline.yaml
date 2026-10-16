@@ -20,9 +20,34 @@ steps:
     artifact_paths:
       - 'test-results/junit-unit.xml'
 
+  - label: ':building_construction: console build'
+    key: 'build'
+    timeout_in_minutes: 30
+    plugins:
+      - docker#v5.13.0:
+          image: mcr.microsoft.com/playwright:v1.63.0-noble
+          env-file:
+            - .buildkite/e2e/console.env
+          environment:
+            - CI=1
+            - HUSKY=0
+          command:
+            - bash
+            - -c
+            - |
+              set -euo pipefail
+              trap 'chown -R "$$(stat -c %u:%g /workdir)" /workdir' EXIT
+              npm install -g bun@1.3.13 >/dev/null
+              bun install --frozen-lockfile
+              cd apps/console
+              bun run build
+              tar --exclude=.next/cache -czf /workdir/console-next.tgz .next
+    artifact_paths:
+      - 'console-next.tgz'
+
   - label: ':performing_arts: console e2e %n'
     key: 'e2e'
-    depends_on: 'unit'
+    depends_on: ['unit', 'build']
     parallelism: 6
     timeout_in_minutes: 75
     plugins:
@@ -38,6 +63,10 @@ steps:
               checkout_path: 'console'
               clone_flags: ['--filter=blob:none']
       - ./console/.buildkite/plugins/core-dev-config: ~
+      - artifacts#v1.11.0:
+          download:
+            - from: 'console-next.tgz'
+              to: 'console/console-next.tgz'
       - docker-compose#v5.14.0:
           run: e2e
           config:
@@ -58,11 +87,23 @@ steps:
   - wait: ~
     continue_on_failure: true
 
-  - label: ':junit: failures'
+  - label: ':junit: unit summary'
     plugins:
       - junit-annotate#v2.7.0:
-          artifacts: '**/junit-*.xml'
-          context: tests
+          artifacts: 'test-results/junit-unit.xml'
+          context: unit
+          always-annotate: true
+          report-skipped: true
+          failure-format: file
+
+  - label: ':junit: e2e summary'
+    plugins:
+      - junit-annotate#v2.7.0:
+          artifacts: 'console/apps/console/e2e/results/junit-*.xml'
+          context: e2e
+          always-annotate: true
+          report-skipped: true
+          report-slowest: 10
           failure-format: file
 
   - label: ':bar_chart: HTML report'

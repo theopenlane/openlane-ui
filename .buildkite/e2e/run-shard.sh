@@ -10,7 +10,7 @@ SHARD=$((${BUILDKITE_PARALLEL_JOB:-0} + 1))
 TOTAL="${BUILDKITE_PARALLEL_JOB_COUNT:-1}"
 
 apt-get update -qq && apt-get install -y -qq curl lsof >/dev/null
-npm install -g bun@1 >/dev/null
+npm install -g bun@1.3.13 >/dev/null
 
 for _ in $(seq 1 90); do
   curl -sf --max-time 2 http://localhost:17608/livez >/dev/null && break
@@ -31,4 +31,11 @@ export PLAYWRIGHT_BLOB_OUTPUT_NAME="report-${SHARD}.zip"
 export PLAYWRIGHT_JUNIT_OUTPUT_NAME="e2e/results/junit-${SHARD}.xml"
 
 cd apps/console
+
+# the console build step's production build (.next), shared by every shard
+if [[ -f /workdir/console-next.tgz ]]; then
+  tar -xzf /workdir/console-next.tgz
+  export E2E_SKIP_BUILD=1
+fi
+
 bash e2e/run-prod-suite.sh --shard="${SHARD}/${TOTAL}" --reporter=blob,junit

@@ -17,7 +17,10 @@ directory only adds the console layer.
 1. **`unit tests`** runs the repo's unit tests (`bun test apps/console/src packages`, the
    root `test` script) in `oven/bun`, with JUnit output. The e2e shards depend on it, so a
    unit failure stops the build before any stack is started.
-2. **`console e2e`** runs as `parallelism` jobs. In each one:
+2. **`console build`** runs alongside the unit tests: one production build of the console
+   (`bun run build` with `console.env`), uploaded as `console-next.tgz` (`.next` without its
+   cache). Every shard downloads it and serves it, instead of building its own.
+3. **`console e2e`** runs as `parallelism` jobs. In each one:
    - `custom-checkout` shallow-clones the tip of core's `E2E_CORE_BRANCH` into the job's directory and this
      repo into `console/`;
    - `core-dev-config` (vendored here) copies core's dev configs into place, as core's
@@ -31,10 +34,12 @@ directory only adds the console layer.
    `localhost:3001` is the console, as on a laptop. Playwright's `--shard` splits the suite
    across the jobs; each writes a blob report and JUnit results as artifacts.
 
-3. **`failures`**: `junit-annotate` adds the failed unit and e2e tests to the build page.
-4. **`HTML report`** merges the shards' blob reports into one Playwright report
+4. **`unit summary`** / **`e2e summary`**: `junit-annotate` adds one annotation each to every
+   build (`always-annotate`): failed, errored, skipped and total test counts, the failures
+   with their output, the skipped tests, and (e2e) the 10 slowest tests.
+5. **`HTML report`** merges the shards' blob reports into one Playwright report
    (`playwright-report/index.html` in the build artifacts, with traces for failures).
-5. **Slack** is the pipeline's `notify` on a failed build.
+6. **Slack** is the pipeline's `notify` on a failed build.
 
 Console server logs from each job are in `console/e2e-logs/` in that job's artifacts.
 

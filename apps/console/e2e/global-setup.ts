@@ -19,6 +19,7 @@ import {
   createSubprocessor,
   createStandard,
   getTrustCenterId,
+  ensureTrustCenter,
   completeOnboardingTasks,
   type ApiSession,
   type SeedRole,
@@ -158,24 +159,80 @@ const seedTrustCenterFixtures = async (email: string, password: string): Promise
   await createStandard(api, `E2E Framework ${RUN_ID}`)
 }
 
-const captureExternalDemoSession = async (): Promise<boolean> => {
+/** Logs the demo profile in through the form, saves its session, and seeds the trust-center fixtures. */
+const captureDemoSession = async (email: string, password: string): Promise<void> => {
   const browser = await chromium.launch()
   try {
     const context = await browser.newContext({ baseURL: BASE_URL })
     const page = await context.newPage()
-    await loginViaForm(page, DEMO_EMAIL, DEMO_PASSWORD)
+    await loginViaForm(page, email, password)
     await page.waitForURL(/\/dashboard/, { timeout: 30_000 })
     await saveAuthState(context, 'demo')
-    await seedTrustCenterFixtures(DEMO_EMAIL, DEMO_PASSWORD)
-    demoEmail = DEMO_EMAIL
-    demoPassword = DEMO_PASSWORD
-    console.log(`[global-setup] using the seeded trust-center org (${DEMO_EMAIL})`)
-    return true
-  } catch (err) {
-    console.log(`[global-setup] no seeded trust-center org for ${DEMO_EMAIL} (${String(err).slice(0, 160)}) — trust-center specs will skip`)
-    return false
   } finally {
     await browser.close()
+  }
+
+  await seedTrustCenterFixtures(email, password)
+  demoEmail = email
+  demoPassword = password
+}
+
+/** An externally seeded demo account (E2E_DEMO_EMAIL, default peter.parker) whose org already has a trust center. */
+const captureExternalDemoAccount = async (): Promise<boolean> => {
+  try {
+    // an API login fails fast when the account doesn't exist (a fresh core, e.g. CI)
+    await getTrustCenterId(await loginViaApi(DEMO_EMAIL, DEMO_PASSWORD))
+  } catch (err) {
+    console.log(`[global-setup] no external demo account ${DEMO_EMAIL} (${String(err).slice(0, 120)})`)
+    return false
+  }
+
+  await captureDemoSession(DEMO_EMAIL, DEMO_PASSWORD)
+  console.log(`[global-setup] using the seeded trust-center org (${DEMO_EMAIL})`)
+  return true
+}
+
+/** Registers a demo user for this run, onboards it into its own org, and gives that org a trust center. */
+const provisionDemoAccount = async (): Promise<void> => {
+  const email = emailFor('demo')
+  const companyName = `E2E Trust Center ${RUN_ID}`
+
+  await registerAndVerify({ email })
+
+  const browser = await chromium.launch()
+  try {
+    const context = await browser.newContext({ baseURL: BASE_URL })
+    const page = await context.newPage()
+    await loginViaForm(page, email, PASSWORD)
+    await completeOnboarding(page, { companyName })
+  } finally {
+    await browser.close()
+  }
+
+  const api0 = await loginViaApi(email)
+  const orgs = await getSharedOrgs(api0)
+  const org = orgs.find((o) => o.name === companyName) ?? orgs[0]
+  if (!org) throw new Error('global-setup: demo user has no non-personal org after onboarding')
+
+  const self = await getSelf(api0)
+  await setDefaultOrg(api0, self.settingId, org.id)
+
+  // a fresh login so the token carries the new default org
+  const api = await loginViaApi(email)
+  await completeOnboardingTasks(api)
+  await ensureTrustCenter(api)
+
+  await captureDemoSession(email, PASSWORD)
+  console.log(`[global-setup] provisioned a trust-center org for ${email}`)
+}
+
+const setUpDemoSession = async (): Promise<boolean> => {
+  try {
+    if (!(await captureExternalDemoAccount())) await provisionDemoAccount()
+    return true
+  } catch (err) {
+    console.log(`[global-setup] no demo trust-center org (${String(err).slice(0, 160)}) — trust-center specs will skip`)
+    return false
   }
 }
 
@@ -224,7 +281,7 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
     roleEmails[role] = await seedRoleUser({ role, ownerApi, sharedOrgId: shared.id })
   }
 
-  const hasDemoSession = await captureExternalDemoSession()
+  const hasDemoSession = await setUpDemoSession()
 
   const manifest: AuthManifest = {
     runId: RUN_ID,
