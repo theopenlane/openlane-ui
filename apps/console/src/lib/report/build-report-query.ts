@@ -1,8 +1,8 @@
-import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
+import type { TReportEdge, TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import type { TPaginationQuery } from '@repo/ui/pagination-types'
 import { mergeWhere } from '@/lib/merge-where'
 import { excludeSystemOwnedWhere } from './report-filters'
-import type { TReportColumn, TReportOrder } from './report-schema'
+import { buildPath, PATH_SEPARATOR, type TReportColumn, type TReportOrder } from './report-schema'
 
 export const REPORT_OPERATION_NAME = 'CustomReport'
 
@@ -19,8 +19,15 @@ type TBuildReportQueryArgs = {
   entity: TReportEntity
   columns: TReportColumn[]
   where: Record<string, unknown> | null
+  relatedWhere: Record<string, unknown>
   orderBy: TReportOrder | null
   pageQuery: TPaginationQuery
+}
+
+type TRelatedWhereVariables = {
+  relatedWhere: Record<string, unknown>
+  variables: Record<string, unknown>
+  definitions: string[]
 }
 
 type TSelection = {
@@ -44,37 +51,58 @@ const renderSelections = (selections: TSelection[], depth: number): string[] => 
   )
 }
 
-const nodeSelections = (columns: TReportColumn[]): TSelection[] => {
-  const selections: TSelection[] = []
-  const byEdge = new Map<string, TReportColumn[]>()
-
-  for (const column of columns) {
-    if (!column.edge) {
-      selections.push(leaf(column.field.name))
-      continue
-    }
-
-    const grouped = byEdge.get(column.edge.name)
-    if (grouped) grouped.push(column)
-    else byEdge.set(column.edge.name, [column])
-  }
-
-  for (const edgeColumns of byEdge.values()) {
-    const edge = edgeColumns[0].edge
-    if (!edge) continue
-
-    const fields = edgeColumns.map((column) => leaf(column.field.name))
-
-    selections.push({
-      name: edge.connection ? `${schemaName(edge.name)}(first: ${RELATED_RECORD_LIMIT})` : schemaName(edge.name),
-      children: edge.connection ? [{ name: 'edges', children: [{ name: 'node', children: fields }] }] : fields,
-    })
-  }
-
-  return selections
+type TSelectionTree = {
+  fields: string[]
+  edges: Map<string, { edge: TReportEdge; tree: TSelectionTree }>
 }
 
-export const buildReportQuery = ({ entity, columns, where, orderBy, pageQuery }: TBuildReportQueryArgs): TReportQuery => {
+const emptyTree = (): TSelectionTree => ({ fields: [], edges: new Map() })
+
+const addColumn = (tree: TSelectionTree, edges: TReportEdge[], fieldName: string) => {
+  const [edge, ...rest] = edges
+
+  if (!edge) {
+    if (!tree.fields.includes(fieldName)) tree.fields.push(fieldName)
+    return
+  }
+
+  const branch = tree.edges.get(edge.name) ?? { edge, tree: emptyTree() }
+  tree.edges.set(edge.name, branch)
+  addColumn(branch.tree, rest, fieldName)
+}
+
+const connectionArgs = (edge: TReportEdge, path: string, related: TRelatedWhereVariables): string => {
+  const where = related.relatedWhere[path]
+  if (!where || !edge.whereTypeName) return `first: ${RELATED_RECORD_LIMIT}`
+
+  const variable = `where_${path.split(PATH_SEPARATOR).join('_')}`
+  related.variables[variable] = where
+  related.definitions.push(`$${variable}: ${schemaName(edge.whereTypeName)}`)
+
+  return `first: ${RELATED_RECORD_LIMIT}, where: $${variable}`
+}
+
+const treeSelections = (tree: TSelectionTree, prefix: string[], related: TRelatedWhereVariables): TSelection[] => [
+  ...tree.fields.map(leaf),
+  ...[...tree.edges.values()].map(({ edge, tree: branch }) => {
+    const chain = [...prefix, edge.name]
+    const children = treeSelections(branch, chain, related)
+
+    return edge.connection
+      ? { name: `${schemaName(edge.name)}(${connectionArgs(edge, buildPath(...chain), related)})`, children: [{ name: 'edges', children: [{ name: 'node', children }] }] }
+      : { name: schemaName(edge.name), children }
+  }),
+]
+
+const nodeSelections = (columns: TReportColumn[], related: TRelatedWhereVariables): TSelection[] => {
+  const tree = emptyTree()
+
+  for (const column of columns) addColumn(tree, column.edges, column.field.name)
+
+  return treeSelections(tree, [], related)
+}
+
+export const buildReportQuery = ({ entity, columns, where, relatedWhere, orderBy, pageQuery }: TBuildReportQueryArgs): TReportQuery => {
   const variables: Record<string, unknown> = {}
   const definitions: string[] = []
   const args: string[] = []
@@ -115,7 +143,7 @@ export const buildReportQuery = ({ entity, columns, where, orderBy, pageQuery }:
       children: [
         leaf('totalCount'),
         { name: 'pageInfo', children: [leaf('hasNextPage'), leaf('hasPreviousPage'), leaf('startCursor'), leaf('endCursor')] },
-        { name: 'edges', children: [{ name: 'node', children: nodeSelections(columns) }] },
+        { name: 'edges', children: [{ name: 'node', children: nodeSelections(columns, { relatedWhere, variables, definitions }) }] },
       ],
     },
   ]

@@ -1,15 +1,13 @@
 'use client'
 
 import React, { memo, useMemo, useState } from 'react'
-import { ChevronDown, ChevronRight } from 'lucide-react'
-import { Checkbox } from '@repo/ui/checkbox'
+import { useDebounce } from '@uidotdev/usehooks'
 import { Input } from '@repo/ui/input'
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import { RELATED_RECORD_LIMIT } from '@/lib/report/build-report-query'
-import { buildPath, getEdgeFields, labelledEdges, labelledFields } from '@/lib/report/report-schema'
+import { edgeChainPath, labelledEdges } from '@/lib/report/report-schema'
 import ReportPanel from './report-panel'
-import ReportFieldList, { type TReportFieldOption } from './report-field-list'
-import { matchesSearch } from './report-search'
+import ReportEdgeGroup, { countSelectedByEdgePath, edgeGroupMatches, type TEdgeGroup } from './report-edge-group'
 
 type TReportRelatedPanelProps = {
   entity: TReportEntity
@@ -18,83 +16,47 @@ type TReportRelatedPanelProps = {
   onToggleMany: (paths: string[], selectAll: boolean) => void
 }
 
-type TEdgeGroup = {
-  name: string
-  label: string
-  options: TReportFieldOption[]
-}
-
 const ReportRelatedPanel: React.FC<TReportRelatedPanelProps> = ({ entity, selected, onToggle, onToggleMany }) => {
   const [search, setSearch] = useState('')
-  const [expanded, setExpanded] = useState<string[]>([])
+  const debouncedSearch = useDebounce(search, 200)
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set())
 
-  const groups = useMemo<TEdgeGroup[]>(
-    () =>
-      labelledEdges(entity)
-        .map(({ item: edge, label }) => ({
-          name: edge.name,
-          label,
-          options: labelledFields(getEdgeFields(edge)).map(({ item: field, label: fieldLabel }) => ({ path: buildPath(edge.name, field.name), label: fieldLabel })),
-        }))
-        .filter((group) => group.options.length > 0),
-    [entity],
-  )
+  const groups = useMemo<TEdgeGroup[]>(() => labelledEdges(entity.edges).map(({ item: edge, label }) => ({ chain: [edge], label })), [entity])
 
-  const visible = useMemo(
-    () =>
-      groups
-        .map((group) => (matchesSearch(group.name, group.label, search) ? group : { ...group, options: group.options.filter((option) => matchesSearch(option.path, option.label, search)) }))
-        .filter((group) => group.options.length > 0),
-    [groups, search],
-  )
+  const matching = useMemo(() => groups.filter((group) => edgeGroupMatches(group, debouncedSearch, true)), [groups, debouncedSearch])
+  const selectedCounts = useMemo(() => countSelectedByEdgePath(selected), [selected])
+  const ordered = useMemo(() => [...matching].sort((a, b) => Number(selectedCounts.has(edgeChainPath(b.chain))) - Number(selectedCounts.has(edgeChainPath(a.chain)))), [matching, selectedCounts])
 
-  const ordered = useMemo(
-    () =>
-      visible
-        .map((group) => ({ ...group, selectedCount: group.options.filter((option) => selected.has(option.path)).length }))
-        .sort((a, b) => Number(b.selectedCount > 0) - Number(a.selectedCount > 0)),
-    [selected, visible],
-  )
+  const toggleExpanded = (path: string) =>
+    setExpanded((current) => {
+      const next = new Set(current)
+      if (!next.delete(path)) next.add(path)
 
-  const isSearching = search.trim().length > 0
-
-  const toggleExpanded = (edgeName: string) => setExpanded((current) => (current.includes(edgeName) ? current.filter((name) => name !== edgeName) : [...current, edgeName]))
+      return next
+    })
 
   if (groups.length === 0) return null
 
   return (
-    <ReportPanel title="Related data" description={`Include fields from linked records, up to the first ${RELATED_RECORD_LIMIT} per record`}>
+    <ReportPanel title="Related data" description={`Include fields from linked records and the records linked to them, up to the first ${RELATED_RECORD_LIMIT} per record`}>
       <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search related fields" className="mb-2" />
-      <div className="flex flex-col gap-2 max-h-64 overflow-y-auto">
+      <div className="flex flex-col gap-2 max-h-80 overflow-y-auto">
         {ordered.length === 0 ? (
           <p className="text-xs text-muted-foreground">No matching fields</p>
         ) : (
-          ordered.map(({ name, label, options, selectedCount }) => {
-            const isExpanded = isSearching || expanded.includes(name)
-
-            return (
-              <div key={name}>
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    aria-label={`Select all ${label} fields`}
-                    checked={selectedCount === 0 ? false : selectedCount === options.length ? true : 'indeterminate'}
-                    onCheckedChange={() =>
-                      onToggleMany(
-                        options.map((option) => option.path),
-                        selectedCount !== options.length,
-                      )
-                    }
-                  />
-                  <button type="button" onClick={() => toggleExpanded(name)} className="flex items-center gap-1 text-sm flex-1 text-left">
-                    {isExpanded ? <ChevronDown size={14} className="text-muted-foreground" /> : <ChevronRight size={14} className="text-muted-foreground" />}
-                    <span className="truncate">{label}</span>
-                    {selectedCount > 0 && <span className="text-xs text-muted-foreground">({selectedCount})</span>}
-                  </button>
-                </div>
-                {isExpanded && <ReportFieldList options={options} selected={selected} onToggle={onToggle} className="ml-6 flex flex-col gap-1 mt-1 border-l border-border pl-3" />}
-              </div>
-            )
-          })
+          ordered.map((group) => (
+            <ReportEdgeGroup
+              key={edgeChainPath(group.chain)}
+              group={group}
+              search={debouncedSearch}
+              selected={selected}
+              selectedCounts={selectedCounts}
+              expanded={expanded}
+              onToggleExpanded={toggleExpanded}
+              onToggle={onToggle}
+              onToggleMany={onToggleMany}
+            />
+          ))
         )}
       </div>
     </ReportPanel>

@@ -3,14 +3,14 @@
 import { useCallback, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { GraphQLClient } from 'graphql-request'
-import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
+import type { TReportEdge, TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import type { TPaginationQuery } from '@repo/ui/pagination-types'
 import { EXPORT_PAGE_SIZE } from '@/constants/pagination'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useNotification } from '@/hooks/useNotification'
 import { buildReportQuery } from '@/lib/report/build-report-query'
 import { exportReport, EXPORT_FORMAT_LABELS, type TReportExportFormat } from '@/lib/report/report-export'
-import { flattenRows, type TReportResult, type TReportRow } from '@/lib/report/report-rows'
+import { flattenRows, type TReportNode, type TReportResult } from '@/lib/report/report-rows'
 import type { TReportColumn, TReportOrder } from '@/lib/report/report-schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ExportTooLargeError, fetchAllConnectionNodes } from './fetch-all-connection-nodes'
@@ -20,6 +20,7 @@ export type TReportRequest = {
   entity: TReportEntity
   columns: TReportColumn[]
   where: Record<string, unknown> | null
+  relatedWhere: Record<string, unknown>
   orderBy: TReportOrder | null
   limit: number | null
 }
@@ -31,7 +32,7 @@ type TReportConnection = {
 }
 
 const fetchConnection = async (client: GraphQLClient, request: TReportRequest, pageQuery: TPaginationQuery): Promise<TReportConnection | undefined> => {
-  const { query, variables } = buildReportQuery({ entity: request.entity, columns: request.columns, where: request.where, orderBy: request.orderBy, pageQuery })
+  const { query, variables } = buildReportQuery({ entity: request.entity, columns: request.columns, where: request.where, relatedWhere: request.relatedWhere, orderBy: request.orderBy, pageQuery })
   const response = await client.request<Record<string, TReportConnection | null>>(query, variables)
 
   return response[request.entity.queryName] ?? undefined
@@ -40,7 +41,7 @@ const fetchConnection = async (client: GraphQLClient, request: TReportRequest, p
 const fetchWindow = async (client: GraphQLClient, request: TReportRequest, limit: number | null) => {
   let matchedCount = 0
 
-  const nodes = await fetchAllConnectionNodes<Record<string, unknown>>(async (after, remaining) => {
+  const nodes = await fetchAllConnectionNodes<TReportNode>(async (after, remaining) => {
     const connection = await fetchConnection(client, request, { first: Math.min(EXPORT_PAGE_SIZE, remaining), after })
     matchedCount = connection?.totalCount ?? matchedCount
 
@@ -56,6 +57,7 @@ const reportQueryKey = (request: TReportRequest | null, pageQuery: TPaginationQu
   request?.entity.queryName,
   request?.columns.map((column) => column.path),
   request?.where,
+  request?.relatedWhere,
   request?.orderBy,
   request?.limit ?? null,
   pageQuery,
@@ -81,7 +83,7 @@ export const useReportQuery = (request: TReportRequest | null, pageQuery: TPagin
           totalCount: nodes.length,
           matchedCount: Math.max(matchedCount, nodes.length),
           columns: request.columns,
-          rows: flattenRows(nodes, request.columns),
+          nodes,
         }
       }
 
@@ -94,7 +96,7 @@ export const useReportQuery = (request: TReportRequest | null, pageQuery: TPagin
         matchedCount: totalCount,
         pageInfo: connection?.pageInfo ?? {},
         columns: request.columns,
-        rows: flattenRows(nodes, request.columns),
+        nodes,
       }
     },
   })
@@ -106,27 +108,27 @@ export const useReportExport = (request: TReportRequest | null) => {
   const { successNotification, warningNotification, errorNotification, infoNotification } = useNotification()
   const [isExporting, setIsExporting] = useState(false)
 
-  const collectRows = useCallback(
-    async (exportRequest: TReportRequest): Promise<TReportRow[]> => {
+  const collectNodes = useCallback(
+    async (exportRequest: TReportRequest): Promise<TReportNode[]> => {
       const windowed = queryClient.getQueryData<TReportResult>(reportQueryKey(exportRequest, null))
-      if (windowed && !windowed.pageInfo) return windowed.rows
+      if (windowed && !windowed.pageInfo) return windowed.nodes
 
       const { nodes } = await fetchWindow(client, exportRequest, exportRequest.limit)
 
-      return flattenRows(nodes, exportRequest.columns)
+      return nodes
     },
     [client, queryClient],
   )
 
   const runExport = useCallback(
-    async (format: TReportExportFormat) => {
+    async (format: TReportExportFormat, rowPer: TReportEdge[]) => {
       if (!request) return
 
       setIsExporting(true)
       infoNotification({ title: 'Preparing export', description: 'Collecting records. This can take a moment for large reports.' })
 
       try {
-        const rows = await collectRows(request)
+        const rows = flattenRows(await collectNodes(request), request.columns, rowPer)
 
         if (rows.length === 0) {
           warningNotification({ title: 'Nothing to export', description: 'No records match this report.' })
@@ -134,14 +136,14 @@ export const useReportExport = (request: TReportRequest | null) => {
         }
 
         exportReport(format, rows, request.columns, `${request.entity.queryName}-report`)
-        successNotification({ title: 'Export complete', description: `${rows.length.toLocaleString()} records exported as ${EXPORT_FORMAT_LABELS[format]}.` })
+        successNotification({ title: 'Export complete', description: `${rows.length.toLocaleString()} rows exported as ${EXPORT_FORMAT_LABELS[format]}.` })
       } catch (error) {
         errorNotification({ title: 'Export failed', description: exportErrorMessage(error) })
       } finally {
         setIsExporting(false)
       }
     },
-    [collectRows, errorNotification, infoNotification, request, successNotification, warningNotification],
+    [collectNodes, errorNotification, infoNotification, request, successNotification, warningNotification],
   )
 
   return { runExport, isExporting }

@@ -1,11 +1,13 @@
-import type { TReportFieldKind } from '@repo/codegen/src/report-schema.generated'
+import type { TReportEdge, TReportFieldKind } from '@repo/codegen/src/report-schema.generated'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { htmlToText } from '@/lib/html/html-to-text'
 import { formatDateTime } from '@/utils/date'
 import { sliceByPagination } from '@/utils/pagination'
-import type { TReportColumn } from './report-schema'
+import { edgeChainPath, isListChain, pathLabel, type TReportColumn } from './report-schema'
 
 export type TReportRow = Record<string, unknown>
+
+export type TReportNode = Record<string, unknown>
 
 export type TReportPageInfo = {
   hasNextPage?: boolean
@@ -19,10 +21,10 @@ export type TReportResult = {
   matchedCount: number
   pageInfo?: TReportPageInfo
   columns: TReportColumn[]
-  rows: TReportRow[]
+  nodes: TReportNode[]
 }
 
-export const rowsForPage = (result: TReportResult, pagination: TPagination): TReportRow[] => (result.pageInfo ? result.rows : sliceByPagination(result.rows, pagination))
+export const nodesForPage = (result: TReportResult, pagination: TPagination): TReportNode[] => (result.pageInfo ? result.nodes : sliceByPagination(result.nodes, pagination))
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
 
@@ -34,13 +36,20 @@ const edgeNodes = (value: unknown): Record<string, unknown>[] => {
   return []
 }
 
-const rawCellValue = (node: Record<string, unknown>, column: TReportColumn): unknown => {
-  if (!column.edge) return node[column.field.name]
+const relatedNodes = (node: TReportNode | null, edge: TReportEdge): TReportNode[] => {
+  if (!node) return []
 
-  const related = node[column.edge.name]
-  if (!column.edge.list) return isRecord(related) ? related[column.field.name] : null
+  const related = node[edge.name]
+  if (!edge.list) return isRecord(related) ? [related] : []
 
-  return edgeNodes(related).map((item) => item[column.field.name])
+  return edgeNodes(related)
+}
+
+const rawCellValue = (start: TReportNode | null, edges: TReportEdge[], column: TReportColumn): unknown => {
+  const reached = edges.reduce<TReportNode[]>((nodes, edge) => nodes.flatMap((node) => relatedNodes(node, edge)), start ? [start] : [])
+  const values = reached.map((item) => item[column.field.name])
+
+  return isListChain(edges) ? values : (values[0] ?? null)
 }
 
 const asPlainText = (value: unknown): unknown => {
@@ -52,14 +61,62 @@ const asPlainText = (value: unknown): unknown => {
 
 const RICH_TEXT_KINDS: ReadonlySet<TReportFieldKind> = new Set(['string', 'json'])
 
-const cellValue = (node: Record<string, unknown>, column: TReportColumn): unknown => {
-  const value = rawCellValue(node, column)
+const cellValue = (start: TReportNode | null, edges: TReportEdge[], column: TReportColumn): unknown => {
+  const value = rawCellValue(start, edges, column)
 
   return RICH_TEXT_KINDS.has(column.field.kind) ? asPlainText(value) : value
 }
 
-export const flattenRows = (nodes: Record<string, unknown>[], columns: TReportColumn[]): TReportRow[] =>
-  nodes.map((node) => Object.fromEntries(columns.map((column) => [column.path, cellValue(node, column)])))
+type TRowContext = (TReportNode | null)[]
+
+const expandContexts = (node: TReportNode, rowPer: TReportEdge[]): TRowContext[] =>
+  rowPer.reduce<TRowContext[]>(
+    (contexts, edge) =>
+      contexts.flatMap((context) => {
+        const children = relatedNodes(context.at(-1) ?? null, edge)
+
+        return children.length > 0 ? children.map((child) => [...context, child]) : [[...context, null]]
+      }),
+    [[node]],
+  )
+
+const sharedPrefixLength = (edges: TReportEdge[], rowPer: TReportEdge[]): number => {
+  let length = 0
+  while (length < edges.length && length < rowPer.length && edges[length].name === rowPer[length].name) length += 1
+
+  return length
+}
+
+export const flattenRows = (nodes: TReportNode[], columns: TReportColumn[], rowPer: TReportEdge[] = []): TReportRow[] => {
+  const anchored = columns.map((column) => {
+    const depth = sharedPrefixLength(column.edges, rowPer)
+
+    return { column, depth, rest: column.edges.slice(depth) }
+  })
+
+  return nodes.flatMap((node) =>
+    expandContexts(node, rowPer).map((context) => Object.fromEntries(anchored.map(({ column, depth, rest }) => [column.path, cellValue(context[depth] ?? null, rest, column)]))),
+  )
+}
+
+export type TRowPerOption = {
+  path: string
+  label: string
+  chain: TReportEdge[]
+}
+
+export const rowPerOptions = (columns: TReportColumn[]): TRowPerOption[] => {
+  const chains = new Map<string, TReportEdge[]>()
+
+  for (const column of columns) {
+    column.edges.forEach((edge, index) => {
+      const chain = column.edges.slice(0, index + 1)
+      if (edge.list) chains.set(edgeChainPath(chain), chain)
+    })
+  }
+
+  return [...chains.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([path, chain]) => ({ path, label: pathLabel(path), chain }))
+}
 
 const formatTime = (value: string): string => (Number.isNaN(new Date(value).getTime()) ? value : formatDateTime(value, ''))
 
