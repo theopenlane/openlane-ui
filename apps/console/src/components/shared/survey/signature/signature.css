@@ -1,0 +1,12 @@
+.sd-root-modern .sd-composite:has(.ol-signature-field) .sd-panel__content {
+  padding-top: 4px;
+}
+
+.sd-root-modern:not(.sd-root--readonly) .sd-question--readonly .sjs_sp_container.ol-signature-field {
+  border: 1px dashed var(--sjs2-color-component-input-default-line);
+}
+
+.sd-root-modern .sd-expression.ol-signature-signed-at {
+  font-size: 13px;
+  color: var(--sjs2-color-fg-basic-secondary);
+}

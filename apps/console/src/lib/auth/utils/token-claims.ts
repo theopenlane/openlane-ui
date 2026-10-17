@@ -12,13 +12,15 @@ export interface TimeClaims {
   jti?: string
 }
 
-export const decodeTimeClaims = (token: string): TimeClaims | null => {
+export const decodeTokenClaims = <TClaims>(token: string): TClaims | null => {
   try {
-    return jwtDecode<TimeClaims>(token)
+    return jwtDecode<TClaims>(token)
   } catch {
     return null
   }
 }
+
+export const decodeTimeClaims = (token: string): TimeClaims | null => decodeTokenClaims<TimeClaims>(token)
 
 export const tokenExpiresAt = (token?: string | null): number | null => {
   if (!token) {
