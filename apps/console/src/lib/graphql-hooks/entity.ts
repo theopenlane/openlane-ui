@@ -5,6 +5,7 @@ import {
   type Entity,
   type EntitiesWithFilterQuery,
   type EntitiesWithFilterQueryVariables,
+  type EntityWhereInput,
   type CreateEntityMutation,
   type CreateEntityMutationVariables,
   type CreateEntityInput,
@@ -94,9 +95,10 @@ interface EntityOptionsResult {
   } | null
 }
 
+export const vendorEntitiesWhere = (where?: EntityWhereInput | null): EntityWhereInput => ({ ...where, ...VENDOR_ENTITY_TYPE_WHERE, systemOwned: false })
+
 export const useVendorsWithFilter = ({ where, orderBy, pagination, enabled }: GetAllEntitiesArgs = {}) => {
-  const vendorWhere = { ...where, ...VENDOR_ENTITY_TYPE_WHERE, systemOwned: false }
-  const { entitiesNodes, ...rest } = useEntitiesWithFilter({ where: vendorWhere, orderBy, pagination, enabled })
+  const { entitiesNodes, ...rest } = useEntitiesWithFilter({ where: vendorEntitiesWhere(where), orderBy, pagination, enabled })
   return { ...rest, vendorNodes: entitiesNodes }
 }
 

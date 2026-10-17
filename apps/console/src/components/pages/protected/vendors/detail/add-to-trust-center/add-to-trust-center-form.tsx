@@ -8,32 +8,38 @@ import { DialogFooter } from '@repo/ui/dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { type EntityQuery } from '@repo/codegen/src/schema'
 import { CountriesField } from '@/components/pages/protected/trust-center/shared/countries-field'
-import { CategoryField, categoryEnumWhere } from '@/components/pages/protected/trust-center/shared/category-field'
+import { CategoryField } from '@/components/pages/protected/trust-center/shared/category-field'
+import { SUBPROCESSOR_CATEGORY_WHERE } from '@/components/pages/protected/trust-center/shared/category-options'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { VendorLogo } from '@/components/shared/vendor-logo/vendor-logo'
-import { type TVendorSubprocessorMatch, useCreateSubprocessor, useUpdateSubprocessor } from '@/lib/graphql-hooks/subprocessor'
+import { useCreateSubprocessor, useUpdateSubprocessor } from '@/lib/graphql-hooks/subprocessor'
 import { useCreateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { fetchLogoAsFile, getVendorLogoUrl } from '@/lib/vendor-logo'
+import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { matchVendorCategory, toVendorSubprocessorInput, vendorSubprocessorDescription, vendorSubprocessorName } from './vendor-subprocessor'
+import {
+  matchVendorCategory,
+  needsVendorLink,
+  type TReusedSubprocessorTarget,
+  toVendorSubprocessorVariables,
+  vendorSubprocessorDescription,
+  vendorSubprocessorName,
+} from '@/components/pages/protected/trust-center/shared/vendor-subprocessor'
 import { type TAddToTrustCenterFormData, useAddToTrustCenterForm } from './use-add-to-trust-center-form-schema'
-
-const CATEGORY_WHERE = categoryEnumWhere(ObjectTypes.TRUST_CENTER_SUBPROCESSOR)
 
 type TAddToTrustCenterFormProps = {
   vendor: EntityQuery['entity']
   canLinkVendor: boolean
-  existingSubprocessor: TVendorSubprocessorMatch | null
+  existingTarget: TReusedSubprocessorTarget | null
   onCancel: () => void
   onAdded: () => void
 }
 
-export const AddToTrustCenterForm = ({ vendor, canLinkVendor, existingSubprocessor, onCancel, onAdded }: TAddToTrustCenterFormProps) => {
+export const AddToTrustCenterForm = ({ vendor, canLinkVendor, existingTarget, onCancel, onAdded }: TAddToTrustCenterFormProps) => {
   const { data: session } = useSession()
   const { data: orgPermission } = useOrganizationRoles()
   const canCreateCategory = hasPermission(orgPermission?.roles, AccessEnum.CanCreateCustomTypeEnum, session)
@@ -42,9 +48,9 @@ export const AddToTrustCenterForm = ({ vendor, canLinkVendor, existingSubprocess
   const { mutateAsync: createSubprocessor } = useCreateSubprocessor()
   const { mutateAsync: updateSubprocessor } = useUpdateSubprocessor()
   const { mutateAsync: createTrustCenterSubprocessor } = useCreateTrustCenterSubprocessor()
-  const { enumOptions: categoryOptions } = useGetCustomTypeEnums({ where: CATEGORY_WHERE })
+  const { enumOptions: categoryOptions } = useGetCustomTypeEnums({ where: SUBPROCESSOR_CATEGORY_WHERE })
 
-  const [existing] = useState(existingSubprocessor)
+  const [existing] = useState(existingTarget)
   const createdIdRef = useRef<string | null>(null)
 
   const form = useAddToTrustCenterForm()
@@ -58,13 +64,13 @@ export const AddToTrustCenterForm = ({ vendor, canLinkVendor, existingSubprocess
   }, [vendorCategory, form])
 
   const preview = existing
-    ? { name: existing.name, logoUrl: undefined, subtitle: 'Already exists as a subprocessor, so it will be reused.' }
+    ? { name: existing.subprocessor.name, logoUrl: undefined, subtitle: 'Already exists as a subprocessor, so it will be reused.' }
     : { name: vendorSubprocessorName(vendor), logoUrl: getVendorLogoUrl(vendor.logoFile), subtitle: vendorSubprocessorDescription(vendor) }
 
   const createDisabledReason = !existing && !canCreateSubprocessor ? 'You do not have permission to create subprocessors.' : undefined
 
   const createVendorSubprocessor = async (): Promise<string> => {
-    const result = await createSubprocessor({ input: toVendorSubprocessorInput(vendor, { linkVendor: canLinkVendor }), logoFile: preview.logoUrl ? await fetchLogoAsFile(preview.logoUrl) : undefined })
+    const result = await createSubprocessor(await toVendorSubprocessorVariables(vendor, { linkVendor: canLinkVendor }))
     createdIdRef.current = result.createSubprocessor.subprocessor.id
     return createdIdRef.current
   }
@@ -79,10 +85,10 @@ export const AddToTrustCenterForm = ({ vendor, canLinkVendor, existingSubprocess
 
   const onSubmit = async ({ countries, category }: TAddToTrustCenterFormData) => {
     try {
-      const subprocessorID = existing?.id ?? createdIdRef.current ?? (await createVendorSubprocessor())
+      const subprocessorID = existing?.subprocessor.id ?? createdIdRef.current ?? (await createVendorSubprocessor())
       await createTrustCenterSubprocessor({ input: { subprocessorID, countries, trustCenterSubprocessorKindName: category } })
       successNotification({ title: 'Added to Trust Center', description: `${preview.name} is now listed as a subprocessor on your Trust Center.` })
-      if (canLinkVendor && existing?.needsVendorLink) await linkExistingToVendor(existing.id)
+      if (canLinkVendor && existing && needsVendorLink(existing)) await linkExistingToVendor(existing.subprocessor.id)
       onAdded()
     } catch (error) {
       errorNotification({ title: 'Could not add to Trust Center', description: parseErrorMessage(error) })

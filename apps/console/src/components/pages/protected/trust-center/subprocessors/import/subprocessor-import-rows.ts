@@ -6,6 +6,7 @@ import { logoUrlFromDomain } from '@/lib/image-utils'
 import { buildVendorLogoProxyUrl, toVendorLogoHost } from '@/lib/vendor-logo'
 import { companyNameKey } from '@/utils/company-name'
 import { normalizeHref } from '@/utils/normalizeUrl'
+import { type TSubprocessorListingDefaults } from '@/components/pages/protected/trust-center/shared/subprocessor-listing-defaults'
 import { type TSubprocessorImportField } from './subprocessor-import-fields'
 import { type TCatalogMatch, type TCatalogMatchConfidence, type TCatalogSubprocessor } from './subprocessor-matching'
 
@@ -34,11 +35,6 @@ export type TRowEdit = {
   countries?: string[]
   category?: string
   details?: TCustomDetails
-}
-
-export type TImportDefaults = {
-  countries: string[]
-  category: string
 }
 
 export type TCountryValueMap = Readonly<Record<string, readonly string[]>>
@@ -137,7 +133,7 @@ type TResolveArgs = {
   knownCategories: ReadonlyMap<string, string>
   countryValueMap: TCountryValueMap
   edits: Readonly<Record<number, TRowEdit>>
-  defaults: TImportDefaults
+  defaults: TSubprocessorListingDefaults
 }
 
 export const resolveRows = ({ sourceRows, autoMatches, catalogById, ownNames, linked, createdIds, knownCategories, countryValueMap, edits, defaults }: TResolveArgs): TResolvedRow[] => {

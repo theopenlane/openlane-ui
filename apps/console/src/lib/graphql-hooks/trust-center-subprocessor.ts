@@ -34,6 +34,7 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import { useCallback } from 'react'
 import { invalidateCustomTypeEnumsForName } from '@/lib/graphql-hooks/custom-type-enum'
 import { fetchAllConnectionNodes } from './fetch-all-connection-nodes'
+import { invalidateSubprocessorRecordQueries } from './subprocessor'
 
 type UseGetTrustCenterSubprocessorsArgs = {
   where?: GetTrustCenterSubprocessorsQueryVariables['where']
@@ -182,7 +183,7 @@ export const useTrustCenterSubprocessorLinks = ({ enabled = true }: { enabled?: 
 
 export const invalidateSubprocessorQueries = (queryClient: QueryClient, categoryNames: readonly (string | null | undefined)[] = []) => {
   queryClient.invalidateQueries({ queryKey: ['trustCenterSubprocessors'] })
-  queryClient.invalidateQueries({ queryKey: ['subprocessors'] })
+  invalidateSubprocessorRecordQueries(queryClient)
   new Set(categoryNames).forEach((name) => invalidateCustomTypeEnumsForName(queryClient, name))
 }
 

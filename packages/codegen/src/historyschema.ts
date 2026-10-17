@@ -8580,7 +8580,7 @@ export type GetSubprocessorCatalogQueryVariables = Exact<{
 }>
 
 export interface GetSubprocessorCatalogQuery {
-  subprocessors: { edges: Array<{ node: { id: string; name: string; systemOwned: boolean | null } | null } | null> | null; pageInfo: { endCursor: any; hasNextPage: boolean } }
+  subprocessors: { edges: Array<{ node: { id: string; name: string; systemOwned: boolean | null; createdAt: any } | null } | null> | null; pageInfo: { endCursor: any; hasNextPage: boolean } }
 }
 
 export type CreateBulkSubprocessorMutationVariables = Exact<{
@@ -8602,6 +8602,34 @@ export interface GetVendorSubprocessorMatchesQuery {
   linked: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
   sameName: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
   catalog: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+}
+
+export type GetVendorSubprocessorCandidatesQueryVariables = Exact<{
+  where?: Types.EntityWhereInput | null | undefined
+  orderBy?: Array<Types.EntityOrder> | Types.EntityOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetVendorSubprocessorCandidatesQuery {
+  entities: {
+    totalCount: number
+    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        name: string | null
+        displayName: string | null
+        description: string | null
+        tags: Array<string> | null
+        providedServices: Array<string> | null
+        logoFile: { base64: string | null } | null
+        subprocessors: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
 }
 
 export type CreateSubscriberMutationVariables = Exact<{
