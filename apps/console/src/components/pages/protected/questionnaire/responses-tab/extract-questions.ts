@@ -1,5 +1,6 @@
 import { ACKNOWLEDGEMENT_QUESTION_TYPE, DEFAULT_ACKNOWLEDGEMENT_TITLE } from '@/components/shared/survey/acknowledgement/acknowledgement-type'
 import { PDF_DOCUMENT_QUESTION_TYPE, pdfDocumentTitleFromFileName } from '@/components/shared/survey/pdf-document/pdf-document-type'
+import { DEFAULT_SIGNATURE_TITLE, SIGNATURE_QUESTION_TYPE } from '@/components/shared/survey/signature/signature-type'
 
 export type ExtractedQuestion = {
   name: string
@@ -10,6 +11,7 @@ export type ExtractedQuestion = {
 const CUSTOM_QUESTION_DEFAULT_TITLES: Record<string, (element: Record<string, unknown>) => string> = {
   [PDF_DOCUMENT_QUESTION_TYPE]: (element) => (typeof element.pdfFileName === 'string' ? pdfDocumentTitleFromFileName(element.pdfFileName) : ''),
   [ACKNOWLEDGEMENT_QUESTION_TYPE]: () => DEFAULT_ACKNOWLEDGEMENT_TITLE,
+  [SIGNATURE_QUESTION_TYPE]: () => DEFAULT_SIGNATURE_TITLE,
 }
 
 export const extractQuestions = (jsonconfig: unknown): ExtractedQuestion[] => {
