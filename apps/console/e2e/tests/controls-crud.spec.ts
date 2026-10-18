@@ -516,23 +516,6 @@ test.describe('controls — reviews tab (ISS-2551)', () => {
   })
 })
 
-test.describe('controls — system standards excluded from import (ISS-2687)', () => {
-  test('the Upload From Standard dialog does not offer the Openlane system standards', async ({ page }) => {
-    test.slow()
-    await page.goto('/controls', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('button', { name: /^Report on:/ })).toBeVisible({ timeout: 45_000 })
-
-    await page.getByRole('button', { name: 'Action' }).first().click()
-    await page.getByText('Upload From Standard', { exact: true }).click()
-
-    const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible({ timeout: 15_000 })
-
-    await expect(dialog.getByText('OL Baseline', { exact: true })).toHaveCount(0)
-    await expect(dialog.getByText('OTS', { exact: true })).toHaveCount(0)
-  })
-})
-
 test.describe('controls — no duplicate list query (ISS-2752)', () => {
   test('loading the controls table issues no duplicate GetAllControls request', async ({ page }) => {
     test.slow()

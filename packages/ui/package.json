@@ -25,6 +25,7 @@
     "./pinned-columns": "./src/data-table/pinned-columns.ts",
     "./table-key": "./src/data-table/table-key.ts",
     "./table-types": "./src/data-table/table-types.ts",
+    "./truncated-cell": "./src/data-table/truncated-cell.tsx",
     "./dialog": "./src/dialog/dialog.tsx",
     "./dropdown-menu": "./src/dropdown-menu/dropdown-menu.tsx",
     "./form": "./src/form/form.tsx",

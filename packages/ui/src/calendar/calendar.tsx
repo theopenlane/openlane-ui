@@ -1,8 +1,10 @@
 'use client'
 import { DayPicker, DayPickerProps } from 'react-day-picker'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react'
 
 import { calendarStyles, CalendarVariants } from './calendar.styles'
+import { defaultCalendarEndMonth, defaultCalendarStartMonth } from './calendar-bounds'
+import { CalendarMonthCaption, CalendarMonthsDropdown, CalendarYearsDropdown } from './calendar-caption'
 import { cn } from '../../lib/utils'
 
 export type CalendarProps = DayPickerProps &
@@ -10,18 +12,29 @@ export type CalendarProps = DayPickerProps &
     classNames?: Partial<(typeof calendarStyles)['slots']>
   }
 
-function Calendar({ className, classNames: customClassNames, showOutsideDays = true, ...props }: CalendarProps) {
+const CHEVRON_ICONS = { left: ChevronLeft, right: ChevronRight, up: ChevronUp, down: ChevronDown }
+
+const CalendarChevron = ({ orientation = 'left' }: { orientation?: keyof typeof CHEVRON_ICONS }) => {
+  const Icon = CHEVRON_ICONS[orientation]
+  return <Icon className="h-4 w-4" />
+}
+
+const Calendar = ({ className, classNames: customClassNames, showOutsideDays = true, captionLayout = 'dropdown', startMonth, endMonth, ...props }: CalendarProps) => {
   const styles = calendarStyles()
 
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
+      captionLayout={captionLayout}
+      startMonth={startMonth ?? defaultCalendarStartMonth()}
+      endMonth={endMonth ?? defaultCalendarEndMonth()}
       className={cn(styles.root(), className)}
       classNames={{
         months: styles.months(),
         month: styles.month(),
         month_caption: styles.caption(),
         caption_label: styles.caption_label(),
+        dropdowns: styles.dropdowns(),
         nav: styles.nav(),
         month_grid: styles.month_grid(),
         day: cn(styles.cell(), customClassNames?.cell),
@@ -35,12 +48,7 @@ function Calendar({ className, classNames: customClassNames, showOutsideDays = t
         hidden: styles.day_hidden(),
         ...customClassNames,
       }}
-      components={{
-        Chevron: ({ orientation }) => {
-          const Icon = orientation === 'left' ? ChevronLeft : ChevronRight
-          return <Icon className="h-4 w-4" />
-        },
-      }}
+      components={{ Chevron: CalendarChevron, MonthCaption: CalendarMonthCaption, MonthsDropdown: CalendarMonthsDropdown, YearsDropdown: CalendarYearsDropdown }}
       {...props}
     />
   )

@@ -1,12 +1,10 @@
 'use client'
 
-import React, { use, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
-import { Copy, Download, Play } from 'lucide-react'
+import React, { use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Copy, Play } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import { CodeBlock } from '@repo/ui/code-block'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
@@ -16,22 +14,21 @@ import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access
 import { useReportExport, useReportQuery, type TReportRequest } from '@/lib/graphql-hooks/custom-report'
 import { buildReportQuery } from '@/lib/report/build-report-query'
 import { buildOrder, emptyReportConfig, reportConfigForEntity, type TReportQueryConfig } from '@/lib/report/report-config'
-import { buildWhere, incompleteFilterCount, type TReportFilter } from '@/lib/report/report-filters'
-import { EXPORT_FORMAT_LABELS, EXPORT_FORMATS } from '@/lib/report/report-export'
-import { rowsForPage } from '@/lib/report/report-rows'
-import { entityOptions, getColumnIndex, getEntity, resolveColumns, type TReportCombinator, type TReportSort } from '@/lib/report/report-schema'
+import { buildRelatedWhere, buildWhere, incompleteFilterCount, type TReportFilter } from '@/lib/report/report-filters'
+import { flattenRows, nodesForPage, rowPerOptions } from '@/lib/report/report-rows'
+import { entityOptions, getEntity, resolveColumns, type TReportCombinator, type TReportSort } from '@/lib/report/report-schema'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { EXPORT_PAGE_SIZE } from '@/constants/pagination'
+import { pluralizeWithCount, toHumanLabel } from '@/utils/strings'
 import ReportColumnsPanel from './report-columns-panel'
 import ReportFiltersPanel from './report-filters-panel'
 import ReportHistoryMenu from './report-history-menu'
 import ReportPanel from './report-panel'
 import ReportRelatedPanel from './report-related-panel'
 import ReportResults from './report-results'
+import ReportResultsToolbar, { ROW_PER_RECORD, type TReportView } from './report-results-toolbar'
 import ReportSortPanel from './report-sort-panel'
 import { useReportHistory } from './use-report-history'
-
-type TReportView = 'table' | 'json'
 
 const REPORT_PAGE_SIZE = 25
 
@@ -42,7 +39,6 @@ const CustomReportPage: React.FC = () => {
   const { hasObjectType } = useModuleAccess()
   const { successNotification } = useNotification()
   const [, copyToClipboard] = useCopyToClipboard()
-  const formatLabelId = useId()
 
   const availableEntities = useMemo(() => entityOptions.filter((option) => hasObjectType(option.objectType)), [hasObjectType])
   const reportableEntityNames = useMemo(() => new Set(availableEntities.map((option) => option.value)), [availableEntities])
@@ -55,6 +51,7 @@ const CustomReportPage: React.FC = () => {
   const [pagination, setPagination] = useState<TPagination>(() => resetPagination(REPORT_PAGE_SIZE))
   const [view, setView] = useState<TReportView>('table')
   const [tab, setTab] = useState('results')
+  const [rowPerPath, setRowPerPath] = useState(ROW_PER_RECORD)
 
   useEffect(() => {
     setCrumbs([
@@ -64,7 +61,6 @@ const CustomReportPage: React.FC = () => {
   }, [setCrumbs])
 
   const entity = reportableEntityNames.has(entityName) ? getEntity(entityName) : undefined
-  const columnIndex = getColumnIndex(entity)
   const selectedPaths = useMemo(() => new Set(columnPaths), [columnPaths])
 
   const [request, setRequest] = useState<TReportRequest | null>(null)
@@ -84,6 +80,7 @@ const CustomReportPage: React.FC = () => {
 
     setConfig((current) => ({ ...reportConfigForEntity(nextEntity), limit: current.limit }))
     setRequest(null)
+    setRowPerPath(ROW_PER_RECORD)
     setPagination(resetPagination(pagination.pageSize))
   }
 
@@ -108,6 +105,12 @@ const CustomReportPage: React.FC = () => {
 
   const reportResult = request ? result : undefined
 
+  const rowPerChoices = useMemo(() => (request ? rowPerOptions(request.columns) : []), [request])
+  const selectedRowPer = rowPerChoices.find((option) => option.path === rowPerPath)
+  const rowPer = selectedRowPer?.chain
+
+  const pageRows = useMemo(() => (reportResult ? flattenRows(nodesForPage(reportResult, pagination), reportResult.columns, rowPer) : []), [pagination, reportResult, rowPer])
+
   const recordSummary = useMemo(() => {
     if (!reportResult) return null
 
@@ -116,34 +119,35 @@ const CustomReportPage: React.FC = () => {
         ? `Showing the first ${reportResult.totalCount.toLocaleString()} of ${reportResult.matchedCount.toLocaleString()} matching records`
         : `${reportResult.totalCount.toLocaleString()} total records`
 
-    return view === 'json' ? `${total}, showing ${rowsForPage(reportResult, pagination).length.toLocaleString()} on this page` : total
-  }, [pagination, reportResult, view])
+    return view === 'json' || rowPer ? `${total}, showing ${pluralizeWithCount(pageRows.length, 'row')} on this page` : total
+  }, [pageRows.length, reportResult, rowPer, view])
 
   const incompleteFilters = useMemo(() => (entity ? incompleteFilterCount(filters, entity) : 0), [entity, filters])
 
   const preview = useMemo(() => {
     if (tab !== 'query' || !entity) return null
 
-    const columns = resolveColumns(columnIndex, columnPaths)
+    const columns = resolveColumns(entity, columnPaths)
     if (columns.length === 0) return null
 
     const { query, variables } = buildReportQuery({
       entity,
       columns,
       where: buildWhere(filters, entity, combinator),
+      relatedWhere: buildRelatedWhere(filters, entity, combinator),
       orderBy: buildOrder(sort),
       pageQuery: { first: limit ? Math.min(limit, EXPORT_PAGE_SIZE) : pagination.pageSize },
     })
 
     return { query, variables: Object.keys(variables).length > 0 ? JSON.stringify(variables, null, 2) : '' }
-  }, [columnIndex, columnPaths, combinator, entity, filters, limit, pagination.pageSize, sort, tab])
+  }, [columnPaths, combinator, entity, filters, limit, pagination.pageSize, sort, tab])
 
   const runConfig = useCallback(
     (next: TReportQueryConfig) => {
       const nextEntity = getEntity(next.entityName)
       if (!nextEntity) return
 
-      const columns = resolveColumns(getColumnIndex(nextEntity), next.columnPaths)
+      const columns = resolveColumns(nextEntity, next.columnPaths)
       if (columns.length === 0) return
 
       runIdRef.current += 1
@@ -153,6 +157,7 @@ const CustomReportPage: React.FC = () => {
         entity: nextEntity,
         columns,
         where: buildWhere(next.filters, nextEntity, next.combinator),
+        relatedWhere: buildRelatedWhere(next.filters, nextEntity, next.combinator),
         orderBy: buildOrder(next.sort),
         limit: next.limit,
       })
@@ -227,41 +232,20 @@ const CustomReportPage: React.FC = () => {
           </TabsList>
 
           <TabsContent value="results" className="mt-4 flex flex-col gap-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              {recordSummary && <p className="text-xs text-muted-foreground">{recordSummary}</p>}
+            <ReportResultsToolbar
+              summary={recordSummary}
+              recordLabel={request ? toHumanLabel(request.entity.typeName) : ''}
+              rowPerOptions={rowPerChoices}
+              rowPer={selectedRowPer?.path ?? ROW_PER_RECORD}
+              onRowPerChange={setRowPerPath}
+              view={view}
+              onViewChange={setView}
+              canExport={!!request}
+              isExporting={isExporting}
+              onExport={(format) => runExport(format, rowPer ?? [])}
+            />
 
-              <div className="flex items-center gap-2 ml-auto">
-                <span id={formatLabelId} className="text-sm text-muted-foreground">
-                  Format
-                </span>
-                <Select value={view} onValueChange={(value) => setView(value === 'json' ? 'json' : 'table')}>
-                  <SelectTrigger className="h-8 w-28 text-sm" aria-labelledby={formatLabelId}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="table">Table</SelectItem>
-                    <SelectItem value="json">JSON</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button type="button" variant="outline" size="md" icon={<Download size={14} />} iconPosition="left" loading={isExporting} disabled={!request || isExporting}>
-                      Export
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {EXPORT_FORMATS.map((format) => (
-                      <DropdownMenuItem key={format} onClick={() => runExport(format)}>
-                        {EXPORT_FORMAT_LABELS[format]}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-
-            <ReportResults result={reportResult} error={error} isLoading={isFetching} view={view} pagination={pagination} onPaginationChange={setPagination} />
+            <ReportResults result={reportResult} rows={pageRows} error={error} isLoading={isFetching} view={view} pagination={pagination} onPaginationChange={setPagination} />
           </TabsContent>
 
           <TabsContent value="query" className="mt-4 flex flex-col gap-3">

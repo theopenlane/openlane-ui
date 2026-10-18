@@ -65,13 +65,28 @@ export type IntegrationSchemaProperty = IntegrationSchemaNode & {
   const?: unknown
 }
 
+export type IntegrationOperationInput = {
+  name: string
+  schema?: IntegrationSchemaNode
+}
+
 export type IntegrationOperationMetadata = {
   name: string
   description?: string
   requiredPermissions?: string[]
   disabledForAll: boolean
-  configSchema?: IntegrationSchemaNode
+  stored?: boolean
+  input?: IntegrationOperationInput
 }
+
+export type IntegrationOperationSchemaEntry = {
+  name: string
+  title: string
+  description?: string
+  schema: IntegrationSchemaNode
+}
+
+export type IntegrationOperationConfigPayload = Record<string, Record<string, unknown>>
 
 export type IntegrationCredentialEntry = {
   ref: string

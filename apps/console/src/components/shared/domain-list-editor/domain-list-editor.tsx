@@ -1,14 +1,15 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { Plus, Trash2 } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 
 type DomainListEditorProps = {
   domains: string[]
   newDomain?: string
   onNewDomainChange?: (value: string) => void
-  onAdd?: () => void
+  onAdd?: () => void | Promise<void>
   emptyText?: string
   onRemove?: (domain: string) => void
   error?: string | null
@@ -16,7 +17,6 @@ type DomainListEditorProps = {
   placeholder?: string
   inputLabel?: string
   addLabel?: string
-  addOnEnter?: boolean
 }
 
 export const DomainListEditor = ({
@@ -31,8 +31,21 @@ export const DomainListEditor = ({
   placeholder = 'example.com',
   inputLabel = 'Domain',
   addLabel = 'Add',
-  addOnEnter = false,
 }: DomainListEditorProps) => {
+  const isInputEmpty = !newDomain?.trim()
+  const canAdd = !isInputEmpty && !isPending
+  const isAddingRef = useRef(false)
+
+  const handleAdd = async () => {
+    if (!onAdd || !canAdd || isAddingRef.current) return
+    isAddingRef.current = true
+    try {
+      await onAdd()
+    } finally {
+      isAddingRef.current = false
+    }
+  }
+
   return (
     <div>
       {onAdd && (
@@ -43,20 +56,17 @@ export const DomainListEditor = ({
             placeholder={placeholder}
             value={newDomain ?? ''}
             onChange={(e) => onNewDomainChange?.(e.target.value)}
-            onKeyDown={
-              addOnEnter
-                ? (e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      onAdd()
-                    }
-                  }
-                : undefined
-            }
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter' || e.nativeEvent.isComposing) return
+              e.preventDefault()
+              void handleAdd()
+            }}
           />
-          <Button type="button" variant="secondary" icon={<Plus />} iconPosition="left" loading={isPending} onClick={onAdd}>
-            {addLabel}
-          </Button>
+          <DisabledReasonTooltip reason={isInputEmpty ? 'Enter a domain first.' : null}>
+            <Button type="button" variant="secondary" icon={<Plus />} iconPosition="left" loading={isPending} disabled={!canAdd} onClick={() => void handleAdd()}>
+              {addLabel}
+            </Button>
+          </DisabledReasonTooltip>
         </div>
       )}
 

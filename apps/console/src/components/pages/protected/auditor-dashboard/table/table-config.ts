@@ -1,10 +1,11 @@
-import { ControlOrderField, OrderDirection, type ControlWhereInput, type EvidenceEvidenceStatus, type ReviewReviewStatus } from '@repo/codegen/src/schema'
+import { ControlControlStatus, ControlOrderField, OrderDirection, type ControlWhereInput, type EvidenceEvidenceStatus, type ReviewReviewStatus } from '@repo/codegen/src/schema'
 import { type SortCondition } from '@repo/ui/data-table'
 import { FileCheck2 } from 'lucide-react'
 import { defineFilterFields } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
 import { EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
+import { ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { buildCustomStandardFilterWhere, CUSTOM_STANDARD_FILTER_OPTION, CUSTOM_STANDARD_FILTER_VALUE, isCustomStandardFilter } from '@/components/shared/table-filter/custom-standard-filter'
@@ -14,6 +15,8 @@ type TOption = { value: string; label: string }
 export const AUDITOR_CONTROL_BASE_EXPORT_FIELDS = ['refCode', 'title', 'description', 'category', 'subcategory', 'status', 'referenceFramework']
 
 export const AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES: TFilterState = { standardIDIn: [CUSTOM_STANDARD_FILTER_VALUE] }
+
+export const AUDITOR_DASHBOARD_BASELINE_STATUS_WHERE: ControlWhereInput = { or: [{ statusNEQ: ControlControlStatus.NOT_APPLICABLE }, { statusIsNil: true }] }
 
 export const AUDITOR_DASHBOARD_REMAPPED_FILTER_KEYS = ['reviewStatusIn', 'evidenceStatusIn'] as const
 
@@ -29,6 +32,13 @@ export const getAuditorDashboardFilterFields = (frameworkOptions: TOption[], own
       type: 'multiselect',
       options: [...frameworkOptions, CUSTOM_STANDARD_FILTER_OPTION],
       icon: FilterIcons.Standard,
+    },
+    {
+      key: 'statusIn',
+      label: 'Control Status',
+      type: 'multiselect',
+      options: ControlStatusOptions,
+      icon: FilterIcons.Status,
     },
     {
       key: 'reviewStatusIn',

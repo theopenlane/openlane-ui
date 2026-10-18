@@ -1954,7 +1954,14 @@ export interface GetAuditorDashboardControlsQuery {
         internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string } | null } | null> | null }
         evidence: { totalCount: number; edges: Array<{ node: { id: string; name: string; status: Types.EvidenceEvidenceStatus | null } | null } | null> | null }
         reviews: { edges: Array<{ node: { id: string; status: Types.ReviewReviewStatus | null; reviewedAt: string | null } | null } | null> | null }
-        relatedControls?: Array<{ id: string; refCode: string; referenceFramework: string | null; isSubcontrol: boolean; parentControlID: string | null }> | null
+        relatedControls?: Array<{
+          id: string
+          refCode: string
+          referenceFramework: string | null
+          status: Types.ControlControlStatus | null
+          isSubcontrol: boolean
+          parentControlID: string | null
+        }> | null
       } | null
     } | null> | null
     pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
@@ -4774,6 +4781,7 @@ export interface GetIntegrationsQuery {
         scopeName: string | null
         credentials: any
         config: any
+        operationConfig: any
       } | null
     } | null> | null
   }
@@ -8540,6 +8548,19 @@ export type CreateBulkSubprocessorMutationVariables = Exact<{
 
 export interface CreateBulkSubprocessorMutation {
   createBulkSubprocessor: { subprocessors: Array<{ id: string; name: string }> | null }
+}
+
+export type GetVendorSubprocessorMatchesQueryVariables = Exact<{
+  entityId: string
+  name: string
+}>
+
+export interface GetVendorSubprocessorMatchesQuery {
+  trustCenters: { edges: Array<{ node: { id: string; subprocessorURL: string | null } | null } | null> | null }
+  listed: { edges: Array<{ node: { id: string; subprocessor: { id: string; name: string } } | null } | null> | null }
+  linked: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+  sameName: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+  catalog: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
 }
 
 export type CreateSubscriberMutationVariables = Exact<{

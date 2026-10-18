@@ -81,9 +81,10 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
               control={form.control}
               name="creationDate"
               render={({ field }) => (
-                <FormItem ref={popoverRef} className="w-62.5">
+                <FormItem className="w-62.5">
                   <CalendarPopover
                     field={field}
+                    contentRef={popoverRef}
                     defaultToday
                     required
                     onChange={(date) => {
@@ -110,9 +111,10 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
               control={form.control}
               name="renewalDate"
               render={({ field }) => (
-                <FormItem ref={popoverRef} className="w-62.5">
+                <FormItem className="w-62.5">
                   <CalendarPopover
                     field={field}
+                    contentRef={popoverRef}
                     defaultAddDays={365}
                     onChange={(date) => {
                       field.onChange(date)

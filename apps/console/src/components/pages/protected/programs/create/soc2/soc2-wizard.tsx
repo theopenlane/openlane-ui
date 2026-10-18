@@ -20,7 +20,7 @@ import { addYears, getYear } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { SOC_2_FRAMEWORK_NAME, SOC_2_REQUIRED_CATEGORY } from '@/constants/trust-services-categories'
+import { SOC_2_FRAMEWORK_NAME, SOC_2_REQUIRED_CATEGORY } from '@/constants/trust-services-category-names'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)

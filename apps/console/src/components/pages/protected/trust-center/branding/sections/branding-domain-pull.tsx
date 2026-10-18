@@ -2,61 +2,66 @@
 
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Label } from '@repo/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { cn } from '@repo/ui/lib/utils'
-import { CircleCheck, Clock, ExternalLink, Wand } from 'lucide-react'
+import { CircleCheck, Clock, Wand } from 'lucide-react'
 import { type BrandFormValues } from '../brand-schema'
 import SectionWarning from '../section-warning'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
-import { useBrandingDomainOptions } from '../helpers/use-branding-domain-options'
 import { usePullBrandingFromDomain } from '../helpers/use-pull-branding-from-domain'
-import { useBrandingPullWindow } from '../helpers/use-branding-pull-window'
+import { useDomainScanWindow } from '@/components/shared/domain-branding/use-domain-scan-window'
+import { useOrganizationDomainOptions } from '@/components/shared/domain-branding/use-organization-domain-options'
+import { getDomainScanBlockedReason, NO_DOMAIN_REASON } from '@/components/shared/domain-branding/domain-scan-blocked-reason'
+import { DomainSelectField } from '@/components/shared/domain-branding/domain-select-field'
+import { useRecentDomainBranding } from '@/components/shared/domain-branding/use-recent-domain-branding'
+import { Callout } from '@/components/shared/callout/callout'
+import { useNotification } from '@/hooks/useNotification'
+import { formatTimeSince } from '@/utils/date'
+import { applyScanBranding } from '../helpers/apply-scan-branding'
+import { type TrustCenterPreviewSetting } from '@/lib/graphql-hooks/trust-center'
 
 const DOMAIN_SELECT_ID = 'branding-domain-pull-domain'
-const ORGANIZATION_SETTINGS_HREF = '/organization-settings/general-settings'
-const MANAGE_DOMAINS_TOOLTIP = 'Update the domains available in Organization Settings.'
-const NO_DOMAIN_REASON = 'No domain is associated with this organization yet. Add one in Organization Settings, then try again.'
-const SCAN_HISTORY_UNAVAILABLE_REASON = "We couldn't check whether a domain scan is already running. Please try again later."
 
 const PULL_SUMMARY = ['Colors, fonts, logo, and favicon', 'Applies to preview settings only', 'Uploaded assets stay unchanged', 'Nothing goes live until you publish']
 
 interface BrandingDomainPullProps {
   isReadOnly: boolean
+  previewSetting: TrustCenterPreviewSetting
   onPulled: () => void
 }
 
-export const BrandingDomainPull = ({ isReadOnly, onPulled }: BrandingDomainPullProps) => {
+export const BrandingDomainPull = ({ isReadOnly, previewSetting, onPulled }: BrandingDomainPullProps) => {
   const [open, setOpen] = useState(false)
   const [pickedDomain, setPickedDomain] = useState('')
 
-  const { formState } = useFormContext<BrandFormValues>()
-  const { domainOptions, isLoadingDomains, refetchDomains } = useBrandingDomainOptions(!isReadOnly)
-  const { isPulling, pullBrandingFromDomain } = usePullBrandingFromDomain(onPulled)
-  const { isCheckingWindow, scanHistoryUnavailable, runningScanTarget, pullAvailableIn } = useBrandingPullWindow(!isReadOnly)
+  const { formState, watch, setValue, getValues, getFieldState } = useFormContext<BrandFormValues>()
+  const { successNotification, warningNotification } = useNotification()
+  const { domainOptions, isLoadingDomains, refetchDomains } = useOrganizationDomainOptions(!isReadOnly, watch('companyDomain'))
+  const { isDetecting: isPulling, detectBranding } = usePullBrandingFromDomain(onPulled)
+  const { isCheckingWindow, scanHistoryUnavailable, runningScanTarget, availableIn } = useDomainScanWindow(!isReadOnly)
+  const { recentBrandingByDomain, isLoadingRecentBranding } = useRecentDomainBranding({ domains: domainOptions, enabled: open, isScanRunning: !!runningScanTarget })
 
   const selectedDomain = domainOptions.includes(pickedDomain) ? pickedDomain : (domainOptions[0] ?? '')
-  const hasSingleDomain = domainOptions.length === 1
-  const isCheckingBlockers = isCheckingWindow || isLoadingDomains
+  const recentBranding = recentBrandingByDomain.get(selectedDomain)
+  const hasDomains = domainOptions.length > 0
+  const isCheckingBlockers = isCheckingWindow || isLoadingDomains || isLoadingRecentBranding
+  const blockedReason = getDomainScanBlockedReason({ isChecking: isCheckingBlockers, scanHistoryUnavailable, hasDomains, availableIn, runningScanTarget }, 'pull branding')
+  const triggerBlockedReason = !isLoadingDomains && !hasDomains ? NO_DOMAIN_REASON : null
 
-  const getBlockedReason = (): string | null => {
-    if (isCheckingBlockers) return null
-    if (scanHistoryUnavailable) return SCAN_HISTORY_UNAVAILABLE_REASON
-    if (domainOptions.length === 0) return NO_DOMAIN_REASON
-    if (pullAvailableIn) return `Your organization can run one domain scan an hour. You can pull branding again in ${pullAvailableIn}.`
-    if (runningScanTarget) return `A domain scan for ${runningScanTarget} is already running. We'll let you know when it's done.`
-    return null
+  const handleUseDetected = () => {
+    if (!recentBranding) return
+    const applied = applyScanBranding({ setValue, getValues, getFieldState }, recentBranding.branding, previewSetting)
+    setOpen(false)
+    if (applied === 0) {
+      warningNotification({ title: 'No branding to apply', description: `The branding detected for ${selectedDomain} has nothing we can use here.` })
+      return
+    }
+    successNotification({ title: 'Branding applied', description: `Branding from ${selectedDomain} was applied to the form. Remember to Preview or Publish.` })
   }
-
-  const blockedReason = getBlockedReason()
 
   const handlePull = async () => {
     if (!selectedDomain) return
-    const started = await pullBrandingFromDomain(selectedDomain)
+    const started = await detectBranding(selectedDomain)
     if (started) {
       setOpen(false)
     }
@@ -64,27 +69,13 @@ export const BrandingDomainPull = ({ isReadOnly, onPulled }: BrandingDomainPullP
 
   if (isReadOnly) return null
 
-  const manageDomainsLink = (
-    <SystemTooltip
-      content={MANAGE_DOMAINS_TOOLTIP}
-      side="top"
-      portal
-      icon={
-        <Link href={ORGANIZATION_SETTINGS_HREF} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary text-xs font-medium underline">
-          Manage Domains
-          <ExternalLink size={12} />
-        </Link>
-      }
-    />
-  )
-
   const triggerButton = (
     <Button
       type="button"
       variant="secondary"
       icon={<Wand size={16} />}
       loading={isPulling}
-      disabled={isPulling || isCheckingBlockers || !!blockedReason}
+      disabled={isPulling || isLoadingDomains || !!triggerBlockedReason}
       onClick={() => {
         refetchDomains()
         setOpen(true)
@@ -96,7 +87,7 @@ export const BrandingDomainPull = ({ isReadOnly, onPulled }: BrandingDomainPullP
 
   return (
     <>
-      <DisabledReasonTooltip reason={blockedReason}>{triggerButton}</DisabledReasonTooltip>
+      <DisabledReasonTooltip reason={triggerBlockedReason}>{triggerButton}</DisabledReasonTooltip>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg">
@@ -105,16 +96,20 @@ export const BrandingDomainPull = ({ isReadOnly, onPulled }: BrandingDomainPullP
             <DialogDescription>We&apos;ll import branding from your website into preview settings only.</DialogDescription>
           </DialogHeader>
 
-          <SectionWarning
-            className="mb-0"
-            icon={<Clock className="text-primary shrink-0 mt-0.5" size={16} />}
-            message={
-              <>
-                <p className="text-sm font-medium">This can take a few minutes to complete.</p>
-                <p className="text-sm text-inverted-muted-foreground">We&apos;ll let you know when it&apos;s done.</p>
-              </>
-            }
-          />
+          {blockedReason && !recentBranding ? (
+            <Callout variant="warning">{blockedReason}</Callout>
+          ) : (
+            <SectionWarning
+              className="mb-0"
+              icon={<Clock className="text-primary shrink-0 mt-0.5" size={16} />}
+              message={
+                <>
+                  <p className="text-sm font-medium">This can take a few minutes to complete.</p>
+                  <p className="text-sm text-inverted-muted-foreground">We&apos;ll let you know when it&apos;s done.</p>
+                </>
+              }
+            />
+          )}
 
           <ul className="flex flex-col gap-2">
             {PULL_SUMMARY.map((item) => (
@@ -126,38 +121,42 @@ export const BrandingDomainPull = ({ isReadOnly, onPulled }: BrandingDomainPullP
           </ul>
 
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor={DOMAIN_SELECT_ID} className="text-sm">
-                Domain
-              </Label>
-              <Select value={selectedDomain} onValueChange={setPickedDomain} disabled={hasSingleDomain}>
-                <SelectTrigger id={DOMAIN_SELECT_ID}>
-                  <SelectValue placeholder="Select a domain" />
-                </SelectTrigger>
-                <SelectContent>
-                  {domainOptions.map((domain) => (
-                    <SelectItem key={domain} value={domain}>
-                      {domain}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className={cn('flex items-center gap-2', hasSingleDomain ? 'justify-between' : 'justify-end')}>
-                {hasSingleDomain && <p className="text-xs text-muted-foreground">Only one domain available.</p>}
-                {manageDomainsLink}
-              </div>
-            </div>
+            <DomainSelectField id={DOMAIN_SELECT_ID} domains={domainOptions} value={selectedDomain} onValueChange={setPickedDomain} />
 
-            {formState.isDirty && <SectionWarning className="mb-0" message="You have unsaved edits on this page. They will be replaced by the branding we pull." />}
+            {recentBranding && (
+              <Callout variant="plain">{`Branding for ${selectedDomain} was detected ${formatTimeSince(recentBranding.scannedAt)}. You can apply it to this form without running a new scan, then Preview or Publish.`}</Callout>
+            )}
+
+            {formState.isDirty && (
+              <SectionWarning
+                className="mb-0"
+                message={
+                  recentBranding
+                    ? 'You have unsaved edits on this page. Pulling again discards all of them; using detected branding only replaces colors, font, logo and favicon.'
+                    : 'You have unsaved edits on this page. Pulling discards all of them.'
+                }
+              />
+            )}
           </div>
 
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
               Cancel
             </Button>
+            {recentBranding && (
+              <Button type="button" variant="primary" disabled={isPulling} onClick={handleUseDetected}>
+                Use detected branding
+              </Button>
+            )}
             <DisabledReasonTooltip reason={blockedReason} side="top">
-              <Button type="button" variant="primary" disabled={!selectedDomain || isPulling || isCheckingBlockers || !!blockedReason} loading={isPulling} onClick={handlePull}>
-                Pull into preview
+              <Button
+                type="button"
+                variant={recentBranding ? 'secondary' : 'primary'}
+                disabled={!selectedDomain || isPulling || isCheckingBlockers || !!blockedReason}
+                loading={isPulling}
+                onClick={handlePull}
+              >
+                {recentBranding ? 'Pull again' : 'Pull into preview'}
               </Button>
             </DisabledReasonTooltip>
           </DialogFooter>

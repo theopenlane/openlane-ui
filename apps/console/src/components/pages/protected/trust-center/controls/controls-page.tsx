@@ -26,7 +26,7 @@ import { useSystemStandard, useCloneControls } from '@/lib/graphql-hooks/standar
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { ControlCategoryIcon } from '@/components/shared/control-category-icon-mapper/control-category-icon-mapper'
 import { useSession } from 'next-auth/react'
-import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/standards'
+import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/system-standards'
 
 type FilterTab = 'all' | 'added' | 'not-added' | 'recommended'
 type DraftAction = 'add' | 'remove'

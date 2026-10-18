@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { Ban, Calendar, CalendarClock, ExternalLink, FileText, Lock, Mail, Rocket, SendHorizontal, Trash2 } from 'lucide-react'
+import { Ban, Calendar, CalendarClock, ExternalLink, FileText, Lock, Mail, Rocket, SendHorizontal } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { CAMPAIGN_TERMINAL_STATUSES, useCampaign, useUpdateCampaign, useLaunchCampaign, useResendCampaignIncompleteTargets } from '@/lib/graphql-hooks/campaign'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
@@ -16,9 +16,11 @@ import { CampaignCampaignStatus, CampaignCampaignType, type UpdateCampaignInput 
 import { formatDate, formatDateTime, formatDateTimeWithZone } from '@/utils/date'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
-import Menu from '@/components/shared/menu/menu'
+import { deleteMenuAction } from '@/components/shared/crud-base/slideout-header'
+import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useDeleteCampaign } from '@/lib/graphql-hooks/campaign'
 import { useRouter } from 'next/navigation'
 import { SendTestEmailDialog } from './send-test-email-dialog'
@@ -322,72 +324,25 @@ const CampaignDetailPage: React.FC = () => {
     },
   }
 
-  const launchButton = isDraft && (
-    <Button variant="primary" icon={<Rocket size={14} />} iconPosition="left" onClick={() => setLaunchDialogOpen(true)} disabled={isLaunching || !!launchBlockedReason} className="h-8">
-      Launch
-    </Button>
-  )
-
-  const menuComponent = (
-    <div className="flex items-center gap-2">
-      <Menu
-        closeOnSelect
-        content={(close) => (
-          <>
-            <Button
-              variant="transparent"
-              className="flex justify-start space-x-2"
-              onClick={() => {
-                setTestDialogOpen(true)
-                close()
-              }}
-            >
-              <Mail size={16} strokeWidth={2} />
-              <span>Send test email</span>
+  const headerActions = (
+    <DetailHeaderActions
+      actions={
+        isDraft && (
+          <DisabledReasonTooltip reason={launchBlockedReason}>
+            <Button variant="primary" icon={<Rocket size={14} />} iconPosition="left" onClick={() => setLaunchDialogOpen(true)} disabled={isLaunching || !!launchBlockedReason}>
+              Launch
             </Button>
-            {canSendReminder && (
-              <Button
-                variant="transparent"
-                className="flex justify-start space-x-2"
-                disabled={isResending}
-                onClick={() => {
-                  handleSendReminder()
-                  close()
-                }}
-              >
-                <SendHorizontal size={16} strokeWidth={2} />
-                <span>Send reminder</span>
-              </Button>
-            )}
-            {canCancel && (
-              <Button
-                variant="transparent"
-                className="flex justify-start space-x-2"
-                onClick={() => {
-                  setCancelDialogOpen(true)
-                  close()
-                }}
-              >
-                <Ban size={16} strokeWidth={2} />
-                <span>Cancel campaign</span>
-              </Button>
-            )}
-            <Button
-              variant="transparent"
-              className="flex justify-start space-x-2"
-              onClick={() => {
-                setDeleteDialogOpen(true)
-                close()
-              }}
-            >
-              <Trash2 size={16} strokeWidth={2} />
-              <span>Delete campaign</span>
-            </Button>
-          </>
-        )}
-      />
-      {isDraft && launchBlockedReason ? <SystemTooltip content={launchBlockedReason} icon={<span className="inline-flex">{launchButton}</span>} /> : launchButton}
-    </div>
+          </DisabledReasonTooltip>
+        )
+      }
+      menuAnchor={elementAnchor('campaign-actions-menu')}
+      menuActions={[
+        { key: 'send-test-email', label: 'Send test email', icon: <Mail size={16} strokeWidth={2} />, onClick: () => setTestDialogOpen(true) },
+        canSendReminder && { key: 'send-reminder', label: 'Send reminder', icon: <SendHorizontal size={16} strokeWidth={2} />, disabled: isResending, onClick: () => void handleSendReminder() },
+        canCancel && { key: 'cancel-campaign', label: 'Cancel campaign', icon: <Ban size={16} strokeWidth={2} />, onClick: () => setCancelDialogOpen(true) },
+        { ...deleteMenuAction(() => setDeleteDialogOpen(true)), label: 'Delete campaign' },
+      ]}
+    />
   )
 
   const tmpl = campaign.template
@@ -509,10 +464,34 @@ const CampaignDetailPage: React.FC = () => {
 
   const mainContent = (
     <div className="pr-4">
-      <div className="mb-6 flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <TextField
+              name="name"
+              label=""
+              isEditing={false}
+              isEditAllowed
+              isCreate={false}
+              data={campaign}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleInlineFieldUpdate}
+              layout="vertical"
+              className="text-xl font-semibold"
+            />
+            {status && (
+              <Badge variant="outline" className="flex items-center gap-1.5">
+                <CampaignStatusIcon status={status} />
+                {getEnumLabel(status)}
+              </Badge>
+            )}
+            <Badge variant="outline" className="text-muted-foreground">
+              {launched ? `Launched ${formatDate(campaign.launchedAt as string)}` : campaign.scheduledAt ? `Scheduled ${formatDateTimeWithZone(campaign.scheduledAt as string)}` : 'Not launched'}
+            </Badge>
+          </div>
           <TextField
-            name="name"
+            name="description"
             label=""
             isEditing={false}
             isEditAllowed
@@ -522,31 +501,10 @@ const CampaignDetailPage: React.FC = () => {
             setInternalEditing={setInternalEditing}
             handleUpdate={handleInlineFieldUpdate}
             layout="vertical"
-            className="text-xl font-semibold"
+            className="text-sm text-muted-foreground"
           />
-          {status && (
-            <Badge variant="outline" className="flex items-center gap-1.5">
-              <CampaignStatusIcon status={status} />
-              {getEnumLabel(status)}
-            </Badge>
-          )}
-          <Badge variant="outline" className="text-muted-foreground">
-            {launched ? `Launched ${formatDate(campaign.launchedAt as string)}` : campaign.scheduledAt ? `Scheduled ${formatDateTimeWithZone(campaign.scheduledAt as string)}` : 'Not launched'}
-          </Badge>
         </div>
-        <TextField
-          name="description"
-          label=""
-          isEditing={false}
-          isEditAllowed
-          isCreate={false}
-          data={campaign}
-          internalEditing={internalEditing}
-          setInternalEditing={setInternalEditing}
-          handleUpdate={handleInlineFieldUpdate}
-          layout="vertical"
-          className="text-sm text-muted-foreground"
-        />
+        {headerActions}
       </div>
 
       {isDraft ? (
@@ -644,7 +602,7 @@ const CampaignDetailPage: React.FC = () => {
 
   return (
     <FormProvider {...form}>
-      <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} minWidth={350}>
+      <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} minWidth={350}>
         {mainContent}
       </SlideBarLayout>
       <SendTestEmailDialog campaignId={campaignId} open={testDialogOpen} onOpenChange={setTestDialogOpen} />

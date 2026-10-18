@@ -27,15 +27,7 @@ import Github from '@/assets/Github'
 import { recordLastLoginMethod, getLastLoginMethod } from '@/lib/auth/utils/last-login-method'
 import { LastUsedBadge } from './last-used-badge'
 import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
-
-type WebfingerResponse = {
-  success: boolean
-  enforced: boolean
-  provider: string
-  discovery_url?: string
-  organization_id?: string
-  is_org_owner?: boolean
-}
+import { resolveLoginMethod, type TLoginMethod } from '@/lib/auth/utils/resolve-login-method'
 
 export const LoginPage = () => {
   const { separator, buttons, form, input } = loginStyles()
@@ -45,9 +37,8 @@ export const LoginPage = () => {
   const [signInErrorMessage, setSignInErrorMessage] = useState('There was an error. Please try again.')
   const [signInLoading, setSignInLoading] = useState(false)
   const [email, setEmail] = useState('')
-  const [webfingerResponse, setWebfingerResponse] = useState<WebfingerResponse | null>(null)
-  const [webfingerFailed, setWebfingerFailed] = useState(false)
-  const [webfingerLoading, setWebfingerLoading] = useState(false)
+  const [loginMethod, setLoginMethod] = useState<TLoginMethod | null>(null)
+  const [loginMethodLoading, setLoginMethodLoading] = useState(false)
   const [preferredMethod, setPreferredMethod] = useState<'sso' | 'password' | null>(null)
   // the method the user most recently signed in with, remembered per-device
   const [lastUsedProvider, setLastUsedProvider] = useState<UserAuthProvider | null>(null)
@@ -60,20 +51,20 @@ export const LoginPage = () => {
   const showLoginError = !signInLoading && signInError
 
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const webfingerRequestIdRef = useRef(0)
+  const loginMethodRequestIdRef = useRef(0)
 
   // the user's last login was SSO (remembered as a flag on this device)
   const ssoLastUsed = lastUsedProvider === UserAuthProvider.OIDC
 
-  // webfinger confirmed the currently typed email resolves to a usable SSO org
-  const isSSOEmail = Boolean(webfingerResponse?.provider && webfingerResponse.provider !== 'NONE' && webfingerResponse.organization_id)
+  // the login-method check confirmed the currently typed email resolves to a usable SSO org
+  const ssoMethod = loginMethod?.sso ? loginMethod : null
+  const isSSOEmail = ssoMethod !== null
 
-  // webfinger answered with no usable SSO — or it failed to resolve entirely — so fall back to password
-  const webfingerSaysNoSSO = webfingerFailed || (webfingerResponse !== null && !isSSOEmail)
+  // the login-method check answered with no usable SSO — or it failed to resolve entirely — so fall back to password
+  const isNonSSOEmail = loginMethod?.sso === false
 
   // the only case without a password fallback is an enforced SSO org where the user isn't an admin
-  const isSSOEnforcedForNonOwner = isSSOEmail && Boolean(webfingerResponse?.enforced) && !webfingerResponse?.is_org_owner
-  const isPasswordAvailable = !isSSOEnforcedForNonOwner
+  const isPasswordAvailable = ssoMethod?.passwordAllowed ?? true
 
   // What follows decides which login control to render. It works in three layers:
   //   1. availability  — is each method even an option for this email/device?
@@ -82,17 +73,17 @@ export const LoginPage = () => {
   // The final show* flags combine all three.
 
   // --- Layer 1: availability ---
-  // SSO is offerable when webfinger didn't rule it out AND either the email resolves to an SSO org
-  // or this device last logged in with SSO (so we can surface the button before webfinger answers).
-  const ssoAvailable = !webfingerSaysNoSSO && (isSSOEmail || ssoLastUsed)
+  // SSO is offerable when the login-method check didn't rule it out AND either the email resolves to an SSO org
+  // or this device last logged in with SSO (so we can surface the button before the check answers).
+  const ssoAvailable = !isNonSSOEmail && (isSSOEmail || ssoLastUsed)
 
   // --- Layer 2: which method leads by default ---
   // SSO leads when the org enforces it, or when this device's last login was SSO.
-  const ssoIsDefault = (isSSOEmail && Boolean(webfingerResponse?.enforced)) || ssoLastUsed
+  const ssoIsDefault = Boolean(ssoMethod?.enforced) || ssoLastUsed
 
   // Password leads when the email has no SSO at all, or when it's an SSO org that only *offers*
   // SSO (not enforced) — in that case we show password first and offer SSO as a switch.
-  const passwordIsDefault = webfingerSaysNoSSO || (isSSOEmail && !ssoIsDefault)
+  const passwordIsDefault = isNonSSOEmail || (isSSOEmail && !ssoIsDefault)
 
   // --- Layer 3: honor the user's explicit "Switch to..." choice, but only if it's actually usable ---
   // (e.g. ignore a stale 'password' preference once we learn SSO is enforced with no password fallback).
@@ -105,12 +96,12 @@ export const LoginPage = () => {
   const showPasswordField = isPasswordAvailable && (activePreference === 'password' || (activePreference === null && passwordIsDefault))
 
   // Offer a switch link only when the *other* method is available but currently hidden.
-  const showSwitchToPassword = !webfingerLoading && showSSOButton && isPasswordAvailable && !showPasswordField
-  const showSwitchToSSO = !webfingerLoading && showPasswordField && ssoAvailable && !showSSOButton
+  const showSwitchToPassword = !loginMethodLoading && showSSOButton && isPasswordAvailable && !showPasswordField
+  const showSwitchToSSO = !loginMethodLoading && showPasswordField && ssoAvailable && !showSSOButton
 
   const handleSSOLogin = useCallback(async () => {
-    // the button stays enabled even when webfinger can't resolve the email — error here, don't use a stale org
-    if (!isSSOEmail || !webfingerResponse?.organization_id) {
+    // the button stays enabled even when the email has no SSO — error here rather than starting a login
+    if (!ssoMethod) {
       setSignInError(true)
       setSignInErrorMessage('Invalid email')
       return false
@@ -123,7 +114,7 @@ export const LoginPage = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          organization_id: webfingerResponse.organization_id,
+          email,
         }),
       })
 
@@ -150,45 +141,30 @@ export const LoginPage = () => {
       setSignInErrorMessage('An error occurred during SSO login.')
       return false
     }
-  }, [webfingerResponse, errorNotification, isSSOEmail])
+  }, [ssoMethod, email, errorNotification])
 
   const checkLoginMethods = useCallback(async (email: string) => {
     if (!isValidEmail(email)) {
       return
     }
 
-    const requestId = ++webfingerRequestIdRef.current
+    const requestId = ++loginMethodRequestIdRef.current
 
     try {
-      setWebfingerLoading(true)
-      setWebfingerFailed(false)
-      const response = await fetch(`/api/auth/webfinger?email=${encodeURIComponent(email)}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      })
+      setLoginMethodLoading(true)
+      const method = await resolveLoginMethod(email)
 
-      if (webfingerRequestIdRef.current !== requestId) {
-        return
+      if (loginMethodRequestIdRef.current === requestId) {
+        setLoginMethod(method)
       }
-
-      // webfinger couldn't resolve this email — fall back to password so the user can still sign in
-      if (!response.ok) {
-        setWebfingerResponse(null)
-        setWebfingerFailed(true)
-        return
-      }
-
-      setWebfingerResponse(await response.json())
     } catch (error) {
-      if (webfingerRequestIdRef.current !== requestId) {
-        return
+      if (loginMethodRequestIdRef.current === requestId) {
+        console.error('Error resolving login method:', error)
+        setLoginMethod({ sso: false })
       }
-      console.error('Error fetching webfinger:', error)
-      setWebfingerResponse(null)
-      setWebfingerFailed(true)
     } finally {
-      if (webfingerRequestIdRef.current === requestId) {
-        setWebfingerLoading(false)
+      if (loginMethodRequestIdRef.current === requestId) {
+        setLoginMethodLoading(false)
       }
     }
   }, [])
@@ -205,16 +181,15 @@ export const LoginPage = () => {
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    webfingerRequestIdRef.current += 1
+    loginMethodRequestIdRef.current += 1
     setEmail(value)
     setPreferredMethod(null)
     // a prior "Invalid email" error no longer applies once the address changes
     setSignInError(false)
-    setWebfingerFailed(false)
 
-    // let webfinger drive on edit; hold webfingerLoading across the debounce so the button can't be clicked mid-check
+    // let the login-method check drive on edit; hold loginMethodLoading across the debounce so the button can't be clicked mid-check
     if (value && isValidEmail(value)) {
-      setWebfingerLoading(true)
+      setLoginMethodLoading(true)
       debouncedCheckLoginMethods(value)
       return
     }
@@ -222,9 +197,9 @@ export const LoginPage = () => {
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current)
     }
-    setWebfingerLoading(false)
+    setLoginMethodLoading(false)
     // no determination for an empty/partial email — the last-used SSO button (flag-driven) stays
-    setWebfingerResponse(null)
+    setLoginMethod(null)
   }
 
   useEffect(() => {
@@ -493,7 +468,7 @@ export const LoginPage = () => {
                 className="p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold"
                 type="button"
                 onClick={handleSSOLogin}
-                disabled={signInLoading || webfingerLoading || !isValidEmail(email)}
+                disabled={signInLoading || loginMethodLoading || !isValidEmail(email)}
               >
                 <span>Continue with SSO</span>
                 <ArrowRightCircle size={16} className="ml-2" />

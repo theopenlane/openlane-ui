@@ -8,7 +8,8 @@ import { useOrganization } from '@/hooks/useOrganization'
 import type { SetupChecklistItem } from '@/hooks/useSetupChecklist'
 import { SUPPORT_URL } from '@/constants'
 import { DOCS_URL } from '@/constants/docs.ts'
-import SetupChecklistItemCard, { SETUP_CHECKLIST_STATUS } from './setup-checklist-item'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
+import SetupChecklistItemCard, { SETUP_CHECKLIST_ANCHOR, SETUP_CHECKLIST_STATUS } from './setup-checklist-item'
 
 const helpLinks = [
   { key: 'docs', label: 'View Docs', icon: <FileText size={14} className="text-muted-foreground" />, href: DOCS_URL },
@@ -66,7 +67,7 @@ const DashboardSetupChecklist = ({ items, completedCount, totalCount, markInProg
   }
 
   return (
-    <Card className="bg-homepage-card border-homepage-card-border">
+    <Card className="bg-homepage-card border-homepage-card-border" {...elementAnchor(SETUP_CHECKLIST_ANCHOR)}>
       <CardContent className="flex flex-col gap-6 p-6 md:flex-row">
         <div className="flex shrink-0 flex-col gap-3 md:w-64">
           <div>
@@ -81,7 +82,14 @@ const DashboardSetupChecklist = ({ items, completedCount, totalCount, markInProg
           <p className="text-sm text-muted-foreground">Complete these tasks to get the most out of Openlane</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
             {helpLinks.map((link) => (
-              <a key={link.key} href={link.href} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-text-paragraph hover:text-muted-foreground transition-colors">
+              <a
+                key={link.key}
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 text-text-paragraph hover:text-muted-foreground transition-colors *:pointer-events-none"
+                {...elementAnchor(SETUP_CHECKLIST_ANCHOR, 'help', link.key)}
+              >
                 {link.icon}
                 {link.label}
               </a>

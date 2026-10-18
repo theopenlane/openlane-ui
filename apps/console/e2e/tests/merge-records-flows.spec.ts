@@ -37,10 +37,10 @@ const openDetailMergeSheet = async (page: Page, id: string) => {
       .catch(() => {})
   }
 
-  const trigger = edit.locator('xpath=following-sibling::button[1]').first()
+  const trigger = page.getByTestId('personnel-actions-menu')
   await expect(trigger).toBeVisible({ timeout: 60_000 })
 
-  const mergeItem = page.getByRole('button', { name: 'Merge with…', exact: true })
+  const mergeItem = page.getByRole('menuitem', { name: 'Merge with…', exact: true })
   for (let attempt = 0; attempt < 5; attempt += 1) {
     if (await mergeItem.isVisible().catch(() => false)) break
     await trigger.click()

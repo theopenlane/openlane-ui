@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useCallback, useRef } from 'react'
-import useFormSchema, { bulkEditFieldSchema, type ReviewFormData } from '../hooks/use-form-schema'
+import useFormSchema, { bulkEditFieldSchema, type ReviewBulkEditAssociations, type ReviewFormData } from '../hooks/use-form-schema'
 
 import { type ReviewsNodeNonNull, useReview, useCreateReview, useUpdateReview, useBulkDeleteReview, useBulkEditReview, useGetReviewAssociations } from '@/lib/graphql-hooks/review'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
-import { breadcrumbs, getFieldsToRender, getFilterFields, mapReviewFilterKey, visibilityFields } from './table-config'
+import { breadcrumbs, bulkEditFieldLabels, getFieldsToRender, getFilterFields, mapReviewFilterKey, visibilityFields } from './table-config'
 import { type ReviewSheetConfig, type ReviewTablePageConfig, type ReviewFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
@@ -16,11 +16,12 @@ import { type CreateReviewInput, type UpdateReviewInput, type GetReviewAssociati
 import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
-import { buildAssociationPayload } from '@/components/shared/object-association/utils'
+import { buildAssociationPayload, getAssociationInput } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import ReviewSheetResolver from '../common/review-sheet-resolver'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useProgramSelect } from '@/lib/graphql-hooks/program'
 
 const ReviewPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -96,12 +97,14 @@ const ReviewPage: React.FC = () => {
   })
 
   const tagOptions = useGetTags()
+  const { programOptions, hasProgramAccess } = useProgramSelect()
 
   const enumOpts = {
     environmentOptions,
     scopeOptions,
     tagOptions: tagOptions.tagOptions,
     statusOptions: ReviewStatusOptions,
+    programIDsOptions: programOptions,
   }
 
   const handleCloseViewSheet = () => {
@@ -171,11 +174,13 @@ const ReviewPage: React.FC = () => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids })
       return result.deleteBulkReview
     },
-    onBulkEdit: async (ids: string[], input: UpdateReviewInput) => {
-      const result = await bulkEditMutation.mutateAsync({ ids, input })
+    onBulkEdit: async (ids: string[], input: UpdateReviewInput & ReviewBulkEditAssociations) => {
+      const { programIDs, ...rest } = input
+      const result = await bulkEditMutation.mutateAsync({ ids, input: { ...rest, ...getAssociationInput({}, { programIDs }) } })
       return result.updateBulkReview
     },
-    bulkEditFormSchema: bulkEditFieldSchema,
+    bulkEditFormSchema: hasProgramAccess ? bulkEditFieldSchema : bulkEditFieldSchema.omit({ programIDs: true }),
+    bulkEditFieldLabels,
     enumOpts,
     createPermission: AccessEnum.CanCreateReview,
   }

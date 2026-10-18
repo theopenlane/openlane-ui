@@ -1,11 +1,9 @@
 import type { Page, Route } from '@playwright/test'
 
-import { test, expect, readManifest } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 import { createSubprocessor, createTrustCenterSubprocessor, getDemoApi, getTrustCenterId, gql, type ApiSession } from '../utils/api'
 import { expectMutationOk, toast } from '../utils/mutations'
 import { uniqueName } from '../utils/unique'
-
-const requireDemoOrg = () => test.skip(!readManifest().hasDemoSession, 'no demo-org session — trust center is unprovisioned in the e2e org')
 
 const openTrustCenterPage = async (page: Page, route: string) => {
   await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 180_000 })
@@ -74,7 +72,6 @@ test.describe('trust-center — search engine visibility (#2356)', () => {
 
   test('toggling Hide from search engines persists noindexDefaultDomain on the live setting', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     const demoApi = await getDemoApi()
     const original = await readLiveSetting(demoApi)
     const initial = original.noindexDefaultDomain ?? false
@@ -102,7 +99,6 @@ test.describe('trust-center — search engine visibility (#2356)', () => {
 
   test('the search engine toggle explains what it hides', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/domain')
 
     const toggle = page.getByRole('switch', { name: 'Hide from search engines' })
@@ -116,7 +112,6 @@ test.describe('trust-center — branding unpublished-changes preview link (ISS-3
 
   test('the unpublished-changes warning links to the preview site in a new tab', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await stubBrandingPreview(page, 'preview-e2e.example.test')
     await openTrustCenterPage(page, '/trust-center/branding')
 
@@ -131,7 +126,6 @@ test.describe('trust-center — branding unpublished-changes preview link (ISS-3
 
   test('without a preview domain the warning renders with no Preview link', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     await stubBrandingPreview(page, null)
     await openTrustCenterPage(page, '/trust-center/branding')
 
@@ -147,7 +141,6 @@ test.describe('trust-center — subprocessor search (ISS-3049)', () => {
 
   test('the subprocessors table search narrows to the matching row and clears on a miss', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     const demoApi = await getDemoApi()
     const name = uniqueName('E2E SubSearch')
     const subprocessorId = await createSubprocessor(demoApi, name)
@@ -173,7 +166,6 @@ test.describe('trust-center — subprocessor search (ISS-3049)', () => {
 
   test('the Add to Trust Center picker finds an unattached subprocessor and keeps the chosen name', async ({ page }) => {
     test.slow()
-    requireDemoOrg()
     const demoApi = await getDemoApi()
     const name = uniqueName('E2E SubPick')
     const subprocessorId = await createSubprocessor(demoApi, name)

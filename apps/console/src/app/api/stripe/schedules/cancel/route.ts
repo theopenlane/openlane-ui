@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth/auth'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { type ExtendedPhase } from '@/types/stripe'
 import { NextResponse } from 'next/server'
 
@@ -17,13 +17,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'scheduleId required' }, { status: 400 })
     }
 
-    const schedule = await stripe.subscriptionSchedules.retrieve(scheduleId)
+    const schedule = await getStripe().subscriptionSchedules.retrieve(scheduleId)
     const currentPhase: ExtendedPhase = schedule.phases?.[0]
     if (!currentPhase) {
       return NextResponse.json({ error: 'No active phase found' }, { status: 404 })
     }
 
-    const updated = await stripe.subscriptionSchedules.update(scheduleId, {
+    const updated = await getStripe().subscriptionSchedules.update(scheduleId, {
       end_behavior: 'cancel',
       phases: [
         {

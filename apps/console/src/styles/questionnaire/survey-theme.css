@@ -1,0 +1,12 @@
+.sd-theme-root.sjs-theme-overrides {
+  --background: var(--color-input);
+  --border: var(--color-border);
+  --card-foreground: var(--color-foreground);
+  --input: var(--color-border);
+  --muted: var(--color-accent);
+  --primary-foreground: var(--color-btn-primary-text);
+  --secondary-foreground: var(--color-foreground);
+  --sjs2-typography-font-family-code: var(--font-mono);
+  --sjs2-color-utility-surface-json-editor: var(--color-input);
+  --ctr-code-viewer-text-color: var(--color-foreground);
+}

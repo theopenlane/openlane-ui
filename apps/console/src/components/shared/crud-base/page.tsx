@@ -14,11 +14,13 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { identityFilterKey, whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
+import { useSelectColumnVisibility } from '@/components/shared/column-visibility-menu/use-select-column-visibility'
 import { type SortCondition } from '@repo/ui/data-table'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { type ObjectNames, type ObjectTypes } from '@repo/codegen/src/type-names'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { type FieldValues, type UseFormReturn } from 'react-hook-form'
 import { GenericDetailsSheet, type GenericDetailsSheetConfig } from '@/components/shared/crud-base/generic-sheet'
 import { TabbedDetailView } from '@/components/shared/crud-base/tabbed-detail-view'
@@ -214,6 +216,8 @@ export function GenericTablePage<
   const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
 
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
+  const effectiveColumnVisibility = useSelectColumnVisibility(columnVisibility, canEdit(permission?.roles, session))
 
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch
@@ -427,7 +431,7 @@ export function GenericTablePage<
           onPaginationChange={setPagination}
           whereFilter={whereFilter}
           onSortChange={handleSortChange}
-          columnVisibility={columnVisibility}
+          columnVisibility={effectiveColumnVisibility}
           setColumnVisibility={setColumnVisibility}
           selectedItems={selectedItems}
           setSelectedItems={setSelectedItems}

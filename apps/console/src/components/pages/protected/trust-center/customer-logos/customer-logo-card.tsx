@@ -1,13 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import * as z from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
 import { Pencil, Trash2, X } from 'lucide-react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { EyeNoneIcon } from '@radix-ui/react-icons'
 import { type TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import FileUpload from '@/components/shared/file-upload/file-upload'
@@ -15,12 +12,7 @@ import { Label } from '@repo/ui/label'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { normalizeUrl } from '@/utils/normalizeUrl'
-
-const formSchema = z.object({
-  url: z.string().optional(),
-})
-
-type TFormValues = z.infer<typeof formSchema>
+import { useEditCustomerLogoForm, type TEditCustomerLogoFormValues } from './hooks/use-customer-logo-form-schema'
 
 type CustomerLogoCardProps = {
   id: string
@@ -39,10 +31,7 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
 
-  const form = useForm<TFormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { url: url ?? '' },
-  })
+  const form = useEditCustomerLogoForm(url)
 
   const handleUpload = (uploaded: TUploadedFile) => {
     if (!uploaded.file) return
@@ -57,11 +46,10 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
     form.reset({ url: url ?? '' })
   }
 
-  const onSubmit = async (values: TFormValues) => {
-    const nextUrl = values.url?.trim() ? values.url.trim() : undefined
+  const onSubmit = async (values: TEditCustomerLogoFormValues) => {
     await onUpdate({
       id,
-      url: nextUrl,
+      url: values.url || undefined,
       logoFile: selectedFile || undefined,
     })
     setIsEditing(false)
@@ -127,6 +115,7 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
                     <FormControl>
                       <Input placeholder="https://example.com" className="bg-background" {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -143,8 +132,12 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
                   <div>
                     <Label className="mb-2 block text-sm">Preview</Label>
                     <div className="flex h-20 w-20 items-center justify-center rounded-md border bg-background overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={normalizeUrl(logoUrl)} alt={name} className="h-full w-full object-contain p-1" />
+                      {logoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={normalizeUrl(logoUrl)} alt={name} className="h-full w-full object-contain p-1" />
+                      ) : (
+                        <EyeNoneIcon className="text-muted-foreground" />
+                      )}
                     </div>
                   </div>
                 )}

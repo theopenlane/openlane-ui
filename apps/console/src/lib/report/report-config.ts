@@ -1,9 +1,9 @@
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import { OrderDirection } from '@repo/codegen/src/schema'
 import { toHumanLabel } from '@/utils/strings'
-import { filterableFieldsByName, filterOperators, isFilterComplete, listValues, type TReportFilter } from './report-filters'
+import { filterOperators, isFilterComplete, listValues, resolveFilterField, type TReportFilter } from './report-filters'
 import { isOwnerColumn, migrateLegacyOwnerFilter } from './report-owner-filters'
-import { getColumnIndex, getEntity, pathEdgeName, type TReportCombinator, type TReportOrder, type TReportSort } from './report-schema'
+import { getEntity, pathEdgeName, pathLabel, resolveColumn, type TReportCombinator, type TReportOrder, type TReportSort } from './report-schema'
 
 export type TReportQueryConfig = {
   entityName: string
@@ -33,14 +33,11 @@ export const reconcileReportConfig = (config: TReportQueryConfig): TReportQueryC
   const entity = getEntity(config.entityName)
   if (!entity) return null
 
-  const columnIndex = getColumnIndex(entity)
-  const columnPaths = config.columnPaths.filter((path) => columnIndex.has(path))
+  const columnPaths = config.columnPaths.filter((path) => resolveColumn(entity, path) !== undefined)
   if (columnPaths.length === 0) return null
 
-  const fieldsByName = filterableFieldsByName(entity)
-
   const isValid = (filter: TReportFilter): boolean => {
-    const field = fieldsByName.get(filter.field)
+    const field = resolveFilterField(entity, filter.field)?.field
 
     return field !== undefined && filterOperators(field).includes(filter.operator) && isFilterComplete(filter, field)
   }
@@ -70,7 +67,7 @@ const unique = (values: string[]): string[] => [...new Set(values)]
 const joinLabels = (names: string[]): string =>
   names
     .slice(0, MAX_DESCRIBED_PARTS)
-    .map(toHumanLabel)
+    .map(pathLabel)
     .concat(names.length > MAX_DESCRIBED_PARTS ? ['…'] : [])
     .join(', ')
 

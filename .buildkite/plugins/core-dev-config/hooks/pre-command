@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Core's compose files mount config/.config.yaml and docker/configs/riverboat/.config.yaml,
+# which core's tasks (ensure-config-api, ensure-config-river) copy from the dev examples.
+# Runs in the core checkout root, before the docker-compose plugin starts the stack.
+set -euo pipefail
+
+cd "${BUILDKITE_BUILD_CHECKOUT_PATH}"
+
+# newest core release tag whose api image is published, so the checkout matches the image
+core_image=ghcr.io/theopenlane/core
+max_release_candidates=5
+
+if [[ -z "${E2E_CORE_REF:-}" ]]; then
+  release_tags="$(git ls-remote --tags --refs --sort=-v:refname origin 'v*' | awk -F/ '$3 ~ /^v[0-9]+\.[0-9]+\.[0-9]+$/ {print $3}')"
+  checked=0
+  while read -r tag; do
+    [[ -n "${tag}" ]] || continue
+    if docker manifest inspect "${core_image}:${tag}" >/dev/null 2>&1; then
+      E2E_CORE_REF="${tag}"
+      break
+    fi
+    echo "core ${tag} has no published ${core_image} image yet, trying the previous release" >&2
+    checked=$((checked + 1))
+    [[ ${checked} -lt ${max_release_candidates} ]] || break
+  done <<<"${release_tags}"
+fi
+
+if [[ -z "${E2E_CORE_REF:-}" ]]; then
+  echo "no core release tag with a published ${core_image} image found" >&2
+  exit 1
+fi
+export E2E_CORE_REF
+
+echo "checking out core ${E2E_CORE_REF}"
+git fetch --depth=1 origin tag "${E2E_CORE_REF}"
+git checkout -q "${E2E_CORE_REF}"
+
+copy() {
+  if [[ ! -f "$2" ]]; then
+    echo "copying $1 to $2"
+    cp "$1" "$2"
+  fi
+}
+
+copy config/config-dev.example.yaml config/.config.yaml
+copy docker/configs/riverboat/.config.dev.yaml docker/configs/riverboat/.config.yaml

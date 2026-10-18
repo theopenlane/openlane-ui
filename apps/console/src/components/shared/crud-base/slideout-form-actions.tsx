@@ -5,7 +5,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type SlideoutFormActionsBase = {
-  onCancel?: () => void
+  onCancel?: React.MouseEventHandler<HTMLButtonElement>
   isPending?: boolean
   disabled?: boolean
   saveLabel?: string
@@ -13,7 +13,12 @@ type SlideoutFormActionsBase = {
   secondaryActions?: React.ReactNode
 }
 
-export type SlideoutFormActionsProps = SlideoutFormActionsBase & ({ formId: string; onSave?: never } | { formId?: never; onSave: () => void })
+type TSaveTarget =
+  | { formId: string; onSave?: never; submitsEnclosingForm?: never }
+  | { onSave: () => void; formId?: never; submitsEnclosingForm?: never }
+  | { submitsEnclosingForm: true; formId?: never; onSave?: never }
+
+export type SlideoutFormActionsProps = SlideoutFormActionsBase & TSaveTarget
 
 export const SlideoutFormActions = ({ formId, onSave, onCancel, isPending, disabled, saveLabel, savingLabel, secondaryActions }: SlideoutFormActionsProps) => (
   <>

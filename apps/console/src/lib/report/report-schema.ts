@@ -18,7 +18,7 @@ export type TReportColumn = {
   path: string
   label: string
   field: TReportField
-  edge?: TReportEdge
+  edges: TReportEdge[]
 }
 
 export type TReportOrder = { field: string; direction: OrderDirection }
@@ -42,7 +42,23 @@ export const combineClauses = (combinator: TReportCombinator, clauses: TWhereCla
 
 const withLabels = <T>(items: T[], name: (item: T) => string): TLabelled<T>[] => items.map((item) => ({ item, label: toHumanLabel(name(item)) })).sort((a, b) => a.label.localeCompare(b.label))
 
+const memoizedLabels = <T>(name: (item: T) => string) => {
+  const cache = new WeakMap<T[], TLabelled<T>[]>()
+
+  return (items: T[]): TLabelled<T>[] => {
+    const cached = cache.get(items)
+    if (cached) return cached
+
+    const labelled = withLabels(items, name)
+    cache.set(items, labelled)
+
+    return labelled
+  }
+}
+
 export const labelledFields = <T extends { name: string }>(fields: T[]): TLabelled<T>[] => withLabels(fields, (field) => field.name)
+
+export const labelledSchemaFields = memoizedLabels<TReportField>((field) => field.name)
 
 export const entityOptions = REPORT_ENTITIES.map((entity) => ({ value: entity.queryName, label: toHumanLabel(entity.queryName), objectType: entity.objectType })).sort((a, b) =>
   a.label.localeCompare(b.label),
@@ -53,27 +69,21 @@ const entityByTypeName = new Map(REPORT_ENTITIES.map((entity) => [entity.typeNam
 
 export const getEntity = (queryName: string): TReportEntity | undefined => entityByQueryName.get(queryName)
 
-const withoutOperators = (fields: TReportField[]): TReportField[] => fields.map(({ name, kind, list, enumName }) => ({ name, kind, list, enumName }))
+export const MAX_EDGE_DEPTH = 2
 
-const edgeFieldsByTarget = new Map<string, TReportField[]>()
+export const getTargetEntity = (edge: TReportEdge): TReportEntity | undefined => entityByTypeName.get(edge.target)
 
-export const getEdgeFields = (edge: TReportEdge): TReportField[] => {
-  const cached = edgeFieldsByTarget.get(edge.target)
-  if (cached) return cached
+export const getRelatedEdges = (edge: TReportEdge): TReportEdge[] => getTargetEntity(edge)?.edges ?? []
 
-  const entityFields = entityByTypeName.get(edge.target)?.fields
-  const fields = REPORT_EDGE_FIELDS[edge.target] ?? (entityFields ? withoutOperators(entityFields) : [])
-
-  edgeFieldsByTarget.set(edge.target, fields)
-
-  return fields
-}
+export const getEdgeFields = (edge: TReportEdge): TReportField[] => getTargetEntity(edge)?.fields ?? REPORT_EDGE_FIELDS[edge.target] ?? []
 
 export const getFieldOperators = (field: TReportField): TReportOperator[] => (field.operatorSet === undefined ? [] : (REPORT_OPERATOR_SETS[field.operatorSet] ?? []))
 
 export const getEnumValues = (field: TReportField): string[] => (field.enumName ? (REPORT_ENUM_VALUES[field.enumName] ?? []) : [])
 
-export const buildPath = (edgeName: string, fieldName: string): string => `${edgeName}${PATH_SEPARATOR}${fieldName}`
+export const buildPath = (...segments: string[]): string => segments.filter(Boolean).join(PATH_SEPARATOR)
+
+export const pathSegments = (path: string): string[] => (path === '' ? [] : path.split(PATH_SEPARATOR))
 
 export const pathEdgeName = (path: string): string | null => {
   const separator = path.indexOf(PATH_SEPARATOR)
@@ -81,44 +91,50 @@ export const pathEdgeName = (path: string): string | null => {
   return separator === -1 ? null : path.slice(0, separator)
 }
 
-export const pathLabel = (path: string): string => path.split(PATH_SEPARATOR).map(toHumanLabel).join(' › ')
+export const pathLabel = (path: string): string => pathSegments(path).map(toHumanLabel).join(' › ')
+
+export const edgeChainPath = (edges: TReportEdge[]): string => buildPath(...edges.map((edge) => edge.name))
+
+export const isListChain = (edges: TReportEdge[]): boolean => edges.some((edge) => edge.list)
 
 export const labelledOrderFields = (entity: TReportEntity): TLabelled<string>[] => withLabels(entity.order?.fields ?? [], (value) => value)
 
-export const labelledEdges = (entity: TReportEntity): TLabelled<TReportEdge>[] => withLabels(entity.edges, (edge) => edge.name)
+export const labelledEdges = memoizedLabels<TReportEdge>((edge) => edge.name)
 
-const columnIndexByEntity = new Map<string, Map<string, TReportColumn>>()
+export const resolveEdgeChain = (entity: TReportEntity, names: string[]): TReportEdge[] | undefined => {
+  if (names.length > MAX_EDGE_DEPTH) return undefined
 
-const EMPTY_COLUMN_INDEX: Map<string, TReportColumn> = new Map()
+  const chain: TReportEdge[] = []
+  let available = entity.edges
 
-const buildColumnIndex = (entity: TReportEntity): Map<string, TReportColumn> => {
-  const index = new Map<string, TReportColumn>()
+  for (const name of names) {
+    const edge = available.find((item) => item.name === name)
+    if (!edge) return undefined
 
-  for (const field of entity.fields) {
-    index.set(field.name, { path: field.name, label: pathLabel(field.name), field })
+    chain.push(edge)
+    available = getRelatedEdges(edge)
   }
 
-  for (const edge of entity.edges) {
-    for (const field of getEdgeFields(edge)) {
-      const path = buildPath(edge.name, field.name)
-      index.set(path, { path, label: pathLabel(path), field, edge })
-    }
-  }
-
-  return index
+  return chain
 }
 
-export const getColumnIndex = (entity: TReportEntity | undefined): Map<string, TReportColumn> => {
-  if (!entity) return EMPTY_COLUMN_INDEX
+export const splitFieldPath = (entity: TReportEntity, path: string): { edges: TReportEdge[]; fieldName: string } | undefined => {
+  const segments = pathSegments(path)
+  const fieldName = segments.at(-1)
+  const edges = fieldName ? resolveEdgeChain(entity, segments.slice(0, -1)) : undefined
 
-  const cached = columnIndexByEntity.get(entity.queryName)
-  if (cached) return cached
-
-  const index = buildColumnIndex(entity)
-  columnIndexByEntity.set(entity.queryName, index)
-
-  return index
+  return fieldName && edges ? { edges, fieldName } : undefined
 }
 
-export const resolveColumns = (index: Map<string, TReportColumn>, paths: string[]): TReportColumn[] =>
-  paths.map((path) => index.get(path)).filter((column): column is TReportColumn => column !== undefined)
+export const resolveColumn = (entity: TReportEntity, path: string): TReportColumn | undefined => {
+  const split = splitFieldPath(entity, path)
+  if (!split) return undefined
+
+  const last = split.edges.at(-1)
+  const field = (last ? getEdgeFields(last) : entity.fields).find((item) => item.name === split.fieldName)
+
+  return field ? { path, label: pathLabel(path), field, edges: split.edges } : undefined
+}
+
+export const resolveColumns = (entity: TReportEntity | undefined, paths: string[]): TReportColumn[] =>
+  entity ? paths.map((path) => resolveColumn(entity, path)).filter((column): column is TReportColumn => column !== undefined) : []

@@ -9,7 +9,6 @@ import { Input } from '@repo/ui/input'
 import { type UpdateProcedureInput } from '@repo/codegen/src/schema'
 import { type EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
-import { Separator } from '@repo/ui/separator'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type TTitleFieldProps = {
@@ -77,19 +76,16 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate,
       />
     </div>
   ) : (
-    <>
-      <HoverPencilWrapper showPencil={editAllowed} className={`inline-block ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onPencilClick={editAllowed ? handleClick : undefined}>
-        <h1
-          onDoubleClick={() => {
-            if (editAllowed) handleClick()
-          }}
-          className="text-3xl font-semibold pr-5"
-        >
-          {form.getValues('name')}
-        </h1>
-      </HoverPencilWrapper>
-      <Separator separatorClass="bg-divider mt-[24px]" />
-    </>
+    <HoverPencilWrapper showPencil={editAllowed} className={`inline-block ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onPencilClick={editAllowed ? handleClick : undefined}>
+      <h1
+        onDoubleClick={() => {
+          if (editAllowed) handleClick()
+        }}
+        className="text-3xl font-semibold pr-5"
+      >
+        {form.getValues('name')}
+      </h1>
+    </HoverPencilWrapper>
   )
 }
 

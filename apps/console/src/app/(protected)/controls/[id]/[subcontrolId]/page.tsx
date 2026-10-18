@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useParams, useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -116,7 +115,6 @@ const ControlDetailsPage: React.FC = () => {
   const { data: discussionData } = useGetSubcontrolDiscussionById(subcontrolId)
 
   const { data: associationsData } = useGetSubcontrolAssociationsById(subcontrolId)
-  const hasScrollbar = useHasScrollbar([isEditing, data?.subcontrol, associationsData?.subcontrol])
 
   const memoizedSections = useMemo(() => {
     if (!data?.subcontrol) return {}
@@ -408,15 +406,7 @@ const ControlDetailsPage: React.FC = () => {
     <>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout
-            sidebarTitle="Details"
-            sidebarContent={sidebarContent}
-            slideOpen={isEditing}
-            minWidth={430}
-            collapsedContentClassName="pr-6"
-            collapsedButtonClassName="-translate-x-4"
-            hasScrollbar={hasScrollbar}
-          >
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} slideOpen={isEditing} minWidth={430} collapsedContentClassName="pr-6">
             {mainContent}
           </SlideBarLayout>
         </form>

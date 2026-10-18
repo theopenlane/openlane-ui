@@ -10,8 +10,7 @@ import useFormSchema, { type EditPolicyMetadataFormData } from '@/components/pag
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/policies/view/fields/title-field.tsx'
-import { Button } from '@repo/ui/button'
-import { ExternalLink, LockOpen, PencilIcon, Send, Trash2 } from 'lucide-react'
+import { ExternalLink, LockOpen, Send } from 'lucide-react'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/policies/view/cards/properties-card.tsx'
 import { InternalPolicyDocumentManagementMode, InternalPolicyDocumentStatus, InternalPolicyFrequency, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
@@ -23,8 +22,9 @@ import { canDelete, canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Menu from '@/components/shared/menu/menu.tsx'
-import CreatePolicyButton from '@/components/pages/protected/policies/create-policy-button'
+import { deleteMenuAction } from '@/components/shared/crud-base/slideout-header'
+import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
+import { Separator } from '@repo/ui/separator'
 import { SuggestedControlMappings } from '@/components/pages/protected/policies/suggested-control-mappings'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
@@ -41,8 +41,6 @@ import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permiss
 import { type Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { canonicalizeDetails } from '@/components/shared/plate/plate-utils'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { PolicyDetailTabs } from './policy-detail-tabs'
 import { VersionBump } from '@/lib/enums/revision-enum'
@@ -324,129 +322,40 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     return null
   }
 
-  const menuComponent = (
-    <div className="space-y-4">
-      {isEditing ? (
-        <div className="flex gap-2 justify-end">
-          <CancelButton onClick={handleCancel}></CancelButton>
-          <SaveButton disabled={isSaving} isSaving={isSaving} />
-        </div>
-      ) : (
-        <div className="flex gap-2 justify-end">
-          <CreatePolicyButton />
-          {!editAllowed && !deleteAllowed ? (
-            <></>
-          ) : (
-            <Menu
-              triggerAnchor={elementAnchor('policy-actions-menu')}
-              closeOnSelect
-              content={(close) => (
-                <>
-                  {editAllowed && (
-                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2 " onClick={handleEdit}>
-                      <PencilIcon size={16} strokeWidth={2} />
-                      <span>Edit</span>
-                    </Button>
-                  )}
-                  {acknowledgementAllowed && (
-                    <Button
-                      size="sm"
-                      variant="transparent"
-                      className="flex justify-start space-x-2"
-                      {...elementAnchor('policy-send-acknowledgement-request')}
-                      onClick={() => {
-                        close()
-                        setIsAcknowledgementDialogOpen(true)
-                      }}
-                    >
-                      <Send size={16} strokeWidth={2} />
-                      <span>Send acknowledgment request</span>
-                    </Button>
-                  )}
-                  <Button
-                    size="sm"
-                    variant="transparent"
-                    className="flex justify-start space-x-2"
-                    onClick={() => {
-                      close()
-                      setShowPermissionsSheet(true)
-                    }}
-                  >
-                    <LockOpen size={16} strokeWidth={2} />
-                    <span>Manage Permissions</span>
-                  </Button>
-                  {showManagementModeAction && (
-                    <Button
-                      size="sm"
-                      variant="transparent"
-                      className="flex justify-start space-x-2"
-                      onClick={() => {
-                        close()
-                        setPendingManagementMode(InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE)
-                      }}
-                    >
-                      <ExternalLink size={16} strokeWidth={2} />
-                      <span>Switch to externally managed</span>
-                    </Button>
-                  )}
-                  {deleteAllowed && (
-                    <Button
-                      size="sm"
-                      variant="transparent"
-                      className="flex justify-start space-x-2"
-                      data-testid="policy-delete-button"
-                      onClick={() => {
-                        close()
-                        setIsDeleteDialogOpen(true)
-                      }}
-                    >
-                      <Trash2 size={16} strokeWidth={2} />
-                      <span>Delete</span>
-                    </Button>
-                  )}
-                </>
-              )}
-            />
-          )}
-          {deleteAllowed && (
-            <ConfirmationDialog
-              open={isDeleteDialogOpen}
-              onOpenChange={setIsDeleteDialogOpen}
-              onConfirm={handleDeletePolicy}
-              title={`Delete Internal Policy`}
-              description={
-                <>
-                  This action cannot be undone. This will permanently remove <b>{policy.name}</b> from the organization.
-                </>
-              }
-            />
-          )}
-          <ConfirmationDialog
-            open={!!pendingManagementMode}
-            onOpenChange={(open) => {
-              if (!open) setPendingManagementMode(null)
-            }}
-            onConfirm={handleConfirmManagementModeChange}
-            title="Change management mode"
-            confirmationText="Switch to externally managed"
-            confirmationTextVariant="primary"
-            description={
-              <>
-                The Policy view will switch to displaying the attached file and edits inside Openlane will be disabled. Any changes since the file was originally uploaded will not be reflected in the
-                attached file. The underlying details data stays in place — you can switch back at any time.
-              </>
-            }
-          />
-        </div>
-      )}
-    </div>
+  const headerActions = (
+    <DetailHeaderActions
+      isEditing={isEditing}
+      onCancel={handleCancel}
+      isSaving={isSaving}
+      onEdit={editAllowed ? handleEdit : undefined}
+      editLabel="Edit policy"
+      menuAnchor={elementAnchor('policy-actions-menu')}
+      menuActions={
+        editAllowed || deleteAllowed
+          ? [
+              acknowledgementAllowed && {
+                key: 'send-acknowledgement-request',
+                label: 'Send acknowledgment request',
+                icon: <Send size={16} strokeWidth={2} />,
+                anchor: elementAnchor('policy-send-acknowledgement-request'),
+                onClick: () => setIsAcknowledgementDialogOpen(true),
+              },
+              { key: 'manage-permissions', label: 'Manage Permissions', icon: <LockOpen size={16} strokeWidth={2} />, onClick: () => setShowPermissionsSheet(true) },
+              showManagementModeAction && {
+                key: 'external-reference',
+                label: 'Switch to externally managed',
+                icon: <ExternalLink size={16} strokeWidth={2} />,
+                onClick: () => setPendingManagementMode(InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE),
+              },
+              deleteAllowed && { ...deleteMenuAction(() => setIsDeleteDialogOpen(true)), anchor: elementAnchor('policy-delete-button') },
+            ]
+          : undefined
+      }
+    />
   )
 
   const mainContent = (
     <div className="p-2">
-      {/* above the title: the plate toolbar is pulled up onto the title row
-          with a fixed -mt-40, so anything between the title and the editor
-          displaces it */}
       {!isEditing && editAllowed && (
         <SuggestedControlMappings
           policyId={policy.id}
@@ -457,7 +366,13 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         />
       )}
 
-      <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={policy.name} editAllowed={editAllowed} />
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={policy.name} editAllowed={editAllowed} />
+        </div>
+        {headerActions}
+      </div>
+      {!isEditing && <Separator separatorClass="bg-divider mt-[24px]" />}
 
       <SendAcknowledgementRequestDialog open={isAcknowledgementDialogOpen} onOpenChange={setIsAcknowledgementDialogOpen} initialPolicyIds={[policy.id]} />
       <PolicyDetailTabs
@@ -506,11 +421,40 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Internal Policies - ${policy.name}`}</title>
       <Form {...form}>
         <form onSubmit={handleFormSubmit}>
-          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing} minWidth={430}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} slideOpen={isEditing} minWidth={430}>
             {mainContent}
           </SlideBarLayout>
         </form>
       </Form>
+      {deleteAllowed && (
+        <ConfirmationDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          onConfirm={handleDeletePolicy}
+          title="Delete Internal Policy"
+          description={
+            <>
+              This action cannot be undone. This will permanently remove <b>{policy.name}</b> from the organization.
+            </>
+          }
+        />
+      )}
+      <ConfirmationDialog
+        open={!!pendingManagementMode}
+        onOpenChange={(open) => {
+          if (!open) setPendingManagementMode(null)
+        }}
+        onConfirm={handleConfirmManagementModeChange}
+        title="Change management mode"
+        confirmationText="Switch to externally managed"
+        confirmationTextVariant="primary"
+        description={
+          <>
+            The Policy view will switch to displaying the attached file and edits inside Openlane will be disabled. Any changes since the file was originally uploaded will not be reflected in the
+            attached file. The underlying details data stays in place — you can switch back at any time.
+          </>
+        }
+      />
       <ManagePermissionSheet open={showPermissionsSheet} onOpenChange={(val) => setShowPermissionsSheet(val)} />
     </>
   )

@@ -68,7 +68,7 @@ export const AcknowledgementRecipientsStep = ({ form, onPreview }: TAcknowledgem
             <FormItem>
               <FormLabel className="sr-only">Due date</FormLabel>
               <FormControl>
-                <CalendarPopover field={field} portal disabledFrom={startOfToday()} />
+                <CalendarPopover field={field} disabledFrom={startOfToday()} />
               </FormControl>
               <FormMessage />
             </FormItem>

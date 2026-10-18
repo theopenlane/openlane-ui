@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth/auth'
 import { type Invoice } from '@/types/stripe'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
     const requestedStatus = INVOICE_STATUSES.find((invoiceStatus) => invoiceStatus === status)
 
-    const invoices = await stripe.invoices.list({
+    const invoices = await getStripe().invoices.list({
       customer: customerId,
       limit: Math.min(Math.max(limit ?? DEFAULT_INVOICE_LIMIT, 1), MAX_INVOICE_LIMIT),
       ...(requestedStatus ? { status: requestedStatus } : {}),

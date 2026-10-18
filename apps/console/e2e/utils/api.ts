@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { API_BASE, PASSWORD, RUN_ID } from './constants'
+import { SAMPLE_PDF } from './files'
+import { readManifest } from './manifest'
 
 /** Raw HTTP helpers for talking to the backend (theopenlane/core) directly, bypassing the UI. */
 
@@ -60,6 +60,12 @@ export const gql = async <T>(sess: ApiSession, query: string, variables?: Record
     return (await res.json()) as GqlResult<T>
   }
   throw new Error(`gql request failed after ${tries} tries: ${last?.status}`)
+}
+
+export const gqlData = async <T>(sess: ApiSession, label: string, query: string, variables?: Record<string, unknown>): Promise<T> => {
+  const res = await gql<T>(sess, query, variables)
+  if (res.errors?.length || !res.data) throw new Error(`${label} failed: ${JSON.stringify(res.errors).slice(0, 300)}`)
+  return res.data
 }
 
 export const getSelf = async (sess: ApiSession): Promise<{ id: string; settingId: string }> => {
@@ -275,8 +281,7 @@ let ownerApiPromise: Promise<ApiSession> | null = null
 
 export const getOwnerApi = (): Promise<ApiSession> => {
   if (!ownerApiPromise) {
-    const manifestPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '.auth', 'manifest.json')
-    const { ownerEmail, password } = JSON.parse(readFileSync(manifestPath, 'utf-8')) as { ownerEmail: string; password: string }
+    const { ownerEmail, password } = readManifest()
     ownerApiPromise = loginViaApi(ownerEmail, password)
   }
   return ownerApiPromise
@@ -286,10 +291,8 @@ let demoApiPromise: Promise<ApiSession> | null = null
 
 export const getDemoApi = (): Promise<ApiSession> => {
   if (!demoApiPromise) {
-    const manifestPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '.auth', 'manifest.json')
-    const { demoEmail, demoPassword, password } = JSON.parse(readFileSync(manifestPath, 'utf-8')) as { demoEmail?: string; demoPassword?: string; password: string }
-    if (!demoEmail) throw new Error('getDemoApi: manifest has no demoEmail — the trust-center org was not provisioned')
-    demoApiPromise = loginViaApi(demoEmail, demoPassword ?? password)
+    const { demoEmail, demoPassword } = readManifest()
+    demoApiPromise = loginViaApi(demoEmail, demoPassword)
   }
   return demoApiPromise
 }
@@ -389,8 +392,8 @@ export const roleOf = async (sess: ApiSession, organizationID: string, email: st
   return found?.node?.role ?? null
 }
 
-export const createStandard = (sess: ApiSession, name: string, framework?: string): Promise<string> =>
-  seedEntity(sess, 'createStandard', 'CreateStandardInput', 'standard', { name, ...(framework ? { framework } : {}) })
+export const createStandard = (sess: ApiSession, name: string, framework?: string, extra: Record<string, unknown> = {}): Promise<string> =>
+  seedEntity(sess, 'createStandard', 'CreateStandardInput', 'standard', { name, ...(framework ? { framework } : {}), ...extra })
 
 export const createTrustCenterSubprocessor = (sess: ApiSession, trustCenterID: string, subprocessorID: string, category: string, countries: string[]): Promise<string> =>
   seedEntity(sess, 'createTrustCenterSubprocessor', 'CreateTrustCenterSubprocessorInput', 'trustCenterSubprocessor', {
@@ -400,12 +403,19 @@ export const createTrustCenterSubprocessor = (sess: ApiSession, trustCenterID: s
     countries,
   })
 
+const findTrustCenterId = async (sess: ApiSession): Promise<string | undefined> => {
+  const data = await gqlData<{ trustCenters: { edges: Array<{ node: { id: string } }> } }>(sess, 'trustCenters', `{ trustCenters(first: 1) { edges { node { id } } } }`)
+  return data.trustCenters.edges[0]?.node.id
+}
+
 export const getTrustCenterId = async (sess: ApiSession): Promise<string> => {
-  const res = await gql<{ trustCenters: { edges: Array<{ node: { id: string } }> } }>(sess, `{ trustCenters(first: 1) { edges { node { id } } } }`)
-  const id = res.data?.trustCenters?.edges?.[0]?.node?.id
+  const id = await findTrustCenterId(sess)
   if (!id) throw new Error('getTrustCenterId: org has no trust center')
   return id
 }
+
+/** The org's trust center, created if it has none (core allows one per org and creates its live and preview settings). */
+export const ensureTrustCenter = async (sess: ApiSession): Promise<string> => (await findTrustCenterId(sess)) ?? seedEntity(sess, 'createTrustCenter', 'CreateTrustCenterInput', 'trustCenter', {})
 
 export const createIdentityHolder = (sess: ApiSession, fullName: string, email: string): Promise<string> =>
   seedEntity(sess, 'createIdentityHolder', 'CreateIdentityHolderInput', 'identityHolder', { fullName, email })
@@ -455,16 +465,30 @@ export const uploadFileTo = async (
     ${mutationField}(id: $id, input: $input, ${uploadField}: $${uploadField}, ${metadataField}: $${metadataField}) { ${payloadField} { id } }
   }`
 
-  const form = new FormData()
-  form.append(
-    'operations',
-    JSON.stringify({
-      query,
-      variables: { id, input: {}, [uploadField]: [null], [metadataField]: [category ? { name: displayName, metadata: { category } } : { name: displayName }] },
-    }),
+  await gqlMultipart(
+    sess,
+    `${mutationField} upload`,
+    query,
+    { id, input: {}, [uploadField]: [null], [metadataField]: [category ? { name: displayName, metadata: { category } } : { name: displayName }] },
+    {
+      path: `${uploadField}.0`,
+      blob: new Blob([contents ?? `e2e upload for ${displayName}\n`], { type: 'text/plain' }),
+      fileName: `${displayName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.txt`,
+    },
   )
-  form.append('map', JSON.stringify({ '0': [`variables.${uploadField}.0`] }))
-  form.append('0', new Blob([contents ?? `e2e upload for ${displayName}\n`], { type: 'text/plain' }), `${displayName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.txt`)
+}
+
+interface MultipartFile {
+  path: string
+  blob: Blob
+  fileName: string
+}
+
+const gqlMultipart = async (sess: ApiSession, label: string, query: string, variables: Record<string, unknown>, file: MultipartFile): Promise<void> => {
+  const form = new FormData()
+  form.append('operations', JSON.stringify({ query, variables }))
+  form.append('map', JSON.stringify({ '0': [`variables.${file.path}`] }))
+  form.append('0', file.blob, file.fileName)
 
   const res = await fetch(`${API_BASE}/query`, {
     method: 'POST',
@@ -476,8 +500,30 @@ export const uploadFileTo = async (
     body: form,
   })
 
-  const body = (await res.json()) as { errors?: Array<{ message: string }> }
-  if (!res.ok || body.errors) throw new Error(`${mutationField} upload failed: ${res.status} ${JSON.stringify(body.errors)}`)
+  const body = (await res.json()) as GqlResult<Record<string, never>>
+  if (!res.ok || body.errors) throw new Error(`${label} failed: ${res.status} ${JSON.stringify(body.errors)}`)
+}
+
+export const ensureTrustCenterDocs = async (sess: ApiSession, count: number, kindName: string): Promise<void> => {
+  const trustCenterID = await getTrustCenterId(sess)
+  const titlePrefix = `E2E Seeded Document ${RUN_ID}`
+  const { trustCenterDocs } = await gqlData<{ trustCenterDocs: { totalCount: number } }>(
+    sess,
+    'trustCenterDocs',
+    `query($where: TrustCenterDocWhereInput){ trustCenterDocs(where: $where){ totalCount } }`,
+    { where: { titleHasPrefix: titlePrefix } },
+  )
+  const pdf = new Blob([readFileSync(SAMPLE_PDF)], { type: 'application/pdf' })
+
+  for (let index = trustCenterDocs.totalCount; index < count; index += 1) {
+    await gqlMultipart(
+      sess,
+      'createTrustCenterDoc',
+      `mutation($input: CreateTrustCenterDocInput!, $trustCenterDocFile: Upload!){ createTrustCenterDoc(input: $input, trustCenterDocFile: $trustCenterDocFile){ trustCenterDoc { id } } }`,
+      { input: { title: `${titlePrefix} ${index + 1}`, trustCenterID, trustCenterDocKindName: kindName }, trustCenterDocFile: null },
+      { path: 'trustCenterDocFile', blob: pdf, fileName: 'sample.pdf' },
+    )
+  }
 }
 
 export const uploadEvidenceFile = (sess: ApiSession, evidenceId: string, displayName: string): Promise<void> =>

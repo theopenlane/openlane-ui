@@ -34,6 +34,7 @@ import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { useSelectColumnVisibility } from '@/components/shared/column-visibility-menu/use-select-column-visibility'
 
 type TControlsTableProps = {
   active: 'dashboard' | 'table'
@@ -120,14 +121,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     }
   }, [whereFilter, debouncedSearch, scanId])
 
-  useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canEdit(permission.roles, session),
-      }))
-    }
-  }, [permission?.roles, session])
+  const effectiveColumnVisibility = useSelectColumnVisibility(columnVisibility, canEdit(permission?.roles, session))
 
   useEffect(() => {
     setCrumbs([
@@ -229,7 +223,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
         paginationMeta={paginationMeta}
         sortFields={CONTROLS_SORT_FIELDS}
         onSortChange={setOrderBy}
-        columnVisibility={columnVisibility}
+        columnVisibility={effectiveColumnVisibility}
         setColumnVisibility={setColumnVisibility}
         loading={isLoadingAuthors || isLoading || isFetching}
         tableKey={TableKeyEnum.CONTROL}

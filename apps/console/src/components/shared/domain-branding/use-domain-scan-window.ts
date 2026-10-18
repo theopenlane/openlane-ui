@@ -11,7 +11,7 @@ const PULL_WINDOW_MS = 60 * 60 * 1000 // 1hr
 const GROUPED_SCAN_FANOUT_HEADROOM = 50
 const COUNTDOWN_TICK_MS = 30 * 1000 // 30s
 
-export const useBrandingPullWindow = (enabled: boolean) => {
+export const useDomainScanWindow = (enabled: boolean) => {
   const [windowStart, setWindowStart] = useState<string>()
   const [now, setNow] = useState(() => Date.now())
 
@@ -50,7 +50,7 @@ export const useBrandingPullWindow = (enabled: boolean) => {
       isCheckingWindow: enabled && !isError && (!windowStart || isLoading),
       scanHistoryUnavailable: isError,
       runningScanTarget: running?.target ?? null,
-      pullAvailableIn: availableAt !== null && availableAt > now ? formatDistanceUntil(availableAt, now) : null,
+      availableIn: availableAt !== null && availableAt > now ? formatDistanceUntil(availableAt, now) : null,
     }
   }, [scans, isLoading, isError, now, enabled, windowStart])
 }

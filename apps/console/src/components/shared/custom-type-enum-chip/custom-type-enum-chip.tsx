@@ -1,5 +1,6 @@
 import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { Badge } from '@repo/ui/badge'
+import { TruncatedCell } from '@repo/ui/truncated-cell'
 import React from 'react'
 
 const CSS_COLOR_PATTERN = /^(#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})|(rgb|hsl)a?\([^;{}()]*\)|[a-z]+)$/i
@@ -15,13 +16,11 @@ export const CustomTypeEnumOptionChip = ({ option }: { option: CustomTypeEnumOpt
   return (
     <Badge
       variant="outline"
-      className="flex items-center gap-1 w-fit overflow-hidden bg-secondary"
+      className="flex items-center gap-1 w-fit max-w-full overflow-hidden bg-secondary"
       style={color ? { backgroundColor: `color-mix(in srgb, ${color}, transparent 85%)`, borderColor: `color-mix(in srgb, ${color}, transparent 60%)` } : undefined}
     >
       {color && <div className="shrink-0 w-2 h-2 rounded-full bg-muted-foreground" style={{ backgroundColor: color }} />}
-      <span title={option.label} className="truncate">
-        {option.label}
-      </span>
+      <TruncatedCell portal>{option.label}</TruncatedCell>
     </Badge>
   )
 }

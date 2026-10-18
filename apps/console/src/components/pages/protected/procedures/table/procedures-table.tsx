@@ -28,6 +28,7 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 import { useSession } from 'next-auth/react'
+import { useSelectColumnVisibility } from '@/components/shared/column-visibility-menu/use-select-column-visibility'
 
 export const ProceduresTable = () => {
   const router = useRouter()
@@ -143,14 +144,7 @@ export const ProceduresTable = () => {
     exportProcedures(format)
   }
 
-  useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canEdit(permission.roles, session),
-      }))
-    }
-  }, [permission?.roles, session])
+  const effectiveColumnVisibility = useSelectColumnVisibility(columnVisibility, canEdit(permission?.roles, session))
 
   useEffect(() => {
     if (procedures.length > 0 && !memberIds) {
@@ -209,7 +203,7 @@ export const ProceduresTable = () => {
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
-        columnVisibility={columnVisibility}
+        columnVisibility={effectiveColumnVisibility}
         setColumnVisibility={setColumnVisibility}
         sorting={orderBy}
         tableKey={TableKeyEnum.PROCEDURE}

@@ -37,7 +37,8 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { PROGRAM_KIND } from '../shared/program-kind'
 import { useOrgMemberPermissions } from '@/lib/authz/use-org-member-permissions'
 import MembersInviteSheet from '@/components/pages/protected/user-management/members/sidebar/members-invite-sheet'
-import { isSoc2Framework, SOC_2_REQUIRED_CATEGORY } from '@/constants/trust-services-categories'
+import { isSoc2Framework } from '@/constants/trust-services-categories'
+import { SOC_2_REQUIRED_CATEGORY } from '@/constants/trust-services-category-names'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)

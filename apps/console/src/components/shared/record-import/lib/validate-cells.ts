@@ -1,6 +1,7 @@
 import type { ImportFieldMeta } from '@repo/codegen/src/import-fields.generated'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatList } from '@/utils/strings'
+import { isValidUrl } from '@/utils/normalizeUrl'
 import { isUlid } from '@/lib/validators'
 import { inferDateOrder, isAmbiguousDate, isCanonicalDate, normalizeLooseDate, type TDateOrder } from '@/utils/loose-date'
 import type { TDestinationField, TValueMap } from './types'
@@ -29,9 +30,6 @@ const GO_BOOLEANS = new Set(['1', 't', 'T', 'TRUE', 'true', 'True', '0', 'f', 'F
 const YES_NO = /^(yes|no)$/i
 const LIST_DELIMITERS = [';', '|', ',']
 const MIN_SUGGESTION_LENGTH = 3
-const MAX_URL_LENGTH = 2048
-const URL_HOST = /^[a-z0-9-]+(\.[a-z0-9-]+)+\.?$/i
-const URL_SCHEME = /^[a-z][a-z0-9+.-]*:\/\//i
 
 export const toEnumToken = (value: string): string =>
   value
@@ -44,13 +42,10 @@ export const toEnumToken = (value: string): string =>
     .join('_')
     .toUpperCase()
 
-const isValidUrl = (value: string): boolean => {
-  if (value.length > MAX_URL_LENGTH) return false
-  try {
-    return URL_HOST.test(new URL(URL_SCHEME.test(value) ? value : `http://${value}`).host)
-  } catch {
-    return false
-  }
+export const enumCanonicalizer = (meta: ImportFieldMeta | undefined): ((value: string) => string) | undefined => {
+  if (meta?.kind !== 'enum' || meta.list) return undefined
+  const valueByToken = new Map((meta.enumValues ?? []).map((value) => [toEnumToken(value), value]))
+  return (value) => (value ? (valueByToken.get(toEnumToken(value)) ?? value) : value)
 }
 
 const NOT_JSON = Symbol('not-json')
@@ -121,10 +116,12 @@ const suggestEnumValue = (value: string, enumValues: readonly string[]): string 
   return candidates.length === 1 ? candidates[0] : undefined
 }
 
+const ANY_VALUE_RULE: TItemRule = { expected: 'a value in every row', isValid: () => true }
+
 const fieldRule = (field: TDestinationField, dateOrder: TDateOrder | undefined): TItemRule | null => {
   if (field.format === 'url') return URL_RULE
-  if (!field.meta) return null
-  return dateOrder ? dateRule(field.meta, dateOrder) : itemRule(field.meta)
+  const rule = field.meta ? (dateOrder ? dateRule(field.meta, dateOrder) : itemRule(field.meta)) : null
+  return rule ?? (field.blankIsInvalid ? ANY_VALUE_RULE : null)
 }
 
 const checkCells = (rows: string[][], columnIndex: number, field: TDestinationField, dateOrder: TDateOrder | undefined): TColumnCellCheck | null => {
@@ -138,7 +135,7 @@ const checkCells = (rows: string[][], columnIndex: number, field: TDestinationFi
     if (rule.normalize) return rule.normalize(cell)
     return (meta.list ? splitListCell(cell) : [cell])?.every(rule.isValid) ? cell : null
   }
-  const blankIsInvalid = meta.timestamp === true && !meta.list
+  const blankIsInvalid = field.blankIsInvalid === true || (meta.timestamp === true && !meta.list)
   const resolved = new Map<string, string | null>()
   const invalid = new Map<string, number[]>()
   const conversions = new Map<string, string>()

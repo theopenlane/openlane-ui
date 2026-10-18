@@ -160,7 +160,7 @@ test('editing a questionnaire campaign due date persists after reload', async ({
     const dueRow = detailsSidebar.getByText('Due Date', { exact: true }).locator('../..')
     await expect(dueRow).toContainText(format(initialDate, 'MMMM d, yyyy'))
     await dueRow.getByText(format(initialDate, 'MMMM d, yyyy'), { exact: true }).click()
-    await dueRow.getByRole('button').first().click()
+    await dueRow.getByRole('button', { name: 'Open calendar' }).click()
     await page.getByRole('button', { name: calendarDayName(updatedDate) }).click()
     await expect(page.getByText('Campaign updated', { exact: true })).toBeVisible({ timeout: 20_000 })
 
@@ -220,7 +220,7 @@ test.describe('campaigns — test email and reminders', () => {
 
     await page.goto(`/automation/campaigns/${campaignId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await page.getByRole('button', { name: 'Action' }).first().click()
-    await page.getByRole('button', { name: 'Send test email' }).last().click()
+    await page.getByRole('menuitem', { name: 'Send test email' }).click()
 
     const dialog = page.getByRole('dialog')
     await expect(dialog.getByRole('heading', { name: 'Send Test Email' })).toBeVisible({ timeout: 30_000 })

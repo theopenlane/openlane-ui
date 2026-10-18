@@ -2,15 +2,16 @@
 
 import React, { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
-import { MoreHorizontal, Trash2, Building2, PencilIcon, CogIcon, CheckIcon, PlusIcon } from 'lucide-react'
-import { canDelete } from '@/lib/authz/utils'
+import { Building2, PencilIcon, CogIcon, CheckIcon, PlusIcon, ServerIcon } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { canDelete, hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
-import Menu from '@/components/shared/menu/menu'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { VendorLogoDialog } from '../vendor-logo-dialog'
 import { useUpdateEntityLogo } from '@/lib/graphql-hooks/entity'
 import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
@@ -19,9 +20,12 @@ import { useNotification } from '@/hooks/useNotification'
 import type { TAccessRole } from '@/types/authz'
 import type { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 import { getVendorLogoUrl } from '@/lib/vendor-logo'
-import { MergeMenuItem } from '@/components/shared/merge-records/merge-menu-item'
+import { MergeRecordsSheet } from '@/components/shared/merge-records/merge-records-sheet'
 import { vendorMergeConfig } from '@/components/shared/merge-records/configs/vendor-merge-config'
-import MenuItem from '@/components/shared/menu/menu-item'
+import { deleteMenuAction, mergeMenuAction } from '@/components/shared/crud-base/slideout-header'
+import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { AddToTrustCenterDialog } from './add-to-trust-center/add-to-trust-center-dialog'
 
 interface VendorDetailHeaderProps {
   vendor: EntityQuery['entity']
@@ -37,7 +41,12 @@ interface VendorDetailHeaderProps {
 
 const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditing, canEditVendor, onEdit, onCancel, onDeleteClick, permissionRoles, handleUpdateField, onMergeComplete }) => {
   const canDeleteVendor = canDelete(permissionRoles)
-  const showMenu = canEditVendor || canDeleteVendor
+  const [mergeOpen, setMergeOpen] = useState(false)
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const hasTrustCenter = useHasObjectType(ObjectTypes.TRUST_CENTER)
+  const canAddToTrustCenter = hasTrustCenter && hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor, session)
+  const [addToTrustCenterOpen, setAddToTrustCenterOpen] = useState(false)
   const { setValue, register } = useFormContext()
   const [inlineEditing, setInlineEditing] = useState<'name' | 'displayName' | null>(null)
   const [localValue, setLocalValue] = useState('')
@@ -106,7 +115,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   return (
     <>
       <div className="flex justify-between items-start gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 min-w-0 flex-1">
           <button
             type="button"
             className="group/logo relative flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden border-0 p-0 cursor-pointer"
@@ -126,7 +135,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
               </div>
             )}
           </button>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 min-w-0 flex-1">
             {isEditing ? (
               <Input {...register('name')} className="text-2xl font-semibold h-auto py-1" />
             ) : inlineEditing === 'name' ? (
@@ -165,52 +174,43 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {isEditing ? (
-            <div className="flex gap-2 justify-end">
-              <CancelButton onClick={onCancel} />
-              <SaveButton />
-            </div>
-          ) : (
-            <>
-              {canEditVendor && (
-                <Button type="button" variant="secondary" onClick={onEdit} aria-label="Edit vendor" icon={<PencilIcon size={16} strokeWidth={2} />} iconPosition="left">
-                  Edit
-                </Button>
-              )}
-              {showMenu && (
-                <Menu
-                  trigger={
-                    <Button type="button" variant="secondary" className="h-8 px-2" aria-label="Vendor actions">
-                      <MoreHorizontal size={16} />
-                    </Button>
-                  }
-                  content={
-                    <>
-                      {canEditVendor && !hasIntegration && matchedProvider && (
-                        <MenuItem href={`/automation/integrations/${matchedProvider.id}?vendorId=${vendor.id}`} icon={<PlusIcon size={16} strokeWidth={2} />}>
-                          Add Integration
-                        </MenuItem>
-                      )}
-                      {canEditVendor && hasIntegration && integrationDefId !== '' && (
-                        <MenuItem href={`/automation/integrations/${integrationDefId}`} icon={<CogIcon size={16} strokeWidth={2} />}>
-                          Configure Integration
-                        </MenuItem>
-                      )}
-                      {canEditVendor && <MergeMenuItem primaryId={vendor.id} config={vendorMergeConfig} onMergeComplete={onMergeComplete} />}
-                      {canDeleteVendor && (
-                        <MenuItem icon={<Trash2 size={16} strokeWidth={2} />} onSelect={onDeleteClick} destructive>
-                          Delete
-                        </MenuItem>
-                      )}
-                    </>
-                  }
-                />
-              )}
-            </>
-          )}
-        </div>
+        <DetailHeaderActions
+          isEditing={isEditing}
+          onCancel={onCancel}
+          onEdit={canEditVendor ? onEdit : undefined}
+          editLabel="Edit vendor"
+          menuAnchor={elementAnchor('vendor-actions-menu')}
+          menuActions={[
+            canEditVendor &&
+              !hasIntegration &&
+              matchedProvider && {
+                key: 'add-integration',
+                label: 'Add Integration',
+                icon: <PlusIcon size={16} strokeWidth={2} />,
+                href: `/automation/integrations/${matchedProvider.id}?vendorId=${vendor.id}`,
+              },
+            canEditVendor &&
+              hasIntegration &&
+              integrationDefId !== '' && {
+                key: 'configure-integration',
+                label: 'Configure Integration',
+                icon: <CogIcon size={16} strokeWidth={2} />,
+                href: `/automation/integrations/${integrationDefId}`,
+              },
+            canAddToTrustCenter && {
+              key: 'add-to-trust-center',
+              label: 'Add to Trust Center',
+              icon: <ServerIcon size={16} strokeWidth={2} />,
+              onClick: () => setAddToTrustCenterOpen(true),
+            },
+            canEditVendor && mergeMenuAction(() => setMergeOpen(true)),
+            canDeleteVendor && deleteMenuAction(onDeleteClick),
+          ]}
+        />
       </div>
+
+      {canEditVendor && <MergeRecordsSheet open={mergeOpen} onOpenChange={setMergeOpen} config={vendorMergeConfig} primaryId={vendor.id} onMergeComplete={onMergeComplete} />}
+      {canAddToTrustCenter && <AddToTrustCenterDialog vendor={vendor} canLinkVendor={canEditVendor} open={addToTrustCenterOpen} onOpenChange={setAddToTrustCenterOpen} />}
 
       <VendorLogoDialog
         open={logoDialogOpen}

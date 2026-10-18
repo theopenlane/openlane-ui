@@ -24,6 +24,7 @@ export const GET_INTEGRATIONS = gql`
           scopeName
           credentials
           config
+          operationConfig
         }
       }
     }

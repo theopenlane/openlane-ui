@@ -8,7 +8,6 @@ import { useNotification } from '@/hooks/useNotification'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit, canDelete } from '@/lib/authz/utils'
 import { useSession } from 'next-auth/react'
-import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Badge } from '@repo/ui/badge'
@@ -18,8 +17,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Form } from '@repo/ui/form'
 import { Switch } from '@repo/ui/switch'
-import { Trash2, PencilIcon, NetworkIcon, Laptop, Building2, User, Users, Copy, Check, SquarePlus } from 'lucide-react'
-import Menu from '@/components/shared/menu/menu'
+import { NetworkIcon, Laptop, Building2, User, Users, Copy, Check, SquarePlus } from 'lucide-react'
+import { deleteMenuAction } from '@/components/shared/crud-base/slideout-header'
+import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { PlatformPlatformStatus, type UpdatePlatformInput } from '@repo/codegen/src/schema'
@@ -42,8 +43,6 @@ import StepTrustBoundary from '../create/steps/step-trust-boundary'
 import StepAuditScope from '../create/steps/step-audit-scope'
 import StepOwnership from '../create/steps/step-ownership'
 import StepLinkAssetsVendors from '../create/steps/step-link-assets-vendors'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 
 interface PlatformDetailPageProps {
@@ -83,8 +82,6 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
   const areLinksLoaded = isAssetsLoaded && isVendorsLoaded
   const canEditPlatform = canEdit(permission?.roles, session)
   const canDeletePlatform = canDelete(permission?.roles)
-
-  const hasScrollbar = useHasScrollbar([platform, areLinksPending, isDiagramsPending])
 
   useQueryErrorNotification({ error: assetsError, description: 'Failed to load the assets linked to this platform' })
   useQueryErrorNotification({ error: vendorsError, description: 'Failed to load the vendors linked to this platform' })
@@ -275,39 +272,24 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
     return plateEditorHelper.convertToReadOnly(html)
   }
 
-  const menuComponent = isEditing ? (
-    <div className="flex gap-2 justify-end">
-      <CancelButton onClick={handleCancel} />
-      <SaveButton disabled={isUpdatePending} isSaving={isUpdatePending} />
-    </div>
-  ) : (
-    <div className="flex items-center gap-2">
-      {(canEditPlatform || canDeletePlatform) && (
-        <Menu
-          content={
-            <>
-              {canEditPlatform && (
-                <Button type="button" size="sm" variant="transparent" disabled={!areLinksLoaded} className="flex justify-start space-x-2" onClick={handleEdit}>
-                  <PencilIcon size={16} strokeWidth={2} />
-                  <span>Edit</span>
-                </Button>
-              )}
-              {canDeletePlatform && (
-                <Button type="button" size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setIsDeleteDialogOpen(true)}>
-                  <Trash2 size={16} strokeWidth={2} />
-                  <span>Delete</span>
-                </Button>
-              )}
-            </>
-          }
-        />
-      )}
-      {onCreatePlatform && (
-        <Button icon={<SquarePlus />} iconPosition="left" onClick={onCreatePlatform}>
-          Create Platform
-        </Button>
-      )}
-    </div>
+  const headerActions = (
+    <DetailHeaderActions
+      isEditing={isEditing}
+      onCancel={handleCancel}
+      isSaving={isUpdatePending}
+      onEdit={canEditPlatform ? handleEdit : undefined}
+      editLabel="Edit platform"
+      editDisabledReason={areLinksLoaded ? undefined : 'Loading the assets and vendors linked to this platform.'}
+      actions={
+        onCreatePlatform && (
+          <Button icon={<SquarePlus />} iconPosition="left" onClick={onCreatePlatform}>
+            Create Platform
+          </Button>
+        )
+      }
+      menuAnchor={elementAnchor('platform-actions-menu')}
+      menuActions={[canDeletePlatform && deleteMenuAction(() => setIsDeleteDialogOpen(true))]}
+    />
   )
 
   const ownershipSidebar = (
@@ -397,7 +379,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
   )
 
   const editFormContent = (
-    <div className="space-y-6 pb-10">
+    <div className="space-y-6">
       <div>
         <h3 className="text-sm font-semibold mb-3">Basic Info</h3>
         <StepBasicInfo />
@@ -429,29 +411,31 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
     </div>
   )
 
-  const viewContent = (
-    <div className="flex flex-col gap-6 pb-10">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="flex flex-col gap-1.5 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl font-semibold truncate">{platform.name}</h1>
-              {platform.status && <Badge variant={STATUS_VARIANT[platform.status as PlatformPlatformStatus] ?? 'outline'}>{toHumanLabel(platform.status)}</Badge>}
-              {platform.scopeName && <CustomEnumChipCell value={platform.scopeName} field="scope" />}
-              {platform.environmentName && <CustomEnumChipCell value={platform.environmentName} field="environment" />}
-              {platform.containsPii && (
-                <Badge variant="outline" className="flex items-center gap-1 text-xs">
-                  <div className="shrink-0 w-2 h-2 rounded-full bg-red-500" />
-                  Contains PII
-                </Badge>
-              )}
-            </div>
-            {platform.description && <p className="text-sm text-muted-foreground">{platform.description}</p>}
+  const header = (
+    <div className="flex items-start justify-between gap-4">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex flex-col gap-1.5 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-2xl font-semibold truncate">{platform.name}</h1>
+            {platform.status && <Badge variant={STATUS_VARIANT[platform.status as PlatformPlatformStatus] ?? 'outline'}>{toHumanLabel(platform.status)}</Badge>}
+            {platform.scopeName && <CustomEnumChipCell value={platform.scopeName} field="scope" />}
+            {platform.environmentName && <CustomEnumChipCell value={platform.environmentName} field="environment" />}
+            {platform.containsPii && (
+              <Badge variant="outline" className="flex items-center gap-1 text-xs">
+                <div className="shrink-0 w-2 h-2 rounded-full bg-red-500" />
+                Contains PII
+              </Badge>
+            )}
           </div>
+          {platform.description && <p className="text-sm text-muted-foreground">{platform.description}</p>}
         </div>
       </div>
+      {headerActions}
+    </div>
+  )
 
+  const viewContent = (
+    <>
       {(platform.businessPurpose || platform.dataFlowSummary || platform.trustBoundaryDescription) && (
         <div className="grid gap-4">
           {platform.businessPurpose && (
@@ -521,25 +505,21 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
           {isVendorsPending ? <Skeleton width="100%" height="8rem" /> : <PlatformVendorsTable inScopeVendors={inScopeVendors} outOfScopeVendors={outOfScopeVendors} />}
         </TabsContent>
       </Tabs>
-    </div>
+    </>
   )
 
-  const mainContent = isEditing ? editFormContent : viewContent
+  const mainContent = (
+    <div className="flex flex-col gap-6 pb-10">
+      {header}
+      {isEditing ? editFormContent : viewContent}
+    </div>
+  )
 
   return (
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout
-            sidebarTitle="Details"
-            sidebarContent={ownershipSidebar}
-            menu={menuComponent}
-            slideOpen={isEditing}
-            minWidth={420}
-            collapsedContentClassName="pr-6"
-            collapsedButtonClassName="-translate-x-4"
-            hasScrollbar={hasScrollbar}
-          >
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={ownershipSidebar} slideOpen={isEditing} minWidth={420} collapsedContentClassName="pr-6">
             {mainContent}
           </SlideBarLayout>
         </form>

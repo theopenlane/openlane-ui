@@ -16,10 +16,16 @@ import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
 import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
-import { type ResponsibilitySelection, buildResponsibilityInlineUpdate } from './responsibility-field-utils'
+import {
+  type ResponsibilitySelection,
+  type TResponsibilityCustomValue,
+  buildResponsibilityInlineUpdate,
+  getCustomValueError,
+  getCustomValueLabel,
+  getResponsibilitySearchPlaceholder,
+} from './responsibility-field-utils'
 import { PersonnelOptionItem } from './personnel-option-item'
 import { ResponsibilitySelectionLabel } from './responsibility-type-icon'
-import { isValidEmail } from '@/lib/validators'
 import { cn } from '@repo/ui/lib/utils'
 
 interface ResponsibilityFieldProps {
@@ -40,6 +46,7 @@ interface ResponsibilityFieldProps {
   groupOnly?: boolean
   allowPersonnel?: boolean
   stringFieldName?: string
+  customValue?: TResponsibilityCustomValue
 }
 
 export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
@@ -60,6 +67,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   groupOnly = false,
   allowPersonnel = true,
   stringFieldName,
+  customValue = 'email',
 }) => {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
@@ -108,8 +116,9 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   }
 
   const handleSelect = async (selection: ResponsibilitySelection, field: { onChange: (value: ResponsibilitySelection) => void }) => {
-    if (selection?.type === 'string' && !isValidEmail(selection.value)) {
-      errorNotification({ title: 'Invalid email', description: 'Custom values must be a valid email address' })
+    const customValueError = getCustomValueError(customValue, selection)
+    if (customValueError) {
+      errorNotification(customValueError)
       return
     }
 
@@ -153,7 +162,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
       name={name}
       render={({ field }) => {
         const currentValue = field.value as ResponsibilitySelection
-        const customEmailLabel = `Use "${term}" as custom email`
+        const customValueLabel = getCustomValueLabel(customValue, term)
 
         return (
           <FormItem className={layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : ''}>
@@ -183,7 +192,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                         {groupOnly && <CommandInput placeholder="Search groups..." value={searchText} onValueChange={setSearchText} searching={isSearching} />}
                         {userOnly && <CommandInput placeholder="Search users..." value={searchText} onValueChange={setSearchText} searching={isSearching} />}
                         {!groupOnly && !userOnly && (
-                          <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} searching={isSearching} />
+                          <CommandInput placeholder={getResponsibilitySearchPlaceholder(customValue, personnelEnabled)} value={searchText} onValueChange={setSearchText} searching={isSearching} />
                         )}
                         <CommandList className="max-h-[min(300px,var(--radix-popover-content-available-height,300px))]">
                           <CommandEmpty>{isSearching ? 'Searching...' : 'No results found.'}</CommandEmpty>
@@ -237,7 +246,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                               ))}
                             </CommandGroup>
                           )}
-                          {!userOnly && !groupOnly && allowPersonnel && visiblePersonnel.length > 0 && (
+                          {personnelEnabled && visiblePersonnel.length > 0 && (
                             <CommandGroup heading="Personnel">
                               {visiblePersonnel.map((option) => (
                                 <PersonnelOptionItem
@@ -258,8 +267,8 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                               <CommandGroup heading="Custom">
                                 <CommandItem value={`custom-${term}`} onSelect={() => handleSelect({ type: 'string', value: term, displayName: term }, field)}>
                                   <Type className="mr-2 h-4 w-4" />
-                                  <span className="truncate" title={customEmailLabel}>
-                                    {customEmailLabel}
+                                  <span className="truncate" title={customValueLabel}>
+                                    {customValueLabel}
                                   </span>
                                 </CommandItem>
                               </CommandGroup>
