@@ -4,6 +4,7 @@ import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import type { ApiSession } from '../utils/api'
 import { createAssessment, createContactWithEmail, deleteAssessment, deleteContact, findAssessmentId, getAutomationApi } from '../utils/api-automation'
+import { pickCalendarDay } from '../utils/calendar'
 import { uniqueName, uniqueRef } from '../utils/unique'
 import { expectMutationOk } from '../utils/mutations'
 
@@ -56,8 +57,6 @@ const saveSurvey = async (page: Page): Promise<void> => {
   await expect(save).toBeEnabled({ timeout: 30_000 })
   await save.click()
 }
-
-const calendarDayName = (date: Date): string => format(date, 'EEEE, MMMM do, yyyy')
 
 let ownerApi: ApiSession
 
@@ -208,7 +207,7 @@ test('a custom response due date is saved and restored in the editor', async ({ 
     await openQuestionnaireEditor(page, id)
     await selectEditorOption(page, 'Response Due', 'Custom')
     await page.getByRole('button', { name: 'Open calendar' }).click()
-    await page.getByRole('button', { name: calendarDayName(targetDate) }).click()
+    await pickCalendarDay(page, targetDate)
     await expect(page.getByRole('textbox', { name: 'Date' })).toHaveValue(formattedTarget)
     await saveSurvey(page)
     await page.waitForURL(new RegExp(`/automation/questionnaires/${id}$`), { timeout: 30_000 })
@@ -274,6 +273,6 @@ test.describe('questionnaires — delivery recipient delete', () => {
     await expectMutationOk(page, 'DeleteAssessmentResponse', async () => {
       await confirm.getByRole('button', { name: /^Delete$/ }).click()
     })
-    await expect(page.getByText('Recipient deleted')).toBeVisible({ timeout: 30_000 })
+    await expect(page.getByText('Recipient deleted', { exact: true })).toBeVisible({ timeout: 30_000 })
   })
 })
