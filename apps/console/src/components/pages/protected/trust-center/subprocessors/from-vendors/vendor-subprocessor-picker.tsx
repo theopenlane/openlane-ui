@@ -175,21 +175,17 @@ export const VendorSubprocessorPicker: React.FC = () => {
               <TabsTrigger value={VIEW.selected}>Selected ({selectedRows.length})</TabsTrigger>
             </TabsList>
           </Tabs>
-          {isAllView && (
-            <div className="flex items-center gap-2">
-              <Switch id={showListedId} checked={showListed} onCheckedChange={setShowListed} />
-              <Label htmlFor={showListedId} className="text-sm">
-                Show already listed
-              </Label>
-            </div>
-          )}
+          <div className="flex shrink-0 items-center gap-2">
+            <Switch id={showListedId} checked={showListed} onCheckedChange={setShowListed} disabled={!isAllView} />
+            <Label htmlFor={showListedId} className="whitespace-nowrap text-sm">
+              Show already listed
+            </Label>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {selectedRows.length > 0 && (
-            <Button variant="secondary" onClick={clearSelection} disabled={isAdding}>
-              Clear selection
-            </Button>
-          )}
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="secondary" onClick={clearSelection} disabled={isAdding || selectedRows.length === 0}>
+            Clear selection
+          </Button>
           <DisabledReasonTooltip reason={isAdding ? undefined : blockedReason}>
             <Button variant="primary" onClick={handleAdd} loading={isAdding} disabled={isAdding || !!blockedReason}>
               {isAdding ? 'Adding...' : `Add ${pluralizeWithCount(activeCount, 'subprocessor')}`}
