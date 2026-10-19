@@ -6,7 +6,8 @@ import remarkGfm from 'remark-gfm'
 import { Download } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import type { File as GqlFile } from '@repo/codegen/src/schema'
-import { HTML_SANITIZE_CONFIG, isSafeLinkHref, useHtmlPurifier } from '@/lib/html/sanitize-html'
+import { isSafeLinkHref } from '@/lib/html/sanitize-html'
+import { SanitizedHtml } from '@/components/shared/sanitized-html/sanitized-html'
 import CsvPreview from '@/components/shared/file-preview/csv-preview'
 import { isFetchedPreviewKind, resolveFileKind, type TFetchedPreviewKind, type TPreviewFileShape } from '@/components/shared/file-preview/preview-mime'
 import { InfoCard, LoadingSpinner } from '@/components/shared/file-preview/preview-chrome'
@@ -214,13 +215,7 @@ const sanitizeAnchors = (root: HTMLElement) => {
   }
 }
 
-const HtmlPreview: React.FC<{ text: string }> = ({ text }) => {
-  const purifier = useHtmlPurifier()
-
-  const html = useMemo(() => purifier.sanitize(text, HTML_SANITIZE_CONFIG), [purifier, text])
-
-  return <div className={PROSE_CARD_CLASS} dangerouslySetInnerHTML={{ __html: html }} />
-}
+const HtmlPreview: React.FC<{ text: string }> = ({ text }) => <SanitizedHtml value={text} className={PROSE_CARD_CLASS} />
 
 const UnsupportedPreview: React.FC<{ file: PreviewFile }> = ({ file }) => {
   const ext = file.providedFileExtension.replace(/^\./, '').toLowerCase()
