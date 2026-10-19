@@ -16,6 +16,7 @@ import {
 } from '../utils/api-automation'
 import { expectMutationOk } from '../utils/mutations'
 import { inlineCsv } from '../utils/files'
+import { pickCalendarDay } from '../utils/calendar'
 import { uniqueName, uniqueRef } from '../utils/unique'
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -34,8 +35,6 @@ const openCampaignStepper = async (page: Page) => {
   await expect(sheet).toBeVisible({ timeout: 30_000 })
   return sheet
 }
-
-const calendarDayName = (date: Date): string => format(date, 'EEEE, MMMM do, yyyy')
 
 let ownerApi: ApiSession
 
@@ -161,7 +160,7 @@ test('editing a questionnaire campaign due date persists after reload', async ({
     await expect(dueRow).toContainText(format(initialDate, 'MMMM d, yyyy'))
     await dueRow.getByText(format(initialDate, 'MMMM d, yyyy'), { exact: true }).click()
     await dueRow.getByRole('button', { name: 'Open calendar' }).click()
-    await page.getByRole('button', { name: calendarDayName(updatedDate) }).click()
+    await pickCalendarDay(page, updatedDate)
     await expect(page.getByText('Campaign updated', { exact: true })).toBeVisible({ timeout: 20_000 })
 
     await page.reload({ waitUntil: 'domcontentloaded' })
