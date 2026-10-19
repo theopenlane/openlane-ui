@@ -412,25 +412,23 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
   )
 
   const header = (
-    <div className="flex items-start justify-between gap-4">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="flex flex-col gap-1.5 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-2xl font-semibold truncate">{platform.name}</h1>
-            {platform.status && <Badge variant={STATUS_VARIANT[platform.status as PlatformPlatformStatus] ?? 'outline'}>{toHumanLabel(platform.status)}</Badge>}
-            {platform.scopeName && <CustomEnumChipCell value={platform.scopeName} field="scope" />}
-            {platform.environmentName && <CustomEnumChipCell value={platform.environmentName} field="environment" />}
-            {platform.containsPii && (
-              <Badge variant="outline" className="flex items-center gap-1 text-xs">
-                <div className="shrink-0 w-2 h-2 rounded-full bg-red-500" />
-                Contains PII
-              </Badge>
-            )}
-          </div>
-          {platform.description && <p className="text-sm text-muted-foreground">{platform.description}</p>}
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-2 flex-wrap min-w-0">
+          <h1 className="text-2xl font-semibold truncate min-w-0 max-w-full">{platform.name}</h1>
+          {platform.status && <Badge variant={STATUS_VARIANT[platform.status as PlatformPlatformStatus] ?? 'outline'}>{toHumanLabel(platform.status)}</Badge>}
+          {platform.scopeName && <CustomEnumChipCell value={platform.scopeName} field="scope" />}
+          {platform.environmentName && <CustomEnumChipCell value={platform.environmentName} field="environment" />}
+          {platform.containsPii && (
+            <Badge variant="outline" className="flex items-center gap-1 text-xs">
+              <div className="shrink-0 w-2 h-2 rounded-full bg-red-500" />
+              Contains PII
+            </Badge>
+          )}
         </div>
+        {headerActions}
       </div>
-      {headerActions}
+      {platform.description && <p className="text-sm text-muted-foreground break-words">{platform.description}</p>}
     </div>
   )
 
