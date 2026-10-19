@@ -9,6 +9,8 @@ import { type InternalEditingType } from '@/components/shared/crud-base/generic-
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import PlateEditor from '@/components/shared/plate/plate-editor'
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
+import { ACTION_PLAN_INTERNAL_OWNER } from '../../../action-plan-form-data'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -42,7 +44,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-md p-0">Details</CardTitle>
-          <CardDescription className="p-0">Title, status, and priority of the action plan</CardDescription>
+          <CardDescription className="p-0">Title, status, priority, and owner of the action plan</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 gap-2">
@@ -51,6 +53,9 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField name="status" label="Status" options={statusOptions} {...sharedFieldProps} />
             <SelectField name="priority" label="Priority" options={priorityOptions} {...sharedFieldProps} />
+          </div>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <ResponsibilityField name="internalOwner" {...ACTION_PLAN_INTERNAL_OWNER} label="Internal Owner" tooltipContent="Who owns this action plan internally" {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>

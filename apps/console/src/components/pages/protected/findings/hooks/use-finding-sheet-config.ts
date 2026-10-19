@@ -1,6 +1,6 @@
 'use client'
 
-import { buildResponsibilityPayload, normalizeEntityData, type ResponsibilitySelection, type ResponsibilityTarget } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { buildResponsibilityTargetPayload, normalizeEntityData } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useControlLinksForFinding } from '@/components/shared/object-association/finding-control-links'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
@@ -100,16 +100,12 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
       const cleaned = Object.fromEntries(Object.entries({ ...rest, description }).filter(([, v]) => v !== '' && v !== undefined))
       const { dirtyFields } = form.formState
-      const responsibilityPayload = (target: ResponsibilityTarget, selection: ResponsibilitySelection, isDirty: boolean) => {
-        if (isCreate) return buildResponsibilityPayload(target.fieldBaseName, selection, { mode: 'create', stringFieldName: target.stringFieldName })
-        return isDirty ? buildResponsibilityPayload(target.fieldBaseName, selection, { mode: 'update', stringFieldName: target.stringFieldName }) : {}
-      }
       return {
         ...cleaned,
         ...edgeAssociationPayload,
-        ...responsibilityPayload(FINDING_INTERNAL_OWNER, internalOwner, !!dirtyFields.internalOwner),
-        ...responsibilityPayload(FINDING_ASSIGNEE, assignedTo, !!dirtyFields.assignedTo),
-        ...responsibilityPayload(FINDING_REVIEWER, reviewedBy, !!dirtyFields.reviewedBy),
+        ...buildResponsibilityTargetPayload(FINDING_INTERNAL_OWNER, internalOwner, { isCreate, isDirty: !!dirtyFields.internalOwner }),
+        ...buildResponsibilityTargetPayload(FINDING_ASSIGNEE, assignedTo, { isCreate, isDirty: !!dirtyFields.assignedTo }),
+        ...buildResponsibilityTargetPayload(FINDING_REVIEWER, reviewedBy, { isCreate, isDirty: !!dirtyFields.reviewedBy }),
       }
     },
     onSaved: async ({ formData, created, entityId: savedId }) => {

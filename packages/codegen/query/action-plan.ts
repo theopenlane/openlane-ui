@@ -23,6 +23,20 @@ export const GET_ALL_ACTION_PLANS = gql`
           hasPendingWorkflow
           hasWorkflowHistory
           id
+          internalOwner
+          internalOwnerUser {
+            id
+            displayName
+          }
+          internalOwnerGroup {
+            id
+            displayName
+          }
+          internalOwnerIdentityHolder {
+            id
+            fullName
+            email
+          }
           metadata
           name
           priority
@@ -71,6 +85,20 @@ export const ACTION_PLAN = gql`
       hasPendingWorkflow
       hasWorkflowHistory
       id
+      internalOwner
+      internalOwnerUser {
+        id
+        displayName
+      }
+      internalOwnerGroup {
+        id
+        displayName
+      }
+      internalOwnerIdentityHolder {
+        id
+        fullName
+        email
+      }
       metadata
       name
       priority

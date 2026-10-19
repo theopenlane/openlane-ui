@@ -78,6 +78,7 @@ export interface ActionPlansWithFilterQuery {
         hasPendingWorkflow: boolean
         hasWorkflowHistory: boolean
         id: string
+        internalOwner: string | null
         metadata: any
         name: string
         priority: Types.ActionPlanPriority | null
@@ -94,6 +95,9 @@ export interface ActionPlansWithFilterQuery {
         updatedBy: string | null
         url: string | null
         workflowEligibleMarker: boolean | null
+        internalOwnerUser: { id: string; displayName: string } | null
+        internalOwnerGroup: { id: string; displayName: string } | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -123,6 +127,7 @@ export interface ActionPlanQuery {
     hasPendingWorkflow: boolean
     hasWorkflowHistory: boolean
     id: string
+    internalOwner: string | null
     metadata: any
     name: string
     priority: Types.ActionPlanPriority | null
@@ -139,6 +144,9 @@ export interface ActionPlanQuery {
     updatedBy: string | null
     url: string | null
     workflowEligibleMarker: boolean | null
+    internalOwnerUser: { id: string; displayName: string } | null
+    internalOwnerGroup: { id: string; displayName: string } | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
   }
 }
 

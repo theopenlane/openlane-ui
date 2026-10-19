@@ -16,7 +16,7 @@ import { getFilterFields as getScanFilterFields } from '@/components/pages/prote
 import { getFilterFields as getSystemDetailFilterFields } from '@/components/pages/protected/system-details/table/table-config'
 import { getFilterFields as getVendorFilterFields } from '@/components/pages/protected/vendors/table/table-config'
 import { getFilterFields as getVulnerabilityFilterFields } from '@/components/pages/protected/vulnerabilities/table/table-config'
-import { getFilterFields as getActionPlanFilterFields } from '@/components/pages/protected/action-plans/table/table-config'
+import { getFilterFields as getActionPlanFilterFields, mapActionPlanFilterKey } from '@/components/pages/protected/action-plans/table/table-config'
 import { getFilterFields as getWorkflowFilterFields } from '@/components/pages/protected/workflows/table/table-config'
 import { getCampaignFilterFields } from '@/components/pages/protected/campaigns/table/table-config'
 import { getControlsFilterFields, mapControlsFilterKey } from '@/components/pages/protected/controls/table/table-config'
@@ -107,7 +107,8 @@ type Suite = {
 }
 
 const suites: Suite[] = [
-  { page: 'action-plans', whereInput: 'ActionPlanWhereInput', fields: getActionPlanFilterFields() },
+  { page: 'action-plans', whereInput: 'ActionPlanWhereInput', fields: getActionPlanFilterFields([{ value: 'user:u1', label: 'User' }]), mapper: mapActionPlanFilterKey },
+  { page: 'action-plans (group owner)', whereInput: 'ActionPlanWhereInput', fields: getActionPlanFilterFields([{ value: 'group:g1', label: 'Group' }]), mapper: mapActionPlanFilterKey },
   { page: 'assets', whereInput: 'AssetWhereInput', fields: getAssetFilterFields(emptyEnumOptions()) },
   { page: 'auditor-dashboard', whereInput: 'ControlWhereInput', fields: getAuditorDashboardFilterFields(noOptions, noOptions), mapper: createAuditorControlsFilterMapper('program_1') },
   { page: 'campaigns', whereInput: 'CampaignWhereInput', fields: getCampaignFilterFields() },

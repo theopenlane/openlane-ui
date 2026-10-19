@@ -220,6 +220,11 @@ export function buildResponsibilityPayload(
   }
 }
 
+export const buildResponsibilityTargetPayload = (target: ResponsibilityTarget, selection: ResponsibilitySelection, { isCreate, isDirty }: { isCreate: boolean; isDirty: boolean }) => {
+  if (!isCreate && !isDirty) return {}
+  return buildResponsibilityPayload(target.fieldBaseName, selection, { mode: isCreate ? 'create' : 'update', stringFieldName: target.stringFieldName })
+}
+
 export function buildResponsibilityInlineUpdate(
   fieldBaseName: string,
   selection: ResponsibilitySelection,

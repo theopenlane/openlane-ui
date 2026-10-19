@@ -1,17 +1,18 @@
 'use client'
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from './hooks/use-form-schema'
 import { type ActionPlansNodeNonNull, useActionPlan, useCreateActionPlan, useUpdateActionPlan, useBulkDeleteActionPlan, useBulkEditActionPlan } from '@/lib/graphql-hooks/action-plan'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
-import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table/table-config'
+import { breadcrumbs, getFieldsToRender, getFilterFields, mapActionPlanFilterKey, visibilityFields } from './table/table-config'
+import { useResponsibilityFilterOptions } from '@/components/shared/table-filter/use-responsibility-filter-options'
 import { type ActionPlanSheetConfig, type ActionPlanTablePageConfig, type ActionPlanFieldProps, objectType, objectName, tableKey, orderFieldEnum, defaultSorting } from './table/types'
 import { getColumns } from './table/columns'
 import TableComponent from './table/table'
 import { type CreateActionPlanInput, type UpdateActionPlanInput, type ActionPlanWhereInput, ActionPlanDocumentStatus, ActionPlanPriority } from '@repo/codegen/src/schema'
 import { useSearchParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type Value } from 'platejs'
+import { ACTION_PLAN_INTERNAL_OWNER, buildActionPlanPayload, normalizeActionPlanData } from './action-plan-form-data'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 type Props = {
@@ -33,6 +34,9 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
   const getName = useCallback((actionPlan: ActionPlansNodeNonNull) => {
     return actionPlan?.name || actionPlan?.title
   }, [])
+
+  const internalOwnerOptions = useResponsibilityFilterOptions()
+  const filterFields = useMemo(() => getFilterFields(internalOwnerOptions), [internalOwnerOptions])
 
   const baseUpdateMutation = useUpdateActionPlan()
   const baseCreateMutation = useCreateActionPlan()
@@ -62,14 +66,14 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
     form,
     data: id ? data?.actionPlan : undefined,
     isFetching: isLoading,
-    buildPayload: async (formData) => {
-      const description = formData.descriptionJSON ? await plateEditorHelper.convertToHtml(formData.descriptionJSON as Value) : undefined
-      const payload = { ...formData, description, descriptionJSON: undefined }
-      if (isCreate && createInitialPayload) {
-        return { ...createInitialPayload, ...payload }
-      }
-      return { ...payload }
-    },
+    normalizeData: normalizeActionPlanData,
+    buildPayload: (formData) =>
+      buildActionPlanPayload(formData, {
+        isCreate,
+        isInternalOwnerDirty: !!form.formState.dirtyFields.internalOwner,
+        createInitialPayload,
+        convertToHtml: plateEditorHelper.convertToHtml,
+      }),
     getName,
     updateMutation,
     createMutation,
@@ -84,7 +88,8 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
     orderFieldEnum,
     defaultSorting,
     defaultVisibility: visibilityFields,
-    filterFields: getFilterFields(),
+    filterFields,
+    mapFilterKey: mapActionPlanFilterKey,
     searchFields: ['nameContainsFold', 'titleContainsFold'],
     breadcrumbs,
     form,
@@ -103,6 +108,7 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
       return result.updateBulkActionPlan
     },
     bulkEditFormSchema: bulkEditFieldSchema,
+    responsibilityFields: { internalOwner: ACTION_PLAN_INTERNAL_OWNER },
     enumOpts: {
       statusOptions: enumToOptions(ActionPlanDocumentStatus),
       priorityOptions: enumToOptions(ActionPlanPriority),

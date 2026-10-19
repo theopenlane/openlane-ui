@@ -75,6 +75,7 @@ export interface Scalars {
   TestingProcedures: { input: any; output: any }
   /** The builtin Time type */
   Time: { input: any; output: any }
+  TrustCenterNDARequestSetting: { input: any; output: any }
   /**
    * The `Upload` scalar type represents a file upload.
    * This scalar is typically used to handle file uploads in GraphQL mutations.
@@ -454,6 +455,17 @@ export interface ActionPlan extends Node {
   integrations: IntegrationConnection
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  /** the internal owner for the action plan when no user, group, or identity holder is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  internalOwnerGroup?: Maybe<Group>
+  /** the internal owner group id for the action plan */
+  internalOwnerGroupID?: Maybe<Scalars['ID']['output']>
+  internalOwnerIdentityHolder?: Maybe<IdentityHolder>
+  /** the internal owner identity holder id for the action plan */
+  internalOwnerIdentityHolderID?: Maybe<Scalars['ID']['output']>
+  internalOwnerUser?: Maybe<User>
+  /** the internal owner user id for the action plan */
+  internalOwnerUserID?: Maybe<Scalars['ID']['output']>
   /** id of the integration installation managing the record, empty when the record is unclaimed */
   managedBy?: Maybe<Scalars['String']['output']>
   /** how the action_plan is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
@@ -807,6 +819,14 @@ export interface ActionPlanHistory extends Node {
   integrationRunID?: Maybe<Scalars['String']['output']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  /** the internal owner for the action plan when no user, group, or identity holder is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  /** the internal owner group id for the action plan */
+  internalOwnerGroupID?: Maybe<Scalars['String']['output']>
+  /** the internal owner identity holder id for the action plan */
+  internalOwnerIdentityHolderID?: Maybe<Scalars['String']['output']>
+  /** the internal owner user id for the action plan */
+  internalOwnerUserID?: Maybe<Scalars['String']['output']>
   /** id of the integration installation managing the record, empty when the record is unclaimed */
   managedBy?: Maybe<Scalars['String']['output']>
   /** how the action_plan is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
@@ -934,6 +954,7 @@ export enum ActionPlanHistoryOrderField {
   created_at = 'created_at',
   due_date = 'due_date',
   history_time = 'history_time',
+  internal_owner = 'internal_owner',
   name = 'name',
   review_due = 'review_due',
   revision = 'revision',
@@ -1157,6 +1178,54 @@ export interface ActionPlanHistoryWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_identity_holder_id field predicates */
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIdentityHolderIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** managed_by field predicates */
   managedBy?: InputMaybe<Scalars['String']['input']>
   managedByContains?: InputMaybe<Scalars['String']['input']>
@@ -1403,6 +1472,7 @@ export enum ActionPlanOrderField {
   STATUS = 'STATUS',
   created_at = 'created_at',
   due_date = 'due_date',
+  internal_owner = 'internal_owner',
   name = 'name',
   review_due = 'review_due',
   revision = 'revision',
@@ -1634,6 +1704,15 @@ export interface ActionPlanWhereInput {
   /** integrations edge predicates */
   hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
+  /** internal_owner_group edge predicates */
+  hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** internal_owner_identity_holder edge predicates */
+  hasInternalOwnerIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerIdentityHolderWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** internal_owner_user edge predicates */
+  hasInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -1697,6 +1776,54 @@ export interface ActionPlanWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_identity_holder_id field predicates */
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIdentityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** managed_by field predicates */
   managedBy?: InputMaybe<Scalars['String']['input']>
   managedByContains?: InputMaybe<Scalars['String']['input']>
@@ -12724,6 +12851,11 @@ export interface CreateActionPlanInput {
   integrationRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the action plan when no user, group, or identity holder is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   /** how the action_plan is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
   managementMode?: InputMaybe<ActionPlanDocumentManagementMode>
   /** additional structured metadata for the action plan */
@@ -16169,6 +16301,8 @@ export interface CreateTrustCenterSettingInput {
   accentColor?: InputMaybe<Scalars['String']['input']>
   /** whether the trust center accepts new subscriber registrations; when false, subscriber creation for the trust center is blocked */
   allowSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  /** rules for approving trust center NDA requests */
+  autoApprovalRules?: InputMaybe<Scalars['TrustCenterNDARequestSetting']['input']>
   /** background color for the trust center */
   backgroundColor?: InputMaybe<Scalars['String']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -16179,6 +16313,8 @@ export interface CreateTrustCenterSettingInput {
   /** company name for the trust center, defaults to the organization's display name */
   companyName?: InputMaybe<Scalars['String']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** enable auto approval rules provides configurable settings to skip manual approvals */
+  enableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
   /** environment of the trust center */
   environment?: InputMaybe<TrustCenterSettingTrustCenterEnvironment>
   faviconFileID?: InputMaybe<Scalars['ID']['input']>
@@ -71413,6 +71549,7 @@ export interface TrustCenterNdaRequest extends Node {
   approvedByUser?: Maybe<User>
   /** ID of the user who approved the request */
   approvedByUserID?: Maybe<Scalars['ID']['output']>
+  autoApproved?: Maybe<Scalars['Boolean']['output']>
   blockedGroups: GroupConnection
   /** company name of the requester */
   companyName?: Maybe<Scalars['String']['output']>
@@ -71539,6 +71676,7 @@ export interface TrustCenterNdaRequestHistory extends Node {
   approvedAt?: Maybe<Scalars['DateTime']['output']>
   /** ID of the user who approved the request */
   approvedByUserID?: Maybe<Scalars['String']['output']>
+  autoApproved?: Maybe<Scalars['Boolean']['output']>
   /** company name of the requester */
   companyName?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -71663,6 +71801,11 @@ export interface TrustCenterNdaRequestHistoryWhereInput {
   approvedByUserIDNEQ?: InputMaybe<Scalars['String']['input']>
   approvedByUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   approvedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** auto_approved field predicates */
+  autoApproved?: InputMaybe<Scalars['Boolean']['input']>
+  autoApprovedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  autoApprovedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  autoApprovedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** company_name field predicates */
   companyName?: InputMaybe<Scalars['String']['input']>
   companyNameContains?: InputMaybe<Scalars['String']['input']>
@@ -71923,6 +72066,11 @@ export interface TrustCenterNdaRequestWhereInput {
   approvedByUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
   approvedByUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   approvedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** auto_approved field predicates */
+  autoApproved?: InputMaybe<Scalars['Boolean']['input']>
+  autoApprovedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  autoApprovedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  autoApprovedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** company_name field predicates */
   companyName?: InputMaybe<Scalars['String']['input']>
   companyNameContains?: InputMaybe<Scalars['String']['input']>
@@ -72146,6 +72294,8 @@ export interface TrustCenterSetting extends Node {
   accentColor?: Maybe<Scalars['String']['output']>
   /** whether the trust center accepts new subscriber registrations; when false, subscriber creation for the trust center is blocked */
   allowSubscribers?: Maybe<Scalars['Boolean']['output']>
+  /** rules for approving trust center NDA requests */
+  autoApprovalRules?: Maybe<Scalars['TrustCenterNDARequestSetting']['output']>
   /** background color for the trust center */
   backgroundColor?: Maybe<Scalars['String']['output']>
   blockedGroups: GroupConnection
@@ -72158,6 +72308,8 @@ export interface TrustCenterSetting extends Node {
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
+  /** enable auto approval rules provides configurable settings to skip manual approvals */
+  enableAutoApproval?: Maybe<Scalars['Boolean']['output']>
   /** environment of the trust center */
   environment?: Maybe<TrustCenterSettingTrustCenterEnvironment>
   faviconFile?: Maybe<File>
@@ -72280,6 +72432,8 @@ export interface TrustCenterSettingHistory extends Node {
   accentColor?: Maybe<Scalars['String']['output']>
   /** whether the trust center accepts new subscriber registrations; when false, subscriber creation for the trust center is blocked */
   allowSubscribers?: Maybe<Scalars['Boolean']['output']>
+  /** rules for approving trust center NDA requests */
+  autoApprovalRules?: Maybe<Scalars['TrustCenterNDARequestSetting']['output']>
   /** background color for the trust center */
   backgroundColor?: Maybe<Scalars['String']['output']>
   /** company description for the trust center */
@@ -72290,6 +72444,8 @@ export interface TrustCenterSettingHistory extends Node {
   companyName?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** enable auto approval rules provides configurable settings to skip manual approvals */
+  enableAutoApproval?: Maybe<Scalars['Boolean']['output']>
   /** environment of the trust center */
   environment?: Maybe<TrustCenterSettingHistoryTrustCenterEnvironment>
   /** The local favicon file id, takes precedence over the favicon remote URL */
@@ -72491,6 +72647,11 @@ export interface TrustCenterSettingHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** enable_auto_approval field predicates */
+  enableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
+  enableAutoApprovalIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  enableAutoApprovalNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  enableAutoApprovalNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** environment field predicates */
   environment?: InputMaybe<TrustCenterSettingHistoryTrustCenterEnvironment>
   environmentIn?: InputMaybe<Array<TrustCenterSettingHistoryTrustCenterEnvironment>>
@@ -72915,6 +73076,11 @@ export interface TrustCenterSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** enable_auto_approval field predicates */
+  enableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
+  enableAutoApprovalIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  enableAutoApprovalNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  enableAutoApprovalNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** environment field predicates */
   environment?: InputMaybe<TrustCenterSettingTrustCenterEnvironment>
   environmentIn?: InputMaybe<Array<TrustCenterSettingTrustCenterEnvironment>>
@@ -74640,6 +74806,10 @@ export interface UpdateActionPlanInput {
   clearIntegrationRuns?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
   clearManagementMode?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearPriority?: InputMaybe<Scalars['Boolean']['input']>
@@ -74691,6 +74861,11 @@ export interface UpdateActionPlanInput {
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the action plan when no user, group, or identity holder is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   /** how the action_plan is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
   managementMode?: InputMaybe<ActionPlanDocumentManagementMode>
   /** additional structured metadata for the action plan */
@@ -80281,16 +80456,20 @@ export interface UpdateTrustCenterSettingInput {
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** whether the trust center accepts new subscriber registrations; when false, subscriber creation for the trust center is blocked */
   allowSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  /** rules for approving trust center NDA requests */
+  autoApprovalRules?: InputMaybe<Scalars['TrustCenterNDARequestSetting']['input']>
   /** background color for the trust center */
   backgroundColor?: InputMaybe<Scalars['String']['input']>
   clearAccentColor?: InputMaybe<Scalars['Boolean']['input']>
   clearAllowSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  clearAutoApprovalRules?: InputMaybe<Scalars['Boolean']['input']>
   clearBackgroundColor?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyName?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEnableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
   clearFaviconFile?: InputMaybe<Scalars['Boolean']['input']>
   clearFaviconRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearFont?: InputMaybe<Scalars['Boolean']['input']>
@@ -80317,6 +80496,8 @@ export interface UpdateTrustCenterSettingInput {
   companyDomain?: InputMaybe<Scalars['String']['input']>
   /** company name for the trust center, defaults to the organization's display name */
   companyName?: InputMaybe<Scalars['String']['input']>
+  /** enable auto approval rules provides configurable settings to skip manual approvals */
+  enableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
   faviconFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the favicon */
   faviconRemoteURL?: InputMaybe<Scalars['String']['input']>
