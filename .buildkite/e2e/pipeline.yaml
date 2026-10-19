@@ -90,8 +90,7 @@ steps:
       - 'console/e2e-logs/**/*'
     retry:
       automatic:
-        - exit_status: -1
-          limit: 1
+        limit: 2
 
   - wait: ~
     continue_on_failure: true
