@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Loader2 } from 'lucide-react'
-import { useHtmlPurifier, HTML_DOCUMENT_SANITIZE_CONFIG } from '@/lib/html/sanitize-html'
+import { sanitizeHtml, HTML_DOCUMENT_SANITIZE_CONFIG } from '@/lib/html/sanitize-html'
 import { Callout } from '@/components/shared/callout/callout'
 
 const MIN_PREVIEW_HEIGHT = 240
@@ -16,15 +16,14 @@ interface EmailTemplatePreviewProps {
 }
 
 export const EmailTemplatePreview: React.FC<EmailTemplatePreviewProps> = ({ previewHtml, isFetching, errorMessage, isCatalogDrift, selectedKey }) => {
-  const purifier = useHtmlPurifier()
   const frameRef = useRef<HTMLIFrameElement>(null)
   const observerRef = useRef<ResizeObserver | null>(null)
   const [frameHeight, setFrameHeight] = useState(MIN_PREVIEW_HEIGHT)
 
   const sanitizedPreview = useMemo(() => {
     if (!previewHtml) return ''
-    return purifier.sanitize(previewHtml, HTML_DOCUMENT_SANITIZE_CONFIG)
-  }, [previewHtml, purifier])
+    return sanitizeHtml(previewHtml, HTML_DOCUMENT_SANITIZE_CONFIG)
+  }, [previewHtml])
 
   const syncFrameHeight = useCallback(() => {
     const root = frameRef.current?.contentDocument?.documentElement

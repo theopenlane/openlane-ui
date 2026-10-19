@@ -6,6 +6,7 @@ import { SelectField } from '@/components/shared/crud-base/form-fields/select-fi
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { HtmlOrText } from '@/components/shared/sanitized-html/sanitized-html'
 import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import { formatDateTime } from '@/utils/date'
 import { normalizeUrl } from '@/utils/normalizeUrl'
@@ -159,8 +160,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
               renderView={(arr) => (
                 <ol className="list-decimal pl-5 space-y-1">
                   {arr.map((step, i) => (
-                    <li key={i} className="whitespace-pre-wrap">
-                      {step}
+                    <li key={i}>
+                      <HtmlOrText value={step} />
                     </li>
                   ))}
                 </ol>
@@ -168,7 +169,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
             />
           </div>
           <div className="mb-4">
-            <TextField name="recommendedActions" label="Recommended Actions" multiline {...sharedFieldProps} />
+            <TextField name="recommendedActions" label="Recommended Actions" multiline formatDisplayValue={(v) => <HtmlOrText value={v} />} {...sharedFieldProps} />
           </div>
           <div>
             <ArrayTextField
@@ -179,18 +180,23 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
                 <ul className="space-y-1">
                   {arr.map((url, i) => (
                     <li key={i} className="min-w-0">
-                      <a
-                        href={normalizeUrl(url)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 min-w-0 max-w-full text-primary hover:underline"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ExternalLinkIcon className="w-4 h-4 shrink-0" />
-                        <span className="truncate" title={url}>
-                          {url}
-                        </span>
-                      </a>
+                      <HtmlOrText
+                        value={url}
+                        renderText={(link) => (
+                          <a
+                            href={normalizeUrl(link)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 min-w-0 max-w-full text-primary hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLinkIcon className="w-4 h-4 shrink-0" />
+                            <span className="truncate" title={link}>
+                              {link}
+                            </span>
+                          </a>
+                        )}
+                      />
                     </li>
                   ))}
                 </ul>
