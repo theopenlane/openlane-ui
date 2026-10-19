@@ -1,7 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
-import DOMPurify, { type Config as DOMPurifyConfig } from 'dompurify'
+import DOMPurify, { type Config as DOMPurifyConfig, type DOMPurify as DOMPurifyInstance } from 'dompurify'
 
 export const SAFE_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:'])
 
@@ -26,20 +25,71 @@ export const HTML_DOCUMENT_SANITIZE_CONFIG = {
   FORBID_ATTR: ['srcdoc', 'formaction', 'onload', 'onerror'],
 } satisfies DOMPurifyConfig
 
-export const useHtmlPurifier = () => {
-  return useMemo(() => {
-    const dp = DOMPurify(window)
-    dp.addHook('afterSanitizeAttributes', (node) => {
-      if (node.tagName === 'A' && node instanceof HTMLAnchorElement) {
-        const href = node.getAttribute('href')
-        if (!href || !isSafeLinkHref(href, window.location.origin)) {
-          node.removeAttribute('href')
-          return
-        }
-        node.setAttribute('target', '_blank')
-        node.setAttribute('rel', 'noreferrer noopener')
+let sharedPurifier: DOMPurifyInstance | null = null
+
+const createHtmlPurifier = (): DOMPurifyInstance => {
+  const dp = DOMPurify(window)
+  dp.addHook('afterSanitizeAttributes', (node) => {
+    if (node.tagName === 'A' && node instanceof HTMLAnchorElement) {
+      const href = node.getAttribute('href')
+      if (!href || !isSafeLinkHref(href, window.location.origin)) {
+        node.removeAttribute('href')
+        return
       }
-    })
-    return dp
-  }, [])
+      node.setAttribute('target', '_blank')
+      node.setAttribute('rel', 'noreferrer noopener')
+    }
+  })
+  return dp
+}
+
+const getHtmlPurifier = (): DOMPurifyInstance | null => {
+  if (typeof window === 'undefined') return null
+  return (sharedPurifier ??= createHtmlPurifier())
+}
+
+export const sanitizeHtml = (value: string, config: DOMPurifyConfig = HTML_SANITIZE_CONFIG): string => getHtmlPurifier()?.sanitize(value, config) ?? ''
+
+export const INLINE_HTML_SANITIZE_CONFIG = {
+  ALLOWED_TAGS: [
+    'a',
+    'b',
+    'strong',
+    'i',
+    'em',
+    'u',
+    's',
+    'code',
+    'pre',
+    'kbd',
+    'p',
+    'br',
+    'span',
+    'div',
+    'ul',
+    'ol',
+    'li',
+    'blockquote',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'table',
+    'thead',
+    'tbody',
+    'tr',
+    'th',
+    'td',
+  ],
+  ALLOWED_ATTR: ['href', 'title', 'type', 'start'],
+} satisfies DOMPurifyConfig
+
+export const sanitizeInlineHtml = (value: string): string | null => {
+  const purifier = getHtmlPurifier()
+  if (!purifier) return null
+  const html = purifier.sanitize(value, INLINE_HTML_SANITIZE_CONFIG)
+  const droppedElement = purifier.removed.some((entry) => 'element' in entry && entry.element.nodeName !== 'BODY')
+  return droppedElement ? null : html
 }

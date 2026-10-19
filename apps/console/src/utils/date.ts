@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, format, formatDistance, isPast, isToday, isTomorrow } from 'date-fns'
+import { differenceInCalendarDays, format, formatDistance, isPast, isToday, isTomorrow, isValid } from 'date-fns'
 import { tzOffset } from '@date-fns/tz'
 
 export const MS_PER_DAY = 24 * 60 * 60 * 1000
@@ -19,7 +19,7 @@ const dateFallback = (empty?: string): string => {
  * @returns {string} - The formatted date string.
  */
 const formatDate = (date: string | null | undefined, empty?: string): string => {
-  if (!date || date === '') {
+  if (!date || date === '' || !isValid(new Date(date))) {
     return dateFallback(empty)
   }
 
@@ -29,7 +29,7 @@ const formatDate = (date: string | null | undefined, empty?: string): string => 
 export { formatDate }
 
 const isPastDate = (date: string | null | undefined): boolean => {
-  if (!date || date === '') {
+  if (!date || date === '' || !isValid(new Date(date))) {
     return false
   }
 
@@ -44,7 +44,7 @@ export { isPastDate }
  * @returns {string} - The formatted date string.
  */
 const formatDateTime = (date: string | null | undefined, empty?: string): string => {
-  if (!date || date === '') {
+  if (!date || date === '' || !isValid(new Date(date))) {
     return dateFallback(empty)
   }
 
@@ -62,7 +62,7 @@ export { formatDateTime }
  * @returns {string} - The formatted date string.
  */
 const formatTimeSince = (date: string | null | undefined, empty?: string): string => {
-  if (!date || date === '') {
+  if (!date || date === '' || !isValid(new Date(date))) {
     return dateFallback(empty)
   }
 
@@ -96,7 +96,7 @@ export { formatTimeSince }
  * @returns {string} - The formatted date or time since.
  */
 const formatDateSince = (date: string | null | undefined, empty?: string): string => {
-  if (!date || date === '') {
+  if (!date || date === '' || !isValid(new Date(date))) {
     return dateFallback(empty)
   }
 
@@ -124,7 +124,7 @@ const formatDateSince = (date: string | null | undefined, empty?: string): strin
 export { formatDateSince }
 
 const formatDateUntil = (date: string | null | undefined, empty?: string): string => {
-  if (!date || date === '') {
+  if (!date || date === '' || !isValid(new Date(date))) {
     return dateFallback(empty)
   }
 
@@ -183,7 +183,7 @@ export { formatTimeZoneLabel }
 const shortZoneNameFormat = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short' })
 
 const formatDateTimeWithZone = (date: string | null | undefined, empty?: string): string => {
-  if (!date || date === '') {
+  if (!date || date === '' || !isValid(new Date(date))) {
     return dateFallback(empty)
   }
 

@@ -1,2 +1,5 @@
+import './survey-model'
 import './pdf-document/pdf-document-creator'
 import './acknowledgement/acknowledgement-creator'
+import './signature-pad/signature-pad-creator'
+import './signature/signature-creator'

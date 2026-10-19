@@ -120,6 +120,8 @@ const collapseWhitespace = (value: string): string =>
     .filter(Boolean)
     .join('\n')
 
-export const htmlToText = (value: string): string => (HAS_CLOSING_TAG.test(value) ? collapseWhitespace(decodeEntities(stripMarkup(value))) : value)
+export const hasHtmlMarkup = (value: string): boolean => HAS_CLOSING_TAG.test(value)
+
+export const htmlToText = (value: string): string => (hasHtmlMarkup(value) ? collapseWhitespace(decodeEntities(stripMarkup(value))) : value)
 
 export const htmlToInlineText = (value: string): string => htmlToText(value).replace(ALL_WHITESPACE, ' ').trim()

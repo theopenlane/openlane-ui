@@ -2,6 +2,7 @@
 
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
+import { HtmlOrText } from '@/components/shared/sanitized-html/sanitized-html'
 import { type UpdateRemediationInput } from '@repo/codegen/src/schema'
 import { type FieldValues } from 'react-hook-form'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
@@ -72,7 +73,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
             <TextField name="explanation" label="Explanation" multiline {...sharedFieldProps} />
           </div>
           <div className="mb-4 grid grid-cols-1 gap-2">
-            <TextField name="instructions" label="Instructions" multiline {...sharedFieldProps} />
+            <TextField name="instructions" label="Instructions" multiline formatDisplayValue={(v) => <HtmlOrText value={v} />} {...sharedFieldProps} />
           </div>
           <div className="grid grid-cols-1 gap-2">
             <TextField name="intent" label="Intent" multiline {...sharedFieldProps} />

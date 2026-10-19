@@ -19,6 +19,12 @@ const SENSITIVE_FIELDS = ['credentials', 'credentialSet', 'secretName', 'secretV
 
 const SENSITIVE_EDGE_TARGETS = ['Hush', 'APIToken', 'PersonalAccessToken', 'Webauthn', 'TFASetting']
 
+const PERMISSION_EDGE_TARGETS = ['Group', 'User', 'Organization']
+
+const edgeFilterPredicate = (edgeName) => `has${edgeName[0].toUpperCase()}${edgeName.slice(1)}With`
+
+const whereFieldsOf = (types, typeName) => new Set((types.get(`${typeName}WhereInput`)?.inputFields ?? []).map((f) => f.name))
+
 const readObjectTypes = () => {
   const block = fs.readFileSync(typeNamesPath, 'utf8').match(/export enum ObjectTypes \{([\s\S]*?)\n\}/)
 
@@ -148,11 +154,11 @@ const buildFields = (nodeType, whereFields, enums) => {
   return fields
 }
 
-const buildEdges = (types, nodeType, edgeTypes, enums) => {
+const buildEdges = (types, nodeType, whereFields, edgeTypes, enums) => {
   const edges = []
 
   for (const field of nodeType.fields) {
-    if (EXCLUDED_FIELDS.includes(field.name) || EXCLUDED_ASSOCIATIONS.includes(field.name)) continue
+    if (EXCLUDED_FIELDS.includes(field.name)) continue
 
     const named = unwrap(field.type)
     if (named.kind !== 'OBJECT' || !named.name) continue
@@ -162,14 +168,23 @@ const buildEdges = (types, nodeType, edgeTypes, enums) => {
 
     const target = connectionTarget ?? types.get(named.name)
     if (!target?.fields || SENSITIVE_EDGE_TARGETS.includes(target.name)) continue
+    if (EXCLUDED_ASSOCIATIONS.includes(field.name) && PERMISSION_EDGE_TARGETS.includes(target.name)) continue
 
     const connection = connectionTarget !== null
+    const whereArg = connection ? field.args?.find((arg) => arg.name === 'where') : undefined
 
     if (!edgeTypes.has(target.name)) {
-      edgeTypes.set(target.name, buildFields(target, new Set(), enums))
+      edgeTypes.set(target.name, buildFields(target, whereFieldsOf(types, target.name), enums))
     }
 
-    edges.push({ name: field.name, target: target.name, connection, list: connection || isListType(field.type) })
+    edges.push({
+      name: field.name,
+      target: target.name,
+      connection,
+      list: connection || isListType(field.type),
+      filterPredicate: whereFields.has(edgeFilterPredicate(field.name)) ? edgeFilterPredicate(field.name) : undefined,
+      whereTypeName: whereArg ? unwrap(whereArg.type).name : undefined,
+    })
   }
 
   return edges.sort((a, b) => a.name.localeCompare(b.name))
@@ -277,7 +292,7 @@ const buildEntities = (types, query, edgeTypes, enums, unknownPredicates, object
       field.args.find((a) => a.name === 'orderBy'),
     )
 
-    const edges = buildEdges(types, nodeType, edgeTypes, enums)
+    const edges = buildEdges(types, nodeType, whereFields, edgeTypes, enums)
 
     entities.push({
       queryName: field.name,
@@ -295,11 +310,11 @@ const buildEntities = (types, query, edgeTypes, enums, unknownPredicates, object
   return entities.sort((a, b) => a.queryName.localeCompare(b.queryName))
 }
 
-const createOperatorSets = (entities) => {
+const createOperatorSets = (fieldLists) => {
   const signatures = new Set()
 
-  for (const entity of entities) {
-    for (const field of entity.fields) {
+  for (const fields of fieldLists) {
+    for (const field of fields) {
       if (field.operators.length > 0) signatures.add(field.operators.join(','))
     }
   }
@@ -328,6 +343,8 @@ const serializeEdge = (edge) => {
   const parts = [`name: ${JSON.stringify(edge.name)}`, `target: ${JSON.stringify(edge.target)}`]
   if (edge.connection) parts.push('connection: true')
   if (edge.list) parts.push('list: true')
+  if (edge.filterPredicate) parts.push(`filterPredicate: ${JSON.stringify(edge.filterPredicate)}`)
+  if (edge.whereTypeName) parts.push(`whereTypeName: ${JSON.stringify(edge.whereTypeName)}`)
   return `{ ${parts.join(', ')} }`
 }
 
@@ -342,7 +359,9 @@ const generate = () => {
   const edgeTypes = new Map()
   const unknownPredicates = new Set()
   const entities = buildEntities(types, query, edgeTypes, enums, unknownPredicates, readObjectTypes())
-  const operatorSets = createOperatorSets(entities)
+  const entityTypeNames = new Set(entities.map((entity) => entity.typeName))
+  const relatedFieldLists = [...edgeTypes.entries()].filter(([name]) => !entityTypeNames.has(name)).sort(([a], [b]) => a.localeCompare(b))
+  const operatorSets = createOperatorSets([...entities.map((entity) => entity.fields), ...relatedFieldLists.map(([, fields]) => fields)])
 
   if (!entities.some((entity) => entity.owners.length > 0)) {
     throw new Error('report schema: no owner filters derived from any entity; the <edge>ID / User|Group|IdentityHolder edge convention no longer matches the schema')
@@ -362,12 +381,7 @@ const generate = () => {
     '  },',
   ])
 
-  const entityTypeNames = new Set(entities.map((entity) => entity.typeName))
-
-  const edgeFieldLines = [...edgeTypes.entries()]
-    .filter(([name]) => !entityTypeNames.has(name))
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([name, fields]) => `  ${name}: [${fields.map((f) => serializeField(f, operatorSets)).join(', ')}],`)
+  const edgeFieldLines = relatedFieldLists.map(([name, fields]) => `  ${name}: [${fields.map((f) => serializeField(f, operatorSets)).join(', ')}],`)
 
   const lines = [
     '/* eslint-disable */',
@@ -398,6 +412,8 @@ const generate = () => {
     '  target: string',
     '  connection?: boolean',
     '  list?: boolean',
+    '  filterPredicate?: string',
+    '  whereTypeName?: string',
     '}',
     '',
     `export const REPORT_OWNER_KINDS = [${OWNER_KINDS.map((k) => `'${k}'`).join(', ')}] as const`,

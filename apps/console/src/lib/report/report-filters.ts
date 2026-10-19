@@ -1,5 +1,31 @@
-import { REPORT_OWNER_OPERATORS, type TReportEntity, type TReportField, type TReportFieldKind, type TReportOperator } from '@repo/codegen/src/report-schema.generated'
-import { combineClauses, getFieldOperators, wherePredicate, type TReportCombinator, type TWhereClause } from './report-schema'
+import {
+  REPORT_OWNER_OPERATORS,
+  type TReportEdge,
+  type TReportEntity,
+  type TReportField,
+  type TReportFieldKind,
+  type TReportOperator,
+  type TReportOwner,
+} from '@repo/codegen/src/report-schema.generated'
+import {
+  buildPath,
+  combineClauses,
+  edgeChainPath,
+  getEdgeFields,
+  getFieldOperators,
+  getRelatedEdges,
+  getTargetEntity,
+  labelledEdges,
+  MAX_EDGE_DEPTH,
+  pathLabel,
+  PATH_SEPARATOR,
+  pathSegments,
+  splitFieldPath,
+  wherePredicate,
+  type TReportCombinator,
+  type TWhereClause,
+} from './report-schema'
+import { toHumanLabel } from '@/utils/strings'
 import { isOwnerFilterComplete, ownerColumnNames, ownerFilterClause, toOwnerFilterField, type TOwnerFilterField } from './report-owner-filters'
 
 export type TReportFilterField = TReportField | TOwnerFilterField
@@ -17,23 +43,85 @@ const SYSTEM_OWNED_FIELD = 'systemOwned'
 
 export const filterOperators = (field: TReportFilterField): TReportOperator[] => (field.kind === 'owner' ? REPORT_OWNER_OPERATORS : getFieldOperators(field))
 
-const filterableFieldsByEntity = new WeakMap<TReportEntity, Map<string, TReportFilterField>>()
+const filterableByFieldList = new WeakMap<TReportField[], Map<string, TReportFilterField>>()
 
-export const filterableFieldsByName = (entity: TReportEntity): Map<string, TReportFilterField> => {
-  const cached = filterableFieldsByEntity.get(entity)
+const filterableFieldsByName = (fields: TReportField[], owners: TReportOwner[]): Map<string, TReportFilterField> => {
+  const cached = filterableByFieldList.get(fields)
   if (cached) return cached
 
-  const ownerColumns = new Set(entity.owners.flatMap(ownerColumnNames))
-  const scalarFields = entity.fields.filter((field) => field.name !== SYSTEM_OWNED_FIELD && !ownerColumns.has(field.name) && getFieldOperators(field).length > 0)
-  const fields: TReportFilterField[] = [...scalarFields, ...entity.owners.map(toOwnerFilterField)]
-  const byName = new Map(fields.map((field) => [field.name, field]))
+  const ownerColumns = new Set(owners.flatMap(ownerColumnNames))
+  const scalarFields = fields.filter((field) => field.name !== SYSTEM_OWNED_FIELD && !ownerColumns.has(field.name) && getFieldOperators(field).length > 0)
+  const byName = new Map<string, TReportFilterField>([...scalarFields, ...owners.map(toOwnerFilterField)].map((field) => [field.name, field]))
 
-  filterableFieldsByEntity.set(entity, byName)
+  filterableByFieldList.set(fields, byName)
 
   return byName
 }
 
-export const filterableFields = (entity: TReportEntity): TReportFilterField[] => [...filterableFieldsByName(entity).values()]
+const relatedFilterFields = (edge: TReportEdge): Map<string, TReportFilterField> => filterableFieldsByName(getEdgeFields(edge), getTargetEntity(edge)?.owners ?? [])
+
+const filterFieldsAlong = (entity: TReportEntity, edges: TReportEdge[]): Map<string, TReportFilterField> => {
+  const last = edges.at(-1)
+
+  return last ? relatedFilterFields(last) : filterableFieldsByName(entity.fields, entity.owners)
+}
+
+export type TFilterRecord = {
+  key: string
+  path: string
+  label: string
+  edges: TReportEdge[]
+}
+
+const OWN_RECORD_KEY = PATH_SEPARATOR
+
+const filterableEdges = (edges: TReportEdge[]): TReportEdge[] => edges.filter((edge) => edge.filterPredicate && relatedFilterFields(edge).size > 0)
+
+const filterRecordsByEntity = new WeakMap<TReportEntity, TFilterRecord[]>()
+
+export const filterRecords = (entity: TReportEntity): TFilterRecord[] => {
+  const cached = filterRecordsByEntity.get(entity)
+  if (cached) return cached
+
+  const records: TFilterRecord[] = [{ key: OWN_RECORD_KEY, path: '', label: toHumanLabel(entity.typeName), edges: [] }]
+
+  const visit = (edges: TReportEdge[], chain: TReportEdge[]) => {
+    for (const { item: edge } of labelledEdges(filterableEdges(edges))) {
+      const next = [...chain, edge]
+      const path = edgeChainPath(next)
+
+      records.push({ key: path, path, label: pathLabel(path), edges: next })
+      if (next.length < MAX_EDGE_DEPTH) visit(getRelatedEdges(edge), next)
+    }
+  }
+
+  visit(entity.edges, [])
+  filterRecordsByEntity.set(entity, records)
+
+  return records
+}
+
+export const filterableFields = (entity: TReportEntity, record: TFilterRecord): TReportFilterField[] => [...filterFieldsAlong(entity, record.edges).values()]
+
+export const filterPath = (record: TFilterRecord, field: TReportFilterField): string => buildPath(record.path, field.name)
+
+export type TResolvedFilterField = {
+  field: TReportFilterField
+  recordPath: string
+  predicates: string[]
+}
+
+export const resolveFilterField = (entity: TReportEntity, path: string): TResolvedFilterField | undefined => {
+  const split = splitFieldPath(entity, path)
+  if (!split) return undefined
+
+  const predicates = split.edges.map((edge) => edge.filterPredicate).filter((predicate) => predicate !== undefined)
+  const field = predicates.length === split.edges.length ? filterFieldsAlong(entity, split.edges).get(split.fieldName) : undefined
+
+  return field ? { field, recordPath: edgeChainPath(split.edges), predicates } : undefined
+}
+
+const withinEdges = (clause: TWhereClause, predicates: string[]): TWhereClause => predicates.reduceRight<TWhereClause>((inner, predicate) => ({ [predicate]: [inner] }), clause)
 
 export const LIST_VALUE_SEPARATOR = ','
 
@@ -144,16 +232,16 @@ export const isFilterComplete = (filter: TReportFilter, field: TReportFilterFiel
 
 const isDateOnly = (filter: TReportFilter, field: TReportField): boolean => field.kind === 'time' && DATE_ONLY.test(filter.value.trim())
 
-const dayClause = (filter: TReportFilter): TWhereClause | null => {
+const dayClause = (filter: TReportFilter, fieldName: string): TWhereClause | null => {
   const start = toUtcInstant(filter.value.trim())
   if (!start) return null
 
   const startOfDay = toStorageTime(start)
   const startOfNextDay = toStorageTime(new Date(start.getTime() + MS_PER_DAY))
 
-  if (filter.operator === 'eq') return { [`${filter.field}GTE`]: startOfDay, [`${filter.field}LT`]: startOfNextDay }
-  if (filter.operator === 'gt') return { [`${filter.field}GTE`]: startOfNextDay }
-  if (filter.operator === 'lte') return { [`${filter.field}LT`]: startOfNextDay }
+  if (filter.operator === 'eq') return { [`${fieldName}GTE`]: startOfDay, [`${fieldName}LT`]: startOfNextDay }
+  if (filter.operator === 'gt') return { [`${fieldName}GTE`]: startOfNextDay }
+  if (filter.operator === 'lte') return { [`${fieldName}LT`]: startOfNextDay }
 
   return null
 }
@@ -162,11 +250,11 @@ const DAY_BOUNDED_OPERATORS: TReportOperator[] = ['eq', 'gt', 'lte']
 
 const filterClause = (filter: TReportFilter, field: TReportFilterField): TWhereClause | null => {
   if (field.kind === 'owner') return ownerFilterClause(field, filter.operator, filter.value)
-  if (isDateOnly(filter, field) && DAY_BOUNDED_OPERATORS.includes(filter.operator)) return dayClause(filter)
+  if (isDateOnly(filter, field) && DAY_BOUNDED_OPERATORS.includes(filter.operator)) return dayClause(filter, field.name)
 
   const value = coerceValue(filter, field)
 
-  return value === null ? null : wherePredicate(filter.field, filter.operator, value)
+  return value === null ? null : wherePredicate(field.name, filter.operator, value)
 }
 
 export const excludeSystemOwnedWhere = (entity: TReportEntity): TWhereClause | null => {
@@ -175,22 +263,76 @@ export const excludeSystemOwnedWhere = (entity: TReportEntity): TWhereClause | n
   return field && getFieldOperators(field).includes('eq') ? wherePredicate(SYSTEM_OWNED_FIELD, 'eq', false) : null
 }
 
-export const incompleteFilterCount = (filters: TReportFilter[], entity: TReportEntity): number => {
-  const fieldsByName = filterableFieldsByName(entity)
+export const incompleteFilterCount = (filters: TReportFilter[], entity: TReportEntity): number =>
+  filters.filter((filter) => !isFilterComplete(filter, resolveFilterField(entity, filter.field)?.field)).length
 
-  return filters.filter((filter) => !isFilterComplete(filter, fieldsByName.get(filter.field))).length
+const NEGATED_OPERATORS: Partial<Record<TReportOperator, TReportOperator>> = { neq: 'eq', notIn: 'in' }
+
+export const negatedRelatedOperator = (operator: TReportOperator, record: TFilterRecord): TReportOperator | undefined => (record.edges.length > 0 ? NEGATED_OPERATORS[operator] : undefined)
+
+type TFilterPart = {
+  recordPath: string
+  predicates: string[]
+  negated: boolean
+  clause: TWhereClause
 }
 
+const filterParts = (filters: TReportFilter[], entity: TReportEntity): TFilterPart[] =>
+  filters.flatMap((filter) => {
+    const resolved = resolveFilterField(entity, filter.field)
+    if (!resolved || !isFilterComplete(filter, resolved.field)) return []
+
+    const positive = resolved.predicates.length > 0 ? NEGATED_OPERATORS[filter.operator] : undefined
+    const clause = filterClause(positive ? { ...filter, operator: positive } : filter, resolved.field)
+
+    return clause ? [{ recordPath: resolved.recordPath, predicates: resolved.predicates, negated: positive !== undefined, clause }] : []
+  })
+
+const negate = (clause: TWhereClause, negated: boolean): TWhereClause => (negated ? { not: clause } : clause)
+
+const groupKey = (part: TFilterPart, index: number, combinator: TReportCombinator): string =>
+  combinator === 'and' && !part.negated && part.predicates.length > 0 ? `record:${part.recordPath}` : `filter:${index}`
+
 export const buildWhere = (filters: TReportFilter[], entity: TReportEntity, combinator: TReportCombinator): TWhereClause | null => {
-  const fieldsByName = filterableFieldsByName(entity)
+  const groups = new Map<string, TFilterPart[]>()
 
-  const clauses = filters
-    .map((filter) => {
-      const field = fieldsByName.get(filter.field)
+  filterParts(filters, entity).forEach((part, index) => {
+    const key = groupKey(part, index, combinator)
+    groups.set(key, [...(groups.get(key) ?? []), part])
+  })
 
-      return field && isFilterComplete(filter, field) ? filterClause(filter, field) : null
-    })
-    .filter((clause): clause is TWhereClause => clause !== null)
+  const clauses = [...groups.values()].flatMap(([first, ...rest]) => {
+    const inner = combineClauses(
+      'and',
+      [first, ...rest].map((part) => part.clause),
+    )
+
+    return inner ? [negate(withinEdges(inner, first.predicates), first.negated)] : []
+  })
 
   return combineClauses(combinator, clauses)
+}
+
+export const buildRelatedWhere = (filters: TReportFilter[], entity: TReportEntity, combinator: TReportCombinator): Record<string, TWhereClause> => {
+  if (combinator !== 'and') return {}
+
+  const byPath = new Map<string, TWhereClause[]>()
+
+  for (const part of filterParts(filters, entity)) {
+    const segments = pathSegments(part.recordPath)
+
+    for (let depth = 0; depth < part.predicates.length; depth += 1) {
+      const path = buildPath(...segments.slice(0, depth + 1))
+      const clause = negate(withinEdges(part.clause, part.predicates.slice(depth + 1)), part.negated)
+      byPath.set(path, [...(byPath.get(path) ?? []), clause])
+    }
+  }
+
+  return Object.fromEntries(
+    [...byPath.entries()].flatMap(([path, clauses]) => {
+      const combined = combineClauses('and', clauses)
+
+      return combined ? [[path, combined]] : []
+    }),
+  )
 }

@@ -7,13 +7,13 @@ import { ReactQuestionFactory, SurveyQuestionElementBase } from 'survey-react-ui
 import { Button } from '@repo/ui/button'
 import { cn } from '@repo/ui/lib/utils'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { isTypedSignature } from './acknowledgement-type'
-import { TYPED_SIGNATURE_HEIGHT, TYPED_SIGNATURE_WIDTH } from './typed-signature'
-import { isSignatureMethod, SIGNATURE_QUESTION_TYPE, type QuestionAcknowledgementSignatureModel } from './acknowledgement-model'
+import { isTypedSignature } from './signature-type'
+import { SIGNATURE_PAD_HEIGHT, SIGNATURE_PAD_QUESTION_TYPE, SIGNATURE_PAD_WIDTH } from '../signature-pad/signature-pad-type'
+import { isSignatureMethod, SIGNATURE_FIELD_TYPE, type QuestionSignatureFieldModel } from './signature-field-model'
 
-class SurveyAcknowledgementSignature extends SurveyQuestionElementBase {
-  protected get question(): QuestionAcknowledgementSignatureModel {
-    return this.questionBase as QuestionAcknowledgementSignatureModel
+class SurveySignatureField extends SurveyQuestionElementBase {
+  protected get question(): QuestionSignatureFieldModel {
+    return this.questionBase as QuestionSignatureFieldModel
   }
 
   private handleMethodChange = (value: string) => {
@@ -29,13 +29,13 @@ class SurveyAcknowledgementSignature extends SurveyQuestionElementBase {
   }
 
   private renderSignaturePad() {
-    return ReactQuestionFactory.Instance.createQuestion('signaturepad', { question: this.question, isDisplayMode: this.isDisplayMode, creator: this.creator })
+    return ReactQuestionFactory.Instance.createQuestion(SIGNATURE_PAD_QUESTION_TYPE, { question: this.question, isDisplayMode: this.isDisplayMode, creator: this.creator })
   }
 
   private renderTypedPreviewContent(signature: string) {
     const question = this.question
     if (signature)
-      return <Image src={signature} alt={`Signature of ${question.signerName}`} width={TYPED_SIGNATURE_WIDTH} height={TYPED_SIGNATURE_HEIGHT} unoptimized className="h-full w-full object-contain" />
+      return <Image src={signature} alt={`Signature of ${question.signerName}`} width={SIGNATURE_PAD_WIDTH} height={SIGNATURE_PAD_HEIGHT} unoptimized className="h-full w-full object-contain" />
     if (question.typedSignatureStatus === 'rendering') return <LoaderCircle className="animate-spin text-gray-500" size={24} aria-label="Generating signature" />
     if (question.typedSignatureStatus === 'failed')
       return (
@@ -117,4 +117,4 @@ class SurveyAcknowledgementSignature extends SurveyQuestionElementBase {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion(SIGNATURE_QUESTION_TYPE, (props) => createElement(SurveyAcknowledgementSignature, props))
+ReactQuestionFactory.Instance.registerQuestion(SIGNATURE_FIELD_TYPE, (props) => createElement(SurveySignatureField, props))
