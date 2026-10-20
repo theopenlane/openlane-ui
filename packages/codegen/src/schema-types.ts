@@ -11763,6 +11763,9 @@ export interface CreateScanInput {
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** identifiers of vulnerabilities discovered during the scan */
   discoveredVulnerabilityIds?: InputMaybe<Array<Scalars['String']['input']>>
+  documentKindID?: InputMaybe<Scalars['ID']['input']>
+  /** the document_kind of the scan */
+  documentKindName?: InputMaybe<Scalars['String']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   environmentID?: InputMaybe<Scalars['ID']['input']>
@@ -25393,6 +25396,55 @@ export interface ImportDomainScanReviewVendorInput {
   ref: Scalars['String']['input']
 }
 
+/** The accepted items of a parsed report to import into the organization */
+export interface ImportReportScanInput {
+  assets?: InputMaybe<ImportReportScanSectionInput>
+  contacts?: InputMaybe<ImportReportScanSectionInput>
+  controls?: InputMaybe<ImportReportScanSectionInput>
+  entities?: InputMaybe<ImportReportScanSectionInput>
+  findings?: InputMaybe<ImportReportScanSectionInput>
+  groups?: InputMaybe<ImportReportScanSectionInput>
+  platforms?: InputMaybe<ImportReportScanPlatformsInput>
+  /** the accepted program; when given, the imported records are linked to it */
+  programs?: InputMaybe<ImportReportScanSectionInput>
+  reviews?: InputMaybe<ImportReportScanSectionInput>
+  /** the report scan whose parsed results are imported */
+  scanID: Scalars['ID']['input']
+  systemDetails?: InputMaybe<ImportReportScanSystemDetailsInput>
+}
+
+export interface ImportReportScanPayload {
+  __typename?: 'ImportReportScanPayload'
+  /** whether the report was accepted for import */
+  accepted: Scalars['Boolean']['output']
+}
+
+/** The platforms a reviewer accepted, by name */
+export interface ImportReportScanPlatformsInput {
+  /** reviewer-edited platforms, each replacing the parsed platform with the same name */
+  edited?: InputMaybe<Array<CreatePlatformInput>>
+  /** the names of the accepted platforms */
+  keys: Array<Scalars['String']['input']>
+}
+
+/**
+ * The items a reviewer accepted from one section of a parsed report, by the key each item is imported by:
+ * name for programs, entities, assets, groups and platforms, ref_code for controls, system_name for
+ * system details, email for contacts, and external_id for reviews and findings
+ */
+export interface ImportReportScanSectionInput {
+  /** the keys of the accepted items in the section */
+  keys: Array<Scalars['String']['input']>
+}
+
+/** The system details a reviewer accepted, by system name */
+export interface ImportReportScanSystemDetailsInput {
+  /** reviewer-edited system details */
+  edited?: InputMaybe<Array<ReportScanSystemDetailEdit>>
+  /** the system names of the accepted system details */
+  keys: Array<Scalars['String']['input']>
+}
+
 export interface Integration extends Node {
   __typename?: 'Integration'
   actionPlans: ActionPlanConnection
@@ -29247,6 +29299,12 @@ export interface Mutation {
    * details, vendors, assets, findings and brand design details
    */
   importDomainScanReview: ImportDomainScanReviewPayload
+  /**
+   * Accept the reviewed results of a parsed SOC 2 report and asynchronously import them: the program and its
+   * framework controls for the tested categories, then the report's controls, vendors, assets, groups, platforms,
+   * systems, contacts, reviews, findings and the mappings from its controls to the framework
+   */
+  importReportScan: ImportReportScanPayload
   /** Launch a campaign and send emails to its targets */
   launchCampaign: CampaignLaunchPayload
   /** Leave an organization the authenticated user belongs to */
@@ -31268,6 +31326,10 @@ export interface MutationForceCompleteWorkflowInstanceArgs {
 
 export interface MutationImportDomainScanReviewArgs {
   input: ImportDomainScanReviewInput
+}
+
+export interface MutationImportReportScanArgs {
+  input: ImportReportScanInput
 }
 
 export interface MutationLaunchCampaignArgs {
@@ -44019,6 +44081,14 @@ export interface ReportWhereInput {
   visibilityNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** A reviewer-edited system detail and the platform it runs on */
+export interface ReportScanSystemDetailEdit {
+  /** the name of the platform the system runs on */
+  platformName?: InputMaybe<Scalars['String']['input']>
+  /** the edited system detail, replacing the parsed one with the same system name */
+  systemDetail: CreateSystemDetailInput
+}
+
 /** Input for resendCampaignIncompleteTargets mutation */
 export interface ResendCampaignIncompleteInput {
   /** ID of the campaign */
@@ -46372,6 +46442,11 @@ export interface Scan extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** identifiers of vulnerabilities discovered during the scan */
   discoveredVulnerabilityIds?: Maybe<Array<Scalars['String']['output']>>
+  documentKind?: Maybe<CustomTypeEnum>
+  /** the document_kind of the scan */
+  documentKindID?: Maybe<Scalars['ID']['output']>
+  /** the document_kind of the scan */
+  documentKindName?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
   entities: EntityConnection
   environment?: Maybe<CustomTypeEnum>
@@ -46399,8 +46474,6 @@ export interface Scan extends Node {
   metadata?: Maybe<Scalars['Map']['output']>
   /** when the scan is scheduled to run next */
   nextScanRunAt?: Maybe<Scalars['DateTime']['output']>
-  /** how the scan was created, derived from the caller on create and never supplied as input */
-  origin: ScanScanOrigin
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -46673,7 +46746,6 @@ export interface ScanOrder {
 
 /** Properties by which Scan connections can be ordered. */
 export enum ScanOrderField {
-  ORIGIN = 'ORIGIN',
   SCAN_TYPE = 'SCAN_TYPE',
   STATUS = 'STATUS',
   created_at = 'created_at',
@@ -46681,14 +46753,6 @@ export enum ScanOrderField {
   next_scan_run_at = 'next_scan_run_at',
   scan_date = 'scan_date',
   updated_at = 'updated_at',
-}
-
-/** ScanScanOrigin is enum for the field origin */
-export enum ScanScanOrigin {
-  API = 'API',
-  INTEGRATION = 'INTEGRATION',
-  SYSTEM = 'SYSTEM',
-  USER = 'USER',
 }
 
 /** ScanScanStatus is enum for the field status */
@@ -46791,6 +46855,30 @@ export interface ScanWhereInput {
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for discoveredVulnerabilityIdsHas to contain a specific value */
   discoveredVulnerabilityIdsHas?: InputMaybe<Scalars['String']['input']>
+  /** document_kind_id field predicates */
+  documentKindID?: InputMaybe<Scalars['ID']['input']>
+  documentKindIDContains?: InputMaybe<Scalars['ID']['input']>
+  documentKindIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  documentKindIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  documentKindIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  documentKindIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  documentKindIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  documentKindIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  documentKindIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  documentKindIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  documentKindIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** document_kind_name field predicates */
+  documentKindName?: InputMaybe<Scalars['String']['input']>
+  documentKindNameContains?: InputMaybe<Scalars['String']['input']>
+  documentKindNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  documentKindNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  documentKindNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  documentKindNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  documentKindNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  documentKindNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  documentKindNameNEQ?: InputMaybe<Scalars['String']['input']>
+  documentKindNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  documentKindNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** environment_id field predicates */
   environmentID?: InputMaybe<Scalars['ID']['input']>
   environmentIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -46860,6 +46948,9 @@ export interface ScanWhereInput {
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** document_kind edge predicates */
+  hasDocumentKind?: InputMaybe<Scalars['Boolean']['input']>
+  hasDocumentKindWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -46973,11 +47064,6 @@ export interface ScanWhereInput {
   nextScanRunAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<ScanWhereInput>
   or?: InputMaybe<Array<ScanWhereInput>>
-  /** origin field predicates */
-  origin?: InputMaybe<ScanScanOrigin>
-  originIn?: InputMaybe<Array<ScanScanOrigin>>
-  originNEQ?: InputMaybe<ScanScanOrigin>
-  originNotIn?: InputMaybe<Array<ScanScanOrigin>>
   /** owner_id field predicates */
   ownerID?: InputMaybe<Scalars['ID']['input']>
   ownerIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -60078,6 +60164,8 @@ export interface UpdateScanInput {
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscoveredVulnerabilityIds?: InputMaybe<Scalars['Boolean']['input']>
+  clearDocumentKind?: InputMaybe<Scalars['Boolean']['input']>
+  clearDocumentKindName?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
@@ -60111,6 +60199,9 @@ export interface UpdateScanInput {
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   /** identifiers of vulnerabilities discovered during the scan */
   discoveredVulnerabilityIds?: InputMaybe<Array<Scalars['String']['input']>>
+  documentKindID?: InputMaybe<Scalars['ID']['input']>
+  /** the document_kind of the scan */
+  documentKindName?: InputMaybe<Scalars['String']['input']>
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the scan */
   environmentName?: InputMaybe<Scalars['String']['input']>

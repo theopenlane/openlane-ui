@@ -1,5 +1,6 @@
 import { LayoutGridIcon, MonitorCogIcon, type LucideIcon } from 'lucide-react'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum'
+import { type TReportScanSection } from '@/constants/scan-performers'
 import { REPORT_SCAN_STEPS, type ParsedReport, type ReportStepId } from './types'
 
 type ReportSectionMeta = {
@@ -24,6 +25,20 @@ export const REPORT_SECTION_META: Record<ReportContentStepId, ReportSectionMeta>
   program: { label: 'Create a program', summary: 'Group these controls into a SOC 2 program', icon: ObjectAssociationMap.programs.icon },
 }
 
+export const REPORT_STEP_SECTIONS = {
+  platforms: ['platforms'],
+  systems: ['systemdetails'],
+  vendors: ['entities'],
+  assets: ['assets'],
+  groups: ['groups'],
+  controls: ['controls'],
+  reviews: ['reviews'],
+  findings: ['findings'],
+  program: ['programs', 'domains'],
+} as const satisfies Record<ReportContentStepId, readonly TReportScanSection[]>
+
+export const isReportContentStepId = (stepId: ReportStepId): stepId is ReportContentStepId => stepId !== 'confirm'
+
 export const reportStepVisibility = (report: ParsedReport): Record<ReportStepId, boolean> => ({
   platforms: report.platforms.length > 0,
   systems: report.systems.length > 0,
@@ -38,4 +53,4 @@ export const reportStepVisibility = (report: ParsedReport): Record<ReportStepId,
 })
 
 export const visibleReportSections = (visibility: Record<ReportStepId, boolean>): ReportContentStepId[] =>
-  REPORT_SCAN_STEPS.map((step) => step.id).filter((stepId): stepId is ReportContentStepId => stepId !== 'confirm' && visibility[stepId])
+  REPORT_SCAN_STEPS.map((step) => step.id).filter((stepId): stepId is ReportContentStepId => isReportContentStepId(stepId) && visibility[stepId])

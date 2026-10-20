@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Badge } from '@repo/ui/badge'
-import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-categories'
+import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-category-names'
 import { existingNameKey, type ReportScanExistingIds } from '@/lib/graphql-hooks/report-scan'
 import { ConfirmStep } from '../shared/confirm-step'
 import { VendorLogo } from '@/components/shared/vendor-logo/vendor-logo'
