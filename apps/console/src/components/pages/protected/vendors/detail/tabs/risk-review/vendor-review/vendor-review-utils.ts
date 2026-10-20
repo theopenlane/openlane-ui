@@ -36,10 +36,8 @@ export const buildVendorRiskUpdate = (vendor: TVendor, formData: VendorReviewFor
     } else {
       input.riskScore = riskScore
     }
-  }
 
-  const riskRating = riskRatingFromScore(riskScore) ?? ''
-  if (riskRating !== (vendor.riskRating ?? '')) {
+    const riskRating = riskRatingFromScore(riskScore)
     if (riskRating) {
       input.riskRating = riskRating
     } else {
