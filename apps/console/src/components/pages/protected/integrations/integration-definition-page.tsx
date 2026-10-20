@@ -77,8 +77,8 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
 
     const integrations = (data?.integrations?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
 
-    return filterFinalizedIntegrationsForProvider(integrations, provider)
-  }, [data?.integrations?.edges, provider])
+    return filterFinalizedIntegrationsForProvider(integrations, provider, providers)
+  }, [data?.integrations?.edges, provider, providers])
 
   const visibleOperations = provider?.operations ?? []
 
@@ -169,8 +169,8 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     } else if (supportsPostConnectPrompt) {
       queueAfterRedirect(provider.id, installedInstances.length)
     }
-    startPolling(provider, installedInstances.length)
-  }, [provider, vendorId, supportsPostConnectPrompt, queueAfterRedirect, startPolling, installedInstances.length])
+    startPolling(provider, providers, installedInstances.length)
+  }, [provider, providers, vendorId, supportsPostConnectPrompt, queueAfterRedirect, startPolling, installedInstances.length])
 
   const { isConnecting, webhookDetails, dismissWebhookDetails, handleAuthConnect, handleSubmit } = useIntegrationConnect({
     provider,

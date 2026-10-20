@@ -95,8 +95,8 @@ export function isFinalizedIntegration(integration: Pick<IntegrationNode, 'statu
   return FINALIZED_INTEGRATION_STATUSES.has(normalizeIntegrationStatus(integration.status))
 }
 
-export function filterFinalizedIntegrationsForProvider<T extends FinalizedIntegrationFields>(integrations: T[], provider: IntegrationProvider): T[] {
-  return integrations.filter((integration) => isFinalizedIntegration(integration) && matchIntegrationProvider(integration, [provider])?.id === provider.id)
+export function filterFinalizedIntegrationsForProvider<T extends FinalizedIntegrationFields>(integrations: T[], provider: IntegrationProvider, providers: IntegrationProvider[]): T[] {
+  return integrations.filter((integration) => isFinalizedIntegration(integration) && integrationDefinitionID(integration, providers) === provider.id)
 }
 
 export function collectRequiredSchemaFields(schema?: IntegrationSchemaNode): Set<string> {
@@ -160,15 +160,21 @@ export function integrationDefinitionID(integration: IntegrationProviderMatchFie
   return matchIntegrationProvider(integration, providers)?.id
 }
 
-export function countFinalizedIntegrationsForProvider(integrations: FinalizedIntegrationFields[], provider: IntegrationProvider): number {
-  return filterFinalizedIntegrationsForProvider(integrations, provider).length
+export function countFinalizedIntegrationsForProvider(integrations: FinalizedIntegrationFields[], provider: IntegrationProvider, providers: IntegrationProvider[]): number {
+  return filterFinalizedIntegrationsForProvider(integrations, provider, providers).length
 }
+
+const createdAtMs = (createdAt?: string | null): number => Date.parse(createdAt ?? '') || 0
+
+export const latestIntegration = <T extends Pick<IntegrationNode, 'createdAt'>>(integrations: T[]): T | undefined =>
+  [...integrations].sort((left, right) => createdAtMs(right.createdAt) - createdAtMs(left.createdAt))[0]
 
 export function latestFinalizedIntegrationForProvider<T extends FinalizedIntegrationFields & Pick<IntegrationNode, 'id' | 'createdAt'>>(
   integrations: T[],
   provider: IntegrationProvider,
+  providers: IntegrationProvider[],
 ): T | undefined {
-  return filterFinalizedIntegrationsForProvider(integrations, provider).sort((left, right) => Date.parse(right.createdAt ?? '') - Date.parse(left.createdAt ?? ''))[0]
+  return latestIntegration(filterFinalizedIntegrationsForProvider(integrations, provider, providers))
 }
 
 export function getInstalledIntegrationConfig(integration: IntegrationProviderMatchFields, providers: IntegrationProvider[]): { provider: IntegrationProvider; docsUrl: string } | undefined {
@@ -200,10 +206,7 @@ export function installedIntegrationDisplayName(integration: IntegrationProvider
 export function matchIntegrationProvider(integration: IntegrationProviderMatchFields, providers: IntegrationProvider[]): IntegrationProvider | undefined {
   const definitionID = integration.definitionID?.trim()
   if (definitionID) {
-    const exactMatch = providers.find((provider) => provider.id === definitionID)
-    if (exactMatch) {
-      return exactMatch
-    }
+    return providers.find((provider) => provider.id === definitionID)
   }
 
   return matchProviderByTokens([integration.definitionSlug, integration.family, integration.kind, integration.name], providers)
@@ -381,11 +384,11 @@ function matchProviderByTokens(candidates: Array<string | null | undefined>, pro
     return undefined
   }
 
-  return providers.find((provider) => {
-    const providerTokens = new Set([provider.id, provider.slug, provider.family, provider.displayName].map((value) => normalizeIntegrationToken(value)).filter(Boolean))
+  const candidatesByToken = tokens.map((token) =>
+    providers.filter((provider) => [provider.id, provider.slug, provider.family, provider.displayName].some((value) => normalizeIntegrationToken(value) === token)),
+  )
 
-    return tokens.some((token) => providerTokens.has(token))
-  })
+  return candidatesByToken.find((matches) => matches.length === 1)?.[0] ?? providers.find((provider) => candidatesByToken.some((matches) => matches.includes(provider)))
 }
 
 function schemaRefKey(ref: string): string | undefined {

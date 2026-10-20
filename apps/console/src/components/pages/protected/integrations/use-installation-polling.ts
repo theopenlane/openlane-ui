@@ -12,6 +12,7 @@ const POLL_TIMEOUT_MS = 2 * 60 * 1000
 
 type PollingState = {
   provider: IntegrationProvider
+  providers: IntegrationProvider[]
   baselineCount: number
   startedAt: number
 }
@@ -43,7 +44,7 @@ export function useInstallationPolling() {
 
       const integrationQueries = queryClient.getQueriesData<GetIntegrationsQuery>({ queryKey: ['integrations'] })
       const installedCount = integrationQueries.reduce((maxCount, [, queryData]) => {
-        return Math.max(maxCount, queryFinalizedIntegrationCountForProvider(queryData, current.provider))
+        return Math.max(maxCount, queryFinalizedIntegrationCountForProvider(queryData, current.provider, current.providers))
       }, 0)
 
       if (installedCount > current.baselineCount) {
@@ -62,8 +63,8 @@ export function useInstallationPolling() {
     return () => window.clearInterval(interval)
   }, [polling, queryClient, successNotification, errorNotification])
 
-  const startPolling = useCallback((provider: IntegrationProvider, baselineCount: number) => {
-    setPolling({ provider, baselineCount, startedAt: Date.now() })
+  const startPolling = useCallback((provider: IntegrationProvider, providers: IntegrationProvider[], baselineCount: number) => {
+    setPolling({ provider, providers, baselineCount, startedAt: Date.now() })
   }, [])
 
   return { startPolling, stopPolling, isPolling: polling !== null }
