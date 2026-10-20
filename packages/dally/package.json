@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "swr": "^2.5.1",
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.0",
     "@repo/eslint-config": "workspace:*",
     "@types/node": "^26.5.1",
     "@types/eslint": "^9.6.1",
