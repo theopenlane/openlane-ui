@@ -8,10 +8,12 @@ import {
   resolveSchemaRoot,
   schemaHasProperties,
 } from './utils'
-import { type IntegrationConfigurationResult, type IntegrationOperationConfigPayload, type IntegrationProvider, type StartIntegrationResponse } from './types'
+import { type IntegrationConfigurationResult, type IntegrationOperationConfigPayload, type IntegrationProvider, type RunIntegrationOperationResponse, type StartIntegrationResponse } from './types'
 
 export const PRIMARY_DIRECTORY_FIELD = 'primaryDirectory'
 export const PRIMARY_DOCUMENT_FIELD = 'primary'
+export const CHANNELS_LIST_OPERATION = 'ChannelsListOperation'
+export const TEST_MESSAGE_SEND_OPERATION = 'TestMessageSendOperation'
 
 type StartIntegrationOptions = {
   credentialRef?: string
@@ -56,6 +58,12 @@ export function providerSupportsDocumentSync(provider?: IntegrationProvider): bo
   const properties = resolveSchemaRoot(provider?.userInputSchema)?.properties
   return Boolean(properties && PRIMARY_DOCUMENT_FIELD in properties)
 }
+
+const providerHasRunnableOperation = (provider: IntegrationProvider | undefined, name: string): boolean =>
+  Boolean(provider?.operations?.some((operation) => operation.name === name && !operation.disabledForAll))
+
+export const providerSupportsTestMessage = (provider?: IntegrationProvider): boolean =>
+  providerHasRunnableOperation(provider, CHANNELS_LIST_OPERATION) && providerHasRunnableOperation(provider, TEST_MESSAGE_SEND_OPERATION)
 
 export function providerSupportsInstalledConfiguration(provider?: IntegrationProvider): boolean {
   if (!provider) {
@@ -136,6 +144,28 @@ export async function saveIntegrationConfiguration(options: SaveIntegrationConfi
   }
 
   return (await response.json()) as IntegrationConfigurationResult
+}
+
+type RunIntegrationOperationOptions = {
+  integrationId: string
+  operation: string
+  config?: Record<string, unknown>
+  signal?: AbortSignal
+}
+
+export const runIntegrationOperation = async <TDetails>({ integrationId, operation, config, signal }: RunIntegrationOperationOptions): Promise<RunIntegrationOperationResponse<TDetails>> => {
+  const response = await fetch('/api/integrations/operations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ integrationId, operation, config }),
+    signal,
+  })
+
+  if (!response.ok) {
+    throw new Error(await parseIntegrationErrorMessage(response))
+  }
+
+  return (await response.json()) as RunIntegrationOperationResponse<TDetails>
 }
 
 function buildStartRequestBody(provider: IntegrationProvider, options?: StartIntegrationOptions): Record<string, unknown> {

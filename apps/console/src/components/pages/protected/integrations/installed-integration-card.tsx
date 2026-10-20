@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Activity, ExternalLink, Settings, SlidersHorizontal } from 'lucide-react'
+import { Activity, ExternalLink, Send, Settings, SlidersHorizontal } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
@@ -10,15 +10,17 @@ import { Separator } from '@repo/ui/separator'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { type IntegrationHealth, type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
 import { getInstalledIntegrationConfig, installedIntegrationDisplayName, readIntegrationUserInput, resolveConnectionEntry, resolveCredentialEntry, resolveManageUrl } from '@/lib/integrations/utils'
-import { PRIMARY_DOCUMENT_FIELD, providerHasInstallationSettings } from '@/lib/integrations/flow'
+import { PRIMARY_DOCUMENT_FIELD, providerHasInstallationSettings, providerSupportsTestMessage } from '@/lib/integrations/flow'
 import { useDisconnectIntegration, useIntegrationHealthCheck } from '@/lib/query-hooks/integrations'
-import { integrationHealthBadge } from '@/lib/integrations/health'
+import { integrationHealthBadge, isOperableIntegration } from '@/lib/integrations/health'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import IntegrationCardIcons from './integration-card-icons'
 import IntegrationConfigurationDialog from './integration-configuration-dialog'
+import SendTestMessageDialog from './send-test-message-dialog'
 
 type InstalledIntegrationCardProps = {
   integration: IntegrationNode
@@ -33,11 +35,14 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
   const router = useRouter()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
+  const [testMessageOpen, setTestMessageOpen] = useState(false)
 
   const displayName = installedIntegrationDisplayName(integration, providers)
   const integrationConfig = getInstalledIntegrationConfig(integration, providers)
   const provider = integrationConfig?.provider
   const hasSettings = providerHasInstallationSettings(provider)
+  const supportsTestMessage = providerSupportsTestMessage(provider)
+  const testMessageDisabledReason = isOperableIntegration(integration.status) ? undefined : `${displayName} is not connected. Reconnect it before sending a test message.`
   const isPrimaryDocument = readIntegrationUserInput(integration)[PRIMARY_DOCUMENT_FIELD] === true
 
   const meta: IntegrationMetadata | undefined = integration.metadata ?? undefined
@@ -131,6 +136,13 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
               {healthCheck.isPending ? 'Checking...' : 'Health Check'}
             </Button>
           ) : null}
+          {canManage && supportsTestMessage ? (
+            <DisabledReasonTooltip reason={testMessageDisabledReason}>
+              <Button variant="secondary" full icon={<Send className="size-4" />} iconPosition="left" onClick={() => setTestMessageOpen(true)} disabled={!!testMessageDisabledReason}>
+                Send Test Message
+              </Button>
+            </DisabledReasonTooltip>
+          ) : null}
           {!linkToDetail && canManage && hasSettings ? (
             <Button variant="secondary" icon={<Settings className="size-4" />} iconPosition="left" onClick={() => setConfigOpen(true)}>
               Configure
@@ -159,6 +171,8 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
         storedOperationSchemas={integration.operationConfig ?? undefined}
         credentials={integration.credentials ?? undefined}
       />
+
+      {supportsTestMessage ? <SendTestMessageDialog open={testMessageOpen} onOpenChange={setTestMessageOpen} integrationId={integration.id} providerName={displayName} /> : null}
 
       <ConfirmationDialog
         open={confirmOpen}

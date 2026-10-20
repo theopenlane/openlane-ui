@@ -17,13 +17,13 @@ import IntegrationDefinitionSkeleton from './integration-definition-skeleton'
 import { Callout } from '@/components/shared/callout/callout'
 import { Button } from '@repo/ui/button'
 import { filterFinalizedIntegrationsForProvider, operationSchemaEntries, resolveSchemaRoot } from '@/lib/integrations/utils'
-import { providerSupportsDocumentSync, providerSupportsPrimaryDirectory } from '@/lib/integrations/flow'
 import { writePendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CREDENTIALS_PREFIX, useIntegrationSchemaForm } from './schema-form'
 import InstalledIntegrationCard from './installed-integration-card'
 import PrimaryDirectoryPromptDialog from './primary-directory-prompt-dialog'
 import DocumentSyncPromptDialog from './document-sync-prompt-dialog'
+import SendTestMessageDialog from './send-test-message-dialog'
 import { useIntegrationPostConnectPrompt } from './use-integration-post-connect-prompt'
 import IntegrationCardIcons from './integration-card-icons'
 import IntegrationTagList from './integration-tag-list'
@@ -82,16 +82,17 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
 
   const visibleOperations = provider?.operations ?? []
 
-  const supportsPrimaryDirectory = useMemo(() => providerSupportsPrimaryDirectory(provider), [provider])
-  const supportsDocumentSync = useMemo(() => providerSupportsDocumentSync(provider), [provider])
-  const supportsPostConnectPrompt = supportsPrimaryDirectory || supportsDocumentSync
   const { promptKind, promptIntegration, queueAfterRedirect, queueAfterInlineConnect, dismissPrompt } = useIntegrationPostConnectPrompt({
     provider,
     canManage,
-    supportsPrimaryDirectory,
-    supportsDocumentSync,
     installedInstances,
   })
+  const supportsPostConnectPrompt = promptKind !== null
+  const handlePromptOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      dismissPrompt()
+    }
+  }
 
   const credentialEntries = useMemo(() => provider?.credentialSchemas ?? [], [provider?.credentialSchemas])
   const [selectedCredentialIndex, setSelectedCredentialIndex] = useState(-1)
@@ -285,29 +286,15 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
       <OperationsTable operations={visibleOperations} />
 
       {promptIntegration && promptKind === 'directory' ? (
-        <PrimaryDirectoryPromptDialog
-          open={!!promptIntegration}
-          onOpenChange={(isOpen) => {
-            if (!isOpen) {
-              dismissPrompt()
-            }
-          }}
-          provider={provider}
-          integration={promptIntegration}
-        />
+        <PrimaryDirectoryPromptDialog open={!!promptIntegration} onOpenChange={handlePromptOpenChange} provider={provider} integration={promptIntegration} />
       ) : null}
 
       {promptIntegration && promptKind === 'document' ? (
-        <DocumentSyncPromptDialog
-          open={!!promptIntegration}
-          onOpenChange={(isOpen) => {
-            if (!isOpen) {
-              dismissPrompt()
-            }
-          }}
-          provider={provider}
-          integration={promptIntegration}
-        />
+        <DocumentSyncPromptDialog open={!!promptIntegration} onOpenChange={handlePromptOpenChange} provider={provider} integration={promptIntegration} />
+      ) : null}
+
+      {promptIntegration && promptKind === 'test-message' ? (
+        <SendTestMessageDialog open={!!promptIntegration} onOpenChange={handlePromptOpenChange} integrationId={promptIntegration.id} providerName={provider.displayName} variant="post-install" />
       ) : null}
     </div>
   )

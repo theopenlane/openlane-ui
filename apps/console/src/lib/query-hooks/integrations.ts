@@ -1,6 +1,14 @@
 import { useNotification } from '@/hooks/useNotification'
 import { normalizeDefinition, parseIntegrationErrorMessage } from '@/lib/integrations/utils'
-import { type IntegrationProvidersResponse, type RawProvidersResponse } from '@/lib/integrations/types'
+import {
+  type IntegrationChannelsList,
+  type IntegrationMessageTeam,
+  type IntegrationProvidersResponse,
+  type IntegrationTestMessageResult,
+  type IntegrationTestMessageTarget,
+  type RawProvidersResponse,
+} from '@/lib/integrations/types'
+import { CHANNELS_LIST_OPERATION, TEST_MESSAGE_SEND_OPERATION, runIntegrationOperation } from '@/lib/integrations/flow'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { reportSSORequirementFromResponse } from '@/lib/auth/utils/session-status'
@@ -154,6 +162,36 @@ export const useDisconnectIntegration = () => {
       errorNotification({
         title: 'Failed to Disconnect',
         description: error instanceof Error ? error.message : 'Unexpected error while disconnecting integration.',
+      })
+    },
+  })
+}
+
+export const useIntegrationChannels = (integrationId: string) =>
+  useQuery<IntegrationMessageTeam[]>({
+    queryKey: ['integrationChannels', integrationId],
+    queryFn: async ({ signal }) => {
+      const result = await runIntegrationOperation<IntegrationChannelsList>({ integrationId, operation: CHANNELS_LIST_OPERATION, signal })
+      return result.details?.teams ?? []
+    },
+    placeholderData: undefined,
+    retry: false,
+  })
+
+type SendTestMessageVariables = {
+  integrationId: string
+  target: IntegrationTestMessageTarget
+}
+
+export const useSendIntegrationTestMessage = () => {
+  const { errorNotification } = useNotification()
+
+  return useMutation<IntegrationTestMessageResult, Error, SendTestMessageVariables>({
+    mutationFn: ({ integrationId, target }) => runIntegrationOperation({ integrationId, operation: TEST_MESSAGE_SEND_OPERATION, config: target }),
+    onError: (error) => {
+      errorNotification({
+        title: 'Failed to send test message',
+        description: error.message || 'Unexpected error while sending the test message. Please try again later.',
       })
     },
   })

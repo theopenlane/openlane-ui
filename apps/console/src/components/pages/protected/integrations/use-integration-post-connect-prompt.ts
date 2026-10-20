@@ -1,33 +1,42 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { PRIMARY_DOCUMENT_FIELD } from '@/lib/integrations/flow'
+import { PRIMARY_DOCUMENT_FIELD, providerSupportsDocumentSync, providerSupportsPrimaryDirectory, providerSupportsTestMessage } from '@/lib/integrations/flow'
 import { latestIntegration, readIntegrationUserInput } from '@/lib/integrations/utils'
 import { clearPendingIntegrationPrompt, readPendingIntegrationPrompt, writePendingIntegrationPrompt } from '@/lib/integrations/pending-integration-prompt'
 import { type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
+import { isOperableIntegration } from '@/lib/integrations/health'
 
-export type IntegrationPromptKind = 'directory' | 'document'
+export type IntegrationPromptKind = 'directory' | 'document' | 'test-message'
 
 type UseIntegrationPostConnectPromptOptions = {
   provider: IntegrationProvider | undefined
   canManage: boolean
-  supportsPrimaryDirectory: boolean
-  supportsDocumentSync: boolean
   installedInstances: IntegrationNode[]
 }
 
 const isPromptNeeded = (kind: IntegrationPromptKind, integration: IntegrationNode): boolean => {
-  if (kind === 'directory') {
-    return !integration.primaryDirectory
+  switch (kind) {
+    case 'directory':
+      return !integration.primaryDirectory
+    case 'document':
+      return readIntegrationUserInput(integration)[PRIMARY_DOCUMENT_FIELD] !== true
+    case 'test-message':
+      return isOperableIntegration(integration.status)
   }
-
-  return readIntegrationUserInput(integration)[PRIMARY_DOCUMENT_FIELD] !== true
 }
 
-export function useIntegrationPostConnectPrompt({ provider, canManage, supportsPrimaryDirectory, supportsDocumentSync, installedInstances }: UseIntegrationPostConnectPromptOptions) {
+const resolvePromptKind = (provider: IntegrationProvider | undefined): IntegrationPromptKind | null => {
+  if (providerSupportsPrimaryDirectory(provider)) return 'directory'
+  if (providerSupportsDocumentSync(provider)) return 'document'
+  if (providerSupportsTestMessage(provider)) return 'test-message'
+  return null
+}
+
+export function useIntegrationPostConnectPrompt({ provider, canManage, installedInstances }: UseIntegrationPostConnectPromptOptions) {
   const [promptIntegration, setPromptIntegration] = useState<IntegrationNode | null>(null)
 
-  const promptKind: IntegrationPromptKind | null = supportsPrimaryDirectory ? 'directory' : supportsDocumentSync ? 'document' : null
+  const promptKind = resolvePromptKind(provider)
 
   useEffect(() => {
     if (!provider || !canManage || !promptKind) {

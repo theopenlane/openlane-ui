@@ -79,6 +79,32 @@ export type IntegrationOperationMetadata = {
   input?: IntegrationOperationInput
 }
 
+export type IntegrationMessageChannel = {
+  id: string
+  displayName: string
+}
+
+export type IntegrationMessageTeam = {
+  id: string
+  displayName: string
+  channels: IntegrationMessageChannel[]
+}
+
+export type IntegrationChannelsList = {
+  teams: IntegrationMessageTeam[]
+}
+
+export type IntegrationTestMessageTarget = {
+  teamId?: string
+  channelId: string
+}
+
+export type RunIntegrationOperationResponse<TDetails> = {
+  details?: TDetails
+}
+
+export type IntegrationTestMessageResult = RunIntegrationOperationResponse<Record<string, unknown>>
+
 export type IntegrationOperationSchemaEntry = {
   name: string
   title: string
