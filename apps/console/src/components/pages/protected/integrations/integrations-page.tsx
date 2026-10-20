@@ -134,7 +134,7 @@ const IntegrationsPage = () => {
     const matchingProvider = providers.find((p) => p.id === stash.providerId)
     if (!matchingProvider) return
 
-    const justCreated = latestFinalizedIntegrationForProvider(integrationRows, matchingProvider)
+    const justCreated = latestFinalizedIntegrationForProvider(integrationRows, matchingProvider, providers)
     if (!justCreated) return
 
     const createdAtMs = Date.parse(justCreated.createdAt ?? '')

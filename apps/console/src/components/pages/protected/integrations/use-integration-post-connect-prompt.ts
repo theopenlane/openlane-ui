@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { PRIMARY_DOCUMENT_FIELD } from '@/lib/integrations/flow'
-import { latestFinalizedIntegrationForProvider, readIntegrationUserInput } from '@/lib/integrations/utils'
+import { latestIntegration, readIntegrationUserInput } from '@/lib/integrations/utils'
 import { clearPendingIntegrationPrompt, readPendingIntegrationPrompt, writePendingIntegrationPrompt } from '@/lib/integrations/pending-integration-prompt'
 import { type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
 
@@ -43,7 +43,7 @@ export function useIntegrationPostConnectPrompt({ provider, canManage, supportsP
     if (pending.integrationId) {
       target = installedInstances.find((inst) => inst.id === pending.integrationId)
     } else if (typeof pending.baselineCount === 'number' && installedInstances.length > pending.baselineCount) {
-      target = latestFinalizedIntegrationForProvider(installedInstances, provider)
+      target = latestIntegration(installedInstances)
     }
 
     if (!target) {

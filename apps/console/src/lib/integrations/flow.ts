@@ -65,10 +65,10 @@ export function providerSupportsInstalledConfiguration(provider?: IntegrationPro
   return providerHasCredentialSchema(provider) || providerHasInstallationSettings(provider)
 }
 
-export function queryFinalizedIntegrationCountForProvider(data: GetIntegrationsQuery | undefined, provider: IntegrationProvider): number {
+export function queryFinalizedIntegrationCountForProvider(data: GetIntegrationsQuery | undefined, provider: IntegrationProvider, providers: IntegrationProvider[]): number {
   const integrations = (data?.integrations.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
 
-  return countFinalizedIntegrationsForProvider(integrations, provider)
+  return countFinalizedIntegrationsForProvider(integrations, provider, providers)
 }
 
 export function resolveIntegrationRedirectURL(response: StartIntegrationResponse): string | undefined {
