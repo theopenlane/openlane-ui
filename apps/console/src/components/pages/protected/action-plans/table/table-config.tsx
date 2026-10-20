@@ -8,6 +8,8 @@ import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import NameField from '../create/form/fields/name-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
+import { identityFilterKey } from '@/components/shared/table-filter/where-generator'
+import { responsibilityFilterFor, type TResponsibilityFilterOption } from '@/components/shared/table-filter/responsibility-filter'
 
 export const formId = 'edit' + ObjectNames.ACTION_PLAN
 
@@ -19,8 +21,13 @@ export const breadcrumbs = [
 const statusOptions = enumToOptions(ActionPlanDocumentStatus)
 const priorityOptions = enumToOptions(ActionPlanPriority)
 
-export const getFilterFields = () =>
-  defineFilterFields<ActionPlanWhereInput>()([
+export const ACTION_PLAN_INTERNAL_OWNER_FILTER = responsibilityFilterFor<ActionPlanWhereInput>()('internalOwner')
+
+export const mapActionPlanFilterKey = (key: string, value: unknown): ActionPlanWhereInput =>
+  ACTION_PLAN_INTERNAL_OWNER_FILTER.toWhere(key, value) ?? identityFilterKey<ActionPlanWhereInput>(key, value)
+
+export const getFilterFields = (internalOwnerOptions: TResponsibilityFilterOption[]) =>
+  defineFilterFields<ActionPlanWhereInput, typeof ACTION_PLAN_INTERNAL_OWNER_FILTER.key>()([
     {
       key: 'nameContainsFold',
       label: 'Name',
@@ -47,6 +54,7 @@ export const getFilterFields = () =>
       icon: FilterIcons.Status,
       options: priorityOptions,
     },
+    ACTION_PLAN_INTERNAL_OWNER_FILTER.field('Internal Owner', internalOwnerOptions),
     {
       key: 'sourceContainsFold',
       label: 'Source',
@@ -59,13 +67,9 @@ export const ACTION_PLANS_SORT_FIELDS = enumToSortFields(ActionPlanOrderField)
 
 export const visibilityFields = {
   id: false,
-  name: true,
   title: false,
   summary: false,
-  status: true,
-  priority: true,
   source: false,
-  dueDate: true,
   reviewDue: false,
   completedAt: false,
   createdAt: false,

@@ -52,6 +52,7 @@ const TableComponent = ({
     if (!items) return []
     const ids = new Set<string>()
     items.forEach((item) => {
+      if (item.internalOwnerUser?.id) ids.add(item.internalOwnerUser.id)
       if (item.createdBy) ids.add(item.createdBy)
       if (item.updatedBy) ids.add(item.updatedBy)
     })

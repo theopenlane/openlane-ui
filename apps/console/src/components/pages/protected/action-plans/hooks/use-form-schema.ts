@@ -4,6 +4,7 @@ import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ActionPlanDocumentStatus, ActionPlanPriority, ActionPlanFrequency } from '@repo/codegen/src/schema'
 import { type Value } from 'platejs'
+import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -16,9 +17,11 @@ const formSchema = z.object({
   reviewFrequency: z.preprocess((v) => (v === '' ? null : v), z.enum(ActionPlanFrequency).optional().nullable()),
   dueDate: z.union([z.string(), z.date()]).optional().nullable(),
   reviewDue: z.union([z.string(), z.date()]).optional().nullable(),
+  internalOwner: responsibilityFieldSchema,
 })
 
 export const bulkEditFieldSchema = z.object({
+  internalOwner: responsibilityFieldSchema,
   status: z.enum(ActionPlanDocumentStatus).optional().nullable(),
   priority: z.enum(ActionPlanPriority).optional().nullable(),
 })

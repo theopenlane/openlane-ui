@@ -8,7 +8,7 @@ import { getFieldsToRender } from './table/table-config'
 import { type ActionPlanSheetConfig, type ActionPlanFieldProps, objectType } from './table/types'
 import { type CreateActionPlanInput, type UpdateActionPlanInput } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type Value } from 'platejs'
+import { buildActionPlanPayload, normalizeActionPlanData } from './action-plan-form-data'
 
 type Props = {
   entityId: string | null
@@ -54,18 +54,18 @@ const ViewActionPlanSheet: React.FC<Props> = ({ entityId, onClose, createInitial
     isCreateMode: !entityId,
     data: entityId ? data?.actionPlan : undefined,
     isFetching: isLoading,
+    normalizeData: normalizeActionPlanData,
     updateMutation,
     createMutation,
     deleteMutation,
     onClose,
-    buildPayload: async (formData) => {
-      const description = formData.descriptionJSON ? await plateEditorHelper.convertToHtml(formData.descriptionJSON as Value) : undefined
-      const payload = { ...formData, description, descriptionJSON: undefined }
-      if (!entityId && createInitialPayload) {
-        return { ...createInitialPayload, ...payload }
-      }
-      return { ...payload }
-    },
+    buildPayload: (formData) =>
+      buildActionPlanPayload(formData, {
+        isCreate: !entityId,
+        isInternalOwnerDirty: !!form.formState.dirtyFields.internalOwner,
+        createInitialPayload,
+        convertToHtml: plateEditorHelper.convertToHtml,
+      }),
     getName,
     renderFields: (props: ActionPlanFieldProps) => getFieldsToRender(props),
   }

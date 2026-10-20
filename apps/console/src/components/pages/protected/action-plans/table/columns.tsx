@@ -4,6 +4,7 @@ import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type ActionPlanDocumentStatus, type ActionPlanPriority } from '@repo/codegen/src/schema'
@@ -31,6 +32,20 @@ export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems 
       header: 'Priority',
       size: 110,
       cell: ({ cell }) => getEnumLabel(cell.getValue() as ActionPlanPriority) || '-',
+    },
+    {
+      accessorKey: 'internalOwner',
+      header: 'Internal Owner',
+      size: 160,
+      cell: ({ row }) => (
+        <ResponsibilityCell
+          userMap={userMap}
+          user={row.original.internalOwnerUser}
+          group={row.original.internalOwnerGroup}
+          personnel={row.original.internalOwnerIdentityHolder}
+          stringValue={row.original.internalOwner}
+        />
+      ),
     },
     { accessorKey: 'source', header: 'Source', size: 120 },
     { accessorKey: 'dueDate', header: 'Due Date', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
