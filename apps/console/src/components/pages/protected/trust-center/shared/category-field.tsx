@@ -3,8 +3,8 @@
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
-import { objectToSnakeCase } from '@/utils/strings'
 import type { ObjectTypes } from '@repo/codegen/src/type-names'
+import { categoryEnumWhere } from './category-options'
 import { Label } from '@repo/ui/label'
 import { Controller, useFormContext } from 'react-hook-form'
 
@@ -14,8 +14,6 @@ interface CategoryFieldProps {
   canCreate: boolean
   clearable?: boolean
 }
-
-export const categoryEnumWhere = (objectType: ObjectTypes) => ({ objectType: objectToSnakeCase(objectType), field: 'kind' })
 
 export const CategoryField = ({ objectType, isEditing, canCreate, clearable = false }: CategoryFieldProps) => {
   const {

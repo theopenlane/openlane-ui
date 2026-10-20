@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { ChevronDown, LoaderCircle, SearchIcon, Trash2, Upload } from 'lucide-react'
@@ -27,6 +28,8 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
+import { ADD_SUBPROCESSORS_FROM_VENDORS_HREF } from '../subprocessor-routes'
 
 type TProps = {
   searching?: boolean
@@ -65,6 +68,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   const [createSheetOpen, setCreateSheetOpen] = useState(false)
   const [addExistingOpen, setAddExistingOpen] = useState(false)
   const openImport = useOpenImport()
+  const canUseVendors = useHasObjectType(ObjectTypes.ENTITY)
 
   const { mutate: deleteRows, isPending: isDeleting } = useBulkDeleteTrustCenterSubprocessors()
   const { successNotification, errorNotification } = useNotification()
@@ -202,6 +206,11 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
                     <DropdownMenuItem onSelect={() => setCreateSheetOpen(true)} {...tableActionAnchor(ObjectTypes.TRUST_CENTER_SUBPROCESSOR, 'create-custom')}>
                       Custom subprocessor
                     </DropdownMenuItem>
+                    {canUseVendors && (
+                      <DropdownMenuItem asChild {...tableActionAnchor(ObjectTypes.TRUST_CENTER_SUBPROCESSOR, 'add-from-vendors')}>
+                        <Link href={ADD_SUBPROCESSORS_FROM_VENDORS_HREF}>Add from vendors</Link>
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <AddExistingDialog createdSubprocessor={createdSubprocessor} onClose={() => setCreatedSubprocessor(null)} open={addExistingOpen} onOpenChange={setAddExistingOpen} />

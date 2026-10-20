@@ -68,6 +68,7 @@ export const GET_SUBPROCESSOR_CATALOG = gql`
           id
           name
           systemOwned
+          createdAt
         }
       }
       pageInfo {
@@ -131,6 +132,41 @@ export const GET_VENDOR_SUBPROCESSOR_MATCHES = gql`
         node {
           id
           name
+        }
+      }
+    }
+  }
+`
+
+export const GET_VENDOR_SUBPROCESSOR_CANDIDATES = gql`
+  query GetVendorSubprocessorCandidates($where: EntityWhereInput, $orderBy: [EntityOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    entities(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
+      totalCount
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          name
+          displayName
+          description
+          tags
+          providedServices
+          logoFile {
+            base64
+          }
+          subprocessors(first: 100, orderBy: [{ field: created_at, direction: ASC }]) {
+            edges {
+              node {
+                id
+                name
+              }
+            }
+          }
         }
       }
     }

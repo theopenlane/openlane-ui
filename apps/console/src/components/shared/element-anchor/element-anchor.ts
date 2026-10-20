@@ -10,6 +10,7 @@ export type TTableAction =
   | 'create-from-template'
   | 'add-existing'
   | 'create-custom'
+  | 'add-from-vendors'
   | 'upload'
   | 'bulk-upload'
   | 'bulk-upload-mappings'

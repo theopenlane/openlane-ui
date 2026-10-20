@@ -42,6 +42,7 @@ import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permiss
 import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import SubprocessorsModeToggle, { type SubprocessorMode } from './SubprocessorsModeToggle'
+import { SUBPROCESSORS_HREF } from './subprocessor-routes'
 import { useSession } from 'next-auth/react'
 
 const SubprocessorsPage = () => {
@@ -296,7 +297,7 @@ const SubprocessorsPage = () => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Trust Center', href: '/trust-center/overview' },
-      { label: 'Subprocessors', href: '/trust-center/subprocessors' },
+      { label: 'Subprocessors', href: SUBPROCESSORS_HREF },
     ])
   }, [setCrumbs])
 
