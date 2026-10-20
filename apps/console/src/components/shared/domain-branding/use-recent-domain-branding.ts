@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { ScanScanStatus, ScanScanType } from '@repo/codegen/src/schema'
 import { useRecentDomainScans } from '@/lib/graphql-hooks/scan'
-import { getScanBranding, OPENLANE_DOMAIN_SCAN_PERFORMER, parseScanMetadata, type ScanBranding } from '@/components/pages/protected/scans/detail/openlane-domain-scan/scan-metadata'
+import { getScanBranding, parseScanMetadata, type ScanBranding } from '@/components/pages/protected/scans/detail/openlane-domain-scan/scan-metadata'
 import { toHostname } from '@/utils/normalizeUrl'
+import { SCAN_PERFORMER } from '@/constants/scan-performers'
 
 const COMPLETED_SCANS_TO_SEARCH = 25
 
@@ -17,7 +18,7 @@ type UseRecentDomainBrandingArgs = {
 export const useRecentDomainBranding = ({ domains, enabled, isScanRunning }: UseRecentDomainBrandingArgs) => {
   const isEnabled = enabled && domains.length > 0
   const { scans, isPending, refetch } = useRecentDomainScans({
-    where: { scanType: ScanScanType.DOMAIN, performedBy: OPENLANE_DOMAIN_SCAN_PERFORMER, status: ScanScanStatus.COMPLETED, targetIn: domains },
+    where: { scanType: ScanScanType.DOMAIN, performedBy: SCAN_PERFORMER.DOMAIN_SCAN, status: ScanScanStatus.COMPLETED, targetIn: domains },
     first: COMPLETED_SCANS_TO_SEARCH,
     enabled: isEnabled,
   })

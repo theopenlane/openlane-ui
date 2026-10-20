@@ -1,5 +1,5 @@
 import { type ControlWhereInput, type StandardWhereInput } from '@repo/codegen/src/schema'
-import { OPENLANE_BASELINE_STANDARD, OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/system-standards'
+import { OPENLANE_BASELINE_STANDARD, OPENLANE_TRUST_CENTER_STANDARD, type TSystemStandard } from '@/constants/system-standards'
 
 export const SOC_2_SYSTEM_STANDARD = {
   shortName: 'SOC 2',

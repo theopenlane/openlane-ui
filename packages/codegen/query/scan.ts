@@ -98,6 +98,13 @@ export const SCAN = gql`
       metadata
       nextScanRunAt
       performedBy
+      entities(first: 1) {
+        edges {
+          node {
+            id
+          }
+        }
+      }
       performedByUser {
         id
         displayName
