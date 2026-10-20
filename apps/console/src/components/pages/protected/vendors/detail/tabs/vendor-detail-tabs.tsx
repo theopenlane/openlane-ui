@@ -13,10 +13,11 @@ import ActivityTab from './activity/activity-tab'
 import type { EntityQuery, GetEntityAssociationsQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { useVendorDirectoryGroupCount } from '@/lib/graphql-hooks/vendor-directory'
+import { vendorDisplayName } from '@/lib/graphql-hooks/entity'
+import { type TVendorTabValue } from '@/constants/vendor-routes'
+import { useVendorReviewRefresh } from '../use-vendor-review-refresh'
 
-type VendorTabValue = 'overview' | 'documents' | 'contacts' | 'risk-review' | 'directory' | 'activity'
-
-const VENDOR_TABS: TDetailTab<VendorTabValue>[] = [
+const VENDOR_TABS: TDetailTab<TVendorTabValue>[] = [
   { value: 'overview', label: 'Overview' },
   { value: 'documents', label: 'Documents' },
   { value: 'contacts', label: 'Contacts' },
@@ -25,8 +26,8 @@ const VENDOR_TABS: TDetailTab<VendorTabValue>[] = [
   { value: 'activity', label: 'Activity' },
 ]
 
-const NO_TABS: ReadonlySet<VendorTabValue> = new Set()
-const DIRECTORY_TAB_ONLY: ReadonlySet<VendorTabValue> = new Set(['directory'])
+const NO_TABS: ReadonlySet<TVendorTabValue> = new Set()
+const DIRECTORY_TAB_ONLY: ReadonlySet<TVendorTabValue> = new Set(['directory'])
 
 interface VendorDetailTabsProps {
   vendor: EntityQuery['entity']
@@ -38,6 +39,7 @@ interface VendorDetailTabsProps {
 
 const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, associations, isEditing, canEdit: canEditVendor, handleUpdateField }) => {
   const { data: directoryGroupCount, isPending: isResolvingDirectory } = useVendorDirectoryGroupCount(vendor.id)
+  useVendorReviewRefresh(vendor.id)
   const hasDirectoryGroups = (directoryGroupCount ?? 0) > 0
   const tabs = useDetailTabs({ page: 'vendor', tabs: VENDOR_TABS, defaultTab: 'overview', unavailableTabs: hasDirectoryGroups ? NO_TABS : DIRECTORY_TAB_ONLY, isResolving: isResolvingDirectory })
 
@@ -48,7 +50,7 @@ const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, association
       </TabsContent>
 
       <TabsContent value="documents" className="space-y-6">
-        <DocumentsTab vendorId={vendor.id} canEdit={canEditVendor} logoFileId={vendor.logoFileID} />
+        <DocumentsTab vendorId={vendor.id} vendorName={vendorDisplayName(vendor)} canEdit={canEditVendor} logoFileId={vendor.logoFileID} />
       </TabsContent>
 
       <TabsContent value="contacts" className="space-y-6">

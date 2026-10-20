@@ -8,6 +8,7 @@ export type TTableAction =
   | 'create-subcontrol'
   | 'create-from-scratch'
   | 'create-from-template'
+  | 'create-from-soc2-report'
   | 'add-existing'
   | 'create-custom'
   | 'add-from-vendors'

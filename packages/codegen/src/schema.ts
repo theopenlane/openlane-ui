@@ -3369,6 +3369,7 @@ export interface GetEntityFilesPaginatedQuery {
           providedFileName: string
           providedFileSize: number | null
           providedFileExtension: string
+          detectedMimeType: string | null
           id: string
           uri: string | null
           presignedURL: string | null
@@ -8774,6 +8775,7 @@ export interface ScanQuery {
     assignedToUser: { id: string; displayName: string } | null
     assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
     assignedToGroup: { id: string; displayName: string } | null
+    entities: { edges: Array<{ node: { id: string } | null } | null> | null }
     performedByUser: { id: string; displayName: string } | null
     performedByGroup: { id: string; displayName: string } | null
     reviewedByUser: { id: string; displayName: string } | null
@@ -10388,7 +10390,15 @@ export type CreateTrustCenterDocMutationVariables = Exact<{
 }>
 
 export interface CreateTrustCenterDocMutation {
-  createTrustCenterDoc: { trustCenterDoc: { id: string } }
+  createTrustCenterDoc: {
+    trustCenterDoc: {
+      id: string
+      title: string
+      originalFile: { id: string; providedFileName: string } | null
+      file: { id: string; providedFileName: string } | null
+      standard: { id: string; shortName: string | null; framework: string | null } | null
+    }
+  }
 }
 
 export type GetTruestCenterDocByIdQueryVariables = Exact<{

@@ -1,8 +1,6 @@
 import { pluralizeWithCount, toHumanLabel } from '@/utils/strings'
 import { isPostureIssue, PostureStatus } from '@/components/shared/enum-mapper/scan-enum'
 
-export const OPENLANE_DOMAIN_SCAN_PERFORMER = 'openlane_domain_scan'
-
 const DETAIL_SEPARATOR = ' · '
 const UNKNOWN_GROUP_LABEL = 'Unknown'
 const FRAMEWORKS_ENTRY_KEY = 'frameworks'

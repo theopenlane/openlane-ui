@@ -11,7 +11,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { getYear } from 'date-fns'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { SOC_2_SYSTEM_STANDARD } from '@/constants/standards'
-import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-categories'
+import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-category-names'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { emptyReportScanExistingIds, useReportScanExistingRecords } from '@/lib/graphql-hooks/report-scan'
 import { useSystemStandard } from '@/lib/graphql-hooks/standard'
@@ -64,7 +64,7 @@ export const ReportScanWizard = ({ scanId, reportName, report }: ReportScanWizar
       vendors: report.vendors.map((vendor) => vendor.name),
       assets: report.assets.map((asset) => asset.name),
       groups: report.groups.map((group) => group.name),
-      controls: report.controls.map((control) => control.refCode),
+      controls: [...new Set([...report.controls.map((control) => control.refCode), ...report.reviews.flatMap((review) => review.refCodes), ...report.findings.flatMap((finding) => finding.refCodes)])],
     }),
     [report, debouncedPlatformNamesKey],
   )

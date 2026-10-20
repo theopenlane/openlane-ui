@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ScanScanStatus, ScanScanType } from '@repo/codegen/src/schema'
 import { isActiveScanStatus, isStaleActiveScan, useRecentDomainScans } from '@/lib/graphql-hooks/scan'
-import { isGroupedDomainScan, OPENLANE_DOMAIN_SCAN_PERFORMER, parseScanMetadata } from '@/components/pages/protected/scans/detail/openlane-domain-scan/scan-metadata'
+import { isGroupedDomainScan, parseScanMetadata } from '@/components/pages/protected/scans/detail/openlane-domain-scan/scan-metadata'
 import { formatDistanceUntil } from '@/utils/date'
+import { SCAN_PERFORMER } from '@/constants/scan-performers'
 
 const PULL_WINDOW_MS = 60 * 60 * 1000 // 1hr
 
@@ -29,7 +30,7 @@ export const useDomainScanWindow = (enabled: boolean) => {
   }, [enabled])
 
   const { scans, isLoading, isError } = useRecentDomainScans({
-    where: { scanType: ScanScanType.DOMAIN, performedBy: OPENLANE_DOMAIN_SCAN_PERFORMER, createdAtGT: windowStart },
+    where: { scanType: ScanScanType.DOMAIN, performedBy: SCAN_PERFORMER.DOMAIN_SCAN, createdAtGT: windowStart },
     first: GROUPED_SCAN_FANOUT_HEADROOM,
     enabled: enabled && !!windowStart,
   })

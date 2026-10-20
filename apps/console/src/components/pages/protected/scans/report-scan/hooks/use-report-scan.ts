@@ -3,6 +3,7 @@
 import { useEffect, useMemo } from 'react'
 import { ScanScanStatus, ScanScanType } from '@repo/codegen/src/schema'
 import { isActiveScanStatus, useScan, useScanStatus } from '@/lib/graphql-hooks/scan'
+import { SCAN_PERFORMER } from '@/constants/scan-performers'
 import { parseReport, reportScanErrorOf } from '../parse-report'
 
 export const useReportScan = (scanId?: string) => {
@@ -29,6 +30,8 @@ export const useReportScan = (scanId?: string) => {
     isProcessing,
     isFailed: scan?.status === ScanScanStatus.FAILED,
     isAlreadyImported: !!scan?.reviewedByUser,
+    isVendorReview: scan?.performedBy === SCAN_PERFORMER.VENDOR_REPORT_REVIEW,
+    reviewedVendorId: scan?.entities?.edges?.[0]?.node?.id,
     failureReason: reportScanErrorOf(scan?.metadata),
   }
 }

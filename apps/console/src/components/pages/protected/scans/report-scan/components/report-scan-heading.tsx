@@ -1,6 +1,6 @@
 import React from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-categories'
+import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-category-names'
 
 export const REPORT_SCAN_EYEBROW = `${SOC_2_FRAMEWORK_NAME} import`
 

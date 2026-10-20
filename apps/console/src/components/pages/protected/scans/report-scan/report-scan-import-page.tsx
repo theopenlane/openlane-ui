@@ -9,6 +9,7 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { REPORT_SCAN_UPLOAD_PARAM, SCANS_ROUTE } from '@/constants/scan-routes'
+import { VENDORS_ROUTE, vendorDetailHref } from '@/constants/vendor-routes'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { REPORT_SCAN_EYEBROW } from './components/report-scan-heading'
 import { useReportScan } from './hooks/use-report-scan'
@@ -24,13 +25,30 @@ const StatusMessage = ({ heading, message, children }: { heading: string; messag
   </div>
 )
 
+type TVendorReviewStatus = { heading: string; message: (scan: { reportName: string; failureReason?: string }) => string }
+
+const VENDOR_REVIEW_STATUS: Record<'failed' | 'processing' | 'done', TVendorReviewStatus> = {
+  failed: {
+    heading: "We couldn't review this vendor report",
+    message: ({ failureReason }) => `${(failureReason ?? 'The report could not be reviewed').replace(/\.$/, '')}. Start the review again from the vendor's Risk Review tab.`,
+  },
+  processing: {
+    heading: "We're reviewing this vendor report",
+    message: () => "Feel free to navigate away, you'll receive a notification when the results are on the vendor.",
+  },
+  done: {
+    heading: 'Vendor report reviewed',
+    message: ({ reportName }) => `The auditor's opinion, risk rating and findings from ${reportName} are on the vendor's Risk Review tab.`,
+  },
+}
+
 const ReportScanImportPage = () => {
   const router = useRouter()
   const smartRouter = useSmartRouter()
   const searchParams = useSearchParams()
   const scanId = searchParams.get('scanId') ?? undefined
   const { setCrumbs } = use(BreadcrumbContext)
-  const { report, reportName, isLoading, isNotFound, isProcessing, isFailed, isAlreadyImported, failureReason } = useReportScan(scanId)
+  const { report, reportName, isLoading, isNotFound, isProcessing, isFailed, isAlreadyImported, isVendorReview, reviewedVendorId, failureReason } = useReportScan(scanId)
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Scans', href: SCANS_ROUTE }, { label: REPORT_SCAN_EYEBROW }])
@@ -59,6 +77,28 @@ const ReportScanImportPage = () => {
           Back to notifications
         </Button>
         {uploadAgain}
+      </StatusMessage>
+    )
+  }
+
+  if (isVendorReview) {
+    const status = VENDOR_REVIEW_STATUS[isFailed ? 'failed' : isProcessing ? 'processing' : 'done']
+    return (
+      <StatusMessage heading={status.heading} message={status.message({ reportName, failureReason })}>
+        {isProcessing ? (
+          <span className="flex items-center gap-2 text-sm text-muted-foreground">
+            <LoaderCircle size={16} className="animate-spin" />
+            Reviewing {reportName}
+          </span>
+        ) : reviewedVendorId ? (
+          <Button variant="primary" onClick={() => router.push(vendorDetailHref(reviewedVendorId, 'risk-review'))}>
+            Open the vendor&apos;s Risk Review
+          </Button>
+        ) : (
+          <Button variant="secondary" icon={<ArrowLeft size={16} />} iconPosition="left" onClick={() => router.push(VENDORS_ROUTE)}>
+            Back to Vendors
+          </Button>
+        )}
       </StatusMessage>
     )
   }
