@@ -12,10 +12,13 @@ const PLAN_NAMES: Record<PlanEnum, string> = {
   [PlanEnum.REGISTRY_MODULE]: 'Registry',
   [PlanEnum.TRUST_CENTER_MODULE]: 'Trust Center',
   [PlanEnum.VULNERABILITY_MANAGEMENT_MODULE]: 'Vulnerability Management',
+  [PlanEnum.ASSESSMENT_CUSTOM_DOMAIN_ADDON]: 'Questionnaire Custom Domain',
+  [PlanEnum.BRANDING_TRUSTCENTER_ADDON]: 'Trust Center Branding',
   [PlanEnum.DOMAIN_SCANNING_ADDON]: 'Domain Scanning',
   [PlanEnum.EXTRA_EVIDENCE_STORAGE_ADDON]: 'Extra Evidence Storage',
   [PlanEnum.POLICY_MANAGEMENT_ADDON]: 'Policy Management',
   [PlanEnum.RISK_MANAGEMENT_ADDON]: 'Risk Management',
+  [PlanEnum.WORKFLOW_ADDON]: 'Workflow',
 }
 
 const FREE_MODULES: Partial<Record<PlanEnum, string>> = {
