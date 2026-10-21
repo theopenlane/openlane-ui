@@ -11,7 +11,7 @@
     },
     "strictNullChecks": true,
     "jsx": "preserve",
-    "types": ["node", "jest"]
+    "types": ["node", "jest", "gapi", "google.picker"]
   },
   "include": [
     "next-env.d.ts",
