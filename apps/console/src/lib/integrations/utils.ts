@@ -371,7 +371,7 @@ export async function parseIntegrationErrorMessage(response: Response): Promise<
 
   try {
     const payload = JSON.parse(raw) as { error?: string; details?: string; message?: string }
-    return payload.error || payload.details || payload.message || `Request failed (${response.status})`
+    return payload.details || payload.error || payload.message || `Request failed (${response.status})`
   } catch {
     return raw || `Request failed (${response.status})`
   }
