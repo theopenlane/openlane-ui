@@ -131,6 +131,7 @@ export type IntegrationCredentialEntry = {
   name?: string
   description?: string
   recommended?: boolean
+  retired?: boolean
   schema?: IntegrationSchemaNode
 }
 

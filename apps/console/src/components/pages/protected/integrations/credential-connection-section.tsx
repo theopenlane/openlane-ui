@@ -10,7 +10,7 @@ import { Separator } from '@repo/ui/separator'
 import { type IntegrationProvider, type IntegrationConnectionEntry } from '@/lib/integrations/types'
 import { type FormValues, type SchemaSection } from '@/lib/integrations/schema'
 import { type GuideLiveValues } from '@/lib/integrations/setup-guide-content'
-import { resolveConnectionEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
+import { resolveConnectionEntry, resolveSchemaRoot, setupCredentialEntries } from '@/lib/integrations/utils'
 import { CREDENTIALS_PREFIX, IntegrationSchemaSections } from './schema-form'
 import ConnectionMetaSection from './connection-meta-section'
 import IntegrationSetupGuide from './integration-setup-guide'
@@ -43,7 +43,7 @@ const CredentialConnectionSection = ({
   selectedCredentialIndex,
   onSelectCredential,
 }: CredentialConnectionSectionProps) => {
-  const credentialEntries = provider.credentialSchemas ?? []
+  const credentialEntries = setupCredentialEntries(provider)
   const hasConfigurationFields = configurationSections.length > 0
 
   const [wizardOpen, setWizardOpen] = useState(false)

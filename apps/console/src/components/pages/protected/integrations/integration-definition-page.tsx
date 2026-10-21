@@ -16,7 +16,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import IntegrationDefinitionSkeleton from './integration-definition-skeleton'
 import { Callout } from '@/components/shared/callout/callout'
 import { Button } from '@repo/ui/button'
-import { filterFinalizedIntegrationsForProvider, operationSchemaEntries, resolveSchemaRoot } from '@/lib/integrations/utils'
+import { filterFinalizedIntegrationsForProvider, operationSchemaEntries, resolveSchemaRoot, setupCredentialEntries } from '@/lib/integrations/utils'
 import { writePendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CREDENTIALS_PREFIX, useIntegrationSchemaForm } from './schema-form'
@@ -94,7 +94,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     }
   }
 
-  const credentialEntries = useMemo(() => provider?.credentialSchemas ?? [], [provider?.credentialSchemas])
+  const credentialEntries = useMemo(() => setupCredentialEntries(provider), [provider])
   const [selectedCredentialIndex, setSelectedCredentialIndex] = useState(-1)
   // Tracks which schema to use — only updates when a credential is actively selected, not when the accordion closes
   const [schemaCredentialIndex, setSchemaCredentialIndex] = useState(-1)
