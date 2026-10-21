@@ -13898,6 +13898,8 @@ export interface CreateEntityInput {
   platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** services provided by the entity */
   providedServices?: InputMaybe<Array<Scalars['String']['input']>>
+  /** raw payload received from the integration for auditing and troubleshooting */
+  rawIngestPayload?: InputMaybe<Scalars['Map']['input']>
   remediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** renewal risk rating for the entity */
   renewalRisk?: InputMaybe<Scalars['String']['input']>
@@ -21679,7 +21681,7 @@ export interface EmailTemplateWhereInput {
 
 export interface Entity extends Node {
   __typename?: 'Entity'
-  adoptedEntities: EntityConnection
+  adopted: EntityConnection
   /** common matching names that should match with the entity */
   aliases?: Maybe<Array<Scalars['String']['output']>>
   /** annual spend associated with the entity */
@@ -21695,12 +21697,12 @@ export interface Entity extends Node {
   billingModel?: Maybe<Scalars['String']['output']>
   blockedGroups: GroupConnection
   campaigns: CampaignConnection
-  /** the system-owned catalog entity this entity was adopted from */
-  catalogEntity?: Maybe<Entity>
-  /** the system-owned catalog entity this entity was adopted from */
-  catalogEntityID?: Maybe<Scalars['ID']['output']>
-  /** the lookup key of the catalog entity this entity was adopted from */
-  catalogEntityKey?: Maybe<Scalars['String']['output']>
+  /** the system-owned catalog row this row was adopted from */
+  catalog?: Maybe<Entity>
+  /** the system-owned catalog row this row was adopted from */
+  catalogID?: Maybe<Scalars['ID']['output']>
+  /** the lookup key of the catalog row this row was adopted from */
+  catalogKey?: Maybe<Scalars['String']['output']>
   contacts: ContactConnection
   /** end date for the entity contract */
   contractEndDate?: Maybe<Scalars['DateTime']['output']>
@@ -21802,6 +21804,8 @@ export interface Entity extends Node {
   platforms: PlatformConnection
   /** services provided by the entity */
   providedServices?: Maybe<Array<Scalars['String']['output']>>
+  /** raw payload received from the integration for auditing and troubleshooting */
+  rawIngestPayload?: Maybe<Scalars['Map']['output']>
   remediations: RemediationConnection
   /** renewal risk rating for the entity */
   renewalRisk?: Maybe<Scalars['String']['output']>
@@ -21871,7 +21875,7 @@ export interface Entity extends Node {
   vulnerabilities: VulnerabilityConnection
 }
 
-export interface EntityAdoptedEntitiesArgs {
+export interface EntityAdoptedArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -22233,10 +22237,10 @@ export interface EntityHistory extends Node {
   autoRenews?: Maybe<Scalars['Boolean']['output']>
   /** billing model for the entity relationship */
   billingModel?: Maybe<Scalars['String']['output']>
-  /** the system-owned catalog entity this entity was adopted from */
-  catalogEntityID?: Maybe<Scalars['String']['output']>
-  /** the lookup key of the catalog entity this entity was adopted from */
-  catalogEntityKey?: Maybe<Scalars['String']['output']>
+  /** the system-owned catalog row this row was adopted from */
+  catalogID?: Maybe<Scalars['String']['output']>
+  /** the lookup key of the catalog row this row was adopted from */
+  catalogKey?: Maybe<Scalars['String']['output']>
   /** end date for the entity contract */
   contractEndDate?: Maybe<Scalars['DateTime']['output']>
   /** when the entity contract is up for renewal */
@@ -22316,6 +22320,8 @@ export interface EntityHistory extends Node {
   ownerID?: Maybe<Scalars['String']['output']>
   /** services provided by the entity */
   providedServices?: Maybe<Array<Scalars['String']['output']>>
+  /** raw payload received from the integration for auditing and troubleshooting */
+  rawIngestPayload?: Maybe<Scalars['Map']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** renewal risk rating for the entity */
   renewalRisk?: Maybe<Scalars['String']['output']>
@@ -22516,30 +22522,30 @@ export interface EntityHistoryWhereInput {
   billingModelNEQ?: InputMaybe<Scalars['String']['input']>
   billingModelNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   billingModelNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** catalog_entity_id field predicates */
-  catalogEntityID?: InputMaybe<Scalars['String']['input']>
-  catalogEntityIDContains?: InputMaybe<Scalars['String']['input']>
-  catalogEntityIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  catalogEntityIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  catalogEntityIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  catalogEntityIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  catalogEntityIDIn?: InputMaybe<Array<Scalars['String']['input']>>
-  catalogEntityIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  catalogEntityIDNEQ?: InputMaybe<Scalars['String']['input']>
-  catalogEntityIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  catalogEntityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** catalog_entity_key field predicates */
-  catalogEntityKey?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyContains?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyContainsFold?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyEqualFold?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyHasPrefix?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyHasSuffix?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyIn?: InputMaybe<Array<Scalars['String']['input']>>
-  catalogEntityKeyIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  catalogEntityKeyNEQ?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  catalogEntityKeyNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** catalog_id field predicates */
+  catalogID?: InputMaybe<Scalars['String']['input']>
+  catalogIDContains?: InputMaybe<Scalars['String']['input']>
+  catalogIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  catalogIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  catalogIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  catalogIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  catalogIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  catalogIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  catalogIDNEQ?: InputMaybe<Scalars['String']['input']>
+  catalogIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  catalogIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** catalog_key field predicates */
+  catalogKey?: InputMaybe<Scalars['String']['input']>
+  catalogKeyContains?: InputMaybe<Scalars['String']['input']>
+  catalogKeyContainsFold?: InputMaybe<Scalars['String']['input']>
+  catalogKeyEqualFold?: InputMaybe<Scalars['String']['input']>
+  catalogKeyHasPrefix?: InputMaybe<Scalars['String']['input']>
+  catalogKeyHasSuffix?: InputMaybe<Scalars['String']['input']>
+  catalogKeyIn?: InputMaybe<Array<Scalars['String']['input']>>
+  catalogKeyIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  catalogKeyNEQ?: InputMaybe<Scalars['String']['input']>
+  catalogKeyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  catalogKeyNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** contract_end_date field predicates */
   contractEndDate?: InputMaybe<Scalars['DateTime']['input']>
   contractEndDateGT?: InputMaybe<Scalars['DateTime']['input']>
@@ -23765,30 +23771,30 @@ export interface EntityWhereInput {
   billingModelNEQ?: InputMaybe<Scalars['String']['input']>
   billingModelNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   billingModelNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** catalog_entity_id field predicates */
-  catalogEntityID?: InputMaybe<Scalars['ID']['input']>
-  catalogEntityIDContains?: InputMaybe<Scalars['ID']['input']>
-  catalogEntityIDContainsFold?: InputMaybe<Scalars['ID']['input']>
-  catalogEntityIDEqualFold?: InputMaybe<Scalars['ID']['input']>
-  catalogEntityIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
-  catalogEntityIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
-  catalogEntityIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  catalogEntityIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  catalogEntityIDNEQ?: InputMaybe<Scalars['ID']['input']>
-  catalogEntityIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  catalogEntityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** catalog_entity_key field predicates */
-  catalogEntityKey?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyContains?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyContainsFold?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyEqualFold?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyHasPrefix?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyHasSuffix?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyIn?: InputMaybe<Array<Scalars['String']['input']>>
-  catalogEntityKeyIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  catalogEntityKeyNEQ?: InputMaybe<Scalars['String']['input']>
-  catalogEntityKeyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  catalogEntityKeyNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** catalog_id field predicates */
+  catalogID?: InputMaybe<Scalars['ID']['input']>
+  catalogIDContains?: InputMaybe<Scalars['ID']['input']>
+  catalogIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  catalogIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  catalogIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  catalogIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  catalogIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  catalogIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  catalogIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  catalogIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  catalogIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** catalog_key field predicates */
+  catalogKey?: InputMaybe<Scalars['String']['input']>
+  catalogKeyContains?: InputMaybe<Scalars['String']['input']>
+  catalogKeyContainsFold?: InputMaybe<Scalars['String']['input']>
+  catalogKeyEqualFold?: InputMaybe<Scalars['String']['input']>
+  catalogKeyHasPrefix?: InputMaybe<Scalars['String']['input']>
+  catalogKeyHasSuffix?: InputMaybe<Scalars['String']['input']>
+  catalogKeyIn?: InputMaybe<Array<Scalars['String']['input']>>
+  catalogKeyIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  catalogKeyNEQ?: InputMaybe<Scalars['String']['input']>
+  catalogKeyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  catalogKeyNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** contract_end_date field predicates */
   contractEndDate?: InputMaybe<Scalars['DateTime']['input']>
   contractEndDateGT?: InputMaybe<Scalars['DateTime']['input']>
@@ -23984,9 +23990,9 @@ export interface EntityWhereInput {
   externallyVisibleIsNil?: InputMaybe<Scalars['Boolean']['input']>
   externallyVisibleNEQ?: InputMaybe<Scalars['Boolean']['input']>
   externallyVisibleNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** adopted_entities edge predicates */
-  hasAdoptedEntities?: InputMaybe<Scalars['Boolean']['input']>
-  hasAdoptedEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** adopted edge predicates */
+  hasAdopted?: InputMaybe<Scalars['Boolean']['input']>
+  hasAdoptedWith?: InputMaybe<Array<EntityWhereInput>>
   /** assessment_responses edge predicates */
   hasAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
   hasAssessmentResponsesWith?: InputMaybe<Array<AssessmentResponseWhereInput>>
@@ -24002,9 +24008,9 @@ export interface EntityWhereInput {
   /** campaigns edge predicates */
   hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
-  /** catalog_entity edge predicates */
-  hasCatalogEntity?: InputMaybe<Scalars['Boolean']['input']>
-  hasCatalogEntityWith?: InputMaybe<Array<EntityWhereInput>>
+  /** catalog edge predicates */
+  hasCatalog?: InputMaybe<Scalars['Boolean']['input']>
+  hasCatalogWith?: InputMaybe<Array<EntityWhereInput>>
   /** contacts edge predicates */
   hasContacts?: InputMaybe<Scalars['Boolean']['input']>
   hasContactsWith?: InputMaybe<Array<ContactWhereInput>>
@@ -76375,6 +76381,7 @@ export interface UpdateEntityInput {
   clearOutOfScopePlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearProvidedServices?: InputMaybe<Scalars['Boolean']['input']>
+  clearRawIngestPayload?: InputMaybe<Scalars['Boolean']['input']>
   clearRemediations?: InputMaybe<Scalars['Boolean']['input']>
   clearRenewalRisk?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewFrequency?: InputMaybe<Scalars['Boolean']['input']>
@@ -76464,6 +76471,8 @@ export interface UpdateEntityInput {
   observedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** services provided by the entity */
   providedServices?: InputMaybe<Array<Scalars['String']['input']>>
+  /** raw payload received from the integration for auditing and troubleshooting */
+  rawIngestPayload?: InputMaybe<Scalars['Map']['input']>
   removeAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAuthMethodIDs?: InputMaybe<Array<Scalars['ID']['input']>>
