@@ -83310,6 +83310,18 @@
             "deprecationReason": null
           },
           {
+            "name": "rawIngestPayload",
+            "description": "raw payload received from the integration for auditing and troubleshooting",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Map",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "remediationIDs",
             "description": null,
             "type": {
@@ -145290,7 +145302,7 @@
         "isOneOf": null,
         "fields": [
           {
-            "name": "adoptedEntities",
+            "name": "adopted",
             "description": null,
             "args": [
               {
@@ -145940,8 +145952,8 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntity",
-            "description": "the system-owned catalog entity this entity was adopted from",
+            "name": "catalog",
+            "description": "the system-owned catalog row this row was adopted from",
             "args": [],
             "type": {
               "kind": "OBJECT",
@@ -145952,8 +145964,8 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityID",
-            "description": "the system-owned catalog entity this entity was adopted from",
+            "name": "catalogID",
+            "description": "the system-owned catalog row this row was adopted from",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -145964,8 +145976,8 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityKey",
-            "description": "the lookup key of the catalog entity this entity was adopted from",
+            "name": "catalogKey",
+            "description": "the lookup key of the catalog row this row was adopted from",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -147957,6 +147969,18 @@
                   "ofType": null
                 }
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rawIngestPayload",
+            "description": "raw payload received from the integration for auditing and troubleshooting",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Map",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -152631,8 +152655,8 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityID",
-            "description": "catalog_entity_id field predicates",
+            "name": "catalogID",
+            "description": "catalog_id field predicates",
             "type": {
               "kind": "SCALAR",
               "name": "ID",
@@ -152643,7 +152667,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityIDContains",
+            "name": "catalogIDContains",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152655,7 +152679,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityIDContainsFold",
+            "name": "catalogIDContainsFold",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152667,7 +152691,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityIDEqualFold",
+            "name": "catalogIDEqualFold",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152679,7 +152703,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityIDHasPrefix",
+            "name": "catalogIDHasPrefix",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152691,7 +152715,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityIDHasSuffix",
+            "name": "catalogIDHasSuffix",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152703,7 +152727,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityIDIn",
+            "name": "catalogIDIn",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -152723,7 +152747,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityIDIsNil",
+            "name": "catalogIDIsNil",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152735,7 +152759,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityIDNEQ",
+            "name": "catalogIDNEQ",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152747,7 +152771,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityIDNotIn",
+            "name": "catalogIDNotIn",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -152767,7 +152791,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityIDNotNil",
+            "name": "catalogIDNotNil",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152779,8 +152803,8 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityKey",
-            "description": "catalog_entity_key field predicates",
+            "name": "catalogKey",
+            "description": "catalog_key field predicates",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -152791,7 +152815,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityKeyContains",
+            "name": "catalogKeyContains",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152803,7 +152827,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityKeyContainsFold",
+            "name": "catalogKeyContainsFold",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152815,7 +152839,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityKeyEqualFold",
+            "name": "catalogKeyEqualFold",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152827,7 +152851,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityKeyHasPrefix",
+            "name": "catalogKeyHasPrefix",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152839,7 +152863,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityKeyHasSuffix",
+            "name": "catalogKeyHasSuffix",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152851,7 +152875,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityKeyIn",
+            "name": "catalogKeyIn",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -152871,7 +152895,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityKeyIsNil",
+            "name": "catalogKeyIsNil",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152883,7 +152907,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityKeyNEQ",
+            "name": "catalogKeyNEQ",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -152895,7 +152919,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityKeyNotIn",
+            "name": "catalogKeyNotIn",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -152915,7 +152939,7 @@
             "deprecationReason": null
           },
           {
-            "name": "catalogEntityKeyNotNil",
+            "name": "catalogKeyNotNil",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -155247,8 +155271,8 @@
             "deprecationReason": null
           },
           {
-            "name": "hasAdoptedEntities",
-            "description": "adopted_entities edge predicates",
+            "name": "hasAdopted",
+            "description": "adopted edge predicates",
             "type": {
               "kind": "SCALAR",
               "name": "Boolean",
@@ -155259,7 +155283,7 @@
             "deprecationReason": null
           },
           {
-            "name": "hasAdoptedEntitiesWith",
+            "name": "hasAdoptedWith",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -155439,8 +155463,8 @@
             "deprecationReason": null
           },
           {
-            "name": "hasCatalogEntity",
-            "description": "catalog_entity edge predicates",
+            "name": "hasCatalog",
+            "description": "catalog edge predicates",
             "type": {
               "kind": "SCALAR",
               "name": "Boolean",
@@ -155451,7 +155475,7 @@
             "deprecationReason": null
           },
           {
-            "name": "hasCatalogEntityWith",
+            "name": "hasCatalogWith",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -487334,6 +487358,18 @@
             "deprecationReason": null
           },
           {
+            "name": "clearRawIngestPayload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "clearRemediations",
             "description": null,
             "type": {
@@ -488128,6 +488164,18 @@
                   "ofType": null
                 }
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rawIngestPayload",
+            "description": "raw payload received from the integration for auditing and troubleshooting",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Map",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -595480,6 +595528,15 @@
       }
     ],
     "directives": [
+      {
+        "name": "catalogManaged",
+        "description": "Indicates the field's value is copied from the catalog row on adopt and rewritten on refresh while the row stays linked",
+        "isRepeatable": false,
+        "isDeprecated": false,
+        "deprecationReason": null,
+        "locations": ["FIELD_DEFINITION"],
+        "args": []
+      },
       {
         "name": "deprecated",
         "description": "Marks an element of a GraphQL schema as no longer supported.",
