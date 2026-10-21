@@ -34,7 +34,7 @@ steps:
     timeout_in_minutes: 30
     plugins:
       - docker#v5.13.0:
-          image: mcr.microsoft.com/playwright:v1.63.0-noble
+          image: mcr.microsoft.com/playwright:v1.64.0-noble
           env-file:
             - .buildkite/e2e/console.env
           environment:
@@ -101,7 +101,7 @@ steps:
       - artifacts#v1.11.0:
           download: 'console/apps/console/e2e/blob-report/*.zip'
       - docker#v5.13.0:
-          image: mcr.microsoft.com/playwright:v1.63.0-noble
+          image: mcr.microsoft.com/playwright:v1.64.0-noble
           environment:
             - PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report
             - PLAYWRIGHT_HTML_OPEN=never
@@ -111,7 +111,7 @@ steps:
             - |
               set -euo pipefail
               trap 'chown -R "$$(stat -c %u:%g /workdir)" /workdir' EXIT
-              npx -y playwright@1.63.0 merge-reports --reporter html console/apps/console/e2e/blob-report
+              npx -y playwright@1.64.0 merge-reports --reporter html console/apps/console/e2e/blob-report
     artifact_paths:
       - 'playwright-report/**/*'
 
