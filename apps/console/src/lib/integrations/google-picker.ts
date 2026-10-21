@@ -4,6 +4,8 @@ import { type IntegrationSelectedResource, type TResourcePicker } from './types'
 const GOOGLE_API_SCRIPT_URL = 'https://apis.google.com/js/api.js'
 const GOOGLE_PICKER_LOAD_TIMEOUT_MS = 15_000 // 15s
 const GOOGLE_DOCS_MIME_TYPE = 'application/vnd.google-apps.document'
+const MY_DRIVE_FOLDER_ID = 'root'
+const GOOGLE_PICKER_TITLE = 'Select documents'
 const PICKER_LOAD_ERROR = 'The Google document picker could not be loaded. Please try again later.'
 
 type TGooglePickerSession = {
@@ -69,15 +71,21 @@ const toGooglePickerSession = (session: Record<string, unknown>): TGooglePickerS
   return { accessToken, apiKey, appId }
 }
 
+const googleDocsView = (): google.picker.DocsView => new google.picker.DocsView(google.picker.ViewId.DOCS).setMimeTypes(GOOGLE_DOCS_MIME_TYPE).setIncludeFolders(true)
+
 const pickGoogleDocuments = async (details: Record<string, unknown>): Promise<IntegrationSelectedResource[]> => {
   const session = toGooglePickerSession(details)
   await loadGooglePickerApi()
 
   return new Promise((resolve, reject) => {
-    const view = new google.picker.DocsView(google.picker.ViewId.DOCS).setMimeTypes(GOOGLE_DOCS_MIME_TYPE).setMode(google.picker.DocsViewMode.LIST)
+    const myDrive = googleDocsView()
+    myDrive.setParent(MY_DRIVE_FOLDER_ID)
 
     const picker = new google.picker.PickerBuilder()
-      .addView(view)
+      .addView(myDrive)
+      .addView(googleDocsView().setOwnedByMe(false))
+      .addView(googleDocsView().setEnableDrives(true))
+      .setTitle(GOOGLE_PICKER_TITLE)
       .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
       .enableFeature(google.picker.Feature.SUPPORT_DRIVES)
       .setOAuthToken(session.accessToken)
