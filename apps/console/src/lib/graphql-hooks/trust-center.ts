@@ -72,11 +72,10 @@ export const useUpdateTrustCenterSetting = () => {
 
       return client.request<UpdateTrustCenterSettingMutation, UpdateTrustCenterSettingMutationVariables>(UPDATE_TRUST_CENTER_SETTING, rest)
     },
-    onSuccess: () => {
+    onSuccess: () =>
       queryClient.invalidateQueries({
         queryKey: TRUST_CENTER_QUERY_KEY,
-      })
-    },
+      }),
   })
 }
 

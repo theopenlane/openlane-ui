@@ -96,21 +96,25 @@ function generate() {
     // types that carry the directive but are not in ObjectTypes are not surfaced in the ui
     if (!objectType) continue
 
-    const members = modules.flatMap((module) => {
-      if (module === 'any_module') {
-        return anyModuleMembers
-      }
+    const members = [
+      ...new Set(
+        modules.flatMap((module) => {
+          if (module === 'any_module') {
+            return anyModuleMembers
+          }
 
-      const member = planEnum.get(module)
+          const member = planEnum.get(module)
 
-      // a module in the schema with no PlanEnum member means the catalog gained one the ui
-      // does not know about yet, which should fail rather than emit something unusable
-      if (!member) {
-        throw new Error(`module '${module}' on type ${typeName} has no matching PlanEnum member`)
-      }
+          // a module in the schema with no PlanEnum member means the catalog gained one the ui
+          // does not know about yet, which should fail rather than emit something unusable
+          if (!member) {
+            throw new Error(`module '${module}' on type ${typeName} has no matching PlanEnum member`)
+          }
 
-      return member
-    })
+          return member
+        }),
+      ),
+    ]
 
     entries.push({ objectType, members })
   }

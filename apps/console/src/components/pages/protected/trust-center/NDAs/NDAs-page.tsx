@@ -21,6 +21,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import NdaRequestsTable from './table/nda-requests-table.tsx'
 import { NdaAutoApprovalSettings } from './components/nda-auto-approval-settings'
 import { NdaApprovalGroupCard } from './components/nda-approval-group-card'
+import { resolveAutoApprovalRules } from './auto-approval-rules'
 import { ObjectTypes } from '@repo/codegen/src/type-names.ts'
 import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
@@ -44,12 +45,22 @@ const NDAsPage = () => {
   const canEditNdaRequest = hasPermission(tcPermission?.roles, AccessEnum.CanEditTrustCenterNdaRequest, session)
   const trustCenterSetting = trustCenter?.setting
   const ndaApprovalRequired = !!trustCenterSetting?.ndaApprovalRequired
-  const shouldDisableAutoApprovalRules = isUpdatingSetting || !trustCenterSetting?.id || !canEditTc
+  const cannotEditSetting = !trustCenterSetting?.id || !canEditTc
+  const isSettingLocked = cannotEditSetting || isUpdatingSetting
 
-  const handleUpdateSetting = (input: UpdateTrustCenterSettingInput) => {
-    if (!trustCenterSetting?.id) return
-    updateTrustCenterSetting({ id: trustCenterSetting.id, input })
+  const handleUpdateSetting = async (input: UpdateTrustCenterSettingInput) => {
+    if (!trustCenterSetting?.id) return false
+    return !!(await updateTrustCenterSetting({ id: trustCenterSetting.id, input }))
   }
+
+  const approvalCallout = (() => {
+    if (!ndaApprovalRequired) return { variant: 'info' as const, text: 'Approval required: OFF — Auto-send NDA immediately upon request' }
+    if (!trustCenterSetting?.enableAutoApproval) return { variant: 'info' as const, text: 'Approval requests will appear in the Needs Approval queue.' }
+    if (!resolveAutoApprovalRules(trustCenterSetting).manualApprovalOnFailure) {
+      return { variant: 'warning' as const, text: 'Requests that do not match an automatic approval rule are declined without manual review.' }
+    }
+    return { variant: 'info' as const, text: 'Automatic approval rules will be applied to incoming NDA requests.' }
+  })()
 
   useEffect(() => {
     setCrumbs([
@@ -144,20 +155,11 @@ const NDAsPage = () => {
                   </Label>
                   <p className="mt-1 text-sm text-muted-foreground">When enabled, users must be approved before receiving the NDA signing link.</p>
                 </div>
-                <Switch
-                  id="nda-approval-required"
-                  checked={ndaApprovalRequired}
-                  onCheckedChange={(checked) => handleUpdateSetting({ ndaApprovalRequired: checked })}
-                  disabled={shouldDisableAutoApprovalRules}
-                />
+                <Switch id="nda-approval-required" checked={ndaApprovalRequired} onCheckedChange={(checked) => void handleUpdateSetting({ ndaApprovalRequired: checked })} disabled={isSettingLocked} />
               </div>
-              {ndaApprovalRequired && <NdaAutoApprovalSettings setting={trustCenterSetting} disabled={shouldDisableAutoApprovalRules} onUpdate={handleUpdateSetting} />}
-              <Callout variant="info" compact>
-                {ndaApprovalRequired
-                  ? trustCenterSetting?.enableAutoApproval
-                    ? 'Automatic approval rules will be applied to incoming NDA requests.'
-                    : 'Approval requests will appear in the Needs Approval queue.'
-                  : 'Approval required: OFF — Auto-send NDA immediately upon request'}
+              {ndaApprovalRequired && <NdaAutoApprovalSettings setting={trustCenterSetting} readOnly={cannotEditSetting} isSaving={isUpdatingSetting} onUpdate={handleUpdateSetting} />}
+              <Callout variant={approvalCallout.variant} compact>
+                {approvalCallout.text}
               </Callout>
             </CardContent>
           </Card>
