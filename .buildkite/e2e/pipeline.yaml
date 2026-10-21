@@ -13,7 +13,7 @@ steps:
     agents:
       size: small
     plugins:
-      - docker#v5.13.0:
+      - docker#v5.14.0:
           image: oven/bun:1.3.13
           environment:
             - CI=1
@@ -33,7 +33,7 @@ steps:
     key: 'build'
     timeout_in_minutes: 30
     plugins:
-      - docker#v5.13.0:
+      - docker#v5.14.0:
           image: mcr.microsoft.com/playwright:v1.64.0-noble
           env-file:
             - .buildkite/e2e/console.env
@@ -100,7 +100,7 @@ steps:
     plugins:
       - artifacts#v1.11.0:
           download: 'console/apps/console/e2e/blob-report/*.zip'
-      - docker#v5.13.0:
+      - docker#v5.14.0:
           image: mcr.microsoft.com/playwright:v1.64.0-noble
           environment:
             - PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report
@@ -120,7 +120,7 @@ steps:
     depends_on: 'report'
     allow_dependency_failure: true
     plugins:
-      - docker#v5.13.0:
+      - docker#v5.14.0:
           image: python:3.13-alpine
           mount-buildkite-agent: true
           environment:
