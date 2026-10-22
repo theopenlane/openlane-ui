@@ -71,6 +71,7 @@ export const GET_ALL_TRUST_CENTER_NDA_REQUESTS = gql`
           createdAt
           approvedAt
           approvedByUserID
+          autoApproved
           approvedByUser {
             id
             displayName
