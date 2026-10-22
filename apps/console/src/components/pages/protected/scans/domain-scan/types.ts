@@ -57,16 +57,6 @@ export type TextOverride = { name?: string; description?: string; domain?: strin
 
 export type OverrideMap = Record<string, TextOverride>
 
-export type LinkableItem = { id: string; name: string; logoUrl?: string }
-
-export type DomainScanSummaryItem = LinkableItem & { description?: string; linkedVendorNames?: string[] }
-
-export type DomainScanSummarySection = {
-  stepId: EditableStepId
-  title: string
-  items: DomainScanSummaryItem[]
-}
-
 export const DOMAIN_SCAN_STEPS = [
   { id: 'platform', label: 'Platform' },
   { id: 'systems', label: 'System Details' },

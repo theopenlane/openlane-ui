@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@repo/ui/cardpanel'
@@ -9,6 +9,10 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { ShieldCheck, KeyRound, InfoIcon } from 'lucide-react'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
+import { ReportFileField } from '@/components/pages/protected/scans/report-scan/upload/report-file-field'
+import { type TReportScanFile, useReportScanAvailability } from '@/lib/graphql-hooks/report-scan'
+import { SCAN_PERFORMER } from '@/constants/scan-performers'
+import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-category-names'
 
 const createFieldProps = {
   isEditing: true,
@@ -18,15 +22,22 @@ const createFieldProps = {
   setInternalEditing: () => {},
 }
 
-const StepSecurity: React.FC = () => {
+type StepSecurityProps = {
+  soc2Report: TReportScanFile | null
+  onSoc2ReportChange: (report: TReportScanFile | null) => void
+}
+
+const StepSecurity: React.FC<StepSecurityProps> = ({ soc2Report, onSoc2ReportChange }) => {
   const form = useFormContext<EditVendorFormData>()
+  const hasSoc2 = useWatch({ control: form.control, name: 'hasSoc2' })
+  const { canStart, isChecking, isPermitted, blockedReason } = useReportScanAvailability(SCAN_PERFORMER.VENDOR_REPORT_REVIEW, !!hasSoc2)
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <Card className="h-full">
         <CardHeader className="pb-3">
           <CardTitle className="text-md flex items-center gap-2 p-0">
-            <ShieldCheck size={16} className="text-brand" />
+            <ShieldCheck size={16} className="text-primary" />
             Compliance and Risk
           </CardTitle>
           <CardDescription className="p-0">
@@ -59,13 +70,26 @@ const StepSecurity: React.FC = () => {
               </FormItem>
             )}
           />
+          {hasSoc2 && isPermitted && !isChecking ? (
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-semibold">{SOC_2_FRAMEWORK_NAME} report (optional)</p>
+              <p className="text-sm text-muted-foreground">
+                We&apos;ll review it once the vendor is created and save the auditor&apos;s opinion, a risk rating and every exception the auditor found on the vendor.
+              </p>
+              {!canStart ? (
+                <p className="text-sm text-muted-foreground">{blockedReason}</p>
+              ) : (
+                <ReportFileField value={soc2Report} onChange={onSoc2ReportChange} uploadLabel={`Upload the vendor's ${SOC_2_FRAMEWORK_NAME} report`} />
+              )}
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
       <Card className="h-full">
         <CardHeader className="pb-3">
           <CardTitle className="text-md flex items-center gap-2 p-0">
-            <KeyRound size={16} className="text-brand" />
+            <KeyRound size={16} className="text-primary" />
             Security Features
           </CardTitle>
           <CardDescription className="p-0">Single sign-on and multi-factor authentication capabilities the vendor supports or enforces.</CardDescription>

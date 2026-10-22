@@ -10,6 +10,7 @@ import { SUPPORT_URL } from '@/constants'
 import { DOCS_URL } from '@/constants/docs.ts'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 import SetupChecklistItemCard, { SETUP_CHECKLIST_ANCHOR, SETUP_CHECKLIST_STATUS } from './setup-checklist-item'
+import { withSuggestedTaskParam } from '@/constants/scan-routes'
 
 const helpLinks = [
   { key: 'docs', label: 'View Docs', icon: <FileText size={14} className="text-muted-foreground" />, href: DOCS_URL },
@@ -62,7 +63,7 @@ const DashboardSetupChecklist = ({ items, completedCount, totalCount, markInProg
   const handleOpen = (task: SetupChecklistItem) => {
     markInProgress(task.id)
     if (task.metadata.link) {
-      router.push(task.metadata.link)
+      router.push(withSuggestedTaskParam(task.metadata.link, task.id))
     }
   }
 

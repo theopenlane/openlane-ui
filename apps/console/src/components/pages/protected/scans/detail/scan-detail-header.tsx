@@ -9,7 +9,7 @@ import { ScanTypeIconMapper } from '@/components/shared/enum-mapper/scan-enum'
 import { ScanScanType, ScanScanStatus } from '@repo/codegen/src/schema'
 import type { ScanDetailNode } from '@/lib/graphql-hooks/scan'
 import { currentLocationPath } from '@/utils/return-to'
-import { domainScanReviewHref } from '@/constants/scan-routes'
+import { isReviewableScanType, scanReviewHref } from '@/constants/scan-routes'
 
 type Props = {
   data?: ScanDetailNode
@@ -19,7 +19,7 @@ type Props = {
 const ScanDetailHeader: React.FC<Props> = ({ data, onClose }) => {
   const router = useRouter()
   const title = data ? `${getEnumLabel(data.scanType)} Scan` : 'Scan'
-  const isCompletedDomainScan = data?.scanType === ScanScanType.DOMAIN && data?.status === ScanScanStatus.COMPLETED
+  const reviewableScan = data?.status === ScanScanStatus.COMPLETED && isReviewableScanType(data.scanType) ? { scanType: data.scanType, id: data.id } : undefined
 
   return (
     <>
@@ -32,18 +32,21 @@ const ScanDetailHeader: React.FC<Props> = ({ data, onClose }) => {
         }
         onClose={onClose}
         primaryAction={
-          isCompletedDomainScan && data
+          reviewableScan
             ? {
                 label: 'View report',
                 variant: 'secondary',
                 icon: <FileText size={16} />,
-                onClick: () => router.push(domainScanReviewHref(data.id, currentLocationPath())),
+                onClick: () => router.push(scanReviewHref(reviewableScan.scanType, reviewableScan.id, currentLocationPath())),
               }
             : undefined
         }
       />
       <p className="text-xs text-muted-foreground mt-2">
-        This scan provides recommendations based on publicly available data and automated analysis. Results are not guaranteed to be complete or accurate and should be reviewed before use.
+        {data?.scanType === ScanScanType.REPORT
+          ? 'This scan reads the report you uploaded with automated analysis.'
+          : 'This scan provides recommendations based on publicly available data and automated analysis.'}{' '}
+        Results are not guaranteed to be complete or accurate and should be reviewed before use.
       </p>
     </>
   )

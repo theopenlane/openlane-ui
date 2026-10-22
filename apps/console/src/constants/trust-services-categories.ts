@@ -6,17 +6,30 @@ export type TTrustServicesCategory = {
   name: string
   description: string
   icon: LucideIcon
+  criteriaPrefix: string
 }
 
 const TRUST_SERVICES_CATEGORY_DETAILS: Record<TTrustServicesCategoryName, Omit<TTrustServicesCategory, 'name'>> = {
-  Security: { description: 'Protect systems and information against unauthorized access and disclosure.', icon: Shield },
-  Availability: { description: 'Systems are available for operation and use as committed.', icon: Cloud },
-  Confidentiality: { description: 'Confidential information is protected according to your commitments.', icon: BookLock },
-  'Processing Integrity': { description: 'Processing is complete, valid, accurate, timely, and authorized.', icon: SlidersHorizontal },
-  Privacy: { description: 'Personal information is collected, used, retained, and disclosed appropriately.', icon: GlobeLock },
+  Security: { description: 'Protect systems and information against unauthorized access and disclosure.', icon: Shield, criteriaPrefix: 'CC' },
+  Availability: { description: 'Systems are available for operation and use as committed.', icon: Cloud, criteriaPrefix: 'A' },
+  Confidentiality: { description: 'Confidential information is protected according to your commitments.', icon: BookLock, criteriaPrefix: 'C' },
+  'Processing Integrity': { description: 'Processing is complete, valid, accurate, timely, and authorized.', icon: SlidersHorizontal, criteriaPrefix: 'PI' },
+  Privacy: { description: 'Personal information is collected, used, retained, and disclosed appropriately.', icon: GlobeLock, criteriaPrefix: 'P' },
 }
 
 export const TRUST_SERVICES_CATEGORIES: readonly TTrustServicesCategory[] = TRUST_SERVICES_CATEGORY_NAMES.map((name) => ({ name, ...TRUST_SERVICES_CATEGORY_DETAILS[name] }))
+
+const CRITERIA_CODE_PATTERN = /^([A-Z]+)\d/
+
+export const trustServicesCategoryForCriteria = (criteria: string): string | undefined => {
+  const prefix = CRITERIA_CODE_PATTERN.exec(criteria.trim().toUpperCase())?.[1]
+  return prefix ? TRUST_SERVICES_CATEGORIES.find((category) => category.criteriaPrefix === prefix)?.name : undefined
+}
+
+export const trustServicesCategoryForName = (name: string): string | undefined => {
+  const normalized = name.trim().toLowerCase()
+  return TRUST_SERVICES_CATEGORIES.find((category) => normalized.includes(category.name.toLowerCase()))?.name
+}
 
 const TRUST_SERVICES_CATEGORY_NAME_SET = new Set<string>(TRUST_SERVICES_CATEGORY_NAMES)
 

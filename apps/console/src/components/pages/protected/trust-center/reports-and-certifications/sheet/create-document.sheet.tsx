@@ -35,6 +35,15 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
+import { SOC_2_SYSTEM_STANDARD } from '@/constants/standards'
+import { useCanCreateScan } from '@/hooks/useCanCreateScan'
+import { type TTrustCenterReportFile } from '@/components/pages/protected/scans/report-scan/upload/trust-center-report-import-dialog'
+import dynamic from 'next/dynamic'
+
+const TrustCenterReportImportDialog = dynamic(
+  () => import('@/components/pages/protected/scans/report-scan/upload/trust-center-report-import-dialog').then((mod) => mod.TrustCenterReportImportDialog),
+  { ssr: false },
+)
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -70,6 +79,8 @@ export const CreateDocumentSheet: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [open, setOpen] = useState(isCreateMode || !!documentId)
+  const [reportToImport, setReportToImport] = useState<TTrustCenterReportFile | null>(null)
+  const { canCreateScan } = useCanCreateScan()
 
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createDoc } = useCreateTrustCenterDoc()
@@ -148,7 +159,7 @@ export const CreateDocumentSheet: React.FC = () => {
         setIsEditing(false)
       } else {
         if (!data.file) throw new Error('Please upload a PDF file.')
-        await createDoc({
+        const created = await createDoc({
           input: {
             title: data.title,
             trustCenterDocKindName: data.category,
@@ -166,6 +177,12 @@ export const CreateDocumentSheet: React.FC = () => {
           description: 'The document has been successfully uploaded.',
         })
         handleOpenChange(false)
+
+        const createdDoc = created.createTrustCenterDoc.trustCenterDoc
+        const reportFile = createdDoc.originalFile ?? createdDoc.file
+        if (canCreateScan && reportFile && createdDoc.standard?.framework === SOC_2_SYSTEM_STANDARD.framework) {
+          setReportToImport({ fileId: reportFile.id, fileName: reportFile.providedFileName || createdDoc.title })
+        }
       }
     } catch (error) {
       const message = parseErrorMessage(error)
@@ -333,6 +350,7 @@ export const CreateDocumentSheet: React.FC = () => {
           confirmationTextVariant="destructive"
         />
       )}
+      {reportToImport && <TrustCenterReportImportDialog report={reportToImport} onClose={() => setReportToImport(null)} />}
     </>
   )
 }

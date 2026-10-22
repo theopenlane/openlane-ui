@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { ArrowLeft } from 'lucide-react'
@@ -44,6 +44,7 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
   const queryKey = [pluralizeTypeName(objectType.toLowerCase())]
 
   const currentStepConfig = steps.find((s) => s.id === stepper.current.id)
+  const submittingRef = useRef(false)
 
   const handleNext = async () => {
     if (!currentStepConfig) return
@@ -60,6 +61,9 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
   }
 
   const handleSubmit = async () => {
+    if (submittingRef.current) return
+    submittingRef.current = true
+
     try {
       const formData = form.getValues()
       const payload = await buildPayload(formData)
@@ -78,6 +82,8 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
         title: 'Error',
         description: errorMessage,
       })
+    } finally {
+      submittingRef.current = false
     }
   }
 
