@@ -7002,6 +7002,14 @@ export interface GetProgramFrameworkNamesQuery {
   programs: { edges: Array<{ node: { id: string; frameworkName: string | null } | null } | null> | null }
 }
 
+export type GetProgramSubmittedEvidenceQueryVariables = Exact<{
+  programId: string
+}>
+
+export interface GetProgramSubmittedEvidenceQuery {
+  controls: { totalCount: number }
+}
+
 export type GetProgramDashboardQueryVariables = Exact<{
   where?: Types.ProgramWhereInput | null | undefined
 }>
@@ -7018,7 +7026,6 @@ export interface GetProgramDashboardQuery {
         endDate: any
         startDate: any
         programOwner: { id: string; displayName: string } | null
-        submittedEvidences: { totalCount: number }
         tasks: { edges: Array<{ node: { id: string; status: Types.TaskTaskStatus } | null } | null> | null }
         controls: { totalCount: number }
       } | null

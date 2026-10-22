@@ -16,6 +16,7 @@ import {
   UPDATE_PROGRAM_MEMBERSHIP,
   GET_PROGRAM_DASHBOARD,
   GET_PROGRAM_FRAMEWORK_NAMES,
+  GET_PROGRAM_SUBMITTED_EVIDENCE,
 } from '@repo/codegen/query/program'
 
 import {
@@ -44,6 +45,8 @@ import {
   type GetProgramDashboardQuery,
   type GetProgramDashboardQueryVariables,
   type GetProgramFrameworkNamesQuery,
+  type GetProgramSubmittedEvidenceQuery,
+  type GetProgramSubmittedEvidenceQueryVariables,
   EvidenceEvidenceStatus,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -263,6 +266,18 @@ export const useGetProgramDashboard = ({ where }: { where?: ProgramWhereInput })
     queryFn: async () => {
       return client.request(GET_PROGRAM_DASHBOARD, { where })
     },
+  })
+}
+
+export const PROGRAM_SUBMITTED_EVIDENCE_COUNT_KEY = ['programs', 'submitted-evidence-count']
+
+export const useProgramSubmittedEvidenceCount = (programId: string) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetProgramSubmittedEvidenceQuery, Error, number>({
+    queryKey: [...PROGRAM_SUBMITTED_EVIDENCE_COUNT_KEY, programId],
+    queryFn: () => client.request<GetProgramSubmittedEvidenceQuery, GetProgramSubmittedEvidenceQueryVariables>(GET_PROGRAM_SUBMITTED_EVIDENCE, { programId }),
+    select: (data) => data.controls.totalCount,
   })
 }
 

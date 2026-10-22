@@ -398,6 +398,14 @@ export const GET_PROGRAM_FRAMEWORK_NAMES = gql`
   }
 `
 
+export const GET_PROGRAM_SUBMITTED_EVIDENCE = gql`
+  query GetProgramSubmittedEvidence($programId: ID!) {
+    controls(where: { hasProgramsWith: [{ id: $programId }], hasEvidenceWith: [{ statusIn: [READY_FOR_AUDITOR, AUDITOR_APPROVED], hasProgramsWith: [{ id: $programId }] }] }) {
+      totalCount
+    }
+  }
+`
+
 export const GET_PROGRAM_DASHBOARD = gql`
   query GetProgramDashboard($where: ProgramWhereInput) {
     programs(where: $where) {
@@ -413,9 +421,6 @@ export const GET_PROGRAM_DASHBOARD = gql`
           programOwner {
             id
             displayName
-          }
-          submittedEvidences: controls(where: { hasEvidenceWith: [{ statusIn: [READY_FOR_AUDITOR, AUDITOR_APPROVED] }] }) {
-            totalCount
           }
           tasks(where: { isTemplate: false }) {
             edges {

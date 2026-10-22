@@ -64,12 +64,14 @@ import {
   type GetEvidencesWithFileIdsQueryVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
+import { PROGRAM_SUBMITTED_EVIDENCE_COUNT_KEY } from '@/lib/graphql-hooks/program'
 import { type TPagination } from '@repo/ui/pagination-types'
 
 type TInvalidateClient = { invalidateQueries: (args: { queryKey: unknown[] }) => void }
 
 const invalidateEvidenceQueries = (queryClient: TInvalidateClient) => {
   queryClient.invalidateQueries({ queryKey: ['evidences'] })
+  queryClient.invalidateQueries({ queryKey: PROGRAM_SUBMITTED_EVIDENCE_COUNT_KEY })
 }
 
 const invalidateEvidenceFileQueries = (queryClient: TInvalidateClient) => {

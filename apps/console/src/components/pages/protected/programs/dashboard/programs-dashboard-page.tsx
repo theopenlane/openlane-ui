@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useId, use, useEffect, useMemo, useState } from 'react'
-import { type ProgramFromGetProgramDashboard as Program, useGetProgramDashboard } from '@/lib/graphql-hooks/program'
+import { type ProgramFromGetProgramDashboard as Program, useGetProgramDashboard, useProgramSubmittedEvidenceCount, useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { Calendar, ChevronRight, SquarePlus, SearchIcon, UserRoundPlus, Undo, UserIcon } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
@@ -22,7 +22,6 @@ import { ProgramIconMapper, ProgramSettingsIconBtn } from '@/components/shared/e
 import { Separator } from '@repo/ui/separator'
 import Menu from '@/components/shared/menu/menu'
 import clsx from 'clsx'
-import { useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -212,8 +211,11 @@ const ProgramsDashboardPage = () => {
 
 export default ProgramsDashboardPage
 
+const formatEvidencePct = (submitted: number | undefined, total: number) => (submitted === undefined ? '-' : `${Math.round((submitted / total) * 100) || 0}%`)
+
 const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; editAllowed: boolean }) => {
-  const evidencePct = Math.round((program.submittedEvidences.totalCount / program.controls.totalCount) * 100) || 0
+  const { data: submittedEvidenceCount } = useProgramSubmittedEvidenceCount(program.id)
+  const evidencePct = formatEvidencePct(submittedEvidenceCount, program.controls.totalCount)
 
   const openTasks = program?.tasks?.edges?.filter((t) => t?.node?.status && [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW].includes(t.node.status)).length ?? 0
   const status = program.status === ProgramProgramStatus.READY_FOR_AUDITOR ? ProgramProgramStatus.IN_PROGRESS : program.status
@@ -327,7 +329,7 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
       </div>
 
       <div className="flex items-center">
-        <Metric label="EVIDENCE" value={`${evidencePct}%`} valueLabel="submitted" status={status} />
+        <Metric label="EVIDENCE" value={evidencePct} valueLabel="submitted" status={status} />
         <Separator vertical className="mx-4 w-fit" separatorClass="h-10" />
         <Metric label="TASKS" value={openTasks || 0} valueLabel="open" status={status} />
         <Separator vertical className="mx-4 w-fit" separatorClass="h-10" />
