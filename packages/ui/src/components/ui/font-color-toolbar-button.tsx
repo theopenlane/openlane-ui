@@ -15,113 +15,68 @@ import { cn } from '@repo/ui/lib/utils'
 
 import { ToolbarButton, ToolbarMenuGroup } from '../ui/toolbar'
 
-export function FontColorToolbarButton({
+export const FontColorToolbarButton = ({
   children,
   nodeType,
   tooltip,
 }: {
   nodeType: string
   tooltip?: string
-} & DropdownMenuProps) {
+} & DropdownMenuProps) => {
   const editor = useEditorRef()
 
-  const selectionDefined = useEditorSelector((editor) => !!editor.selection, [])
+  const color = useEditorSelector(
+    (editor) => {
+      const mark = editor.api.mark(nodeType)
+      return typeof mark === 'string' ? mark : undefined
+    },
+    [nodeType],
+  )
 
-  const color = useEditorSelector((editor) => editor.api.mark(nodeType) as string, [nodeType])
-
-  const [selectedColor, setSelectedColor] = React.useState<string>()
   const [open, setOpen] = React.useState(false)
 
-  const onToggle = React.useCallback(
-    (value = !open) => {
-      setOpen(value)
-    },
-    [open, setOpen],
-  )
+  const updateColor = (value: string) => {
+    editor.tf.addMarks({ [nodeType]: value })
+    setOpen(false)
+  }
 
-  const updateColor = React.useCallback(
-    (value: string) => {
-      if (editor.selection) {
-        setSelectedColor(value)
-
-        editor.tf.select(editor.selection)
-        editor.tf.focus()
-
-        editor.tf.addMarks({ [nodeType]: value })
-      }
-      onToggle()
-    },
-    [editor, nodeType, onToggle],
-  )
-
-  const clearColor = React.useCallback(() => {
-    if (editor.selection) {
-      editor.tf.select(editor.selection)
-      editor.tf.focus()
-
-      if (selectedColor) {
-        editor.tf.removeMarks(nodeType)
-      }
-
-      onToggle()
-    }
-  }, [editor, selectedColor, onToggle, nodeType])
-
-  React.useEffect(() => {
-    if (selectionDefined) {
-      setSelectedColor(color)
-    }
-  }, [color, selectionDefined])
+  const clearColor = () => {
+    editor.tf.removeMarks(nodeType)
+    setOpen(false)
+  }
 
   return (
-    <DropdownMenu
-      open={open}
-      onOpenChange={(value) => {
-        setOpen(value)
-      }}
-    >
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={open} tooltip={tooltip}>
           {children}
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start">
-        <ColorPicker color={selectedColor || color} clearColor={clearColor} colors={getPaletteForNodeType(nodeType)} updateColor={updateColor} />
+      <DropdownMenuContent
+        align="start"
+        onCloseAutoFocus={(e) => {
+          e.preventDefault()
+          editor.tf.focus()
+        }}
+      >
+        <ColorPicker color={color} clearColor={clearColor} colors={getPaletteForNodeType(nodeType)} updateColor={updateColor} />
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
 
-function PureColorPicker({
-  className,
-  clearColor,
-  color,
-  colors,
-  updateColor,
-  ...props
-}: React.ComponentProps<'div'> & {
-  colors: TColor[]
-  clearColor: () => void
-  updateColor: (color: string) => void
-  color?: string
-}) {
-  return (
-    <div className={cn('flex flex-col', className)} {...props}>
-      <ColorDropdownMenuItems color={color} className="p-2" colors={colors} updateColor={updateColor} />
-      {color && (
-        <ToolbarMenuGroup>
-          <DropdownMenuItem className="p-2" onClick={clearColor}>
-            <EraserIcon />
-            <span>Clear</span>
-          </DropdownMenuItem>
-        </ToolbarMenuGroup>
-      )}
-    </div>
-  )
-}
-
-const ColorPicker = React.memo(PureColorPicker, (prev, next) => prev.color === next.color && prev.colors === next.colors)
+const ColorPicker = ({ clearColor, color, colors, updateColor }: { colors: TColor[]; clearColor: () => void; updateColor: (color: string) => void; color?: string }) => (
+  <div className="flex flex-col">
+    <ColorDropdownMenuItems color={color} className="p-2" colors={colors} updateColor={updateColor} />
+    <ToolbarMenuGroup>
+      <DropdownMenuItem className="p-2" onSelect={clearColor}>
+        <EraserIcon />
+        <span>Clear</span>
+      </DropdownMenuItem>
+    </ToolbarMenuGroup>
+  </div>
+)
 
 type TColor = {
   isBrightColor: boolean
