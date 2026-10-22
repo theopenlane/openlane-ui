@@ -5,6 +5,7 @@ import { Logo } from '@repo/ui/logo'
 import { QuestionnairePage } from '@/components/pages/public/questionnaire/questionnaire'
 import { QuestionnaireBackground } from '@/components/pages/public/questionnaire/questionnaire-background'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
+import OfficialOnly from '@/components/shared/official-only/official-only'
 
 export const metadata: Metadata = {
   title: 'Questionnaire',
@@ -31,14 +32,16 @@ const Questionnaire: React.FC<QuestionnaireProps> = async ({ searchParams }) => 
             <QuestionnairePage token={token} />
           </div>
 
-          <div className="mt-8 pb-4">
-            <Link href={OPENLANE_WEBSITE_URL} className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <span>Powered by</span>
-              <span className="opacity-60 group-hover:opacity-100 transition-opacity">
-                <Logo width={100} height={15} />
-              </span>
-            </Link>
-          </div>
+          <OfficialOnly>
+            <div className="mt-8 pb-4">
+              <Link href={OPENLANE_WEBSITE_URL} className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <span>Powered by</span>
+                <span className="opacity-60 group-hover:opacity-100 transition-opacity">
+                  <Logo width={100} height={15} />
+                </span>
+              </Link>
+            </div>
+          </OfficialOnly>
         </div>
       </QuestionnaireBackground>
     </Suspense>
