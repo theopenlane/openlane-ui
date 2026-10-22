@@ -121,10 +121,11 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - robots.txt (crawler rules)
      * - public/backgrounds (background images)
      * - public/icons (images)
      */
 
-    '/((?!api|_next/static|_next/image|favicon.ico|backgrounds|backgrounds/|icons|icons/|images|images/).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|backgrounds|backgrounds/|icons|icons/|images|images/).*)',
   ],
 }
