@@ -203,9 +203,8 @@ const PlateEditor = ({
       <EditorContainer
         className={containerClassName}
         variant={readonly ? 'readonly' : styleVariant}
-        onClick={() => {
-          // @ts-expect-error fix bad typing from platejs
-          editor?.focus()
+        onClick={(event) => {
+          if (!readonly && event.target === event.currentTarget) editor.tf.focus()
         }}
       >
         <Editor aria-label={ariaLabel ?? placeholder ?? 'Rich text editor'} placeholder={placeholder ?? 'Type a paragraph'} variant={readonly ? 'readonly' : undefined} />
