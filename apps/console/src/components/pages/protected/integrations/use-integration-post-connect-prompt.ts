@@ -1,11 +1,19 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { PRIMARY_DOCUMENT_FIELD, providerSupportsDocumentSync, providerSupportsPrimaryDirectory, providerSupportsTestMessage } from '@/lib/integrations/flow'
+import {
+  PRIMARY_DOCUMENT_FIELD,
+  providerSupportsDocumentSync,
+  providerSupportsPrimaryDirectory,
+  providerSupportsResourcePicker,
+  providerSupportsTestMessage,
+  readSelectedResources,
+} from '@/lib/integrations/flow'
 import { latestIntegration, readIntegrationUserInput } from '@/lib/integrations/utils'
 import { clearPendingIntegrationPrompt, readPendingIntegrationPrompt, writePendingIntegrationPrompt } from '@/lib/integrations/pending-integration-prompt'
 import { type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
 import { isOperableIntegration } from '@/lib/integrations/health'
+import { useResourcePicker } from './use-resource-picker'
 
 export type IntegrationPromptKind = 'directory' | 'document' | 'test-message'
 
@@ -35,11 +43,23 @@ const resolvePromptKind = (provider: IntegrationProvider | undefined): Integrati
 
 export function useIntegrationPostConnectPrompt({ provider, canManage, installedInstances }: UseIntegrationPostConnectPromptOptions) {
   const [promptIntegration, setPromptIntegration] = useState<IntegrationNode | null>(null)
+  const [pickerIntegration, setPickerIntegration] = useState<IntegrationNode | null>(null)
 
   const promptKind = resolvePromptKind(provider)
+  const supportsResourcePicker = providerSupportsResourcePicker(provider)
+  const hasPostConnectStep = promptKind !== null || supportsResourcePicker
+
+  const showPromptIfNeeded = useCallback(
+    (integration: IntegrationNode) => {
+      if (promptKind && isPromptNeeded(promptKind, integration)) {
+        setPromptIntegration(integration)
+      }
+    },
+    [promptKind],
+  )
 
   useEffect(() => {
-    if (!provider || !canManage || !promptKind) {
+    if (!provider || !canManage || !hasPostConnectStep) {
       return
     }
 
@@ -60,10 +80,26 @@ export function useIntegrationPostConnectPrompt({ provider, canManage, installed
     }
 
     clearPendingIntegrationPrompt()
-    if (isPromptNeeded(promptKind, target)) {
-      setPromptIntegration(target)
+    if (supportsResourcePicker && isOperableIntegration(target.status) && readSelectedResources(target).length === 0) {
+      setPickerIntegration(target)
+      return
     }
-  }, [provider, canManage, promptKind, installedInstances])
+
+    showPromptIfNeeded(target)
+  }, [provider, canManage, hasPostConnectStep, supportsResourcePicker, showPromptIfNeeded, installedInstances])
+
+  const { chooseResources } = useResourcePicker(provider)
+
+  useEffect(() => {
+    if (!pickerIntegration) {
+      return
+    }
+
+    void chooseResources(pickerIntegration).finally(() => {
+      setPickerIntegration((current) => (current?.id === pickerIntegration.id ? null : current))
+      showPromptIfNeeded(pickerIntegration)
+    })
+  }, [pickerIntegration, chooseResources, showPromptIfNeeded])
 
   const queueAfterRedirect = useCallback((providerId: string, baselineCount: number) => {
     writePendingIntegrationPrompt(providerId, { baselineCount })
@@ -75,5 +111,7 @@ export function useIntegrationPostConnectPrompt({ provider, canManage, installed
 
   const dismissPrompt = useCallback(() => setPromptIntegration(null), [])
 
-  return { promptKind, promptIntegration, queueAfterRedirect, queueAfterInlineConnect, dismissPrompt }
+  const currentPromptIntegration = promptIntegration ? (installedInstances.find((inst) => inst.id === promptIntegration.id) ?? promptIntegration) : null
+
+  return { promptKind, promptIntegration: currentPromptIntegration, hasPostConnectStep, queueAfterRedirect, queueAfterInlineConnect, dismissPrompt }
 }

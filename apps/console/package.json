@@ -97,6 +97,8 @@
     "@tailwindcss/container-queries": "^0.1.1",
     "@types/dompurify": "^3.2.0",
     "@types/eslint": "^9.6.1",
+    "@types/gapi": "^0.0.47",
+    "@types/google.picker": "^0.0.52",
     "@types/node": "^26.6.5",
     "@types/papaparse": "^5.5.2",
     "@types/react": "19.3.0",

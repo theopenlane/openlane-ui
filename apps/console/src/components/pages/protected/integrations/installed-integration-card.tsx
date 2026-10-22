@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Activity, ExternalLink, Send, Settings, SlidersHorizontal } from 'lucide-react'
+import { Activity, ExternalLink, FileSearch, Send, Settings, SlidersHorizontal } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
@@ -10,7 +10,7 @@ import { Separator } from '@repo/ui/separator'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { type IntegrationHealth, type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
 import { getInstalledIntegrationConfig, installedIntegrationDisplayName, readIntegrationUserInput, resolveConnectionEntry, resolveCredentialEntry, resolveManageUrl } from '@/lib/integrations/utils'
-import { PRIMARY_DOCUMENT_FIELD, providerHasInstallationSettings, providerSupportsTestMessage } from '@/lib/integrations/flow'
+import { PRIMARY_DOCUMENT_FIELD, providerHasInstallationSettings, providerSupportsResourcePicker, providerSupportsTestMessage, readSelectedResources } from '@/lib/integrations/flow'
 import { useDisconnectIntegration, useIntegrationHealthCheck } from '@/lib/query-hooks/integrations'
 import { integrationHealthBadge, isOperableIntegration } from '@/lib/integrations/health'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
@@ -21,6 +21,8 @@ import { formatDate, formatTimeSince } from '@/utils/date'
 import IntegrationCardIcons from './integration-card-icons'
 import IntegrationConfigurationDialog from './integration-configuration-dialog'
 import SendTestMessageDialog from './send-test-message-dialog'
+import SelectedResourcesSection from './selected-resources-section'
+import { useResourcePicker } from './use-resource-picker'
 
 type InstalledIntegrationCardProps = {
   integration: IntegrationNode
@@ -42,7 +44,12 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
   const provider = integrationConfig?.provider
   const hasSettings = providerHasInstallationSettings(provider)
   const supportsTestMessage = providerSupportsTestMessage(provider)
-  const testMessageDisabledReason = isOperableIntegration(integration.status) ? undefined : `${displayName} is not connected. Reconnect it before sending a test message.`
+  const isOperable = isOperableIntegration(integration.status)
+  const notConnectedReason = (action: string) => (isOperable ? undefined : `${displayName} is not connected. Reconnect it before ${action}.`)
+  const testMessageDisabledReason = notConnectedReason('sending a test message')
+  const supportsResourcePicker = providerSupportsResourcePicker(provider)
+  const chooseDocumentsDisabledReason = notConnectedReason('choosing documents')
+  const resourcePicker = useResourcePicker(provider)
   const isPrimaryDocument = readIntegrationUserInput(integration)[PRIMARY_DOCUMENT_FIELD] === true
 
   const meta: IntegrationMetadata | undefined = integration.metadata ?? undefined
@@ -124,6 +131,15 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
           </div>
         </div>
 
+        {supportsResourcePicker ? (
+          <SelectedResourcesSection
+            resources={readSelectedResources(integration)}
+            canRemove={canManage}
+            isBusy={resourcePicker.isBusy}
+            onRemove={(resourceId) => resourcePicker.removeResource(integration, resourceId)}
+          />
+        ) : null}
+
         {/* Stacked action buttons */}
         <div className="flex flex-col gap-2">
           {linkToDetail && provider ? (
@@ -140,6 +156,20 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
             <DisabledReasonTooltip reason={testMessageDisabledReason}>
               <Button variant="secondary" full icon={<Send className="size-4" />} iconPosition="left" onClick={() => setTestMessageOpen(true)} disabled={!!testMessageDisabledReason}>
                 Send Test Message
+              </Button>
+            </DisabledReasonTooltip>
+          ) : null}
+          {canManage && supportsResourcePicker ? (
+            <DisabledReasonTooltip reason={chooseDocumentsDisabledReason}>
+              <Button
+                variant="secondary"
+                full
+                icon={<FileSearch className="size-4" />}
+                iconPosition="left"
+                onClick={() => resourcePicker.chooseResources(integration)}
+                disabled={!!chooseDocumentsDisabledReason || resourcePicker.isBusy}
+              >
+                {resourcePicker.isPickingFor(integration.id) ? 'Choosing Documents...' : 'Choose Documents'}
               </Button>
             </DisabledReasonTooltip>
           ) : null}

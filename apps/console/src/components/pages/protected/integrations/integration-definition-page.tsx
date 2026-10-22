@@ -16,7 +16,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import IntegrationDefinitionSkeleton from './integration-definition-skeleton'
 import { Callout } from '@/components/shared/callout/callout'
 import { Button } from '@repo/ui/button'
-import { filterFinalizedIntegrationsForProvider, operationSchemaEntries, resolveSchemaRoot } from '@/lib/integrations/utils'
+import { filterFinalizedIntegrationsForProvider, operationSchemaEntries, resolveSchemaRoot, setupCredentialEntries } from '@/lib/integrations/utils'
 import { writePendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CREDENTIALS_PREFIX, useIntegrationSchemaForm } from './schema-form'
@@ -82,19 +82,19 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
 
   const visibleOperations = provider?.operations ?? []
 
-  const { promptKind, promptIntegration, queueAfterRedirect, queueAfterInlineConnect, dismissPrompt } = useIntegrationPostConnectPrompt({
+  const { promptKind, promptIntegration, hasPostConnectStep, queueAfterRedirect, queueAfterInlineConnect, dismissPrompt } = useIntegrationPostConnectPrompt({
     provider,
     canManage,
     installedInstances,
   })
-  const supportsPostConnectPrompt = promptKind !== null
+
   const handlePromptOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       dismissPrompt()
     }
   }
 
-  const credentialEntries = useMemo(() => provider?.credentialSchemas ?? [], [provider?.credentialSchemas])
+  const credentialEntries = useMemo(() => setupCredentialEntries(provider), [provider])
   const [selectedCredentialIndex, setSelectedCredentialIndex] = useState(-1)
   // Tracks which schema to use — only updates when a credential is actively selected, not when the accordion closes
   const [schemaCredentialIndex, setSchemaCredentialIndex] = useState(-1)
@@ -135,7 +135,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     async ({ integrationId }: { integrationId?: string }) => {
       setSelectedCredentialIndex(-1)
       if (!vendorId || !integrationId) {
-        if (!vendorId && integrationId && provider && supportsPostConnectPrompt) {
+        if (!vendorId && integrationId && provider && hasPostConnectStep) {
           queueAfterInlineConnect(provider.id, integrationId)
         }
         return
@@ -158,7 +158,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
         })
       }
     },
-    [vendorId, provider, supportsPostConnectPrompt, queueAfterInlineConnect, updateEntity, successNotification, errorNotification, router],
+    [vendorId, provider, hasPostConnectStep, queueAfterInlineConnect, updateEntity, successNotification, errorNotification, router],
   )
 
   const handleConnectRedirect = useCallback(() => {
@@ -167,11 +167,11 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     }
     if (vendorId) {
       writePendingVendorIntegrationLink(vendorId, provider.id)
-    } else if (supportsPostConnectPrompt) {
+    } else if (hasPostConnectStep) {
       queueAfterRedirect(provider.id, installedInstances.length)
     }
     startPolling(provider, providers, installedInstances.length)
-  }, [provider, providers, vendorId, supportsPostConnectPrompt, queueAfterRedirect, startPolling, installedInstances.length])
+  }, [provider, providers, vendorId, hasPostConnectStep, queueAfterRedirect, startPolling, installedInstances.length])
 
   const { isConnecting, webhookDetails, dismissWebhookDetails, handleAuthConnect, handleSubmit } = useIntegrationConnect({
     provider,

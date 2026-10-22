@@ -307,8 +307,10 @@ export function resolveSchemaNode(node: IntegrationSchemaNode | undefined, regis
   return resolveSchemaNode({ ...resolved, ...node, $ref: undefined }, registry)
 }
 
+export const setupCredentialEntries = (provider?: IntegrationProvider): IntegrationCredentialEntry[] => (provider?.credentialSchemas ?? []).filter((entry) => !entry.retired)
+
 export function primaryCredentialEntry(provider?: IntegrationProvider): IntegrationCredentialEntry | undefined {
-  return provider?.credentialSchemas?.[0]
+  return setupCredentialEntries(provider)[0]
 }
 
 export function resolveCredentialEntry(provider?: IntegrationProvider, credentialRef?: string): IntegrationCredentialEntry | undefined {

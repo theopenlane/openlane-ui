@@ -4,11 +4,14 @@ import {
   type IntegrationChannelsList,
   type IntegrationMessageTeam,
   type IntegrationProvidersResponse,
+  type IntegrationSelectedResource,
   type IntegrationTestMessageResult,
   type IntegrationTestMessageTarget,
   type RawProvidersResponse,
 } from '@/lib/integrations/types'
-import { CHANNELS_LIST_OPERATION, TEST_MESSAGE_SEND_OPERATION, runIntegrationOperation } from '@/lib/integrations/flow'
+import { CHANNELS_LIST_OPERATION, PICKER_SESSION_OPERATION, RESOURCE_SELECTION_OPERATION, TEST_MESSAGE_SEND_OPERATION, runIntegrationOperation } from '@/lib/integrations/flow'
+import { UserFacingError } from '@/utils/graphQlErrorMatcher'
+import { isRecord } from '@/utils/type-guards'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { reportSSORequirementFromResponse } from '@/lib/auth/utils/session-status'
@@ -194,5 +197,29 @@ export const useSendIntegrationTestMessage = () => {
         description: error.message || 'Unexpected error while sending the test message. Please try again later.',
       })
     },
+  })
+}
+
+export const fetchIntegrationPickerSession = async (integrationId: string): Promise<Record<string, unknown>> => {
+  const { details } = await runIntegrationOperation<unknown>({ integrationId, operation: PICKER_SESSION_OPERATION })
+
+  if (!isRecord(details)) {
+    throw new UserFacingError('The document picker could not be opened for this installation. Please try again later.')
+  }
+
+  return details
+}
+
+type SaveResourceSelectionVariables = {
+  integrationId: string
+  resources: IntegrationSelectedResource[]
+}
+
+export const useSaveIntegrationResourceSelection = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<unknown, Error, SaveResourceSelectionVariables>({
+    mutationFn: ({ integrationId, resources }) => runIntegrationOperation({ integrationId, operation: RESOURCE_SELECTION_OPERATION, config: { resources } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['integrations'] }),
   })
 }

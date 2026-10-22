@@ -105,6 +105,18 @@ export type RunIntegrationOperationResponse<TDetails> = {
 
 export type IntegrationTestMessageResult = RunIntegrationOperationResponse<Record<string, unknown>>
 
+export type IntegrationSelectedResource = {
+  id: string
+  name?: string
+  parentId?: string
+}
+
+export type TResourcePicker = {
+  preload: () => Promise<void>
+  pick: (session: Record<string, unknown>) => Promise<IntegrationSelectedResource[]>
+  cancel: () => void
+}
+
 export type IntegrationOperationSchemaEntry = {
   name: string
   title: string
@@ -119,6 +131,7 @@ export type IntegrationCredentialEntry = {
   name?: string
   description?: string
   recommended?: boolean
+  retired?: boolean
   schema?: IntegrationSchemaNode
 }
 

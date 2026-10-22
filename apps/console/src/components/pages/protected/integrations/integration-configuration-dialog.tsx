@@ -11,6 +11,7 @@ import { type IntegrationProvider, type IntegrationSchemaNode } from '@/lib/inte
 import { operationSchemaEntries, resolveConnectionEntry, resolveCredentialEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { connectViaAuth, saveIntegrationConfiguration } from '@/lib/integrations/flow'
 import { IntegrationSchemaSections, normalizeIntegrationFormPayloads, useIntegrationSchemaForm } from './schema-form'
+import { withUnmanagedSchemaValues } from '@/lib/integrations/schema'
 import { Callout } from '@/components/shared/callout/callout'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -52,6 +53,8 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
     }),
     [isExistingInstallation],
   )
+
+  const userInputToSave = (payload: Record<string, unknown>) => (isExistingInstallation ? withUnmanagedSchemaValues(userInputSchema, payload) : payload)
 
   const operationSchemas = useMemo(
     () => operationSchemaEntries(provider, isExistingInstallation ? (storedOperationSchemas ?? {}) : undefined),
@@ -118,7 +121,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
         await connectViaAuth(provider, {
           credentialRef: activeCredentialRef,
           installationId,
-          userInput: userInputPayload.payload,
+          userInput: userInputToSave(userInputPayload.payload),
           operationConfig: operationConfigPayload,
           onRedirect: () => onAuthFlowStarted?.(provider),
         })
@@ -137,7 +140,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
         installationId,
         credentialRef: activeCredentialRef,
         body: credentialPayload.payload,
-        userInput: userInputPayload.payload,
+        userInput: userInputToSave(userInputPayload.payload),
         operationConfig: operationConfigPayload,
       })
       queryClient.invalidateQueries({ queryKey: ['integrations'] })
@@ -201,7 +204,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
         installationId,
         credentialRef: activeCredentialRef,
         body: {},
-        userInput: userInputPayload.payload,
+        userInput: userInputToSave(userInputPayload.payload),
         operationConfig: operationConfigPayload,
       })
       queryClient.invalidateQueries({ queryKey: ['integrations'] })
