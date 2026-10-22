@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { useIsOfficialDeployment } from '@repo/ui/lib/official-deployment'
 import CustomerQuoteSection from '../customer-quote-section/customer-quote-section'
 import { CUSTOMER_QUOTES } from './auth-marketing-panel-config'
 
 const AuthMarketingPanel = ({ hideCopy }: { hideCopy?: boolean }) => {
   const [quoteIndex, setQuoteIndex] = useState<number | null>(null)
+  const isOfficial = useIsOfficialDeployment()
 
   useEffect(() => {
     if (hideCopy || !CUSTOMER_QUOTES.length) {
@@ -15,6 +17,11 @@ const AuthMarketingPanel = ({ hideCopy }: { hideCopy?: boolean }) => {
 
     setQuoteIndex(Math.floor(Math.random() * CUSTOMER_QUOTES.length))
   }, [hideCopy])
+
+  // customer quotes are Openlane testimonials
+  if (!isOfficial) {
+    return null
+  }
 
   return (
     <div className="hidden lg:flex flex-col justify-center rounded-lg w-[560px] relative overflow-hidden">

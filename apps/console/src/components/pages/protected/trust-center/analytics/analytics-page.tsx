@@ -8,6 +8,7 @@ import { Button } from '@repo/ui/button'
 import Link from 'next/link'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { SUPPORT_EMAIL } from '@/constants'
+import OfficialOnly from '@/components/shared/official-only/official-only'
 import { entityActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -53,11 +54,13 @@ export default function AnalyticsPage() {
           <Globe size={24} className="mb-4 text-muted-foreground" />
           <h3 className="text-sm font-medium mb-1">Unlock analytics</h3>
           <p className="text-sm text-muted-foreground mb-6">Analytics is not currently available for you domain. If this continues, please reach out to support.</p>
-          <Link href={SUPPORT_EMAIL}>
-            <Button icon={<Info size={16} />} iconPosition="left">
-              Contact Support
-            </Button>
-          </Link>
+          <OfficialOnly>
+            <Link href={SUPPORT_EMAIL}>
+              <Button icon={<Info size={16} />} iconPosition="left">
+                Contact Support
+              </Button>
+            </Link>
+          </OfficialOnly>
         </div>
       </div>
     )

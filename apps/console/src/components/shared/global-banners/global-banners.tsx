@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { devrevChatEnabled } from '@repo/dally/auth'
+import { useIsOfficialDeployment } from '@repo/ui/lib/official-deployment'
 import AnnouncementBanner from './announcement-banner'
 import { hasAnnouncement } from '@/lib/announcement-banner'
 import { useElementHeight } from '@/hooks/useElementHeight'
@@ -10,6 +11,8 @@ import { DEVREV_BANNER_CONTAINER_ID, GLOBAL_BANNER_HEIGHT_VAR } from '@/constant
 const GlobalBanners = () => {
   const containerRef = useRef<HTMLDivElement>(null)
   const height = useElementHeight(containerRef)
+  const isOfficial = useIsOfficialDeployment()
+  const showDevrev = devrevChatEnabled && isOfficial
 
   useEffect(() => {
     const root = document.documentElement
@@ -25,14 +28,14 @@ const GlobalBanners = () => {
     }
   }, [height])
 
-  if (!hasAnnouncement && !devrevChatEnabled) {
+  if (!hasAnnouncement && !showDevrev) {
     return null
   }
 
   return (
     <div ref={containerRef} className="fixed top-0 left-0 right-0 z-40">
       <AnnouncementBanner />
-      {devrevChatEnabled && <div id={DEVREV_BANNER_CONTAINER_ID} />}
+      {showDevrev && <div id={DEVREV_BANNER_CONTAINER_ID} />}
     </div>
   )
 }

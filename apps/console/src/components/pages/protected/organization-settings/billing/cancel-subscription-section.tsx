@@ -6,6 +6,7 @@ import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { cn } from '@repo/ui/lib/utils'
 import { SUPPORT_URL } from '@/constants'
+import OfficialOnly from '@/components/shared/official-only/official-only'
 import { useNotification } from '@/hooks/useNotification'
 import { useOpenBillingPortal } from '@/hooks/useBillingPortal'
 import { findManageableSchedule, useCancelSubscriptionMutation, useRenewSubscriptionMutation, useSchedulesQuery } from '@/lib/query-hooks/stripe'
@@ -20,9 +21,11 @@ type CancelSubscriptionSectionProps = {
 const SupportPrompt = ({ message }: { message: string }) => (
   <>
     <p className="mt-8"> {message}</p>
-    <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="mt-2 mx-auto mb-5 block">
-      <Button>Contact Support</Button>
-    </a>
+    <OfficialOnly>
+      <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="mt-2 mx-auto mb-5 block">
+        <Button>Contact Support</Button>
+      </a>
+    </OfficialOnly>
   </>
 )
 
@@ -97,9 +100,11 @@ const CancelSubscriptionSection = ({ stripeCustomerId, hasSubscription }: Cancel
               Manage subscription in Stripe
             </Button>
           ) : (
-            <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500">
-              Reach out to support
-            </a>
+            <OfficialOnly>
+              <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500">
+                Reach out to support
+              </a>
+            </OfficialOnly>
           )}
         </div>
       )}

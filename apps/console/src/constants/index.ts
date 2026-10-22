@@ -1,9 +1,11 @@
 export const OPENLANE_WEBSITE_URL = 'https://www.theopenlane.io'
 export const RESET_SUCCESS_STATE_MS = 3000
-export const SUPPORT_EMAIL = 'mailto:support@theopenlane.io'
+export const SUPPORT_EMAIL_ADDRESS = 'support@theopenlane.io'
+export const SUPPORT_EMAIL = `mailto:${SUPPORT_EMAIL_ADDRESS}`
 export const SUPPORT_URL = 'https://support.devrev.ai/openlane'
 export const STATUS_PAGE_URL = 'https://status.theopenlane.io'
-export const INFO_EMAIL = 'mailto:info@theopenlane.io'
+export const INFO_EMAIL_ADDRESS = 'info@theopenlane.io'
+export const INFO_EMAIL = `mailto:${INFO_EMAIL_ADDRESS}`
 export const CONTRIBUTE_URL = 'https://github.com/theopenlane'
 export const AUDITOR_URL = 'https://www.theopenlane.io/alliances/auditors'
 export const INTEGRATIONS_DOCUMENT_FILTER_URL = '/automation/integrations?tags=document'

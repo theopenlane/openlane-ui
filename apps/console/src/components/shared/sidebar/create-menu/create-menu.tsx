@@ -11,6 +11,7 @@ import { CreateBtnIcon } from '@/components/shared/enum-mapper/common-enum'
 import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
+import { useIsOfficialDeployment } from '@repo/ui/lib/official-deployment'
 import { CREATE_MENU_ITEMS, type CreateMenuDialogKey, type CreateMenuItem } from './create-menu-items'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
@@ -34,8 +35,11 @@ const CreateMenu: React.FC<{ expanded: boolean }> = ({ expanded }) => {
   const { data: orgPermission } = useOrganizationRoles()
   const { hasObjectType } = useModuleAccess()
   const [openDialog, setOpenDialog] = useState<CreateMenuDialogKey | null>(null)
+  const isOfficial = useIsOfficialDeployment()
 
-  const items = CREATE_MENU_ITEMS.filter((item) => (!item.objectType || hasObjectType(item.objectType)) && (!item.permission || hasPermission(orgPermission?.roles, item.permission, session)))
+  const items = CREATE_MENU_ITEMS.filter(
+    (item) => (isOfficial || !item.officialOnly) && (!item.objectType || hasObjectType(item.objectType)) && (!item.permission || hasPermission(orgPermission?.roles, item.permission, session)),
+  )
 
   if (items.length === 0) {
     return null
