@@ -6,6 +6,8 @@ import { DataTable, type SortCondition } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Input } from '@repo/ui/input'
 import Menu from '@/components/shared/menu/menu.tsx'
+import MenuItem from '@/components/shared/menu/menu-item'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
 import { SearchIcon, LoaderCircle, Download, Upload } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@repo/ui/table-types'
@@ -50,15 +52,16 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type AuditorControlsTableProps = {
   programId: string
+  filters: WhereCondition | null
+  onFiltersChange: (filters: WhereCondition) => void
 }
 
-export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ programId }) => {
+export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ programId, filters, onFiltersChange }) => {
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS)
   const openImport = useOpenImport()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, ControlOrderField, AUDITOR_DASHBOARD_DEFAULT_SORT)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const [filters, setFilters] = useState<ControlWhereInput | null>(null)
   const [startReviewControlId, setStartReviewControlId] = useState<string | null>(null)
   const [openReviewId, setOpenReviewId] = useState<string | null>(null)
   const [requestInfoControl, setRequestInfoControl] = useState<{ id: string; refCode: string } | null>(null)
@@ -102,10 +105,10 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
 
   const handleFilterChange = useCallback(
     (whereCondition: WhereCondition) => {
-      setFilters(whereCondition)
+      onFiltersChange(whereCondition)
       resetPagination()
     },
-    [resetPagination],
+    [onFiltersChange, resetPagination],
   )
 
   const columns = useMemo(
@@ -187,44 +190,30 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
             closeOnSelect={true}
             content={(close) => (
               <>
-                <button
-                  type="button"
-                  className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                  onClick={() => {
+                <MenuItem
+                  icon={<Upload size={16} strokeWidth={2} />}
+                  onSelect={() => {
                     close()
                     openImport(IMPORT_ROUTES[ObjectTypes.EVIDENCE])
                   }}
                 >
-                  <Upload size={16} strokeWidth={2} />
-                  <span>Bulk Evidence Request</span>
-                </button>
-                <button
-                  type="button"
-                  className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={isExporting || rows.length === 0}
-                  onClick={() => {
-                    handleExportControls()
-                    close()
-                  }}
-                >
-                  <Download size={16} strokeWidth={2} />
-                  <span>Export Controls</span>
-                </button>
-                <button
-                  type="button"
-                  className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                  onClick={() => {
+                  Bulk Evidence Request
+                </MenuItem>
+                <ExportMenuItem label="Export Controls" onExport={handleExportControls} onSelected={close} isExporting={isExporting} disabled={rows.length === 0} />
+                <MenuItem
+                  icon={<Download size={16} strokeWidth={2} />}
+                  onSelect={() => {
                     setIsBulkDownloadEvidenceOpen(true)
                     close()
                   }}
                 >
-                  <Download size={16} strokeWidth={2} />
-                  <span>Bulk Download Evidence</span>
-                </button>
+                  Bulk Download Evidence
+                </MenuItem>
               </>
             )}
           />
           <ExportEvidenceDialog filters={exportFilters} open={isBulkDownloadEvidenceOpen} onOpenChange={setIsBulkDownloadEvidenceOpen} />
+          <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS} />
           {filterFields && (
             <TableFilter
               filterFields={filterFields}
@@ -234,7 +223,6 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
               defaultFilterValues={AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES}
             />
           )}
-          <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS} />
         </div>
       </div>
 

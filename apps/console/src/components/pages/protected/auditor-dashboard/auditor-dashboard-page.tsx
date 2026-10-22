@@ -1,7 +1,9 @@
 'use client'
 
-import React, { use, useCallback, useEffect, useMemo } from 'react'
+import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { type WhereCondition } from '@/types'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { Loading } from '@/components/shared/loading/loading'
@@ -12,6 +14,8 @@ import { getOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/st
 import { AuditorDashboardHeader } from './auditor-dashboard-header'
 import { AuditorStatCards } from './auditor-stat-cards'
 import { AuditorControlsTable } from './table/auditor-controls-table'
+import { saveFilters } from '@/components/shared/table-filter/filter-storage'
+import { getAuditorStatFilterState, type TAuditorStatFilterKey } from './table/table-config'
 
 const PROGRAM_PARAM = 'programId'
 const SELECTED_PROGRAM_STORAGE_KEY = 'auditor-dashboard:selected-program'
@@ -22,6 +26,7 @@ const AuditorDashboardPage: React.FC = () => {
   const searchParams = useSearchParams()
   const programIdParam = searchParams.get(PROGRAM_PARAM) ?? undefined
   const { currentOrgId } = useOrganization()
+  const [filters, setFilters] = useState<WhereCondition | null>(null)
 
   const { programOptions, isLoading: isLoadingPrograms } = useProgramSelect()
 
@@ -51,6 +56,8 @@ const AuditorDashboardPage: React.FC = () => {
   const { data: programData } = useGetProgramBasicInfo(selectedProgramId ?? null)
   const { data: evidenceStats } = useProgramEvidenceStats(selectedProgramId)
   const { data: reviewStats } = useProgramReviewStats(selectedProgramId)
+
+  const selectStat = (stat: TAuditorStatFilterKey) => saveFilters(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, getAuditorStatFilterState(filters, stat), currentOrgId)
 
   useEffect(() => {
     setCrumbs([
@@ -85,9 +92,9 @@ const AuditorDashboardPage: React.FC = () => {
         onSelectProgram={selectProgram}
       />
 
-      <AuditorStatCards program={program} evidenceStats={evidenceStats} reviewStats={reviewStats} />
+      <AuditorStatCards program={program} evidenceStats={evidenceStats} reviewStats={reviewStats} filters={filters} onSelectStat={selectStat} />
 
-      <AuditorControlsTable programId={selectedProgramId} />
+      <AuditorControlsTable programId={selectedProgramId} filters={filters} onFiltersChange={setFilters} />
     </div>
   )
 }

@@ -2,11 +2,9 @@
 
 import React from 'react'
 import { LayoutList } from 'lucide-react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { cn } from '@repo/ui/lib/utils'
-import { activatable } from '@repo/ui/lib/a11y'
+import { CardContent } from '@repo/ui/cardpanel'
 import Skeleton from '@/components/shared/skeleton/skeleton'
+import { SelectableStatCard } from '@/components/shared/selectable-stat-card/selectable-stat-card'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum'
 import { workObjectTypePluralLabel, type TWorkObjectType } from './work-item'
 
@@ -29,23 +27,17 @@ type TStatCardProps = {
   tooltip?: string
 }
 
-const StatCard = ({ label, count, icon, isLoading, isActive, onSelect, tooltip }: TStatCardProps) => {
-  const card = (
-    <div className="flex-1 min-w-[150px] max-w-[260px] rounded-lg" {...activatable(onSelect)}>
-      <Card className={cn('h-full cursor-pointer transition-colors hover:border-primary', isActive && 'border-primary ring-1 ring-primary')}>
-        <CardContent className="flex items-center gap-3 p-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border bg-homepage-card-item border-switch-bg-inactive">{icon}</div>
-          <div className="min-w-0">
-            {isLoading ? <Skeleton className="my-[3px] h-6 w-12 rounded-full" /> : <p className="text-2xl font-semibold leading-tight">{count}</p>}
-            <p className="text-sm text-muted-foreground truncate">{label}</p>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-
-  return tooltip ? <SystemTooltip icon={card} content={tooltip} /> : card
-}
+const StatCard = ({ label, count, icon, isLoading, isActive, onSelect, tooltip }: TStatCardProps) => (
+  <SelectableStatCard className="flex-1 min-w-[150px] max-w-[260px]" isActive={isActive} onSelect={onSelect} tooltip={tooltip}>
+    <CardContent className="flex items-center gap-3 p-4">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border bg-homepage-card-item border-switch-bg-inactive">{icon}</div>
+      <div className="min-w-0">
+        {isLoading ? <Skeleton className="my-[3px] h-6 w-12 rounded-full" /> : <p className="text-2xl font-semibold leading-tight">{count}</p>}
+        <p className="text-sm text-muted-foreground truncate">{label}</p>
+      </div>
+    </CardContent>
+  </SelectableStatCard>
+)
 
 const ProgramWorkStats = ({ countsByType, totalCount, objectTypes, selectedObjectTypes, onSelectObjectType, isLoading }: TProgramWorkStatsProps) => (
   <div className="flex flex-wrap gap-4">

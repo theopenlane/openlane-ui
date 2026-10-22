@@ -1,13 +1,14 @@
-import { ControlControlStatus, ControlOrderField, OrderDirection, type ControlWhereInput, type EvidenceEvidenceStatus, type ReviewReviewStatus } from '@repo/codegen/src/schema'
+import { ControlControlStatus, ControlOrderField, EvidenceEvidenceStatus, OrderDirection, ReviewReviewStatus, type ControlWhereInput } from '@repo/codegen/src/schema'
 import { type SortCondition } from '@repo/ui/data-table'
 import { FileCheck2 } from 'lucide-react'
-import { defineFilterFields } from '@/types'
+import { defineFilterFields, type WhereCondition } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
 import { EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
-import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
+import { isStringArray, type TFilterState } from '@/components/shared/table-filter/filter-storage'
+import { extractFilterValues } from '@/components/shared/table-filter/extract-filter-values'
 import { buildCustomStandardFilterWhere, CUSTOM_STANDARD_FILTER_OPTION, CUSTOM_STANDARD_FILTER_VALUE, isCustomStandardFilter } from '@/components/shared/table-filter/custom-standard-filter'
 
 type TOption = { value: string; label: string }
@@ -19,6 +20,35 @@ export const AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES: TFilterState = { standardI
 export const AUDITOR_DASHBOARD_BASELINE_STATUS_WHERE: ControlWhereInput = { or: [{ statusNEQ: ControlControlStatus.NOT_APPLICABLE }, { statusIsNil: true }] }
 
 export const AUDITOR_DASHBOARD_REMAPPED_FILTER_KEYS = ['reviewStatusIn', 'evidenceStatusIn'] as const
+
+export const AUDITOR_STAT_FILTERS = {
+  evidenceReady: { key: 'evidenceStatusIn', value: EvidenceEvidenceStatus.READY_FOR_AUDITOR },
+  reviewsCompleted: { key: 'reviewStatusIn', value: ReviewReviewStatus.COMPLETED },
+  reviewsInProgress: { key: 'reviewStatusIn', value: ReviewReviewStatus.IN_PROGRESS },
+} as const satisfies Record<string, { key: (typeof AUDITOR_DASHBOARD_REMAPPED_FILTER_KEYS)[number]; value: EvidenceEvidenceStatus | ReviewReviewStatus }>
+
+export type TAuditorStatFilterKey = keyof typeof AUDITOR_STAT_FILTERS
+
+export const isAuditorStatFilterActive = (where: WhereCondition | null, stat: TAuditorStatFilterKey): boolean => {
+  const { key, value } = AUDITOR_STAT_FILTERS[stat]
+  const applied = extractFilterValues(where ?? undefined)[key]
+  return Array.isArray(applied) && applied.length === 1 && applied[0] === value
+}
+
+const toAuditorFilterState = (where: WhereCondition | null): TFilterState => {
+  const applied = extractFilterValues(where ?? undefined)
+  return Object.fromEntries(
+    getAuditorDashboardFilterFields([], []).flatMap(({ key }) => {
+      const value = applied[key]
+      return isStringArray(value) && value.length > 0 ? [[key, value]] : []
+    }),
+  )
+}
+
+export const getAuditorStatFilterState = (where: WhereCondition | null, stat: TAuditorStatFilterKey): TFilterState => {
+  const { key, value } = AUDITOR_STAT_FILTERS[stat]
+  return { ...toAuditorFilterState(where), [key]: isAuditorStatFilterActive(where, stat) ? undefined : [value] }
+}
 
 export const AUDITOR_DASHBOARD_SORT_FIELDS: { key: ControlOrderField; label: string }[] = [{ key: ControlOrderField.ref_code, label: 'Control' }]
 

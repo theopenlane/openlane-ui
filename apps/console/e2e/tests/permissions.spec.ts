@@ -408,7 +408,7 @@ test.describe('permissions — auditor dashboard content (ISS-2433)', () => {
       await expect(emptyState.or(auditPeriod).first()).toBeVisible({ timeout: 30_000 })
       test.skip(await emptyState.isVisible().catch(() => false), 'org has no programs — auditor dashboard shows its empty state')
 
-      for (const label of ['Audit Period', 'Audit Firm', 'Lead Auditor', 'Controls in Scope', 'Evidence Ready', 'Reviews Completed', 'In Progress']) {
+      for (const label of ['Audit Period', 'Audit Firm', 'Lead Auditor', 'Controls in Scope', 'Evidence Ready', 'Reviews Completed', 'Reviews In Progress']) {
         await expect(page.getByText(label, { exact: true })).toBeVisible({ timeout: 15_000 })
       }
     })
