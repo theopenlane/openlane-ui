@@ -10,14 +10,9 @@ import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { type EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
-import { buildClearableUpdate } from '@/components/shared/searchableSingleSelect/clearable-update'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Card } from '@repo/ui/cardpanel'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
-
-const POLICY_AUTHORITY_CLEAR_KEYS: Record<'approverID' | 'delegateID', 'clearApprover' | 'clearDelegate'> = {
-  approverID: 'clearApprover',
-  delegateID: 'clearDelegate',
-}
 
 type TAuthorityCardProps = {
   form: UseFormReturn<EditPolicyMetadataFormData>
@@ -25,7 +20,7 @@ type TAuthorityCardProps = {
   delegate?: InternalPolicyByIdFragment['delegate']
   isEditing: boolean
   editAllowed: boolean
-  handleUpdate?: (val: UpdateInternalPolicyInput) => void
+  handleUpdate?: (val: UpdateInternalPolicyInput, options?: TPersistOptions) => Promise<void> | void
   inputClassName?: string
   isCreate?: boolean
   activeField?: string | null
@@ -34,6 +29,7 @@ type TAuthorityCardProps = {
 
 const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreate, approver, delegate, editAllowed, handleUpdate, inputClassName, activeField, setActiveField }) => {
   const [internalEditingField, setInternalEditingField] = useState<'approver' | 'delegate' | null>(null)
+  const persistField = usePersistFormField<EditPolicyMetadataFormData>()
   const isControlled = activeField !== undefined && setActiveField !== undefined
   const editingField = isControlled ? activeField : internalEditingField
   const setEditingField = isControlled ? setActiveField : setInternalEditingField
@@ -46,14 +42,19 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
     value: g?.id || '',
   }))
 
-  const handleSelect = (field: 'approverID' | 'delegateID', value: string) => {
-    const currentValue = form.getValues(field)
-
-    if (!isEditing && handleUpdate && currentValue !== value) {
-      handleUpdate(buildClearableUpdate(field, value, POLICY_AUTHORITY_CLEAR_KEYS[field]) as UpdateInternalPolicyInput)
+  const toAuthorityInput = (field: 'approverID' | 'delegateID', value: string): UpdateInternalPolicyInput => {
+    if (field === 'approverID') {
+      return value ? { approverID: value } : { clearApprover: true }
     }
+    return value ? { delegateID: value } : { clearDelegate: true }
+  }
 
+  const handleSelect = (field: 'approverID' | 'delegateID', value: string) => {
     setEditingField(null)
+    if (!handleUpdate || (form.getValues(field) ?? '') === value) {
+      return
+    }
+    void persistField(field, value, (options) => handleUpdate(toAuthorityInput(field, value), options))
   }
 
   const renderField = (fieldKey: 'approverID' | 'delegateID', label: string, icon: React.ReactNode, value: Group | null | undefined, editingKey: 'approver' | 'delegate') => {
@@ -96,8 +97,11 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
                 clearable
                 onClose={() => setEditingField(null)}
                 onChange={(val) => {
+                  if (isEditing) {
+                    field.onChange(val)
+                    return
+                  }
                   handleSelect(fieldKey, val)
-                  field.onChange(val)
                 }}
               />
             )}

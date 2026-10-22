@@ -2,12 +2,13 @@
 
 import React from 'react'
 import useFormSchema from './hooks/use-form-schema'
-import { type RemediationsNodeNonNull, useRemediation, useCreateRemediation, useUpdateRemediation, useBulkDeleteRemediation } from '@/lib/graphql-hooks/remediation'
+import { type RemediationsNodeNonNull, useRemediation, useUpdateRemediation, useBulkDeleteRemediation } from '@/lib/graphql-hooks/remediation'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { getFieldsToRender } from './table/table-config'
 import { type RemediationSheetConfig, type RemediationFieldProps, objectType } from './table/types'
-import { type CreateRemediationInput, type UpdateRemediationInput } from '@repo/codegen/src/schema'
+import { type UpdateRemediationInput } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { REMEDIATION_UPDATE_FIELDS } from './hooks/remediation-update-fields'
 
 type Props = {
   entityId: string | null
@@ -19,17 +20,11 @@ const ViewRemediationSheet: React.FC<Props> = ({ entityId, onClose }) => {
   const { data, isLoading } = useRemediation(entityId || undefined)
 
   const baseUpdateMutation = useUpdateRemediation()
-  const baseCreateMutation = useCreateRemediation()
   const baseBulkDeleteMutation = useBulkDeleteRemediation()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
     mutateAsync: async (params: { id: string; input: UpdateRemediationInput }) => baseUpdateMutation.mutateAsync({ updateRemediationId: params.id, input: params.input }),
-  }
-
-  const createMutation = {
-    isPending: baseCreateMutation.isPending,
-    mutateAsync: async (input: CreateRemediationInput) => baseCreateMutation.mutateAsync({ input }),
   }
 
   const deleteMutation = {
@@ -57,15 +52,10 @@ const ViewRemediationSheet: React.FC<Props> = ({ entityId, onClose }) => {
     isCreateMode: false,
     data: entityId ? data?.remediation : undefined,
     isFetching: isLoading,
-    updateMutation,
-    createMutation,
     deleteMutation,
     onClose,
     basePath: '/exposure/remediations',
-    buildPayload: async (formData) => {
-      const { controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, findingIDs: _findingIDs, vulnerabilityIDs: _vulnerabilityIDs, ...rest } = formData
-      return { ...rest }
-    },
+    update: { mutation: updateMutation, fields: REMEDIATION_UPDATE_FIELDS },
     getName,
     renderFields: (props: RemediationFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }

@@ -2,14 +2,13 @@
 
 import React from 'react'
 import { useSearchParams } from 'next/navigation'
-import { type Value } from 'platejs'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { breadcrumbs, bulkEditFieldLabels, getFieldsToRender, getFilterFields, getPlatformQuickFilters, visibilityFields } from './table-config'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import useFormSchema, { bulkEditFieldSchema, type SystemDetailBulkEditAssociations } from '../hooks/use-form-schema'
+import useFormSchema, { bulkEditFieldSchema, type SystemDetailBulkEditAssociations, type SystemDetailFormData } from '../hooks/use-form-schema'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { usePlatformSelect } from '@/lib/graphql-hooks/platform'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
@@ -18,6 +17,8 @@ import { type SystemDetailsNodeNonNull, useBulkDeleteSystemDetail, useBulkEditSy
 import { defaultSorting, exportType, objectName, objectType, orderFieldEnum, tableKey, type SystemDetailFieldProps, type SystemDetailSheetConfig, type SystemDetailTablePageConfig } from './types'
 import { getEdgeIds, buildAssociationPayload, getAssociationInput } from '@/components/shared/object-association/utils'
 import { SYSTEM_DETAIL_ASSOCIATION_KEYS } from '@/components/shared/object-association/association-configs'
+import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
+import { associationsInput, dateOrClear, orClear, richTextOrClear, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 
 const normalizeData = (data: SystemDetailQuery['systemDetail']) => {
   if (!data) {
@@ -35,23 +36,25 @@ const normalizeData = (data: SystemDetailQuery['systemDetail']) => {
   }
 }
 
-const normalizeDateValue = (value: string | Date | null | undefined, emptyValue: null | undefined) => {
-  if (!value) {
-    return emptyValue
-  }
-
-  if (value instanceof Date) {
-    return value.toISOString()
-  }
-
-  return value
-}
+const SYSTEM_DETAIL_UPDATE_FIELDS = {
+  description: richTextOrClear('clearDescription'),
+  revisionHistory: async (value, _values, { converter }) => {
+    const revisionHistory = await plateToHtmlOrNull(value, converter)
+    return revisionHistory ? { revisionHistory: [revisionHistory] } : { clearRevisionHistory: true }
+  },
+  authorizationBoundary: orClear('clearAuthorizationBoundary'),
+  sensitivityLevel: orClear('clearSensitivityLevel'),
+  lastReviewed: dateOrClear('clearLastReviewed'),
+  tags: orClear('clearTags'),
+  platformIDs: associationsInput('platformIDs'),
+  programIDs: associationsInput('programIDs'),
+  systemName: passthrough,
+} satisfies TFieldMappers<SystemDetailFormData, UpdateSystemDetailInput>
 
 const SystemDetailPage: React.FC = () => {
   const { form } = useFormSchema()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
-  const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useSystemDetail(id || undefined)
   const plateEditorHelper = usePlateEditor()
 
@@ -104,30 +107,22 @@ const SystemDetailPage: React.FC = () => {
     form,
     data: id ? data?.systemDetail : undefined,
     isFetching: isLoading,
-    updateMutation,
     createMutation,
     deleteMutation,
     buildPayload: async (formData) => {
-      const emptyValue = isCreate ? undefined : null
-      const description = formData.description ? await plateEditorHelper.convertToHtml(formData.description as Value) : emptyValue
-      const revisionHistoryHtml = formData.revisionHistory ? await plateEditorHelper.convertToHtml(formData.revisionHistory as Value) : ''
-      const revisionHistory = revisionHistoryHtml ? [revisionHistoryHtml] : emptyValue
+      const description = (await plateToHtmlOrNull(formData.description, plateEditorHelper)) ?? undefined
+      const revisionHistoryHtml = await plateToHtmlOrNull(formData.revisionHistory, plateEditorHelper)
       const { platformIDs, programIDs, ...rest } = formData
-
-      const initialAssociations = {
-        platformIDs: getEdgeIds(data?.systemDetail?.platforms?.edges),
-        programIDs: getEdgeIds(data?.systemDetail?.programs?.edges),
-      }
-      const associationPayload = buildAssociationPayload(SYSTEM_DETAIL_ASSOCIATION_KEYS, { platformIDs, programIDs }, isCreate, initialAssociations)
 
       return {
         ...rest,
         description,
-        revisionHistory,
-        lastReviewed: normalizeDateValue(formData.lastReviewed, emptyValue),
-        ...associationPayload,
+        revisionHistory: revisionHistoryHtml ? [revisionHistoryHtml] : undefined,
+        lastReviewed: formData.lastReviewed instanceof Date ? formData.lastReviewed.toISOString() : formData.lastReviewed || undefined,
+        ...buildAssociationPayload(SYSTEM_DETAIL_ASSOCIATION_KEYS, { platformIDs, programIDs }, true, {}),
       }
     },
+    update: { mutation: updateMutation, fields: SYSTEM_DETAIL_UPDATE_FIELDS },
     normalizeData,
     getName,
     renderFields: (props: SystemDetailFieldProps) => getFieldsToRender(props, enumOpts),

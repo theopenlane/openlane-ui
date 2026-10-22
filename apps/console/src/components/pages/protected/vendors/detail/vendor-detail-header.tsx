@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
 import { Building2, PencilIcon, CogIcon, CheckIcon, PlusIcon, ServerIcon } from 'lucide-react'
@@ -26,6 +27,7 @@ import { deleteMenuAction, mergeMenuAction } from '@/components/shared/crud-base
 import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { AddToTrustCenterDialog } from './add-to-trust-center/add-to-trust-center-dialog'
+import type { EditVendorFormData } from '../hooks/use-form-schema'
 
 interface VendorDetailHeaderProps {
   vendor: EntityQuery['entity']
@@ -35,7 +37,7 @@ interface VendorDetailHeaderProps {
   onCancel: (e: React.MouseEvent<HTMLButtonElement>) => void
   onDeleteClick: () => void
   permissionRoles?: TAccessRole[]
-  handleUpdateField: (input: UpdateEntityInput) => Promise<void>
+  handleUpdateField: (input: UpdateEntityInput, options?: TPersistOptions) => Promise<void>
   onMergeComplete?: () => void
 }
 
@@ -47,7 +49,8 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   const hasTrustCenter = useHasObjectType(ObjectTypes.TRUST_CENTER)
   const canAddToTrustCenter = hasTrustCenter && hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor, session)
   const [addToTrustCenterOpen, setAddToTrustCenterOpen] = useState(false)
-  const { setValue, register } = useFormContext()
+  const { register, resetField } = useFormContext<EditVendorFormData>()
+  const persistField = usePersistFormField<EditVendorFormData>()
   const [inlineEditing, setInlineEditing] = useState<'name' | 'displayName' | null>(null)
   const [localValue, setLocalValue] = useState('')
   const [originalValue, setOriginalValue] = useState('')
@@ -77,14 +80,14 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
 
   const handleBlur = async (field: 'name' | 'displayName') => {
     if (localValue !== originalValue) {
-      setValue(field, localValue)
-      await handleUpdateField({ [field]: localValue })
+      register(field)
+      await persistField(field, localValue, (options) => handleUpdateField({ [field]: localValue }, options))
     }
     setInlineEditing(null)
   }
 
   const handleEscape = (field: 'name' | 'displayName') => {
-    setValue(field, originalValue)
+    resetField(field)
     setInlineEditing(null)
   }
 

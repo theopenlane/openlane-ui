@@ -1,11 +1,11 @@
 'use client'
 
-import { normalizeResponsibilityField, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { normalizeResponsibilityField, responsibilityInput } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { RISK_STAKEHOLDER, RISK_DELEGATE } from '../../risk-responsibility'
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Controller, FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigationGuard } from 'nextjs-nav-guard'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -19,7 +19,8 @@ import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { type UpdateRiskInput, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
+import { dateOrClear, omit, orClear, richTextOrClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
+import { type UpdateRiskInput, type RiskRiskStatus } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
@@ -32,11 +33,9 @@ import RiskPropertiesSidebar from './risk-properties-sidebar'
 import type { EditRisksFormData } from '../hooks/use-form-schema'
 import RiskDetailTabs from './tabs/risk-detail-tabs'
 import QuickActions from '@/components/pages/protected/risks/quick-actions/quick-actions.tsx'
-import { Badge } from '@repo/ui/badge'
-import { cn } from '@repo/ui/lib/utils'
-import RiskLabel from '../../risk-label'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type Value } from 'platejs'
+import RiskInlineBadge, { type TRiskInlineEditField } from './risk-inline-badge'
+import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
+import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import TaskDetailsSheet from '../../../tasks/create-task/sidebar/task-details-sheet'
 import { useSession } from 'next-auth/react'
 
@@ -45,7 +44,35 @@ interface RiskDetailPageProps {
 }
 
 type RiskFormValues = EditRisksFormData
-type InlineEditField = 'status' | 'riskKindName' | 'riskCategoryName'
+
+const RISK_UPDATE_FIELDS = {
+  details: omit,
+  detailsJSON: async (detailsJSON, _values, { converter }) => {
+    const details = await plateToHtmlOrNull(detailsJSON, converter)
+    return details ? { detailsJSON, details } : { clearDetails: true, clearDetailsJSON: true }
+  },
+  businessCosts: richTextOrClear('clearBusinessCosts'),
+  mitigation: richTextOrClear('clearMitigation'),
+  riskKindName: orClear('clearRiskKindName'),
+  riskCategoryName: orClear('clearRiskCategoryName'),
+  score: orClear('clearScore'),
+  residualScore: orClear('clearResidualScore'),
+  impact: orClear('clearImpact'),
+  likelihood: orClear('clearLikelihood'),
+  status: orClear('clearStatus'),
+  dueDate: dateOrClear('clearDueDate'),
+  tags: orClear('clearTags'),
+  stakeholder: responsibilityInput(RISK_STAKEHOLDER),
+  delegate: responsibilityInput(RISK_DELEGATE),
+  reviewRequired: orClear('clearReviewRequired'),
+  reviewFrequency: orClear('clearReviewFrequency'),
+  nextReviewDueAt: dateOrClear('clearNextReviewDueAt'),
+  riskDecision: orClear('clearRiskDecision'),
+  mitigatedAt: dateOrClear('clearMitigatedAt'),
+  environmentName: orClear('clearEnvironmentName'),
+  scopeName: orClear('clearScopeName'),
+  name: passthrough,
+} satisfies TFieldMappers<RiskFormValues, UpdateRiskInput>
 
 const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   const router = useRouter()
@@ -64,16 +91,14 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
 
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [initialValues, setInitialValues] = useState<Partial<RiskFormValues>>({})
-  const [inlineEditField, setInlineEditField] = useState<InlineEditField | null>(null)
-
-  const plateEditorHelper = usePlateEditor()
+  const [inlineEditField, setInlineEditField] = useState<TRiskInlineEditField | null>(null)
 
   const form = useForm<RiskFormValues>({
     defaultValues: {},
   })
 
   const { isDirty } = form.formState
+  const buildDirtyInput = useDirtyInput(form)
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   const isEditingRef = useRef(isEditing)
@@ -96,11 +121,11 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
         name: data.risk.name ?? '',
         riskKindName: data.risk.riskKindName ?? '',
         riskCategoryName: data.risk.riskCategoryName ?? '',
-        score: data.risk.score ?? 0,
-        residualScore: data.risk.residualScore ?? 0,
-        impact: data.risk.impact ?? RiskRiskImpact.LOW,
-        likelihood: data.risk.likelihood ?? RiskRiskLikelihood.UNLIKELY,
-        status: data.risk.status ?? RiskRiskStatus.OPEN,
+        score: data.risk.score ?? undefined,
+        residualScore: data.risk.residualScore ?? undefined,
+        impact: data.risk.impact ?? undefined,
+        likelihood: data.risk.likelihood ?? undefined,
+        status: data.risk.status ?? undefined,
         dueDate: data.risk.dueDate ?? '',
         details: data.risk.details ?? undefined,
         detailsJSON: data.risk.detailsJSON ?? undefined,
@@ -115,47 +140,23 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
         }),
         delegate: normalizeResponsibilityField({ user: data.risk.delegateUser, group: data.risk.delegateGroup, personnel: data.risk.delegateIdentityHolder, stringValue: data.risk.delegateName }),
         reviewRequired: data.risk.reviewRequired ?? true,
-        reviewFrequency: data.risk.reviewFrequency ?? '',
+        reviewFrequency: data.risk.reviewFrequency ?? undefined,
         nextReviewDueAt: data.risk.nextReviewDueAt ?? '',
-        riskDecision: data.risk.riskDecision ?? '',
+        riskDecision: data.risk.riskDecision ?? undefined,
         mitigatedAt: data.risk.mitigatedAt ?? '',
         environmentName: data.risk.environmentName ?? '',
         scopeName: data.risk.scopeName ?? '',
       }
       form.reset(newValues)
-      setInitialValues(newValues)
     }
   }, [data?.risk, form])
 
   const onSubmit = async (values: RiskFormValues) => {
     try {
-      const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
-        const initialValue = initialValues[key as keyof RiskFormValues]
-        if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
-          acc[key] = value
-        }
-        return acc
-      }, {})
+      const input = await buildDirtyInput<UpdateRiskInput>(values, RISK_UPDATE_FIELDS)
 
-      const detailsJSON = values.detailsJSON ? (values.detailsJSON as Value) : undefined
-      const details = changedFields.detailsJSON ? await plateEditorHelper.convertToHtml(changedFields.detailsJSON as Value) : undefined
-      const businessCosts = changedFields.businessCosts ? await plateEditorHelper.convertToHtml(changedFields.businessCosts as Value) : undefined
-      const mitigation = changedFields.mitigation ? await plateEditorHelper.convertToHtml(changedFields.mitigation as Value) : undefined
-
-      const { stakeholder: _stakeholder, delegate: _delegate, ...rest } = changedFields
-      const input: UpdateRiskInput = {
-        ...rest,
-        ...('stakeholder' in changedFields
-          ? buildResponsibilityPayload(RISK_STAKEHOLDER.fieldBaseName, values.stakeholder, { mode: 'update', stringFieldName: RISK_STAKEHOLDER.stringFieldName })
-          : {}),
-        ...('delegate' in changedFields ? buildResponsibilityPayload(RISK_DELEGATE.fieldBaseName, values.delegate, { mode: 'update', stringFieldName: RISK_DELEGATE.stringFieldName }) : {}),
-        details,
-        businessCosts,
-        mitigation,
-        detailsJSON: detailsJSON,
-      } as UpdateRiskInput
-
-      if (Object.keys(changedFields).length === 0) {
+      if (Object.keys(input).length === 0) {
+        form.reset()
         setIsEditing(false)
         return
       }
@@ -176,7 +177,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    form.reset(initialValues as RiskFormValues)
+    form.reset()
     setIsEditing(false)
   }
 
@@ -185,7 +186,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
     setIsEditing(true)
   }
 
-  const handleUpdateField = async (input: UpdateRiskInput, options?: { throwOnError?: boolean }) => {
+  const handleUpdateField = async (input: UpdateRiskInput, options?: TPersistOptions) => {
     try {
       await updateRisk({ updateRiskId: riskId, input })
       successNotification({
@@ -245,56 +246,17 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   const canEditRisk = canEdit(permission?.roles, session) || hasPermission(orgPermission?.roles, AccessEnum.CanEditRisk, session)
   const canDeleteRisk = canDelete(permission?.roles) || hasPermission(orgPermission?.roles, AccessEnum.CanDeleteRisk, session)
 
-  const canInlineEdit = (field: InlineEditField) => !isEditing && canEditRisk && inlineEditField !== field
+  const canInlineEdit = (field: TRiskInlineEditField) => !isEditing && canEditRisk && inlineEditField !== field
 
-  const renderInlineBadge = ({
+  const inlineBadgeProps = (field: TRiskInlineEditField) => ({
     field,
-    label,
-    variant,
-    badgeClassName,
-    showIcon,
-    labelProps,
-  }: {
-    field: InlineEditField
-    label: string
-    variant: 'outline' | 'secondary'
-    badgeClassName?: string
-    showIcon: boolean
-    labelProps: (value: string | undefined) => { status?: RiskRiskStatus; riskKindName?: string; riskCategoryName?: string }
-  }) => (
-    <div className="min-w-0">
-      <p className="text-sm text-muted-foreground mb-2">{label}</p>
-      <Badge
-        variant={variant}
-        className={cn('max-w-full', badgeClassName, canInlineEdit(field) && 'cursor-pointer')}
-        onClick={() => {
-          if (canInlineEdit(field)) setInlineEditField(field)
-        }}
-      >
-        <Controller
-          name={field}
-          control={form.control}
-          render={({ field: ctrl }) => (
-            <RiskLabel
-              fieldName={field}
-              {...labelProps(ctrl.value as string | undefined)}
-              isEditing={isEditing || inlineEditField === field}
-              showIcon={showIcon}
-              onChange={(val) => {
-                const next = String(val)
-                ctrl.onChange(next)
-                if (!isEditing) {
-                  handleUpdateField({ [field]: next } as UpdateRiskInput)
-                  setInlineEditField(null)
-                }
-              }}
-              onClose={() => setInlineEditField(null)}
-            />
-          )}
-        />
-      </Badge>
-    </div>
-  )
+    isEditing,
+    isInlineEditing: inlineEditField === field,
+    canInlineEdit: canInlineEdit(field),
+    onStartInlineEdit: () => setInlineEditField(field),
+    onCloseInlineEdit: () => setInlineEditField(null),
+    handleUpdateField,
+  })
 
   if (isLoading) {
     return null
@@ -318,33 +280,36 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
       />
 
       <div className="grid gap-4 sm:grid-cols-[160px_minmax(0,max-content)_minmax(0,max-content)]">
-        {risk.status &&
-          renderInlineBadge({
-            field: 'status',
-            label: 'Status',
-            variant: 'outline',
-            badgeClassName: 'border-0',
-            showIcon: true,
-            labelProps: (value) => ({ status: (value as RiskRiskStatus | undefined) ?? risk.status ?? undefined }),
-          })}
-        {(isEditing || inlineEditField === 'riskKindName' || risk.riskKindName) &&
-          renderInlineBadge({
-            field: 'riskKindName',
-            label: 'Kind',
-            variant: 'secondary',
-            badgeClassName: 'px-0',
-            showIcon: false,
-            labelProps: (value) => ({ riskKindName: value || undefined }),
-          })}
-        {(isEditing || inlineEditField === 'riskCategoryName' || risk.riskCategoryName) &&
-          renderInlineBadge({
-            field: 'riskCategoryName',
-            label: 'Category',
-            variant: 'secondary',
-            badgeClassName: 'px-0',
-            showIcon: false,
-            labelProps: (value) => ({ riskCategoryName: value || undefined }),
-          })}
+        {risk.status && (
+          <RiskInlineBadge
+            {...inlineBadgeProps('status')}
+            label="Status"
+            variant="outline"
+            badgeClassName="border-0"
+            showIcon
+            labelProps={(value) => ({ status: (value as RiskRiskStatus | undefined) ?? risk.status ?? undefined })}
+          />
+        )}
+        {(isEditing || inlineEditField === 'riskKindName' || risk.riskKindName) && (
+          <RiskInlineBadge
+            {...inlineBadgeProps('riskKindName')}
+            label="Kind"
+            variant="secondary"
+            badgeClassName="px-0"
+            showIcon={false}
+            labelProps={(value) => ({ riskKindName: value || undefined })}
+          />
+        )}
+        {(isEditing || inlineEditField === 'riskCategoryName' || risk.riskCategoryName) && (
+          <RiskInlineBadge
+            {...inlineBadgeProps('riskCategoryName')}
+            label="Category"
+            variant="secondary"
+            badgeClassName="px-0"
+            showIcon={false}
+            labelProps={(value) => ({ riskCategoryName: value || undefined })}
+          />
+        )}
       </div>
 
       <QuickActions riskId={riskId} handleUpdate={handleUpdateField} canEdit={canEditRisk} />

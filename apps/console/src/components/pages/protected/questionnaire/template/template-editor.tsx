@@ -12,12 +12,21 @@ import { useRouter } from 'next/navigation'
 import '@/styles/questionnaire/custom.css'
 import { useCreateTemplate, useGetTemplate, useUpdateTemplate } from '@/lib/graphql-hooks/template'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { TemplateDocumentType } from '@repo/codegen/src/schema'
+import { diffBuiltInput } from '@/utils/input-diff'
+import { TemplateDocumentType, type UpdateTemplateInput } from '@repo/codegen/src/schema'
 
 const creatorOptions = {
   showLogicTab: true,
   isAutoSave: false,
 } satisfies ICreatorOptions
+
+type TSurveyJSON = { title?: string; description?: string }
+
+const buildTemplateUpdateInput = (jsonconfig: TSurveyJSON): UpdateTemplateInput => ({
+  name: jsonconfig.title || 'Untitled Template',
+  jsonconfig,
+  templateType: TemplateDocumentType.DOCUMENT,
+})
 
 export default function CreateTemplate(input: { templateId: string; existingId: string }) {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -26,6 +35,7 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
 
   const [creator] = useState(() => createSurveyCreator(creatorOptions))
   const creatorRef = useRef(creator)
+  const baselineRef = useRef<TSurveyJSON | undefined>(undefined)
 
   useEffect(() => {
     setCrumbs([
@@ -42,27 +52,26 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
   useEffect(() => {
     if (templateResult?.template?.jsonconfig) {
       creatorRef.current.JSON = templateResult.template.jsonconfig
+      baselineRef.current = creatorRef.current.JSON
     }
   }, [templateResult])
 
   const { mutateAsync: createTemplateData } = useCreateTemplate()
   const { mutateAsync: updateTemplateData } = useUpdateTemplate()
 
-  const saveTemplate = async (data: { title?: string; description?: string }) => {
+  const saveTemplate = async (data: TSurveyJSON) => {
     if (input.existingId) {
       try {
-        await updateTemplateData({
-          updateTemplateId: input.existingId,
-          input: {
-            name: data.title || 'Untitled Template',
-            jsonconfig: data,
-            templateType: TemplateDocumentType.DOCUMENT,
-          },
-        })
+        const baseline = baselineRef.current
+        const updateInput = diffBuiltInput(buildTemplateUpdateInput(data), baseline && buildTemplateUpdateInput(baseline))
 
-        successNotification({
-          title: 'Template updated successfully',
-        })
+        if (Object.keys(updateInput).length > 0) {
+          await updateTemplateData({ updateTemplateId: input.existingId, input: updateInput })
+          baselineRef.current = data
+          successNotification({
+            title: 'Template updated successfully',
+          })
+        }
 
         router.push(`/automation/questionnaires/templates`)
       } catch (error) {

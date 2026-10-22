@@ -19,6 +19,15 @@ import { contactMergeConfig } from '@/components/shared/merge-records/configs/co
 import { useCanEditObject } from '@/components/shared/crud-base/use-object-permission'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
+import { omit, orClear, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { type ContactFormData } from '../hooks/use-form-schema'
+import { CONTACT_SCALAR_UPDATE_FIELDS } from '../hooks/contact-update-fields'
+
+const CONTACT_UPDATE_FIELDS = {
+  ...CONTACT_SCALAR_UPDATE_FIELDS,
+  tags: orClear('clearTags'),
+  entityIDs: omit,
+} satisfies TFieldMappers<ContactFormData, UpdateContactInput>
 
 const ContactPage: React.FC = () => {
   const searchParams = useSearchParams()
@@ -78,13 +87,13 @@ const ContactPage: React.FC = () => {
     form,
     data: id ? data?.contact : undefined,
     isFetching: isLoading,
-    updateMutation,
     createMutation,
     deleteMutation,
     createDefaultValues: CONTACT_CREATE_DEFAULT_VALUES,
     buildPayload: async (data) => {
       return { ...data }
     },
+    update: { mutation: updateMutation, fields: CONTACT_UPDATE_FIELDS },
     getName,
     renderFields: (props: ContactFieldProps) => getFieldsToRender(props, enumOpts),
     extraMenuActions: id && !isCreate && canEditContact ? [mergeMenuAction(() => setIsMergeOpen(true))] : undefined,

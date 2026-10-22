@@ -33,6 +33,7 @@ export const TASKS_WITH_FILTER = gql`
             }
           }
           assignee {
+            id
             displayName
             avatarRemoteURL
             avatarFile {

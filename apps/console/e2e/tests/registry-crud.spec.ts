@@ -788,9 +788,14 @@ test.describe('vendors — contacts and risk review forms', () => {
       const sheet = page.getByRole('dialog')
       await expect(sheet).toBeVisible({ timeout: 30_000 })
 
-      await expectMutationOk(page, 'UpdateEntity', async () => {
+      const entityUpdates: string[] = []
+      page.on('request', (request) => {
+        if (/\bmutation\s+UpdateEntity\b/.test(request.postData() ?? '')) entityUpdates.push(request.url())
+      })
+      await expectMutationOk(page, 'CreateReview', async () => {
         await sheet.getByRole('button', { name: /^Save/ }).first().click()
       })
+      expect(entityUpdates).toEqual([])
     } finally {
       await gql(ownerApi, `mutation($id: ID!){ deleteEntity(id: $id){ deletedID } }`, { id: vendorId })
     }

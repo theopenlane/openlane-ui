@@ -8,6 +8,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import PlateEditor from '@/components/shared/plate/plate-editor'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils'
 import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { type EvidenceEditableField } from '@/components/pages/protected/evidence/evidence-sheet-config'
@@ -40,6 +41,7 @@ const EvidenceOverviewSection: React.FC<TEvidenceOverviewSectionProps> = ({
   collectionProcedure,
   renderCollectionProcedure,
 }) => {
+  const hydrate = usePlateHydration(form)
   const handleEdit = (field: EvidenceEditableField) => {
     if (editAllowed) onEdit(field)
   }
@@ -118,7 +120,7 @@ const EvidenceOverviewSection: React.FC<TEvidenceOverviewSectionProps> = ({
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormControl>
-                    <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
+                    <PlateEditor initialValue={field.value ?? ''} onChange={field.onChange} onHydrate={hydrate(field.name)} />
                   </FormControl>
                   {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                 </FormItem>

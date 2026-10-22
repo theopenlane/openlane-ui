@@ -156,8 +156,8 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     setEvidenceControls(initialEvidenceControls ? [...initialEvidenceControls] : null)
     setEvidenceSubcontrols(initialEvidenceSubcontrols ? [...initialEvidenceSubcontrols] : null)
 
-    form.setValue('controlIDs', [...initialControlIDs], { shouldValidate: false, shouldDirty: false })
-    form.setValue('subcontrolIDs', [...initialSubcontrolIDs], { shouldValidate: false, shouldDirty: false })
+    form.setValue('controlIDs', [...initialControlIDs], { shouldValidate: false, shouldDirty: true })
+    form.setValue('subcontrolIDs', [...initialSubcontrolIDs], { shouldValidate: false, shouldDirty: true })
 
     onClose()
   }

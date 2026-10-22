@@ -2,6 +2,7 @@
 
 import { Controller, useFormContext } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import React from 'react'
 import { type Value } from 'platejs'
 import { useSession } from 'next-auth/react'
@@ -19,7 +20,8 @@ type TBusinessCostFieldProps = {
 }
 
 const BusinessCostField: React.FC<TBusinessCostFieldProps> = ({ isEditing, initialValue, isEditAllowed = true, isCreate, clearData, onCleared }) => {
-  const { control } = useFormContext()
+  const { control, resetField } = useFormContext()
+  const hydrate = usePlateHydration({ resetField })
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
@@ -48,6 +50,7 @@ const BusinessCostField: React.FC<TBusinessCostFieldProps> = ({ isEditing, initi
             clearData={clearData}
             initialValue={initialValue}
             onClear={() => onCleared?.()}
+            onHydrate={hydrate(field.name)}
             onChange={(val) => {
               field.onChange(val)
             }}

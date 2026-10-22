@@ -12,7 +12,8 @@ import TableComponent from './table/table'
 import { type CreateActionPlanInput, type UpdateActionPlanInput, type ActionPlanWhereInput, ActionPlanDocumentStatus, ActionPlanPriority } from '@repo/codegen/src/schema'
 import { useSearchParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { ACTION_PLAN_INTERNAL_OWNER, buildActionPlanPayload, normalizeActionPlanData } from './action-plan-form-data'
+import { ACTION_PLAN_UPDATE_FIELDS } from './hooks/action-plan-update-fields'
+import { ACTION_PLAN_INTERNAL_OWNER, buildActionPlanCreatePayload, normalizeActionPlanData } from './action-plan-form-data'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 type Props = {
@@ -28,7 +29,6 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
-  const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useActionPlan(id || undefined)
 
   const getName = useCallback((actionPlan: ActionPlansNodeNonNull) => {
@@ -67,15 +67,9 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
     data: id ? data?.actionPlan : undefined,
     isFetching: isLoading,
     normalizeData: normalizeActionPlanData,
-    buildPayload: (formData) =>
-      buildActionPlanPayload(formData, {
-        isCreate,
-        isInternalOwnerDirty: !!form.formState.dirtyFields.internalOwner,
-        createInitialPayload,
-        convertToHtml: plateEditorHelper.convertToHtml,
-      }),
+    buildPayload: (formData) => buildActionPlanCreatePayload(formData, { createInitialPayload, converter: plateEditorHelper }),
+    update: { mutation: updateMutation, fields: ACTION_PLAN_UPDATE_FIELDS },
     getName,
-    updateMutation,
     createMutation,
     deleteMutation,
     renderFields: (props: ActionPlanFieldProps) => getFieldsToRender(props),

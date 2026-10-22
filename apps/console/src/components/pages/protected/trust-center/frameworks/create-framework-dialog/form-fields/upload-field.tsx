@@ -32,7 +32,7 @@ export const UploadField = ({ initialUrl }: { initialUrl?: string | null }) => {
     const blobUrl = URL.createObjectURL(uploaded.file)
     blobUrlRef.current = blobUrl
 
-    setValue('logoFile', uploaded.file)
+    setValue('logoFile', uploaded.file, { shouldDirty: true })
     setPreview(blobUrl)
   }
 

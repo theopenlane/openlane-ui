@@ -6,6 +6,7 @@ import { type BrandFormValues } from '../brand-schema'
 import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { RenderBrandField } from '../../shared/render-field'
 import PlateEditor from '@/components/shared/plate/plate-editor'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 
@@ -19,8 +20,10 @@ export const BrandingTextSection = ({ isReadOnly, warning, setting }: BrandingTe
   const {
     register,
     control,
+    resetField,
     formState: { errors },
   } = useFormContext<BrandFormValues>()
+  const hydrate = usePlateHydration({ resetField })
   const { convertToReadOnly } = usePlateEditor()
 
   return (
@@ -54,7 +57,7 @@ export const BrandingTextSection = ({ isReadOnly, warning, setting }: BrandingTe
               <Controller
                 control={control}
                 name="overview"
-                render={({ field }) => <PlateEditor initialValue={field.value as string | Value} onChange={(value) => field.onChange(value)} placeholder="Overview" />}
+                render={({ field }) => <PlateEditor initialValue={field.value as string | Value} onChange={field.onChange} onHydrate={hydrate(field.name)} placeholder="Overview" />}
               />
             )}
             {!isReadOnly && errors.overview && <p className="text-xs text-red-500">{errors.overview.message}</p>}

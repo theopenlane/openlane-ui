@@ -4,7 +4,6 @@ import { type Value } from 'platejs'
 import { type UpdateReviewInput } from '@repo/codegen/src/schema'
 
 type BuildPayloadOptions = {
-  dirtyFields?: Partial<Record<keyof ReviewFormData, unknown>>
   useClearFlags?: boolean
 }
 
@@ -15,7 +14,7 @@ const toISOString = (value: string | Date | null | undefined): string | undefine
 }
 
 const toStringObject = (value: string | null | undefined, field: keyof ReviewFormData, clearField: keyof UpdateReviewInput, options: BuildPayloadOptions) =>
-  value?.trim() ? { [field]: value } : options.useClearFlags && options.dirtyFields?.[field] ? { [clearField]: true } : {}
+  value?.trim() ? { [field]: value } : options.useClearFlags ? { [clearField]: true } : {}
 
 export const buildPayload = async (data: ReviewFormData, plateEditorHelper: ReturnType<typeof usePlateEditor>, options: BuildPayloadOptions = {}) => {
   const { summary, category, classification, status, source, reporter, externalID, externalOwnerID, externalURI, environmentName, scopeName, ...rest } = data
@@ -26,7 +25,7 @@ export const buildPayload = async (data: ReviewFormData, plateEditorHelper: Retu
     ...toStringObject(summary, 'summary', 'clearSummary', options),
     ...toStringObject(category, 'category', 'clearCategory', options),
     ...toStringObject(classification, 'classification', 'clearClassification', options),
-    ...(status ? { status } : options.useClearFlags && options.dirtyFields?.status ? { clearStatus: true } : {}),
+    ...(status ? { status } : options.useClearFlags ? { clearStatus: true } : {}),
     ...toStringObject(source, 'source', 'clearSource', options),
     ...toStringObject(reporter, 'reporter', 'clearReporter', options),
     ...toStringObject(externalID, 'externalID', 'clearExternalID', options),

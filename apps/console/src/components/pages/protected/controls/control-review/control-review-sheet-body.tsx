@@ -27,6 +27,7 @@ import { getEdgeIds, getEdgeNodes } from '@/components/shared/object-association
 import { UploadedEvidenceSection } from '@/components/pages/protected/controls/quick-actions/uploaded-evidence-section'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import useControlReviewFormSchema, { CONTROL_REVIEW_DEFAULT_VALUES, type ControlReviewFormData } from './use-control-review-form-schema'
+import { isEmptyInputValue, omit, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { useControlReviewContext } from './use-control-review-context'
 import ControlContextPanel from '@/components/pages/protected/controls/control-context-panel'
 import RelatedControlsSelector from './related-controls-selector'
@@ -48,6 +49,18 @@ const collectLinkedIds = (review: ReviewQuery['review'] | undefined, primaryCont
   subcontrolIDs: getEdgeIds(review?.subcontrols?.edges),
 })
 
+const REVIEW_UPDATE_FIELDS = {
+  testApplied: (testApplied) => (isEmptyInputValue(testApplied) ? { clearDetails: true } : { details: testApplied }),
+  externalID: orClear('clearExternalID'),
+  auditorNotes: omit,
+  linkedControlIDs: omit,
+  linkedSubcontrolIDs: omit,
+  findingTitle: omit,
+  findingSeverity: omit,
+  findingDescription: omit,
+  title: passthrough,
+} satisfies TFieldMappers<ControlReviewFormData, UpdateReviewInput>
+
 const ControlReviewSheetBody: React.FC<TControlReviewSheetBodyProps> = ({ controlId, reviewId, onClose }) => {
   const isOpen = !!reviewId
 
@@ -68,6 +81,7 @@ const ControlReviewSheetBody: React.FC<TControlReviewSheetBodyProps> = ({ contro
   const findingLinkedRef = useRef(false)
 
   const { form } = useControlReviewFormSchema()
+  const buildDirtyInput = useDirtyInput(form)
   const { data, isLoading } = useReview(reviewId || undefined)
   const review = data?.review
 
@@ -131,16 +145,18 @@ const ControlReviewSheetBody: React.FC<TControlReviewSheetBodyProps> = ({ contro
     try {
       const auditorNotesHtml = savedCommentRef.current ? null : await plateToHtmlOrNull(formData.auditorNotes, plateEditorHelper)
 
+      const changedInput = await buildDirtyInput<UpdateReviewInput>(formData, REVIEW_UPDATE_FIELDS)
+
       const input: UpdateReviewInput = {
-        title: formData.title,
-        status,
-        ...(formData.testApplied ? { details: formData.testApplied } : { clearDetails: true }),
-        ...(formData.externalID ? { externalID: formData.externalID } : { clearExternalID: true }),
+        ...changedInput,
+        ...(status !== review?.status ? { status } : {}),
         ...buildLinkedAssociationInput(initialLinkedIdsRef.current, formData),
         ...(auditorNotesHtml ? { addComment: { text: auditorNotesHtml } } : {}),
       }
 
-      await updateReview({ updateReviewId: reviewId, input })
+      if (Object.keys(input).length > 0) {
+        await updateReview({ updateReviewId: reviewId, input })
+      }
       initialLinkedIdsRef.current = { controlIDs: formData.linkedControlIDs, subcontrolIDs: formData.linkedSubcontrolIDs }
       if (auditorNotesHtml) {
         savedCommentRef.current = true

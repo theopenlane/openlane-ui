@@ -55,10 +55,14 @@ const ConfigureSlaSheet = ({ isOpen, onClose, readOnly = false }: Props) => {
     setEditValue('')
   }
 
-  const handleSave = async (id: string) => {
+  const handleSave = async (id: string, currentDays: number | null | undefined) => {
     const days = parseInt(editValue, 10)
     if (isNaN(days) || days < 0) {
       errorNotification({ title: 'Invalid value', description: 'SLA days must be a non-negative number' })
+      return
+    }
+    if (days === currentDays) {
+      handleCancel()
       return
     }
     try {
@@ -105,13 +109,13 @@ const ConfigureSlaSheet = ({ isOpen, onClose, readOnly = false }: Props) => {
                         onChange={(e) => setEditValue(e.target.value)}
                         className="w-25 h-8 text-sm"
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter') handleSave(def.id)
+                          if (e.key === 'Enter') handleSave(def.id, def.slaDays)
                           if (e.key === 'Escape') handleCancel()
                         }}
                         autoFocus
                       />
                       <span className="text-sm text-muted-foreground">days</span>
-                      <Button size="sm" variant="outline" aria-label={`Save SLA days for ${severityName}`} className="h-8 w-8 p-0" onClick={() => handleSave(def.id)} disabled={isPending}>
+                      <Button size="sm" variant="outline" aria-label={`Save SLA days for ${severityName}`} className="h-8 w-8 p-0" onClick={() => handleSave(def.id, def.slaDays)} disabled={isPending}>
                         {isPending ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} className="text-success" />}
                       </Button>
                       <Button size="sm" variant="outline" aria-label={`Cancel SLA edit for ${severityName}`} className="h-8 w-8 p-0" onClick={handleCancel} disabled={isPending}>

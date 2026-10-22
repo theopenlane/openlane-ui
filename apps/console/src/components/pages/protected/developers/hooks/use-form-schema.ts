@@ -1,5 +1,4 @@
 'use client'
-import { useMemo } from 'react'
 import { z, type infer as zInfer } from 'zod'
 import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -22,6 +21,15 @@ const baseFormSchema = z.object({
 
 export type TokenFormData = zInfer<typeof baseFormSchema>
 
+export const tokenFormValuesFrom = ({ isEditMode, editToken }: Pick<tokenFormProps, 'isEditMode' | 'editToken'>): TokenFormData => ({
+  name: editToken?.name ?? '',
+  description: editToken?.description ?? '',
+  expiryDate: editToken?.expiresAt ? new Date(editToken.expiresAt) : undefined,
+  organizationIDs: editToken?.authorizedOrganizations?.map((organization) => organization.id) ?? [],
+  noExpire: isEditMode ? !editToken?.expiresAt : false,
+  scopes: editToken?.scopes ?? [],
+})
+
 const useFormSchema = ({ ...props }: tokenFormProps) => {
   const formSchema = baseFormSchema
     .refine(
@@ -38,23 +46,10 @@ const useFormSchema = ({ ...props }: tokenFormProps) => {
       path: ['expiryDate'],
     })
 
-  const initialOrgIds = props.editToken?.authorizedOrganizations?.map((o: { id: string; name: string }) => o.id) ?? []
-
-  const expiresAt = props.editToken?.expiresAt
-  const expiryDate = useMemo(() => (expiresAt ? new Date(expiresAt) : undefined), [expiresAt])
-
   return {
-    initialOrgIds,
     form: useForm<TokenFormData>({
       resolver: zodResolver(formSchema) as Resolver<TokenFormData>,
-      defaultValues: {
-        name: props.editToken?.name ?? '',
-        description: props.editToken?.description ?? '',
-        expiryDate,
-        organizationIDs: initialOrgIds,
-        noExpire: props.isEditMode ? !props.editToken?.expiresAt : false,
-        scopes: props.editToken?.scopes ?? [],
-      },
+      defaultValues: tokenFormValuesFrom(props),
     }),
   }
 }

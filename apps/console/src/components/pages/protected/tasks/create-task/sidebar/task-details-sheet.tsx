@@ -1,18 +1,17 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
-import { TaskTaskStatus, type UpdateTaskInput } from '@repo/codegen/src/schema'
+import { TaskTaskStatus, type TaskQuery, type UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import useFormSchema, { type EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
 import { Form } from '@repo/ui/form'
 import { useTask, useTaskAssociations, useUpdateTask } from '@/lib/graphql-hooks/task'
 import { CreateTaskDialog } from '../dialog/create-task-dialog'
 import { useQueryClient } from '@tanstack/react-query'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
@@ -25,7 +24,9 @@ import Properties from '../form/fields/properties'
 import Conversation from '../form/fields/conversation'
 import TasksSheetHeader from '../form/fields/header'
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
-import { buildTaskAssociations, buildTaskPayload, generateEvidenceFormData, type TTaskCopyMode } from '../utils'
+import { buildTaskAssociations, generateEvidenceFormData, type TTaskCopyMode } from '../utils'
+import { getAssociationInput } from '@/components/shared/object-association/utils'
+import { dateOrClear, orClear, richTextOrClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { useTaskCopyPrefill } from '../../hooks/use-task-copy-prefill'
 import MarkAsComplete from '../form/fields/mark-as-complete'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -40,6 +41,7 @@ import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organizatio
 import { type TOrgMembers, useTaskStore } from '../../hooks/useTaskStore'
 import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 
 type TaskDetailsSheetProps = {
   queryParamKey?: string
@@ -47,11 +49,32 @@ type TaskDetailsSheetProps = {
   onClose?: () => void
 }
 
+const TASK_UPDATE_FIELDS = {
+  taskKindName: orClear('clearTaskKindName'),
+  details: richTextOrClear('clearDetails'),
+  assigneeID: orClear('clearAssignee'),
+  due: dateOrClear('clearDue'),
+  tags: orClear('clearTags'),
+  isTemplate: passthrough,
+  status: passthrough,
+  title: passthrough,
+} satisfies TFieldMappers<EditTaskFormData, UpdateTaskInput>
+
+const toTaskFormValues = (task: NonNullable<TaskQuery['task']>) => ({
+  title: task.title ?? '',
+  details: task.details ?? '',
+  due: task.due ? new Date(task.due as string) : null,
+  assigneeID: task.assignee?.id,
+  taskKindName: task.taskKindName ?? undefined,
+  status: task.status ? Object.values(TaskTaskStatus).find((type) => type === task.status) : undefined,
+  tags: task.tags ?? [],
+  isTemplate: task.isTemplate ?? false,
+})
+
 const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id', entityId: entityIdProp, onClose: onCloseProp }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [internalEditing, setInternalEditing] = useState<keyof EditTaskFormData | null>(null)
   const queryClient = useQueryClient()
-  const plateEditorHelper = usePlateEditor()
   const smartRouter = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
   const openObjectSheet = useOpenObjectSheet()
@@ -70,8 +93,9 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const isEditAllowed = canEdit(permission?.roles, session)
   const { data, isLoading: fetching } = useTask(id as string)
   const taskData = data?.task
-  const { form } = useFormSchema()
+  const { form } = useFormSchema(undefined, { isCreate: false })
   const { isDirty: isTaskDirty } = form.formState
+  const buildDirtyInput = useDirtyInput(form)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const { data: associationsData, isLoading: associationsLoading } = useTaskAssociations(id as string)
@@ -100,20 +124,27 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
     setOrgMembers(members)
   }, [membersData, setOrgMembers])
 
+  const isEditingRef = useRef(isEditing)
+
   useEffect(() => {
-    if (taskData) {
-      form.reset({
-        title: taskData.title ?? '',
-        details: taskData.details ?? '',
-        due: taskData.due ? new Date(taskData.due as string) : undefined,
-        assigneeID: taskData.assignee?.id,
-        taskKindName: taskData?.taskKindName ?? undefined,
-        status: taskData?.status ? Object.values(TaskTaskStatus).find((type) => type === taskData?.status) : undefined,
-        tags: taskData?.tags ?? [],
-        isTemplate: taskData.isTemplate ?? false,
-      })
+    isEditingRef.current = isEditing
+  }, [isEditing])
+
+  useEffect(() => {
+    if (taskData && !isEditingRef.current) {
+      form.reset(toTaskFormValues(taskData))
     }
   }, [taskData, form])
+
+  const discardEdits = useCallback(() => {
+    if (taskData) {
+      form.reset(toTaskFormValues(taskData))
+    } else {
+      form.reset()
+    }
+    setAssociations(initialAssociations)
+    setIsEditing(false)
+  }, [taskData, form, initialAssociations])
 
   const controlParams: CustomEvidenceControl[] = [
     ...(associationsData?.task?.controls?.edges?.map((edge) => edge?.node).filter(Boolean) ?? []),
@@ -143,11 +174,11 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const handleCloseParams = () => {
     if (onCloseProp) {
       onCloseProp()
-      setIsEditing(false)
+      discardEdits()
       return
     }
     smartRouter.replace({ [queryParamKey]: null })
-    setIsEditing(false)
+    discardEdits()
   }
 
   const handleTaskCreatedFromTask = (newId: string) => {
@@ -167,15 +198,24 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
       return
     }
 
-    const formData: UpdateTaskInput = await buildTaskPayload(data, plateEditorHelper, initialAssociations, associations)
+    const changedFields = await buildDirtyInput<UpdateTaskInput>(data, TASK_UPDATE_FIELDS)
+
+    const input: UpdateTaskInput = { ...changedFields, ...getAssociationInput(initialAssociations, associations) }
+
+    if (Object.keys(input).length === 0) {
+      form.reset()
+      setIsEditing(false)
+      return
+    }
 
     try {
       await updateTask({
         updateTaskId: id as string,
-        input: formData,
+        input,
       })
 
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      form.reset(data)
       successNotification({
         title: 'Task Updated',
         description: 'The task has been successfully updated.',
@@ -191,9 +231,9 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
     }
   }
 
-  const handleUpdateField = async (input: UpdateTaskInput) => {
+  const handleUpdateField = async (input: UpdateTaskInput, options?: TPersistOptions) => {
     if (!id || isEditing) {
-      return true
+      return
     }
     try {
       await updateTask({ updateTaskId: id, input })
@@ -201,14 +241,15 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
         title: 'Task updated',
         description: 'The task has been successfully updated.',
       })
-      return true
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
         description: errorMessage,
       })
-      return false
+      if (options?.throwOnError) {
+        throw error
+      }
     }
   }
 
@@ -241,7 +282,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
               isTemplate={isTemplate}
               onTemplateChange={(nextIsTemplate) => handleUpdateField({ isTemplate: nextIsTemplate })}
               onUseTemplate={() => setCreateFromTaskMode('template')}
-              formActions={isEditing ? <SlideoutFormActions formId="editTask" onCancel={() => setIsEditing(false)} isPending={isPending} /> : undefined}
+              formActions={isEditing ? <SlideoutFormActions formId="editTask" onCancel={discardEdits} isPending={isPending} /> : undefined}
             />
           }
         >

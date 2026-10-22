@@ -1,28 +1,13 @@
 'use client'
 
-import React, { useCallback, useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
+import React, { useRef } from 'react'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
-import {
-  IdentityHolderUserStatus,
-  IdentityHolderIdentityHolderType,
-  type UpdateIdentityHolderInput,
-  type CreateIdentityHolderInput,
-  type GetIdentityHolderAssociationsQuery,
-} from '@repo/codegen/src/schema'
+import { IdentityHolderUserStatus, IdentityHolderIdentityHolderType, type UpdateIdentityHolderInput, type CreateIdentityHolderInput } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import {
-  useUpdateIdentityHolder,
-  useBulkDeleteIdentityHolder,
-  useBulkEditIdentityHolder,
-  useIdentityHolder,
-  useGetIdentityHolderAssociations,
-  type IdentityHoldersNodeNonNull,
-  useCreateIdentityHolderWithFiles,
-} from '@/lib/graphql-hooks/identity-holder'
+import { useBulkDeleteIdentityHolder, useBulkEditIdentityHolder, type IdentityHoldersNodeNonNull, useCreateIdentityHolderWithFiles } from '@/lib/graphql-hooks/identity-holder'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import {
@@ -42,7 +27,6 @@ import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
-import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { IDENTITY_HOLDER_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 
 const normalizeData = (data: IdentityHoldersNodeNonNull | null | undefined) =>
@@ -58,24 +42,6 @@ const normalizeData = (data: IdentityHoldersNodeNonNull | null | undefined) =>
 const PersonnelPage: React.FC = () => {
   const { form } = useFormSchema()
 
-  const searchParams = useSearchParams()
-  const id = searchParams.get('id')
-  const isCreate = searchParams.get('create') === 'true'
-  const { data, isLoading } = useIdentityHolder(id || undefined)
-  const { data: associationsData } = useGetIdentityHolderAssociations(id || undefined)
-  const extractAssociations = useCallback((assocData: GetIdentityHolderAssociationsQuery) => {
-    const identityHolder = assocData.identityHolder
-    return {
-      assetIDs: (identityHolder.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      controlIDs: (identityHolder.controls?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      subcontrolIDs: (identityHolder.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      entityIDs: (identityHolder.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      campaignIDs: (identityHolder.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      internalPolicyIDs: (identityHolder.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      taskIDs: (identityHolder.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-    }
-  }, [])
-  const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
   const stagedFilesRef = useRef<File[]>([])
   const existingFileIdsRef = useRef<string[]>([])
 
@@ -83,15 +49,9 @@ const PersonnelPage: React.FC = () => {
     return data?.fullName
   }
 
-  const baseUpdateMutation = useUpdateIdentityHolder()
   const baseCreateMutation = useCreateIdentityHolderWithFiles()
   const baseBulkDeleteMutation = useBulkDeleteIdentityHolder()
   const baseBulkEditMutation = useBulkEditIdentityHolder()
-
-  const updateMutation = {
-    isPending: baseUpdateMutation.isPending,
-    mutateAsync: async (params: { id: string; input: UpdateIdentityHolderInput }) => baseUpdateMutation.mutateAsync({ updateIdentityHolderId: params.id, input: params.input }),
-  }
 
   const createMutation = {
     isPending: baseCreateMutation.isPending,
@@ -153,9 +113,7 @@ const PersonnelPage: React.FC = () => {
     objectType: objectType,
     displayName,
     form,
-    data: id ? data?.identityHolder : undefined,
-    isFetching: isLoading,
-    updateMutation,
+    isFetching: false,
     createMutation,
     deleteMutation,
     buildPayload: async (data) => {
@@ -163,14 +121,14 @@ const PersonnelPage: React.FC = () => {
       const associationPayload = buildAssociationPayload(
         IDENTITY_HOLDER_ASSOCIATION_CONFIG.associationKeys,
         { assetIDs, controlIDs, subcontrolIDs, entityIDs, campaignIDs, internalPolicyIDs, taskIDs },
-        isCreate,
-        initialAssociationsRef.current,
+        true,
+        {},
       )
 
       return {
         ...rest,
         ...associationPayload,
-        ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
+        ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'create' }),
       }
     },
     normalizeData,

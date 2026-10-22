@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
@@ -30,6 +30,8 @@ const BillingContactDialog = () => {
   const [open, setOpen] = useState(false)
   const [fullName, setFullName] = useState('')
   const [address, setAddress] = useState<PlaceAddress>(emptyAddress)
+  const storedAddress: Partial<PlaceAddress> = setting?.organization.setting?.billingAddress ?? {}
+  const storedContact = setting?.organization.setting?.billingContact || ''
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
@@ -39,13 +41,22 @@ const BillingContactDialog = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    const storedParts = new Map(Object.entries(storedAddress))
+    const addressChanged = Object.entries(address).some(([key, value]) => value !== (storedParts.get(key) ?? ''))
+    const contactChanged = fullName !== storedContact
+
+    if (!addressChanged && !contactChanged) {
+      setOpen(false)
+      return
+    }
+
     try {
       await updateOrg({
         updateOrganizationId: currentOrgId ?? '',
         input: {
           updateOrgSettings: {
-            billingAddress: address,
-            billingContact: fullName,
+            ...(addressChanged && { billingAddress: Object.fromEntries(Object.entries(address).filter(([key, value]) => value !== '' || storedParts.has(key))) }),
+            ...(contactChanged && { billingContact: fullName }),
           },
         },
       })
@@ -63,18 +74,16 @@ const BillingContactDialog = () => {
     }
   }
 
-  useEffect(() => {
-    if (!setting) {
-      return
+  const handleOpenChange = (next: boolean) => {
+    if (next) {
+      setAddress({ ...emptyAddress, ...storedAddress })
+      setFullName(storedContact)
     }
-    setAddress({ ...emptyAddress, ...setting.organization.setting?.billingAddress })
-
-    setFullName(setting.organization.setting?.billingContact || '')
-    return () => {}
-  }, [setting])
+    setOpen(next)
+  }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} aria-describedby={undefined}>
+    <Dialog open={open} onOpenChange={handleOpenChange} aria-describedby={undefined}>
       <DialogTrigger asChild>
         <h1 className="text-primary text-sm font-medium cursor-pointer">Edit</h1>
       </DialogTrigger>

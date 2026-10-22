@@ -1,3 +1,4 @@
+import { type UpdateEntityInput } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 export const VendorRiskRating = {
@@ -35,3 +36,18 @@ export const riskRatingFromScore = (riskScore: number | string | null | undefine
 }
 
 export const isVendorRiskRating = (value: string): value is TVendorRiskRating => (Object.values(VendorRiskRating) as string[]).includes(value)
+
+const parseRiskScore = (riskScore: number | string | null | undefined): number | null => {
+  if (riskScore === null || riskScore === undefined || riskScore === '') return null
+  const score = Number(riskScore)
+  return Number.isFinite(score) ? score : null
+}
+
+export const vendorRiskScoreInput = (value: number | string | null | undefined): UpdateEntityInput => {
+  const riskScore = parseRiskScore(value)
+  const riskRating = riskRatingFromScore(riskScore)
+  return {
+    ...(riskScore === null ? { clearRiskScore: true } : { riskScore }),
+    ...(riskRating ? { riskRating } : { clearRiskRating: true }),
+  }
+}

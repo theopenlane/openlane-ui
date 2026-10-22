@@ -4,17 +4,10 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Accordion } from '@radix-ui/react-accordion'
 
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import { associationsInput, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import type { Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  MappedControlMappingType,
-  MappedControlMappingSource,
-  type UpdateMappedControlMutationVariables,
-  type UpdateMappedControlInput,
-  type GetMappedControlByIdQuery,
-  type ControlEdge,
-  type SubcontrolEdge,
-} from '@repo/codegen/src/schema'
+import { MappedControlMappingType, MappedControlMappingSource, type UpdateMappedControlInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetMappedControlById, useUpdateMappedControl, useDeleteMappedControl } from '@/lib/graphql-hooks/mapped-control'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
@@ -30,6 +23,17 @@ import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import { type MapControl } from '@/types'
 import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+
+const MAPPED_CONTROL_UPDATE_FIELDS = {
+  fromControlIDs: associationsInput('fromControlIDs'),
+  toControlIDs: associationsInput('toControlIDs'),
+  fromSubcontrolIDs: associationsInput('fromSubcontrolIDs'),
+  toSubcontrolIDs: associationsInput('toSubcontrolIDs'),
+  confidence: orClear('clearConfidence'),
+  source: orClear('clearSource'),
+  relation: orClear('clearRelation'),
+  mappingType: passthrough,
+} satisfies TFieldMappers<MapControlsFormData, UpdateMappedControlInput>
 
 const EditMapControlPage = () => {
   const { id, subcontrolId } = useParams()
@@ -73,47 +77,12 @@ const EditMapControlPage = () => {
     },
   })
 
+  const buildDirtyInput = useDirtyInput(form)
+
   const mappingType = useWatch({
     control: form.control,
     name: 'mappingType',
   })
-
-  const generateUpdateMappedControlInput = (data: MapControlsFormData, existing: GetMappedControlByIdQuery['mappedControl'] | undefined): UpdateMappedControlInput => {
-    const getEdgeIDs = (edges?: ControlEdge[] | SubcontrolEdge[]) => edges?.map((e) => e?.node?.id || '').filter(Boolean) ?? []
-
-    const currentFromControlIDs = getEdgeIDs(existing?.fromControls?.edges as ControlEdge[])
-    const currentToControlIDs = getEdgeIDs(existing?.toControls?.edges as ControlEdge[])
-    const currentFromSubcontrolIDs = getEdgeIDs(existing?.fromSubcontrols?.edges as SubcontrolEdge[])
-    const currentToSubcontrolIDs = getEdgeIDs(existing?.toSubcontrols?.edges as SubcontrolEdge[])
-
-    const computeDelta = (current: string[], updated: string[]) => {
-      const add = updated.filter((id) => !current.includes(id))
-      const remove = current.filter((id) => !updated.includes(id))
-      return { add, remove }
-    }
-
-    const fromControlDelta = computeDelta(currentFromControlIDs, data.fromControlIDs ?? [])
-    const toControlDelta = computeDelta(currentToControlIDs, data.toControlIDs ?? [])
-    const fromSubcontrolDelta = computeDelta(currentFromSubcontrolIDs, data.fromSubcontrolIDs ?? [])
-    const toSubcontrolDelta = computeDelta(currentToSubcontrolIDs, data.toSubcontrolIDs ?? [])
-
-    const input: UpdateMappedControlInput = {
-      addFromControlIDs: fromControlDelta.add,
-      removeFromControlIDs: fromControlDelta.remove,
-      addToControlIDs: toControlDelta.add,
-      removeToControlIDs: toControlDelta.remove,
-      addFromSubcontrolIDs: fromSubcontrolDelta.add,
-      removeFromSubcontrolIDs: fromSubcontrolDelta.remove,
-      addToSubcontrolIDs: toSubcontrolDelta.add,
-      removeToSubcontrolIDs: toSubcontrolDelta.remove,
-      mappingType: data.mappingType,
-      source: data.source,
-      confidence: data.confidence,
-      relation: data.relation,
-    }
-
-    return input
-  }
 
   const handleDelete = async () => {
     if (!mappedControlId) return
@@ -145,21 +114,21 @@ const EditMapControlPage = () => {
       return
     }
 
-    const input = generateUpdateMappedControlInput(data, mappedControlData?.mappedControl)
+    const input = await buildDirtyInput<UpdateMappedControlInput>(data, MAPPED_CONTROL_UPDATE_FIELDS)
 
-    const variables: UpdateMappedControlMutationVariables = {
-      updateMappedControlId: mappedControlId,
-      input,
+    const relationsUrl = subcontrolId ? `/controls/${id}/${subcontrolId}?openRelations=true` : `/controls/${id}?openRelations=true`
+
+    if (Object.keys(input).length === 0) {
+      form.reset()
+      router.push(relationsUrl)
+      return
     }
 
     try {
-      {
-        await update(variables)
-        successNotification({ title: 'Map Control updated!' })
-        const redirectUrl = subcontrolId ? `/controls/${id}/${subcontrolId}?openRelations=true` : `/controls/${id}?openRelations=true`
-        router.push(redirectUrl)
-        queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
-      }
+      await update({ updateMappedControlId: mappedControlId, input })
+      successNotification({ title: 'Map Control updated!' })
+      router.push(relationsUrl)
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -206,16 +175,22 @@ const EditMapControlPage = () => {
       const fromSubcontrolIDs = mc.fromSubcontrols?.edges?.map((e) => e?.node?.id || '').filter(Boolean) || []
       const toSubcontrolIDs = mc.toSubcontrols?.edges?.map((e) => e?.node?.id || '').filter(Boolean) || []
 
-      form.reset({
-        fromControlIDs,
-        toControlIDs,
-        fromSubcontrolIDs,
-        toSubcontrolIDs,
-        confidence: mc.confidence ?? undefined,
-        mappingType: mc.mappingType ?? MappedControlMappingType.PARTIAL,
-        relation: mc.relation ?? '',
-        source: mc.source ?? MappedControlMappingSource.MANUAL,
-      })
+      const isFromDirty = form.getFieldState('fromControlIDs').isDirty || form.getFieldState('fromSubcontrolIDs').isDirty
+      const isToDirty = form.getFieldState('toControlIDs').isDirty || form.getFieldState('toSubcontrolIDs').isDirty
+
+      form.reset(
+        {
+          fromControlIDs,
+          toControlIDs,
+          fromSubcontrolIDs,
+          toSubcontrolIDs,
+          confidence: mc.confidence ?? undefined,
+          mappingType: mc.mappingType ?? MappedControlMappingType.PARTIAL,
+          relation: mc.relation ?? '',
+          source: mc.source ?? MappedControlMappingSource.MANUAL,
+        },
+        { keepDirtyValues: true },
+      )
 
       const presetFrom: MapControl[] = []
       const presetTo: MapControl[] = []
@@ -244,8 +219,8 @@ const EditMapControlPage = () => {
         }
       })
 
-      setPresetControlsFrom(presetFrom)
-      setPresetControlsTo(presetTo)
+      if (!isFromDirty) setPresetControlsFrom(presetFrom)
+      if (!isToDirty) setPresetControlsTo(presetTo)
     }
   }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs, mappedControlId, mappedControlData])
 

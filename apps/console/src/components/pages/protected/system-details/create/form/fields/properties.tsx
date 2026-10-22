@@ -2,8 +2,9 @@
 
 import React, { useMemo, useRef } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Tag } from 'lucide-react'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import MultipleSelector from '@repo/ui/multiple-selector'
 import { type SystemDetailQuery, type UpdateSystemDetailInput } from '@repo/codegen/src/schema'
 import { type SystemDetailFormData } from '../../../hooks/use-form-schema'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
@@ -18,14 +19,15 @@ type PropertiesProps = {
   data: SystemDetailQuery['systemDetail'] | undefined
   internalEditing: string | null
   setInternalEditing: InternalEditingType
-  handleUpdateField?: (val: UpdateSystemDetailInput) => void
+  handleUpdateField?: (val: UpdateSystemDetailInput, options?: TPersistOptions) => Promise<void> | void
   isEditAllowed: boolean
 }
 
 const allProperties = ['tags']
 
 const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditing, setInternalEditing, handleUpdateField, isEditAllowed }) => {
-  const { control, formState, watch, setValue } = useFormContext<SystemDetailFormData>()
+  const { control, formState, watch, resetField } = useFormContext<SystemDetailFormData>()
+  const persistField = usePersistFormField<SystemDetailFormData>()
   const { tagOptions } = useGetTags()
 
   const tags = watch('tags')
@@ -57,8 +59,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
     const changed = current.length !== next.length || current.some((value) => !next.includes(value))
 
     if (changed && handleUpdateField) {
-      setValue('tags', next)
-      handleUpdateField({ tags: next })
+      void persistField('tags', next, (options) => handleUpdateField({ tags: next }, options))
     }
   }
 
@@ -83,11 +84,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
       }
 
       if (internalEditing === 'tags') {
-        const options: Option[] = (data?.tags ?? []).filter((item: string): item is string => typeof item === 'string').map((item: string) => ({ value: item, label: item }))
-        setValue(
-          'tags',
-          options.map((option) => option.value),
-        )
+        resetField('tags')
         setInternalEditing(null)
       }
     },

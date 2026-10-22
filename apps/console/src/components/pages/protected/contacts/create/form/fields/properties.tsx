@@ -2,7 +2,8 @@
 
 import React, { useMemo, useRef } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
+import MultipleSelector from '@repo/ui/multiple-selector'
 import { type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
 import { type ContactFormData } from '../../../hooks/use-form-schema'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
@@ -17,14 +18,15 @@ type PropertiesProps = {
   data: ContactQuery['contact'] | undefined
   internalEditing: string | null
   setInternalEditing: InternalEditingType
-  handleUpdateField?: (val: UpdateContactInput) => void
+  handleUpdateField?: (val: UpdateContactInput, options?: TPersistOptions) => Promise<void> | void
   isEditAllowed: boolean
 }
 
 const allProperties = ['tags']
 
 const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditing, setInternalEditing, handleUpdateField, isEditAllowed }) => {
-  const { control, formState, watch, setValue } = useFormContext<ContactFormData>()
+  const { control, formState, watch, resetField } = useFormContext<ContactFormData>()
+  const persistField = usePersistFormField<ContactFormData>()
 
   const { tagOptions } = useGetTags()
 
@@ -57,8 +59,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
     if (changed && handleUpdateField) {
-      setValue('tags', next)
-      handleUpdateField({ tags: next })
+      void persistField('tags', next, (options) => handleUpdateField({ tags: next }, options))
     }
   }
 
@@ -82,11 +83,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
         return
       }
       if (internalEditing === 'tags') {
-        const options: Option[] = (data?.tags ?? []).filter((item: string): item is string => typeof item === 'string').map((item: string) => ({ value: item, label: item }))
-        setValue(
-          'tags',
-          options.map((opt) => opt.value),
-        )
+        resetField('tags')
         setInternalEditing(null)
       }
     },

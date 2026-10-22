@@ -6,12 +6,14 @@ import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { Button } from '@repo/ui/button'
 
+export type CampaignDetailsValues = { name: string; description: string }
+
 interface EditDetailsDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   initialName: string
   initialDescription: string
-  onSave: (values: { name: string; description: string }) => Promise<void> | void
+  onSave: (values: CampaignDetailsValues) => Promise<void> | void
   isPending?: boolean
 }
 
