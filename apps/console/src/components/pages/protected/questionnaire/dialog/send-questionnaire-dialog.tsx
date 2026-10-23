@@ -20,7 +20,7 @@ import { computeDueDate } from '@/utils/date'
 import { isDuplicateEmail, isValidEmail } from '@/lib/validators'
 
 const formSchema = z.object({
-  emails: z.array(z.string().email()).min(1, 'At least one email is required'),
+  emails: z.array(z.email()).min(1, 'At least one email is required'),
 })
 
 type FormData = z.infer<typeof formSchema>
