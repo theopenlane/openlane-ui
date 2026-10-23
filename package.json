@@ -11,7 +11,7 @@
     "dev": "turbo dev --parallel",
     "debug": "turbo debug",
     "type-check": "turbo type-check",
-    "clean": "rm -rf node_modules/** && rm -rf ./apps/console/.next && rm -rf ./apps/console/node_modules && rm -rf ./apps/storybook/.next && rm -rf ./apps/storybook/node_modules &&  rm -rf ./packages/*/node_modules",
+    "clean": "rm -rf node_modules/** && rm -rf ./apps/console/.next && rm -rf ./apps/console/node_modules && rm -rf ./packages/*/node_modules",
     "turbo-clean": "turbo clean",
     "lint": "turbo run lint",
     "test": "bun test apps/console/src packages",
