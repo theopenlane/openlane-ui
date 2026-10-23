@@ -14,7 +14,7 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { NdaAutoApprovalRuleRow } from './nda-auto-approval-rule-row'
 import {
   AUTO_APPROVAL_FALLBACK_RULE,
-  AUTO_APPROVAL_RULES,
+  AUTO_APPROVAL_RULE_GROUPS,
   getAutoApprovalRulesBlockedReason,
   initialAutoApprovalRules,
   readAutoApprovalRules,
@@ -110,10 +110,15 @@ export const NdaAutoApprovalSettings = ({ setting, readOnly, isSaving, onUpdate 
                 <h4 className="px-1 text-sm font-medium">When no rule approves a request</h4>
                 <div className="rounded-md border border-border">{renderRule(AUTO_APPROVAL_FALLBACK_RULE)}</div>
               </section>
-              <section className="space-y-2">
-                <h4 className="px-1 text-sm font-medium">Rules that approve a request</h4>
-                <div className="divide-y divide-border rounded-md border border-border">{AUTO_APPROVAL_RULES.map(renderRule)}</div>
-              </section>
+              {AUTO_APPROVAL_RULE_GROUPS.map((group) => (
+                <section key={group.title} className="space-y-2">
+                  <div className="px-1">
+                    <h4 className="text-sm font-medium">{group.title}</h4>
+                    <p className="mt-1 text-sm text-muted-foreground">{group.description}</p>
+                  </div>
+                  <div className="divide-y divide-border rounded-md border border-border">{group.rules.map(renderRule)}</div>
+                </section>
+              ))}
             </div>
           </CollapsibleSection>
 

@@ -46,59 +46,81 @@ export type TAutoApprovalRuleDefinition = {
 
 export const AUTO_APPROVAL_FALLBACK_RULE: TAutoApprovalRuleDefinition = {
   key: 'manualApprovalOnFailure',
-  label: 'Require manual approval if rules do not match',
-  description: 'Send requests that do not qualify for automatic approval to manual review. When disabled, these requests are automatically declined.',
+  label: 'Send unmatched requests to manual review',
+  description: 'NDA requests that are not approved automatically go to manual review. When this is off, those requests are declined automatically.',
 }
 
-export const AUTO_APPROVAL_RULES: readonly TAutoApprovalRuleDefinition[] = [
+export type TAutoApprovalRuleGroup = {
+  title: string
+  description: string
+  rules: readonly TAutoApprovalRuleDefinition[]
+}
+
+export const AUTO_APPROVAL_RULE_GROUPS: readonly TAutoApprovalRuleGroup[] = [
   {
-    key: 'workEmailOnly',
-    label: 'Require work emails',
-    description: 'Do not automatically approve requests from free or disposable email domains. Allowlisted domains and existing contacts are still approved.',
+    title: 'Approval rules',
+    description: 'A match approves the request automatically. Email address restrictions and the domain blocklist are checked first and override these.',
+    rules: [
+      {
+        key: 'approveIfContactExists',
+        label: 'Approve existing contacts',
+        description: 'Automatically approve NDA requests when the email address matches an active contact in your organization.',
+      },
+      {
+        key: 'approveFromContactDomain',
+        label: 'Approve contact domains',
+        description: 'Automatically approve NDA requests from domains used by your active contacts.',
+      },
+      {
+        key: 'approveFromExistingRequestDomain',
+        label: 'Approve previously approved domains',
+        description: 'Automatically approve NDA requests from a domain that already has an approved request.',
+      },
+      {
+        key: 'useDomainAllowlist',
+        label: 'Approve specific domains',
+        description: 'Automatically approve NDA requests from the domains you list.',
+        domainsKey: 'domainAllowlist',
+        domainsLabel: 'Allowed domains',
+      },
+    ],
   },
   {
-    key: 'allowRoleAccount',
-    label: 'Allow role email accounts',
-    description: 'Allow NDA requests from role email addresses such as support@ or sales@ to be approved automatically.',
-  },
-  {
-    key: 'approveFromExistingRequestDomain',
-    label: 'Approve from known domains',
-    description: 'Automatically approve NDA requests from a domain used by a previously approved request. Email rules still apply.',
-  },
-  {
-    key: 'approveIfContactExists',
-    label: 'Approve existing contacts',
-    description: 'Automatically approve NDA requests when the email address matches an active contact in your organization.',
-  },
-  {
-    key: 'approveFromContactDomain',
-    label: 'Approve contact domains',
-    description: 'Automatically approve requests from domains used by your active contacts. Email rules still apply.',
-  },
-  {
-    key: 'useDomainBlocklist',
-    label: 'Exclude domains from automatic approval',
-    description: 'Use the domain blocklist to exclude domains, such as competitor domains, from automatic approval.',
-    domainsKey: 'domainBlocklist',
-    domainsLabel: 'Blocked domains',
-  },
-  {
-    key: 'useDomainAllowlist',
-    label: 'Approve requests from any of these domains',
-    description: 'Use the domain allowlist to automatically approve NDA requests from the listed domains.',
-    domainsKey: 'domainAllowlist',
-    domainsLabel: 'Allowed domains',
-  },
-  {
-    key: 'allowDisposableEmail',
-    label: 'Allow disposable emails',
-    description: 'Allow known disposable email addresses to qualify for automatic approval.',
-    disabledReason: (rules) => (rules.workEmailOnly && !rules.allowDisposableEmail ? 'Turn off "Require work emails" first. Work emails exclude disposable addresses.' : null),
+    title: 'Email address restrictions',
+    description: 'These settings are checked before any approval rule and override all of them. They only exclude NDA requests. A request still needs to match an approval rule.',
+    rules: [
+      {
+        key: 'workEmailOnly',
+        label: 'Require work email addresses',
+        description:
+          'Never automatically approve NDA requests from free email providers, such as gmail.com, or from disposable addresses. This applies even when the domain belongs to a contact or is on your allowed list.',
+      },
+      {
+        key: 'allowRoleAccount',
+        label: 'Role email addresses can qualify',
+        description:
+          'Let role addresses such as support@ or sales@ qualify for automatic approval when they match an approval rule. This setting does not approve them on its own. When it is off, NDA requests from role addresses are never approved automatically.',
+      },
+      {
+        key: 'allowDisposableEmail',
+        label: 'Disposable email addresses can qualify',
+        description:
+          'Let known disposable addresses qualify for automatic approval when they match an approval rule. This setting does not approve them on its own. When it is off, NDA requests from disposable addresses are never approved automatically.',
+        disabledReason: (rules) =>
+          rules.workEmailOnly && !rules.allowDisposableEmail ? 'Turn off "Require work email addresses" first. Disposable addresses cannot qualify while work email addresses are required.' : null,
+      },
+      {
+        key: 'useDomainBlocklist',
+        label: 'Exclude specific domains',
+        description: 'Never automatically approve NDA requests from the domains you list, such as competitor domains. Excluded domains take priority over allowed domains.',
+        domainsKey: 'domainBlocklist',
+        domainsLabel: 'Blocked domains',
+      },
+    ],
   },
 ]
 
 export const getAutoApprovalRulesBlockedReason = (rules: AutoApprovalRules): string | null => {
-  const emptyList = AUTO_APPROVAL_RULES.find(({ key, domainsKey }) => domainsKey && rules[key] && !rules[domainsKey]?.length)
+  const emptyList = AUTO_APPROVAL_RULE_GROUPS.flatMap((group) => group.rules).find(({ key, domainsKey }) => domainsKey && rules[key] && !rules[domainsKey]?.length)
   return emptyList ? `Add at least one domain to "${emptyList.label}" or turn it off.` : null
 }
