@@ -17,22 +17,37 @@ export type AutoApprovalRules = {
 export type TAutoApprovalToggleKey = { [K in keyof AutoApprovalRules]-?: NonNullable<AutoApprovalRules[K]> extends boolean ? K : never }[keyof AutoApprovalRules]
 export type TAutoApprovalDomainsKey = 'domainBlocklist' | 'domainAllowlist'
 
-export const DEFAULT_AUTO_APPROVAL_RULES: AutoApprovalRules = {
+const DEFAULT_AUTO_APPROVAL_RULES: AutoApprovalRules = {
   workEmailOnly: true,
   approveFromExistingRequestDomain: true,
   approveIfContactExists: true,
   manualApprovalOnFailure: true,
 }
 
-export const resolveAutoApprovalRules = (setting?: TrustCenterSetting): AutoApprovalRules => (setting?.autoApprovalRules as AutoApprovalRules | null | undefined) ?? DEFAULT_AUTO_APPROVAL_RULES
+export const readAutoApprovalRules = (setting?: TrustCenterSetting) => setting?.autoApprovalRules as AutoApprovalRules | null | undefined
 
-type TAutoApprovalRuleDefinition = {
+export const resolveAutoApprovalRules = (setting?: TrustCenterSetting): AutoApprovalRules => readAutoApprovalRules(setting) ?? {}
+
+const isUnconfiguredRules = (rules: AutoApprovalRules) => !Object.values(rules).some((value) => (Array.isArray(value) ? value.length > 0 : !!value))
+
+export const initialAutoApprovalRules = (setting?: TrustCenterSetting): AutoApprovalRules => {
+  const rules = readAutoApprovalRules(setting)
+  return rules && !isUnconfiguredRules(rules) ? rules : DEFAULT_AUTO_APPROVAL_RULES
+}
+
+export type TAutoApprovalRuleDefinition = {
   key: TAutoApprovalToggleKey
   label: string
   description: string
   domainsKey?: TAutoApprovalDomainsKey
   domainsLabel?: string
   disabledReason?: (rules: AutoApprovalRules) => string | null
+}
+
+export const AUTO_APPROVAL_FALLBACK_RULE: TAutoApprovalRuleDefinition = {
+  key: 'manualApprovalOnFailure',
+  label: 'Require manual approval if rules do not match',
+  description: 'Send requests that do not qualify for automatic approval to manual review. When disabled, these requests are automatically declined.',
 }
 
 export const AUTO_APPROVAL_RULES: readonly TAutoApprovalRuleDefinition[] = [
@@ -79,11 +94,11 @@ export const AUTO_APPROVAL_RULES: readonly TAutoApprovalRuleDefinition[] = [
     key: 'allowDisposableEmail',
     label: 'Allow disposable emails',
     description: 'Allow known disposable email addresses to qualify for automatic approval.',
-    disabledReason: (rules) => (rules.workEmailOnly ? 'Turn off "Require work emails" first. Work emails exclude disposable addresses.' : null),
-  },
-  {
-    key: 'manualApprovalOnFailure',
-    label: 'Require manual approval if rules do not match',
-    description: 'Send requests that do not qualify for automatic approval to manual review. When disabled, these requests are automatically declined.',
+    disabledReason: (rules) => (rules.workEmailOnly && !rules.allowDisposableEmail ? 'Turn off "Require work emails" first. Work emails exclude disposable addresses.' : null),
   },
 ]
+
+export const getAutoApprovalRulesBlockedReason = (rules: AutoApprovalRules): string | null => {
+  const emptyList = AUTO_APPROVAL_RULES.find(({ key, domainsKey }) => domainsKey && rules[key] && !rules[domainsKey]?.length)
+  return emptyList ? `Add at least one domain to "${emptyList.label}" or turn it off.` : null
+}

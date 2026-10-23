@@ -8,18 +8,14 @@ export type ApprovalDomainListProps = {
   domains: string[]
   readOnly: boolean
   isSaving: boolean
-  onChange: (domains: string[]) => Promise<boolean>
+  onChange: (domains: string[]) => void
 }
 
 export const ApprovalDomainList = ({ inputLabel, domains, readOnly, isSaving, onChange }: ApprovalDomainListProps) => {
   const [domain, setDomain] = useState('')
   const [inputError, setInputError] = useState<string | null>(null)
 
-  const addDomain = async () => {
-    if (readOnly || isSaving) {
-      return
-    }
-
+  const addDomain = () => {
     const raw = domain.trim()
     if (!raw) {
       return
@@ -36,17 +32,12 @@ export const ApprovalDomainList = ({ inputLabel, domains, readOnly, isSaving, on
       return
     }
 
-    if (await onChange([...domains, candidate])) {
-      setDomain('')
-    }
+    onChange([...domains, candidate])
+    setDomain('')
   }
 
   const removeDomain = (domainToRemove: string) => {
-    if (readOnly || isSaving) {
-      return
-    }
-
-    void onChange(domains.filter((domain) => domain !== domainToRemove))
+    onChange(domains.filter((domain) => domain !== domainToRemove))
   }
 
   return (

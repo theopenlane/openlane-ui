@@ -1,13 +1,27 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { useNavigationGuard } from 'nextjs-nav-guard'
 import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
 import { Label } from '@repo/ui/label'
 import { Switch } from '@repo/ui/switch'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
-import { ApprovalDomainList } from './approval-domain-list'
-import { AUTO_APPROVAL_RULES, DEFAULT_AUTO_APPROVAL_RULES, resolveAutoApprovalRules, type AutoApprovalRules } from '../auto-approval-rules'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import CollapsibleSection from '@/components/shared/collapsible-section/collapsible-section'
+import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
+import { NdaAutoApprovalRuleRow } from './nda-auto-approval-rule-row'
+import {
+  AUTO_APPROVAL_FALLBACK_RULE,
+  AUTO_APPROVAL_RULES,
+  getAutoApprovalRulesBlockedReason,
+  initialAutoApprovalRules,
+  readAutoApprovalRules,
+  resolveAutoApprovalRules,
+  type AutoApprovalRules,
+  type TAutoApprovalRuleDefinition,
+} from '../auto-approval-rules'
 
 type NdaAutoApprovalSettingsProps = {
   setting?: TrustCenterSetting
@@ -16,16 +30,21 @@ type NdaAutoApprovalSettingsProps = {
   onUpdate: (input: UpdateTrustCenterSettingInput) => Promise<boolean>
 }
 
-type TOptimisticRules = { base: AutoApprovalRules; value: AutoApprovalRules }
+type TDraft = { settingId?: string; base: AutoApprovalRules | null | undefined; value: AutoApprovalRules }
 
 export const NdaAutoApprovalSettings = ({ setting, readOnly, isSaving, onUpdate }: NdaAutoApprovalSettingsProps) => {
   const isAutoApprovalEnabled = !!setting?.enableAutoApproval
-  const serverRules = resolveAutoApprovalRules(setting)
-  const [optimistic, setOptimistic] = useState<TOptimisticRules | null>(null)
+  const savedRules = readAutoApprovalRules(setting)
+  const [pendingDraft, setPendingDraft] = useState<TDraft | null>(null)
+  const [isExpanded, setIsExpanded] = useState(false)
   const isSavingRef = useRef(false)
 
-  const rules = optimistic && optimistic.base === serverRules ? optimistic.value : serverRules
-  const disabled = readOnly || isSaving
+  const draft = pendingDraft && pendingDraft.settingId === setting?.id && pendingDraft.base === savedRules ? pendingDraft.value : null
+  const rules = draft ?? resolveAutoApprovalRules(setting)
+  const navGuard = useNavigationGuard({ enabled: draft !== null })
+  const isEnabling = !isAutoApprovalEnabled && draft !== null
+  const showRules = isAutoApprovalEnabled || isEnabling
+  const saveBlockedReason = getAutoApprovalRulesBlockedReason(rules)
 
   const save = async (input: UpdateTrustCenterSettingInput) => {
     if (isSavingRef.current) return false
@@ -37,21 +56,42 @@ export const NdaAutoApprovalSettings = ({ setting, readOnly, isSaving, onUpdate 
     }
   }
 
-  const updateRule = async <K extends keyof AutoApprovalRules>(key: K, value: AutoApprovalRules[K]) => {
-    const next: AutoApprovalRules = { ...rules }
-    next[key] = value
-    setOptimistic({ base: serverRules, value: next })
-    const saved = await save({ autoApprovalRules: next })
-    setOptimistic(null)
-    return saved
+  const setDraft = (value: AutoApprovalRules | null) => setPendingDraft(value ? { settingId: setting?.id, base: savedRules, value } : null)
+
+  const updateRule = <K extends keyof AutoApprovalRules>(key: K, value: AutoApprovalRules[K]) => {
+    setDraft({ ...rules, [key]: value })
   }
 
-  const toggleAutoApproval = (checked: boolean) => {
-    void save(checked && !setting?.autoApprovalRules ? { enableAutoApproval: true, autoApprovalRules: DEFAULT_AUTO_APPROVAL_RULES } : { enableAutoApproval: checked })
+  const toggleAutoApproval = async (checked: boolean) => {
+    if (checked) {
+      setDraft(initialAutoApprovalRules(setting))
+      setIsExpanded(true)
+      return
+    }
+
+    if (!isAutoApprovalEnabled) {
+      setDraft(null)
+      return
+    }
+
+    if (await save({ enableAutoApproval: false })) {
+      setDraft(null)
+    }
   }
+
+  const saveChanges = async () => {
+    if (saveBlockedReason) return
+    const saved = await save(isEnabling ? { enableAutoApproval: true, autoApprovalRules: rules } : { autoApprovalRules: rules })
+    if (saved) {
+      setDraft(null)
+    }
+  }
+
+  const renderRule = (rule: TAutoApprovalRuleDefinition) => <NdaAutoApprovalRuleRow key={rule.key} rule={rule} rules={rules} readOnly={readOnly} isSaving={isSaving} onChange={updateRule} />
 
   return (
     <div className="overflow-hidden rounded-lg border border-border">
+      <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
       <div className="flex items-start justify-between gap-4 px-4 py-3.5">
         <div>
           <Label htmlFor="nda-enable-auto-approval" className="text-sm font-medium">
@@ -59,51 +99,38 @@ export const NdaAutoApprovalSettings = ({ setting, readOnly, isSaving, onUpdate 
           </Label>
           <p className="mt-1 text-sm text-muted-foreground">Automatically approve NDA requests based on the rules below.</p>
         </div>
-        <Switch id="nda-enable-auto-approval" checked={isAutoApprovalEnabled} onCheckedChange={toggleAutoApproval} disabled={disabled} className="mt-1 shrink-0" />
+        <Switch id="nda-enable-auto-approval" checked={showRules} onCheckedChange={(checked) => void toggleAutoApproval(checked)} disabled={readOnly || isSaving} className="mt-1 shrink-0" />
       </div>
 
-      {isAutoApprovalEnabled && (
+      {showRules && (
         <div className="px-3 pb-3">
-          <div className="divide-y divide-border rounded-md border border-border">
-            {AUTO_APPROVAL_RULES.map((rule) => {
-              const disabledReason = rule.disabledReason?.(rules) ?? null
-              const { domainsKey } = rule
+          <CollapsibleSection label="Approval rules" open={isExpanded} onOpenChange={setIsExpanded}>
+            <div className="space-y-4">
+              <section className="space-y-2">
+                <h4 className="px-1 text-sm font-medium">When no rule approves a request</h4>
+                <div className="rounded-md border border-border">{renderRule(AUTO_APPROVAL_FALLBACK_RULE)}</div>
+              </section>
+              <section className="space-y-2">
+                <h4 className="px-1 text-sm font-medium">Rules that approve a request</h4>
+                <div className="divide-y divide-border rounded-md border border-border">{AUTO_APPROVAL_RULES.map(renderRule)}</div>
+              </section>
+            </div>
+          </CollapsibleSection>
 
-              return (
-                <div key={rule.key} className="p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <Label htmlFor={`nda-${rule.key}`} className="text-sm font-medium">
-                        {rule.label}
-                      </Label>
-                      <p className="mt-1 text-sm text-muted-foreground">{rule.description}</p>
-                    </div>
-                    <DisabledReasonTooltip reason={readOnly ? null : disabledReason}>
-                      <Switch
-                        id={`nda-${rule.key}`}
-                        checked={!!rules[rule.key]}
-                        disabled={disabled || !!disabledReason}
-                        className="mt-1 shrink-0"
-                        onCheckedChange={(checked) => void updateRule(rule.key, checked)}
-                      />
-                    </DisabledReasonTooltip>
-                  </div>
-
-                  {domainsKey && rules[rule.key] && (
-                    <div className="mt-3">
-                      <ApprovalDomainList
-                        inputLabel={rule.domainsLabel ?? 'Domains'}
-                        domains={rules[domainsKey] ?? []}
-                        readOnly={readOnly}
-                        isSaving={isSaving}
-                        onChange={(domains) => updateRule(domainsKey, domains)}
-                      />
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
+          {draft !== null && !readOnly && (
+            <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
+              <CancelButton onClick={() => setDraft(null)} disabled={isSaving} />
+              <DisabledReasonTooltip reason={saveBlockedReason}>
+                <SaveButton
+                  type="button"
+                  title={isEnabling ? 'Enable Automatic Approvals' : 'Save Rules'}
+                  isSaving={isSaving}
+                  disabled={isSaving || !!saveBlockedReason}
+                  onClick={() => void saveChanges()}
+                />
+              </DisabledReasonTooltip>
+            </div>
+          )}
         </div>
       )}
     </div>

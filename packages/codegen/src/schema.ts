@@ -9569,6 +9569,7 @@ export interface GetTrustCenterNdaRequestsQuery {
         createdAt: any
         approvedAt: string | null
         approvedByUserID: string | null
+        autoApproved: boolean | null
         signedAt: string | null
         status: Types.TrustCenterNdaRequestTrustCenterNdaRequestStatus | null
         approvedByUser: { id: string; displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
