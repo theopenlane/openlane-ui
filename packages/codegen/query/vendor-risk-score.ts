@@ -32,6 +32,33 @@ export const GET_ALL_VENDOR_RISK_SCORES = gql`
   }
 `
 
+export const GET_VENDOR_RISK_SCORING = gql`
+  query VendorRiskScoring($where: VendorRiskScoreWhereInput, $first: Int, $after: Cursor) {
+    vendorRiskScores(where: $where, first: $first, after: $after, orderBy: [{ field: question_key, direction: ASC }]) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          questionKey
+          questionName
+          questionCategory
+          answerType
+          answer
+          impact
+          likelihood
+          score
+          notes
+          tags
+          updatedAt
+        }
+      }
+    }
+  }
+`
+
 export const VENDOR_RISK_SCORE = gql`
   query VendorRiskScore($vendorRiskScoreId: ID!) {
     vendorRiskScore(id: $vendorRiskScoreId) {
