@@ -12,6 +12,8 @@ import { useDeleteTrustCenterEntity, useGetTrustCenterEntities, useUpdateTrustCe
 import { toBase64DataUri } from '@/lib/image-utils'
 import CreateCustomerLogo from './create-customer-logo'
 import CustomerLogoCard from './customer-logo-card'
+import { CustomerLogosSkeleton } from './customer-logos-skeleton'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
@@ -31,7 +33,8 @@ export default function CustomerLogosPage() {
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
   const { data: session } = useSession()
   const canEditTc = canEdit(tcPermission?.roles, session)
-  const { entities } = useGetTrustCenterEntities({})
+  const { entities, isPending: isLoadingEntities, error: entitiesError } = useGetTrustCenterEntities({})
+  useQueryErrorNotification({ error: entitiesError, description: 'Failed to load customer logos' })
   const { mutateAsync: deleteEntity } = useDeleteTrustCenterEntity()
   const { mutateAsync: updateEntity } = useUpdateTrustCenterEntity()
 
@@ -77,7 +80,9 @@ export default function CustomerLogosPage() {
         {canEditTc && <CreateCustomerLogo trustCenterID={trustCenterID} />}
 
         <div className="relative min-h-100">
-          {entities.length === 0 ? (
+          {isLoadingEntities ? (
+            <CustomerLogosSkeleton />
+          ) : entitiesError ? null : entities.length === 0 ? (
             <div className="absolute inset-0 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-center p-8 border-muted">
               <Building2 size={24} className="mb-4 text-muted-foreground" />
               <h3 className="text-sm font-medium mb-1 text-foreground">No companies added yet</h3>
