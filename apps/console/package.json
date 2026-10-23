@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^5.0.115",
-    "@assistant-ui/react": "0.15.28",
+    "@assistant-ui/react": "0.15.29",
     "@assistant-ui/react-ai-sdk": "1.4.17",
     "@assistant-ui/react-markdown": "0.14.22",
     "@date-fns/tz": "^1.5.0",
