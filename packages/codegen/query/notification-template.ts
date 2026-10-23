@@ -31,7 +31,6 @@ export const GET_ALL_NOTIFICATION_TEMPLATES = gql`
           updatedAt
           updatedBy
           version
-          workflowDefinitionID
         }
       }
       pageInfo {
@@ -72,7 +71,6 @@ export const NOTIFICATION_TEMPLATE = gql`
       updatedAt
       updatedBy
       version
-      workflowDefinitionID
     }
   }
 `
