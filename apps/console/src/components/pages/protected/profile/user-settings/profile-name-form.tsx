@@ -28,9 +28,7 @@ const profileNameSchema = z.object({
   displayName: z.string().min(2, {
     message: 'Display name must be at least 2 characters',
   }),
-  email: z.string().email({
-    message: 'Invalid email address',
-  }),
+  email: z.email('Invalid email address'),
 })
 
 type TProfileNameFormData = z.infer<typeof profileNameSchema>

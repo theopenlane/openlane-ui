@@ -26,7 +26,7 @@ const schema = z
     description: z.string().optional(),
     uploadMode: z.enum(['file', 'url']).default('file'),
     logoFile: z.instanceof(File).optional(),
-    logoUrl: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
+    logoUrl: z.url('Please enter a valid URL').optional().or(z.literal('')),
     tags: z.array(z.string()).optional(),
   })
   .superRefine((data, ctx) => {
