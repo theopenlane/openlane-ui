@@ -5,12 +5,14 @@ import {
   parseIntegrationErrorMessage,
   primaryCredentialRef,
   primaryCredentialSchema,
+  readIntegrationUserInput,
   resolveSchemaRoot,
   schemaHasProperties,
 } from './utils'
 import { isRecord } from '@/utils/type-guards'
 import { resolveResourcePicker } from './resource-pickers'
 import {
+  type IntegrationChannelTarget,
   type IntegrationConfigurationResult,
   type IntegrationNode,
   type IntegrationOperationConfigPayload,
@@ -27,6 +29,8 @@ export const TEST_MESSAGE_SEND_OPERATION = 'TestMessageSendOperation'
 export const PICKER_SESSION_OPERATION = 'PickerSession'
 export const RESOURCE_SELECTION_OPERATION = 'ResourceSelection'
 export const SELECTED_DOCUMENTS_FIELD = 'selectedDocuments'
+export const DEFAULT_CHANNEL_FIELD = 'defaultChannel'
+export const DEFAULT_TEAM_FIELD = 'defaultTeamId'
 
 type StartIntegrationOptions = {
   credentialRef?: string
@@ -80,6 +84,30 @@ export const providerSupportsTestMessage = (provider?: IntegrationProvider): boo
 
 export const providerSupportsResourcePicker = (provider?: IntegrationProvider): boolean =>
   !!resolveResourcePicker(provider) && providerHasRunnableOperation(provider, PICKER_SESSION_OPERATION) && providerHasRunnableOperation(provider, RESOURCE_SELECTION_OPERATION)
+
+export const providerSupportsDefaultChannel = (provider?: IntegrationProvider): boolean =>
+  Boolean(resolveSchemaRoot(provider?.userInputSchema)?.properties?.[DEFAULT_CHANNEL_FIELD]) &&
+  providerHasRunnableOperation(provider, CHANNELS_LIST_OPERATION) &&
+  providerHasRunnableOperation(provider, RESOURCE_SELECTION_OPERATION)
+
+const nonEmptyString = (value: unknown): string | undefined => (typeof value === 'string' && value !== '' ? value : undefined)
+
+export const readDefaultChannel = (integration: Pick<IntegrationNode, 'config'>): IntegrationChannelTarget | undefined => {
+  const userInput = readIntegrationUserInput(integration)
+  const channelId = nonEmptyString(userInput[DEFAULT_CHANNEL_FIELD])
+
+  return channelId ? { channelId, teamId: nonEmptyString(userInput[DEFAULT_TEAM_FIELD]) } : undefined
+}
+
+export const isSameChannel = (a: IntegrationChannelTarget, b: IntegrationChannelTarget | undefined): boolean => !!b && a.channelId === b.channelId && (!a.teamId || !b.teamId || a.teamId === b.teamId)
+
+const providerStoresDefaultTeam = (provider?: IntegrationProvider): boolean => Boolean(resolveSchemaRoot(provider?.userInputSchema)?.properties?.[DEFAULT_TEAM_FIELD])
+
+export const toChannelSelection = (provider: IntegrationProvider | undefined, channel: (IntegrationChannelTarget & { name?: string }) | undefined): IntegrationSelectedResource[] =>
+  channel ? [{ id: channel.channelId, name: channel.name, ...(providerStoresDefaultTeam(provider) ? { parentId: channel.teamId } : {}) }] : []
+
+export const readProviderDefaultChannel = (provider: IntegrationProvider | undefined, integration: Pick<IntegrationNode, 'config'>): IntegrationChannelTarget | undefined =>
+  providerSupportsDefaultChannel(provider) ? readDefaultChannel(integration) : undefined
 
 const isOptionalString = (value: unknown): value is string | undefined => value === undefined || typeof value === 'string'
 

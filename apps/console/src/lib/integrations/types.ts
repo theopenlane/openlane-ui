@@ -94,7 +94,7 @@ export type IntegrationChannelsList = {
   teams: IntegrationMessageTeam[]
 }
 
-export type IntegrationTestMessageTarget = {
+export type IntegrationChannelTarget = {
   teamId?: string
   channelId: string
 }
