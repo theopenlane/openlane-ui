@@ -43,7 +43,6 @@ export const GET_ALL_CAMPAIGNS = gql`
           templateID
           updatedAt
           updatedBy
-          workflowEligibleMarker
         }
       }
       pageInfo {
@@ -112,7 +111,6 @@ export const CAMPAIGN = gql`
       templateID
       updatedAt
       updatedBy
-      workflowEligibleMarker
     }
   }
 `

@@ -82,7 +82,6 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
           updatedAt
           updatedBy
           userID
-          workflowEligibleMarker
         }
       }
       pageInfo {
@@ -176,7 +175,6 @@ export const IDENTITY_HOLDER = gql`
       updatedAt
       updatedBy
       userID
-      workflowEligibleMarker
     }
   }
 `
