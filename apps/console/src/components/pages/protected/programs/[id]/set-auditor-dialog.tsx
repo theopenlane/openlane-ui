@@ -16,6 +16,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { isValidEmail } from '@/lib/validators'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { AUDITOR_URL } from '@/constants'
+import OfficialOnly from '@/components/shared/official-only/official-only'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { Callout } from '@/components/shared/callout/callout'
@@ -86,13 +87,15 @@ export const SetAuditorDialog = () => {
         <DialogHeader>
           <DialogTitle>Set auditor</DialogTitle>
         </DialogHeader>
-        <Callout variant="recommendation" title="Auditor Recommendations">
-          If you need help finding an auditor, check out our{' '}
-          <a href={AUDITOR_URL} className="underline" target="_blank" rel="noopener noreferrer">
-            audit partner list
-          </a>{' '}
-          or reach out to support for personalized recommendations
-        </Callout>
+        <OfficialOnly>
+          <Callout variant="recommendation" title="Auditor Recommendations">
+            If you need help finding an auditor, check out our{' '}
+            <a href={AUDITOR_URL} className="underline" target="_blank" rel="noopener noreferrer">
+              audit partner list
+            </a>{' '}
+            or reach out to support for personalized recommendations
+          </Callout>
+        </OfficialOnly>
         <div className="flex flex-col gap-4 mt-4">
           {errorMessages.length > 0 && <MessageBox className="p-4 ml-1" message={errorMessages.join(', ')} variant="error" />}
           <div className="flex flex-col gap-2">

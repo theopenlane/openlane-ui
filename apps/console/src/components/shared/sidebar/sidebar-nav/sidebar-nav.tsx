@@ -14,6 +14,7 @@ import { OrganizationSelector } from '@/components/shared/organization-selector/
 import Menu from '@/components/shared/menu/menu'
 import CreateMenu from '@/components/shared/sidebar/create-menu/create-menu'
 import { CONTRIBUTE_URL, SUPPORT_URL } from '@/constants'
+import { useIsOfficialDeployment } from '@repo/ui/lib/official-deployment'
 import { useBillingExpired, useIsNavItemLocked } from '@/lib/subscription-plan/hooks/use-module-access'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { Button } from '@repo/ui/button'
@@ -108,6 +109,7 @@ export default function SideNav({
   const pathname = usePathname()
   const router = useRouter()
   const isLocked = useIsNavItemLocked()
+  const isOfficial = useIsOfficialDeployment()
 
   const sidebarItems = [...navItems, ...footerNavItems]
   const billingExpired = useBillingExpired()
@@ -258,6 +260,7 @@ export default function SideNav({
       anchor: 'feedback',
       icon: MessageSquareText,
       external: false,
+      officialOnly: true,
     },
     {
       href: CONTRIBUTE_URL,
@@ -271,19 +274,21 @@ export default function SideNav({
   const renderFooterLinks = () => {
     const menuContent = (
       <>
-        {footerLinks.map(({ href, label, anchor, icon: Icon, external }, i) => (
-          <Link
-            key={i}
-            href={href}
-            {...elementAnchor('nav', 'more', anchor)}
-            target={external ? '_blank' : undefined}
-            rel={external ? 'noopener noreferrer' : undefined}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground *:pointer-events-none"
-          >
-            <Icon size={16} />
-            <span className="text-sm font-normal leading-5">{label}</span>
-          </Link>
-        ))}
+        {footerLinks
+          .filter(({ officialOnly }) => isOfficial || !officialOnly)
+          .map(({ href, label, anchor, icon: Icon, external }, i) => (
+            <Link
+              key={i}
+              href={href}
+              {...elementAnchor('nav', 'more', anchor)}
+              target={external ? '_blank' : undefined}
+              rel={external ? 'noopener noreferrer' : undefined}
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground *:pointer-events-none"
+            >
+              <Icon size={16} />
+              <span className="text-sm font-normal leading-5">{label}</span>
+            </Link>
+          ))}
       </>
     )
 

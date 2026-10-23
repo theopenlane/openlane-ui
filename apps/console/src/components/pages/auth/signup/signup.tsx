@@ -16,7 +16,7 @@ import { PasswordInput } from '@repo/ui/password-input'
 import Link from 'next/link'
 import { allowedLoginDomains, recaptchaSiteKey } from '@repo/dally/auth'
 import { loginStyles } from '../login/login.styles'
-import { OPENLANE_WEBSITE_URL } from '@/constants'
+import LegalAgreement from '@/components/shared/legal-agreement/legal-agreement'
 import { cn } from '@repo/ui/lib/utils'
 import Github from '@/assets/Github'
 
@@ -162,16 +162,7 @@ export const SignupPage = () => {
         )}
       </SimpleForm>
 
-      <div className="text-xs opacity-90 flex gap-1 mt-4  text-muted-foreground">
-        By signing up, you agree to our
-        <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500">
-          Terms of Service
-        </Link>{' '}
-        and
-        <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500">
-          Privacy Policy
-        </Link>
-      </div>
+      <LegalAgreement action="signing up" className="mt-4" />
     </div>
   )
 }

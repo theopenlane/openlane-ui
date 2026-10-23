@@ -14,8 +14,8 @@ const AuthLogin: React.FC = () => {
     <>
       <HubspotTracking />
       <Suspense>
-        <div className="flex h-full w-full min-h-screen">
-          <div className="flex flex-col justify-between items-center w-full lg:w-4/5 relative">
+        <div className="isolate flex h-full w-full min-h-screen">
+          <div className="flex flex-col justify-between items-center w-full lg:w-4/5 lg:last:w-full lg:last:pr-6 relative">
             <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-[9999]">
               <Logo width={180} height={30} />
             </div>

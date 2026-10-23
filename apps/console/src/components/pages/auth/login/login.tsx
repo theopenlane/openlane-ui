@@ -20,7 +20,7 @@ import Link from 'next/link'
 import { recaptchaSiteKey } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
 import { isValidEmail } from '@/lib/validators'
-import { OPENLANE_WEBSITE_URL } from '@/constants'
+import LegalAgreement from '@/components/shared/legal-agreement/legal-agreement'
 import { cn } from '@repo/ui/lib/utils'
 import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 import Github from '@/assets/Github'
@@ -505,16 +505,7 @@ export const LoginPage = () => {
           )}
         </SimpleForm>
 
-        <div className="text-xs opacity-90 flex gap-1 mt-4 text-muted-foreground">
-          By signing in, you agree to our
-          <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500">
-            Terms of Service
-          </Link>{' '}
-          and
-          <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500">
-            Privacy Policy
-          </Link>
-        </div>
+        <LegalAgreement action="signing in" className="mt-4" />
       </div>
     </>
   )

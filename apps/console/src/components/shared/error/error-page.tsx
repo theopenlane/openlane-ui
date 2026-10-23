@@ -7,6 +7,7 @@ import MiniCat from '@/assets/MiniCat.tsx'
 import Switch from '@/assets/Switch.tsx'
 import Wire from '@/assets/Wire.tsx'
 import { SUPPORT_URL } from '@/constants'
+import OfficialOnly from '@/components/shared/official-only/official-only'
 
 type ErrorPageProps = {
   title?: string
@@ -29,13 +30,13 @@ const ErrorPage = ({ title, description }: ErrorPageProps) => {
         <p className="text-3xl font-semibold mb-3 leading-9 mt-[45%]">{title ?? 'The page could not be found'}</p>
         <p className="text-sm mb-6">
           {description ?? (
-            <>
+            <OfficialOnly>
               If you think this is a mewstake,{' '}
               <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="underline">
                 contact support
               </a>
               .
-            </>
+            </OfficialOnly>
           )}
         </p>
         <Button icon={<CircleArrowLeft />} iconPosition="left" onClick={() => router.push('/dashboard')}>
