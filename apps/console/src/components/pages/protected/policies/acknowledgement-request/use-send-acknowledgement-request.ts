@@ -5,7 +5,7 @@ import { endOfDay } from 'date-fns'
 import { AssessmentAssessmentType } from '@repo/codegen/src/schema'
 import { useCreateAssessmentWithPolicies } from '@/lib/graphql-hooks/assessment'
 import { type TSendAssessmentResult, type TAssessmentRecipient, useSendAssessmentToRecipients } from '@/lib/graphql-hooks/assessment-response'
-import { type TPdfDocumentAttachment } from '@/components/shared/survey/pdf-document/pdf-document-type'
+import { type TPdfDocumentAttachment } from '@theopenlane/surveyjs-components'
 import { buildAcknowledgementSurvey } from './build-acknowledgement-survey'
 
 type TAcknowledgementRequest = {

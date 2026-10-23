@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { startOfToday } from 'date-fns'
-import { DEFAULT_ACKNOWLEDGEMENT_STATEMENT } from '@/components/shared/survey/acknowledgement/acknowledgement-type'
+import { DEFAULT_ACKNOWLEDGEMENT_STATEMENT } from '@theopenlane/surveyjs-components'
 import { type TAssessmentRecipientOption } from '@/components/shared/assessment-recipient-select/assessment-recipient-select'
 import { type TInternalPolicyDocument } from '@/lib/graphql-hooks/internal-policy'
 

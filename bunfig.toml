@@ -3,4 +3,4 @@ linker = "hoisted"
 
 minimumReleaseAge = 604800
 
-minimumReleaseAgeExcludes = []
+minimumReleaseAgeExcludes = ["@theopenlane/surveyjs-components"]

@@ -10,7 +10,7 @@ import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { useNotification } from '@/hooks/useNotification'
 import { useSearchInternalPolicyDocuments, type TInternalPolicyDocument } from '@/lib/graphql-hooks/internal-policy'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { type TPdfDocumentAttachment } from './pdf-document-type'
+import { type TPdfDocumentAttachment } from '@theopenlane/surveyjs-components'
 import { usePolicyPdfExport } from './use-policy-pdf-export'
 
 type TPdfDocumentPolicyPickerProps = {

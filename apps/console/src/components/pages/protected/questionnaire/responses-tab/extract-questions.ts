@@ -1,6 +1,11 @@
-import { ACKNOWLEDGEMENT_QUESTION_TYPE, DEFAULT_ACKNOWLEDGEMENT_TITLE } from '@/components/shared/survey/acknowledgement/acknowledgement-type'
-import { PDF_DOCUMENT_QUESTION_TYPE, pdfDocumentTitleFromFileName } from '@/components/shared/survey/pdf-document/pdf-document-type'
-import { DEFAULT_SIGNATURE_TITLE, SIGNATURE_QUESTION_TYPE } from '@/components/shared/survey/signature/signature-type'
+import {
+  ACKNOWLEDGEMENT_QUESTION_TYPE,
+  DEFAULT_ACKNOWLEDGEMENT_TITLE,
+  DEFAULT_SIGNATURE_TITLE,
+  PDF_DOCUMENT_QUESTION_TYPE,
+  pdfDocumentTitleFromFileName,
+  SIGNATURE_QUESTION_TYPE,
+} from '@theopenlane/surveyjs-components'
 
 export type ExtractedQuestion = {
   name: string
