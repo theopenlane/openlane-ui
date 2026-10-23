@@ -16,8 +16,6 @@ export const GET_ALL_CAMPAIGNS = gql`
           dueDate
           emailTemplateID
           entityID
-          hasPendingWorkflow
-          hasWorkflowHistory
           id
           internalOwner
           internalOwnerGroupID
@@ -77,8 +75,6 @@ export const CAMPAIGN = gql`
       dueDate
       emailTemplateID
       entityID
-      hasPendingWorkflow
-      hasWorkflowHistory
       id
       internalOwner
       internalOwnerGroupID

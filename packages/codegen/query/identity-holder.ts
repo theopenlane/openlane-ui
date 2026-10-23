@@ -49,8 +49,6 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
           externalReferenceID
           externalUserID
           fullName
-          hasPendingWorkflow
-          hasWorkflowHistory
           id
           identityHolderType
           internalOwner
@@ -142,8 +140,6 @@ export const IDENTITY_HOLDER = gql`
       externalReferenceID
       externalUserID
       fullName
-      hasPendingWorkflow
-      hasWorkflowHistory
       id
       identityHolderType
       internalOwner
