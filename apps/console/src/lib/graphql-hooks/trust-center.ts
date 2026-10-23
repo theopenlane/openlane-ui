@@ -158,15 +158,16 @@ export const useUpdateTrustCenterWatermarkConfig = () => {
 }
 
 type UseGetTrustCenterPostsArgs = {
-  trustCenterId: string
   enabled?: boolean
 }
 
-export const useGetTrustCenterPosts = ({ trustCenterId, enabled = true }: UseGetTrustCenterPostsArgs) => {
+export const useGetTrustCenterPosts = ({ enabled = true }: UseGetTrustCenterPostsArgs = {}) => {
   const { client } = useGraphQLClient()
+  const { trustCenter, isPending: isTrustCenterPending, error: trustCenterError } = useGetTrustCenter()
+  const trustCenterId = trustCenter?.id ?? ''
 
-  return useQuery<GetTrustCenterPostsQuery>({
-    queryKey: ['trustCenter', 'posts'],
+  const query = useQuery<GetTrustCenterPostsQuery>({
+    queryKey: ['trustCenter', 'posts', trustCenterId],
     queryFn: () =>
       client.request<GetTrustCenterPostsQuery, GetTrustCenterPostsQueryVariables>(GET_ALL_TRUST_CENTER_POSTS, {
         trustCenterId,
@@ -174,6 +175,13 @@ export const useGetTrustCenterPosts = ({ trustCenterId, enabled = true }: UseGet
       }),
     enabled: !!trustCenterId && enabled,
   })
+
+  return {
+    ...query,
+    error: query.error ?? trustCenterError,
+    posts: query.data?.trustCenter?.posts?.edges ?? [],
+    isLoadingPosts: enabled && (isTrustCenterPending || (!!trustCenterId && query.isPending)),
+  }
 }
 
 export const useUpdateTrustCenter = () => {

@@ -12,6 +12,7 @@ import { SuggestedActionCard } from './suggested-action-card'
 import { use, useEffect } from 'react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import AnalyticsCards from './analytics-cards'
+import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
 
 const OverviewPage: React.FC = () => {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -46,8 +47,7 @@ const OverviewPage: React.FC = () => {
       }
     : undefined
 
-  const { data: postsData } = useGetTrustCenterPosts({ trustCenterId: trustCenterID })
-  const posts = postsData?.trustCenter?.posts?.edges ?? []
+  const { posts, isLoadingPosts, error: postsError } = useGetTrustCenterPosts()
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Overview', href: '/trust-center/overview' }])
@@ -65,7 +65,7 @@ const OverviewPage: React.FC = () => {
         <div className="flex gap-3">
           <div className="flex flex-col gap-3 basis-[65%]">
             <div className="flex-1">
-              {posts.length === 0 ? (
+              {postsError ? null : !isLoadingPosts && posts.length === 0 ? (
                 <div className="inset-0 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-center p-8">
                   <Megaphone size={24} className="mb-4 text-muted-foreground" />
                   <h3 className="text-sm font-medium mb-1 text-foreground">No updates posted yet</h3>
@@ -74,18 +74,24 @@ const OverviewPage: React.FC = () => {
                 <Card>
                   <CardContent className="flex flex-col gap-2">
                     <p className="text-xl font-medium leading-7">Latest Updates</p>
-                    {posts.slice(-3).map((edge) => {
-                      const post = edge?.node
-                      if (!post) return null
+                    {isLoadingPosts ? (
+                      <div role="status" aria-live="polite" aria-label="Loading updates" className="flex flex-col gap-3 py-1">
+                        <SkeletonRows count={3} height={56} />
+                      </div>
+                    ) : (
+                      posts.slice(-3).map((edge) => {
+                        const post = edge?.node
+                        if (!post) return null
 
-                      return (
-                        <div key={post.id} className="flex flex-col gap-1 py-1">
-                          <p className="text-sm text-text-paragraph font-medium leading-6">{post.title || 'No title'}</p>
-                          <p className="text-sm text-trust-center-text font-normal leading-5">{post.text}</p>
-                          <p className="text-xs text-trust-center-created-at">{formatDate(post.updatedAt)}</p>
-                        </div>
-                      )
-                    })}
+                        return (
+                          <div key={post.id} className="flex flex-col gap-1 py-1">
+                            <p className="text-sm text-text-paragraph font-medium leading-6">{post.title || 'No title'}</p>
+                            <p className="text-sm text-trust-center-text font-normal leading-5">{post.text}</p>
+                            <p className="text-xs text-trust-center-created-at">{formatDate(post.updatedAt)}</p>
+                          </div>
+                        )
+                      })
+                    )}
                   </CardContent>
                 </Card>
               )}
