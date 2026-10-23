@@ -2,14 +2,15 @@
 
 import React, { use, useEffect, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import { FileText, Loader2, Eye, RefreshCw, FileUp, Plus, InfoIcon, Upload } from 'lucide-react'
+import { FileText, Loader2, Eye, RefreshCw, FileUp, Plus, Upload } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { NDAUploadDialog } from './components/NDA-upload-dialog'
 import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-nda-request.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { formatDate } from '@/utils/date'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import FilePreviewDialog from '@/components/shared/file-preview/file-preview-dialog'
+import { Callout } from '@/components/shared/callout/callout'
 import { Switch } from '@repo/ui/switch'
 import { Label } from '@repo/ui/label'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
@@ -18,7 +19,9 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import NdaRequestsTable from './table/nda-requests-table.tsx'
+import { NdaAutoApprovalSettings } from './components/nda-auto-approval-settings'
 import { NdaApprovalGroupCard } from './components/nda-approval-group-card'
+import { resolveAutoApprovalRules } from './auto-approval-rules'
 import { ObjectTypes } from '@repo/codegen/src/type-names.ts'
 import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
@@ -35,7 +38,6 @@ const NDAsPage = () => {
   const { data: session } = useSession()
   const openImport = useOpenImport()
 
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenter?.id)
@@ -43,11 +45,22 @@ const NDAsPage = () => {
   const canEditNdaRequest = hasPermission(tcPermission?.roles, AccessEnum.CanEditTrustCenterNdaRequest, session)
   const trustCenterSetting = trustCenter?.setting
   const ndaApprovalRequired = !!trustCenterSetting?.ndaApprovalRequired
+  const cannotEditSetting = !trustCenterSetting?.id || !canEditTc
+  const isSettingLocked = cannotEditSetting || isUpdatingSetting
 
-  const handleUpdateApproverGroup = (input: UpdateTrustCenterSettingInput) => {
-    if (!trustCenterSetting?.id) return
-    updateTrustCenterSetting({ id: trustCenterSetting.id, input })
+  const handleUpdateSetting = async (input: UpdateTrustCenterSettingInput) => {
+    if (!trustCenterSetting?.id) return false
+    return !!(await updateTrustCenterSetting({ id: trustCenterSetting.id, input }))
   }
+
+  const approvalCallout = (() => {
+    if (!ndaApprovalRequired) return { variant: 'info' as const, text: 'Approval required: OFF — Auto-send NDA immediately upon request' }
+    if (!trustCenterSetting?.enableAutoApproval) return { variant: 'info' as const, text: 'Approval requests will appear in the Needs Approval queue.' }
+    if (!resolveAutoApprovalRules(trustCenterSetting).manualApprovalOnFailure) {
+      return { variant: 'warning' as const, text: 'Requests that do not match an automatic approval rule are declined without manual review.' }
+    }
+    return { variant: 'info' as const, text: 'Automatic approval rules will be applied to incoming NDA requests.' }
+  })()
 
   useEffect(() => {
     setCrumbs([
@@ -56,28 +69,6 @@ const NDAsPage = () => {
       { label: 'NDAs', href: '/trust-center/NDAs' },
     ])
   }, [setCrumbs])
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl)
-    }
-  }, [previewUrl])
-
-  const handlePreview = async () => {
-    if (!latestFile?.presignedURL) return
-
-    try {
-      const res = await fetch(latestFile.presignedURL)
-      if (!res.ok) throw new Error('Fetch failed')
-
-      const blob = await res.blob()
-      const blobUrl = URL.createObjectURL(blob)
-      setPreviewUrl(blobUrl)
-      setIsPreviewOpen(true)
-    } catch (error) {
-      console.error('Error previewing document:', error)
-    }
-  }
 
   if (isLoading) {
     return (
@@ -124,13 +115,12 @@ const NDAsPage = () => {
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-medium">{latestFile.providedFileName}</div>
-                    <div className="text-xs text-muted-foreground">Size: 1.1mb</div>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div className="flex gap-3">
-                    <Button variant="secondary" onClick={handlePreview}>
+                    <Button variant="secondary" onClick={() => setIsPreviewOpen(true)} disabled={!latestFile.presignedURL}>
                       <Eye className="h-4 w-4" />
                       View
                     </Button>
@@ -152,16 +142,7 @@ const NDAsPage = () => {
           </CardContent>
         </Card>
 
-        <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-          <DialogContent className="w-[80vw] max-w-250 h-[80vh] flex flex-col">
-            <DialogHeader>
-              <DialogTitle>NDA Preview - {latestFile?.providedFileName}</DialogTitle>
-            </DialogHeader>
-            <div className="flex-1 w-full overflow-hidden rounded-md border bg-muted">
-              {previewUrl && <iframe title="NDA document preview" src={`${previewUrl}#toolbar=0`} className="w-full h-full" style={{ border: 'none' }} />}
-            </div>
-          </DialogContent>
-        </Dialog>
+        <FilePreviewDialog file={latestFile ? { ...latestFile, providedFileExtension: '' } : null} open={isPreviewOpen} onOpenChange={setIsPreviewOpen} />
 
         <div className="mt-4">
           <h3 className="text-lg font-medium">Access Rules</h3>
@@ -169,43 +150,24 @@ const NDAsPage = () => {
             <CardContent className="space-y-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <Label className="text-sm font-medium">Require approval before NDA signing</Label>
+                  <Label htmlFor="nda-approval-required" className="text-sm font-medium">
+                    Require approval before NDA signing
+                  </Label>
                   <p className="mt-1 text-sm text-muted-foreground">When enabled, users must be approved before receiving the NDA signing link.</p>
                 </div>
-                <Switch
-                  checked={ndaApprovalRequired}
-                  onCheckedChange={(checked) => {
-                    if (!trustCenterSetting?.id) return
-                    updateTrustCenterSetting({
-                      id: trustCenterSetting.id,
-                      input: { ndaApprovalRequired: checked },
-                    })
-                  }}
-                  disabled={isUpdatingSetting || !trustCenterSetting?.id || !canEditTc}
-                />
+                <Switch id="nda-approval-required" checked={ndaApprovalRequired} onCheckedChange={(checked) => void handleUpdateSetting({ ndaApprovalRequired: checked })} disabled={isSettingLocked} />
               </div>
-              {ndaApprovalRequired ? (
-                <div className="rounded-md border border-nda-approval-info-border bg-nda-approval-info-bg px-4 py-3 text-sm text-nda-approval-info-text">
-                  <div className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 mr-3 rounded-full bg-nda-approval-info-dot shadow-[0_0_0_4px_var(--color-nda-approval-info-dot-shadow)]" />
-                    <span>Approval requests will appear in the Needs Approval queue.</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="border border-document-draft-border bg-infobox rounded-md p-3">
-                  <div className="flex items-start gap-2 text-sm">
-                    <InfoIcon className="text-brand-100 shrink-0 mt-0.5 text-info" size={16} />
-                    <div>Approval required: OFF — Auto-send NDA immediately upon request</div>
-                  </div>
-                </div>
-              )}
+              {ndaApprovalRequired && <NdaAutoApprovalSettings setting={trustCenterSetting} readOnly={cannotEditSetting} isSaving={isUpdatingSetting} onUpdate={handleUpdateSetting} />}
+              <Callout variant={approvalCallout.variant} compact>
+                {approvalCallout.text}
+              </Callout>
             </CardContent>
           </Card>
         </div>
         {ndaApprovalRequired && (
           <div className="mt-4">
             <h3 className="text-lg font-medium">Approval Notification Recipients</h3>
-            <NdaApprovalGroupCard selectedGroup={trustCenterSetting?.ndaApproverGroup} canEdit={canEditTc} disabled={isUpdatingSetting} onSelect={handleUpdateApproverGroup} />
+            <NdaApprovalGroupCard selectedGroup={trustCenterSetting?.ndaApproverGroup} canEdit={canEditTc} disabled={isUpdatingSetting} onSelect={handleUpdateSetting} />
           </div>
         )}
         <div className="mt-4 min-w-0">

@@ -92,6 +92,7 @@ const NdaRequestsTable = ({ requireApproval, canRevoke }: NdaRequestsTableProps)
               userMap: request.approvedByUser ? { [request.approvedByUser.id]: request.approvedByUser as User } : undefined,
             })
           : undefined,
+        autoApproved: !!request.autoApproved,
       })),
     [requests],
   )

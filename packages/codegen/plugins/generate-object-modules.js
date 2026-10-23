@@ -76,6 +76,14 @@ function generate() {
   const planEnum = readPlanEnum()
   const modulesByType = readModulesByType()
 
+  const anyModuleMembers = []
+
+  for (const [value, member] of planEnum) {
+    if (value !== 'base_module') {
+      anyModuleMembers.push(member)
+    }
+  }
+
   if (modulesByType.size === 0) {
     throw new Error(`no applied @modules directives in ${schemaPath}, schema-ast must run with includeDirectives: true`)
   }
@@ -88,17 +96,25 @@ function generate() {
     // types that carry the directive but are not in ObjectTypes are not surfaced in the ui
     if (!objectType) continue
 
-    const members = modules.map((module) => {
-      const member = planEnum.get(module)
+    const members = [
+      ...new Set(
+        modules.flatMap((module) => {
+          if (module === 'any_module') {
+            return anyModuleMembers
+          }
 
-      // a module in the schema with no PlanEnum member means the catalog gained one the ui
-      // does not know about yet, which should fail rather than emit something unusable
-      if (!member) {
-        throw new Error(`module '${module}' on type ${typeName} has no matching PlanEnum member`)
-      }
+          const member = planEnum.get(module)
 
-      return member
-    })
+          // a module in the schema with no PlanEnum member means the catalog gained one the ui
+          // does not know about yet, which should fail rather than emit something unusable
+          if (!member) {
+            throw new Error(`module '${module}' on type ${typeName} has no matching PlanEnum member`)
+          }
+
+          return member
+        }),
+      ),
+    ]
 
     entries.push({ objectType, members })
   }

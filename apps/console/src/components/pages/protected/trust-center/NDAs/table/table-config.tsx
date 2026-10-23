@@ -3,7 +3,7 @@
 import { type ColumnDef } from '@repo/ui/table-types'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
-import { Building2, Calendar, CheckCheck, Mail, XIcon } from 'lucide-react'
+import { Building2, Calendar, CheckCheck, Mail, XIcon, Zap } from 'lucide-react'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { defineFilterFields } from '@/types'
 import React from 'react'
@@ -20,6 +20,7 @@ export type NdaRequestRow = {
   createdAt: string
   approvedAt?: string
   approvedBy?: ResolvedAuthor
+  autoApproved: boolean
   signedAt?: string
 }
 
@@ -71,8 +72,20 @@ export const getNdaRequestColumns = ({
     columns.push({
       accessorKey: 'approvedBy',
       header: 'Approved By',
-      cell: ({ row }) => (row.original.approvedBy ? <AuthorDisplay author={row.original.approvedBy} className="truncate" /> : <span className="text-muted-foreground">-</span>),
-      size: 120,
+      cell: ({ row }) => {
+        const { approvedBy, autoApproved } = row.original
+        if (approvedBy) return <AuthorDisplay author={approvedBy} className="truncate" />
+        if (autoApproved) {
+          return (
+            <span className="inline-flex items-center gap-1.5">
+              <Zap size={14} className="shrink-0 text-muted-foreground" />
+              Auto-approved
+            </span>
+          )
+        }
+        return <span className="text-muted-foreground">-</span>
+      },
+      size: 160,
     })
   }
 
@@ -139,5 +152,11 @@ export const ndaRequestsFilterFields = defineFilterFields<TrustCenterNdaRequestW
     label: 'Email',
     type: 'text',
     icon: Mail,
+  },
+  {
+    key: 'autoApproved',
+    label: 'Auto-approved',
+    type: 'boolean',
+    icon: Zap,
   },
 ])
