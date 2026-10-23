@@ -55,7 +55,7 @@ export const PolicyEmptyActions = () => {
       cardClassName: 'border-[var(--color-success)]/40 bg-[var(--color-success)]/5',
       action: {
         label: 'Create',
-        href: 'policies/create',
+        href: '/policies/create',
       },
       buttonVariant: 'primary' as const,
       buttonClassName: '!bg-[var(--color-success)] hover:opacity-90',
@@ -121,7 +121,7 @@ export const PolicyEmptyActions = () => {
               {dialog ? (
                 dialog
               ) : (
-                <Button variant={buttonVariant} className={buttonClassName}>
+                <Button asChild variant={buttonVariant} className={buttonClassName}>
                   <Link href={action.href}>{action.label}</Link>
                 </Button>
               )}
