@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev -p 3001 --turbopack",
-    "build": "next build",
+    "build": "node -e \"console.log('[build] Node.js version:', process.version)\" && next build",
     "debug": "next build --debug --experimental-debug-memory-usage",
     "start": "next start -p 3001",
     "lint": "eslint .",
