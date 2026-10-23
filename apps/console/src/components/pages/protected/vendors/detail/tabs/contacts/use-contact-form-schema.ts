@@ -7,7 +7,7 @@ import { ContactUserStatus } from '@repo/codegen/src/schema'
 
 export const addContactSchema = z.object({
   fullName: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email').optional().or(z.literal('')),
+  email: z.email('Invalid email').optional().or(z.literal('')),
   company: z.string().optional(),
   title: z.string().optional(),
   phoneNumber: z.string().optional(),

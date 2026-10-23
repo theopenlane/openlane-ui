@@ -23,7 +23,7 @@ export const auditorStepSchema = z.object({
   useSameAuditor: z.boolean().optional(),
   auditPartnerName: z.string().optional(),
   auditFirm: z.string().optional(),
-  auditPartnerEmail: z.string().email('Invalid email address').optional().or(z.literal('')),
+  auditPartnerEmail: z.email('Invalid email address').optional().or(z.literal('')),
 })
 
 export const teamStepSchema = z.object({

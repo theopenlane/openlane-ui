@@ -27,7 +27,7 @@ const buildFieldSchema = (question: OnboardingQuestion): ZodTypeAny => {
   switch (question.inputType) {
     case 'string': {
       if (question.format === 'email') {
-        return z.string().email('Enter a valid email address').or(z.literal('')).optional()
+        return z.email('Enter a valid email address').or(z.literal('')).optional()
       }
       if (question.key === COMPANY_NAME_KEY) {
         return z.string().min(3, 'Company name requires at least 3 characters').or(z.literal('')).optional()
