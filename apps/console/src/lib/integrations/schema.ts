@@ -214,6 +214,13 @@ export function normalizeSectionPayload(schema: IntegrationSchemaNode | undefine
   return { payload, missingRequired }
 }
 
+export const withUnmanagedSchemaValues = (schema: IntegrationSchemaNode | undefined, payload: Record<string, unknown>): Record<string, unknown> => {
+  const managedKeys = new Set(getResolvedSchemaFields(schema).map(({ nestedPath }) => nestedPath[0]))
+  const unmanaged = Object.entries(schema?.properties ?? {}).flatMap(([key, property]) => (managedKeys.has(key) || property.default === undefined ? [] : [[key, property.default] as const]))
+
+  return { ...Object.fromEntries(unmanaged), ...payload }
+}
+
 export function isSensitiveField(fieldKey: string, property: IntegrationSchemaProperty): boolean {
   if (property.format === 'password' || property.secret) {
     return true
@@ -252,6 +259,12 @@ export function buildFieldEntries(fields: ResolvedSchemaField[]): FieldEntry[] {
   return entries
 }
 
+const SCALAR_SCHEMA_TYPES = new Set(['string', 'number', 'integer'])
+
+const isScalarSchema = (node?: IntegrationSchemaNode): boolean => !node || (!node.$ref && typeof node.type === 'string' && SCALAR_SCHEMA_TYPES.has(node.type))
+
+const isFormEditable = (property: IntegrationSchemaProperty): boolean => (property.type === 'array' ? isScalarSchema(property.items) : property.type !== 'object')
+
 function resolveFields(schema: IntegrationSchemaNode | undefined, registry: Record<string, IntegrationSchemaNode>, parentPath: string[], groupLabel: string | undefined): ResolvedSchemaField[] {
   const requiredFields = collectRequiredSchemaFields(schema)
 
@@ -267,6 +280,10 @@ function resolveFields(schema: IntegrationSchemaNode | undefined, registry: Reco
     if (property.properties) {
       const nestedGroupLabel = property.title?.trim() || toHumanLabel(fieldKey)
       return resolveFields(property, registry, currentPath, nestedGroupLabel)
+    }
+
+    if (!isFormEditable(property)) {
+      return []
     }
 
     return [{ fieldKey: currentPath.join('__'), nestedPath: currentPath, groupLabel, property, required: requiredFields.has(fieldKey) }]

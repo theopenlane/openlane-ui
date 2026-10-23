@@ -8,10 +8,25 @@ import {
   resolveSchemaRoot,
   schemaHasProperties,
 } from './utils'
-import { type IntegrationConfigurationResult, type IntegrationOperationConfigPayload, type IntegrationProvider, type StartIntegrationResponse } from './types'
+import { isRecord } from '@/utils/type-guards'
+import { resolveResourcePicker } from './resource-pickers'
+import {
+  type IntegrationConfigurationResult,
+  type IntegrationNode,
+  type IntegrationOperationConfigPayload,
+  type IntegrationProvider,
+  type IntegrationSelectedResource,
+  type RunIntegrationOperationResponse,
+  type StartIntegrationResponse,
+} from './types'
 
 export const PRIMARY_DIRECTORY_FIELD = 'primaryDirectory'
 export const PRIMARY_DOCUMENT_FIELD = 'primary'
+export const CHANNELS_LIST_OPERATION = 'ChannelsListOperation'
+export const TEST_MESSAGE_SEND_OPERATION = 'TestMessageSendOperation'
+export const PICKER_SESSION_OPERATION = 'PickerSession'
+export const RESOURCE_SELECTION_OPERATION = 'ResourceSelection'
+export const SELECTED_DOCUMENTS_FIELD = 'selectedDocuments'
 
 type StartIntegrationOptions = {
   credentialRef?: string
@@ -55,6 +70,33 @@ export function providerSupportsPrimaryDirectory(provider?: IntegrationProvider)
 export function providerSupportsDocumentSync(provider?: IntegrationProvider): boolean {
   const properties = resolveSchemaRoot(provider?.userInputSchema)?.properties
   return Boolean(properties && PRIMARY_DOCUMENT_FIELD in properties)
+}
+
+const providerHasRunnableOperation = (provider: IntegrationProvider | undefined, name: string): boolean =>
+  Boolean(provider?.operations?.some((operation) => operation.name === name && !operation.disabledForAll))
+
+export const providerSupportsTestMessage = (provider?: IntegrationProvider): boolean =>
+  providerHasRunnableOperation(provider, CHANNELS_LIST_OPERATION) && providerHasRunnableOperation(provider, TEST_MESSAGE_SEND_OPERATION)
+
+export const providerSupportsResourcePicker = (provider?: IntegrationProvider): boolean =>
+  !!resolveResourcePicker(provider) && providerHasRunnableOperation(provider, PICKER_SESSION_OPERATION) && providerHasRunnableOperation(provider, RESOURCE_SELECTION_OPERATION)
+
+const isOptionalString = (value: unknown): value is string | undefined => value === undefined || typeof value === 'string'
+
+const isSelectedResource = (value: unknown): value is IntegrationSelectedResource =>
+  isRecord(value) && typeof value.id === 'string' && value.id !== '' && isOptionalString(value.name) && isOptionalString(value.parentId)
+
+export const readSelectedResources = (integration: Pick<IntegrationNode, 'metadata'>): IntegrationSelectedResource[] => {
+  const stored = isRecord(integration.metadata) ? integration.metadata[SELECTED_DOCUMENTS_FIELD] : undefined
+
+  return Array.isArray(stored) ? stored.filter(isSelectedResource) : []
+}
+
+export const mergeSelectedResources = (current: IntegrationSelectedResource[], added: IntegrationSelectedResource[]): IntegrationSelectedResource[] => {
+  const byId = new Map(current.map((resource) => [resource.id, resource]))
+  added.forEach((resource) => byId.set(resource.id, resource))
+
+  return [...byId.values()]
 }
 
 export function providerSupportsInstalledConfiguration(provider?: IntegrationProvider): boolean {
@@ -136,6 +178,28 @@ export async function saveIntegrationConfiguration(options: SaveIntegrationConfi
   }
 
   return (await response.json()) as IntegrationConfigurationResult
+}
+
+type RunIntegrationOperationOptions = {
+  integrationId: string
+  operation: string
+  config?: Record<string, unknown>
+  signal?: AbortSignal
+}
+
+export const runIntegrationOperation = async <TDetails>({ integrationId, operation, config, signal }: RunIntegrationOperationOptions): Promise<RunIntegrationOperationResponse<TDetails>> => {
+  const response = await fetch('/api/integrations/operations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ integrationId, operation, config }),
+    signal,
+  })
+
+  if (!response.ok) {
+    throw new Error(await parseIntegrationErrorMessage(response))
+  }
+
+  return (await response.json()) as RunIntegrationOperationResponse<TDetails>
 }
 
 function buildStartRequestBody(provider: IntegrationProvider, options?: StartIntegrationOptions): Record<string, unknown> {
