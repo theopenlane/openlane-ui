@@ -3,13 +3,14 @@ import { normalizeDefinition, parseIntegrationErrorMessage } from '@/lib/integra
 import {
   type IntegrationChannelsList,
   type IntegrationMessageTeam,
+  type IntegrationProvider,
   type IntegrationProvidersResponse,
   type IntegrationSelectedResource,
   type IntegrationTestMessageResult,
-  type IntegrationTestMessageTarget,
+  type IntegrationChannelTarget,
   type RawProvidersResponse,
 } from '@/lib/integrations/types'
-import { CHANNELS_LIST_OPERATION, PICKER_SESSION_OPERATION, RESOURCE_SELECTION_OPERATION, TEST_MESSAGE_SEND_OPERATION, runIntegrationOperation } from '@/lib/integrations/flow'
+import { CHANNELS_LIST_OPERATION, PICKER_SESSION_OPERATION, RESOURCE_SELECTION_OPERATION, TEST_MESSAGE_SEND_OPERATION, runIntegrationOperation, toChannelSelection } from '@/lib/integrations/flow'
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'
 import { isRecord } from '@/utils/type-guards'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -170,9 +171,16 @@ export const useDisconnectIntegration = () => {
   })
 }
 
-export const useIntegrationChannels = (integrationId: string) =>
+export type UseIntegrationChannelsOptions = {
+  enabled?: boolean
+  staleTime?: number
+}
+
+export const useIntegrationChannels = (integrationId: string, { enabled = true, staleTime }: UseIntegrationChannelsOptions = {}) =>
   useQuery<IntegrationMessageTeam[]>({
     queryKey: ['integrationChannels', integrationId],
+    enabled,
+    staleTime,
     queryFn: async ({ signal }) => {
       const result = await runIntegrationOperation<IntegrationChannelsList>({ integrationId, operation: CHANNELS_LIST_OPERATION, signal })
       return result.details?.teams ?? []
@@ -183,7 +191,7 @@ export const useIntegrationChannels = (integrationId: string) =>
 
 type SendTestMessageVariables = {
   integrationId: string
-  target: IntegrationTestMessageTarget
+  target: IntegrationChannelTarget
 }
 
 export const useSendIntegrationTestMessage = () => {
@@ -215,11 +223,43 @@ type SaveResourceSelectionVariables = {
   resources: IntegrationSelectedResource[]
 }
 
+const saveResourceSelection = ({ integrationId, resources }: SaveResourceSelectionVariables) =>
+  runIntegrationOperation({ integrationId, operation: RESOURCE_SELECTION_OPERATION, config: { resources } })
+
 export const useSaveIntegrationResourceSelection = () => {
   const queryClient = useQueryClient()
 
   return useMutation<unknown, Error, SaveResourceSelectionVariables>({
-    mutationFn: ({ integrationId, resources }) => runIntegrationOperation({ integrationId, operation: RESOURCE_SELECTION_OPERATION, config: { resources } }),
+    mutationFn: saveResourceSelection,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['integrations'] }),
+  })
+}
+
+type SaveDefaultChannelVariables = {
+  integrationId: string
+  provider: IntegrationProvider | undefined
+  channel?: IntegrationChannelTarget & { name: string }
+}
+
+export const useSaveIntegrationDefaultChannel = () => {
+  const queryClient = useQueryClient()
+  const { successNotification, errorNotification } = useNotification()
+
+  return useMutation<unknown, Error, SaveDefaultChannelVariables>({
+    mutationFn: ({ integrationId, provider, channel }) => saveResourceSelection({ integrationId, resources: toChannelSelection(provider, channel) }),
+    onSuccess: (_, { channel }) => {
+      queryClient.invalidateQueries({ queryKey: ['integrations'] })
+      successNotification(
+        channel
+          ? { title: 'Default channel set', description: `Messages without a channel will post to ${channel.name}.` }
+          : { title: 'Default channel cleared', description: 'Messages without a channel no longer post to the channel you chose.' },
+      )
+    },
+    onError: (error) => {
+      errorNotification({
+        title: 'Failed to update the default channel',
+        description: error.message || 'Unexpected error while saving the default channel. Please try again later.',
+      })
+    },
   })
 }

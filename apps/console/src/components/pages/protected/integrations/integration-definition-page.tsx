@@ -17,6 +17,7 @@ import IntegrationDefinitionSkeleton from './integration-definition-skeleton'
 import { Callout } from '@/components/shared/callout/callout'
 import { Button } from '@repo/ui/button'
 import { filterFinalizedIntegrationsForProvider, operationSchemaEntries, resolveSchemaRoot, setupCredentialEntries } from '@/lib/integrations/utils'
+import { readProviderDefaultChannel } from '@/lib/integrations/flow'
 import { writePendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CREDENTIALS_PREFIX, useIntegrationSchemaForm } from './schema-form'
@@ -294,7 +295,15 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
       ) : null}
 
       {promptIntegration && promptKind === 'test-message' ? (
-        <SendTestMessageDialog open={!!promptIntegration} onOpenChange={handlePromptOpenChange} integrationId={promptIntegration.id} providerName={provider.displayName} variant="post-install" />
+        <SendTestMessageDialog
+          open={!!promptIntegration}
+          onOpenChange={handlePromptOpenChange}
+          integrationId={promptIntegration.id}
+          providerName={provider.displayName}
+          variant="post-install"
+          defaultChannel={readProviderDefaultChannel(provider, promptIntegration)}
+          provider={provider}
+        />
       ) : null}
     </div>
   )

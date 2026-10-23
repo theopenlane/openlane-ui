@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Activity, ExternalLink, FileSearch, Send, Settings, SlidersHorizontal } from 'lucide-react'
+import { Activity, ExternalLink, FileSearch, Hash, Send, Settings, SlidersHorizontal } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
@@ -10,7 +10,15 @@ import { Separator } from '@repo/ui/separator'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { type IntegrationHealth, type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
 import { getInstalledIntegrationConfig, installedIntegrationDisplayName, readIntegrationUserInput, resolveConnectionEntry, resolveCredentialEntry, resolveManageUrl } from '@/lib/integrations/utils'
-import { PRIMARY_DOCUMENT_FIELD, providerHasInstallationSettings, providerSupportsResourcePicker, providerSupportsTestMessage, readSelectedResources } from '@/lib/integrations/flow'
+import {
+  PRIMARY_DOCUMENT_FIELD,
+  providerHasInstallationSettings,
+  providerSupportsDefaultChannel,
+  providerSupportsResourcePicker,
+  providerSupportsTestMessage,
+  readProviderDefaultChannel,
+  readSelectedResources,
+} from '@/lib/integrations/flow'
 import { useDisconnectIntegration, useIntegrationHealthCheck } from '@/lib/query-hooks/integrations'
 import { integrationHealthBadge, isOperableIntegration } from '@/lib/integrations/health'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
@@ -22,6 +30,8 @@ import IntegrationCardIcons from './integration-card-icons'
 import IntegrationConfigurationDialog from './integration-configuration-dialog'
 import SendTestMessageDialog from './send-test-message-dialog'
 import SelectedResourcesSection from './selected-resources-section'
+import DefaultChannelDialog from './default-channel-dialog'
+import DefaultChannelSection from './default-channel-section'
 import { useResourcePicker } from './use-resource-picker'
 
 type InstalledIntegrationCardProps = {
@@ -38,6 +48,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
   const [testMessageOpen, setTestMessageOpen] = useState(false)
+  const [defaultChannelOpen, setDefaultChannelOpen] = useState(false)
 
   const displayName = installedIntegrationDisplayName(integration, providers)
   const integrationConfig = getInstalledIntegrationConfig(integration, providers)
@@ -49,6 +60,9 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
   const testMessageDisabledReason = notConnectedReason('sending a test message')
   const supportsResourcePicker = providerSupportsResourcePicker(provider)
   const chooseDocumentsDisabledReason = notConnectedReason('choosing documents')
+  const supportsDefaultChannel = providerSupportsDefaultChannel(provider)
+  const defaultChannel = readProviderDefaultChannel(provider, integration)
+  const defaultChannelDisabledReason = notConnectedReason('setting the default channel')
   const resourcePicker = useResourcePicker(provider)
   const isPrimaryDocument = readIntegrationUserInput(integration)[PRIMARY_DOCUMENT_FIELD] === true
 
@@ -140,6 +154,8 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
           />
         ) : null}
 
+        {supportsDefaultChannel ? <DefaultChannelSection integrationId={integration.id} defaultChannel={defaultChannel} canResolveName={isOperable} /> : null}
+
         {/* Stacked action buttons */}
         <div className="flex flex-col gap-2">
           {linkToDetail && provider ? (
@@ -156,6 +172,13 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
             <DisabledReasonTooltip reason={testMessageDisabledReason}>
               <Button variant="secondary" full icon={<Send className="size-4" />} iconPosition="left" onClick={() => setTestMessageOpen(true)} disabled={!!testMessageDisabledReason}>
                 Send Test Message
+              </Button>
+            </DisabledReasonTooltip>
+          ) : null}
+          {canManage && supportsDefaultChannel ? (
+            <DisabledReasonTooltip reason={defaultChannelDisabledReason}>
+              <Button variant="secondary" full icon={<Hash className="size-4" />} iconPosition="left" onClick={() => setDefaultChannelOpen(true)} disabled={!!defaultChannelDisabledReason}>
+                {defaultChannel ? 'Change Default Channel' : 'Set Default Channel'}
               </Button>
             </DisabledReasonTooltip>
           ) : null}
@@ -202,7 +225,20 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
         credentials={integration.credentials ?? undefined}
       />
 
-      {supportsTestMessage ? <SendTestMessageDialog open={testMessageOpen} onOpenChange={setTestMessageOpen} integrationId={integration.id} providerName={displayName} /> : null}
+      {supportsTestMessage ? (
+        <SendTestMessageDialog open={testMessageOpen} onOpenChange={setTestMessageOpen} integrationId={integration.id} providerName={displayName} defaultChannel={defaultChannel} provider={provider} />
+      ) : null}
+
+      {supportsDefaultChannel ? (
+        <DefaultChannelDialog
+          open={defaultChannelOpen}
+          onOpenChange={setDefaultChannelOpen}
+          integrationId={integration.id}
+          providerName={displayName}
+          defaultChannel={defaultChannel}
+          provider={provider}
+        />
+      ) : null}
 
       <ConfirmationDialog
         open={confirmOpen}
