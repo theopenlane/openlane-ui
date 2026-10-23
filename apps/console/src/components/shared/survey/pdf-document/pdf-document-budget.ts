@@ -1,5 +1,7 @@
 import { formatFileSize } from '@/utils/strings'
-import { PDF_DOCUMENT_EMBED_BUDGET_BYTES, PDF_DOCUMENT_EMBED_BUDGET_MB } from './pdf-document-type'
+
+export const PDF_DOCUMENT_EMBED_BUDGET_MB = 2
+export const PDF_DOCUMENT_EMBED_BUDGET_BYTES = PDF_DOCUMENT_EMBED_BUDGET_MB * 1024 * 1024
 
 export const embedBudgetExceededMessage = (documentLabel: string, sizeBytes: number, remainingBytes: number) => {
   const usedBytes = PDF_DOCUMENT_EMBED_BUDGET_BYTES - remainingBytes

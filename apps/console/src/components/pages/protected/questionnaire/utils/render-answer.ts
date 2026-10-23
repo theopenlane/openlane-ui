@@ -1,7 +1,13 @@
-import { PDF_DOCUMENT_QUESTION_TYPE, renderPdfDocumentAnswer } from '@/components/shared/survey/pdf-document/pdf-document-type'
-import { ACKNOWLEDGEMENT_QUESTION_TYPE, renderAcknowledgementAnswer } from '@/components/shared/survey/acknowledgement/acknowledgement-type'
-import { renderSignaturePadAnswer, SIGNATURE_PAD_QUESTION_TYPE } from '@/components/shared/survey/signature-pad/signature-pad-type'
-import { renderSignatureAnswer, SIGNATURE_QUESTION_TYPE } from '@/components/shared/survey/signature/signature-type'
+import {
+  ACKNOWLEDGEMENT_QUESTION_TYPE,
+  PDF_DOCUMENT_QUESTION_TYPE,
+  renderAcknowledgementAnswer,
+  renderPdfDocumentAnswer,
+  renderSignatureAnswer,
+  renderSignaturePadAnswer,
+  SIGNATURE_PAD_QUESTION_TYPE,
+  SIGNATURE_QUESTION_TYPE,
+} from '@theopenlane/surveyjs-components'
 
 const CUSTOM_QUESTION_ANSWER_RENDERERS: Record<string, (value: unknown) => string> = {
   [PDF_DOCUMENT_QUESTION_TYPE]: renderPdfDocumentAnswer,

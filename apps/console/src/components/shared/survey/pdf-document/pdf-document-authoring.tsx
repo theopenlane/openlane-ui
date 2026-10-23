@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { Link2, Paperclip, Replace, Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
@@ -12,25 +12,17 @@ import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-ass
 import { useNotification } from '@/hooks/useNotification'
 import { getDataUrlByteSize } from '@/utils/data-url'
 import { formatFileSize } from '@/utils/strings'
-import { isPdfDataUrl, PDF_DOCUMENT_EMBED_BUDGET_MB, type TPdfDocumentAttachment } from './pdf-document-type'
+import { isPdfDataUrl, PDF_DOCUMENT_MISSING_MESSAGE, type TPdfDocumentAttachment } from '@theopenlane/surveyjs-components'
+import { type TPdfDocumentAuthoringProps } from '@theopenlane/surveyjs-components/survey'
 import PdfDocumentPolicyPicker from './pdf-document-policy-picker'
-import { embedBudgetExceededMessage } from './pdf-document-budget'
-
-type TPdfDocumentAuthoringProps = {
-  attachment: TPdfDocumentAttachment
-  linkedUrl: string
-  budgetBytes: number
-  canEdit: boolean
-  preview: ReactNode
-  onAttach: (attachment: TPdfDocumentAttachment) => void
-  onRemove: () => void
-}
+import { embedBudgetExceededMessage, PDF_DOCUMENT_EMBED_BUDGET_BYTES, PDF_DOCUMENT_EMBED_BUDGET_MB } from './pdf-document-budget'
 
 type TAuthoringMode = 'idle' | 'choose' | 'policy'
 
 const PolicyIcon = ObjectAssociationMap.policies.icon
 
-const PdfDocumentAuthoring = ({ attachment, linkedUrl, budgetBytes, canEdit, preview, onAttach, onRemove }: TPdfDocumentAuthoringProps) => {
+const PdfDocumentAuthoring = ({ attachment, linkedUrl, otherEmbeddedBytes, canEdit, preview, onAttach, onRemove }: TPdfDocumentAuthoringProps) => {
+  const budgetBytes = PDF_DOCUMENT_EMBED_BUDGET_BYTES - otherEmbeddedBytes
   const [mode, setMode] = useState<TAuthoringMode>('idle')
   const [rejectedUploads, setRejectedUploads] = useState(0)
   const { errorNotification } = useNotification()
@@ -61,7 +53,7 @@ const PdfDocumentAuthoring = ({ attachment, linkedUrl, budgetBytes, canEdit, pre
     attach({ pdfData: url, pdfFileName: name ?? '' })
   }
 
-  if (!canEdit && !hasSource) return <InfoCard tone="muted" message="No document has been attached to this question." />
+  if (!canEdit && !hasSource) return <InfoCard tone="muted" message={PDF_DOCUMENT_MISSING_MESSAGE} />
 
   const sourceIcon = policyId ? <PolicyIcon size={16} /> : pdfData ? <Paperclip size={16} /> : <Link2 size={16} />
   const sourceLabel = pdfData ? pdfFileName || 'Embedded PDF' : linkedUrl
