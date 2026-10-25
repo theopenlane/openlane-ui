@@ -21,7 +21,7 @@ const formSchema = z.object({
   reviewedAt: z.union([z.string(), z.date()]).optional().nullable(),
   externalID: z.string().optional(),
   externalOwnerID: z.string().optional(),
-  externalURI: z.url('Please enter a valid URL').optional().or(z.literal('')),
+  externalURI: z.httpUrl('Please enter a valid URL').optional().or(z.literal('')),
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
   controlIDs: z.array(z.string()).optional(),

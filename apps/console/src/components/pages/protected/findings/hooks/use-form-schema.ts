@@ -37,7 +37,7 @@ const formSchema = z.object({
   blocksProduction: z.boolean().optional(),
   externalID: z.string().optional(),
   externalOwnerID: z.string().optional(),
-  externalURI: z.url('Please enter a valid URL').optional().or(z.literal('')),
+  externalURI: z.httpUrl('Please enter a valid URL').optional().or(z.literal('')),
   source: z.string().optional(),
   findingClass: z.string().optional(),
   environmentName: z.string().optional().nullable(),

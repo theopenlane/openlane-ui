@@ -230,7 +230,7 @@ const ssoFormSchema = z.object({
   identityProvider: z.enum(IDENTITY_PROVIDER_OPTIONS, { error: (issue) => (issue.input === undefined ? 'Identity provider is required' : undefined) }),
   identityProviderClientID: z.string().min(1, 'Client ID is required'),
   identityProviderClientSecret: z.string().min(1, 'Client Secret is required'),
-  oidcDiscoveryEndpoint: z.string().min(1, 'OIDC Discovery Endpoint is required').url('Enter a valid URL'),
+  oidcDiscoveryEndpoint: z.httpUrl({ error: (issue) => (issue.input ? 'Enter a valid URL' : 'OIDC Discovery Endpoint is required') }),
 })
 
 type TSSOFormData = z.infer<typeof ssoFormSchema>

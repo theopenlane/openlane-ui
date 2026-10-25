@@ -40,7 +40,7 @@ export const controlsStepSchema = z.object({
   controlsInitialized: z.boolean().optional(),
 })
 
-const baseSchema = sourceProgramStepSchema.merge(detailsStepSchema).merge(auditorStepSchema).merge(teamStepSchema).merge(controlsStepSchema)
+const baseSchema = sourceProgramStepSchema.extend(detailsStepSchema.shape).extend(auditorStepSchema.shape).extend(teamStepSchema.shape).extend(controlsStepSchema.shape)
 
 export const wizardSchema = baseSchema.superRefine((data, ctx) => {
   if (data.startDate && data.endDate && data.endDate <= data.startDate) {

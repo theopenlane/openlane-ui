@@ -35,7 +35,7 @@ const formSchema = z.object({
   }, z.number().int().optional()),
   source: z.string().optional(),
   externalOwnerID: z.string().optional(),
-  externalURI: z.url('Please enter a valid URL').optional().or(z.literal('')),
+  externalURI: z.httpUrl('Please enter a valid URL').optional().or(z.literal('')),
   vector: z.string().optional(),
   packageName: z.string().optional(),
   vulnerableVersionRange: z.string().optional(),

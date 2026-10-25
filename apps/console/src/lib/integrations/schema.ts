@@ -32,7 +32,7 @@ export type NormalizedIntegrationFormPayloads = {
 }
 
 const EMAIL_SCHEMA = z.email()
-const URL_SCHEMA = z.url()
+const URL_SCHEMA = z.httpUrl()
 
 export const CREDENTIALS_PREFIX = 'credentials__'
 export const USER_INPUT_PREFIX = 'userInput__'
