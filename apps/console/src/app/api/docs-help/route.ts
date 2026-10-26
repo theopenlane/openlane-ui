@@ -13,7 +13,7 @@ import {
 } from '@/lib/docs-help/constants'
 import { getDocsProvider } from '@/lib/docs-help/provider'
 import { dedupeBySource, extractMarkdownSection, parseChunk, parsePolicyMappingTable, rankChunks } from '@/lib/docs-help/parse'
-import { lookupSection } from '@/lib/docs-help/retrieval'
+import { lookupSection, resolvePageText } from '@/lib/docs-help/retrieval'
 import { cacheKeyOf, readSectionCache, writeSectionCache } from '@/lib/docs-help/section-cache'
 import { docsHelpStream } from '@/lib/docs-help/stream'
 import { mapWithConcurrency } from '@/utils/async'
@@ -133,26 +133,28 @@ export const POST = async (req: NextRequest) => {
         if (chunk.source && context.sourceUri) uriBySource.set(chunk.source, context.sourceUri)
       }
 
-      const pageTextFor = async (source: string): Promise<string> => {
-        const sourceUri = uriBySource.get(source)
-        const stored = sourceUri ? await docs.pageText(sourceUri) : null
-        if (stored) return parseChunk(stored).text
-        return allChunks
-          .filter((chunk) => chunk.source === source)
-          .map((chunk) => chunk.text)
-          .join('\n\n')
-      }
+      const pageTextFor = (source: string) =>
+        resolvePageText(
+          docs,
+          uriBySource.get(source),
+          () =>
+            allChunks
+              .filter((chunk) => chunk.source === source)
+              .map((chunk) => chunk.text)
+              .join('\n\n'),
+          req.signal,
+        )
 
-      if (fullPageFor) return NextResponse.json({ text: await pageTextFor(fullPageFor) })
+      if (fullPageFor) return NextResponse.json({ text: (await pageTextFor(fullPageFor)).text })
 
       const top = chunks[0]
       if (!top?.source) return NextResponse.json(policyMapping ? { mapping: [], source: '' } : { section: '', title: '', source: '' })
 
-      const pageText = await pageTextFor(top.source)
+      const { text: pageText, degraded } = await pageTextFor(top.source)
       if (policyMapping) return NextResponse.json({ mapping: parsePolicyMappingTable(pageText), source: top.source })
       if (extractSection) {
         const result = { section: extractMarkdownSection(pageText, extractSection) ?? '', title: top.title, source: top.source }
-        writeSectionCache(cacheKeyOf({ query, prefer, extractSection }, section), result)
+        if (!degraded) writeSectionCache(cacheKeyOf({ query, prefer, extractSection }, section), result)
         return NextResponse.json(result)
       }
       return NextResponse.json({ section: '', title: top.title, source: top.source })

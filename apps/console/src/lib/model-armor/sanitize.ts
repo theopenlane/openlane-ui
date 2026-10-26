@@ -1,11 +1,9 @@
-import { GoogleAuth } from 'google-auth-library'
 import { modelArmorMode, modelArmorProjectID, modelArmorRegion, modelArmorTemplateID } from '@repo/dally/ai'
-import { getGoogleServiceAccountCredentials } from '@/lib/google/credentials'
+import { getGoogleAuth } from '@/lib/google/google-auth'
 import { ModelArmorBlockedError, ModelArmorUnavailableError } from '@/lib/model-armor/errors'
 import type { ModelArmorFilterOutcome, ModelArmorFilterResults, ModelArmorMatchState, ModelArmorSanitizationResult, ModelArmorSanitizeResponse } from '@/lib/model-armor/types'
 
-const CLOUD_PLATFORM_SCOPE = 'https://www.googleapis.com/auth/cloud-platform'
-const SANITIZE_TIMEOUT_MS = 10_000
+const SANITIZE_TIMEOUT_MS = 10_000 // 10s
 const ERROR_BODY_CHARS = 200
 const REGION_PATTERN = /^[a-z][a-z0-9-]*$/
 const RESOURCE_PATTERN = /^[A-Za-z0-9_-]+$/
@@ -17,16 +15,6 @@ if (modelArmorMode !== 'off' && !configured) {
   console.error(`model armor mode is "${modelArmorMode}" but its region, template or project is unset or malformed; no prompt can be screened`)
 } else if (modelArmorMode === 'off' && process.env.NODE_ENV === 'production') {
   console.warn('model armor is off; prompts are reaching google ai models unscreened')
-}
-
-let auth: GoogleAuth | undefined
-
-const getAuth = (): GoogleAuth => {
-  if (!auth) {
-    const credentials = getGoogleServiceAccountCredentials() ?? undefined
-    auth = new GoogleAuth({ credentials, scopes: [CLOUD_PLATFORM_SCOPE] })
-  }
-  return auth
 }
 
 const matched = (state?: ModelArmorMatchState) => state === 'MATCH_FOUND'
@@ -66,7 +54,7 @@ const blockingReasons = (result: ModelArmorSanitizationResult, wasRedacted: bool
 const screen = async (text: string, signal?: AbortSignal): Promise<ModelArmorSanitizationResult> => {
   let token: string | null | undefined
   try {
-    token = await getAuth().getAccessToken()
+    token = await getGoogleAuth().getAccessToken()
   } catch (err) {
     throw new ModelArmorUnavailableError(err instanceof Error ? err.message : String(err))
   }

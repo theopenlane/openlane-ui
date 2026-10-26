@@ -16,7 +16,7 @@ const vertexProvider = (clients: DocsHelpClients): DocsProvider => ({
     })
     return (response.contexts?.contexts ?? []).flatMap((context) => (context?.text ? [{ text: context.text, sourceUri: context.sourceUri ?? undefined }] : []))
   },
-  pageText: (sourceUri) => fetchGcsFile(clients.storage, sourceUri),
+  pageText: fetchGcsFile,
   summarize: (chunks, query, signal) => summarizeChunks(clients.genAI, chunks, query, signal),
   controlTitles: (controls, signal) => generateControlTitles(clients.genAI, controls, signal),
   publicRepresentation: (input, signal) => generatePublicRepresentation(clients.genAI, input, signal),
