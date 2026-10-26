@@ -11,8 +11,6 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { formatDate } from '@/utils/date'
 import FilePreviewDialog from '@/components/shared/file-preview/file-preview-dialog'
 import { Callout } from '@/components/shared/callout/callout'
-import { Switch } from '@repo/ui/switch'
-import { Label } from '@repo/ui/label'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useHandleUpdateSetting } from '../branding/helpers/useHandleUpdateSetting'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -21,6 +19,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import NdaRequestsTable from './table/nda-requests-table.tsx'
 import { NdaAutoApprovalSettings } from './components/nda-auto-approval-settings'
 import { NdaApprovalGroupCard } from './components/nda-approval-group-card'
+import { NdaSwitchRow } from './components/nda-switch-row'
 import { resolveAutoApprovalRules } from './auto-approval-rules'
 import { ObjectTypes } from '@repo/codegen/src/type-names.ts'
 import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
@@ -148,15 +147,13 @@ const NDAsPage = () => {
           <h3 className="text-lg font-medium">Access Rules</h3>
           <Card className="mt-3">
             <CardContent className="space-y-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <Label htmlFor="nda-approval-required" className="text-sm font-medium">
-                    Require approval before NDA signing
-                  </Label>
-                  <p className="mt-1 text-sm text-muted-foreground">When enabled, users must be approved before receiving the NDA signing link.</p>
-                </div>
-                <Switch id="nda-approval-required" checked={ndaApprovalRequired} onCheckedChange={(checked) => void handleUpdateSetting({ ndaApprovalRequired: checked })} disabled={isSettingLocked} />
-              </div>
+              <NdaSwitchRow
+                label="Require approval before NDA signing"
+                description="When enabled, users must be approved before receiving the NDA signing link."
+                checked={ndaApprovalRequired}
+                onCheckedChange={(checked) => void handleUpdateSetting({ ndaApprovalRequired: checked })}
+                disabled={isSettingLocked}
+              />
               {ndaApprovalRequired && <NdaAutoApprovalSettings setting={trustCenterSetting} readOnly={cannotEditSetting} isSaving={isUpdatingSetting} onUpdate={handleUpdateSetting} />}
               <Callout variant={approvalCallout.variant} compact>
                 {approvalCallout.text}
