@@ -1,45 +1,6 @@
-import { getCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
-import { csrfHeader } from '@repo/dally/auth'
-import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth/auth'
+import { type NextRequest } from 'next/server'
+import { coreAPIRequest, HTTP_METHODS } from '@/lib/auth/utils/core-api-request'
 
-export async function POST(request: Request) {
-  const session = await auth()
-  const token = session?.user?.accessToken
-
-  if (!token) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
-  }
-
-  const bodyData = await request.json()
-  const cookies = request.headers.get('cookie')
-
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  }
-
-  if (cookies) {
-    headers['cookie'] = cookies
-
-    const csrfToken = await getCSRFCookie(cookies)
-    if (csrfToken) {
-      headers[csrfHeader] = csrfToken
-    }
-  }
-
-  const fData = await fetch(`${process.env.API_REST_URL}/registration/verification`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(bodyData),
-    credentials: 'include',
-  })
-
-  if (fData.ok) {
-    return NextResponse.json(await fData.json(), { status: 200 })
-  }
-
-  if (fData.status !== 201) {
-    return NextResponse.json(await fData.json(), { status: fData.status })
-  }
+export async function POST(req: NextRequest) {
+  return coreAPIRequest('/registration/verification', HTTP_METHODS.POST, req, 'Failed to verify passkey', { cookie: req.headers.get('cookie') })
 }
