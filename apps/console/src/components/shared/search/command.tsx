@@ -35,34 +35,35 @@ export function CommandMenu({ items }: CommandNavProps) {
         <CommandGroup heading="Go To">
           {items
             .filter((item): item is NavItem => 'href' in item && !item.hidden && !isLocked(item))
-            .map((item, idx) => (
-              <div key={idx}>
-                {'children' in item &&
-                  item.children &&
-                  item.children
-                    .filter((child) => !child.hidden && !isLocked(child))
-                    .map((child, childIdx) => (
-                      <CommandItem
-                        key={`${idx}-${childIdx}`}
-                        onSelect={() => {
-                          setOpen(false)
-                          router.push(child.href)
-                        }}
-                      >
-                        {child.title}
-                      </CommandItem>
-                    ))}
-                <CommandItem
-                  key={idx}
-                  onSelect={() => {
-                    setOpen(false)
-                    router.push(getNavLandingHref(item, isLocked))
-                  }}
-                >
-                  {item.title}
-                </CommandItem>
-              </div>
-            ))}
+            .map((item, idx) => {
+              const children = (item.children ?? []).filter((child) => !child.hidden && !isLocked(child))
+              return (
+                <div key={idx}>
+                  {children.map((child, childIdx) => (
+                    <CommandItem
+                      key={`${idx}-${childIdx}`}
+                      onSelect={() => {
+                        setOpen(false)
+                        router.push(child.href)
+                      }}
+                    >
+                      {child.title}
+                    </CommandItem>
+                  ))}
+                  {!children.some((child) => child.title === item.title) && (
+                    <CommandItem
+                      key={idx}
+                      onSelect={() => {
+                        setOpen(false)
+                        router.push(getNavLandingHref(item, isLocked))
+                      }}
+                    >
+                      {item.title}
+                    </CommandItem>
+                  )}
+                </div>
+              )
+            })}
         </CommandGroup>
       </CommandList>
     </CommandDialog>
