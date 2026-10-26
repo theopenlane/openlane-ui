@@ -149,7 +149,7 @@ export default function UpdatesSection() {
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6 min-h-screen text-foreground">
       <h1 className="text-2xl font-bold tracking-tight mb-8">Updates</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-6">
         <Card className={editingPostId || !canEditTc ? 'opacity-50 pointer-events-none' : ''}>
           <CardContent className="pt-6">
             <div className="mb-6">
