@@ -11,9 +11,10 @@ type CollapsibleSectionProps = {
   defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  summary?: React.ReactNode
 }
 
-const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ label, children, defaultOpen = false, open: controlledOpen, onOpenChange }) => {
+const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ label, children, defaultOpen = false, open: controlledOpen, onOpenChange, summary }) => {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen)
   const contentId = useId()
   const open = controlledOpen ?? uncontrolledOpen
@@ -33,6 +34,8 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ label, children
         <div id={contentId} className="mt-2">
           {children}
         </div>
+      ) : summary != null ? (
+        <div className="mt-2">{summary}</div>
       ) : null}
     </div>
   )
