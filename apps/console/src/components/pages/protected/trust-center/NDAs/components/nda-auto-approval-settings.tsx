@@ -4,14 +4,13 @@ import { useRef, useState } from 'react'
 import { useNavigationGuard } from 'nextjs-nav-guard'
 import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
-import { Label } from '@repo/ui/label'
-import { Switch } from '@repo/ui/switch'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import CollapsibleSection from '@/components/shared/collapsible-section/collapsible-section'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { NdaAutoApprovalRuleRow } from './nda-auto-approval-rule-row'
+import { NdaSwitchRow } from './nda-switch-row'
 import {
   AUTO_APPROVAL_FALLBACK_RULE,
   AUTO_APPROVAL_RULE_GROUPS,
@@ -92,15 +91,14 @@ export const NdaAutoApprovalSettings = ({ setting, readOnly, isSaving, onUpdate 
   return (
     <div className="overflow-hidden rounded-lg border border-border">
       <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
-      <div className="flex items-start justify-between gap-4 px-4 py-3.5">
-        <div>
-          <Label htmlFor="nda-enable-auto-approval" className="text-sm font-medium">
-            Enable automatic approvals
-          </Label>
-          <p className="mt-1 text-sm text-muted-foreground">Automatically approve NDA requests based on the rules below.</p>
-        </div>
-        <Switch id="nda-enable-auto-approval" checked={showRules} onCheckedChange={(checked) => void toggleAutoApproval(checked)} disabled={readOnly || isSaving} className="mt-1 shrink-0" />
-      </div>
+      <NdaSwitchRow
+        className="px-4 py-3.5"
+        label="Enable automatic approvals"
+        description="Automatically approve NDA requests based on the rules below."
+        checked={showRules}
+        onCheckedChange={(checked) => void toggleAutoApproval(checked)}
+        disabled={readOnly || isSaving}
+      />
 
       {showRules && (
         <div className="px-3 pb-3">
