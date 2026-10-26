@@ -1,13 +1,22 @@
 import { getCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
 import { csrfHeader } from '@repo/dally/auth'
 import { NextResponse } from 'next/server'
+import { auth } from '@/lib/auth/auth'
 
 export async function POST(request: Request) {
+  const session = await auth()
+  const token = session?.user?.accessToken
+
+  if (!token) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+  }
+
   const bodyData = await request.json()
   const cookies = request.headers.get('cookie')
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
   }
 
   if (cookies) {
