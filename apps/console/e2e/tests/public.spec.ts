@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+import { SIGNUP_EMAIL_INPUT } from '../utils/constants'
+
 test.describe('public — questionnaire', () => {
   test('/questionnaire without a token renders the unable-to-load fallback', async ({ page }) => {
     // No token + no session → useQuestionnaire is disabled and questionnaireData is null
@@ -28,7 +30,7 @@ test.describe('public — signup', () => {
     await page.goto('/signup')
 
     await expect(page).toHaveURL(/\/signup/)
-    await expect(page.getByPlaceholder(/email/i).first()).toBeVisible({ timeout: 10_000 })
+    await expect(page.locator(SIGNUP_EMAIL_INPUT)).toBeVisible({ timeout: 10_000 })
   })
 
   test('/signup → "Login" link navigates to /login', async ({ page }) => {
