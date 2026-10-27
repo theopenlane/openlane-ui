@@ -920,8 +920,6 @@ export interface CampaignsWithFilterQuery {
         dueDate: string | null
         emailTemplateID: string | null
         entityID: string | null
-        hasPendingWorkflow: boolean
-        hasWorkflowHistory: boolean
         id: string
         internalOwner: string | null
         internalOwnerGroupID: string | null
@@ -947,7 +945,6 @@ export interface CampaignsWithFilterQuery {
         templateID: string | null
         updatedAt: any
         updatedBy: string | null
-        workflowEligibleMarker: boolean | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -978,8 +975,6 @@ export interface CampaignQuery {
     dueDate: string | null
     emailTemplateID: string | null
     entityID: string | null
-    hasPendingWorkflow: boolean
-    hasWorkflowHistory: boolean
     id: string
     internalOwner: string | null
     internalOwnerGroupID: string | null
@@ -1005,7 +1000,6 @@ export interface CampaignQuery {
     templateID: string | null
     updatedAt: any
     updatedBy: string | null
-    workflowEligibleMarker: boolean | null
     template: { id: string; name: string; description: string | null; updatedAt: any; jsonconfig: any } | null
   }
 }
@@ -2874,8 +2868,6 @@ export interface EmailTemplatesWithFilterQuery {
         updatedAt: any
         updatedBy: string | null
         version: number
-        workflowDefinitionID: string | null
-        workflowInstanceID: string | null
         campaigns: { totalCount: number }
       } | null
     } | null> | null
@@ -2905,8 +2897,6 @@ export interface EmailTemplateQuery {
     updatedAt: any
     updatedBy: string | null
     version: number
-    workflowDefinitionID: string | null
-    workflowInstanceID: string | null
   }
 }
 
@@ -4475,8 +4465,6 @@ export interface IdentityHoldersWithFilterQuery {
         externalReferenceID: string | null
         externalUserID: string | null
         fullName: string
-        hasPendingWorkflow: boolean
-        hasWorkflowHistory: boolean
         id: string
         identityHolderType: Types.IdentityHolderIdentityHolderType
         internalOwner: string | null
@@ -4495,7 +4483,6 @@ export interface IdentityHoldersWithFilterQuery {
         updatedAt: any
         updatedBy: string | null
         userID: string | null
-        workflowEligibleMarker: boolean | null
         internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerUser: { id: string; displayName: string } | null
@@ -4544,8 +4531,6 @@ export interface IdentityHolderQuery {
     externalReferenceID: string | null
     externalUserID: string | null
     fullName: string
-    hasPendingWorkflow: boolean
-    hasWorkflowHistory: boolean
     id: string
     identityHolderType: Types.IdentityHolderIdentityHolderType
     internalOwner: string | null
@@ -4564,7 +4549,6 @@ export interface IdentityHolderQuery {
     updatedAt: any
     updatedBy: string | null
     userID: string | null
-    workflowEligibleMarker: boolean | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
@@ -5652,7 +5636,6 @@ export interface NotificationTemplatesWithFilterQuery {
         updatedAt: any
         updatedBy: string | null
         version: number
-        workflowDefinitionID: string | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -5690,7 +5673,6 @@ export interface NotificationTemplateQuery {
     updatedAt: any
     updatedBy: string | null
     version: number
-    workflowDefinitionID: string | null
   }
 }
 
@@ -9897,6 +9879,7 @@ export interface GetUserProfileQuery {
     lastName: string | null
     displayName: string
     email: string
+    authProvider: Types.UserAuthProvider
     avatarRemoteURL: string | null
     avatarFile: { base64: string | null } | null
     setting: {
