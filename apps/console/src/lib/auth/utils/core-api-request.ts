@@ -44,8 +44,14 @@ const parseUpstreamErrorMessage = (body: string): string | undefined => {
   }
 }
 
+// CoreAPIRequestOptions holds optional settings for a core API request
+export interface CoreAPIRequestOptions {
+  // cookie is the incoming cookie header to forward upstream, for endpoints that read the session cookie
+  cookie?: string | null
+}
+
 // coreAPIRequest is a wrapper to make API requests to the core REST API that returns the payload
-export async function coreAPIRequest(route: string, method: HttpMethod, req?: NextRequest, errorMsg?: string): Promise<NextResponse> {
+export async function coreAPIRequest(route: string, method: HttpMethod, req?: NextRequest, errorMsg?: string, options?: CoreAPIRequestOptions): Promise<NextResponse> {
   let payload: unknown
   if (method !== HTTP_METHODS.GET && req) {
     try {
@@ -55,10 +61,10 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
     }
   }
 
-  return coreAPIRequestWithBody(route, method, payload, errorMsg)
+  return coreAPIRequestWithBody(route, method, payload, errorMsg, options)
 }
 
-export async function coreAPIRequestWithBody(route: string, method: HttpMethod, payload: unknown, errorMsg?: string): Promise<NextResponse> {
+export async function coreAPIRequestWithBody(route: string, method: HttpMethod, payload: unknown, errorMsg?: string, options?: CoreAPIRequestOptions): Promise<NextResponse> {
   const session = await auth()
 
   if (!session?.user?.accessToken) {
@@ -90,6 +96,7 @@ export async function coreAPIRequestWithBody(route: string, method: HttpMethod, 
         redirect: 'manual',
         headers: {
           Authorization: `Bearer ${accessToken}`,
+          ...(options?.cookie && { cookie: options.cookie }),
         },
         ...(payload !== undefined && { body: JSON.stringify(payload) }),
       },
