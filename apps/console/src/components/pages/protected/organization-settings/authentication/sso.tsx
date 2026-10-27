@@ -226,14 +226,15 @@ const SSOOverview = ({
 
 const IDENTITY_PROVIDER_OPTIONS = Object.values(OrganizationSettingSsoProvider).filter((provider) => provider !== OrganizationSettingSsoProvider.NONE)
 
-const ssoFormSchema = z.object({
-  identityProvider: z.enum(IDENTITY_PROVIDER_OPTIONS, { error: (issue) => (issue.input === undefined ? 'Identity provider is required' : undefined) }),
-  identityProviderClientID: z.string().min(1, 'Client ID is required'),
-  identityProviderClientSecret: z.string(),
-  oidcDiscoveryEndpoint: z.string().min(1, 'OIDC Discovery Endpoint is required').url('Enter a valid URL'),
-})
+const ssoFormSchema = (isSSOConfigured: boolean) =>
+  z.object({
+    identityProvider: z.enum(IDENTITY_PROVIDER_OPTIONS, { error: (issue) => (issue.input === undefined ? 'Identity provider is required' : undefined) }),
+    identityProviderClientID: z.string().min(1, 'Client ID is required'),
+    identityProviderClientSecret: isSSOConfigured ? z.string() : z.string().min(1, 'Client Secret is required'),
+    oidcDiscoveryEndpoint: z.string().min(1, 'OIDC Discovery Endpoint is required').url('Enter a valid URL'),
+  })
 
-type TSSOFormData = z.infer<typeof ssoFormSchema>
+type TSSOFormData = z.infer<ReturnType<typeof ssoFormSchema>>
 
 const SSO_UPDATE_FIELDS = {
   identityProvider: orClear('clearIdentityProvider'),
@@ -280,7 +281,7 @@ const SSOPage = () => {
   const allowedDomains = currentSetting?.allowedEmailDomains ?? []
 
   const form = useForm<TSSOFormData>({
-    resolver: zodResolver(ssoFormSchema),
+    resolver: zodResolver(ssoFormSchema(isSSOConfigured)),
     defaultValues: {
       identityProvider: undefined,
       identityProviderClientID: '',
@@ -421,11 +422,6 @@ const SSOPage = () => {
   }
 
   const onSubmit = async (data: TSSOFormData) => {
-    if (!isSSOConfigured && !data.identityProviderClientSecret) {
-      form.setError('identityProviderClientSecret', { message: 'Client Secret is required' })
-      return
-    }
-
     try {
       await updateSSOSettings(data)
       successNotification({
