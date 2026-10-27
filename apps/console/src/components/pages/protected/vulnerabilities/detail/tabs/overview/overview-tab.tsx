@@ -1,9 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
-import { ReadOnlyToolbarPortalContext } from '@repo/ui/components/editor/read-only-toolbar-portal.ts'
+import React, { useMemo } from 'react'
 import { type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
-import PlateEditor from '@/components/shared/plate/plate-editor'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type TPersistOptions, usePersistFormField } from '@/components/shared/crud-base/persist-form-field'
 import { type VulnerabilityFormData } from '../../../hooks/use-form-schema'
 import DescriptionField from '../../../create/form/fields/description-field'
@@ -20,17 +19,12 @@ type TOverviewTabProps = {
 }
 
 const ReadOnlyDescription: React.FC<{ description: string }> = ({ description }) => {
-  const [toolbarSlot, setToolbarSlot] = useState<HTMLDivElement | null>(null)
+  const { convertToReadOnly } = usePlateEditor()
+  const content = useMemo(() => convertToReadOnly(description), [convertToReadOnly, description])
 
   return (
-    <section className="space-y-2">
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold">Description</h2>
-        <div ref={setToolbarSlot} />
-      </div>
-      <ReadOnlyToolbarPortalContext value={toolbarSlot}>
-        <PlateEditor key={description} initialValue={description} readonly variant="readonly" placeholder="Write your vulnerability description" />
-      </ReadOnlyToolbarPortalContext>
+    <section aria-label="Description" className="min-w-0 whitespace-pre-wrap break-words">
+      {content}
     </section>
   )
 }

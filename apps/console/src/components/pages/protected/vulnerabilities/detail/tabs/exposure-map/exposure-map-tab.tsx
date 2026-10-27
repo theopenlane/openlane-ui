@@ -99,6 +99,28 @@ const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit
   const cveLabel = getVulnerabilityTitle(vulnerability)
   const allSelected = reportsById.size > 0 && selected.length === reportsById.size
 
+  const mapFooter =
+    canShowMoreOnMap || mapReportLimit > MAP_REPORT_STEP ? (
+      <>
+        <span className="text-xs text-muted-foreground">
+          Showing {mapReportIds.size} of {exposure.listTotal} reports
+        </span>
+        {canShowMoreOnMap && (
+          <Button type="button" variant="secondary" disabled={exposure.isFetchingNextPage} onClick={showMoreOnMap}>
+            {exposure.isFetchingNextPage ? 'Loading…' : `Show ${MAP_REPORT_STEP} more`}
+          </Button>
+        )}
+        {mapReportLimit > MAP_REPORT_STEP && (
+          <Button type="button" variant="secondary" onClick={() => setMapReportLimit(MAP_REPORT_STEP)}>
+            Show fewer
+          </Button>
+        )}
+        <Button type="button" variant="secondary" onClick={() => setView('list')}>
+          View list
+        </Button>
+      </>
+    ) : undefined
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -158,7 +180,7 @@ const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit
         <EmptyTabState description={openOnly ? 'No open reports for this CVE.' : 'No reports found for this CVE.'} />
       ) : view === 'map' ? (
         <ExposureSelectionContext value={selectionContext}>
-          <ExposureMapGraph groups={mapGroups} slaDefinitions={exposure.slaDefinitions} />
+          <ExposureMapGraph groups={mapGroups} slaDefinitions={exposure.slaDefinitions} footer={mapFooter} />
         </ExposureSelectionContext>
       ) : (
         <ExposureMapList
@@ -175,27 +197,6 @@ const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit
       {canEdit && selected.length > 0 && (
         <div className="sticky bottom-4 z-10 pr-12">
           <ExposureBulkActions selected={selected} cveLabel={cveLabel} hiddenCount={hiddenSelectedCount} onSettled={(remainingIds) => setSelectedIds(new Set(remainingIds))} />
-        </div>
-      )}
-
-      {view === 'map' && exposure.rows.length > 0 && (canShowMoreOnMap || mapReportLimit > MAP_REPORT_STEP) && (
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <span className="text-xs text-muted-foreground">
-            Showing {mapReportIds.size} of {exposure.listTotal} reports
-          </span>
-          {canShowMoreOnMap && (
-            <Button type="button" variant="secondary" disabled={exposure.isFetchingNextPage} onClick={showMoreOnMap}>
-              {exposure.isFetchingNextPage ? 'Loading…' : `Show ${MAP_REPORT_STEP} more`}
-            </Button>
-          )}
-          {mapReportLimit > MAP_REPORT_STEP && (
-            <Button type="button" variant="secondary" onClick={() => setMapReportLimit(MAP_REPORT_STEP)}>
-              Show fewer
-            </Button>
-          )}
-          <Button type="button" variant="secondary" onClick={() => setView('list')}>
-            View list
-          </Button>
         </div>
       )}
 

@@ -6,7 +6,7 @@ import { useVulnerabilityHistories, useVulnerabilityHistoryEdges } from '@/lib/g
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useGetGroupNames } from '@/lib/graphql-hooks/group'
 import { useIdentityHolderOptions } from '@/lib/graphql-hooks/identity-holder'
-import { resolveAuthorName } from '@/lib/authors'
+import { resolveAuthor } from '@/lib/authors'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import AssociationTimeline from '@/components/pages/protected/exposure/overview/association-timeline'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
@@ -23,7 +23,7 @@ const HistoryTab: React.FC<{ vulnerability: TVulnerabilityDetail }> = ({ vulnera
   const edges = edgesQuery.data?.vulnerability
   const { userIds, groupIds, personnelIds } = useMemo(() => historyReferencedIds(histories), [histories])
   const edgeAuthorIds = useMemo(() => historyEdgeAuthorIds(edges), [edges])
-  const { userMap, tokenMap } = useAuthorMaps([...userIds, ...edgeAuthorIds, vulnerability.createdBy])
+  const { authorMaps } = useAuthorMaps([...userIds, ...edgeAuthorIds, vulnerability.createdBy])
   const groupWhere = useMemo(() => ({ idIn: groupIds }), [groupIds])
   const { groups } = useGetGroupNames({ where: groupWhere, enabled: groupIds.length > 0 })
   const groupNames = useMemo(() => new Map(groups.map((group) => [group.id, group.displayName || group.name])), [groups])
@@ -32,19 +32,22 @@ const HistoryTab: React.FC<{ vulnerability: TVulnerabilityDetail }> = ({ vulnera
   const personnelNames = useMemo(() => new Map(personnel.map((person) => [person.id, person.fullName || person.email || person.id])), [personnel])
 
   const timeline = useMemo(() => {
-    const resolveAuthor = (id: string | null | undefined) => resolveAuthorName(id, { userMap, tokenMap })
+    const authorName = (id: string | null | undefined) => {
+      const author = resolveAuthor(id, authorMaps)
+      return author.kind === 'unknown' || author.kind === 'unresolved' ? null : author.displayName
+    }
     const ownershipChanges = buildOwnershipChanges(histories, (kind, id) => {
       if (kind === 'group') return groupNames.get(id) ?? 'a group'
       if (kind === 'personnel') return personnelNames.get(id) ?? 'a person'
-      return resolveAuthor(id)
+      return authorName(id) ?? 'a user'
     })
     return buildVulnerabilityTimeline({
       edges,
       ownershipChanges,
       vulnerability,
-      resolveAuthor,
+      resolveAuthor: authorName,
     })
-  }, [edges, histories, vulnerability, userMap, tokenMap, groupNames, personnelNames])
+  }, [edges, histories, vulnerability, authorMaps, groupNames, personnelNames])
 
   const hidden = hiddenEdgeCounts(edges)
 
@@ -60,7 +63,9 @@ const HistoryTab: React.FC<{ vulnerability: TVulnerabilityDetail }> = ({ vulnera
           </Button>
         </div>
       )}
-      <p className="text-xs text-muted-foreground">Linked tasks, comments, assets, remediations and reviews are dated by when they were created.</p>
+      <p className="text-xs text-muted-foreground">
+        Linked tasks, assets, remediations and reviews are dated by when each record was created. When it was linked to this vulnerability is not recorded.
+      </p>
       {hidden.length > 0 && (
         <p className="text-xs text-muted-foreground">
           Showing the most recent of each kind. Not shown:{' '}

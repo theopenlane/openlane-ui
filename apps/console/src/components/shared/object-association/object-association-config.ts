@@ -72,6 +72,7 @@ import { type useQueryClient } from '@tanstack/react-query'
 import { type RequestDocument } from 'graphql-request'
 
 import {
+  type CreateTaskInput,
   type AssetsWithFilterQuery,
   type CampaignsWithFilterQuery,
   type GetAllControlImplementationsQuery,
@@ -468,11 +469,12 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
   },
 }
 
-export const invalidateTaskAssociations = (payload: Record<string, unknown>, queryClient: ReturnType<typeof useQueryClient>) => {
+export const invalidateTaskAssociations = (payload: CreateTaskInput, queryClient: ReturnType<typeof useQueryClient>) => {
   queryClient.invalidateQueries({ queryKey: ['tasks'] })
+  const fields = new Map(Object.entries(payload))
 
   Object.values(OBJECT_QUERY_CONFIG).forEach((config) => {
-    const fieldValue = payload[config.inputName]
+    const fieldValue = fields.get(config.inputName)
     if (Array.isArray(fieldValue) && fieldValue.length > 0) {
       queryClient.invalidateQueries({ queryKey: [config.responseObjectKey] })
     }

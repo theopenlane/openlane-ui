@@ -187,44 +187,48 @@ const buildGraph = (groups: TEnvironmentGroup[], slaDefinitions: SlaDefinitionsN
 type TExposureMapGraphProps = {
   groups: TEnvironmentGroup[]
   slaDefinitions: SlaDefinitionsNodeNonNull[]
+  footer?: React.ReactNode
 }
 
-const ExposureMapGraph: React.FC<TExposureMapGraphProps> = ({ groups, slaDefinitions }) => {
+const ExposureMapGraph: React.FC<TExposureMapGraphProps> = ({ groups, slaDefinitions, footer }) => {
   const prefersReducedMotion = usePrefersReducedMotion()
   const { nodes, edges, height } = useMemo(() => buildGraph(groups, slaDefinitions, !prefersReducedMotion), [groups, slaDefinitions, prefersReducedMotion])
 
   return (
-    <div className="overflow-x-auto rounded-lg border">
-      <div className="min-w-[960px]">
-        <div className="grid grid-cols-[200px_200px_320px_minmax(0,1fr)] border-b px-3 py-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-          {EXPOSURE_COLUMNS.map((column) => (
-            <span key={column}>{column}</span>
-          ))}
-        </div>
-        <div style={{ height }} className="w-full">
-          <ReactFlow<TExposureNode, Edge>
-            nodes={nodes}
-            edges={edges}
-            nodeTypes={NODE_TYPES}
-            fitView={false}
-            defaultViewport={{ x: 12, y: 8, zoom: 1 }}
-            nodesDraggable={false}
-            nodesConnectable={false}
-            elementsSelectable={false}
-            zoomOnScroll={false}
-            zoomOnPinch={false}
-            zoomOnDoubleClick={false}
-            panOnScroll={false}
-            panOnDrag={false}
-            nodesFocusable={false}
-            edgesFocusable={false}
-            preventScrolling={false}
-            proOptions={{ hideAttribution: true }}
-          >
-            <Background gap={24} size={0} />
-          </ReactFlow>
+    <div className="rounded-lg border">
+      <div className="overflow-x-auto">
+        <div className="min-w-[960px]">
+          <div className="grid grid-cols-[200px_200px_320px_minmax(0,1fr)] border-b px-3 py-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            {EXPOSURE_COLUMNS.map((column) => (
+              <span key={column}>{column}</span>
+            ))}
+          </div>
+          <div style={{ height }} className="w-full">
+            <ReactFlow<TExposureNode, Edge>
+              nodes={nodes}
+              edges={edges}
+              nodeTypes={NODE_TYPES}
+              fitView={false}
+              defaultViewport={{ x: 12, y: 8, zoom: 1 }}
+              nodesDraggable={false}
+              nodesConnectable={false}
+              elementsSelectable={false}
+              zoomOnScroll={false}
+              zoomOnPinch={false}
+              zoomOnDoubleClick={false}
+              panOnScroll={false}
+              panOnDrag={false}
+              nodesFocusable={false}
+              edgesFocusable={false}
+              preventScrolling={false}
+              proOptions={{ hideAttribution: true }}
+            >
+              <Background gap={24} size={0} />
+            </ReactFlow>
+          </div>
         </div>
       </div>
+      {footer && <div className="flex flex-wrap items-center justify-center gap-3 px-3 pt-1 pb-3">{footer}</div>}
     </div>
   )
 }
