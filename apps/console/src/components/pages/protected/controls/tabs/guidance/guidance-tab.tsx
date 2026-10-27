@@ -10,6 +10,7 @@ import { ObjectTypeObjects } from '@/components/shared/object-association/object
 import { useNotification } from '@/hooks/useNotification'
 import ActivityAccordionTrigger from '@/components/shared/crud-base/tabs/activity-accordion-trigger'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { SanitizedHtml } from '@/components/shared/sanitized-html/sanitized-html'
 
 interface ImplementationGuidance {
   referenceId: string
@@ -126,7 +127,7 @@ const GuidanceTab: React.FC<GuidanceTabProps> = ({
         <div className="space-y-4">
           {assessmentMethods?.map((method) => (
             <Card key={method.id} className="p-4">
-              <div className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: method.method }} />
+              <SanitizedHtml className="text-sm text-muted-foreground" value={method.method} />
             </Card>
           ))}
         </div>

@@ -11,7 +11,7 @@ import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { ControlControlSource, SubcontrolControlSource, type ControlDiscussionFieldsFragment, type SubcontrolDiscussionFieldsFragment } from '@repo/codegen/src/schema.ts'
 import { hasPlaceholderText, highlightPlaceholderText } from '@/components/shared/plate/plate-utils'
 import { Callout } from '@/components/shared/callout/callout'
-import { sanitizeHtml } from '@/lib/html/sanitize-html'
+import { SanitizedHtml } from '@/components/shared/sanitized-html/sanitized-html'
 
 interface DescriptionFieldProps {
   isEditing: boolean
@@ -29,7 +29,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
-  const systemCreatedHtml = useMemo(() => (systemCreated && typeof initialValue === 'string' ? sanitizeHtml(highlightPlaceholderText(initialValue)) : ''), [systemCreated, initialValue])
+  const systemCreatedHtml = useMemo(() => (systemCreated && typeof initialValue === 'string' ? highlightPlaceholderText(initialValue) : ''), [systemCreated, initialValue])
 
   const label = (
     <label htmlFor="description" className="block text-lg my-1 font-semibold">
@@ -67,7 +67,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
       )}
       <div className={'min-h-5'}>
         {systemCreated ? (
-          <div className="rich-text" dangerouslySetInnerHTML={{ __html: systemCreatedHtml }} />
+          <SanitizedHtml className="rich-text" value={systemCreatedHtml} />
         ) : (
           <PlateEditor
             toolbarClassName="-mt-20"
