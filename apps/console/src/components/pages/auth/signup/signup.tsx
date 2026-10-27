@@ -18,7 +18,16 @@ import { allowedLoginDomains, recaptchaSiteKey } from '@repo/dally/auth'
 import { loginStyles } from '../login/login.styles'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { cn } from '@repo/ui/lib/utils'
+import { isValidEmail } from '@/lib/validators'
 import Github from '@/assets/Github'
+
+type SignupFields = { email?: string; password?: string; confirmedPassword?: string }
+
+const signupFieldsError = ({ email, password, confirmedPassword }: SignupFields) => {
+  if (!email || !isValidEmail(email)) return 'Enter a valid email address'
+  if (!password || !confirmedPassword) return 'Enter and confirm your password'
+  return ''
+}
 
 export const SignupPage = () => {
   const searchParams = useSearchParams()
@@ -27,6 +36,7 @@ export const SignupPage = () => {
   const [registrationErrorMessage, setRegistrationErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isPasswordActive, setIsPasswordActive] = useState(false)
+  const [canSubmit, setCanSubmit] = useState(false)
   const { separator, buttons, form, input } = loginStyles()
 
   const showError = !isLoading && !!registrationErrorMessage
@@ -51,14 +61,12 @@ export const SignupPage = () => {
   return (
     <div className="flex flex-col self-center  text-center">
       <p className="text-3xl font-medium">Create your account</p>
-      {!isPasswordActive && (
-        <div className="mt-2 text-center">
-          <span className="text-muted-foreground text-sm">Already have an account?&nbsp;</span>
-          <Link href={`/login${token ? `?token=${token}` : ''}`} className="text-sm hover:text-blue-500 hover:opacity-80 transition-color duration-500">
-            Login
-          </Link>
-        </div>
-      )}
+      <div className="mt-2 text-center">
+        <span className="text-muted-foreground text-sm">Sign up with your work account. Already have an account?&nbsp;</span>
+        <Link href={`/login${token ? `?token=${token}` : ''}`} className="text-sm hover:text-blue-500 hover:opacity-80 transition-color duration-500">
+          Login
+        </Link>
+      </div>
 
       <div className={cn(buttons(), 'mt-[32px]')}>
         <Button className="!px-3.5 w-full" variant="secondary" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={google}>
@@ -74,8 +82,20 @@ export const SignupPage = () => {
 
       <SimpleForm
         classNames={form()}
-        onChange={(e: { email: string }) => setIsPasswordActive(e.email.length > 0)}
+        onChange={(e: SignupFields) => {
+          setIsPasswordActive(!!e.email)
+          setCanSubmit(!signupFieldsError(e))
+        }}
         onSubmit={async (payload: RegisterUser) => {
+          // autofill can skip onChange, so re-check the submitted values
+          const fieldsError = signupFieldsError(payload)
+          setIsPasswordActive(!!payload.email)
+          setCanSubmit(!fieldsError)
+          if (fieldsError) {
+            setRegistrationErrorMessage(fieldsError)
+            return
+          }
+
           setIsLoading(true)
           setRegistrationErrorMessage('')
           try {
@@ -139,9 +159,9 @@ export const SignupPage = () => {
       >
         <div className={input()}>
           <div className="flex items-center gap-1">
-            <p className="text-sm">Email</p>
+            <p className="text-sm">Work email</p>
           </div>
-          <Input type="email" variant="light" name="email" placeholder="Enter your email" className={`bg-transparent !text-text ${showError ? 'border border-toast-error-icon' : ''}`} />
+          <Input type="email" variant="light" name="email" placeholder="you@company.com" className={`bg-transparent !text-text ${showError ? 'border border-toast-error-icon' : ''}`} />
           {showError && <span className="text-xs text-toast-error-icon text-left">{registrationErrorMessage}</span>}
         </div>
 
@@ -154,7 +174,13 @@ export const SignupPage = () => {
               <PasswordInput variant="light" name="confirmedPassword" placeholder="confirm password" autoComplete="new-password" className="bg-transparent !text-text" />
             </div>
 
-            <Button variant="primary" className="p-4 items-center justify-center rounded-md text-sm h-[36px] font-bold flex mt-2" type="submit" disabled={isLoading}>
+            <Button
+              variant="primary"
+              className="p-4 items-center justify-center rounded-md text-sm h-[36px] font-bold flex mt-2"
+              type="submit"
+              disabled={isLoading}
+              aria-disabled={!canSubmit || undefined}
+            >
               <span>{isLoading ? 'Creating account...' : 'Sign up'}</span>
               <ArrowRightCircle size={16} />
             </Button>
