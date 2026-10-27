@@ -154,17 +154,19 @@ for (const entity of ENTITIES) {
         try {
           const sheet = await openDetailSheet(page, entity, id)
           const editButton = slideoutEdit(sheet)
+          const saveButton = sheet.getByRole('button', { name: /^Save( Changes)?$/ })
           const primary = sheet.getByRole('textbox').first()
 
           await expect(async () => {
-            if (!(await primary.isEditable().catch(() => false))) {
+            if (!(await saveButton.isVisible().catch(() => false))) {
               await editButton.click()
             }
+            await expect(saveButton).toBeVisible({ timeout: 10_000 })
             await expect(primary).toBeEditable({ timeout: 10_000 })
           }).toPass({ timeout: 60_000 })
 
           await primary.fill(renamed)
-          await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
+          await saveButton.click()
 
           await expect.poll(async () => Boolean(await entity.findId(ownerApi, renamed)), { timeout: 60_000 }).toBe(true)
         } finally {
