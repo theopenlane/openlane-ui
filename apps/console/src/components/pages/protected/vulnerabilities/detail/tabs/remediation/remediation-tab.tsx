@@ -40,19 +40,16 @@ type TWorkSectionProps = {
   columns: string[]
   totalCount: number
   shownCount: number
-  emptyText: string
   children: React.ReactNode
 }
 
-const WorkSection: React.FC<TWorkSectionProps> = ({ title, action, columns, totalCount, shownCount, emptyText, children }) => (
-  <section className="space-y-2">
-    <div className="flex items-center justify-between gap-2">
-      <h2 className="text-lg font-semibold">{title}</h2>
-      {action}
-    </div>
-    {shownCount === 0 ? (
-      <EmptyTabState title={`No ${title.toLowerCase()} yet`} description={emptyText} />
-    ) : (
+const WorkSection: React.FC<TWorkSectionProps> = ({ title, action, columns, totalCount, shownCount, children }) =>
+  shownCount === 0 ? null : (
+    <section className="space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-lg font-semibold">{title}</h2>
+        {action}
+      </div>
       <div className="overflow-hidden rounded-lg border">
         <Table>
           <TableHeader>
@@ -65,14 +62,13 @@ const WorkSection: React.FC<TWorkSectionProps> = ({ title, action, columns, tota
           <TableBody>{children}</TableBody>
         </Table>
       </div>
-    )}
-    {totalCount > shownCount && (
-      <p className="text-xs text-muted-foreground">
-        Showing the {shownCount} most recent of {totalCount}. The full list is in the Associated Objects panel.
-      </p>
-    )}
-  </section>
-)
+      {totalCount > shownCount && (
+        <p className="text-xs text-muted-foreground">
+          Showing the {shownCount} most recent of {totalCount}. The full list is in the Associated Objects panel.
+        </p>
+      )}
+    </section>
+  )
 
 const RemediationTab: React.FC<TRemediationTabProps> = ({ vulnerability, canEdit, canCreateRemediation }) => {
   const [isCreateRemediationOpen, setIsCreateRemediationOpen] = useState(false)
@@ -106,6 +102,9 @@ const RemediationTab: React.FC<TRemediationTabProps> = ({ vulnerability, canEdit
     )
   if (isError) return <EmptyTabState title="Remediation work unavailable" description="Remediations, tasks and action plans for this vulnerability could not be loaded." />
 
+  if (remediations.length === 0 && tasks.length === 0 && actionPlans.length === 0)
+    return <EmptyTabState title="No remediation work" description="Use the quick actions above to add a task or remediation, or to link an action plan." />
+
   return (
     <div className="space-y-8">
       <WorkSection
@@ -113,7 +112,6 @@ const RemediationTab: React.FC<TRemediationTabProps> = ({ vulnerability, canEdit
         columns={['Title', 'Status', 'Owner', 'Due']}
         totalCount={work?.remediations.totalCount ?? 0}
         shownCount={remediations.length}
-        emptyText="No remediations are tracking this vulnerability."
         action={
           canCreateRemediation && (
             <Button type="button" variant="secondary" icon={<Plus size={16} />} iconPosition="left" onClick={() => setIsCreateRemediationOpen(true)}>
@@ -141,7 +139,6 @@ const RemediationTab: React.FC<TRemediationTabProps> = ({ vulnerability, canEdit
         columns={['Title', 'Status', 'Assignee', 'Due']}
         totalCount={work?.tasks.totalCount ?? 0}
         shownCount={tasks.length}
-        emptyText="No tasks are linked to this vulnerability."
         action={
           <CreateTaskDialog
             trigger={
@@ -181,7 +178,6 @@ const RemediationTab: React.FC<TRemediationTabProps> = ({ vulnerability, canEdit
         columns={['Title', 'Status', 'Owner', 'Due']}
         totalCount={work?.actionPlans.totalCount ?? 0}
         shownCount={actionPlans.length}
-        emptyText="No action plans are linked to this vulnerability."
         action={
           canEdit && (
             <SetVulnerabilityAssociationDialog

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { Network, List } from 'lucide-react'
 import { Button } from '@repo/ui/button'
@@ -15,6 +15,8 @@ import { getVulnerabilityTitle, type TVulnerabilityDetail } from '../../../vulne
 import { useVulnerabilityExposure } from './use-vulnerability-exposure'
 import ExposureMapList from './exposure-map-list'
 import ExposureBulkActions, { type TSelectedReport } from './exposure-bulk-actions'
+import { ExposureSelectionContext } from './exposure-report-node'
+import { groupExposureRows, limitRowsByReports } from './exposure-model'
 import { EnvironmentChip } from './environment-chip'
 
 const ExposureRowsSkeleton = () => (
@@ -26,6 +28,8 @@ const ExposureRowsSkeleton = () => (
 const ExposureMapGraph = dynamic(() => import('./exposure-map-graph'), { ssr: false, loading: ExposureRowsSkeleton })
 
 export type TExposureView = 'map' | 'list'
+
+const MAP_REPORT_STEP = 10
 
 export type TExposureMapState = {
   openOnly: boolean
@@ -43,9 +47,9 @@ type TExposureMapTabProps = {
 const LEGEND = [
   { key: 'open', swatch: <span className="size-3 rounded-sm border border-destructive/60 bg-destructive/10" />, label: 'Open' },
   { key: 'closed', swatch: <span className="size-3 rounded-sm border bg-muted/40" />, label: 'Fixed or dismissed' },
-  { key: 'open-path', swatch: <span className="w-5 border-t border-dashed border-muted-foreground" />, label: 'Open path (moving)' },
+  { key: 'open-path', swatch: <span className="w-5 border-t border-dashed border-muted-foreground" />, label: 'Open path' },
   { key: 'closed-path', swatch: <span className="w-5 border-t border-muted-foreground" />, label: 'Closed path' },
-  { key: 'bold', swatch: <span className="text-xs font-bold">Bold</span>, label: 'This record' },
+  { key: 'source-owner', swatch: <span className="size-3 rounded-sm border border-dashed border-muted-foreground" />, label: 'Source owner with no asset' },
 ]
 
 const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit, state }) => {
@@ -53,23 +57,47 @@ const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set())
   const exposure = useVulnerabilityExposure({ vulnerabilityId: vulnerability.id, cveID: vulnerability.cveID, isOpen: vulnerability.open !== false, openOnly })
 
-  const reportOpenState = useMemo(() => new Map(exposure.rows.map((row) => [row.report.id, row.isOpen])), [exposure.rows])
-  const visibleReportIds = useMemo(() => new Set(reportOpenState.keys()), [reportOpenState])
-  const selected = useMemo<TSelectedReport[]>(
-    () => [...selectedIds].filter((id) => reportOpenState.has(id)).map((id) => ({ id, isOpen: reportOpenState.get(id) === true })),
-    [selectedIds, reportOpenState],
-  )
-
-  const toggle = (reportId: string, isSelected: boolean) =>
-    setSelectedIds((current) => {
-      const next = new Set(current)
-      if (isSelected) next.add(reportId)
-      else next.delete(reportId)
-      return next
+  const [mapReportLimit, setMapReportLimit] = useState(MAP_REPORT_STEP)
+  const reportsById = useMemo(() => {
+    const byId = new Map<string, TSelectedReport>()
+    exposure.rows.forEach((row) => {
+      const previous = byId.get(row.report.id)
+      byId.set(row.report.id, {
+        id: row.report.id,
+        isOpen: row.isOpen,
+        externalOwnerID: row.report.externalOwnerID,
+        hasAssetEnvironment: !!previous?.hasAssetEnvironment || !!row.asset?.environmentName?.trim(),
+      })
     })
+    return byId
+  }, [exposure.rows])
+  const selected = useMemo<TSelectedReport[]>(() => [...selectedIds].flatMap((id) => reportsById.get(id) ?? []), [selectedIds, reportsById])
+
+  const mapRows = useMemo(() => limitRowsByReports(exposure.rows, mapReportLimit), [exposure.rows, mapReportLimit])
+  const mapGroups = useMemo(() => groupExposureRows(mapRows), [mapRows])
+  const mapReportIds = useMemo(() => new Set(mapRows.map((row) => row.report.id)), [mapRows])
+  const hiddenSelectedCount = view === 'map' ? selected.filter((report) => !mapReportIds.has(report.id)).length : 0
+  const canShowMoreOnMap = reportsById.size > mapReportIds.size || exposure.hasNextPage
+
+  const showMoreOnMap = () => {
+    if (reportsById.size < mapReportLimit + MAP_REPORT_STEP && exposure.hasNextPage) void exposure.fetchNextPage()
+    setMapReportLimit((limit) => limit + MAP_REPORT_STEP)
+  }
+
+  const toggle = useCallback(
+    (reportId: string, isSelected: boolean) =>
+      setSelectedIds((current) => {
+        const next = new Set(current)
+        if (isSelected) next.add(reportId)
+        else next.delete(reportId)
+        return next
+      }),
+    [],
+  )
+  const selectionContext = useMemo(() => ({ selectedIds, canSelect: canEdit, onToggle: toggle }), [selectedIds, canEdit, toggle])
 
   const cveLabel = getVulnerabilityTitle(vulnerability)
-  const allSelected = visibleReportIds.size > 0 && selected.length === visibleReportIds.size
+  const allSelected = reportsById.size > 0 && selected.length === reportsById.size
 
   return (
     <div className="space-y-4">
@@ -90,7 +118,15 @@ const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Checkbox id="exposure-open-only" checked={openOnly} onCheckedChange={(checked) => setOpenOnly(checked === true)} />
+            <Checkbox
+              id="exposure-open-only"
+              checked={openOnly}
+              onCheckedChange={(checked) => {
+                setOpenOnly(checked === true)
+                setSelectedIds(new Set())
+                setMapReportLimit(MAP_REPORT_STEP)
+              }}
+            />
             <Label htmlFor="exposure-open-only">Open only</Label>
           </div>
           <Tabs value={view} onValueChange={(value) => setView(value === 'list' ? 'list' : 'map')} variant="solid">
@@ -114,8 +150,6 @@ const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit
 
       {exposure.currentIsHidden && <Callout variant="info">This record is closed, so it is hidden while Open only is selected.</Callout>}
 
-      {view === 'list' && canEdit && selected.length > 0 && <ExposureBulkActions selected={selected} cveLabel={cveLabel} onSettled={(remainingIds) => setSelectedIds(new Set(remainingIds))} />}
-
       {exposure.isPending ? (
         <ExposureRowsSkeleton />
       ) : exposure.isError ? (
@@ -123,7 +157,9 @@ const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit
       ) : exposure.rows.length === 0 ? (
         <EmptyTabState description={openOnly ? 'No open reports for this CVE.' : 'No reports found for this CVE.'} />
       ) : view === 'map' ? (
-        <ExposureMapGraph groups={exposure.groups} slaDefinitions={exposure.slaDefinitions} />
+        <ExposureSelectionContext value={selectionContext}>
+          <ExposureMapGraph groups={mapGroups} slaDefinitions={exposure.slaDefinitions} />
+        </ExposureSelectionContext>
       ) : (
         <ExposureMapList
           groups={exposure.groups}
@@ -131,12 +167,39 @@ const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit
           selectedIds={selectedIds}
           allSelected={allSelected}
           onToggle={toggle}
-          onToggleAll={(isSelected) => setSelectedIds(isSelected ? new Set(visibleReportIds) : new Set())}
+          onToggleAll={(isSelected) => setSelectedIds(isSelected ? new Set(reportsById.keys()) : new Set())}
           canSelect={canEdit}
         />
       )}
 
-      {exposure.hasNextPage && (
+      {canEdit && selected.length > 0 && (
+        <div className="sticky bottom-4 z-10 pr-12">
+          <ExposureBulkActions selected={selected} cveLabel={cveLabel} hiddenCount={hiddenSelectedCount} onSettled={(remainingIds) => setSelectedIds(new Set(remainingIds))} />
+        </div>
+      )}
+
+      {view === 'map' && exposure.rows.length > 0 && (canShowMoreOnMap || mapReportLimit > MAP_REPORT_STEP) && (
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <span className="text-xs text-muted-foreground">
+            Showing {mapReportIds.size} of {exposure.listTotal} reports
+          </span>
+          {canShowMoreOnMap && (
+            <Button type="button" variant="secondary" disabled={exposure.isFetchingNextPage} onClick={showMoreOnMap}>
+              {exposure.isFetchingNextPage ? 'Loading…' : `Show ${MAP_REPORT_STEP} more`}
+            </Button>
+          )}
+          {mapReportLimit > MAP_REPORT_STEP && (
+            <Button type="button" variant="secondary" onClick={() => setMapReportLimit(MAP_REPORT_STEP)}>
+              Show fewer
+            </Button>
+          )}
+          <Button type="button" variant="secondary" onClick={() => setView('list')}>
+            View list
+          </Button>
+        </div>
+      )}
+
+      {view === 'list' && exposure.hasNextPage && (
         <div className="flex items-center justify-center gap-3">
           <span className="text-xs text-muted-foreground">
             Showing {exposure.loadedReports} of {exposure.listTotal} reports

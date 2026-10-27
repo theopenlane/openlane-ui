@@ -15,6 +15,7 @@ import {
   Finding,
   Group,
   IdentityHolder,
+  IntegrationRun,
   InternalPolicy,
   MappedControl,
   Narrative,
@@ -856,6 +857,7 @@ export enum TaskObjectTypes {
   FINDING = 'Finding',
   GROUP = 'Group',
   IDENTITY_HOLDER = 'Identity Holder',
+  INTEGRATION_RUN = 'Integration Run',
   INTERNAL_POLICY = 'Internal Policy',
   PLATFORM = 'Platform',
   PROCEDURE = 'Procedure',
@@ -905,6 +907,11 @@ export type TaskAllQueriesData = {
   }
   identityHolders?: {
     edges?: Array<{ node: IdentityHolder }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  integrationRuns?: {
+    edges?: Array<{ node: IntegrationRun }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -1026,6 +1033,14 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     inputName: 'identityHolderIDs',
     placeholder: 'identity holder',
     queryDocument: GET_ALL_IDENTITY_HOLDERS,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.INTEGRATION_RUN]: {
+    responseObjectKey: 'integrationRuns',
+    inputName: 'integrationRunIDs',
+    placeholder: 'integration run',
+    queryDocument: '',
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },

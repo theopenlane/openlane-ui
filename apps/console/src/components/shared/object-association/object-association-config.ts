@@ -479,6 +479,16 @@ export const invalidateTaskAssociations = (payload: Record<string, unknown>, que
   })
 }
 
+export const invalidateEdgeUpdateTargets = (input: object, queryClient: ReturnType<typeof useQueryClient>) => {
+  const keys = new Set(Object.keys(input))
+  Object.values(OBJECT_QUERY_CONFIG).forEach(({ inputName, responseObjectKey }) => {
+    const suffix = inputName.charAt(0).toUpperCase() + inputName.slice(1)
+    if (keys.has(`add${suffix}`) || keys.has(`remove${suffix}`)) {
+      queryClient.invalidateQueries({ queryKey: [responseObjectKey] })
+    }
+  })
+}
+
 export function getPagination(objectKey: QueryResponseMapKey | undefined, data: QueryResponse | undefined): { pageInfo?: PageInfo; totalCount?: number } {
   if (!objectKey || !data) return {}
 

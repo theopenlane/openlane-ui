@@ -17,16 +17,18 @@ import { pluralizeWithCount } from '@/utils/strings'
 import { useVulnerabilityReviewer } from '../../../hooks/use-vulnerability-review'
 import { VULNERABILITY_ASSIGNEE } from '../../../vulnerability-responsibilities'
 import { buildRemediationTaskDefaults } from '../../../vulnerability-display'
+import { ExposureAssetEnvironmentPopover } from './exposure-asset-environment-popover'
 
-export type TSelectedReport = { id: string; isOpen: boolean }
+export type TSelectedReport = { id: string; isOpen: boolean; externalOwnerID?: string | null; hasAssetEnvironment: boolean }
 
 type TExposureBulkActionsProps = {
   selected: TSelectedReport[]
   cveLabel: string
+  hiddenCount: number
   onSettled: (remainingIds: string[]) => void
 }
 
-const ExposureBulkActions: React.FC<TExposureBulkActionsProps> = ({ selected, cveLabel, onSettled }) => {
+const ExposureBulkActions: React.FC<TExposureBulkActionsProps> = ({ selected, cveLabel, hiddenCount, onSettled }) => {
   const [isDismissOpen, setIsDismissOpen] = useState(false)
   const { data: session } = useSession()
   const userId = session?.user?.userId
@@ -68,12 +70,16 @@ const ExposureBulkActions: React.FC<TExposureBulkActionsProps> = ({ selected, cv
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-card px-4 py-2">
-      <span className="text-sm font-medium">{selected.length} selected</span>
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-card px-4 py-2 shadow-lg">
+      <span className="text-sm font-medium">
+        {selected.length} selected
+        {hiddenCount > 0 && <span className="font-normal text-muted-foreground"> · {hiddenCount} not shown</span>}
+      </span>
       <div className="flex flex-wrap items-center gap-2">
         <Button type="button" variant="secondary" disabled={!userId || isPending} onClick={handleAssignToMe}>
           Assign to me
         </Button>
+        <ExposureAssetEnvironmentPopover reports={selected} disabled={isPending} onApply={(input) => runBulkEdit(selectedIds, input)} />
         <CreateTaskDialog
           trigger={
             <Button type="button" variant="secondary" disabled={isPending}>

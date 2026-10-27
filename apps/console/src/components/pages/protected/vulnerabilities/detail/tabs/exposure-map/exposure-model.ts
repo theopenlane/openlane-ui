@@ -90,4 +90,14 @@ export const groupExposureRows = (rows: TExposureRow[]): TEnvironmentGroup[] => 
     })
 }
 
-export const exposureAssetLabel = (asset: TExposureAsset | null) => (asset ? asset.displayName || asset.name : 'No linked asset')
+export const exposureAssetLabel = (asset: { name: string; displayName?: string | null } | null) => (asset ? asset.displayName || asset.name : 'No linked asset')
+
+export const limitRowsByReports = (rows: TExposureRow[], reportLimit: number): TExposureRow[] => {
+  const shown = new Set<string>()
+  return rows.filter((row) => {
+    if (shown.has(row.report.id)) return true
+    if (shown.size >= reportLimit) return false
+    shown.add(row.report.id)
+    return true
+  })
+}

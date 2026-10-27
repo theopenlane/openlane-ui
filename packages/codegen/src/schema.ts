@@ -10331,6 +10331,8 @@ export interface GetVulnerabilityExposuresQuery {
       node: {
         id: string
         externalID: string
+        externalOwnerID: string | null
+        externalURI: string | null
         source: string | null
         manifestPath: string | null
         open: boolean | null
@@ -10511,6 +10513,36 @@ export type UpdateVulnerabilityCommentMutationVariables = Exact<{
 
 export interface UpdateVulnerabilityCommentMutation {
   updateVulnerabilityComment: { vulnerability: { id: string } }
+}
+
+export type GetVulnerabilitySourceIntegrationsQueryVariables = Exact<{
+  vulnerabilityId: string
+}>
+
+export interface GetVulnerabilitySourceIntegrationsQuery {
+  vulnerability: {
+    id: string
+    integrations: {
+      totalCount: number
+      edges: Array<{ node: { id: string; name: string; definitionID: string | null; definitionSlug: string | null; family: string | null; kind: string | null } | null } | null> | null
+    }
+  }
+}
+
+export type GetVulnerabilityHistoryEdgesQueryVariables = Exact<{
+  vulnerabilityId: string
+  first?: number | null | undefined
+}>
+
+export interface GetVulnerabilityHistoryEdgesQuery {
+  vulnerability: {
+    id: string
+    tasks: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; title: string; createdAt: any; createdBy: string | null } | null } | null> | null }
+    comments: { totalCount: number; edges: Array<{ node: { id: string; text: string; createdAt: any; createdBy: string | null } | null } | null> | null }
+    assets: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayName: string | null; createdAt: any; createdBy: string | null } | null } | null> | null }
+    remediations: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; title: string | null; createdAt: any; createdBy: string | null } | null } | null> | null }
+    reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string; createdAt: any; createdBy: string | null } | null } | null> | null }
+  }
 }
 
 export type WorkflowAssignmentTargetsWithFilterQueryVariables = Exact<{
