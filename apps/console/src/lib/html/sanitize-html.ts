@@ -15,7 +15,7 @@ export const isSafeLinkHref = (href: string, baseOrigin: string): boolean => {
 }
 
 export const HTML_SANITIZE_CONFIG: DOMPurifyConfig = {
-  FORBID_TAGS: ['iframe', 'object', 'embed', 'form', 'meta', 'base'],
+  FORBID_TAGS: ['iframe', 'object', 'embed', 'form', 'meta', 'base', 'style'],
   FORBID_ATTR: ['srcdoc', 'formaction', 'onload', 'onerror'],
 }
 
