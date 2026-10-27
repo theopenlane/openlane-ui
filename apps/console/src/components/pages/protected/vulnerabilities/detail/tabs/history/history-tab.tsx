@@ -64,7 +64,8 @@ const HistoryTab: React.FC<{ vulnerability: TVulnerabilityDetail }> = ({ vulnera
         </div>
       )}
       <p className="text-xs text-muted-foreground">
-        Linked tasks, assets, remediations and reviews are dated by when each record was created. When it was linked to this vulnerability is not recorded.
+        Linked tasks, assets, remediations and reviews are dated by when each record was created. Records that existed before this vulnerability are listed as associated with it right after it was
+        created, because when a record was linked is not recorded.
       </p>
       {hidden.length > 0 && (
         <p className="text-xs text-muted-foreground">
