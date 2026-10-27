@@ -46,14 +46,22 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove, s
       return
     }
     const html = await plateEditorHelper.convertToHtml(draftValue)
-    await onEdit(item.id, html)
+    try {
+      await onEdit(item.id, html)
+    } catch {
+      return
+    }
     setIsEditingItemId(null)
     setDraftValue(null)
   }
 
   const confirmDelete = async () => {
     if (!commentToDelete || !onRemove) return
-    await onRemove(commentToDelete.id)
+    try {
+      await onRemove(commentToDelete.id)
+    } catch {
+      return
+    }
     setDeleteDialogOpen(false)
     setCommentToDelete(null)
   }

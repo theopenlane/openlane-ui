@@ -119,7 +119,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
     handleUpdate: handleUpdateField,
   }
 
-  const hasPackageDetails = Boolean(data?.packageName || data?.vulnerableVersionRange || data?.firstPatchedVersion || data?.packageEcosystem)
+  const hasPackageDetails = Boolean(data?.packageName || data?.vulnerableVersionRange || data?.firstPatchedVersion || data?.packageEcosystem || data?.manifestPath || data?.dependencyScope)
   const isDismissed = !isCreate && Boolean(data?.dismissedAt || data?.dismissedReason)
   const isExternalRefLocked = (data?.integrations?.totalCount ?? 0) > 0
   const externalRefLockedTooltip = 'This field is managed by the source integration and cannot be edited.'
@@ -171,9 +171,16 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
               <TextField name="packageName" label="Package Name" {...sharedFieldProps} />
               <TextField name="packageEcosystem" label="Package Ecosystem" {...sharedFieldProps} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
               <TextField name="vulnerableVersionRange" label="Vulnerable Version Range" {...sharedFieldProps} />
               <TextField name="firstPatchedVersion" label="First Patched Version" {...sharedFieldProps} />
+            </div>
+            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+              <TextField name="manifestPath" label="Manifest" {...sharedFieldProps} />
+              <TextField name="dependencyScope" label="Dependency Scope" {...sharedFieldProps} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <CheckboxField name="fixAvailable" label="Fix Available" {...sharedFieldProps} />
             </div>
           </CardContent>
         </Card>

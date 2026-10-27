@@ -14,17 +14,7 @@ const fieldOverrides: MergeFieldOverrides<Personnel> = {
   externalUserID: { label: 'External user ID', type: 'text' },
 }
 
-const excludeFields = [
-  'internalOwner',
-  'internalOwnerGroup',
-  'internalOwnerUser',
-  'userID',
-  'employerEntityID',
-  'hasPendingWorkflow',
-  'hasWorkflowHistory',
-  'workflowEligibleMarker',
-  'avatarRemoteURL',
-] as const satisfies ReadonlyArray<Extract<keyof Personnel, string>>
+const excludeFields = ['internalOwner', 'internalOwnerGroup', 'internalOwnerUser', 'userID', 'employerEntityID', 'avatarRemoteURL'] as const satisfies ReadonlyArray<Extract<keyof Personnel, string>>
 
 const schemaExcludeFields = ['internalOwnerGroupID', 'internalOwnerUserID'] as const
 

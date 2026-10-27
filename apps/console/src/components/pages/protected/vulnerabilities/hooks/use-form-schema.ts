@@ -41,6 +41,9 @@ const formSchema = z.object({
   vulnerableVersionRange: z.string().optional(),
   firstPatchedVersion: z.string().optional(),
   packageEcosystem: z.string().optional(),
+  manifestPath: z.string().optional(),
+  dependencyScope: z.string().optional(),
+  fixAvailable: z.boolean().optional(),
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
   assignedTo: responsibilityFieldSchema,
@@ -57,6 +60,8 @@ const formSchema = z.object({
   reviewIDs: z.array(z.string()).optional(),
   assetIDs: z.array(z.string()).optional(),
   taskIDs: z.array(z.string()).optional(),
+  programIDs: z.array(z.string()).optional(),
+  actionPlanIDs: z.array(z.string()).optional(),
 })
 
 export const bulkEditFieldSchema = z.object({

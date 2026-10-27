@@ -14,7 +14,7 @@ type EntityConfig = {
   remove: (sess: ApiSession, id: string) => Promise<void>
   findId: (sess: ApiSession, name: string) => Promise<string | undefined>
   fillCreateForm: (sheet: Locator, name: string) => Promise<void>
-  mutateVia: 'sheet' | 'bulk'
+  mutateVia: 'sheet' | 'bulk' | 'page'
   statusOf?: (sess: ApiSession, id: string) => Promise<string | undefined>
   fillCreateFormMissingRequired?: (sheet: Locator, name: string) => Promise<void>
 }
@@ -81,7 +81,7 @@ const ENTITIES: EntityConfig[] = [
       await sheet.getByRole('textbox').first().fill(name)
       await sheet.getByLabel(/^External ID$/).fill(uniqueRef('E2E-EXT'))
     },
-    mutateVia: 'sheet',
+    mutateVia: 'page',
     fillCreateFormMissingRequired: async (sheet, name) => {
       await sheet.getByRole('textbox').first().fill(name)
     },
@@ -104,6 +104,11 @@ const openDetailSheet = async (page: Page, entity: EntityConfig, id: string): Pr
   const sheet = page.getByRole('dialog')
   await expect(sheet).toBeVisible({ timeout: 60_000 })
   return sheet
+}
+
+const openDetailPage = async (page: Page, entity: EntityConfig, id: string): Promise<void> => {
+  await page.goto(`/exposure/${entity.slug}/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+  await expect(page.getByRole('button', { name: `Edit ${entity.objectName.toLowerCase()}` })).toBeVisible({ timeout: 60_000 })
 }
 
 const searchRow = async (page: Page, name: string): Promise<Locator> => {
@@ -176,6 +181,57 @@ for (const entity of ENTITIES) {
         try {
           const sheet = await openDetailSheet(page, entity, id)
           await slideoutMenuAction(page, sheet, /^Delete$/)
+
+          const confirmation = page.getByRole('alertdialog')
+          await expect(confirmation).toBeVisible({ timeout: 20_000 })
+          await confirmation
+            .getByRole('button')
+            .filter({ hasText: /^Delete$/ })
+            .first()
+            .dispatchEvent('click')
+
+          await expect.poll(async () => entity.findId(ownerApi, name), { timeout: 60_000 }).toBeFalsy()
+          deleted = true
+        } finally {
+          if (!deleted) await entity.remove(ownerApi, id)
+        }
+      })
+    } else if (entity.mutateVia === 'page') {
+      test(`editing a ${entity.slug} record from its detail page persists`, async ({ page }) => {
+        test.slow()
+        const name = entity.makeName()
+        const renamed = `${name} revised`
+        const id = await entity.seed(ownerApi, name)
+
+        try {
+          await openDetailPage(page, entity, id)
+          await page.getByRole('button', { name: `Edit ${entity.objectName.toLowerCase()}` }).click()
+
+          const displayName = page.getByRole('textbox', { name: 'Display Name' })
+          await expect(displayName).toBeEditable({ timeout: 30_000 })
+          await displayName.fill(renamed)
+          await page.getByRole('button', { name: /^Save$/ }).click()
+
+          await expect.poll(async () => Boolean(await entity.findId(ownerApi, renamed)), { timeout: 60_000 }).toBe(true)
+        } finally {
+          await entity.remove(ownerApi, id)
+        }
+      })
+
+      test(`deleting a ${entity.slug} record from its detail page removes it`, async ({ page }) => {
+        test.slow()
+        const name = entity.makeName()
+        const id = await entity.seed(ownerApi, name)
+        let deleted = false
+
+        try {
+          await openDetailPage(page, entity, id)
+          await page.locator(`#${entity.objectName.toLowerCase()}-actions-menu`).click()
+          await page
+            .getByRole('menuitem')
+            .filter({ hasText: /^Delete$/ })
+            .first()
+            .click()
 
           const confirmation = page.getByRole('alertdialog')
           await expect(confirmation).toBeVisible({ timeout: 20_000 })

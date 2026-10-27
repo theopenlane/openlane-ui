@@ -404,6 +404,7 @@ export const IMPORT_FIELDS: Readonly<Record<string, Readonly<Record<string, Impo
     internalNotes: { kind: 'string', adminOnly: true, description: 'internal notes about the object creation, this field is only available to system admins' },
     mappableDomainID: { kind: 'id' },
     ownerID: { kind: 'id' },
+    purpose: { kind: 'enum', enumValues: ['ASSESSMENT', 'TRUSTCENTER'], description: 'what this domain is used for' },
     systemInternalID: { kind: 'string', adminOnly: true, description: 'an internal identifier for the mapping, this field is only available to system admins' },
     tags: { kind: 'string', list: true, description: 'tags associated with the object' },
     trustCenterID: { kind: 'string', description: 'the ID of the trust center the domain belongs to, if applicable' },

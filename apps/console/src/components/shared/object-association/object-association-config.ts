@@ -1053,7 +1053,7 @@ export const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'controls', 'subc
 const FINDING_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'risks', 'programs', 'tasks', 'assets', 'scans', 'remediations', 'reviews'] as const
 const REVIEW_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'remediations', 'entities', 'tasks', 'assets', 'programs', 'risks'] as const
 const REMEDIATION_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'findings', 'vulnerabilities'] as const
-const VULNERABILITY_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'findings', 'remediations', 'reviews', 'assets', 'tasks'] as const
+export const VULNERABILITY_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'findings', 'remediations', 'reviews', 'assets', 'tasks', 'programs', 'actionPlans'] as const
 
 export const ASSOCIATION_REMOVAL_CONFIG = {
   control: createAssociationRemovalConfig<UpdateControlInput>()(CONTROL_ASSOCIATION_SECTIONS),

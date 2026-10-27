@@ -20,6 +20,10 @@ import {
   type DeleteBulkFindingMutation,
   type DeleteBulkFindingMutationVariables,
   type GetFindingAssociationsQuery,
+  type GetFindingCommentsQuery,
+  type GetFindingCommentsQueryVariables,
+  type UpdateFindingCommentMutation,
+  type UpdateFindingCommentMutationVariables,
   FindingSecurityLevel,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
@@ -35,7 +39,10 @@ import {
   BULK_EDIT_FINDING,
   BULK_DELETE_FINDING,
   GET_FINDING_ASSOCIATIONS,
+  GET_FINDING_COMMENTS,
+  UPDATE_FINDING_COMMENT,
 } from '@repo/codegen/query/finding'
+import { useEntityComments } from '@/lib/graphql-hooks/entity-comments'
 
 type GetAllFindingsArgs = {
   where?: FindingsWithFilterQueryVariables['where']
@@ -206,3 +213,13 @@ export const useFindingSeverityCounts = (enabled: boolean = true) => {
     isLoading: critical.isLoading || high.isLoading || medium.isLoading || low.isLoading,
   }
 }
+
+export const useFindingComments = (findingId: string | null | undefined) =>
+  useEntityComments({
+    queryKeyPrefix: 'findingComments',
+    entityId: findingId,
+    fetchComments: async (client, id) => (await client.request<GetFindingCommentsQuery, GetFindingCommentsQueryVariables>(GET_FINDING_COMMENTS, { findingId: id })).finding.comments,
+    addComment: (client, id, text) => client.request<UpdateFindingMutation, UpdateFindingMutationVariables>(UPDATE_FINDING, { updateFindingId: id, input: { addComment: { text } } }),
+    editComment: (client, commentId, text) =>
+      client.request<UpdateFindingCommentMutation, UpdateFindingCommentMutationVariables>(UPDATE_FINDING_COMMENT, { updateFindingCommentId: commentId, input: { text } }),
+  })
