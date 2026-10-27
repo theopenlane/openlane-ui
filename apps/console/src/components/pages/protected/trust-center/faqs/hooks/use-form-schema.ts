@@ -7,7 +7,7 @@ const formSchema = z.object({
   category: z.string().optional(),
   question: z.string().min(1, 'Question is required'),
   answer: z.string().min(1, 'Answer is required'),
-  referenceLink: z.url('Must be a valid URL').optional().or(z.literal('')),
+  referenceLink: z.httpUrl('Must be a valid URL').optional().or(z.literal('')),
 })
 
 export { formSchema as faqFormSchema }

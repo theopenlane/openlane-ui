@@ -54,7 +54,7 @@ export const step2Schema = z
 export const step3Schema = z.object({
   auditPartnerName: z.string().optional(),
   auditFirm: z.string().optional(),
-  auditPartnerEmail: z.string().email('Invalid email address').optional().or(z.literal('')),
+  auditPartnerEmail: z.email('Invalid email address').optional().or(z.literal('')),
 })
 
 export const memberUserSchema = z
@@ -63,7 +63,7 @@ export const memberUserSchema = z
     displayName: z.string(),
     authProvider: z.string().optional(),
     avatarRemoteURL: z.string().nullable().optional(),
-    email: z.string().email().optional(),
+    email: z.email().optional(),
     role: z.string().optional(),
     createdAt: z.string().optional(),
     avatarFile: z.object({ base64: z.string().nullable().optional() }).nullable().optional(),
@@ -135,7 +135,7 @@ export const step5Schema = z.object({
   procedureIDs: z.array(optionSchema).optional(),
 })
 
-export const fullSchema = categoriesStepSchema.merge(step1Schema).merge(step3Schema).merge(step4Schema).merge(step5Schema).and(step2Schema)
+export const fullSchema = categoriesStepSchema.extend(step1Schema.shape).extend(step3Schema.shape).extend(step4Schema.shape).extend(step5Schema.shape).and(step2Schema)
 
 export type WizardValues = z.infer<typeof fullSchema>
 

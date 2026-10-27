@@ -17,6 +17,6 @@ export const step3Schema = z.object({
   riskIDs: z.array(z.string()).optional(),
 })
 
-export const wizardSchema = selectFrameworkSchema.merge(programInviteSchema).merge(step3Schema)
+export const wizardSchema = selectFrameworkSchema.extend(programInviteSchema.shape).extend(step3Schema.shape)
 
 export type WizardValues = z.infer<typeof wizardSchema>

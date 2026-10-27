@@ -21,7 +21,7 @@ const commonFields = {
     .nullable(),
   evidenceFiles: z.array(z.custom<TUploadedFile>()).optional(),
   url: z
-    .union([z.string().url(), z.literal('')])
+    .union([z.httpUrl(), z.literal('')])
     .optional()
     .transform((value) => (value === '' ? undefined : value)),
   collectionProcedure: z.custom<Value | string>().nullable().optional(),

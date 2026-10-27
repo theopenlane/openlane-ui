@@ -33,7 +33,7 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 
 const LOGO_URL_ERROR = 'Please enter a valid URL'
 
-const httpUrlSchema = z.url({ protocol: /^https?$/ })
+const httpUrlSchema = z.httpUrl()
 
 const schema = z
   .object({

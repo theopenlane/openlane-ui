@@ -34,7 +34,7 @@ const formSchema = z.object({
   securityTierName: z.string().optional(),
   sourceIdentifier: z.string().optional(),
   sourceType: z.enum(AssetSourceType).optional(),
-  website: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
+  website: z.httpUrl('Please enter a valid URL').optional().or(z.literal('')),
   controlIDs: z.array(z.string()).optional(),
   subcontrolIDs: z.array(z.string()).optional(),
   internalPolicyIDs: z.array(z.string()).optional(),

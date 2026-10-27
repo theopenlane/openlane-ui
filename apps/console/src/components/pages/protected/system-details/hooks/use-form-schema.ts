@@ -27,7 +27,7 @@ export const bulkEditFieldSchema = z
   .object({
     sensitivityLevel: z.enum(SystemDetailSystemSensitivityLevel).optional(),
   })
-  .merge(bulkEditAssociationSchema)
+  .extend(bulkEditAssociationSchema.shape)
 
 export type SystemDetailFormData = z.infer<typeof formSchema>
 

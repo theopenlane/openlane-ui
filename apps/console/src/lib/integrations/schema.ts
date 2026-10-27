@@ -31,8 +31,8 @@ export type NormalizedIntegrationFormPayloads = {
   userInputPayload: { missingRequired: string[]; payload: Record<string, unknown> }
 }
 
-const EMAIL_SCHEMA = z.string().email()
-const URL_SCHEMA = z.string().url()
+const EMAIL_SCHEMA = z.email()
+const URL_SCHEMA = z.httpUrl()
 
 export const CREDENTIALS_PREFIX = 'credentials__'
 export const USER_INPUT_PREFIX = 'userInput__'

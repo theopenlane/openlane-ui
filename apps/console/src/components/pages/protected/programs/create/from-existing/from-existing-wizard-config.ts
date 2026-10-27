@@ -23,7 +23,7 @@ export const auditorStepSchema = z.object({
   useSameAuditor: z.boolean().optional(),
   auditPartnerName: z.string().optional(),
   auditFirm: z.string().optional(),
-  auditPartnerEmail: z.string().email('Invalid email address').optional().or(z.literal('')),
+  auditPartnerEmail: z.email('Invalid email address').optional().or(z.literal('')),
 })
 
 export const teamStepSchema = z.object({
@@ -40,7 +40,7 @@ export const controlsStepSchema = z.object({
   controlsInitialized: z.boolean().optional(),
 })
 
-const baseSchema = sourceProgramStepSchema.merge(detailsStepSchema).merge(auditorStepSchema).merge(teamStepSchema).merge(controlsStepSchema)
+const baseSchema = sourceProgramStepSchema.extend(detailsStepSchema.shape).extend(auditorStepSchema.shape).extend(teamStepSchema.shape).extend(controlsStepSchema.shape)
 
 export const wizardSchema = baseSchema.superRefine((data, ctx) => {
   if (data.startDate && data.endDate && data.endDate <= data.startDate) {
