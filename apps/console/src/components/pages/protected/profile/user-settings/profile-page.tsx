@@ -252,9 +252,7 @@ const ProfilePage = () => {
         />
       )}
 
-      <div id="passkeys" className="scroll-mt-20">
-        <PasskeySection userData={userData} />
-      </div>
+      <PasskeySection userData={userData} />
       <DeleteUserSection userId={userId} />
     </>
   )
