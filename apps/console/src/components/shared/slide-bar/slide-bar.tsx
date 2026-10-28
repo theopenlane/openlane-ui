@@ -8,6 +8,8 @@ type TSlideBarLayoutProps = {
   sidebarContent: ReactNode
   children: ReactNode
   slideOpen?: boolean
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
   minWidth?: number
   collapsedContentClassName?: string
 }
@@ -52,8 +54,21 @@ export const InlineSlideBarToggle = () => {
   return <SlideBarToggleButton open={false} onClick={slideBar.toggle} />
 }
 
-const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarContent, children, slideOpen, minWidth = 400, collapsedContentClassName }) => {
-  const [open, setOpen] = useState<boolean>(true)
+const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarContent, children, slideOpen, open: openProp, onOpenChange, minWidth = 400, collapsedContentClassName }) => {
+  const [internalOpen, setInternalOpen] = useState<boolean>(true)
+  const isControlled = openProp !== undefined
+  const open = isControlled ? openProp : internalOpen
+  const onOpenChangeRef = useRef(onOpenChange)
+  useEffect(() => {
+    onOpenChangeRef.current = onOpenChange
+  }, [onOpenChange])
+  const setOpen = useCallback(
+    (next: boolean) => {
+      if (!isControlled) setInternalOpen(next)
+      onOpenChangeRef.current?.(next)
+    },
+    [isControlled],
+  )
   const [inlineToggleCount, setInlineToggleCount] = useState(0)
   const [width, setWidth] = useState<number>(minWidth || DEFAULT_WIDTH)
   const resizingRef = useRef(false)
@@ -65,9 +80,9 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
     if (slideOpen) {
       setOpen(true)
     }
-  }, [slideOpen])
+  }, [slideOpen, setOpen])
 
-  const toggle = useCallback(() => setOpen((current) => !current), [])
+  const toggle = useCallback(() => setOpen(!open), [open, setOpen])
 
   const registerInlineToggle = useCallback(() => {
     setInlineToggleCount((count) => count + 1)

@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { type VulnerabilityWhereInput, type VulnerabilityOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { type VulnerabilityWhereInput, type VulnerabilityOrderField } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/vulnerabilities/table/columns.tsx'
 import { type VulnerabilitiesNodeNonNull, useVulnerabilitiesWithFilter, useUpdateVulnerability } from '@/lib/graphql-hooks/vulnerability'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
@@ -21,7 +21,7 @@ import { useSheetNavigation } from '@/providers/sheet-navigation-provider'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
 import AcceptRiskDialog from '@/components/pages/protected/exposure/triage/accept-risk-dialog'
-import { buildDismissVulnerabilityInput } from '@/components/pages/protected/exposure/vulnerability-dismiss-reasons'
+import { buildRemediationTaskDefaults, getVulnerabilityTitle } from '../vulnerability-display'
 import { useVulnerabilityReviewer } from '../hooks/use-vulnerability-review'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -55,7 +55,7 @@ const TableComponent = ({
   const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
   const canEditVulnerability = canEdit(permission?.roles, session)
   const { mutateAsync: updateVulnerability, isPending: isDismissing } = useUpdateVulnerability()
-  const { reviewedByInput, markReviewed } = useVulnerabilityReviewer()
+  const { dismissInput, markReviewed } = useVulnerabilityReviewer()
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -134,7 +134,7 @@ const TableComponent = ({
   const handleConfirmDismiss = async (reason: string, comment: string) => {
     if (!dismissRow) return
     try {
-      await updateVulnerability({ updateVulnerabilityId: dismissRow.id, input: { ...buildDismissVulnerabilityInput(reason, comment), ...reviewedByInput } })
+      await updateVulnerability({ updateVulnerabilityId: dismissRow.id, input: dismissInput(reason, comment) })
       successNotification({ title: 'Vulnerability Updated', description: 'Risk accepted' })
       setDismissRow(null)
     } catch (error) {
@@ -159,16 +159,10 @@ const TableComponent = ({
     [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, canCreateRemediation, canEditVulnerability, handleOpenRemediation, slaDaysByLevel],
   )
 
-  const createTaskInitialValues = useMemo(() => {
-    if (!createTaskRow) return undefined
-    const displayName = createTaskRow.displayName || createTaskRow.displayID || createTaskRow.externalID || 'Vulnerability'
-    return {
-      title: `Vulnerability: ${displayName} Remediation`,
-      taskKindName: 'Vulnerability Remediation',
-      assigneeID: session?.user?.id,
-      status: TaskTaskStatus.OPEN,
-    }
-  }, [createTaskRow, session?.user?.id])
+  const createTaskInitialValues = useMemo(
+    () => (createTaskRow ? buildRemediationTaskDefaults(getVulnerabilityTitle(createTaskRow), session?.user?.userId) : undefined),
+    [createTaskRow, session?.user?.userId],
+  )
 
   const createTaskInitialData = useMemo(() => {
     if (!createTaskRow) return undefined
@@ -184,9 +178,6 @@ const TableComponent = ({
         data={items}
         loading={fetching || fetchingUsers}
         sorting={orderBy}
-        onRowClick={(item) => {
-          replace({ id: item.id })
-        }}
         rowHref={rowHref}
         pagination={pagination}
         onPaginationChange={onPaginationChange}
@@ -216,7 +207,7 @@ const TableComponent = ({
         isOpen={!!trackRemediationRow}
         onClose={() => setTrackRemediationRow(null)}
         initialData={trackRemediationRow ? { vulnerabilityIDs: [trackRemediationRow.id] } : undefined}
-        defaultTitle={trackRemediationRow ? `${trackRemediationRow.displayName ?? trackRemediationRow.displayID ?? trackRemediationRow.externalID ?? ''} Remediation`.trim() : undefined}
+        defaultTitle={trackRemediationRow ? `${getVulnerabilityTitle(trackRemediationRow)} Remediation` : undefined}
         onSuccess={() => {
           const remediated = trackRemediationRow
           setTrackRemediationRow(null)
@@ -225,7 +216,7 @@ const TableComponent = ({
       />
       <AcceptRiskDialog
         isOpen={!!dismissRow}
-        vulnerabilityName={dismissRow ? (dismissRow.displayName ?? dismissRow.displayID ?? dismissRow.externalID ?? '') : ''}
+        vulnerabilityName={dismissRow ? getVulnerabilityTitle(dismissRow) : ''}
         isSubmitting={isDismissing}
         onClose={() => setDismissRow(null)}
         onConfirm={handleConfirmDismiss}

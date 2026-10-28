@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { useFindingSheetConfig } from './hooks/use-finding-sheet-config'
-import { useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
+import { useFindingComments, useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
+import CommentsSection from '@/components/shared/comments/comments-section'
 import { Button } from '@repo/ui/button'
 import { ShieldCheck, ExternalLink } from 'lucide-react'
 import { TrackRemediationForm, TrackRemediationHeader } from '../remediations/track-remediation-inline'
@@ -73,6 +74,7 @@ const ViewFindingSheet: React.FC<Props> = ({ entityId, onClose }) => {
   const riskScoresAction = entityId && !isTrackingRemediation ? <FindingRemediationButton entityId={entityId} onTrack={handleStartTracking} /> : undefined
 
   const sheetConfig = useFindingSheetConfig(entityId, false, riskScoresAction)
+  const comments = useFindingComments(entityId)
 
   function handleStartTracking() {
     setTrackingDefaultTitle(`${sheetConfig.data?.displayName ?? sheetConfig.data?.displayID ?? ''} Remediation`.trim() || undefined)
@@ -103,6 +105,7 @@ const ViewFindingSheet: React.FC<Props> = ({ entityId, onClose }) => {
       onClose={handleClose}
       basePath="/exposure/findings"
       {...sheetConfig}
+      extraContent={entityId ? <CommentsSection key={entityId} {...comments} /> : undefined}
       overrideContent={
         isTrackingRemediation && entityId ? (
           <TrackRemediationForm

@@ -20,7 +20,7 @@ export const dropdownMenuStyles = tv({
       'cursor-pointer relative flex select-none items-center gap-3 rounded-xs px-2 py-1.5 text-sm outline-hidden transition-colors duration-500 ' +
       'focus:bg-popover-accent focus:rounded-sm found:rounded-xs data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
     menuCheckboxItem:
-      'relative flex cursor-default select-none items-center rounded-xs py-1.5 pl-8 pr-2 text-sm outline-hidden transition-colors ' +
+      'relative flex cursor-pointer select-none items-center rounded-xs py-1.5 pl-8 pr-2 text-sm outline-hidden transition-colors ' +
       'focus:bg-popover-accent focus:rounded-sm data-[disabled]:pointer-events-none data-[disabled]:opacity-50 duration-500',
     menuCheckboxItemSpan: 'absolute left-2 flex h-5 w-5 items-left justify-left border rounded-md ring-offset-white',
     menuRadioItem:

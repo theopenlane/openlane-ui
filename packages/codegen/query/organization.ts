@@ -189,7 +189,6 @@ export const GET_ORGANIZATION_SETTING = gql`
         allowSupportAccess
         identityProvider
         identityProviderClientID
-        identityProviderClientSecret
         oidcDiscoveryEndpoint
         identityProviderLoginEnforced
         identityProviderAuthTested

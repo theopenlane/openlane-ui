@@ -72,6 +72,7 @@ import { type useQueryClient } from '@tanstack/react-query'
 import { type RequestDocument } from 'graphql-request'
 
 import {
+  type CreateTaskInput,
   type AssetsWithFilterQuery,
   type CampaignsWithFilterQuery,
   type GetAllControlImplementationsQuery,
@@ -468,13 +469,24 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
   },
 }
 
-export const invalidateTaskAssociations = (payload: Record<string, unknown>, queryClient: ReturnType<typeof useQueryClient>) => {
+export const invalidateTaskAssociations = (payload: CreateTaskInput, queryClient: ReturnType<typeof useQueryClient>) => {
   queryClient.invalidateQueries({ queryKey: ['tasks'] })
+  const fields = new Map(Object.entries(payload))
 
   Object.values(OBJECT_QUERY_CONFIG).forEach((config) => {
-    const fieldValue = payload[config.inputName]
+    const fieldValue = fields.get(config.inputName)
     if (Array.isArray(fieldValue) && fieldValue.length > 0) {
       queryClient.invalidateQueries({ queryKey: [config.responseObjectKey] })
+    }
+  })
+}
+
+export const invalidateEdgeUpdateTargets = (input: object, queryClient: ReturnType<typeof useQueryClient>) => {
+  const keys = new Set(Object.keys(input))
+  Object.values(OBJECT_QUERY_CONFIG).forEach(({ inputName, responseObjectKey }) => {
+    const suffix = inputName.charAt(0).toUpperCase() + inputName.slice(1)
+    if (keys.has(`add${suffix}`) || keys.has(`remove${suffix}`)) {
+      queryClient.invalidateQueries({ queryKey: [responseObjectKey] })
     }
   })
 }
@@ -1053,7 +1065,7 @@ export const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'controls', 'subc
 const FINDING_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'risks', 'programs', 'tasks', 'assets', 'scans', 'remediations', 'reviews'] as const
 const REVIEW_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'remediations', 'entities', 'tasks', 'assets', 'programs', 'risks'] as const
 const REMEDIATION_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'findings', 'vulnerabilities'] as const
-const VULNERABILITY_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'findings', 'remediations', 'reviews', 'assets', 'tasks'] as const
+export const VULNERABILITY_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'findings', 'remediations', 'reviews', 'assets', 'tasks', 'programs', 'actionPlans'] as const
 
 export const ASSOCIATION_REMOVAL_CONFIG = {
   control: createAssociationRemovalConfig<UpdateControlInput>()(CONTROL_ASSOCIATION_SECTIONS),

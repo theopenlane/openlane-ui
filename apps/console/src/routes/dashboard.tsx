@@ -414,6 +414,14 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       href: '/reports/custom',
       icon: ChartLineIcon,
       hidden: session?.user?.isOnboarding || billingExpired,
+      children: [
+        {
+          title: 'Custom Report',
+          anchor: 'builder',
+          href: '/reports/custom',
+          icon: ChartLineIcon,
+        },
+      ],
     },
   ]
 }

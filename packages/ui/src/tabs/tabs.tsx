@@ -44,9 +44,16 @@ const TabsList = ({ className, ref, ...props }: TabsListProps & { ref?: React.Re
   return <TabsPrimitive.List ref={ref} className={cn(tabsList({ variant }), className)} {...props} />
 }
 
-const TabsTrigger = ({ className, ref, ...props }: TabsTriggerProps & { ref?: React.Ref<React.ElementRef<typeof TabsPrimitive.Trigger>> }) => {
+const TabsTrigger = ({ className, ref, onMouseDown, ...props }: TabsTriggerProps & { ref?: React.Ref<React.ElementRef<typeof TabsPrimitive.Trigger>> }) => {
   const { variant } = useTabsContext()
-  return <TabsPrimitive.Trigger ref={ref} className={cn(tabsTrigger({ variant }), className)} {...props} />
+
+  const handleMouseDown = (event: React.MouseEvent<HTMLButtonElement>) => {
+    onMouseDown?.(event)
+    if (event.defaultPrevented || props.disabled || event.button !== 0 || event.ctrlKey) return
+    event.currentTarget.focus({ focusVisible: false })
+  }
+
+  return <TabsPrimitive.Trigger ref={ref} className={cn(tabsTrigger({ variant }), className)} onMouseDown={handleMouseDown} {...props} />
 }
 
 const TabsContent = ({ className, ref, ...props }: TabsContentProps & { ref?: React.Ref<React.ElementRef<typeof TabsPrimitive.Content>> }) => {

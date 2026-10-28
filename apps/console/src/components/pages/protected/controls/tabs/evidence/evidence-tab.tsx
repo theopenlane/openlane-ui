@@ -9,6 +9,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { EvidenceOrderField, OrderDirection, type EvidenceOrder, type EvidenceWhereInput } from '@repo/codegen/src/schema'
 import type { EntityRef } from '@/lib/graphql-hooks/use-mapped-entity-refs'
 import { SuggestionCard } from '@/components/shared/docs-help/suggestion-card'
+import { SanitizedHtml } from '@/components/shared/sanitized-html/sanitized-html'
 
 type EvidenceRequestItem = {
   evidenceRequestID?: string | null
@@ -76,14 +77,14 @@ const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidenceReq
           {(evidenceRequests as EvidenceRequestItem[]).map((item, i) => (
             <React.Fragment key={i}>
               <p className="font-semibold mb-0!">{item.documentationType ?? item.documentationArtifact ?? item.evidenceRequestID ?? 'Untitled'}</p>
-              <div className="rich-text mt-0! mb-4!" dangerouslySetInnerHTML={{ __html: item.description ?? item.artifactDescription ?? '' }} />
+              <SanitizedHtml className="rich-text mt-0! mb-4!" value={item.description ?? item.artifactDescription ?? ''} />
             </React.Fragment>
           ))}
         </ul>
       )
     }
 
-    return <div className="rich-text text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: String(evidenceRequests) }} />
+    return <SanitizedHtml className="rich-text text-sm text-muted-foreground" value={String(evidenceRequests)} />
   }
 
   const requestsCard =

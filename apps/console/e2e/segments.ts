@@ -66,6 +66,7 @@ export const SEGMENTS: Record<string, string[]> = {
     'reviews-flows.spec.ts',
     'risk-detail-flows.spec.ts',
     'risk-properties-flows.spec.ts',
+    'vulnerability-detail-flows.spec.ts',
   ],
 
   registry: [

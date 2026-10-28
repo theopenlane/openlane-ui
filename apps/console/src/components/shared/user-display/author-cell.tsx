@@ -38,12 +38,20 @@ export const AuthorDisplay: React.FC<AuthorDisplayProps> = ({ author, showAvatar
         )
       case 'unknown':
       case 'deleted':
+      case 'unresolved':
         return null
     }
   })()
 
   return (
-    <span className={cn('flex items-center gap-1 text-sm', (author.kind === 'deleted' || author.kind === 'unknown') && 'text-muted-foreground', author.kind === 'deleted' && 'italic', className)}>
+    <span
+      className={cn(
+        'flex items-center gap-1 text-sm',
+        (author.kind === 'deleted' || author.kind === 'unknown' || author.kind === 'unresolved') && 'text-muted-foreground',
+        author.kind === 'deleted' && 'italic',
+        className,
+      )}
+    >
       {content}
       {author.displayName}
     </span>
@@ -58,7 +66,7 @@ type AuthorCellProps = AuthorMaps & {
   emptyLabel?: string
 }
 
-export const AuthorCell: React.FC<AuthorCellProps> = ({ id, userMap, tokenMap, showAvatar, className, avatarClassName, emptyLabel }) => {
+export const AuthorCell: React.FC<AuthorCellProps> = ({ id, showAvatar, className, avatarClassName, emptyLabel, ...authorMaps }) => {
   if (!id && emptyLabel !== undefined) return <span className={cn('text-muted-foreground', className)}>{emptyLabel}</span>
-  return <AuthorDisplay author={resolveAuthor(id, { userMap, tokenMap })} showAvatar={showAvatar} className={className} avatarClassName={avatarClassName} />
+  return <AuthorDisplay author={resolveAuthor(id, authorMaps)} showAvatar={showAvatar} className={className} avatarClassName={avatarClassName} />
 }
