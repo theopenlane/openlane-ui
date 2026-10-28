@@ -8,14 +8,14 @@ export const usePersistFormField = <TFieldValues extends FieldValues>() => {
   const { control, register, resetField, getValues, setValue, getFieldState } = useFormContext<TFieldValues>()
 
   return useCallback(
-    async <TName extends Path<TFieldValues>>(name: TName, value: PathValue<TFieldValues, TName>, save: (options: TPersistOptions) => Promise<void> | void) => {
+    async <TName extends Path<TFieldValues>>(name: TName, value: PathValue<TFieldValues, TName>, save: (options: TPersistOptions) => Promise<void> | void): Promise<boolean> => {
       const beforeSave = getValues(name)
       const formBaseline = control._defaultValues
       const isSameForm = () => control._defaultValues === formBaseline
       try {
         await save({ throwOnError: true })
         if (!isSameForm()) {
-          return
+          return true
         }
         const latest = getValues(name)
         register(name)
@@ -23,10 +23,12 @@ export const usePersistFormField = <TFieldValues extends FieldValues>() => {
         if (!isDeepEqual(latest, beforeSave) && !isDeepEqual(latest, value)) {
           setValue(name, latest, { shouldDirty: true })
         }
+        return true
       } catch {
         if (isSameForm() && !getFieldState(name).isDirty) {
           setValue(name, value, { shouldDirty: true })
         }
+        return false
       }
     },
     [control, register, resetField, getValues, setValue, getFieldState],

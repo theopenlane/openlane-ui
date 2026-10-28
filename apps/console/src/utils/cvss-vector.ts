@@ -2,7 +2,7 @@ import { formatList } from './strings'
 
 export type TCvssVersion = '3.0' | '3.1' | '4.0'
 
-export const CVSS_VECTOR_ERROR = 'Enter a complete CVSS 3.x or 4.0 vector, starting with CVSS:'
+export const CVSS_VECTOR_ERROR = 'Enter a valid CVSS 3.x or 4.0 vector.'
 
 export type TCvssMetrics = Record<string, string>
 
