@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from 'react'
 import { type SortCondition } from '@repo/ui/data-table'
 import { type TableKeyValue } from '@repo/ui/table-key'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination, type TPaginationQuery } from '@repo/ui/pagination-types'
 import { useOrganization } from '@/hooks/useOrganization'
-import { getOrganizationStorageItem, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
+import { getOrganizationStorageItem, getOrganizationStorageKey, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
+import { safeSessionStorage } from '@/lib/storage/safe-local-storage'
+import { isRecord } from '@/utils/type-guards'
 import { createOrgPersistedStore, parseStringUnion, useOrgPersistedState, type OrgPersistedStore } from '@/lib/storage/org-persisted-store'
 
 const SORTING_KEY_PREFIX = 'sorting:'
 const PAGINATION_KEY_PREFIX = 'pagination:'
 const VIEW_MODE_KEY_PREFIX = 'view-mode:'
+const PAGE_KEY_PREFIX = 'table-page:'
 
 const readSort = <TField extends string>(
   tableKey: TableKeyValue,
@@ -67,6 +70,29 @@ export const useOrgTableSort = <TField extends string>(
   return [sortingState, setSorting]
 }
 
+type TScopedPage = {
+  scope: string
+  pagination: TPagination
+}
+
+type TPaginationState = {
+  organizationId?: string
+  scope: string | null
+  pagination: TPagination
+  pendingRestore: TScopedPage | null
+}
+
+type TPageRestore = {
+  where: object | null | undefined
+  orderBy: object | null | undefined
+  ready: boolean
+}
+
+type TOrgTablePaginationOptions = {
+  allowedPageSizes?: number[]
+  restorePage?: TPageRestore
+}
+
 const readPagination = (fallback: TPagination, tableKey?: TableKeyValue, organizationId?: string, allowedPageSizes?: number[]): TPagination => {
   if (!tableKey) return fallback
   const stored = getOrganizationStorageItem(`${PAGINATION_KEY_PREFIX}${tableKey}`, organizationId)
@@ -76,7 +102,7 @@ const readPagination = (fallback: TPagination, tableKey?: TableKeyValue, organiz
     const pageSize = typeof parsed === 'number' ? parsed : parsed?.pageSize
     const isAllowed = Number.isInteger(pageSize) && pageSize > 0 && (!allowedPageSizes || allowedPageSizes.includes(pageSize))
     if (isAllowed) {
-      return { ...fallback, pageSize, query: { ...fallback.query, first: pageSize } }
+      return toFirstPage(fallback, pageSize)
     }
   } catch {
     return fallback
@@ -84,43 +110,89 @@ const readPagination = (fallback: TPagination, tableKey?: TableKeyValue, organiz
   return fallback
 }
 
-export const useOrgTablePagination = (fallback: TPagination, tableKey?: TableKeyValue, allowedPageSizes?: number[]): [TPagination, Dispatch<SetStateAction<TPagination>>, () => void] => {
+const toFirstPage = (fallback: TPagination, pageSize: number): TPagination => ({ ...fallback, pageSize, query: { ...fallback.query, first: pageSize } })
+
+const getPageStorageKey = (tableKey: TableKeyValue, organizationId: string): string => getOrganizationStorageKey(`${PAGE_KEY_PREFIX}${tableKey}`, organizationId)
+
+const isOptionalCount = (value: unknown): boolean => value === undefined || (typeof value === 'number' && Number.isInteger(value) && value > 0)
+
+const isOptionalCursor = (value: unknown): boolean => value === undefined || value === null || typeof value === 'string'
+
+const isPaginationQuery = (value: unknown): value is TPaginationQuery =>
+  isRecord(value) && isOptionalCount(value.first) && isOptionalCount(value.last) && isOptionalCursor(value.after) && isOptionalCursor(value.before)
+
+const readStoredPage = (tableKey: TableKeyValue, organizationId: string, pageSize: number): TScopedPage | null => {
+  const raw = safeSessionStorage.getItem(getPageStorageKey(tableKey, organizationId))
+  if (!raw) return null
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    if (!isRecord(parsed) || typeof parsed.scope !== 'string' || !isRecord(parsed.pagination)) return null
+    const { page, query } = parsed.pagination
+    const isValid = typeof page === 'number' && Number.isInteger(page) && page >= 1 && parsed.pagination.pageSize === pageSize && isPaginationQuery(query)
+    return isValid ? { scope: parsed.scope, pagination: { page, pageSize, query } } : null
+  } catch {
+    return null
+  }
+}
+
+const readPaginationState = (fallback: TPagination, tableKey: TableKeyValue | undefined, organizationId: string | undefined, options: TOrgTablePaginationOptions): TPaginationState => {
+  const base = readPagination(fallback, tableKey, organizationId, options.allowedPageSizes)
+  const isRestorable = !!options.restorePage && !!tableKey && !!organizationId
+  const stored = isRestorable ? readStoredPage(tableKey, organizationId, base.pageSize) : null
+  return stored ? { organizationId, ...stored, pendingRestore: stored } : { organizationId, scope: null, pagination: base, pendingRestore: null }
+}
+
+const settleScope = (state: TPaginationState, scope: string, fallback: TPagination): TPaginationState => {
+  if (state.pendingRestore?.scope === scope) return { ...state, scope, pagination: state.pendingRestore.pagination, pendingRestore: null }
+  if (state.scope === scope) return state
+  return { ...state, scope, pagination: state.scope === null ? state.pagination : toFirstPage(fallback, state.pagination.pageSize) }
+}
+
+export const useOrgTablePagination = (fallback: TPagination, tableKey?: TableKeyValue, options: TOrgTablePaginationOptions = {}): [TPagination, Dispatch<SetStateAction<TPagination>>, () => void] => {
   const { currentOrgId } = useOrganization()
-  const [paginationState, setPaginationState] = useState<TPagination>(() => readPagination(fallback, tableKey, currentOrgId, allowedPageSizes))
-  const prevOrgIdRef = useRef(currentOrgId)
-  const paginationRef = useRef(paginationState)
+  const [state, setState] = useState<TPaginationState>(() => readPaginationState(fallback, tableKey, currentOrgId, options))
+  const { restorePage } = options
+  const isRestorable = !!restorePage
+  const scope = restorePage?.ready ? JSON.stringify({ where: restorePage.where, orderBy: restorePage.orderBy }) : null
   const fallbackRef = useRef(fallback)
+  const persistedPageSizeRef = useRef(state.pagination.pageSize)
+
+  const settledState = scope === null ? state : settleScope(state, scope, fallback)
+
+  if (state.organizationId !== currentOrgId) {
+    setState(readPaginationState(fallback, tableKey, currentOrgId, options))
+  } else if (settledState !== state) {
+    setState(settledState)
+  }
 
   useEffect(() => {
     fallbackRef.current = fallback
   })
 
   useEffect(() => {
-    if (prevOrgIdRef.current === currentOrgId) return
-    prevOrgIdRef.current = currentOrgId
-    const next = readPagination(fallback, tableKey, currentOrgId, allowedPageSizes)
-    paginationRef.current = next
-    setPaginationState(next)
-  }, [currentOrgId, fallback, tableKey, allowedPageSizes])
+    const { organizationId, pagination } = state
+    if (pagination.pageSize === persistedPageSizeRef.current) return
+    persistedPageSizeRef.current = pagination.pageSize
+    if (tableKey && organizationId) {
+      setOrganizationStorageItem(`${PAGINATION_KEY_PREFIX}${tableKey}`, String(pagination.pageSize), organizationId)
+    }
+  }, [tableKey, state])
 
-  const setPagination = useCallback<Dispatch<SetStateAction<TPagination>>>(
-    (next) => {
-      const resolved = typeof next === 'function' ? next(paginationRef.current) : next
-      if (tableKey && currentOrgId && resolved.pageSize !== paginationRef.current.pageSize) {
-        setOrganizationStorageItem(`${PAGINATION_KEY_PREFIX}${tableKey}`, String(resolved.pageSize), currentOrgId)
-      }
-      paginationRef.current = resolved
-      setPaginationState(resolved)
-    },
-    [tableKey, currentOrgId],
-  )
+  useEffect(() => {
+    const { organizationId, scope: stateScope, pagination } = state
+    if (!isRestorable || !tableKey || !organizationId || stateScope === null) return
+    safeSessionStorage.setItem(getPageStorageKey(tableKey, organizationId), JSON.stringify({ scope: stateScope, pagination }))
+  }, [isRestorable, tableKey, state])
+
+  const setPagination = useCallback<Dispatch<SetStateAction<TPagination>>>((next) => {
+    setState((prev) => ({ ...prev, pagination: typeof next === 'function' ? next(prev.pagination) : next, pendingRestore: null }))
+  }, [])
 
   const resetPagination = useCallback(() => {
-    const currentFallback = fallbackRef.current
-    setPagination((prev) => ({ ...currentFallback, pageSize: prev.pageSize, query: { ...currentFallback.query, first: prev.pageSize } }))
+    setPagination((prev) => toFirstPage(fallbackRef.current, prev.pageSize))
   }, [setPagination])
 
-  return [paginationState, setPagination, resetPagination]
+  return [state.pagination, setPagination, resetPagination]
 }
 
 export type TTableViewMode = 'table' | 'card'

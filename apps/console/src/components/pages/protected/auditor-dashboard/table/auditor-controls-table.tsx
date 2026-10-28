@@ -2,7 +2,7 @@
 
 import React, { useCallback, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { DataTable, type SortCondition } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Input } from '@repo/ui/input'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -57,7 +57,6 @@ type AuditorControlsTableProps = {
 }
 
 export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ programId, filters, onFiltersChange }) => {
-  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS)
   const openImport = useOpenImport()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, ControlOrderField, AUDITOR_DASHBOARD_DEFAULT_SORT)
   const [searchTerm, setSearchTerm] = useState('')
@@ -86,30 +85,6 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
     setOpenReviewId(null)
     queryClient.invalidateQueries({ queryKey: ['auditor-dashboard-controls'] })
   }, [queryClient])
-
-  const handleSortChange = useCallback(
-    (sortCondition: SortCondition<ControlOrderField>[]) => {
-      setOrderBy(sortCondition)
-      resetPagination()
-    },
-    [setOrderBy, resetPagination],
-  )
-
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      setSearchTerm(value)
-      resetPagination()
-    },
-    [resetPagination],
-  )
-
-  const handleFilterChange = useCallback(
-    (whereCondition: WhereCondition) => {
-      onFiltersChange(whereCondition)
-      resetPagination()
-    },
-    [onFiltersChange, resetPagination],
-  )
 
   const columns = useMemo(
     () =>
@@ -142,6 +117,10 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
   }, [programId, filters, debouncedSearch])
 
   const isStatusAllowed = useMemo(() => createStatusPredicate(where, Object.values(ControlControlStatus)), [where])
+
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, {
+    restorePage: { where, orderBy, ready: filters !== null },
+  })
 
   const { controls, paginationMeta, isLoading, isFetching } = useGetAuditorDashboardControls({ programId, where, orderBy, pagination, includeVars, enabled: filters !== null })
 
@@ -183,7 +162,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
           icon={isFetching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
           placeholder="Search"
           className="max-w-xs"
-          onChange={(event) => handleSearchChange(event.currentTarget.value)}
+          onChange={(event) => setSearchTerm(event.currentTarget.value)}
         />
         <div className="flex items-center gap-2">
           <Menu
@@ -217,7 +196,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
           {filterFields && (
             <TableFilter
               filterFields={filterFields}
-              onFilterChange={handleFilterChange}
+              onFilterChange={onFiltersChange}
               pageKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS}
               quickFilters={quickFilters}
               defaultFilterValues={AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES}
@@ -235,7 +214,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
         paginationMeta={paginationMeta}
         sorting={orderBy}
         sortFields={AUDITOR_DASHBOARD_SORT_FIELDS}
-        onSortChange={handleSortChange}
+        onSortChange={setOrderBy}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         tableKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS}
