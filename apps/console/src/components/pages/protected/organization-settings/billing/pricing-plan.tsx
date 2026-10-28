@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo } from 'react'
 
 import { useOrganization } from '@/hooks/useOrganization'
+import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
 import { useOpenlaneProductsQuery, usePaymentMethodsQuery, useSchedulesQuery, useSubscriptionQuery, useUpdateScheduleMutation, useUpcomingInvoiceQuery } from '@/lib/query-hooks/stripe'
 import { type Price, type SubscriptionItem } from '@/types/stripe'
 import { ProductCard } from './product-card'
@@ -13,12 +14,12 @@ import SideNavigation from './side-navigation'
 import BillingPageSkeleton, { ProductCardSkeleton } from './skeleton/billing-page-skeleton'
 
 const PricingPlan = () => {
-  const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
+  const { currentOrgId } = useOrganization()
+  const { data: billingData } = useGetOrganizationBilling(currentOrgId)
   const { errorNotification, successNotification } = useNotification()
   const searchParams = useSearchParams()
 
-  const stripeCustomerId = currentOrganization?.node?.stripeCustomerID
+  const stripeCustomerId = billingData?.organization.stripeCustomerID
 
   const { data: openlaneProducts, isLoading: productsLoading } = useOpenlaneProductsQuery()
   const { data: schedules = [], isLoading: schedulesLoading } = useSchedulesQuery(stripeCustomerId)

@@ -1,10 +1,8 @@
 'use server'
 
 import type { Metadata } from 'next'
-import { cookies } from 'next/headers'
-import { auth } from '@/lib/auth/auth'
-import { sessionCookieName } from '@repo/dally/auth'
 import { fetchGraphqlServer } from './fetch-graphql'
+import { getServerCredentials } from './server-credentials'
 import { getOrgDisplayNameForRequest } from './dashboard-data-cache'
 
 interface BuildDetailMetadataArgs<TVariables extends Record<string, unknown>, TData> {
@@ -22,16 +20,17 @@ export const buildDetailMetadata = async <TVariables extends Record<string, unkn
 }: BuildDetailMetadataArgs<TVariables, TData>): Promise<Metadata> => {
   const fallback: Metadata = { title: prefix }
 
-  const [session, cookieStore] = await Promise.all([auth(), cookies()])
-  const cookieSession = cookieStore.get(sessionCookieName as string)?.value
-  const token = session?.user?.accessToken
-  const organizationId = session?.user?.activeOrganizationId
+  const credentials = await getServerCredentials()
 
-  if (!token || !cookieSession) {
+  if (!credentials) {
     return fallback
   }
 
-  const [data, orgName] = await Promise.all([fetchGraphqlServer<TData>(query, variables, token, cookieSession), getOrgDisplayNameForRequest(token, cookieSession, organizationId)])
+  const { session, accessToken, sessionCookie } = credentials
+  const [data, orgName] = await Promise.all([
+    fetchGraphqlServer<TData>(query, variables, accessToken, sessionCookie),
+    getOrgDisplayNameForRequest(accessToken, sessionCookie, session.user?.activeOrganizationId),
+  ])
 
   if (!data) {
     return fallback

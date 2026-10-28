@@ -961,8 +961,6 @@ export interface CampaignsWithFilterQuery {
         dueDate: string | null
         emailTemplateID: string | null
         entityID: string | null
-        hasPendingWorkflow: boolean
-        hasWorkflowHistory: boolean
         id: string
         internalOwner: string | null
         internalOwnerGroupID: string | null
@@ -988,7 +986,6 @@ export interface CampaignsWithFilterQuery {
         templateID: string | null
         updatedAt: any
         updatedBy: string | null
-        workflowEligibleMarker: boolean | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -1019,8 +1016,6 @@ export interface CampaignQuery {
     dueDate: string | null
     emailTemplateID: string | null
     entityID: string | null
-    hasPendingWorkflow: boolean
-    hasWorkflowHistory: boolean
     id: string
     internalOwner: string | null
     internalOwnerGroupID: string | null
@@ -1046,7 +1041,6 @@ export interface CampaignQuery {
     templateID: string | null
     updatedAt: any
     updatedBy: string | null
-    workflowEligibleMarker: boolean | null
     template: { id: string; name: string; description: string | null; updatedAt: any; jsonconfig: any } | null
   }
 }
@@ -2915,8 +2909,6 @@ export interface EmailTemplatesWithFilterQuery {
         updatedAt: any
         updatedBy: string | null
         version: number
-        workflowDefinitionID: string | null
-        workflowInstanceID: string | null
         campaigns: { totalCount: number }
       } | null
     } | null> | null
@@ -2946,8 +2938,6 @@ export interface EmailTemplateQuery {
     updatedAt: any
     updatedBy: string | null
     version: number
-    workflowDefinitionID: string | null
-    workflowInstanceID: string | null
   }
 }
 
@@ -4516,8 +4506,6 @@ export interface IdentityHoldersWithFilterQuery {
         externalReferenceID: string | null
         externalUserID: string | null
         fullName: string
-        hasPendingWorkflow: boolean
-        hasWorkflowHistory: boolean
         id: string
         identityHolderType: Types.IdentityHolderIdentityHolderType
         internalOwner: string | null
@@ -4536,7 +4524,6 @@ export interface IdentityHoldersWithFilterQuery {
         updatedAt: any
         updatedBy: string | null
         userID: string | null
-        workflowEligibleMarker: boolean | null
         internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerUser: { id: string; displayName: string } | null
@@ -4585,8 +4572,6 @@ export interface IdentityHolderQuery {
     externalReferenceID: string | null
     externalUserID: string | null
     fullName: string
-    hasPendingWorkflow: boolean
-    hasWorkflowHistory: boolean
     id: string
     identityHolderType: Types.IdentityHolderIdentityHolderType
     internalOwner: string | null
@@ -4605,7 +4590,6 @@ export interface IdentityHolderQuery {
     updatedAt: any
     updatedBy: string | null
     userID: string | null
-    workflowEligibleMarker: boolean | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
@@ -5693,7 +5677,6 @@ export interface NotificationTemplatesWithFilterQuery {
         updatedAt: any
         updatedBy: string | null
         version: number
-        workflowDefinitionID: string | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -5731,7 +5714,6 @@ export interface NotificationTemplateQuery {
     updatedAt: any
     updatedBy: string | null
     version: number
-    workflowDefinitionID: string | null
   }
 }
 
@@ -5812,7 +5794,6 @@ export interface GetAllOrganizationsQuery {
         displayName: string
         avatarRemoteURL: string | null
         personalOrg: boolean | null
-        stripeCustomerID: string | null
         avatarFile: { id: string; base64: string | null } | null
         setting: { identityProviderLoginEnforced: boolean } | null
       } | null
@@ -5904,7 +5885,21 @@ export type GetOrganizationBillingQueryVariables = Exact<{
 }>
 
 export interface GetOrganizationBillingQuery {
-  organization: { personalOrg: boolean | null; orgSubscriptions: Array<{ active: boolean; expiresAt: any; stripeSubscriptionStatus: string | null; trialExpiresAt: any }> | null }
+  organization: {
+    personalOrg: boolean | null
+    stripeCustomerID: string | null
+    orgSubscriptions: Array<{ active: boolean; expiresAt: any; stripeSubscriptionStatus: string | null; trialExpiresAt: any }> | null
+  }
+}
+
+export type GetOrganizationBillingAccessQueryVariables = Exact<{
+  organizationId: string
+  userId: string
+}>
+
+export interface GetOrganizationBillingAccessQuery {
+  organization: { stripeCustomerID: string | null }
+  orgMemberships: { edges: Array<{ node: { role: Types.OrgMembershipRole } | null } | null> | null }
 }
 
 export type GetOrganizationBillingBannerQueryVariables = Exact<{
@@ -8913,7 +8908,7 @@ export interface TasksWithFilterQuery {
         sourceKey: string | null
         metadata: any
         assigner: { displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
-        assignee: { displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
+        assignee: { id: string; displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -9831,6 +9826,7 @@ export interface GetTrustCenterQuery {
           opacity: number | null
           rotation: number | null
           isEnabled: boolean | null
+          font: Types.TrustCenterWatermarkConfigFont | null
           file: { presignedURL: string | null } | null
         } | null
       } | null
