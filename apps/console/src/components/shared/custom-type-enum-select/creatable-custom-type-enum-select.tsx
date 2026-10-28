@@ -25,6 +25,8 @@ interface CreatableCustomTypeEnumSelectProps {
   triggerClassName?: string
   contentClassName?: string
   contentRef?: Ref<HTMLDivElement>
+  defaultOpen?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 export const CreatableCustomTypeEnumSelect = ({
@@ -42,8 +44,14 @@ export const CreatableCustomTypeEnumSelect = ({
   triggerClassName,
   contentClassName,
   contentRef,
+  defaultOpen = false,
+  onOpenChange,
 }: CreatableCustomTypeEnumSelectProps) => {
-  const [open, setOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(defaultOpen)
+  const setOpen = (next: boolean) => {
+    setIsOpen(next)
+    onOpenChange?.(next)
+  }
   const [searchValue, setSearchValue] = useState('')
   const [createdOptions, setCreatedOptions] = useState<CustomTypeEnumOption[]>([])
   const { errorNotification } = useNotification()
@@ -94,7 +102,7 @@ export const CreatableCustomTypeEnumSelect = ({
   }
 
   return (
-    <Popover modal open={open} onOpenChange={setOpen}>
+    <Popover modal open={isOpen} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
           id={triggerId}

@@ -20,6 +20,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { ObjectNames, ObjectTypes } from '@repo/codegen/src/type-names'
 import { formatDate } from '@/utils/date'
+import { type ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 
 export type TimelineNode = {
   id: string
@@ -30,6 +31,7 @@ export type TimelineNode = {
   href?: string
   role?: 'source' | 'linked'
   subtext?: React.ReactNode
+  sheetKind?: ObjectAssociationNodeEnum
 }
 
 type EdgeNode = {

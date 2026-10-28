@@ -8,6 +8,7 @@ import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { getNotificationRedirectUrl } from '@/components/shared/SystemNotification/notification-redirect'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import {
   OrderDirection,
   VulnerabilityOrderField,
@@ -85,7 +86,7 @@ const vulnActivityItem = (v: VulnNode): ActivityItem => ({
   label: v.displayName ?? v.displayID ?? ObjectTypes.VULNERABILITY,
   type: ObjectTypes.VULNERABILITY,
   createdAt: v.createdAt ?? null,
-  href: `/exposure/vulnerabilities?id=${v.id}`,
+  href: getHrefForObjectType('vulnerabilities', { id: v.id }),
   source: v.source ?? null,
 })
 

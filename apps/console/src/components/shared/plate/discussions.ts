@@ -61,7 +61,7 @@ export const mapEntityDiscussions = (entity: TDiscussionEntity): TDiscussion[] =
 export const useDiscussionUsers = (discussions: TDiscussion[], currentUser?: TCurrentUser): Record<string, TDiscussionUser> => {
   const authorIds = useMemo(() => Array.from(new Set(discussions.flatMap((discussion) => discussion.comments.map((comment) => comment.userId)))), [discussions])
 
-  const { userMap, tokenMap, isLoading } = useAuthorMaps(authorIds)
+  const { authorMaps } = useAuthorMaps(authorIds)
 
   return useMemo(() => {
     const users: Record<string, TDiscussionUser> = {}
@@ -77,8 +77,8 @@ export const useDiscussionUsers = (discussions: TDiscussion[], currentUser?: TCu
     authorIds.forEach((id) => {
       if (users[id]) return
 
-      const author = resolveAuthor(id, { userMap, tokenMap })
-      if (author.kind === 'deleted' && isLoading) return
+      const author = resolveAuthor(id, authorMaps)
+      if (author.kind === 'unresolved' && authorMaps.status === 'resolving') return
 
       users[id] = {
         id,
@@ -88,5 +88,5 @@ export const useDiscussionUsers = (discussions: TDiscussion[], currentUser?: TCu
     })
 
     return users
-  }, [authorIds, currentUser, isLoading, tokenMap, userMap])
+  }, [authorIds, currentUser, authorMaps])
 }

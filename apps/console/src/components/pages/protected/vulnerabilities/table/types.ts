@@ -14,10 +14,12 @@ import {
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
 import { type VulnerabilitiesNodeNonNull } from '@/lib/graphql-hooks/vulnerability'
+import { type TVulnerabilityDetail } from '../vulnerability-display'
 import { type VulnerabilityFormData } from '../hooks/use-form-schema'
 
 type TFormData = VulnerabilityFormData
 type TData = VulnerabilitiesNodeNonNull
+type TSheetData = TVulnerabilityDetail
 type TUpdateInput = UpdateVulnerabilityInput
 type TUpdateData = UpdateVulnerabilityMutation
 type TCreateInput = CreateVulnerabilityInput
@@ -36,10 +38,10 @@ type VulnerabilityEnumKeys = 'environmentOptions' | 'scopeOptions' | 'tagOptions
 
 export type EnumOptions = EnumOptionsGeneric<VulnerabilityEnumKeys>
 
-export type VulnerabilityTablePageConfig = GenericTablePageConfig<TData, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField>
+export type VulnerabilityTablePageConfig = GenericTablePageConfig<TData, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField, TSheetData>
 
-export type VulnerabilitySheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
+export type VulnerabilitySheetConfig = GenericDetailsSheetConfig<TFormData, TSheetData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
 
-export type VulnerabilityFieldProps = RenderFieldsProps<TData, TUpdateInput>
+export type VulnerabilityFieldProps = RenderFieldsProps<TSheetData, TUpdateInput>
 
 export type { EnumCreateHandlers } from '@/components/shared/crud-base/page'
