@@ -9,6 +9,7 @@ export type TOrgMemberPermissions = {
   canInviteMembers: boolean
   canInviteAdmins: boolean
   canInvite: boolean
+  canDeleteInvites: boolean
 }
 
 export const useOrgMemberPermissions = (): TOrgMemberPermissions => {
@@ -16,18 +17,20 @@ export const useOrgMemberPermissions = (): TOrgMemberPermissions => {
   const { data: orgPermission, isLoading } = useOrganizationRoles()
 
   if (isImpersonation(session)) {
-    return { isLoading: false, canManageMembers: false, canInviteMembers: false, canInviteAdmins: false, canInvite: false }
+    return { isLoading: false, canManageMembers: false, canInviteMembers: true, canInviteAdmins: false, canInvite: true, canDeleteInvites: true }
   }
 
   const roles = orgPermission?.roles
   const canInviteMembers = hasPermission(roles, AccessEnum.CanInviteMembers, session)
   const canInviteAdmins = hasPermission(roles, AccessEnum.CanInviteAdmins, session)
+  const canManageMembers = canEdit(roles, session)
 
   return {
     isLoading,
-    canManageMembers: canEdit(roles, session),
+    canManageMembers,
     canInviteMembers,
     canInviteAdmins,
     canInvite: canInviteMembers || canInviteAdmins,
+    canDeleteInvites: canManageMembers,
   }
 }
