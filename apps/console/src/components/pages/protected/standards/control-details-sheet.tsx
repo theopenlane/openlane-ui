@@ -16,6 +16,7 @@ import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/c
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 import { copyLinkMenuAction, SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SanitizedHtml } from '@/components/shared/sanitized-html/sanitized-html'
 
 const ControlDetailsSheet = () => {
   const searchParams = useSearchParams()
@@ -168,14 +169,7 @@ const ControlDetailsSheet = () => {
         header={<SlideoutHeader title={controlHeading} onClose={() => handleOpenChange(false)} menuActions={[copyLinkMenuAction(handleCopyLink)]} />}
       >
         <div className="flex flex-col gap-8">
-          {data?.control.description && (
-            <div
-              className="mt-5 rich-text pl-0!"
-              dangerouslySetInnerHTML={{
-                __html: data.control.description,
-              }}
-            ></div>
-          )}
+          {data?.control.description && <SanitizedHtml className="mt-5 rich-text pl-0!" value={data.control.description} />}
 
           <div className="flex flex-col gap-2.5">
             <p className="mb-1.5 text-xl">Properties</p>

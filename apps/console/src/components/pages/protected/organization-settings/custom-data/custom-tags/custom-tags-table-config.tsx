@@ -11,7 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { colorColumn } from '../shared/color-column'
 import { FALLBACK_COLOR } from '../shared/constants'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
-import { useUpdateTag, type TagDefinitionNodeNonNull } from '@/lib/graphql-hooks/tag-definition'
+import { type TagDefinitionNodeNonNull, useUpdateTag } from '@/lib/graphql-hooks/tag-definition'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { formatDate, formatDateSince } from '@/utils/date'
 import { type User } from '@repo/codegen/src/schema'

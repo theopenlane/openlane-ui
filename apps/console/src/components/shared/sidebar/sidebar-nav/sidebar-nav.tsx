@@ -74,7 +74,7 @@ const SidebarChildLink: React.FC<{ child: NavItem; anchor: TElementAnchor; pathn
   )
 }
 
-export type PanelKey = 'compliance' | 'trust center' | 'automation' | 'registry' | null
+export type PanelKey = 'compliance' | 'trust center' | 'automation' | 'registry' | 'custom report' | null
 
 export const PRIMARY_WIDTH = 50
 export const PRIMARY_EXPANDED_WIDTH = 200

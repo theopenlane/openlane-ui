@@ -93,9 +93,9 @@ export function SetAssociationDialog<TRootField extends string, TSectionKey exte
       }
       await onUpdate(associationInputs)
 
-      queryClient.invalidateQueries({ queryKey: [config.invalidateQueryKey] })
+      queryClient.invalidateQueries({ queryKey: [config.invalidateQueryKey] }, { cancelRefetch: false })
       for (const relatedKey of config.relatedInvalidateQueryKeys ?? []) {
-        queryClient.invalidateQueries({ queryKey: relatedKey })
+        queryClient.invalidateQueries({ queryKey: relatedKey }, { cancelRefetch: false })
       }
       successNotification({ title: config.successMessage })
       handleOpenChange(false)

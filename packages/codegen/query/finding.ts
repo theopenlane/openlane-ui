@@ -475,3 +475,32 @@ export const GET_FINDING_ASSOCIATIONS_TIMELINE = gql`
     }
   }
 `
+
+export const GET_FINDING_COMMENTS = gql`
+  query GetFindingComments($findingId: ID!) {
+    finding(id: $findingId) {
+      id
+      comments(first: 100, orderBy: [{ field: created_at, direction: DESC }]) {
+        totalCount
+        edges {
+          node {
+            id
+            createdAt
+            createdBy
+            text
+          }
+        }
+      }
+    }
+  }
+`
+
+export const UPDATE_FINDING_COMMENT = gql`
+  mutation UpdateFindingComment($updateFindingCommentId: ID!, $input: UpdateNoteInput!) {
+    updateFindingComment(id: $updateFindingCommentId, input: $input) {
+      finding {
+        id
+      }
+    }
+  }
+`

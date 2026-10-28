@@ -5,9 +5,11 @@ import { GET_API_TOKENS_BY_IDS } from '@repo/codegen/query/tokens'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { toOrgUserList, useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens'
-import { type AuthorMaps, type AuthorToken, SUPPORT_SUBJECT_ID } from '@/lib/authors'
+import { type AuthorLookupStatus, type AuthorMaps, type AuthorToken, SUPPORT_SUBJECT_ID } from '@/lib/authors'
 import { isUlid } from '@/lib/validators'
 import { chunk } from '@/utils/async'
+
+const isAwaitingLookup = (query: { isPending: boolean; isPlaceholderData: boolean }, ids: string[]) => ids.length > 0 && (query.isPending || query.isPlaceholderData)
 
 export const useAuthorMaps = (ids: Array<string | null | undefined>) => {
   const authorIdsKey = Array.from(new Set(ids.filter((id): id is string => typeof id === 'string' && id.length > 0 && isUlid(id))))
@@ -19,8 +21,10 @@ export const useAuthorMaps = (ids: Array<string | null | undefined>) => {
   const userWhere = useMemo(() => ({ hasUserWith: [{ idIn: authorIds }] }), [authorIds])
   const tokenWhere = useMemo(() => ({ idIn: tokenIds }), [tokenIds])
 
-  const { users, isFetching: isFetchingUsers } = useGetOrgUserList({ where: userWhere })
-  const { tokens, isFetching: isFetchingTokens } = useGetApiTokensByIds({ where: tokenWhere })
+  const userQuery = useGetOrgUserList({ where: userWhere })
+  const tokenQuery = useGetApiTokensByIds({ where: tokenWhere })
+  const { users } = userQuery
+  const { tokens } = tokenQuery
 
   const userMap = useMemo(() => {
     const map: Record<string, User> = {}
@@ -38,7 +42,11 @@ export const useAuthorMaps = (ids: Array<string | null | undefined>) => {
     return map
   }, [tokens])
 
-  return { userMap, tokenMap, isLoading: isFetchingUsers || isFetchingTokens }
+  const status: AuthorLookupStatus =
+    userQuery.isLoadingError || tokenQuery.isLoadingError ? 'error' : isAwaitingLookup(userQuery, authorIds) || isAwaitingLookup(tokenQuery, tokenIds) ? 'resolving' : 'ready'
+  const authorMaps = useMemo<AuthorMaps>(() => ({ userMap, tokenMap, status }), [userMap, tokenMap, status])
+
+  return { userMap, tokenMap, authorMaps, isLoading: userQuery.isFetching || tokenQuery.isFetching }
 }
 
 const AUTHOR_LOOKUP_CHUNK_SIZE = 100

@@ -226,19 +226,21 @@ const SSOOverview = ({
 
 const IDENTITY_PROVIDER_OPTIONS = Object.values(OrganizationSettingSsoProvider).filter((provider) => provider !== OrganizationSettingSsoProvider.NONE)
 
-const ssoFormSchema = z.object({
-  identityProvider: z.enum(IDENTITY_PROVIDER_OPTIONS, { error: (issue) => (issue.input === undefined ? 'Identity provider is required' : undefined) }),
-  identityProviderClientID: z.string().min(1, 'Client ID is required'),
-  identityProviderClientSecret: z.string().min(1, 'Client Secret is required'),
-  oidcDiscoveryEndpoint: z.string().min(1, 'OIDC Discovery Endpoint is required').url('Enter a valid URL'),
-})
+const ssoFormSchema = (isSSOConfigured: boolean) =>
+  z.object({
+    identityProvider: z.enum(IDENTITY_PROVIDER_OPTIONS, { error: (issue) => (issue.input === undefined ? 'Identity provider is required' : undefined) }),
+    identityProviderClientID: z.string().min(1, 'Client ID is required'),
+    identityProviderClientSecret: isSSOConfigured ? z.string() : z.string().min(1, 'Client Secret is required'),
+    oidcDiscoveryEndpoint: z.string().min(1, 'OIDC Discovery Endpoint is required').url('Enter a valid URL'),
+  })
 
-type TSSOFormData = z.infer<typeof ssoFormSchema>
+type TSSOFormData = z.infer<ReturnType<typeof ssoFormSchema>>
 
 const SSO_UPDATE_FIELDS = {
   identityProvider: orClear('clearIdentityProvider'),
   identityProviderClientID: orClear('clearIdentityProviderClientID'),
-  identityProviderClientSecret: orClear('clearIdentityProviderClientSecret'),
+  // the secret is write-only, so a blank field keeps the stored value
+  identityProviderClientSecret: (value) => (value ? { identityProviderClientSecret: value } : {}),
   oidcDiscoveryEndpoint: orClear('clearOidcDiscoveryEndpoint'),
 } satisfies TFieldMappers<TSSOFormData, UpdateOrganizationSettingInput>
 
@@ -279,7 +281,7 @@ const SSOPage = () => {
   const allowedDomains = currentSetting?.allowedEmailDomains ?? []
 
   const form = useForm<TSSOFormData>({
-    resolver: zodResolver(ssoFormSchema),
+    resolver: zodResolver(ssoFormSchema(isSSOConfigured)),
     defaultValues: {
       identityProvider: undefined,
       identityProviderClientID: '',
@@ -296,7 +298,7 @@ const SSOPage = () => {
       form.reset({
         identityProvider: currentProvider && currentProvider !== 'NONE' && IDENTITY_PROVIDER_OPTIONS.includes(currentProvider) ? currentProvider : undefined,
         identityProviderClientID: currentSetting.identityProviderClientID || '',
-        identityProviderClientSecret: currentSetting.identityProviderClientSecret || '',
+        identityProviderClientSecret: '',
         oidcDiscoveryEndpoint: currentSetting.oidcDiscoveryEndpoint || '',
       })
       setJitProvisioning(currentSetting.identityProviderJitProvisioning ?? true)
@@ -769,7 +771,14 @@ const SSOPage = () => {
                                 Client Secret
                               </Label>
                               <FormControl className="flex-1">
-                                <Input variant="medium" maxWidth className="max-w-[440px]" type="password" {...field} placeholder="Enter client secret" />
+                                <Input
+                                  variant="medium"
+                                  maxWidth
+                                  className="max-w-[440px]"
+                                  type="password"
+                                  {...field}
+                                  placeholder={isSSOConfigured ? 'Leave blank to keep the current secret' : 'Enter client secret'}
+                                />
                               </FormControl>
                             </div>
                             {fieldState.error && <FormMessage />}
