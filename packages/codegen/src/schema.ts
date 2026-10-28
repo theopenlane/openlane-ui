@@ -5900,7 +5900,6 @@ export interface GetOrganizationSettingQuery {
       allowSupportAccess: boolean | null
       identityProvider: Types.OrganizationSettingSsoProvider | null
       identityProviderClientID: string | null
-      identityProviderClientSecret: string | null
       oidcDiscoveryEndpoint: string | null
       identityProviderLoginEnforced: boolean
       identityProviderAuthTested: boolean
@@ -9896,7 +9895,6 @@ export interface GetUserProfileQuery {
     lastName: string | null
     displayName: string
     email: string
-    authProvider: Types.UserAuthProvider
     avatarRemoteURL: string | null
     avatarFile: { base64: string | null } | null
     setting: {

@@ -1,18 +1,18 @@
 'use client'
 
+import { getCookie } from '@/lib/auth/utils/getCookie'
 import { useGetPasskeys } from '@/lib/graphql-hooks/passkey'
-import { dismissPrompt, getPasskeyPromptDismissalState } from '@/lib/storage/passkey-prompt'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-const PasskeyPromptDialog = ({ userId }: { userId: string }) => {
+const PasskeyPromptDialog = () => {
   const router = useRouter()
   const { data: passkeys, isLoading } = useGetPasskeys()
-  const [isDimissed, setIsDimissed] = useState(() => getPasskeyPromptDismissalState(userId))
+  const [isDimissed, setIsDimissed] = useState(() => getCookie('passkey-prompt') !== 'true')
 
   const dismiss = () => {
-    dismissPrompt(userId)
+    document.cookie = 'passkey-prompt=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
     setIsDimissed(true)
   }
 

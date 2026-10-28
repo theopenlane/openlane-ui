@@ -95756,18 +95756,6 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "credentialSet",
-            "description": "a credential set, typically where you have multiple tokens or keys that compose one credential such as when accessing s3 and using access key ID, secret key, etc.",
-            "type": {
-              "kind": "SCALAR",
-              "name": "CredentialSet",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "description",
             "description": "a description of the hush value or purpose, such as github PAT",
             "type": {
@@ -101814,18 +101802,6 @@
           {
             "name": "billingPhone",
             "description": "Phone number to contact for billing",
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "complianceWebhookToken",
-            "description": "unique token used to receive compliance webhook events",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -112288,18 +112264,6 @@
             "deprecationReason": null
           },
           {
-            "name": "createTrustCenterSetting",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "CreateTrustCenterSettingInput",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "customDomainID",
             "description": null,
             "type": {
@@ -112432,35 +112396,11 @@
             "deprecationReason": null
           },
           {
-            "name": "previewSettingID",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "ID",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "previewStatus",
             "description": "preview status of the trust center",
             "type": {
               "kind": "ENUM",
               "name": "TrustCenterTrustCenterPreviewStatus",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "settingID",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "ID",
               "ofType": null
             },
             "defaultValue": null,
@@ -222649,18 +222589,6 @@
             "deprecationReason": null
           },
           {
-            "name": "credentialSet",
-            "description": "a credential set, typically where you have multiple tokens or keys that compose one credential such as when accessing s3 and using access key ID, secret key, etc.",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "CredentialSet",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "description",
             "description": "a description of the hush value or purpose, such as github PAT",
             "args": [],
@@ -322557,18 +322485,6 @@
             "deprecationReason": null
           },
           {
-            "name": "complianceWebhookToken",
-            "description": "unique token used to receive compliance webhook events",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "createdAt",
             "description": null,
             "args": [],
@@ -322768,18 +322684,6 @@
           {
             "name": "identityProviderClientID",
             "description": "client ID for SSO integration",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "identityProviderClientSecret",
-            "description": "client secret for SSO integration",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -324215,154 +324119,6 @@
             "deprecationReason": null
           },
           {
-            "name": "complianceWebhookToken",
-            "description": "compliance_webhook_token field predicates",
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "complianceWebhookTokenContains",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "complianceWebhookTokenContainsFold",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "complianceWebhookTokenEqualFold",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "complianceWebhookTokenHasPrefix",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "complianceWebhookTokenHasSuffix",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "complianceWebhookTokenIn",
-            "description": null,
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "name": null,
-                "kind": "NON_NULL",
-                "ofType": {
-                  "name": "String",
-                  "kind": "SCALAR",
-                  "ofType": null
-                }
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "complianceWebhookTokenIsNil",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "Boolean",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "complianceWebhookTokenNEQ",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "complianceWebhookTokenNotIn",
-            "description": null,
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "name": null,
-                "kind": "NON_NULL",
-                "ofType": {
-                  "name": "String",
-                  "kind": "SCALAR",
-                  "ofType": null
-                }
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "complianceWebhookTokenNotNil",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "Boolean",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "createdAt",
             "description": "created_at field predicates",
             "type": {
@@ -325020,154 +324776,6 @@
           },
           {
             "name": "identityProviderClientIDNotNil",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "Boolean",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "identityProviderClientSecret",
-            "description": "identity_provider_client_secret field predicates",
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "identityProviderClientSecretContains",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "identityProviderClientSecretContainsFold",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "identityProviderClientSecretEqualFold",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "identityProviderClientSecretHasPrefix",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "identityProviderClientSecretHasSuffix",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "identityProviderClientSecretIn",
-            "description": null,
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "name": null,
-                "kind": "NON_NULL",
-                "ofType": {
-                  "name": "String",
-                  "kind": "SCALAR",
-                  "ofType": null
-                }
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "identityProviderClientSecretIsNil",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "Boolean",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "identityProviderClientSecretNEQ",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "identityProviderClientSecretNotIn",
-            "description": null,
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "name": null,
-                "kind": "NON_NULL",
-                "ofType": {
-                  "name": "String",
-                  "kind": "SCALAR",
-                  "ofType": null
-                }
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "identityProviderClientSecretNotNil",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -526430,18 +526038,6 @@
             "deprecationReason": null
           },
           {
-            "name": "clearCredentialSet",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "Boolean",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "clearDescription",
             "description": null,
             "type": {
@@ -526567,18 +526163,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "Boolean",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "credentialSet",
-            "description": "a credential set, typically where you have multiple tokens or keys that compose one credential such as when accessing s3 and using access key ID, secret key, etc.",
-            "type": {
-              "kind": "SCALAR",
-              "name": "CredentialSet",
               "ofType": null
             },
             "defaultValue": null,
@@ -538990,18 +538574,6 @@
             "deprecationReason": null
           },
           {
-            "name": "clearComplianceWebhookToken",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "Boolean",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "clearDomains",
             "description": null,
             "type": {
@@ -539223,18 +538795,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "Boolean",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "complianceWebhookToken",
-            "description": "unique token used to receive compliance webhook events",
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
               "ofType": null
             },
             "defaultValue": null,
@@ -561826,31 +561386,7 @@
             "deprecationReason": null
           },
           {
-            "name": "clearPreviewSetting",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "Boolean",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "clearPreviewStatus",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "Boolean",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "clearSetting",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -562067,18 +561603,6 @@
           },
           {
             "name": "previewDomainID",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "ID",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "previewSettingID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -562356,18 +561880,6 @@
                   "ofType": null
                 }
               }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "settingID",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "ID",
-              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -563350,18 +562862,6 @@
             "deprecationReason": null
           },
           {
-            "name": "clearTrustCenterID",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "Boolean",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "companyDescription",
             "description": "company description for the trust center",
             "type": {
@@ -563668,18 +563168,6 @@
           {
             "name": "title",
             "description": "title of the trust center",
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "trustCenterID",
-            "description": "the ID of the trust center the settings belong to",
             "type": {
               "kind": "SCALAR",
               "name": "String",

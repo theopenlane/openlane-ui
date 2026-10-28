@@ -14,7 +14,6 @@ import { useRecentActivityItems } from '@/components/shared/activity-feed/use-re
 import { useSetupChecklist } from '@/hooks/useSetupChecklist'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
-import { UserAuthProvider } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import React, { useEffect } from 'react'
 import PasskeyPromptDialog from './passkey-prompt'
@@ -70,7 +69,7 @@ const DashboardPage: React.FC = () => {
 
   const header = (
     <>
-      {userData?.user.authProvider === UserAuthProvider.CREDENTIALS && <PasskeyPromptDialog key={userData.user.id} userId={userData.user.id} />}
+      <PasskeyPromptDialog />
       <p className="text-2xl leading-9 font-medium pt-2">Welcome, {userData?.user?.displayName}!</p>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-muted-foreground text-base font-normal leading-6 pt-2 pb-3">Here&apos;s what&apos;s happening in your organization today</p>

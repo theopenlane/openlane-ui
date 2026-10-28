@@ -14,7 +14,6 @@ export const GET_USER_PROFILE = gql`
       firstName
       lastName
       email
-      authProvider
       avatarRemoteURL
       avatarFile {
         base64
