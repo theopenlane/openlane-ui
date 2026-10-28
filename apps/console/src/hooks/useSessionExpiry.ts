@@ -1,11 +1,13 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { probeSession } from '@/lib/auth/utils/session-health'
-import { getIsSessionInvalid, notifySessionExpired, SESSION_EXPIRED_EVENT } from '@/lib/auth/utils/session-status'
+import { clearSessionExpired, getIsSessionInvalid, notifySessionExpired, SESSION_EXPIRED_EVENT } from '@/lib/auth/utils/session-status'
 import { tokenExpiresAt } from '@/lib/auth/utils/token-claims'
 import { useSessionResync } from '@/lib/graphqlClient'
+import { describeToken, logSessionEvent } from '@/lib/auth/utils/session-log'
+import { reportSessionEvent } from '@/lib/auth/utils/session-event'
 
 const MAX_TIMEOUT_MS = 2_147_483_647
 
@@ -26,11 +28,46 @@ const scheduleAt = (deadline: number, run: () => void): (() => void) => {
 
 // useSessionExpiry surfaces the expired-session modal once the server no longer honours the session
 export const useSessionExpiry = () => {
-  const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(getIsSessionInvalid)
+  const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false)
   const { data: sessionData } = useSession()
   const resyncSession = useSessionResync()
   const refreshToken = sessionData?.user?.refreshToken
   const [nextCheckAt, setNextCheckAt] = useState<number | null>(null)
+  const isDoubleCheckingRef = useRef(false)
+  const accessTokenRef = useRef(sessionData?.user?.accessToken)
+
+  useEffect(() => {
+    accessTokenRef.current = sessionData?.user?.accessToken
+  }, [sessionData?.user?.accessToken])
+
+  const doubleCheckExpiry = useCallback(async () => {
+    if (isDoubleCheckingRef.current) return
+    isDoubleCheckingRef.current = true
+
+    try {
+      const probe = await probeSession({ notBefore: Date.now() })
+
+      switch (probe.status) {
+        case 'signed-out':
+          reportSessionEvent({ verdict: 'expiry-confirmed', access: describeToken(accessTokenRef.current) })
+          setShowSessionExpiredModal(true)
+          break
+        case 'available':
+          logSessionEvent('warn', 'expiry was a false alarm, session is still valid', {
+            access: describeToken(accessTokenRef.current),
+          })
+          reportSessionEvent({ verdict: 'false-alarm', access: describeToken(accessTokenRef.current) })
+          clearSessionExpired()
+          void resyncSession()
+          break
+        default:
+          clearSessionExpired()
+          setNextCheckAt(Date.now() + probe.retryAfterMs)
+      }
+    } finally {
+      isDoubleCheckingRef.current = false
+    }
+  }, [resyncSession])
 
   const checkSession = useCallback(async () => {
     const probe = await probeSession({ maxAgeMs: 0 })
@@ -54,10 +91,14 @@ export const useSessionExpiry = () => {
   }, [resyncSession])
 
   useEffect(() => {
-    const handler = () => setShowSessionExpiredModal(true)
+    if (getIsSessionInvalid()) {
+      void doubleCheckExpiry()
+    }
+
+    const handler = () => void doubleCheckExpiry()
     window.addEventListener(SESSION_EXPIRED_EVENT, handler)
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handler)
-  }, [])
+  }, [doubleCheckExpiry])
 
   useEffect(() => {
     const handler = () => {
