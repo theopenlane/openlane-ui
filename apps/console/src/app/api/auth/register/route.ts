@@ -1,5 +1,5 @@
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
-import { useInsecureCookies } from '@repo/dally/auth'
+import { setPasskeyCookie } from '@/lib/auth/utils/set-passkey-cookie'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
@@ -11,15 +11,8 @@ export async function POST(request: Request) {
   })
 
   if (fData.ok) {
-    const response = NextResponse.json(await fData.json(), { status: 200 })
-    response.cookies.set('passkey-prompt', 'true', {
-      maxAge: 10 * 60,
-      path: '/',
-      sameSite: 'lax',
-      secure: !useInsecureCookies,
-    })
-
-    return response
+    await setPasskeyCookie()
+    return NextResponse.json(await fData.json(), { status: 200 })
   }
 
   if (fData.status !== 201) {

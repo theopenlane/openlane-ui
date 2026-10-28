@@ -1,5 +1,5 @@
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
-import { useInsecureCookies } from '@repo/dally/auth'
+import { setPasskeyCookie } from '@/lib/auth/utils/set-passkey-cookie'
 import { type NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
@@ -13,14 +13,8 @@ export async function GET(request: NextRequest) {
   const fData = await secureFetch(`${process.env.API_REST_URL}/v1/verify?token=${encodeURIComponent(token)}`)
 
   if (fData.ok) {
-    const response = NextResponse.json(await fData.json(), { status: 200 })
-    response.cookies.set('passkey-prompt', 'true', {
-      maxAge: 10 * 60,
-      path: '/',
-      sameSite: 'lax',
-      secure: !useInsecureCookies,
-    })
-    return response
+    await setPasskeyCookie()
+    return NextResponse.json(await fData.json(), { status: 200 })
   }
 
   if (fData.status !== 200) {
