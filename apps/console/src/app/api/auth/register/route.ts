@@ -12,14 +12,13 @@ export async function POST(request: Request) {
 
   if (fData.ok) {
     const response = NextResponse.json(await fData.json(), { status: 200 })
-    if (bodyData.token) {
-      response.cookies.set('passkey-prompt', 'true', {
-        maxAge: 10 * 60,
-        path: '/',
-        sameSite: 'lax',
-        secure: !useInsecureCookies,
-      })
-    }
+    response.cookies.set('passkey-prompt', 'true', {
+      maxAge: 10 * 60,
+      path: '/',
+      sameSite: 'lax',
+      secure: !useInsecureCookies,
+    })
+
     return response
   }
 
