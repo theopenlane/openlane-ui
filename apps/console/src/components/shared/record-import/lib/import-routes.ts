@@ -5,6 +5,7 @@ import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { type Crumb } from '@/providers/BreadcrumbContext'
 import { type TAccessRole } from '@/types/authz'
 import { pluralizeTypeName, toHumanLabel, toLowerLabel } from '@/utils/strings'
+import { type TImportMode } from './types'
 
 export type TImportPermission = AccessEnum | 'edit' | null
 
@@ -24,6 +25,7 @@ type TImportRouteDetails = {
   displayName: string
   displayNamePlural?: string
   permission: TImportPermission
+  mode?: TImportMode
   gate?: ObjectTypes
   reorderable?: boolean
   importNotice?: string
@@ -175,6 +177,8 @@ const IMPORT_VENDOR_PARAM = 'vendorId'
 const IMPORT_TRUST_CENTER_PARAM = 'trustCenterId'
 const IMPORT_SOURCE_PARAM = 'source'
 const STANDARDS_SOURCE = 'standards'
+const IMPORT_MODE_PARAM = 'mode'
+const UPDATE_MODE = 'update' satisfies TImportMode
 
 const importHref = (entityType: TImportableObjectType, extra: Record<string, string> = {}): string =>
   `${IMPORT_PATH}?${new URLSearchParams({ [IMPORT_TYPE_PARAM]: entityType.toLowerCase(), ...extra })}`
@@ -224,6 +228,17 @@ export const controlsFromStandardsImportRoute: TImportRoute = {
   importNotice: 'Subcontrols of a cloned control that are not listed in your file are marked Not Applicable.',
 }
 
+export const controlsUpdateImportRoute: TImportRoute = {
+  ...IMPORT_ROUTE_DETAILS[ObjectTypes.CONTROL],
+  href: importHref(ObjectTypes.CONTROL, { [IMPORT_MODE_PARAM]: UPDATE_MODE }),
+  mode: UPDATE_MODE,
+  title: 'Update Existing Controls',
+  heading: 'Update existing controls',
+  subheading: 'Upload a file of controls that already exist in Openlane. Each row is matched to a control by its ID, and only the columns you map are changed.',
+  importNotice:
+    'Every mapped column overwrites the current value of the control, and a blank cell in a mapped text column clears it. Map only the columns you want to change; a column that is blank in every row is only mapped if you pick its field.',
+}
+
 type TImportScopeDefinition = {
   entityType: TImportableObjectType
   param: string
@@ -239,6 +254,12 @@ const IMPORT_SCOPES = {
     param: IMPORT_SOURCE_PARAM,
     accepts: (value: string) => value === STANDARDS_SOURCE,
     route: () => controlsFromStandardsImportRoute,
+  },
+  controlsUpdate: {
+    entityType: ObjectTypes.CONTROL,
+    param: IMPORT_MODE_PARAM,
+    accepts: (value: string) => value === UPDATE_MODE,
+    route: () => controlsUpdateImportRoute,
   },
 } as const satisfies Record<string, TImportScopeDefinition>
 

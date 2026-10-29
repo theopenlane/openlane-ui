@@ -10,7 +10,8 @@ import { IMPORT_STEPS, useRecordImport } from './lib/use-record-import'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { importDisplayNamePlural, type TImportRoute } from './lib/import-routes'
 import { useImportExit } from './lib/use-import-exit'
-import type { TDestinationField, TImportAutomaticValue, TImportDestination, TMappedImport } from './lib/types'
+import type { TDestinationField, TImportAutomaticValue, TImportDestination, TImportMode, TMappedImport } from './lib/types'
+import { IncompleteImportError } from './lib/incomplete-import-error'
 import { ImportFlowLayout } from './import-flow-layout'
 import { ImportSourceStep } from './import-source-step'
 import { Callout } from '@/components/shared/callout/callout'
@@ -24,16 +25,23 @@ type TRecordImportFlowProps = {
   onImport: (mapped: TMappedImport) => Promise<unknown>
 }
 
+const MODE_COPY: Record<TImportMode, { verb: string; busy: string; done: string; action: string }> = {
+  create: { verb: 'Import', busy: 'Importing…', done: 'imported', action: 'create' },
+  update: { verb: 'Update', busy: 'Updating…', done: 'updated', action: 'update' },
+}
+
 export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType, route, destination, fixedFields, automaticValues, onImport }) => {
-  const { successNotification, errorNotification } = useNotification()
+  const { successNotification, warningNotification, errorNotification } = useNotification()
   const [isImporting, setIsImporting] = useState(false)
 
   const entityLabel = route.displayName
   const entityLabelPlural = importDisplayNamePlural(route)
   const entityLabels = useMemo(() => [entityLabel, entityLabelPlural], [entityLabel, entityLabelPlural])
   const exit = useImportExit(route)
+  const mode = route.mode ?? 'create'
+  const copy = MODE_COPY[mode]
 
-  const state = useRecordImport({ entityType, entityLabels, steps: IMPORT_STEPS, destination, fixedFields })
+  const state = useRecordImport({ entityType, entityLabels, steps: IMPORT_STEPS, mode, destination, fixedFields })
   const { step, goToStep, parsed, columns, mapping, validation, plan, toMappedImport, rowOrder, moveRow, isLoadingFields, isDestinationError } = state
 
   const rowCount = parsed?.rows.length ?? 0
@@ -50,12 +58,17 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
 
       await onImport(mapped)
       successNotification({
-        title: `${entityLabelPlural} imported`,
-        description: `${recordCount(rowCount)} imported from ${parsed?.fileName}.`,
+        title: `${entityLabelPlural} ${copy.done}`,
+        description: `${recordCount(rowCount)} ${copy.done} from ${parsed?.fileName}.`,
       })
       exit.finish()
     } catch (error) {
-      errorNotification({ title: 'Import failed', description: parseErrorMessage(error) })
+      if (error instanceof IncompleteImportError) {
+        warningNotification({ title: error.title, description: error.message })
+        exit.finish()
+        return
+      }
+      errorNotification({ title: `${copy.verb} failed`, description: parseErrorMessage(error) })
     } finally {
       setIsImporting(false)
     }
@@ -89,7 +102,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
       footerHint={footerHint()}
       finalAction={
         <Button variant="primary" onClick={handleImport} loading={isImporting} disabled={isImporting || exit.isFinished || !parsed || hasBlockingIssues}>
-          {isImporting ? 'Importing…' : `Import ${recordCount(rowCount)}`}
+          {isImporting ? copy.busy : `${copy.verb} ${recordCount(rowCount)}`}
         </Button>
       }
     >
@@ -107,6 +120,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
             <ReviewStep
               entityLabel={entityLabel}
               entityLabelPlural={entityLabelPlural}
+              countTitle={`${entityLabelPlural} to ${copy.action}`}
               parsed={parsed}
               rowOrder={rowOrder}
               columns={columns}
