@@ -13,9 +13,9 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useNotification } from '@/hooks/useNotification'
 import { useDebounce } from '@uidotdev/usehooks'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { buildPastDueVulnerabilityFilter, MS_PER_DAY } from '@/utils/vulnerability-due-date'
+import { buildPastDueVulnerabilityFilter } from '@/utils/vulnerability-due-date'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
-import { buildTriageGroups, buildVulnerabilitySearchFilter, combineVulnerabilityWhere, getVulnerabilityName, type TriageFacet, type TriageGroups } from './triage-utils'
+import { buildTriageGroups, buildVulnerabilitySearchFilter, combineVulnerabilityWhere, getVulnerabilityName, type TriageFacet, type TriageGroups, type TriageVuln } from './triage-utils'
 import TriageListRail from './triage-list-rail'
 import TriageDetail from './triage-detail'
 import TriageQuickActions from './triage-quick-actions'
@@ -23,6 +23,7 @@ import AcceptRiskDialog from './accept-risk-dialog'
 import { buildDismissVulnerabilityInput } from '../vulnerability-dismiss-reasons'
 import { useVulnerabilityReviewer } from '../../vulnerabilities/hooks/use-vulnerability-review'
 import { getVulnerabilityResponsibilities } from '../../vulnerabilities/vulnerability-responsibilities'
+import SnoozeVulnerabilityDialog from '../../vulnerabilities/snooze/snooze-vulnerability-dialog'
 import { buildResponsibilityInlineUpdate, type ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 const MS_PER_HOUR = 1000 * 60 * 60
@@ -86,6 +87,8 @@ const TriagePage: React.FC = () => {
 
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [acceptRiskOpen, setAcceptRiskOpen] = useState(false)
+  const [snoozeOpen, setSnoozeOpen] = useState(false)
+  const [snoozeTarget, setSnoozeTarget] = useState<TriageVuln | null>(null)
   const [remediateVuln, setRemediateVuln] = useState<{ id: string; name: string; reviewedByUserID?: string | null } | null>(null)
 
   useEffect(() => {
@@ -136,16 +139,6 @@ const TriagePage: React.FC = () => {
     })
   }
 
-  const handleSnooze = () => {
-    if (!selectedVuln) return
-    const baseIso = selectedVuln.discoveredAt || selectedVuln.createdAt
-    const baseDate = baseIso ? new Date(baseIso) : new Date()
-    const daysSinceBase = Math.max(0, Math.ceil((Date.now() - baseDate.getTime()) / MS_PER_DAY))
-    const currentSla = selectedVuln.dueInfo.slaDays ?? 0
-    const newSla = Math.max(currentSla, daysSinceBase + 7)
-    runUpdate({ remediationSLA: newSla }, 'Snoozed for 7 days')
-  }
-
   const handleRemediate = () => {
     if (!selectedVuln) return
     setRemediateVuln({ id: selectedVuln.id, name: getVulnerabilityName(selectedVuln), reviewedByUserID: selectedVuln.reviewedByUser?.id })
@@ -179,7 +172,10 @@ const TriagePage: React.FC = () => {
                 onAssign={handleAssign}
                 onRemediate={handleRemediate}
                 onAcceptRisk={() => setAcceptRiskOpen(true)}
-                onSnooze={handleSnooze}
+                onSnooze={() => {
+                  setSnoozeTarget(selectedVuln)
+                  setSnoozeOpen(true)
+                }}
                 onPrev={() => goToNeighbor(-1)}
                 onNext={() => goToNeighbor(1)}
                 hasPrev={currentIndex > 0}
@@ -204,6 +200,8 @@ const TriagePage: React.FC = () => {
           onConfirm={handleAcceptRisk}
         />
       )}
+
+      {snoozeTarget && <SnoozeVulnerabilityDialog isOpen={snoozeOpen} vulnerability={snoozeTarget} vulnerabilityName={getVulnerabilityName(snoozeTarget)} onClose={() => setSnoozeOpen(false)} />}
 
       <CreateRemediationSheet
         isOpen={Boolean(remediateVuln)}

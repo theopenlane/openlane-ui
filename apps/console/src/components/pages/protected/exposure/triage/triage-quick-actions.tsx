@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { Button } from '@repo/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ArrowLeft, ArrowRight, ShieldCheck, ShieldOff, Clock } from 'lucide-react'
 import { ResponsibilityPicker } from '@/components/shared/crud-base/form-fields/responsibility-picker'
 import { type ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
@@ -34,16 +33,9 @@ const TriageQuickActions: React.FC<Props> = ({ assignee, onAssign, onRemediate, 
         <Button variant="outline" size="md" icon={<ShieldOff size={14} />} iconPosition="left" onClick={onAcceptRisk} disabled={mutationsDisabled}>
           Accept risk
         </Button>
-        <TooltipProvider delayDuration={200}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="outline" size="md" icon={<Clock size={14} />} iconPosition="left" onClick={onSnooze} disabled={mutationsDisabled}>
-                Snooze
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">Snoozes the alert for 7 days</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button variant="outline" size="md" icon={<Clock size={14} />} iconPosition="left" onClick={onSnooze} disabled={mutationsDisabled}>
+          Snooze
+        </Button>
       </div>
 
       <div className="flex items-center gap-2">
