@@ -1,5 +1,5 @@
-import { auth } from '@/lib/auth/auth'
-import { getStripe } from '@/lib/stripe'
+import { billingResourceNotFound, withBillingCustomer } from '@/lib/server/billing-customer'
+import { getStripe, retrieveCustomerSchedule, retrieveCustomerSubscription } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
@@ -146,10 +146,7 @@ const applyCoupons = (subtotalCents: number, coupons: Stripe.Coupon[], currency:
   return totalDiscount
 }
 
-const buildEstimatedUpcomingFromSchedule = async ({ customerId, scheduleId, subscriptionId }: { customerId: string; scheduleId?: string | null; subscriptionId?: string | null }) => {
-  if (!scheduleId) return null
-
-  const schedule = await getStripe().subscriptionSchedules.retrieve(scheduleId)
+const buildEstimatedUpcomingFromSchedule = async (customerId: string, schedule: Stripe.SubscriptionSchedule) => {
   const targetPhase = pickTargetPhase(schedule)
   if (!targetPhase) return null
 
@@ -158,7 +155,7 @@ const buildEstimatedUpcomingFromSchedule = async ({ customerId, scheduleId, subs
 
   if (coupons.length === 0) {
     const scheduleSubscriptionId = typeof schedule.subscription === 'string' ? schedule.subscription : schedule.subscription?.id
-    coupons = await resolveCouponsFromSubscription(subscriptionId ?? scheduleSubscriptionId)
+    coupons = await resolveCouponsFromSubscription(scheduleSubscriptionId)
   }
 
   if (coupons.length === 0) {
@@ -177,36 +174,26 @@ const buildEstimatedUpcomingFromSchedule = async ({ customerId, scheduleId, subs
   }
 }
 
-export async function GET(req: Request) {
-  // ensure we have a valid session
-  const session = await auth()
-  if (!session || !session.user?.accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
+export const GET = withBillingCustomer(async (customerId, req) => {
   const { searchParams } = new URL(req.url)
-  const customerId = searchParams.get('customerId')
   const scheduleId = searchParams.get('scheduleId')
-  const subscriptionId = searchParams.get('subscriptionId')
-
-  if (!customerId) {
-    return NextResponse.json({ error: 'Missing customerId' }, { status: 400 })
-  }
+  const subscriptionId = scheduleId ? null : searchParams.get('subscriptionId')
 
   if (!scheduleId && !subscriptionId) {
     return NextResponse.json({ error: 'Missing scheduleId or subscriptionId' }, { status: 400 })
   }
 
+  let schedule: Stripe.SubscriptionSchedule | null = null
+
   try {
-    const previewParams: Stripe.InvoiceCreatePreviewParams = {
-      customer: customerId,
+    schedule = scheduleId ? await retrieveCustomerSchedule(scheduleId, customerId) : null
+    const subscription = subscriptionId ? await retrieveCustomerSubscription(subscriptionId, customerId) : null
+
+    if (!schedule && !subscription) {
+      return billingResourceNotFound()
     }
 
-    if (scheduleId) {
-      previewParams.schedule = scheduleId
-    } else if (subscriptionId) {
-      previewParams.subscription = subscriptionId
-    }
+    const previewParams: Stripe.InvoiceCreatePreviewParams = schedule ? { customer: customerId, schedule: schedule.id } : { customer: customerId, subscription: subscription?.id }
     const upcomingInvoice = await getStripe().invoices.createPreview(previewParams)
 
     const totalDiscount = (upcomingInvoice.total_discount_amounts ?? []).reduce((sum, discountAmount) => sum + discountAmount.amount, 0)
@@ -226,11 +213,7 @@ export async function GET(req: Request) {
       })
 
       try {
-        const fallback = await buildEstimatedUpcomingFromSchedule({
-          customerId,
-          scheduleId,
-          subscriptionId,
-        })
+        const fallback = schedule ? await buildEstimatedUpcomingFromSchedule(customerId, schedule) : null
 
         if (fallback) {
           return NextResponse.json(fallback)
@@ -245,4 +228,4 @@ export async function GET(req: Request) {
     console.error('❌ Stripe upcoming invoice error:', err)
     return NextResponse.json({ error: 'Failed to fetch upcoming invoice' }, { status: 500 })
   }
-}
+})

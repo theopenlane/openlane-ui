@@ -93,7 +93,7 @@ const CancelSubscriptionSection = ({ stripeCustomerId, hasSubscription }: Cancel
               {isCanceled ? 'Renew subscription' : 'Cancel subscription'}
             </Button>
           ) : stripeCustomerId ? (
-            <Button className="self-end h-8 p-2" icon={<ExternalLink size={16} />} loading={redirecting} disabled={redirecting} onClick={() => openBillingPortal(stripeCustomerId, true)}>
+            <Button className="self-end h-8 p-2" icon={<ExternalLink size={16} />} loading={redirecting} disabled={redirecting} onClick={() => openBillingPortal(true)}>
               Manage subscription in Stripe
             </Button>
           ) : (

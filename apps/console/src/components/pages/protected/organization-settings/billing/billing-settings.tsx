@@ -13,10 +13,11 @@ import Invoices from './invoices'
 import { Card } from '@repo/ui/cardpanel'
 import { CreditCard, ExternalLink } from 'lucide-react'
 import { useOpenBillingPortal } from '@/hooks/useBillingPortal'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 
 const BillingSettings: React.FC = () => {
   const { panel, section, sectionContent, emailText, paragraph, text } = billingSettingsStyles()
-  const { currentOrgId, getOrganizationByID } = useOrganization()
+  const { currentOrgId } = useOrganization()
   const { data } = useGetOrganizationBilling(currentOrgId)
   const { data: settingData } = useGetOrganizationSetting(currentOrgId)
   const billingAddress = settingData?.organization.setting?.billingAddress
@@ -24,8 +25,7 @@ const BillingSettings: React.FC = () => {
   const email = settingData?.organization.setting?.billingEmail || ''
   const { openBillingPortal, redirecting } = useOpenBillingPortal()
 
-  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
-  const stripeCustomerId = currentOrganization?.node?.stripeCustomerID
+  const stripeCustomerId = data?.organization.stripeCustomerID
   const { data: paymentData } = usePaymentMethodsQuery(stripeCustomerId)
 
   const defaultCard = useMemo(() => {
@@ -102,9 +102,11 @@ const BillingSettings: React.FC = () => {
             <p className="text-sm text-text-informational">No payment method on file</p>
           )}
         </div>
-        <Button icon={<ExternalLink />} className="h-8 p-2 gap-1" loading={redirecting} disabled={redirecting} onClick={() => openBillingPortal(stripeCustomerId)}>
-          Manage
-        </Button>
+        <DisabledReasonTooltip reason={stripeCustomerId ? null : 'This organization has no billing account yet.'}>
+          <Button icon={<ExternalLink />} className="h-8 p-2 gap-1" loading={redirecting} disabled={redirecting || !stripeCustomerId} onClick={() => openBillingPortal()}>
+            Manage
+          </Button>
+        </DisabledReasonTooltip>
       </Card>
 
       {/* Invoices Section */}

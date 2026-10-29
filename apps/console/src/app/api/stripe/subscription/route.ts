@@ -1,30 +1,17 @@
 import { NextResponse } from 'next/server'
-import { getStripe } from '@/lib/stripe'
-import { auth } from '@/lib/auth/auth'
-import { belongsToCustomer, isLive, pickLiveSubscription } from './live-subscription'
+import { getStripe, retrieveCustomerSubscription } from '@/lib/stripe'
+import { withBillingCustomer } from '@/lib/server/billing-customer'
+import { isLive, pickLiveSubscription } from './live-subscription'
 
-export async function GET(req: Request) {
-  // ensure we have a valid session
-  const session = await auth()
-  if (!session || !session.user?.accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
+export const GET = withBillingCustomer(async (customerId, req) => {
   try {
     const { searchParams } = new URL(req.url)
-    const customerId = searchParams.get('customer')
     const subscriptionId = searchParams.get('subscription')
 
-    if (!customerId) {
-      return NextResponse.json({ error: 'Missing customer id' }, { status: 400 })
-    }
-
     if (subscriptionId) {
-      const releasedSubscription = await getStripe()
-        .subscriptions.retrieve(subscriptionId)
-        .catch(() => null)
+      const releasedSubscription = await retrieveCustomerSubscription(subscriptionId, customerId)
 
-      if (releasedSubscription && belongsToCustomer(releasedSubscription, customerId) && isLive(releasedSubscription)) {
+      if (releasedSubscription && isLive(releasedSubscription)) {
         return NextResponse.json(releasedSubscription)
       }
     }
@@ -40,4 +27,4 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ error: 'Failed to fetch subscription' }, { status: 500 })
   }
-}
+})

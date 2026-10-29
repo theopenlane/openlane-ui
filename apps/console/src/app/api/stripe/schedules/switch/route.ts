@@ -1,5 +1,6 @@
-import { auth } from '@/lib/auth/auth'
-import { getStripe } from '@/lib/stripe'
+import { billingResourceNotFound, withBillingCustomer } from '@/lib/server/billing-customer'
+import { getStripe, retrieveCustomerSchedule } from '@/lib/stripe'
+import { fetchCatalogPrices, isSameCatalogProduct } from '@/lib/server/product-catalog'
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 
@@ -13,21 +14,23 @@ interface RequestBody {
   swaps: Swap[]
 }
 
-export async function POST(req: Request) {
-  // ensure we have a valid session
-  const session = await auth()
-  if (!session || !session.user?.accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
+export const POST = withBillingCustomer(async (customerId, req) => {
   try {
     const { scheduleId, swaps } = (await req.json()) as RequestBody
 
-    if (!scheduleId || !swaps?.length) {
+    if (!scheduleId || !Array.isArray(swaps) || swaps.length === 0) {
       return NextResponse.json({ error: 'scheduleId and swaps[] are required' }, { status: 400 })
     }
 
-    const schedule: Stripe.SubscriptionSchedule = await getStripe().subscriptionSchedules.retrieve(scheduleId)
+    const catalog = await fetchCatalogPrices()
+    if (!swaps.every((swap) => isSameCatalogProduct(catalog, swap.from, swap.to))) {
+      return NextResponse.json({ error: 'Each swap must stay within the same product' }, { status: 400 })
+    }
+
+    const schedule = await retrieveCustomerSchedule(scheduleId, customerId)
+    if (!schedule) {
+      return billingResourceNotFound()
+    }
 
     const currentPhase = schedule.current_phase
     if (!currentPhase) {
@@ -86,4 +89,4 @@ export async function POST(req: Request) {
     console.error('Failed to switch payment schedule', err)
     return NextResponse.json({ error: 'Failed to switch payment schedule' }, { status: 500 })
   }
-}
+})

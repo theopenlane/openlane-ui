@@ -5770,7 +5770,6 @@ export interface GetAllOrganizationsQuery {
         displayName: string
         avatarRemoteURL: string | null
         personalOrg: boolean | null
-        stripeCustomerID: string | null
         avatarFile: { id: string; base64: string | null } | null
         setting: { identityProviderLoginEnforced: boolean } | null
       } | null
@@ -5862,7 +5861,21 @@ export type GetOrganizationBillingQueryVariables = Exact<{
 }>
 
 export interface GetOrganizationBillingQuery {
-  organization: { personalOrg: boolean | null; orgSubscriptions: Array<{ active: boolean; expiresAt: any; stripeSubscriptionStatus: string | null; trialExpiresAt: any }> | null }
+  organization: {
+    personalOrg: boolean | null
+    stripeCustomerID: string | null
+    orgSubscriptions: Array<{ active: boolean; expiresAt: any; stripeSubscriptionStatus: string | null; trialExpiresAt: any }> | null
+  }
+}
+
+export type GetOrganizationBillingAccessQueryVariables = Exact<{
+  organizationId: string
+  userId: string
+}>
+
+export interface GetOrganizationBillingAccessQuery {
+  organization: { stripeCustomerID: string | null }
+  orgMemberships: { edges: Array<{ node: { role: Types.OrgMembershipRole } | null } | null> | null }
 }
 
 export type GetOrganizationBillingBannerQueryVariables = Exact<{
