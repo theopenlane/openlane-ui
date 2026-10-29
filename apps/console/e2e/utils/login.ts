@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test'
 
+import { LOGIN_EMAIL_INPUT, PASSWORD_INPUT } from './constants'
 import { installRecaptchaShim } from './recaptcha'
 
 export const waitForLoginMethodCheck = (page: Page) =>
@@ -11,9 +12,9 @@ export const loginViaForm = async (page: Page, email: string, password: string):
   await page.goto('/login')
 
   const loginMethodCheck = waitForLoginMethodCheck(page)
-  await page.getByPlaceholder(/Enter your email/i).fill(email)
+  await page.locator(LOGIN_EMAIL_INPUT).fill(email)
   await loginMethodCheck
 
-  await page.locator('input[name="password"]').fill(password)
+  await page.locator(PASSWORD_INPUT).fill(password)
   await page.getByRole('button', { name: /^login$/i }).click()
 }
