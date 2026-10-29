@@ -79,3 +79,5 @@ export type TImportDestination = {
 }
 
 export type TImportAutomaticValue = { label: string; value: string }
+
+export type TImportMode = 'create' | 'update'

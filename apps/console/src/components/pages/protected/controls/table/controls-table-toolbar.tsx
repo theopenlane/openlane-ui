@@ -26,7 +26,6 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeleteControls } from '@/lib/graphql-hooks/control'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useOrganization } from '@/hooks/useOrganization'
-import { BulkCSVUpdateControlDialog } from '../bulk-csv-update-control-dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -36,7 +35,7 @@ import { type TQuickFilter } from '@/components/shared/table-filter/table-filter
 import { type Session } from 'next-auth'
 import MenuItem from '@/components/shared/menu/menu-item'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
-import { controlsFromStandardsImportRoute, IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
+import { controlsFromStandardsImportRoute, controlsUpdateImportRoute, IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'
 import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
@@ -104,7 +103,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   }, [session?.user?.userId])
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
-  const [isUpdateOpen, setIsUpdateOpen] = useState(false)
   const { currentOrgId } = useOrganization()
 
   const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({
@@ -255,8 +253,8 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                       {...tableActionAnchor(ObjectTypes.CONTROL, 'bulk-update')}
                       icon={<Upload size={16} strokeWidth={2} />}
                       onSelect={() => {
-                        setIsUpdateOpen(true)
                         close()
+                        openImport(controlsUpdateImportRoute)
                       }}
                     >
                       Update Existing Controls
@@ -265,7 +263,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                   </>
                 )}
               />
-              <BulkCSVUpdateControlDialog open={isUpdateOpen} onOpenChange={setIsUpdateOpen} />
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.CONTROL} />
               )}
