@@ -5900,7 +5900,6 @@ export interface GetOrganizationSettingQuery {
       allowSupportAccess: boolean | null
       identityProvider: Types.OrganizationSettingSsoProvider | null
       identityProviderClientID: string | null
-      identityProviderClientSecret: string | null
       oidcDiscoveryEndpoint: string | null
       identityProviderLoginEnforced: boolean
       identityProviderAuthTested: boolean
@@ -10421,6 +10420,21 @@ export type CreateVulnerabilityMutationVariables = Exact<{
 
 export interface CreateVulnerabilityMutation {
   createVulnerability: { vulnerability: { id: string } }
+}
+
+export type VulnerabilitySnoozeTargetsQueryVariables = Exact<{
+  where?: Types.VulnerabilityWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface VulnerabilitySnoozeTargetsQuery {
+  vulnerabilities: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: { id: string; securityLevel: Types.VulnerabilitySecurityLevel | null; severity: string | null; createdAt: any; discoveredAt: string | null; remediationSLA: number | null } | null
+    } | null> | null
+  }
 }
 
 export type UpdateVulnerabilityMutationVariables = Exact<{

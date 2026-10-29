@@ -988,10 +988,6 @@ export const IMPORT_FIELDS: Readonly<Record<string, Readonly<Record<string, Impo
     visibility: { kind: 'enum', enumValues: ['PRIVATE', 'PUBLIC'], description: "whether the group is visible to it's members / owners only or if it's searchable by anyone within the organization" },
   },
   Hush: {
-    credentialSet: {
-      kind: 'json',
-      description: 'a credential set, typically where you have multiple tokens or keys that compose one credential such as when accessing s3 and using access key ID, secret key, etc.',
-    },
     description: { kind: 'string', description: 'a description of the hush value or purpose, such as github PAT' },
     eventIDs: { kind: 'id', list: true },
     expiresAt: { kind: 'date', timestamp: true, description: 'when the token expires' },
@@ -1277,7 +1273,6 @@ export const IMPORT_FIELDS: Readonly<Record<string, Readonly<Record<string, Impo
     billingEmail: { kind: 'string', description: 'Email address of the person to contact for billing' },
     billingNotificationsEnabled: { kind: 'boolean', description: 'should we send email notifications related to billing' },
     billingPhone: { kind: 'string', description: 'Phone number to contact for billing' },
-    complianceWebhookToken: { kind: 'string', description: 'unique token used to receive compliance webhook events' },
     domains: { kind: 'string', list: true, description: 'domains associated with the organization' },
     fileIDs: { kind: 'id', list: true },
     geoLocation: { kind: 'enum', enumValues: ['AMER', 'APAC', 'EMEA'], description: 'geographical location of the organization' },

@@ -724,7 +724,6 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'visibility', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'GroupSettingVisibility' },
   ],
   Hush: [
-    { name: 'credentialSet', kind: 'json', list: false, nonNull: false, listItemNonNull: false },
     { name: 'description', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'expiresAt', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
     { name: 'internalNotes', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
@@ -920,12 +919,10 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'billingEmail', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'billingNotificationsEnabled', kind: 'boolean', list: false, nonNull: true, listItemNonNull: false },
     { name: 'billingPhone', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'complianceWebhookToken', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'domains', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'geoLocation', kind: 'enum', list: false, nonNull: false, listItemNonNull: false, enumName: 'OrganizationSettingRegion' },
     { name: 'identityProvider', kind: 'enum', list: false, nonNull: false, listItemNonNull: false, enumName: 'OrganizationSettingSsoProvider' },
     { name: 'identityProviderClientID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'identityProviderClientSecret', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'identityProviderEntityID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'identityProviderJitProvisioning', kind: 'boolean', list: false, nonNull: true, listItemNonNull: false },
     { name: 'identityProviderLoginEnforced', kind: 'boolean', list: false, nonNull: true, listItemNonNull: false },
@@ -1432,7 +1429,6 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'statusPageURL', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'themeMode', kind: 'enum', list: false, nonNull: false, listItemNonNull: false, enumName: 'TrustCenterSettingTrustCenterThemeMode' },
     { name: 'title', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'trustCenterID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
   ],
   TrustCenterSubprocessor: [
     { name: 'countries', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
