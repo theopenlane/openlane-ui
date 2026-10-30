@@ -1,26 +1,21 @@
 import { type UpdateRemediationInput } from '@repo/codegen/src/schema'
-import { associationsInput, orClear, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { omit, orClear, richTextOrClear, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { type RemediationFormData } from './use-form-schema'
 
 export const REMEDIATION_UPDATE_FIELDS = {
+  contextType: omit,
+  contextId: omit,
   title: orClear('clearTitle'),
-  summary: orClear('clearSummary'),
-  explanation: orClear('clearExplanation'),
-  instructions: orClear('clearInstructions'),
-  intent: orClear('clearIntent'),
-  state: orClear('clearState'),
-  source: orClear('clearSource'),
-  externalID: orClear('clearExternalID'),
-  externalOwnerID: orClear('clearExternalOwnerID'),
-  externalURI: orClear('clearExternalURI'),
-  ownerReference: orClear('clearOwnerReference'),
-  ticketReference: orClear('clearTicketReference'),
-  pullRequestURI: orClear('clearPullRequestURI'),
-  repositoryURI: orClear('clearRepositoryURI'),
+  status: orClear('clearStatus'),
+  explanation: richTextOrClear('clearExplanation'),
+  instructions: richTextOrClear('clearInstructions'),
+  intent: richTextOrClear('clearIntent'),
   environmentName: orClear('clearEnvironmentName'),
   scopeName: orClear('clearScopeName'),
-  controlIDs: associationsInput('controlIDs'),
-  subcontrolIDs: associationsInput('subcontrolIDs'),
-  findingIDs: associationsInput('findingIDs'),
-  vulnerabilityIDs: associationsInput('vulnerabilityIDs'),
+  repositoryURI: orClear('clearRepositoryURI'),
+  pullRequestURI: orClear('clearPullRequestURI'),
+  ticketReference: orClear('clearTicketReference'),
+  externalURI: orClear('clearExternalURI'),
+  fileIDs: omit,
+  uploads: omit,
 } satisfies TFieldMappers<RemediationFormData, UpdateRemediationInput>

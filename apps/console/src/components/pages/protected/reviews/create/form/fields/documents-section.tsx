@@ -110,8 +110,7 @@ const ReviewDocumentsSection: React.FC<ReviewDocumentsSectionProps> = ({ reviewI
       onPaginationChange={setPagination}
       defaultSorting={orderBy}
       onSortChange={setOrderBy}
-      onUpload={handleUpload}
-      isUploading={isUploading}
+      upload={{ onUpload: handleUpload, isUploading }}
       onRemoveFile={handleRemoveFile}
     />
   )

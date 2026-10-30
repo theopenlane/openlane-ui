@@ -11,7 +11,7 @@ export const getSeverityCssVar = (severity: string): string | null => {
   const s = severity.toLowerCase()
   if (s.includes('critical')) return SEVERITY_CSS_VARS.critical
   if (s.includes('high')) return SEVERITY_CSS_VARS.high
-  if (s.includes('medium') || s.includes('med')) return SEVERITY_CSS_VARS.medium
+  if (s.includes('medium') || s.includes('med') || s.includes('moderate')) return SEVERITY_CSS_VARS.medium
   if (s.includes('low')) return SEVERITY_CSS_VARS.low
   return null
 }

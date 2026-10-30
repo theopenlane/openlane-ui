@@ -65,7 +65,7 @@ export const deleteMenuAction = (onClick: () => void, options?: { disabled?: boo
   onClick,
 })
 
-const SingleMenuAction = ({ label, icon, onClick, disabled, destructive }: SlideoutMenuAction) =>
+const SingleMenuAction = ({ label, icon, onClick, disabled, destructive }: Omit<SlideoutMenuAction, 'key'>) =>
   icon ? (
     <Button variant="secondary" size="icon-sm" icon={icon} className={cn(destructive && '[&_svg]:text-destructive')} descriptiveTooltipText={label} onClick={onClick} disabled={disabled} />
   ) : (
@@ -122,7 +122,15 @@ export const SlideoutHeader = ({
           {!formActions && !editBelongsInMenu && onEdit && (
             <Button variant="secondary" size="icon-sm" icon={<Pencil size={16} />} descriptiveTooltipText="Edit" onClick={onEdit} disabled={editDisabled} />
           )}
-          {resolvedMenuActions.length === 1 && <SingleMenuAction {...resolvedMenuActions[0]} />}
+          {resolvedMenuActions.length === 1 && (
+            <SingleMenuAction
+              label={resolvedMenuActions[0].label}
+              icon={resolvedMenuActions[0].icon}
+              onClick={resolvedMenuActions[0].onClick}
+              disabled={resolvedMenuActions[0].disabled}
+              destructive={resolvedMenuActions[0].destructive}
+            />
+          )}
           {resolvedMenuActions.length > 1 && (
             <Menu
               trigger={<Button variant="secondary" size="icon-sm" icon={<Ellipsis size={16} />} descriptiveTooltipText="More actions" />}

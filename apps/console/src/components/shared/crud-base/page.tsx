@@ -71,17 +71,7 @@ export interface TTableProps<TWhereInput> {
   rowHref?: (item: { id: string }) => string
 }
 
-export interface GenericTablePageConfig<
-  TEntity extends { id: string },
-  TFormData extends FieldValues,
-  TUpdateInput extends object,
-  TUpdateData,
-  TCreateInput,
-  TCreateData,
-  TWhereInput,
-  TOrderField extends string,
-  TSheetEntity = TEntity,
-> {
+interface GenericTablePageBaseConfig<TEntity extends { id: string }, TFormData extends FieldValues, TUpdateInput extends object, TWhereInput, TOrderField extends string, TSheetEntity = TEntity> {
   // Entity configuration
   objectType: ObjectTypes
   objectName: ObjectNames
@@ -139,9 +129,6 @@ export interface GenericTablePageConfig<
     quickFilters?: TQuickFilter[]
   }>
 
-  // Sheet configuration
-  sheetConfig: Omit<GenericDetailsSheetConfig<TFormData, TSheetEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData>, 'form' | 'onClose'>
-
   // View/Create mode configuration
   viewEditMode?: ViewEditMode<TSheetEntity, TUpdateInput>
   createMode?: CreateMode
@@ -160,6 +147,23 @@ export interface GenericTablePageConfig<
   createPermission?: TAccessRole
   hideBreadcrumbs?: boolean
 }
+
+type TDetailViewConfig<TFormData extends FieldValues, TSheetEntity, TUpdateInput extends object, TUpdateData, TCreateInput, TCreateData> =
+  | { sheetConfig: Omit<GenericDetailsSheetConfig<TFormData, TSheetEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData>, 'form' | 'onClose'>; renderDetailView?: never }
+  | { renderDetailView: (params: { id: string | null; isCreate: boolean; onClose: () => void }) => React.ReactNode; sheetConfig?: never }
+
+export type GenericTablePageConfig<
+  TEntity extends { id: string },
+  TFormData extends FieldValues,
+  TUpdateInput extends object,
+  TUpdateData,
+  TCreateInput,
+  TCreateData,
+  TWhereInput,
+  TOrderField extends string,
+  TSheetEntity = TEntity,
+> = GenericTablePageBaseConfig<TEntity, TFormData, TUpdateInput, TWhereInput, TOrderField, TSheetEntity> &
+  TDetailViewConfig<TFormData, TSheetEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
 
 export function GenericTablePage<
   TEntity extends { id: string },
@@ -191,6 +195,7 @@ export function GenericTablePage<
     TableComponent,
     ToolbarComponent,
     sheetConfig,
+    renderDetailView: renderCustomDetailView,
     viewEditMode,
     createMode,
     onBulkDelete,
@@ -342,6 +347,14 @@ export function GenericTablePage<
   }, [resolvedViewMode, viewEditMode])
 
   const renderDetailView = () => {
+    if (renderCustomDetailView) {
+      return renderCustomDetailView({ id, isCreate, onClose: handleCloseSheet })
+    }
+
+    if (!sheetConfig) {
+      return null
+    }
+
     // Handle step-dialog create mode
     if (isCreate && resolvedCreateMode === 'step-dialog' && createMode?.type === 'step-dialog') {
       if (!sheetConfig.createMutation || !sheetConfig.buildPayload) return null

@@ -13,3 +13,5 @@ export const CARD_DEFAULT_PAGINATION = {
 export const EXPORT_PAGE_SIZE = 100
 
 export const EXPORT_PAGE_SIZE_HEAVY = 10
+
+export const MAX_CONNECTION_RESULTS = 100

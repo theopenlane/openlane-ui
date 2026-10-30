@@ -206,8 +206,7 @@ const TableComponent = ({
       <CreateRemediationSheet
         isOpen={!!trackRemediationRow}
         onClose={() => setTrackRemediationRow(null)}
-        initialData={trackRemediationRow ? { vulnerabilityIDs: [trackRemediationRow.id] } : undefined}
-        defaultTitle={trackRemediationRow ? `${getVulnerabilityTitle(trackRemediationRow)} Remediation` : undefined}
+        context={trackRemediationRow ? { type: ObjectAssociationNodeEnum.VULNERABILITY, id: trackRemediationRow.id } : undefined}
         onSuccess={() => {
           const remediated = trackRemediationRow
           setTrackRemediationRow(null)

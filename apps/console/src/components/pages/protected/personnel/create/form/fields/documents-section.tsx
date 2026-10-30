@@ -108,8 +108,7 @@ const IdentityHolderDocumentsSection: React.FC<IdentityHolderDocumentsSectionPro
       onPaginationChange={setPagination}
       defaultSorting={orderBy}
       onSortChange={setOrderBy}
-      onUpload={handleUpload}
-      isUploading={isUploading}
+      upload={{ onUpload: handleUpload, isUploading }}
       onRemoveFile={handleRemoveFile}
     />
   )

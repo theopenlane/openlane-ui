@@ -9,13 +9,15 @@ import { type TUploadedFile } from '@/components/shared/file-upload/types'
 import { getExistingFileIds, getNewFiles } from '@/components/shared/file-upload/file-selection'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
 import ExistingFilesTable from '@/components/shared/file-upload/existing-files-table'
+import { cn } from '@repo/ui/lib/utils'
 
 type DocumentsCreateSectionProps = {
   onFilesChange: (files: File[]) => void
   onFileIdsChange?: (fileIds: string[]) => void
+  className?: string
 }
 
-const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFilesChange, onFileIdsChange }) => {
+const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFilesChange, onFileIdsChange, className }) => {
   const [allFiles, setAllFiles] = useState<TUploadedFile[]>([])
   const allFilesRef = useRef<TUploadedFile[]>([])
 
@@ -39,7 +41,7 @@ const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFiles
   const handleDelete = useCallback((index: number) => applyChange((previous) => previous.filter((_, position) => position !== index)), [applyChange])
 
   return (
-    <div className="mt-5">
+    <div className={cn('mt-5', className)}>
       <p className="text-lg mb-3">Documents</p>
       <Tabs defaultValue="upload">
         <TabsList>
