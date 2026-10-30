@@ -10,12 +10,11 @@ export async function POST(request: Request) {
     body: JSON.stringify(bodyData),
   })
 
-  if (fData.ok) {
-    await setPasskeyCookie()
-    return NextResponse.json(await fData.json(), { status: 200 })
+  const data = await fData.json()
+
+  if (fData.ok && data.success && data.user_id) {
+    await setPasskeyCookie(data.user_id)
   }
 
-  if (fData.status !== 201) {
-    return NextResponse.json(await fData.json(), { status: fData.status })
-  }
+  return NextResponse.json(data, { status: fData.ok ? 200 : fData.status })
 }

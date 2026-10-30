@@ -16,7 +16,7 @@ import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useSession } from 'next-auth/react'
 import React, { useEffect } from 'react'
-import PasskeyPromptDialog from './passkey-prompt'
+import PasskeyPromptDialog from './passkey-prompt-dialog'
 
 const DASHBOARD_OVERVIEWS: Record<TDashboardOverviewVariant, { Overview: React.FC; Actions: React.FC }> = {
   compliance: { Overview: DashboardComplianceOverview, Actions: DashboardComplianceActions },

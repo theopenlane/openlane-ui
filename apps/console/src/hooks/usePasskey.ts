@@ -22,7 +22,7 @@ export const useCreatePasskey = (email: string | null | undefined) => {
         email: email as string,
       })
 
-      setSessionCookie(options.session)
+      await setSessionCookie(options.session)
 
       const attestationResponse = await startRegistration({
         // useAutoRegister enables Chrome's conditional passkey creation.
@@ -42,7 +42,7 @@ export const useCreatePasskey = (email: string | null | undefined) => {
         errorNotification({
           title: `Error: ${verificationResult.error}`,
         })
-        return
+        return false
       }
 
       queryClient.invalidateQueries({ queryKey: ['passkeys'] })
@@ -52,24 +52,26 @@ export const useCreatePasskey = (email: string | null | undefined) => {
         description: 'You can now sign in with your passkey',
       })
 
-      setLoading(false)
+      return true
     } catch (err: unknown) {
-      setLoading(false)
       console.error('Error during passkey creation:', err)
 
-      if (err instanceof DOMException) {
+      if (err instanceof Error) {
         if (err.name === 'AbortError' || err.name === 'NotAllowedError') {
           errorNotification({ title: 'User canceled setting up Passkeys set up' })
-          return
+          return false
         }
 
         if (err.name === 'InvalidStateError') {
           errorNotification({ title: 'You have previously added a passkey using this device' })
-          return
+          return false
         }
       }
 
       errorNotification({ title: 'An error occurred while setting up your passkey' })
+      return false
+    } finally {
+      setLoading(false)
     }
   }
 

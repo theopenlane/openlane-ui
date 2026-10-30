@@ -25,6 +25,7 @@ type ConfirmationAlertProps = {
   confirmationTextVariant?: ButtonProps['variant']
   showInput?: boolean
   loading?: boolean
+  closeOnConfirm?: boolean
 }
 
 export const ConfirmationDialog = ({
@@ -38,6 +39,7 @@ export const ConfirmationDialog = ({
   confirmationTextVariant,
   showInput,
   loading,
+  closeOnConfirm = true,
 }: ConfirmationAlertProps) => {
   const [confirmationValue, setConfirmationValue] = useState('')
   const isConfirmDisabled = (showInput && confirmationValue.toUpperCase() !== 'DELETE'.toUpperCase()) || loading
@@ -74,7 +76,15 @@ export const ConfirmationDialog = ({
             <Button variant="secondary">{cancellationText}</Button>
           </AlertDialogCancel>
           <AlertDialogAction asChild>
-            <Button type="button" variant={confirmationTextVariant ?? 'destructive'} disabled={isConfirmDisabled} onClick={onConfirm}>
+            <Button
+              type="button"
+              variant={confirmationTextVariant ?? 'destructive'}
+              disabled={isConfirmDisabled}
+              onClick={(event) => {
+                if (!closeOnConfirm) event.preventDefault()
+                onConfirm()
+              }}
+            >
               {confirmationText ?? 'Delete'}
             </Button>
           </AlertDialogAction>
