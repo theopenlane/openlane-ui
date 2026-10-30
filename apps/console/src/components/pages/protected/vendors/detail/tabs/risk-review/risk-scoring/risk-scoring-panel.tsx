@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useId, useMemo } from 'react'
 import { FileText } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
@@ -8,7 +8,6 @@ import { useReviewsWithFilter, type ReviewsNodeNonNull } from '@/lib/graphql-hoo
 import { Callout } from '@/components/shared/callout/callout'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { SeverityChip } from '@/components/shared/severity/severity-chip'
-import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { useVendorRiskScoring } from '@/lib/graphql-hooks/vendor-risk-score'
 import { vendorRiskRatingLevel } from '@/lib/vendor-risk-rating'
@@ -55,48 +54,65 @@ const ReportReviewCallout = ({ scoring }: { scoring: TRiskScoring }) => (
 const LATEST_REVIEW_ORDER = [{ field: ReviewOrderField.created_at, direction: OrderDirection.DESC }]
 const LATEST_REVIEW_PAGINATION = { page: 1, pageSize: 1, query: { first: 1 } }
 
-type TReportReviewSourceProps = Pick<TRiskScoringPanelProps, 'onViewReview'> & {
+type TRiskScoringMetaProps = {
+  scoring: TRiskScoring
   review: ReviewsNodeNonNull | undefined
-  lastUpdatedAt: string | undefined
 }
 
-const ReportReviewSource = ({ review, lastUpdatedAt, onViewReview }: TReportReviewSourceProps) => {
-  const reviewedAt = review?.reviewedAt ?? lastUpdatedAt
+const RiskScoringMeta = ({ scoring, review }: TRiskScoringMetaProps) => {
+  if (scoring.reportSource === 'none') {
+    return scoring.lastUpdatedAt ? <span className="text-sm text-muted-foreground">Updated {formatDate(scoring.lastUpdatedAt)}</span> : null
+  }
+
+  const reviewedAt = review?.reviewedAt ?? scoring.lastUpdatedAt
   const details = [review?.title, reviewedAt && `reviewed ${formatDate(reviewedAt)}`].filter(Boolean).join(' · ')
 
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-      <Badge variant="outline" className="gap-1">
+    <>
+      <Badge variant="outline" className="shrink-0 gap-1">
         <FileText size={12} aria-hidden="true" />
         From SOC 2 report review
       </Badge>
-      {details && <span className="text-sm text-muted-foreground">{details}</span>}
-      {review && (
-        <Button type="button" variant="secondary" className="ml-auto" onClick={() => onViewReview(review)}>
-          View Review
-        </Button>
-      )}
-    </div>
+      {details && <span className="min-w-0 break-words text-sm text-muted-foreground">{details}</span>}
+    </>
   )
 }
 
-type TRiskScoringContentProps = Omit<TRiskScoringPanelProps, 'vendorId'> & {
-  scoring: TRiskScoring
-  reportReview: ReviewsNodeNonNull | undefined
+type TRiskScoringSectionProps = {
+  meta?: React.ReactNode
+  action?: React.ReactNode
+  children: React.ReactNode
 }
 
-const RiskScoringContent = ({ scoring, reportReview, vendorRiskScore, onViewReview }: TRiskScoringContentProps) => {
+const RiskScoringSection = ({ meta, action, children }: TRiskScoringSectionProps) => {
+  const headingId = useId()
+
+  return (
+    <section className="space-y-4" aria-labelledby={headingId}>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="flex min-w-0 grow flex-wrap items-center gap-x-3 gap-y-1">
+          <h3 id={headingId} className="text-lg font-semibold">
+            Risk Scoring
+          </h3>
+          {meta}
+        </div>
+        {action}
+      </div>
+      {children}
+    </section>
+  )
+}
+
+type TRiskScoringContentProps = Pick<TRiskScoringPanelProps, 'vendorRiskScore'> & {
+  scoring: TRiskScoring
+}
+
+const RiskScoringContent = ({ scoring, vendorRiskScore }: TRiskScoringContentProps) => {
   const differsFromVendorScore = vendorRiskScore != null && vendorRiskScore !== Math.round(scoring.totalScore)
   const coverage = coverageLines(scoring)
 
   return (
     <>
-      {scoring.reportSource !== 'none' ? (
-        <ReportReviewSource review={reportReview} lastUpdatedAt={scoring.lastUpdatedAt} onViewReview={onViewReview} />
-      ) : (
-        scoring.lastUpdatedAt && <p className="text-sm text-muted-foreground">Updated {formatDate(scoring.lastUpdatedAt)}</p>
-      )}
-
       <Card className="grid grid-cols-1 divide-y lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1.35fr)] lg:divide-x lg:divide-y-0">
         <div className="flex flex-col gap-3 p-4">
           <PaneHeading>Answer score</PaneHeading>
@@ -144,38 +160,47 @@ const RiskScoringContent = ({ scoring, reportReview, vendorRiskScore, onViewRevi
   )
 }
 
-const RiskScoringBody = ({ vendorId, vendorRiskScore, onViewReview }: TRiskScoringPanelProps) => {
+export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, vendorRiskScore, onViewReview }) => {
   const { data: scores, isPending, error } = useVendorRiskScoring(vendorId)
   useQueryErrorNotification({ error, description: 'Failed to load risk scoring' })
   const scoring = useMemo(() => buildRiskScoring(scores ?? []), [scores])
-  const { reviewsNodes: reportReviews, isPending: isReportReviewPending } = useReviewsWithFilter({
+  const isFromReport = scoring.reportSource !== 'none'
+  const {
+    reviewsNodes: reportReviews,
+    isPending: isReportReviewPending,
+    isPlaceholderData: isReportReviewPlaceholder,
+  } = useReviewsWithFilter({
     where: { hasEntitiesWith: [{ id: vendorId }], ...SOC2_REPORT_REVIEW_WHERE },
     orderBy: LATEST_REVIEW_ORDER,
     pagination: LATEST_REVIEW_PAGINATION,
-    enabled: !!vendorId,
+    enabled: !!vendorId && isFromReport,
   })
 
-  if (isPending || (scoring.reportSource !== 'none' && isReportReviewPending)) {
+  if (error && !scores) {
     return (
-      <div role="status" aria-live="polite" aria-label="Loading risk scoring" className="space-y-3">
-        <SkeletonRows count={3} height={72} />
-      </div>
+      <RiskScoringSection>
+        <EmptyTabState title="Risk scoring could not be loaded" description="Please try again later." />
+      </RiskScoringSection>
     )
   }
-  if (error) {
-    return <EmptyTabState title="Risk scoring could not be loaded" description="Please try again later." />
+  if (isPending || (isFromReport && (isReportReviewPending || isReportReviewPlaceholder)) || scoring.categories.length === 0) {
+    return null
   }
-  if (scoring.categories.length === 0) {
-    return <EmptyTabState title="No risk scoring yet" description="Scored answers appear here once this vendor's risk questions have been answered." />
-  }
-  return <RiskScoringContent scoring={scoring} reportReview={reportReviews[0]} vendorRiskScore={vendorRiskScore} onViewReview={onViewReview} />
-}
 
-export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, vendorRiskScore, onViewReview }) => (
-  <section className="space-y-4" aria-labelledby="vendor-risk-scoring-heading">
-    <h3 id="vendor-risk-scoring-heading" className="text-lg font-semibold">
-      Risk Scoring
-    </h3>
-    <RiskScoringBody vendorId={vendorId} vendorRiskScore={vendorRiskScore} onViewReview={onViewReview} />
-  </section>
-)
+  const reportReview = isFromReport ? reportReviews[0] : undefined
+
+  return (
+    <RiskScoringSection
+      meta={<RiskScoringMeta scoring={scoring} review={reportReview} />}
+      action={
+        reportReview && (
+          <Button type="button" variant="secondary" onClick={() => onViewReview(reportReview)}>
+            View Review
+          </Button>
+        )
+      }
+    >
+      <RiskScoringContent scoring={scoring} vendorRiskScore={vendorRiskScore} />
+    </RiskScoringSection>
+  )
+}
