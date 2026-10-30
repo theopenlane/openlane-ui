@@ -2265,6 +2265,50 @@ export interface GetControlsByRefCodeQuery {
   }
 }
 
+export type GetControlsForImportPreviewQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetControlsForImportPreviewQuery {
+  controls: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        refCode: string
+        referenceFramework: string | null
+        referenceFrameworkRevision: string | null
+        title: string | null
+        description: string | null
+        status: Types.ControlControlStatus | null
+        implementationStatus: Types.ControlControlImplementationStatus | null
+        implementationDescription: string | null
+        publicRepresentation: string | null
+        source: Types.ControlControlSource | null
+        sourceName: string | null
+        category: string | null
+        categoryID: string | null
+        subcategory: string | null
+        mappedCategories: Array<string> | null
+        controlQuestions: Array<string> | null
+        aliases: Array<string> | null
+        tags: Array<string> | null
+        referenceID: string | null
+        auditorReferenceID: string | null
+        externalID: string | null
+        externalUUID: string | null
+        controlKindName: string | null
+        environmentName: string | null
+        scopeName: string | null
+        workflowEligibleMarker: boolean | null
+        trustCenterVisibility: Types.ControlTrustCenterControlVisibility | null
+      } | null
+    } | null> | null
+  }
+}
+
 export type GetProgramControlsByRefCodeQueryVariables = Exact<{
   refCodeIn?: Array<string> | string | null | undefined
   programId: string
