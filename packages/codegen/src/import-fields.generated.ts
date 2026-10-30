@@ -955,6 +955,9 @@ export const IMPORT_FIELDS: Readonly<Record<string, Readonly<Record<string, Impo
     programViewerIDs: { kind: 'id', list: true },
     remediationBlockedGroupIDs: { kind: 'id', list: true },
     remediationEditorIDs: { kind: 'id', list: true },
+    reportBlockedGroupIDs: { kind: 'id', list: true },
+    reportEditorIDs: { kind: 'id', list: true },
+    reportViewerIDs: { kind: 'id', list: true },
     reviewBlockedGroupIDs: { kind: 'id', list: true },
     reviewEditorIDs: { kind: 'id', list: true },
     riskBlockedGroupIDs: { kind: 'id', list: true },
@@ -1259,6 +1262,15 @@ export const IMPORT_FIELDS: Readonly<Record<string, Readonly<Record<string, Impo
     tfaEnforced: { kind: 'boolean', description: 'member must configure multifactor authentication for this organization even when organization-wide TFA enforcement is disabled' },
     tfaEnforcedReason: { kind: 'string', description: 'reason the member was required to configure multifactor authentication' },
     userID: { kind: 'id' },
+  },
+  OrganizationBrandingSetting: {
+    backgroundColor: { kind: 'string', description: 'the background color of the Organization' },
+    fontFamily: { kind: 'string', description: 'the font family of the Organization' },
+    organizationID: { kind: 'id' },
+    primaryColor: { kind: 'string', description: 'the primary brand color of the Organization' },
+    secondaryColor: { kind: 'string', description: 'the secondary brand color of the Organization' },
+    tags: { kind: 'string', list: true, description: 'tags associated with the object' },
+    textColor: { kind: 'string', description: 'the text color of the Organization' },
   },
   OrganizationSetting: {
     allowMatchingDomainsAutojoin: {

@@ -9,6 +9,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { DATE_ORDER_LABELS } from '@/utils/loose-date'
 import type { TColumnMapping, TDestinationField, TImportAutomaticValue, TParsedDelimitedFile, TSourceColumn } from '../lib/types'
 import type { TImportPlan } from '../lib/build-mapped-import'
+import { SummaryCard } from './summary-card'
 
 const PREVIEW_ROWS = 5
 const REORDER_ROW_LIMIT = 200
@@ -32,14 +33,6 @@ type TReviewStepProps = {
 }
 
 const autoValueDisplay = (field: TDestinationField): string => field.autoValueLabel ?? getEnumLabel(field.autoValue ?? '')
-
-const SummaryCard: React.FC<{ title: string; value: string; hint: string }> = ({ title, value, hint }) => (
-  <div className="rounded-lg border bg-card p-4">
-    <p className="text-sm text-muted-foreground">{title}</p>
-    <p className="mt-2 text-2xl">{value}</p>
-    <p className="mt-1 font-mono text-xs text-muted-foreground">{hint}</p>
-  </div>
-)
 
 export const ReviewStep: React.FC<TReviewStepProps> = ({
   entityLabel,
