@@ -1,21 +1,6 @@
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
-import { NextResponse } from 'next/server'
+import { type NextRequest } from 'next/server'
+import { coreAPIRequest, HTTP_METHODS } from '@/lib/auth/utils/core-api-request'
 
-export async function POST(request: Request) {
-  const bodyData = await request.json()
-
-  const fData = await secureFetch(`${process.env.API_REST_URL}/registration/options`, {
-    method: 'POST',
-    body: JSON.stringify(bodyData),
-  })
-
-  const data = await fData.json()
-
-  if (fData.ok) {
-    return NextResponse.json(data, { status: 200 })
-  }
-
-  if (fData.status !== 201) {
-    return NextResponse.json(data, { status: fData.status })
-  }
+export async function POST(req: NextRequest) {
+  return coreAPIRequest('/registration/options', HTTP_METHODS.POST, req, 'Failed to start passkey registration')
 }

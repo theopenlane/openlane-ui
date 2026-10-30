@@ -7,6 +7,8 @@ import { formatDate } from '@/utils/date'
 import { Clock } from 'lucide-react'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
+import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
+import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 
 const getTimelineColorVar = (type: string) => {
   const normalized = type.toLowerCase().replace(/\s+/g, '-')
@@ -30,14 +32,20 @@ type Props = {
   nodes: TimelineNode[]
   isLoading?: boolean
   suppressLinkedDateFallback?: boolean
+  emptyText?: string
 }
 
 const TimelineRow = ({ node, suppressLinkedDateFallback }: { node: TimelineNode; suppressLinkedDateFallback: boolean }) => {
+  const openObjectSheet = useOpenObjectSheet()
   const chipStyle = getChipStyle(node.type)
   const date = formatDate(node.createdAt)
   const isSource = node.role === 'source'
 
-  const nameEl = node.href ? (
+  const nameEl = node.sheetKind ? (
+    <span className="text-sm truncate">
+      <ObjectSheetLink id={node.id} kind={node.sheetKind} label={node.name} onOpenSheet={openObjectSheet} />
+    </span>
+  ) : node.href ? (
     <Link href={node.href} className="text-sm font-medium truncate hover:underline">
       {node.name}
     </Link>
@@ -99,7 +107,7 @@ const TimelineRow = ({ node, suppressLinkedDateFallback }: { node: TimelineNode;
   )
 }
 
-const AssociationTimeline = ({ nodes, isLoading, suppressLinkedDateFallback = false }: Props) => {
+const AssociationTimeline = ({ nodes, isLoading, suppressLinkedDateFallback = false, emptyText = 'No associated objects found' }: Props) => {
   if (isLoading) {
     return (
       <div className="space-y-3 py-2">
@@ -120,7 +128,7 @@ const AssociationTimeline = ({ nodes, isLoading, suppressLinkedDateFallback = fa
     return (
       <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
         <Clock size={28} className="mb-2 opacity-40" />
-        <p className="text-sm">No associated objects found</p>
+        <p className="text-sm">{emptyText}</p>
       </div>
     )
   }

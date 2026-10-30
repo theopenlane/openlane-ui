@@ -9,7 +9,7 @@ const SEVERITY_CSS_VARS: Record<TSeverityLevel, string> = {
   low: '--color-severity-low',
 }
 
-const getSeverityCssVar = (severity: string): string | null => {
+export const getSeverityCssVar = (severity: string): string | null => {
   const s = severity.toLowerCase()
   if (s.includes('critical')) return SEVERITY_CSS_VARS.critical
   if (s.includes('high')) return SEVERITY_CSS_VARS.high

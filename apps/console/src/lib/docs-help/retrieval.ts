@@ -4,6 +4,14 @@ import { DEEP_RETRIEVAL_TOP_K } from '@/lib/docs-help/constants'
 import { dedupeBySource, extractMarkdownSection, parseChunk, rankChunks } from '@/lib/docs-help/parse'
 import { cacheKeyOf, readSectionCache, writeSectionCache } from '@/lib/docs-help/section-cache'
 
+export const resolvePageText = async (docs: DocsProvider, sourceUri: string | undefined, fallbackText: () => string, signal?: AbortSignal): Promise<{ text: string; degraded: boolean }> => {
+  const stored = sourceUri && !signal?.aborted ? await docs.pageText(sourceUri, signal) : null
+  return {
+    text: stored ? parseChunk(stored).text : fallbackText(),
+    degraded: Boolean(signal?.aborted || (sourceUri && !stored)),
+  }
+}
+
 export const lookupSection = async (docs: DocsProvider, lookup: SectionLookup, section?: string, signal?: AbortSignal): Promise<SectionResult> => {
   const cacheKey = cacheKeyOf(lookup, section)
   const cached = readSectionCache(cacheKey)
@@ -16,15 +24,14 @@ export const lookupSection = async (docs: DocsProvider, lookup: SectionLookup, s
   if (!top?.source) return { section: '', title: '', source: '' }
 
   const sourceUri = parsed.find(({ chunk }) => chunk.source === top.source)?.sourceUri
-  const stored = sourceUri ? await docs.pageText(sourceUri) : null
-  const pageText = stored
-    ? parseChunk(stored).text
-    : parsed
-        .filter(({ chunk }) => chunk.source === top.source)
-        .map(({ chunk }) => chunk.text)
-        .join('\n\n')
+  const fallbackText = () =>
+    parsed
+      .filter(({ chunk }) => chunk.source === top.source)
+      .map(({ chunk }) => chunk.text)
+      .join('\n\n')
+  const { text: pageText, degraded } = await resolvePageText(docs, sourceUri, fallbackText, signal)
 
   const result = { section: extractMarkdownSection(pageText, lookup.extractSection) ?? '', title: top.title, source: top.source }
-  writeSectionCache(cacheKey, result)
+  if (!degraded) writeSectionCache(cacheKey, result)
   return result
 }

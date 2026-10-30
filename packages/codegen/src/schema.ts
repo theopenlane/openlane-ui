@@ -920,8 +920,6 @@ export interface CampaignsWithFilterQuery {
         dueDate: string | null
         emailTemplateID: string | null
         entityID: string | null
-        hasPendingWorkflow: boolean
-        hasWorkflowHistory: boolean
         id: string
         internalOwner: string | null
         internalOwnerGroupID: string | null
@@ -947,7 +945,6 @@ export interface CampaignsWithFilterQuery {
         templateID: string | null
         updatedAt: any
         updatedBy: string | null
-        workflowEligibleMarker: boolean | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -978,8 +975,6 @@ export interface CampaignQuery {
     dueDate: string | null
     emailTemplateID: string | null
     entityID: string | null
-    hasPendingWorkflow: boolean
-    hasWorkflowHistory: boolean
     id: string
     internalOwner: string | null
     internalOwnerGroupID: string | null
@@ -1005,7 +1000,6 @@ export interface CampaignQuery {
     templateID: string | null
     updatedAt: any
     updatedBy: string | null
-    workflowEligibleMarker: boolean | null
     template: { id: string; name: string; description: string | null; updatedAt: any; jsonconfig: any } | null
   }
 }
@@ -2874,8 +2868,6 @@ export interface EmailTemplatesWithFilterQuery {
         updatedAt: any
         updatedBy: string | null
         version: number
-        workflowDefinitionID: string | null
-        workflowInstanceID: string | null
         campaigns: { totalCount: number }
       } | null
     } | null> | null
@@ -2905,8 +2897,6 @@ export interface EmailTemplateQuery {
     updatedAt: any
     updatedBy: string | null
     version: number
-    workflowDefinitionID: string | null
-    workflowInstanceID: string | null
   }
 }
 
@@ -4152,6 +4142,23 @@ export interface GetFindingAssociationsTimelineQuery {
   }
 }
 
+export type GetFindingCommentsQueryVariables = Exact<{
+  findingId: string
+}>
+
+export interface GetFindingCommentsQuery {
+  finding: { id: string; comments: { totalCount: number; edges: Array<{ node: { id: string; createdAt: any; createdBy: string | null; text: string } | null } | null> | null } }
+}
+
+export type UpdateFindingCommentMutationVariables = Exact<{
+  updateFindingCommentId: string
+  input: Types.UpdateNoteInput
+}>
+
+export interface UpdateFindingCommentMutation {
+  updateFindingComment: { finding: { id: string } }
+}
+
 export type GroupSettingsWithFilterQueryVariables = Exact<{
   where?: Types.GroupSettingWhereInput | null | undefined
   orderBy?: Array<Types.GroupSettingOrder> | Types.GroupSettingOrder | null | undefined
@@ -4475,8 +4482,6 @@ export interface IdentityHoldersWithFilterQuery {
         externalReferenceID: string | null
         externalUserID: string | null
         fullName: string
-        hasPendingWorkflow: boolean
-        hasWorkflowHistory: boolean
         id: string
         identityHolderType: Types.IdentityHolderIdentityHolderType
         internalOwner: string | null
@@ -4495,7 +4500,6 @@ export interface IdentityHoldersWithFilterQuery {
         updatedAt: any
         updatedBy: string | null
         userID: string | null
-        workflowEligibleMarker: boolean | null
         internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerUser: { id: string; displayName: string } | null
@@ -4544,8 +4548,6 @@ export interface IdentityHolderQuery {
     externalReferenceID: string | null
     externalUserID: string | null
     fullName: string
-    hasPendingWorkflow: boolean
-    hasWorkflowHistory: boolean
     id: string
     identityHolderType: Types.IdentityHolderIdentityHolderType
     internalOwner: string | null
@@ -4564,7 +4566,6 @@ export interface IdentityHolderQuery {
     updatedAt: any
     updatedBy: string | null
     userID: string | null
-    workflowEligibleMarker: boolean | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
@@ -5652,7 +5653,6 @@ export interface NotificationTemplatesWithFilterQuery {
         updatedAt: any
         updatedBy: string | null
         version: number
-        workflowDefinitionID: string | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -5690,7 +5690,6 @@ export interface NotificationTemplateQuery {
     updatedAt: any
     updatedBy: string | null
     version: number
-    workflowDefinitionID: string | null
   }
 }
 
@@ -5771,7 +5770,6 @@ export interface GetAllOrganizationsQuery {
         displayName: string
         avatarRemoteURL: string | null
         personalOrg: boolean | null
-        stripeCustomerID: string | null
         avatarFile: { id: string; base64: string | null } | null
         setting: { identityProviderLoginEnforced: boolean } | null
       } | null
@@ -5863,7 +5861,21 @@ export type GetOrganizationBillingQueryVariables = Exact<{
 }>
 
 export interface GetOrganizationBillingQuery {
-  organization: { personalOrg: boolean | null; orgSubscriptions: Array<{ active: boolean; expiresAt: any; stripeSubscriptionStatus: string | null; trialExpiresAt: any }> | null }
+  organization: {
+    personalOrg: boolean | null
+    stripeCustomerID: string | null
+    orgSubscriptions: Array<{ active: boolean; expiresAt: any; stripeSubscriptionStatus: string | null; trialExpiresAt: any }> | null
+  }
+}
+
+export type GetOrganizationBillingAccessQueryVariables = Exact<{
+  organizationId: string
+  userId: string
+}>
+
+export interface GetOrganizationBillingAccessQuery {
+  organization: { stripeCustomerID: string | null }
+  orgMemberships: { edges: Array<{ node: { role: Types.OrgMembershipRole } | null } | null> | null }
 }
 
 export type GetOrganizationBillingBannerQueryVariables = Exact<{
@@ -5901,7 +5913,6 @@ export interface GetOrganizationSettingQuery {
       allowSupportAccess: boolean | null
       identityProvider: Types.OrganizationSettingSsoProvider | null
       identityProviderClientID: string | null
-      identityProviderClientSecret: string | null
       oidcDiscoveryEndpoint: string | null
       identityProviderLoginEnforced: boolean
       identityProviderAuthTested: boolean
@@ -9576,6 +9587,7 @@ export interface GetTrustCenterNdaRequestsQuery {
         createdAt: any
         approvedAt: string | null
         approvedByUserID: string | null
+        autoApproved: boolean | null
         signedAt: string | null
         status: Types.TrustCenterNdaRequestTrustCenterNdaRequestStatus | null
         approvedByUser: { id: string; displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
@@ -9749,6 +9761,8 @@ export interface GetTrustCenterQuery {
           logoRemoteURL: string | null
           securityContact: string | null
           ndaApprovalRequired: boolean | null
+          enableAutoApproval: boolean | null
+          autoApprovalRules: any
           notifySubscribersOnSubprocessorChange: boolean | null
           allowSubscribers: boolean | null
           ndaApproverGroupID: string | null
@@ -10294,7 +10308,6 @@ export interface VulnerabilityQuery {
     dismissedReason: string | null
     displayID: string
     displayName: string | null
-    environmentID: string | null
     environmentName: string | null
     exploitability: number | null
     externalID: string
@@ -10304,27 +10317,20 @@ export interface VulnerabilityQuery {
     firstPatchedVersion: string | null
     id: string
     impact: number | null
-    metadata: any
     open: boolean | null
     packageEcosystem: string | null
     packageName: string | null
     priority: string | null
     production: boolean | null
     public: boolean | null
-    publishedAt: string | null
-    rawPayload: any
     remediationSLA: number | null
-    scopeID: string | null
     scopeName: string | null
     score: number | null
     securityLevel: Types.VulnerabilitySecurityLevel | null
     severity: string | null
     source: string | null
-    sourceUpdatedAt: string | null
     summary: string | null
-    systemOwned: boolean | null
     tags: Array<string> | null
-    impacts: Array<string> | null
     references: Array<string> | null
     updatedAt: any
     updatedBy: string | null
@@ -10332,6 +10338,11 @@ export interface VulnerabilityQuery {
     vector: string | null
     vulnerabilityStatusName: string | null
     vulnerableVersionRange: string | null
+    cweIds: Array<string> | null
+    manifestPath: string | null
+    dependencyScope: string | null
+    fixAvailable: boolean | null
+    fixedAt: string | null
     assignedToUser: { id: string; displayName: string } | null
     assignedToGroup: { id: string; displayName: string } | null
     assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
@@ -10346,12 +10357,125 @@ export interface VulnerabilityQuery {
   }
 }
 
+export type GetVulnerabilityExposuresQueryVariables = Exact<{
+  where?: Types.VulnerabilityWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetVulnerabilityExposuresQuery {
+  vulnerabilities: {
+    totalCount: number
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        externalID: string
+        externalOwnerID: string | null
+        externalURI: string | null
+        source: string | null
+        manifestPath: string | null
+        open: boolean | null
+        vulnerabilityStatusName: string | null
+        securityLevel: Types.VulnerabilitySecurityLevel | null
+        severity: string | null
+        createdAt: any
+        discoveredAt: string | null
+        remediationSLA: number | null
+        environmentName: string | null
+        fixedAt: string | null
+        dismissedAt: string | null
+        assignedTo: string | null
+        assignedToUser: { id: string; displayName: string } | null
+        assignedToGroup: { id: string; displayName: string } | null
+        assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
+        assets: {
+          totalCount: number
+          edges: Array<{
+            node: {
+              id: string
+              name: string
+              displayName: string | null
+              environmentName: string | null
+              platforms: { edges: Array<{ node: { id: string; environmentName: string | null } | null } | null> | null }
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetVulnerabilityExposureCountsQueryVariables = Exact<{
+  all: Types.VulnerabilityWhereInput
+  open: Types.VulnerabilityWhereInput
+}>
+
+export interface GetVulnerabilityExposureCountsQuery {
+  all: { totalCount: number }
+  open: { totalCount: number }
+}
+
+export type GetVulnerabilityRemediationWorkQueryVariables = Exact<{
+  vulnerabilityId: string
+  first?: number | null | undefined
+}>
+
+export interface GetVulnerabilityRemediationWorkQuery {
+  vulnerability: {
+    id: string
+    remediations: {
+      totalCount: number
+      edges: Array<{
+        node: { id: string; displayID: string; title: string | null; status: Types.RemediationRemediationStatus | null; ownerReference: string | null; dueAt: string | null } | null
+      } | null> | null
+    }
+    tasks: {
+      totalCount: number
+      edges: Array<{
+        node: { id: string; displayID: string; title: string; status: Types.TaskTaskStatus; due: string | null; assignee: { id: string; displayName: string } | null } | null
+      } | null> | null
+    }
+    actionPlans: {
+      totalCount: number
+      edges: Array<{
+        node: {
+          id: string
+          name: string
+          title: string
+          status: Types.ActionPlanDocumentStatus | null
+          dueDate: any
+          internalOwner: string | null
+          internalOwnerUser: { id: string; displayName: string } | null
+          internalOwnerGroup: { id: string; displayName: string } | null
+          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
+        } | null
+      } | null> | null
+    }
+  }
+}
+
 export type CreateVulnerabilityMutationVariables = Exact<{
   input: Types.CreateVulnerabilityInput
 }>
 
 export interface CreateVulnerabilityMutation {
   createVulnerability: { vulnerability: { id: string } }
+}
+
+export type VulnerabilitySnoozeTargetsQueryVariables = Exact<{
+  where?: Types.VulnerabilityWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface VulnerabilitySnoozeTargetsQuery {
+  vulnerabilities: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: { id: string; securityLevel: Types.VulnerabilitySecurityLevel | null; severity: string | null; createdAt: any; discoveredAt: string | null; remediationSLA: number | null } | null
+    } | null> | null
+  }
 }
 
 export type UpdateVulnerabilityMutationVariables = Exact<{
@@ -10400,6 +10524,8 @@ export interface GetVulnerabilityAssociationsQuery {
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     assets: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayName: string | null } | null } | null> | null }
     tasks: { totalCount: number; edges: Array<{ node: { id: string; title: string; displayID: string } | null } | null> | null }
+    programs: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayID: string } | null } | null> | null }
+    actionPlans: { totalCount: number; edges: Array<{ node: { id: string; name: string } | null } | null> | null }
   }
 }
 
@@ -10424,6 +10550,53 @@ export interface GetVulnerabilityAssociationsTimelineQuery {
     assets: { edges: Array<{ node: { id: string; name: string; displayName: string | null; createdAt: any } | null } | null> | null }
     scans: { edges: Array<{ node: { id: string; target: string; createdAt: any; createdBy: string | null } | null } | null> | null }
     remediations: { edges: Array<{ node: { id: string; title: string | null; displayID: string; createdAt: any } | null } | null> | null }
+  }
+}
+
+export type GetVulnerabilityCommentsQueryVariables = Exact<{
+  vulnerabilityId: string
+}>
+
+export interface GetVulnerabilityCommentsQuery {
+  vulnerability: { id: string; comments: { totalCount: number; edges: Array<{ node: { id: string; createdAt: any; createdBy: string | null; text: string } | null } | null> | null } }
+}
+
+export type UpdateVulnerabilityCommentMutationVariables = Exact<{
+  updateVulnerabilityCommentId: string
+  input: Types.UpdateNoteInput
+}>
+
+export interface UpdateVulnerabilityCommentMutation {
+  updateVulnerabilityComment: { vulnerability: { id: string } }
+}
+
+export type GetVulnerabilitySourceIntegrationsQueryVariables = Exact<{
+  vulnerabilityId: string
+}>
+
+export interface GetVulnerabilitySourceIntegrationsQuery {
+  vulnerability: {
+    id: string
+    integrations: {
+      totalCount: number
+      edges: Array<{ node: { id: string; name: string; definitionID: string | null; definitionSlug: string | null; family: string | null; kind: string | null } | null } | null> | null
+    }
+  }
+}
+
+export type GetVulnerabilityHistoryEdgesQueryVariables = Exact<{
+  vulnerabilityId: string
+  first?: number | null | undefined
+}>
+
+export interface GetVulnerabilityHistoryEdgesQuery {
+  vulnerability: {
+    id: string
+    tasks: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; title: string; createdAt: any; createdBy: string | null } | null } | null> | null }
+    comments: { totalCount: number; edges: Array<{ node: { id: string; text: string; createdAt: any; createdBy: string | null } | null } | null> | null }
+    assets: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayName: string | null; createdAt: any; createdBy: string | null } | null } | null> | null }
+    remediations: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; title: string | null; createdAt: any; createdBy: string | null } | null } | null> | null }
+    reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string; createdAt: any; createdBy: string | null } | null } | null> | null }
   }
 }
 

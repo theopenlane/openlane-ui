@@ -60,7 +60,7 @@ import {
 } from '@/components/shared/icons/animated'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
-import { canEdit, isOwnerOrSuperAdmin } from '@/lib/authz/utils'
+import { canEdit, canManageBilling } from '@/lib/authz/utils'
 import { type TPermissionData } from '@/types/authz'
 import type { Session } from 'next-auth'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
@@ -414,6 +414,14 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       href: '/reports/custom',
       icon: ChartLineIcon,
       hidden: session?.user?.isOnboarding || billingExpired,
+      children: [
+        {
+          title: 'Custom Report',
+          anchor: 'builder',
+          href: '/reports/custom',
+          icon: ChartLineIcon,
+        },
+      ],
     },
   ]
 }
@@ -462,7 +470,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
           title: 'Billing',
           anchor: 'billing',
           href: '/organization-settings/billing',
-          hidden: !isOwnerOrSuperAdmin(currentUserRole) && !isImpersonation,
+          hidden: !canManageBilling(currentUserRole, session),
           icon: CreditCardIcon,
         },
         {

@@ -426,7 +426,7 @@ export const LoginPage = () => {
         >
           <div className={input()}>
             <div className="flex items-center justify-between items-centeer">
-              <p className="text-sm">Email</p>
+              <p className="text-sm">Work email</p>
               <LastUsedBadge provider={UserAuthProvider.CREDENTIALS} lastUsedProvider={lastUsedProvider} />
               {showSwitchToPassword && (
                 <button
@@ -452,7 +452,7 @@ export const LoginPage = () => {
               type="email"
               variant="light"
               name="username"
-              placeholder="Enter your email"
+              placeholder="you@company.com"
               value={email}
               onChange={handleEmailChange}
               className={`bg-transparent ${showLoginError ? 'border border-toast-error-icon' : ''}`}

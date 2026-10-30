@@ -5,13 +5,32 @@ import {
   parseIntegrationErrorMessage,
   primaryCredentialRef,
   primaryCredentialSchema,
+  readIntegrationUserInput,
   resolveSchemaRoot,
   schemaHasProperties,
 } from './utils'
-import { type IntegrationConfigurationResult, type IntegrationOperationConfigPayload, type IntegrationProvider, type StartIntegrationResponse } from './types'
+import { isRecord } from '@/utils/type-guards'
+import { resolveResourcePicker } from './resource-pickers'
+import {
+  type IntegrationChannelTarget,
+  type IntegrationConfigurationResult,
+  type IntegrationNode,
+  type IntegrationOperationConfigPayload,
+  type IntegrationProvider,
+  type IntegrationSelectedResource,
+  type RunIntegrationOperationResponse,
+  type StartIntegrationResponse,
+} from './types'
 
 export const PRIMARY_DIRECTORY_FIELD = 'primaryDirectory'
 export const PRIMARY_DOCUMENT_FIELD = 'primary'
+export const CHANNELS_LIST_OPERATION = 'ChannelsListOperation'
+export const TEST_MESSAGE_SEND_OPERATION = 'TestMessageSendOperation'
+export const PICKER_SESSION_OPERATION = 'PickerSession'
+export const RESOURCE_SELECTION_OPERATION = 'ResourceSelection'
+export const SELECTED_DOCUMENTS_FIELD = 'selectedDocuments'
+export const DEFAULT_CHANNEL_FIELD = 'defaultChannel'
+export const DEFAULT_TEAM_FIELD = 'defaultTeamId'
 
 type StartIntegrationOptions = {
   credentialRef?: string
@@ -55,6 +74,57 @@ export function providerSupportsPrimaryDirectory(provider?: IntegrationProvider)
 export function providerSupportsDocumentSync(provider?: IntegrationProvider): boolean {
   const properties = resolveSchemaRoot(provider?.userInputSchema)?.properties
   return Boolean(properties && PRIMARY_DOCUMENT_FIELD in properties)
+}
+
+const providerHasRunnableOperation = (provider: IntegrationProvider | undefined, name: string): boolean =>
+  Boolean(provider?.operations?.some((operation) => operation.name === name && !operation.disabledForAll))
+
+export const providerSupportsTestMessage = (provider?: IntegrationProvider): boolean =>
+  providerHasRunnableOperation(provider, CHANNELS_LIST_OPERATION) && providerHasRunnableOperation(provider, TEST_MESSAGE_SEND_OPERATION)
+
+export const providerSupportsResourcePicker = (provider?: IntegrationProvider): boolean =>
+  !!resolveResourcePicker(provider) && providerHasRunnableOperation(provider, PICKER_SESSION_OPERATION) && providerHasRunnableOperation(provider, RESOURCE_SELECTION_OPERATION)
+
+export const providerSupportsDefaultChannel = (provider?: IntegrationProvider): boolean =>
+  Boolean(resolveSchemaRoot(provider?.userInputSchema)?.properties?.[DEFAULT_CHANNEL_FIELD]) &&
+  providerHasRunnableOperation(provider, CHANNELS_LIST_OPERATION) &&
+  providerHasRunnableOperation(provider, RESOURCE_SELECTION_OPERATION)
+
+const nonEmptyString = (value: unknown): string | undefined => (typeof value === 'string' && value !== '' ? value : undefined)
+
+export const readDefaultChannel = (integration: Pick<IntegrationNode, 'config'>): IntegrationChannelTarget | undefined => {
+  const userInput = readIntegrationUserInput(integration)
+  const channelId = nonEmptyString(userInput[DEFAULT_CHANNEL_FIELD])
+
+  return channelId ? { channelId, teamId: nonEmptyString(userInput[DEFAULT_TEAM_FIELD]) } : undefined
+}
+
+export const isSameChannel = (a: IntegrationChannelTarget, b: IntegrationChannelTarget | undefined): boolean => !!b && a.channelId === b.channelId && (!a.teamId || !b.teamId || a.teamId === b.teamId)
+
+const providerStoresDefaultTeam = (provider?: IntegrationProvider): boolean => Boolean(resolveSchemaRoot(provider?.userInputSchema)?.properties?.[DEFAULT_TEAM_FIELD])
+
+export const toChannelSelection = (provider: IntegrationProvider | undefined, channel: (IntegrationChannelTarget & { name?: string }) | undefined): IntegrationSelectedResource[] =>
+  channel ? [{ id: channel.channelId, name: channel.name, ...(providerStoresDefaultTeam(provider) ? { parentId: channel.teamId } : {}) }] : []
+
+export const readProviderDefaultChannel = (provider: IntegrationProvider | undefined, integration: Pick<IntegrationNode, 'config'>): IntegrationChannelTarget | undefined =>
+  providerSupportsDefaultChannel(provider) ? readDefaultChannel(integration) : undefined
+
+const isOptionalString = (value: unknown): value is string | undefined => value === undefined || typeof value === 'string'
+
+const isSelectedResource = (value: unknown): value is IntegrationSelectedResource =>
+  isRecord(value) && typeof value.id === 'string' && value.id !== '' && isOptionalString(value.name) && isOptionalString(value.parentId)
+
+export const readSelectedResources = (integration: Pick<IntegrationNode, 'metadata'>): IntegrationSelectedResource[] => {
+  const stored = isRecord(integration.metadata) ? integration.metadata[SELECTED_DOCUMENTS_FIELD] : undefined
+
+  return Array.isArray(stored) ? stored.filter(isSelectedResource) : []
+}
+
+export const mergeSelectedResources = (current: IntegrationSelectedResource[], added: IntegrationSelectedResource[]): IntegrationSelectedResource[] => {
+  const byId = new Map(current.map((resource) => [resource.id, resource]))
+  added.forEach((resource) => byId.set(resource.id, resource))
+
+  return [...byId.values()]
 }
 
 export function providerSupportsInstalledConfiguration(provider?: IntegrationProvider): boolean {
@@ -136,6 +206,28 @@ export async function saveIntegrationConfiguration(options: SaveIntegrationConfi
   }
 
   return (await response.json()) as IntegrationConfigurationResult
+}
+
+type RunIntegrationOperationOptions = {
+  integrationId: string
+  operation: string
+  config?: Record<string, unknown>
+  signal?: AbortSignal
+}
+
+export const runIntegrationOperation = async <TDetails>({ integrationId, operation, config, signal }: RunIntegrationOperationOptions): Promise<RunIntegrationOperationResponse<TDetails>> => {
+  const response = await fetch('/api/integrations/operations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ integrationId, operation, config }),
+    signal,
+  })
+
+  if (!response.ok) {
+    throw new Error(await parseIntegrationErrorMessage(response))
+  }
+
+  return (await response.json()) as RunIntegrationOperationResponse<TDetails>
 }
 
 function buildStartRequestBody(provider: IntegrationProvider, options?: StartIntegrationOptions): Record<string, unknown> {

@@ -5,7 +5,7 @@ import PricingPlan from '@/components/pages/protected/organization-settings/bill
 import { useOrganization } from '@/hooks/useOrganization'
 import BillingPageSkeleton from '@/components/pages/protected/organization-settings/billing/skeleton/billing-page-skeleton'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
-import { isOwnerOrSuperAdmin } from '@/lib/authz/utils.ts'
+import { canManageBilling } from '@/lib/authz/utils.ts'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCurrentUserRole } from '@/lib/graphql-hooks/member'
@@ -16,8 +16,7 @@ const BillingPage: React.FC = () => {
   const { setCrumbs } = use(BreadcrumbContext)
 
   const { data: session } = useSession()
-  const isImpersonation = session?.user?.isImpersonation
-  const canView = isOwnerOrSuperAdmin(role) || isImpersonation
+  const canView = canManageBilling(role, session)
 
   useEffect(() => {
     setCrumbs([

@@ -35,8 +35,36 @@ const parseUnauthorizedBody = (body: string): SSOUnauthorizedBody | null => {
   }
 }
 
+const parseUpstreamErrorMessage = (body: string): string | undefined => {
+  try {
+    const parsed: { error?: unknown } = JSON.parse(body)
+    return typeof parsed.error === 'string' && parsed.error.trim() !== '' ? parsed.error : undefined
+  } catch {
+    return undefined
+  }
+}
+
+// CoreAPIRequestOptions holds optional settings for a core API request
+export interface CoreAPIRequestOptions {
+  // cookie is the incoming cookie header to forward upstream, for endpoints that read the session cookie
+  cookie?: string | null
+}
+
 // coreAPIRequest is a wrapper to make API requests to the core REST API that returns the payload
-export async function coreAPIRequest(route: string, method: HttpMethod, req?: NextRequest, errorMsg?: string): Promise<NextResponse> {
+export async function coreAPIRequest(route: string, method: HttpMethod, req?: NextRequest, errorMsg?: string, options?: CoreAPIRequestOptions): Promise<NextResponse> {
+  let payload: unknown
+  if (method !== HTTP_METHODS.GET && req) {
+    try {
+      payload = await req.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    }
+  }
+
+  return coreAPIRequestWithBody(route, method, payload, errorMsg, options)
+}
+
+export async function coreAPIRequestWithBody(route: string, method: HttpMethod, payload: unknown, errorMsg?: string, options?: CoreAPIRequestOptions): Promise<NextResponse> {
   const session = await auth()
 
   if (!session?.user?.accessToken) {
@@ -48,14 +76,6 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
   }
 
   const accessToken = session.user.accessToken
-  let payload: unknown
-  if (method !== HTTP_METHODS.GET && req) {
-    try {
-      payload = await req.json()
-    } catch {
-      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
-    }
-  }
 
   if (!route.startsWith('/')) {
     route = '/' + route
@@ -76,6 +96,7 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
         redirect: 'manual',
         headers: {
           Authorization: `Bearer ${accessToken}`,
+          ...(options?.cookie && { cookie: options.cookie }),
         },
         ...(payload !== undefined && { body: JSON.stringify(payload) }),
       },
@@ -141,7 +162,7 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
       return NextResponse.json(unauthorizedBody, { status: 401 })
     }
 
-    return NextResponse.json({ error: errorMsg ?? 'Failed to fetch' }, { status: response.status })
+    return NextResponse.json({ error: errorMsg ?? 'Failed to fetch', details: parseUpstreamErrorMessage(upstreamBody) }, { status: response.status })
   }
 
   let data: unknown

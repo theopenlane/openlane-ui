@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Activity, ExternalLink, Settings, SlidersHorizontal } from 'lucide-react'
+import { Activity, ExternalLink, FileSearch, Hash, Send, Settings, SlidersHorizontal } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
@@ -10,15 +10,29 @@ import { Separator } from '@repo/ui/separator'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { type IntegrationHealth, type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
 import { getInstalledIntegrationConfig, installedIntegrationDisplayName, readIntegrationUserInput, resolveConnectionEntry, resolveCredentialEntry, resolveManageUrl } from '@/lib/integrations/utils'
-import { PRIMARY_DOCUMENT_FIELD, providerHasInstallationSettings } from '@/lib/integrations/flow'
+import {
+  PRIMARY_DOCUMENT_FIELD,
+  providerHasInstallationSettings,
+  providerSupportsDefaultChannel,
+  providerSupportsResourcePicker,
+  providerSupportsTestMessage,
+  readProviderDefaultChannel,
+  readSelectedResources,
+} from '@/lib/integrations/flow'
 import { useDisconnectIntegration, useIntegrationHealthCheck } from '@/lib/query-hooks/integrations'
-import { integrationHealthBadge } from '@/lib/integrations/health'
+import { integrationHealthBadge, isOperableIntegration } from '@/lib/integrations/health'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import IntegrationCardIcons from './integration-card-icons'
 import IntegrationConfigurationDialog from './integration-configuration-dialog'
+import SendTestMessageDialog from './send-test-message-dialog'
+import SelectedResourcesSection from './selected-resources-section'
+import DefaultChannelDialog from './default-channel-dialog'
+import DefaultChannelSection from './default-channel-section'
+import { useResourcePicker } from './use-resource-picker'
 
 type InstalledIntegrationCardProps = {
   integration: IntegrationNode
@@ -33,11 +47,23 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
   const router = useRouter()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
+  const [testMessageOpen, setTestMessageOpen] = useState(false)
+  const [defaultChannelOpen, setDefaultChannelOpen] = useState(false)
 
   const displayName = installedIntegrationDisplayName(integration, providers)
   const integrationConfig = getInstalledIntegrationConfig(integration, providers)
   const provider = integrationConfig?.provider
   const hasSettings = providerHasInstallationSettings(provider)
+  const supportsTestMessage = providerSupportsTestMessage(provider)
+  const isOperable = isOperableIntegration(integration.status)
+  const notConnectedReason = (action: string) => (isOperable ? undefined : `${displayName} is not connected. Reconnect it before ${action}.`)
+  const testMessageDisabledReason = notConnectedReason('sending a test message')
+  const supportsResourcePicker = providerSupportsResourcePicker(provider)
+  const chooseDocumentsDisabledReason = notConnectedReason('choosing documents')
+  const supportsDefaultChannel = providerSupportsDefaultChannel(provider)
+  const defaultChannel = readProviderDefaultChannel(provider, integration)
+  const defaultChannelDisabledReason = notConnectedReason('setting the default channel')
+  const resourcePicker = useResourcePicker(provider)
   const isPrimaryDocument = readIntegrationUserInput(integration)[PRIMARY_DOCUMENT_FIELD] === true
 
   const meta: IntegrationMetadata | undefined = integration.metadata ?? undefined
@@ -48,6 +74,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
   const lastHealthCheck = health?.lastSuccessfulHealthCheck ?? ''
   const credentialEntry = resolveCredentialEntry(provider, credentialRefName)
   const connectionEntry = resolveConnectionEntry(provider, credentialRefName || undefined)
+  const isOnRetiredConnection = credentialEntry?.retired === true
   const manageUrl = resolveManageUrl(provider, connectionEntry, externalId, externalName)
 
   const disconnectMutation = useDisconnectIntegration()
@@ -71,10 +98,22 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
             {displayName}
           </div>
           <div className="flex items-center gap-2">
+            {isOnRetiredConnection ? (
+              <SystemTooltip
+                portal
+                icon={
+                  <span className="inline-flex">
+                    <Badge variant="warning">Deprecated</Badge>
+                  </span>
+                }
+                content="This connection type has been deprecated. Please disconnect and create a new installation. Reach out to support with any issues."
+              />
+            ) : null}
             {integration.primaryDirectory ? <Badge variant="blue">Primary Directory</Badge> : null}
             {isPrimaryDocument ? <Badge variant="blue">Primary Document</Badge> : null}
             {healthStatus.summary ? (
               <SystemTooltip
+                portal
                 icon={
                   <span className="inline-flex">
                     <Badge variant={healthStatus.variant}>{healthStatus.label}</Badge>
@@ -119,6 +158,17 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
           </div>
         </div>
 
+        {supportsResourcePicker ? (
+          <SelectedResourcesSection
+            resources={readSelectedResources(integration)}
+            canRemove={canManage}
+            isBusy={resourcePicker.isBusy}
+            onRemove={(resourceId) => resourcePicker.removeResource(integration, resourceId)}
+          />
+        ) : null}
+
+        {supportsDefaultChannel ? <DefaultChannelSection integrationId={integration.id} defaultChannel={defaultChannel} canResolveName={isOperable} /> : null}
+
         {/* Stacked action buttons */}
         <div className="flex flex-col gap-2">
           {linkToDetail && provider ? (
@@ -130,6 +180,34 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
             <Button variant="secondary" icon={<Activity className="size-4" />} iconPosition="left" onClick={() => healthCheck.mutate(integration.id)} disabled={healthCheck.isPending}>
               {healthCheck.isPending ? 'Checking...' : 'Health Check'}
             </Button>
+          ) : null}
+          {canManage && supportsTestMessage ? (
+            <DisabledReasonTooltip reason={testMessageDisabledReason}>
+              <Button variant="secondary" full icon={<Send className="size-4" />} iconPosition="left" onClick={() => setTestMessageOpen(true)} disabled={!!testMessageDisabledReason}>
+                Send Test Message
+              </Button>
+            </DisabledReasonTooltip>
+          ) : null}
+          {canManage && supportsDefaultChannel ? (
+            <DisabledReasonTooltip reason={defaultChannelDisabledReason}>
+              <Button variant="secondary" full icon={<Hash className="size-4" />} iconPosition="left" onClick={() => setDefaultChannelOpen(true)} disabled={!!defaultChannelDisabledReason}>
+                {defaultChannel ? 'Change Default Channel' : 'Set Default Channel'}
+              </Button>
+            </DisabledReasonTooltip>
+          ) : null}
+          {canManage && supportsResourcePicker ? (
+            <DisabledReasonTooltip reason={chooseDocumentsDisabledReason}>
+              <Button
+                variant="secondary"
+                full
+                icon={<FileSearch className="size-4" />}
+                iconPosition="left"
+                onClick={() => resourcePicker.chooseResources(integration)}
+                disabled={!!chooseDocumentsDisabledReason || resourcePicker.isBusy}
+              >
+                {resourcePicker.isPickingFor(integration.id) ? 'Choosing Documents...' : 'Choose Documents'}
+              </Button>
+            </DisabledReasonTooltip>
           ) : null}
           {!linkToDetail && canManage && hasSettings ? (
             <Button variant="secondary" icon={<Settings className="size-4" />} iconPosition="left" onClick={() => setConfigOpen(true)}>
@@ -159,6 +237,21 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
         storedOperationSchemas={integration.operationConfig ?? undefined}
         credentials={integration.credentials ?? undefined}
       />
+
+      {supportsTestMessage ? (
+        <SendTestMessageDialog open={testMessageOpen} onOpenChange={setTestMessageOpen} integrationId={integration.id} providerName={displayName} defaultChannel={defaultChannel} provider={provider} />
+      ) : null}
+
+      {supportsDefaultChannel ? (
+        <DefaultChannelDialog
+          open={defaultChannelOpen}
+          onOpenChange={setDefaultChannelOpen}
+          integrationId={integration.id}
+          providerName={displayName}
+          defaultChannel={defaultChannel}
+          provider={provider}
+        />
+      ) : null}
 
       <ConfirmationDialog
         open={confirmOpen}

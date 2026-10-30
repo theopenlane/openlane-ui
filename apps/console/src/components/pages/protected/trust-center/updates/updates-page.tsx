@@ -26,6 +26,8 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
+import { UpdatesSkeleton } from './updates-skeleton'
 
 const buildFormSchema = (requireTitle: boolean) => {
   const title = z.string().max(280)
@@ -50,7 +52,7 @@ const POST_UPDATE_FIELDS = {
 export default function UpdatesSection() {
   const { setCrumbs } = use(BreadcrumbContext)
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
-  const [postToDelete, setPostToDelete] = useState<string | null>(null) // New state for deletion
+  const [postToDelete, setPostToDelete] = useState<string | null>(null)
 
   const { successNotification, errorNotification } = useNotification()
   const { data: trustCenterData } = useGetTrustCenter()
@@ -59,8 +61,8 @@ export default function UpdatesSection() {
   const { data: session } = useSession()
   const canEditTc = canEdit(tcPermission?.roles, session)
 
-  const { data: postsData } = useGetTrustCenterPosts({ trustCenterId: trustCenterID })
-  const posts = postsData?.trustCenter?.posts?.edges ?? []
+  const { posts, isLoadingPosts, error: postsError } = useGetTrustCenterPosts()
+  useQueryErrorNotification({ error: postsError, description: 'Failed to load updates' })
 
   const { mutateAsync: updateTrustCenter, isPending: isCreating } = useUpdateTrustCenter()
   const { mutateAsync: updatePost, isPending: isUpdating } = useUpdateTrustCenterPost()
@@ -147,7 +149,7 @@ export default function UpdatesSection() {
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6 min-h-screen text-foreground">
       <h1 className="text-2xl font-bold tracking-tight mb-8">Updates</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-6">
         <Card className={editingPostId || !canEditTc ? 'opacity-50 pointer-events-none' : ''}>
           <CardContent className="pt-6">
             <div className="mb-6">
@@ -219,7 +221,9 @@ export default function UpdatesSection() {
         </Card>
 
         <div className="relative min-h-100">
-          {posts.length === 0 ? (
+          {isLoadingPosts ? (
+            <UpdatesSkeleton />
+          ) : postsError ? null : posts.length === 0 ? (
             <div className="absolute inset-0 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-center p-8">
               <Megaphone size={24} className="mb-4 text-muted-foreground" />
               <h3 className="text-sm font-medium mb-1 text-foreground">No updates posted yet</h3>

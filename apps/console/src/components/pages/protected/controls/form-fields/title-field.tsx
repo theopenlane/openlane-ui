@@ -50,7 +50,7 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialRefC
       ...(titleChanged ? (title ? { title } : { clearTitle: true }) : {}),
     }
     const save = handleUpdate(input, { throwOnError: true })
-    const persisted: Promise<void>[] = []
+    const persisted: Promise<boolean>[] = []
     if (refCodeChanged) persisted.push(persistField('refCode', refCode, () => save))
     if (titleChanged) persisted.push(persistField('title', title, () => save))
     void Promise.all(persisted)

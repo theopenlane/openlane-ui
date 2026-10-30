@@ -69,12 +69,6 @@ tasks:
       - task: install
       - bun dev --filter={apps/console}
 
-  dev:storybook:
-    desc: develop storybook
-    cmds:
-      - task: install
-      - bun dev --filter={apps/storybook}
-
   e2e:
     dir: apps/console
     desc: run the console e2e suite against whatever is already serving on :3001

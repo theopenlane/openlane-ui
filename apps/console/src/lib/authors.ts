@@ -11,12 +11,17 @@ export const DELETED_USER_LABEL = 'Deleted user'
 export const UNKNOWN_AUTHOR_ID = 'unknown'
 export const UNKNOWN_AUTHOR_LABEL = 'Unknown'
 export const EMPTY_DISPLAY_NAME = '-'
+export const RESOLVING_AUTHOR_LABEL = '…'
+export const UNAVAILABLE_AUTHOR_LABEL = 'Unavailable'
 
 export type AuthorToken = { id: string; name: string }
+
+export type AuthorLookupStatus = 'ready' | 'resolving' | 'error'
 
 export type AuthorMaps = {
   userMap?: Record<string, User>
   tokenMap?: Record<string, AuthorToken>
+  status?: AuthorLookupStatus
 }
 
 export type ResolvedAuthor =
@@ -26,8 +31,9 @@ export type ResolvedAuthor =
   | { kind: 'token'; displayName: string; token: AuthorToken }
   | { kind: 'unknown'; displayName: string }
   | { kind: 'deleted'; displayName: string }
+  | { kind: 'unresolved'; displayName: string }
 
-export function resolveAuthor(id: string | null | undefined, { userMap, tokenMap }: AuthorMaps = {}): ResolvedAuthor {
+export function resolveAuthor(id: string | null | undefined, { userMap, tokenMap, status = 'ready' }: AuthorMaps = {}): ResolvedAuthor {
   if (!id) return { kind: 'deleted', displayName: DELETED_USER_LABEL }
   if (id === UNKNOWN_AUTHOR_ID) return { kind: 'unknown', displayName: UNKNOWN_AUTHOR_LABEL }
   const user = userMap?.[id]
@@ -36,6 +42,8 @@ export function resolveAuthor(id: string | null | undefined, { userMap, tokenMap
   if (id === INTEGRATION_SUBJECT_ID) return { kind: 'integration', displayName: INTEGRATION_DISPLAY_NAME }
   const token = tokenMap?.[id]
   if (token) return { kind: 'token', displayName: token.name, token }
+  if (status === 'resolving') return { kind: 'unresolved', displayName: RESOLVING_AUTHOR_LABEL }
+  if (status === 'error') return { kind: 'unresolved', displayName: UNAVAILABLE_AUTHOR_LABEL }
   return { kind: 'deleted', displayName: DELETED_USER_LABEL }
 }
 

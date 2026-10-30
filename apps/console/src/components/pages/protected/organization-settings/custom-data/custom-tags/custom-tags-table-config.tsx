@@ -11,10 +11,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { colorColumn } from '../shared/color-column'
 import { FALLBACK_COLOR } from '../shared/constants'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
-import { useUpdateTag } from '@/lib/graphql-hooks/tag-definition'
+import { type TagDefinitionNodeNonNull, useUpdateTag } from '@/lib/graphql-hooks/tag-definition'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { formatDate, formatDateSince } from '@/utils/date'
-import { type TagDefinition, type User } from '@repo/codegen/src/schema'
+import { type User } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'
 import { TruncatedCell } from '@repo/ui/data-table'
 
@@ -32,7 +32,7 @@ export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, tokenMap, ca
 
   const colorCol = useMemo(
     () =>
-      colorColumn<TagDefinition>({
+      colorColumn<TagDefinitionNodeNonNull>({
         canEdit: canEditTags,
         onSave: async (id, color) => {
           await updateTag({ updateTagDefinitionId: id, input: { color } })
@@ -41,8 +41,8 @@ export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, tokenMap, ca
     [canEditTags, updateTag],
   )
 
-  const columns = useMemo<ColumnDef<TagDefinition>[]>(() => {
-    const actionsCol: ColumnDef<TagDefinition> = {
+  const columns = useMemo<ColumnDef<TagDefinitionNodeNonNull>[]>(() => {
+    const actionsCol: ColumnDef<TagDefinitionNodeNonNull> = {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => (

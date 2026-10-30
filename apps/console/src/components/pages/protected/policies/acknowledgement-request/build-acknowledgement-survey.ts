@@ -1,5 +1,4 @@
-import { ACKNOWLEDGEMENT_QUESTION_TYPE } from '@/components/shared/survey/acknowledgement/acknowledgement-type'
-import { toPdfDocumentQuestionJson, type TPdfDocumentAttachment } from '@/components/shared/survey/pdf-document/pdf-document-type'
+import { ACKNOWLEDGEMENT_QUESTION_TYPE, toPdfDocumentQuestionJson, type TPdfDocumentAttachment } from '@theopenlane/surveyjs-components'
 
 type TAcknowledgementSurveyInput = {
   title: string

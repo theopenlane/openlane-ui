@@ -1,23 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 import type Stripe from 'stripe'
-import { auth } from '@/lib/auth/auth'
+import { withBillingCustomer } from '@/lib/server/billing-customer'
 
-export async function GET(req: Request) {
-  // ensure we have a valid session
-  const session = await auth()
-  if (!session || !session.user?.accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
+export const GET = withBillingCustomer(async (customerId) => {
   try {
-    const { searchParams } = new URL(req.url)
-    const customerId = searchParams.get('customerId')
-
-    if (!customerId) {
-      return NextResponse.json({ error: 'Missing customerId' }, { status: 400 })
-    }
-
     const schedules: Stripe.ApiList<Stripe.SubscriptionSchedule> = await getStripe().subscriptionSchedules.list({
       customer: customerId,
       limit: 10,
@@ -29,4 +16,4 @@ export async function GET(req: Request) {
     console.error('❌ Error fetching subscription schedules:', err)
     return NextResponse.json({ error: 'Failed to fetch subscription schedules' }, { status: 500 })
   }
-}
+})

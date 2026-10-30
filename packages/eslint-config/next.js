@@ -60,6 +60,13 @@ export const nextJsConfig = [
       'no-unreachable-loop': 'error',
       'no-use-before-define': 'off',
       eqeqeq: ['error', 'always', { null: 'ignore' }],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "JSXElement:has(> JSXOpeningElement[name.name='Button']:not(:has(> JSXAttribute[name.name='asChild']))) JSXOpeningElement[name.name=/^(a|Link|NextLink|ObjectSheetLink)$/]",
+          message: 'Button sets pointer-events: none on its contents, so a link inside it never receives the click. Use <Button asChild> with the link as its direct child.',
+        },
+      ],
 
       // TypeScript quality
       '@typescript-eslint/no-unused-vars': [
@@ -89,7 +96,7 @@ export const nextJsConfig = [
       '@eslint-react/hooks-extra/no-direct-set-state-in-use-effect': 'off',
       '@eslint-react/set-state-in-effect': 'off',
       '@eslint-react/no-array-index-key': 'off',
-      '@eslint-react/dom-no-dangerously-set-innerhtml': 'off',
+      '@eslint-react/dom-no-dangerously-set-innerhtml': 'error',
       '@eslint-react/no-unnecessary-use-prefix': 'off',
       '@eslint-react/static-components': 'off',
     },

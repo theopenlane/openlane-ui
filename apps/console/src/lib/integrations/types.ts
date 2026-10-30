@@ -79,6 +79,44 @@ export type IntegrationOperationMetadata = {
   input?: IntegrationOperationInput
 }
 
+export type IntegrationMessageChannel = {
+  id: string
+  displayName: string
+}
+
+export type IntegrationMessageTeam = {
+  id: string
+  displayName: string
+  channels: IntegrationMessageChannel[]
+}
+
+export type IntegrationChannelsList = {
+  teams: IntegrationMessageTeam[]
+}
+
+export type IntegrationChannelTarget = {
+  teamId?: string
+  channelId: string
+}
+
+export type RunIntegrationOperationResponse<TDetails> = {
+  details?: TDetails
+}
+
+export type IntegrationTestMessageResult = RunIntegrationOperationResponse<Record<string, unknown>>
+
+export type IntegrationSelectedResource = {
+  id: string
+  name?: string
+  parentId?: string
+}
+
+export type TResourcePicker = {
+  preload: () => Promise<void>
+  pick: (session: Record<string, unknown>) => Promise<IntegrationSelectedResource[]>
+  cancel: () => void
+}
+
 export type IntegrationOperationSchemaEntry = {
   name: string
   title: string
@@ -93,6 +131,7 @@ export type IntegrationCredentialEntry = {
   name?: string
   description?: string
   recommended?: boolean
+  retired?: boolean
   schema?: IntegrationSchemaNode
 }
 

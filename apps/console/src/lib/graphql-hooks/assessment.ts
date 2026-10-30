@@ -65,7 +65,7 @@ import {
   type MutationCreateAssessmentTemplateArgs,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
-import { getSurveyPolicySources } from '@/components/shared/survey/pdf-document/pdf-document-type'
+import { getSurveyPolicySources } from '@/components/shared/survey/pdf-document/survey-policy-sources'
 import { getNodes } from '@/lib/graphql-hooks/connection'
 import { fetchAllConnectionNodes } from '@/lib/graphql-hooks/fetch-all-connection-nodes'
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'

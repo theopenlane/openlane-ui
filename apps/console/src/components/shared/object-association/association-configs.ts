@@ -332,6 +332,8 @@ const vulnerabilityAllowedObjectTypes = [
   ObjectTypeObjects.REVIEW,
   ObjectTypeObjects.ASSET,
   ObjectTypeObjects.TASK,
+  ObjectTypeObjects.PROGRAM,
+  ObjectTypeObjects.ACTION_PLAN,
 ]
 const vulnerabilityInitialDataKeys = {
   controlIDs: 'controls',
@@ -341,6 +343,8 @@ const vulnerabilityInitialDataKeys = {
   reviewIDs: 'reviews',
   assetIDs: 'assets',
   taskIDs: 'tasks',
+  programIDs: 'programs',
+  actionPlanIDs: 'actionPlans',
 }
 const vulnerabilityAssociationKeys = [
   'controlIDs',
@@ -350,6 +354,8 @@ const vulnerabilityAssociationKeys = [
   'reviewIDs',
   'assetIDs',
   'taskIDs',
+  'programIDs',
+  'actionPlanIDs',
 ] as const satisfies readonly (keyof typeof vulnerabilityInitialDataKeys)[]
 
 export const VULNERABILITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
@@ -367,6 +373,8 @@ export const VULNERABILITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     SECTION_MAPPINGS.reviews,
     SECTION_MAPPINGS.assets,
     SECTION_MAPPINGS.tasks,
+    SECTION_MAPPINGS.programs,
+    SECTION_MAPPINGS.actionPlans,
   ],
   dialogConfig: {
     dataRootField: 'vulnerability',

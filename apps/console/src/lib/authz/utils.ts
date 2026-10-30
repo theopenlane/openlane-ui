@@ -40,3 +40,5 @@ export const isImpersonation = (session?: Session | null) => {
 
   return isImpersonation
 }
+
+export const canManageBilling = (role: OrgMembershipRole | null | undefined, session?: Session | null) => (role ? isOwnerOrSuperAdmin(role) : !!isImpersonation(session))

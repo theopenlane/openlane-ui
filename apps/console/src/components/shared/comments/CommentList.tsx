@@ -46,14 +46,22 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove, s
       return
     }
     const html = await plateEditorHelper.convertToHtml(draftValue)
-    await onEdit(item.id, html)
+    try {
+      await onEdit(item.id, html)
+    } catch {
+      return
+    }
     setIsEditingItemId(null)
     setDraftValue(null)
   }
 
   const confirmDelete = async () => {
     if (!commentToDelete || !onRemove) return
-    await onRemove(commentToDelete.id)
+    try {
+      await onRemove(commentToDelete.id)
+    } catch {
+      return
+    }
     setDeleteDialogOpen(false)
     setCommentToDelete(null)
   }
@@ -69,7 +77,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove, s
             <div className="flex items-start space-x-3 overflow-auto">
               <div className="flex flex-col w-full min-w-0">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-baseline space-x-2">
+                  <div className="flex items-center gap-2">
                     {showAuthor && <AuthorDisplay author={item.author} className="font-semibold" avatarClassName="h-10 w-10 mr-2" />}
                     <p className="text-sm text-muted-foreground">{formatDateTime(item.createdAt)}</p>
                   </div>

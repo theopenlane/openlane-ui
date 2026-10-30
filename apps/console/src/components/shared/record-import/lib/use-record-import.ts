@@ -11,7 +11,7 @@ import { buildImportPlan, buildMappedImport } from './build-mapped-import'
 import { getRegistryFixedFields, withFixedFields } from './destination-fields'
 import { useImportDestination } from './use-import-destination'
 import type { TDateOrder } from '@/utils/loose-date'
-import type { TColumnMapping, TDestinationField, TDestinationFieldSet, TImportDestination, TParsedDelimitedFile, TValueMap } from './types'
+import type { TColumnMapping, TDestinationField, TDestinationFieldSet, TImportDestination, TImportMode, TParsedDelimitedFile, TValueMap } from './types'
 
 export type TImportStepDescriptor<TId extends string = string> = { id: TId; label: string }
 
@@ -28,11 +28,12 @@ type TUseRecordImportArgs<TStepId extends string> = {
   entityType: ObjectTypes
   entityLabels: string[]
   steps: readonly TImportStepDescriptor<TStepId>[]
+  mode?: TImportMode
   destination?: TImportDestination
   fixedFields?: readonly TDestinationField[]
 }
 
-export const useRecordImport = <TStepId extends string>({ entityType, entityLabels, steps, destination, fixedFields = NO_FIXED_FIELDS }: TUseRecordImportArgs<TStepId>) => {
+export const useRecordImport = <TStepId extends string>({ entityType, entityLabels, steps, mode = 'create', destination, fixedFields = NO_FIXED_FIELDS }: TUseRecordImportArgs<TStepId>) => {
   const [stepIndex, setStepIndex] = useState(0)
   const [parsed, setParsed] = useState<TParsedDelimitedFile | null>(null)
   const [overrides, setOverrides] = useState<Record<number, string | null>>({})
@@ -40,8 +41,8 @@ export const useRecordImport = <TStepId extends string>({ entityType, entityLabe
   const [dateOrders, setDateOrders] = useState<Record<number, TDateOrder>>({})
   const [rowOrder, setRowOrder] = useState<number[] | null>(null)
 
-  const { destination: resolved, isLoading: isLoadingFields, isError: isDestinationError } = useImportDestination(entityType, destination)
-  const allFixedFields = useMemo(() => [...getRegistryFixedFields(entityType), ...fixedFields], [entityType, fixedFields])
+  const { destination: resolved, isLoading: isLoadingFields, isError: isDestinationError } = useImportDestination(entityType, mode, destination)
+  const allFixedFields = useMemo(() => [...(mode === 'create' ? getRegistryFixedFields(entityType) : []), ...fixedFields], [entityType, mode, fixedFields])
   const fieldSet = useMemo(() => (resolved ? withFixedFields(resolved.fieldSet, allFixedFields) : EMPTY_FIELD_SET), [resolved, allFixedFields])
   const columns = useMemo(() => (parsed ? toSourceColumns(parsed) : []), [parsed])
   const suggestions = useMemo(() => matchColumns({ entityType, entityLabels, columns, fieldSet }), [entityType, entityLabels, columns, fieldSet])
@@ -87,16 +88,18 @@ export const useRecordImport = <TStepId extends string>({ entityType, entityLabe
 
   const moveRow = useCallback((from: number, to: number) => setRowOrder((current) => arrayMove(current ?? fileOrder, from, to)), [fileOrder])
 
+  const canMapEmptyColumns = mode === 'update'
+
   const setColumnField = useCallback(
     (index: number, field: string | null) => {
       const column = columns[index]
-      if (!column || isEmptyColumn(column)) return
+      if (!column || (isEmptyColumn(column) && !canMapEmptyColumns)) return
       if (assignments[index]?.field === field) return
       setOverrides((current) => ({ ...current, [index]: field }))
       setValueMaps(({ [index]: _cleared, ...rest }) => rest)
       setDateOrders(({ [index]: _cleared, ...rest }) => rest)
     },
-    [columns, assignments],
+    [columns, assignments, canMapEmptyColumns],
   )
 
   const setColumnDateOrder = useCallback((index: number, order: TDateOrder) => {
@@ -144,6 +147,7 @@ export const useRecordImport = <TStepId extends string>({ entityType, entityLabe
     applyFile,
     columns,
     fields: fieldSet.fields,
+    canMapEmptyColumns,
     requiredGroups: fieldSet.requiredGroups,
     mapping,
     setColumnField,
@@ -173,6 +177,7 @@ export type TImportSourceState = Pick<
   | 'applyFile'
   | 'requiredGroups'
   | 'isLoadingFields'
+  | 'canMapEmptyColumns'
   | 'fields'
   | 'exampleCsv'
   | 'exampleFilename'

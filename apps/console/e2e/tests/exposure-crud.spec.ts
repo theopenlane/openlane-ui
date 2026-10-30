@@ -618,17 +618,17 @@ test.describe('exposure — vulnerability assignment (ISS-3013)', () => {
     const id = await createVulnerability(ownerApi, displayName, uniqueRef('CVE-E2E-ASSIGN'))
 
     try {
-      await page.goto(`/exposure/vulnerabilities?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-      const sheet = page.getByRole('dialog')
-      await expect(sheet).toBeVisible({ timeout: 60_000 })
+      await page.goto(`/exposure/vulnerabilities/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      const rail = page.locator('body')
+      await expect(page.getByRole('heading', { name: 'Properties' })).toBeVisible({ timeout: 60_000 })
 
-      await expect(responsibilityValue(sheet, 'Assignee')).toContainText('Not set', { timeout: 30_000 })
-      await setResponsibilityOption(page, sheet, 'Assignee', person, person, 'UpdateVulnerability')
-      await expect(responsibilityValue(sheet, 'Assignee')).toContainText(person, { timeout: 30_000 })
+      await expect(responsibilityValue(rail, 'Assigned to')).toContainText('Not set', { timeout: 30_000 })
+      await setResponsibilityOption(page, rail, 'Assigned to', person, person, 'UpdateVulnerability')
+      await expect(responsibilityValue(rail, 'Assigned to')).toContainText(person, { timeout: 30_000 })
 
       await page.reload({ waitUntil: 'domcontentloaded' })
-      await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60_000 })
-      await expect(responsibilityValue(page.getByRole('dialog'), 'Assignee')).toContainText(person, { timeout: 60_000 })
+      await expect(page.getByRole('heading', { name: 'Properties' })).toBeVisible({ timeout: 60_000 })
+      await expect(responsibilityValue(rail, 'Assigned to')).toContainText(person, { timeout: 60_000 })
     } finally {
       await deleteVulnerability(ownerApi, id)
     }
@@ -641,16 +641,16 @@ test.describe('exposure — vulnerability assignment (ISS-3013)', () => {
     const email = `reviewer-${Date.now().toString(36)}@e2e-openlane.dev`
 
     try {
-      await page.goto(`/exposure/vulnerabilities?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-      const sheet = page.getByRole('dialog')
-      await expect(sheet).toBeVisible({ timeout: 60_000 })
+      await page.goto(`/exposure/vulnerabilities/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      const rail = page.locator('body')
+      await expect(page.getByRole('heading', { name: 'Properties' })).toBeVisible({ timeout: 60_000 })
 
-      await setResponsibilityEmail(page, sheet, 'Reviewed By', email, 'UpdateVulnerability')
-      await expect(responsibilityValue(sheet, 'Reviewed By')).toContainText(email, { timeout: 30_000 })
+      await setResponsibilityEmail(page, rail, 'Reviewed by', email, 'UpdateVulnerability')
+      await expect(responsibilityValue(rail, 'Reviewed by')).toContainText(email, { timeout: 30_000 })
 
       await page.reload({ waitUntil: 'domcontentloaded' })
-      await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60_000 })
-      await expect(responsibilityValue(page.getByRole('dialog'), 'Reviewed By')).toContainText(email, { timeout: 60_000 })
+      await expect(page.getByRole('heading', { name: 'Properties' })).toBeVisible({ timeout: 60_000 })
+      await expect(responsibilityValue(rail, 'Reviewed by')).toContainText(email, { timeout: 60_000 })
     } finally {
       await deleteVulnerability(ownerApi, id)
     }
@@ -662,11 +662,11 @@ test.describe('exposure — vulnerability assignment (ISS-3013)', () => {
     const id = await createVulnerability(ownerApi, displayName, uniqueRef('CVE-E2E-BADASSIGN'))
 
     try {
-      await page.goto(`/exposure/vulnerabilities?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-      const sheet = page.getByRole('dialog')
-      await expect(sheet).toBeVisible({ timeout: 60_000 })
+      await page.goto(`/exposure/vulnerabilities/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      const rail = page.locator('body')
+      await expect(page.getByRole('heading', { name: 'Properties' })).toBeVisible({ timeout: 60_000 })
 
-      await responsibilityValue(sheet, 'Assignee').click()
+      await responsibilityValue(rail, 'Assigned to').click()
       const search = page.getByPlaceholder('Search users, groups, personnel, or type a name/email...')
       await expect(search).toBeVisible({ timeout: 15_000 })
       await search.fill('not-an-email')
@@ -674,7 +674,7 @@ test.describe('exposure — vulnerability assignment (ISS-3013)', () => {
       await page.getByRole('option').filter({ hasText: 'Use "not-an-email" as custom email' }).first().click()
 
       await expect(page.getByText('Invalid email', { exact: true })).toBeVisible({ timeout: 15_000 })
-      await expect(responsibilityValue(sheet, 'Assignee')).not.toContainText('not-an-email')
+      await expect(responsibilityValue(rail, 'Assigned to')).not.toContainText('not-an-email')
     } finally {
       await deleteVulnerability(ownerApi, id)
     }

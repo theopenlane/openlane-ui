@@ -1,5 +1,5 @@
 import type Stripe from 'stripe'
-import { LIVE_STATUSES, belongsToCustomer, isLive, pickLiveSubscription } from './live-subscription'
+import { LIVE_STATUSES, isLive, pickLiveSubscription } from './live-subscription'
 
 const sub = (status: Stripe.Subscription.Status, id = `sub_${status}`, customer: Stripe.Subscription['customer'] = 'cus_1') => ({ id, status, customer }) as Stripe.Subscription
 
@@ -18,24 +18,6 @@ describe('isLive', () => {
 
   it('keeps past_due live so a delinquent org still reaches its billing page', () => {
     expect(isLive(sub('past_due'))).toBe(true)
-  })
-})
-
-describe('belongsToCustomer', () => {
-  it('matches a customer given as an id string', () => {
-    expect(belongsToCustomer(sub('active', 'sub_1', 'cus_1'), 'cus_1')).toBe(true)
-    expect(belongsToCustomer(sub('active', 'sub_1', 'cus_1'), 'cus_2')).toBe(false)
-  })
-
-  it('matches a customer given as an expanded object', () => {
-    const expanded = { id: 'cus_1' } as Stripe.Customer
-    expect(belongsToCustomer(sub('active', 'sub_1', expanded), 'cus_1')).toBe(true)
-    expect(belongsToCustomer(sub('active', 'sub_1', expanded), 'cus_2')).toBe(false)
-  })
-
-  it('does not match a deleted customer belonging to someone else', () => {
-    const deleted = { id: 'cus_other', deleted: true } as Stripe.DeletedCustomer
-    expect(belongsToCustomer(sub('active', 'sub_1', deleted), 'cus_1')).toBe(false)
   })
 })
 

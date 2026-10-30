@@ -57,6 +57,8 @@ export const GET_ALL_TRUST_CENTERS = gql`
             logoRemoteURL
             securityContact
             ndaApprovalRequired
+            enableAutoApproval
+            autoApprovalRules
             notifySubscribersOnSubprocessorChange
             allowSubscribers
             ndaApproverGroupID

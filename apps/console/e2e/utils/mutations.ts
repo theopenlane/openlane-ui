@@ -61,13 +61,10 @@ interface CsvUpload {
   expectToast?: string | RegExp
 }
 
-export interface UploadCsvToDialogArgs extends CsvUpload {
-  dialog: Locator
-}
-
 export interface ImportCsvArgs extends CsvUpload {
   scope: Locator | Page
   returnsTo: string
+  startLabel?: RegExp
 }
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -83,21 +80,7 @@ export const expectImportPage = async (page: Page, importType: string, heading: 
   return main
 }
 
-export const uploadCsvToSingleStepDialogAndAssert = async ({ page, dialog, fileName, rows, operationName, expectToast }: UploadCsvToDialogArgs): Promise<void> => {
-  const upload = dialog.getByRole('button', { name: /^Upload$/ })
-  await expect(upload).toBeDisabled()
-
-  await dialog.locator('input[type="file"]').first().setInputFiles(inlineCsv(fileName, rows))
-  await expect(upload).toBeEnabled({ timeout: 30_000 })
-
-  await expectMutationOk(page, operationName, async () => {
-    await upload.click()
-  })
-
-  if (expectToast) await expect(toast(page, expectToast)).toBeVisible({ timeout: 30_000 })
-}
-
-export const uploadCsvAndAssert = async ({ page, scope, fileName, rows, operationName, expectToast, returnsTo }: ImportCsvArgs): Promise<void> => {
+export const uploadCsvAndAssert = async ({ page, scope, fileName, rows, operationName, expectToast, returnsTo, startLabel = /^Import \d/ }: ImportCsvArgs): Promise<void> => {
   const nextStep = scope.getByRole('button', { name: /^Continue$/ })
   await expect(nextStep).toBeDisabled()
 
@@ -109,7 +92,7 @@ export const uploadCsvAndAssert = async ({ page, scope, fileName, rows, operatio
   await expect(nextStep).toBeEnabled({ timeout: 30_000 })
   await nextStep.click()
 
-  const startImport = scope.getByRole('button', { name: /^Import \d/ })
+  const startImport = scope.getByRole('button', { name: startLabel })
   await expect(startImport).toBeEnabled({ timeout: 30_000 })
 
   await expectMutationOk(page, operationName, async () => {

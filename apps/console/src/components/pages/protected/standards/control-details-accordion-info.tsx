@@ -3,6 +3,7 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown } from 'lucide-react'
 import * as React from 'react'
+import { SanitizedHtml } from '@/components/shared/sanitized-html/sanitized-html'
 
 export interface AssessmentMethod {
   id: string
@@ -44,7 +45,9 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, t
                   <div key={referenceId} className="rich-text text-sm text-muted-foreground pb-2">
                     <ul>
                       {guidance.map((g, i) => (
-                        <li key={i} dangerouslySetInnerHTML={{ __html: g.trim() }} />
+                        <li key={i}>
+                          <SanitizedHtml value={g.trim()} />
+                        </li>
                       ))}
                     </ul>
                   </div>
@@ -63,7 +66,9 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, t
                 <div key={`${referenceId}-${idx}`} className="rich-text text-sm text-muted-foreground">
                   <ul>
                     {procedures.map((p, i) => (
-                      <li key={i} dangerouslySetInnerHTML={{ __html: p.trim() }} />
+                      <li key={i}>
+                        <SanitizedHtml value={p.trim()} />
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -80,12 +85,12 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, t
                 {exampleEvidence.map((item, i) => (
                   <li key={i}>
                     <p className="font-medium">{item.documentationType}</p>
-                    <div className="rich-text" dangerouslySetInnerHTML={{ __html: item.description }} />
+                    <SanitizedHtml className="rich-text" value={item.description} />
                   </li>
                 ))}
               </ul>
             ) : (
-              <div className="rich-text text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: String(exampleEvidence) }} />
+              <SanitizedHtml className="rich-text text-sm text-muted-foreground" value={String(exampleEvidence)} />
             ),
         },
         {
@@ -95,7 +100,9 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, t
             controlQuestions?.length ? (
               <ul className="rich-text text-sm text-muted-foreground">
                 {controlQuestions.map((q, i) => (
-                  <li key={i} dangerouslySetInnerHTML={{ __html: q }} />
+                  <li key={i}>
+                    <SanitizedHtml value={q} />
+                  </li>
                 ))}
               </ul>
             ) : (
@@ -110,11 +117,11 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, t
               <div className="space-y-4">
                 {assessmentMethods.map((item, i) =>
                   typeof item === 'string' ? (
-                    <div key={i} className="rich-text text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: item }} />
+                    <SanitizedHtml key={i} className="rich-text text-sm text-muted-foreground" value={item} />
                   ) : (
                     <div key={item.id}>
                       <p className="font-medium mb-1">{item.id}</p>
-                      <div className="rich-text text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: item.method }} />
+                      <SanitizedHtml className="rich-text text-sm text-muted-foreground" value={item.method} />
                     </div>
                   ),
                 )}
@@ -131,12 +138,19 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, t
               <div className="space-y-4">
                 {assessmentObjectives.map((item, i) =>
                   typeof item === 'string' ? (
-                    <div key={i} className="rich-text text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: item }} />
+                    <SanitizedHtml key={i} className="rich-text text-sm text-muted-foreground" value={item} />
                   ) : (
                     <div key={item.id}>
                       <p className="font-medium mb-1">{item.id}</p>
                       <ul className="rich-text text-sm text-muted-foreground">
-                        {item.objective.split(/<br\s*\/?>/i).map((line, idx) => line.trim() && <li key={idx} dangerouslySetInnerHTML={{ __html: line.trim() }} />)}
+                        {item.objective.split(/<br\s*\/?>/i).map(
+                          (line, idx) =>
+                            line.trim() && (
+                              <li key={idx}>
+                                <SanitizedHtml value={line.trim()} />
+                              </li>
+                            ),
+                        )}
                       </ul>
                     </div>
                   ),

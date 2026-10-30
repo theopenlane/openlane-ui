@@ -8,6 +8,7 @@ import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { getNotificationRedirectUrl } from '@/components/shared/SystemNotification/notification-redirect'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import {
   OrderDirection,
   VulnerabilityOrderField,
@@ -24,8 +25,8 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'
 
-const ACTIVITY_WINDOW_MS = 30 * 24 * 60 * 60 * 1000
-const ACTIVITY_WINDOW_BUCKET_MS = 60 * 60 * 1000
+const ACTIVITY_WINDOW_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
+const ACTIVITY_WINDOW_BUCKET_MS = 60 * 60 * 1000 // 1hr
 
 const ACTIVITY_WINDOW_START = new Date(Math.floor(Date.now() / ACTIVITY_WINDOW_BUCKET_MS) * ACTIVITY_WINDOW_BUCKET_MS - ACTIVITY_WINDOW_MS).toISOString()
 
@@ -54,6 +55,7 @@ const pluralizeLabel = (label: string): string => {
 const pushCreatedActivity = <T extends { id: string; createdAt?: string | null }>(
   items: ActivityItem[],
   records: T[] | undefined,
+  totalCount: number,
   type: string,
   listHref: string,
   labelFor: (record: T) => string,
@@ -61,7 +63,7 @@ const pushCreatedActivity = <T extends { id: string; createdAt?: string | null }
 ) => {
   if (!records || records.length === 0) return
 
-  if (records.length === 1) {
+  if (totalCount === 1) {
     const record = records[0]
     items.push({ id: record.id, label: labelFor(record), type, createdAt: record.createdAt ?? null, href: hrefFor(record) })
     return
@@ -70,9 +72,27 @@ const pushCreatedActivity = <T extends { id: string; createdAt?: string | null }
   const mostRecent = records.reduce((latest, record) => (activityTimestamp(record.createdAt) > activityTimestamp(latest.createdAt) ? record : latest))
   items.push({
     id: `group-${type}`,
-    label: `${records.length} ${pluralizeLabel(toHumanLabel(type))}`,
+    label: `${totalCount} ${pluralizeLabel(toHumanLabel(type))}`,
     type,
     createdAt: mostRecent.createdAt ?? null,
+    href: listHref,
+    isGrouped: true,
+  })
+}
+
+type RemainingActivitySource = { records: { createdAt?: string | null }[] | undefined; totalCount: number; type: string; listHref: string }
+
+const pushRemainingActivity = (items: ActivityItem[], { records, totalCount, type, listHref }: RemainingActivitySource) => {
+  if (!records || records.length === 0 || totalCount <= records.length) return
+
+  const remaining = totalCount - records.length
+  const typeLabel = toHumanLabel(type)
+  const oldest = records.reduce((earliest, record) => (activityTimestamp(record.createdAt) < activityTimestamp(earliest.createdAt) ? record : earliest))
+  items.push({
+    id: `remaining-${type}`,
+    label: `${remaining} more ${remaining === 1 ? typeLabel : pluralizeLabel(typeLabel)}`,
+    type,
+    createdAt: oldest.createdAt ?? null,
     href: listHref,
     isGrouped: true,
   })
@@ -85,11 +105,11 @@ const vulnActivityItem = (v: VulnNode): ActivityItem => ({
   label: v.displayName ?? v.displayID ?? ObjectTypes.VULNERABILITY,
   type: ObjectTypes.VULNERABILITY,
   createdAt: v.createdAt ?? null,
-  href: `/exposure/vulnerabilities?id=${v.id}`,
+  href: getHrefForObjectType('vulnerabilities', { id: v.id }),
   source: v.source ?? null,
 })
 
-const pushVulnerabilityActivity = (items: ActivityItem[], vulns: VulnNode[] | undefined, groupBySource: boolean) => {
+const pushVulnerabilityActivity = (items: ActivityItem[], vulns: VulnNode[] | undefined, groupBySource: boolean, isCapped: boolean) => {
   if (!vulns || vulns.length === 0) return
 
   if (!groupBySource) {
@@ -112,7 +132,7 @@ const pushVulnerabilityActivity = (items: ActivityItem[], vulns: VulnNode[] | un
     const mostRecent = group.reduce((latest, v) => (activityTimestamp(v.createdAt) > activityTimestamp(latest.createdAt) ? v : latest))
     items.push({
       id: `group-${ObjectTypes.VULNERABILITY}-${source || 'unknown'}`,
-      label: `${group.length} Vulnerabilities`,
+      label: `${group.length}${isCapped ? '+' : ''} Vulnerabilities`,
       type: ObjectTypes.VULNERABILITY,
       createdAt: mostRecent.createdAt ?? null,
       href: '/exposure/vulnerabilities',
@@ -132,44 +152,72 @@ const policyHref = (p: PolicyNode) => `/policies/${p.id}/view`
 export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { includeNonExposureActivity?: boolean } = {}) => {
   const activityWindowStart = ACTIVITY_WINDOW_START
 
-  const { vulnerabilitiesNodes: recentVulns, isLoading: isLoadingVulns } = useVulnerabilitiesWithFilter({
+  const {
+    vulnerabilitiesNodes: recentVulns,
+    isLoading: isLoadingVulns,
+    data: recentVulnsData,
+  } = useVulnerabilitiesWithFilter({
     where: { open: true, createdAtGTE: activityWindowStart },
     orderBy: [{ field: VulnerabilityOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: DEFAULT_PAGINATION,
   })
 
-  const { findingsNodes: recentFindings, isLoading: isLoadingFindings } = useFindingsWithFilter({
+  const {
+    findingsNodes: recentFindings,
+    isLoading: isLoadingFindings,
+    data: recentFindingsData,
+  } = useFindingsWithFilter({
     where: { open: true, createdAtGTE: activityWindowStart },
     orderBy: [{ field: FindingOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: DEFAULT_PAGINATION,
   })
 
-  const { risks: recentRisks, isLoading: isLoadingRisks } = useRisks({
+  const {
+    risks: recentRisks,
+    paginationMeta: { totalCount: recentRisksCount },
+    isLoading: isLoadingRisks,
+  } = useRisks({
     where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], createdAtGTE: activityWindowStart },
     orderBy: [{ field: RiskOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: DEFAULT_PAGINATION,
   })
 
-  const { scansNodes: recentScans, isLoading: isLoadingScans } = useScansWithFilter({
+  const {
+    scansNodes: recentScans,
+    isLoading: isLoadingScans,
+    data: recentScansData,
+  } = useScansWithFilter({
     where: { createdAtGTE: activityWindowStart },
     orderBy: [{ field: ScanOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: DEFAULT_PAGINATION,
   })
 
-  const { reviewsNodes: recentReviews, isLoading: isLoadingReviews } = useReviewsWithFilter({
+  const {
+    reviewsNodes: recentReviews,
+    isLoading: isLoadingReviews,
+    data: recentReviewsData,
+  } = useReviewsWithFilter({
     where: { createdAtGTE: activityWindowStart },
     orderBy: [{ field: ReviewOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: DEFAULT_PAGINATION,
   })
 
-  const { policies: recentPolicies, isLoading: isLoadingPolicies } = useInternalPolicies({
+  const {
+    policies: recentPolicies,
+    paginationMeta: { totalCount: recentPoliciesCount },
+    isLoading: isLoadingPolicies,
+  } = useInternalPolicies({
     where: { createdAtGTE: activityWindowStart },
     orderBy: [{ field: InternalPolicyOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: CREATED_ACTIVITY_PAGINATION,
     enabled: includeNonExposureActivity,
   })
 
-  const { controls: recentControls, isLoading: isLoadingControls } = useGetAllControls({
+  const {
+    controls: recentControls,
+    paginationMeta: { totalCount: recentControlsCount },
+    isLoading: isLoadingControls,
+  } = useGetAllControls({
     where: { createdAtGTE: activityWindowStart, systemOwned: false, isTrustCenterControl: false },
     orderBy: [{ field: ControlOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: CREATED_ACTIVITY_PAGINATION,
@@ -185,6 +233,11 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
         : [],
     [notifications, includeNonExposureActivity, activityWindowStart],
   )
+
+  const recentVulnsCount = recentVulnsData?.vulnerabilities?.totalCount ?? 0
+  const recentFindingsCount = recentFindingsData?.findings?.totalCount ?? 0
+  const recentScansCount = recentScansData?.scans?.totalCount ?? 0
+  const recentReviewsCount = recentReviewsData?.reviews?.totalCount ?? 0
 
   const baseItems = useMemo(() => {
     const items: ActivityItem[] = []
@@ -213,19 +266,45 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
 
   const activityItems = useMemo(() => {
     const items = [...baseItems]
-    pushVulnerabilityActivity(items, recentVulns, includeNonExposureActivity)
-    pushCreatedActivity(items, nonExposurePolicies, ObjectTypes.INTERNAL_POLICY, '/policies', (p) => p.name ?? ObjectTypes.INTERNAL_POLICY, policyHref)
-    pushCreatedActivity(items, nonExposureControls, ObjectTypes.CONTROL, '/controls', controlLabel, controlHref)
+    pushVulnerabilityActivity(items, recentVulns, includeNonExposureActivity, recentVulnsCount > (recentVulns?.length ?? 0))
+    pushCreatedActivity(items, nonExposurePolicies, recentPoliciesCount, ObjectTypes.INTERNAL_POLICY, '/policies', (p) => p.name ?? ObjectTypes.INTERNAL_POLICY, policyHref)
+    pushCreatedActivity(items, nonExposureControls, recentControlsCount, ObjectTypes.CONTROL, '/controls', controlLabel, controlHref)
     return items.sort(byNewestFirst)
-  }, [baseItems, recentVulns, nonExposurePolicies, nonExposureControls, includeNonExposureActivity])
+  }, [baseItems, recentVulns, recentVulnsCount, nonExposurePolicies, nonExposureControls, recentPoliciesCount, recentControlsCount, includeNonExposureActivity])
 
   const allActivityItems = useMemo(() => {
     const items = [...baseItems]
-    pushVulnerabilityActivity(items, recentVulns, false)
+    pushVulnerabilityActivity(items, recentVulns, false, false)
     nonExposurePolicies?.forEach((p) => items.push({ id: p.id, label: p.name ?? ObjectTypes.INTERNAL_POLICY, type: ObjectTypes.INTERNAL_POLICY, createdAt: p.createdAt ?? null, href: policyHref(p) }))
     nonExposureControls?.forEach((c) => items.push({ id: c.id, label: controlLabel(c), type: ObjectTypes.CONTROL, createdAt: c.createdAt ?? null, href: controlHref(c) }))
+    const remainingSources: RemainingActivitySource[] = [
+      { records: recentVulns, totalCount: recentVulnsCount, type: ObjectTypes.VULNERABILITY, listHref: '/exposure/vulnerabilities' },
+      { records: recentFindings, totalCount: recentFindingsCount, type: ObjectTypes.FINDING, listHref: '/exposure/findings' },
+      { records: recentRisks, totalCount: recentRisksCount, type: ObjectTypes.RISK, listHref: '/exposure/risks' },
+      { records: recentScans, totalCount: recentScansCount, type: ObjectTypes.SCAN, listHref: '/exposure/scans' },
+      { records: recentReviews, totalCount: recentReviewsCount, type: ObjectTypes.REVIEW, listHref: '/exposure/reviews' },
+      { records: nonExposurePolicies, totalCount: recentPoliciesCount, type: ObjectTypes.INTERNAL_POLICY, listHref: '/policies' },
+      { records: nonExposureControls, totalCount: recentControlsCount, type: ObjectTypes.CONTROL, listHref: '/controls' },
+    ]
+    remainingSources.forEach((source) => pushRemainingActivity(items, source))
     return items.sort(byNewestFirst)
-  }, [baseItems, recentVulns, nonExposurePolicies, nonExposureControls])
+  }, [
+    baseItems,
+    recentVulns,
+    recentVulnsCount,
+    recentFindings,
+    recentFindingsCount,
+    recentRisks,
+    recentRisksCount,
+    recentScans,
+    recentScansCount,
+    recentReviews,
+    recentReviewsCount,
+    nonExposurePolicies,
+    nonExposureControls,
+    recentPoliciesCount,
+    recentControlsCount,
+  ])
 
   const isLoading = isLoadingVulns || isLoadingFindings || isLoadingRisks || isLoadingScans || isLoadingReviews || (includeNonExposureActivity && (isLoadingPolicies || isLoadingControls))
 

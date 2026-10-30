@@ -1,9 +1,10 @@
 'use client'
 
+import { getVulnerabilityTitle } from '../vulnerability-display'
 import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import React from 'react'
+import React, { useEffect } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
-import { type VulnerabilitiesNodeNonNull, useCreateVulnerability, useBulkEditVulnerability, useBulkDeleteVulnerability } from '@/lib/graphql-hooks/vulnerability'
+import { useCreateVulnerability, useBulkEditVulnerability, useBulkDeleteVulnerability } from '@/lib/graphql-hooks/vulnerability'
 import VulnerabilitySeverityChart from '@/components/shared/severity-chart/severity-chart'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
@@ -19,7 +20,7 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { VULNERABILITY_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
-import ViewVulnerabilitySheet from '../view-vulnerability-sheet'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { useSlaQuickFilters } from '@/hooks/useSla'
 
 const DEFAULT_FILTER_VALUES = { open: true }
@@ -37,10 +38,6 @@ const VulnerabilityPage: React.FC = () => {
 
   const slaQuickFilters = useSlaQuickFilters()
   const quickFilters = React.useMemo(() => [...slaQuickFilters, DISMISSED_QUICK_FILTER], [slaQuickFilters])
-
-  function getName(data: VulnerabilitiesNodeNonNull) {
-    return data?.displayName || data?.displayID || data?.externalID
-  }
 
   const baseCreateMutation = useCreateVulnerability()
   const baseBulkDeleteMutation = useBulkDeleteVulnerability()
@@ -90,13 +87,10 @@ const VulnerabilityPage: React.FC = () => {
     vulnerabilityStatusName: createVulnStatus,
   }
 
-  const handleCloseViewSheet = () => {
-    const newSearchParams = new URLSearchParams(searchParams.toString())
-    newSearchParams.delete('id')
-    router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
-  }
+  useEffect(() => {
+    if (id && !isCreate) router.replace(getHrefForObjectType('vulnerabilities', { id }))
+  }, [id, isCreate, router])
 
-  // sheetConfig handles CREATE mode only — view/edit is handled by ViewVulnerabilitySheet below
   const sheetConfig: VulnerabilitySheetConfig = {
     objectType: objectType,
     form,
@@ -105,10 +99,10 @@ const VulnerabilityPage: React.FC = () => {
     createMutation,
     deleteMutation,
     buildPayload: async (data): Promise<CreateVulnerabilityInput> => {
-      const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, internalOwner, assignedTo, reviewedBy, ...rest } = data
+      const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, programIDs, actionPlanIDs, internalOwner, assignedTo, reviewedBy, ...rest } = data
       const associationPayload = buildAssociationPayload(
         VULNERABILITY_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs },
+        { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, programIDs, actionPlanIDs },
         true,
         {},
       )
@@ -123,7 +117,7 @@ const VulnerabilityPage: React.FC = () => {
         ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: 'create' }),
       } as CreateVulnerabilityInput
     },
-    getName,
+    getName: getVulnerabilityTitle,
     renderFields: (props: VulnerabilityFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
 
@@ -144,6 +138,7 @@ const VulnerabilityPage: React.FC = () => {
     getColumns,
     TableComponent,
     sheetConfig,
+    viewEditMode: { type: 'full-page', route: '/exposure/vulnerabilities' },
     onBulkDelete: async (ids: string[]) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids })
       return result.deleteBulkVulnerability
@@ -178,7 +173,6 @@ const VulnerabilityPage: React.FC = () => {
   return (
     <>
       <GenericTablePage {...tableConfig} />
-      <ViewVulnerabilitySheet entityId={isCreate ? null : id} onClose={handleCloseViewSheet} />
       <TaskDetailsSheet queryParamKey="taskId" />
     </>
   )

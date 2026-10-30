@@ -307,8 +307,10 @@ export function resolveSchemaNode(node: IntegrationSchemaNode | undefined, regis
   return resolveSchemaNode({ ...resolved, ...node, $ref: undefined }, registry)
 }
 
+export const setupCredentialEntries = (provider?: IntegrationProvider): IntegrationCredentialEntry[] => (provider?.credentialSchemas ?? []).filter((entry) => !entry.retired)
+
 export function primaryCredentialEntry(provider?: IntegrationProvider): IntegrationCredentialEntry | undefined {
-  return provider?.credentialSchemas?.[0]
+  return setupCredentialEntries(provider)[0]
 }
 
 export function resolveCredentialEntry(provider?: IntegrationProvider, credentialRef?: string): IntegrationCredentialEntry | undefined {
@@ -371,7 +373,7 @@ export async function parseIntegrationErrorMessage(response: Response): Promise<
 
   try {
     const payload = JSON.parse(raw) as { error?: string; details?: string; message?: string }
-    return payload.error || payload.details || payload.message || `Request failed (${response.status})`
+    return payload.details || payload.error || payload.message || `Request failed (${response.status})`
   } catch {
     return raw || `Request failed (${response.status})`
   }

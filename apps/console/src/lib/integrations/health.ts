@@ -21,14 +21,15 @@ type TIntegrationHealthMeta = {
   variant: NonNullable<BadgeProps['variant']>
   rank: number
   isUnhealthy: boolean
+  isOperable: boolean
 }
 
 const INTEGRATION_HEALTH: Record<IntegrationIntegrationStatus, TIntegrationHealthMeta> = {
-  [IntegrationIntegrationStatus.CONNECTED]: { label: 'Healthy', variant: 'green', rank: 0, isUnhealthy: false },
-  [IntegrationIntegrationStatus.DEGRADED]: { label: 'Degraded', variant: 'destructive', rank: 1, isUnhealthy: true },
-  [IntegrationIntegrationStatus.ERRORED]: { label: 'Needs Attention', variant: 'destructive', rank: 2, isUnhealthy: true },
-  [IntegrationIntegrationStatus.PENDING]: { label: 'Pending', variant: 'outline', rank: 3, isUnhealthy: false },
-  [IntegrationIntegrationStatus.DISABLED]: { label: 'Disabled', variant: 'secondary', rank: 4, isUnhealthy: false },
+  [IntegrationIntegrationStatus.CONNECTED]: { label: 'Healthy', variant: 'green', rank: 0, isUnhealthy: false, isOperable: true },
+  [IntegrationIntegrationStatus.DEGRADED]: { label: 'Degraded', variant: 'destructive', rank: 1, isUnhealthy: true, isOperable: true },
+  [IntegrationIntegrationStatus.ERRORED]: { label: 'Needs Attention', variant: 'destructive', rank: 2, isUnhealthy: true, isOperable: false },
+  [IntegrationIntegrationStatus.PENDING]: { label: 'Pending', variant: 'outline', rank: 3, isUnhealthy: false, isOperable: false },
+  [IntegrationIntegrationStatus.DISABLED]: { label: 'Disabled', variant: 'secondary', rank: 4, isUnhealthy: false, isOperable: false },
 }
 
 const integrationHealthSummary = (status: IntegrationIntegrationStatus, health?: IntegrationHealth): string | undefined => {
@@ -46,7 +47,7 @@ const integrationHealthSummary = (status: IntegrationIntegrationStatus, health?:
   return undefined
 }
 
-const UNKNOWN_HEALTH_META: Omit<TIntegrationHealthMeta, 'label'> = { variant: 'outline', rank: Number.MAX_SAFE_INTEGER, isUnhealthy: true }
+const UNKNOWN_HEALTH_META: Omit<TIntegrationHealthMeta, 'label'> = { variant: 'outline', rank: Number.MAX_SAFE_INTEGER, isUnhealthy: true, isOperable: true }
 
 const healthMeta = (status: IntegrationIntegrationStatus): TIntegrationHealthMeta => INTEGRATION_HEALTH[status] ?? { ...UNKNOWN_HEALTH_META, label: getEnumLabel(status) }
 
@@ -59,6 +60,8 @@ export const integrationHealthBadge = (status: IntegrationIntegrationStatus, hea
 
   return { label, variant, summary: integrationHealthSummary(status, health) }
 }
+
+export const isOperableIntegration = (status: IntegrationIntegrationStatus): boolean => healthMeta(status).isOperable
 
 const UNHEALTHY_LABELS = Object.values(INTEGRATION_HEALTH)
   .filter(({ isUnhealthy }) => isUnhealthy)

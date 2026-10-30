@@ -16,14 +16,15 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import IntegrationDefinitionSkeleton from './integration-definition-skeleton'
 import { Callout } from '@/components/shared/callout/callout'
 import { Button } from '@repo/ui/button'
-import { filterFinalizedIntegrationsForProvider, operationSchemaEntries, resolveSchemaRoot } from '@/lib/integrations/utils'
-import { providerSupportsDocumentSync, providerSupportsPrimaryDirectory } from '@/lib/integrations/flow'
+import { filterFinalizedIntegrationsForProvider, operationSchemaEntries, resolveSchemaRoot, setupCredentialEntries } from '@/lib/integrations/utils'
+import { readProviderDefaultChannel } from '@/lib/integrations/flow'
 import { writePendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CREDENTIALS_PREFIX, useIntegrationSchemaForm } from './schema-form'
 import InstalledIntegrationCard from './installed-integration-card'
 import PrimaryDirectoryPromptDialog from './primary-directory-prompt-dialog'
 import DocumentSyncPromptDialog from './document-sync-prompt-dialog'
+import SendTestMessageDialog from './send-test-message-dialog'
 import { useIntegrationPostConnectPrompt } from './use-integration-post-connect-prompt'
 import IntegrationCardIcons from './integration-card-icons'
 import IntegrationTagList from './integration-tag-list'
@@ -82,18 +83,19 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
 
   const visibleOperations = provider?.operations ?? []
 
-  const supportsPrimaryDirectory = useMemo(() => providerSupportsPrimaryDirectory(provider), [provider])
-  const supportsDocumentSync = useMemo(() => providerSupportsDocumentSync(provider), [provider])
-  const supportsPostConnectPrompt = supportsPrimaryDirectory || supportsDocumentSync
-  const { promptKind, promptIntegration, queueAfterRedirect, queueAfterInlineConnect, dismissPrompt } = useIntegrationPostConnectPrompt({
+  const { promptKind, promptIntegration, hasPostConnectStep, queueAfterRedirect, queueAfterInlineConnect, dismissPrompt } = useIntegrationPostConnectPrompt({
     provider,
     canManage,
-    supportsPrimaryDirectory,
-    supportsDocumentSync,
     installedInstances,
   })
 
-  const credentialEntries = useMemo(() => provider?.credentialSchemas ?? [], [provider?.credentialSchemas])
+  const handlePromptOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      dismissPrompt()
+    }
+  }
+
+  const credentialEntries = useMemo(() => setupCredentialEntries(provider), [provider])
   const [selectedCredentialIndex, setSelectedCredentialIndex] = useState(-1)
   // Tracks which schema to use — only updates when a credential is actively selected, not when the accordion closes
   const [schemaCredentialIndex, setSchemaCredentialIndex] = useState(-1)
@@ -134,7 +136,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     async ({ integrationId }: { integrationId?: string }) => {
       setSelectedCredentialIndex(-1)
       if (!vendorId || !integrationId) {
-        if (!vendorId && integrationId && provider && supportsPostConnectPrompt) {
+        if (!vendorId && integrationId && provider && hasPostConnectStep) {
           queueAfterInlineConnect(provider.id, integrationId)
         }
         return
@@ -157,7 +159,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
         })
       }
     },
-    [vendorId, provider, supportsPostConnectPrompt, queueAfterInlineConnect, updateEntity, successNotification, errorNotification, router],
+    [vendorId, provider, hasPostConnectStep, queueAfterInlineConnect, updateEntity, successNotification, errorNotification, router],
   )
 
   const handleConnectRedirect = useCallback(() => {
@@ -166,11 +168,11 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     }
     if (vendorId) {
       writePendingVendorIntegrationLink(vendorId, provider.id)
-    } else if (supportsPostConnectPrompt) {
+    } else if (hasPostConnectStep) {
       queueAfterRedirect(provider.id, installedInstances.length)
     }
     startPolling(provider, providers, installedInstances.length)
-  }, [provider, providers, vendorId, supportsPostConnectPrompt, queueAfterRedirect, startPolling, installedInstances.length])
+  }, [provider, providers, vendorId, hasPostConnectStep, queueAfterRedirect, startPolling, installedInstances.length])
 
   const { isConnecting, webhookDetails, dismissWebhookDetails, handleAuthConnect, handleSubmit } = useIntegrationConnect({
     provider,
@@ -285,28 +287,22 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
       <OperationsTable operations={visibleOperations} />
 
       {promptIntegration && promptKind === 'directory' ? (
-        <PrimaryDirectoryPromptDialog
-          open={!!promptIntegration}
-          onOpenChange={(isOpen) => {
-            if (!isOpen) {
-              dismissPrompt()
-            }
-          }}
-          provider={provider}
-          integration={promptIntegration}
-        />
+        <PrimaryDirectoryPromptDialog open={!!promptIntegration} onOpenChange={handlePromptOpenChange} provider={provider} integration={promptIntegration} />
       ) : null}
 
       {promptIntegration && promptKind === 'document' ? (
-        <DocumentSyncPromptDialog
+        <DocumentSyncPromptDialog open={!!promptIntegration} onOpenChange={handlePromptOpenChange} provider={provider} integration={promptIntegration} />
+      ) : null}
+
+      {promptIntegration && promptKind === 'test-message' ? (
+        <SendTestMessageDialog
           open={!!promptIntegration}
-          onOpenChange={(isOpen) => {
-            if (!isOpen) {
-              dismissPrompt()
-            }
-          }}
+          onOpenChange={handlePromptOpenChange}
+          integrationId={promptIntegration.id}
+          providerName={provider.displayName}
+          variant="post-install"
+          defaultChannel={readProviderDefaultChannel(provider, promptIntegration)}
           provider={provider}
-          integration={promptIntegration}
         />
       ) : null}
     </div>

@@ -1,7 +1,13 @@
 import { createHash } from 'node:crypto'
-import { hasAcknowledgementFields } from '@/components/shared/survey/acknowledgement/acknowledgement-type'
-import { hasSignatureFields, isSignedValue, readSignatureValue, SIGNATURE_SIGNED_AT_FIELD } from '@/components/shared/survey/signature/signature-type'
-import { isSignaturePadValue, SIGNATURE_METADATA_FIELD } from '@/components/shared/survey/signature-pad/signature-pad-type'
+import {
+  hasAcknowledgementFields,
+  hasSignatureFields,
+  isSignaturePadValue,
+  isSignedValue,
+  readSignatureValue,
+  SIGNATURE_METADATA_FIELD,
+  SIGNATURE_SIGNED_AT_FIELD,
+} from '@theopenlane/surveyjs-components'
 import { decodeQuestionnaireToken } from '@/lib/questionnaire-token'
 import { getClientIp } from '@/lib/server/client-ip'
 import { isRecord } from '@/utils/type-guards'
