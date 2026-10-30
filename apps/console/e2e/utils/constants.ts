@@ -1,5 +1,10 @@
 export const API_BASE = process.env.E2E_API_BASE ?? 'http://localhost:17608'
-export const BASE_URL = process.env.E2E_BASE_URL ?? 'http://localhost:3001'
+// an official hostname so the console renders in official deployment mode
+export const E2E_HOST = process.env.E2E_HOST ?? 'localhost'
+export const BASE_URL = process.env.E2E_BASE_URL ?? `http://${E2E_HOST}:${process.env.E2E_PORT ?? '3001'}`
+
+// resolves E2E_HOST to this machine inside Chromium, so no hosts file entry is needed
+export const BROWSER_ARGS = E2E_HOST === 'localhost' ? [] : [`--host-resolver-rules=MAP ${E2E_HOST} 127.0.0.1`]
 
 export const PASSWORD = 'mattisthebest1234'
 

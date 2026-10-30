@@ -7,6 +7,7 @@
 
     "E2E_API_BASE",
     "E2E_BASE_URL",
+    "E2E_HOST",
     "E2E_PORT",
     "E2E_RUN_ID",
     "E2E_EMAIL_DOMAIN",
