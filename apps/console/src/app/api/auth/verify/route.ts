@@ -1,4 +1,5 @@
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { setPasskeyCookie } from '@/lib/auth/utils/set-passkey-cookie'
 import { type NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
@@ -11,11 +12,11 @@ export async function GET(request: NextRequest) {
 
   const fData = await secureFetch(`${process.env.API_REST_URL}/v1/verify?token=${encodeURIComponent(token)}`)
 
-  if (fData.ok) {
-    return NextResponse.json(await fData.json(), { status: 200 })
+  const data = await fData.json()
+
+  if (fData.ok && data.success && data.user_id) {
+    await setPasskeyCookie(data.user_id)
   }
 
-  if (fData.status !== 200) {
-    return NextResponse.json(await fData.json(), { status: fData.status })
-  }
+  return NextResponse.json(data, { status: fData.ok ? 200 : fData.status })
 }
