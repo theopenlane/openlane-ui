@@ -12,14 +12,16 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCreateTrustCenterEntity } from '@/lib/graphql-hooks/trust-center-entity'
 import type { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
+import { CustomerLogoTile } from './customer-logo-tile'
 import { useCreateCustomerLogoForm, type TCreateCustomerLogoFormValues } from './hooks/use-customer-logo-form-schema'
 
 type CreateCustomerLogosProps = {
   trustCenterID: string
+  logoBackground: string
   onCreated?: () => void
 }
 
-const CreateCustomerLogo = ({ trustCenterID, onCreated }: CreateCustomerLogosProps) => {
+const CreateCustomerLogo = ({ trustCenterID, logoBackground, onCreated }: CreateCustomerLogosProps) => {
   const [uploadedLogo, setUploadedLogo] = useState<TUploadedFile | null>(null)
   const [uploadResetKey, setUploadResetKey] = useState(0)
 
@@ -91,14 +93,7 @@ const CreateCustomerLogo = ({ trustCenterID, onCreated }: CreateCustomerLogosPro
             <div className="flex gap-7 pt-2">
               <div>
                 <Label className="mb-2 block text-sm">Preview</Label>
-                <div className="flex h-[110px] w-[110px] items-center justify-center rounded-md border border-muted bg-background">
-                  {uploadedLogo?.url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={uploadedLogo.url} alt="Logo preview" className="max-h-24 object-contain p-2" />
-                  ) : (
-                    <Eye className="h-6 w-6 text-muted-foreground" />
-                  )}
-                </div>
+                <CustomerLogoTile background={logoBackground} src={uploadedLogo?.url} alt="Logo preview" placeholder={<Eye className="h-6 w-6" />} className="size-[110px]" />
               </div>
 
               <div className="flex-1">
