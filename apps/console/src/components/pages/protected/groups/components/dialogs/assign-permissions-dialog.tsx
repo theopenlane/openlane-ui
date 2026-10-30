@@ -26,7 +26,7 @@ import { OBJECT_TYPE_PERMISSIONS_CONFIG, ObjectTypes, TypesWithPermissions, type
 import { toHumanLabel } from '@/utils/strings'
 import { useSession } from 'next-auth/react'
 
-const options = Object.values(TypesWithPermissions)
+const options = Object.values(TypesWithPermissions).filter((type) => OBJECT_TYPE_PERMISSIONS_CONFIG[type].queryDocument)
 
 const defaultPagination = {
   ...DEFAULT_PAGINATION,

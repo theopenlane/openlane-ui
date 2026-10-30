@@ -932,6 +932,49 @@ export const GET_CONTROLS_BY_REFCODE = gql`
   }
 `
 
+export const GET_CONTROLS_FOR_IMPORT_PREVIEW = gql`
+  query GetControlsForImportPreview($where: ControlWhereInput, $first: Int, $after: Cursor) {
+    controls(where: $where, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          refCode
+          referenceFramework
+          referenceFrameworkRevision
+          title
+          description
+          status
+          implementationStatus
+          implementationDescription
+          publicRepresentation
+          source
+          sourceName
+          category
+          categoryID
+          subcategory
+          mappedCategories
+          controlQuestions
+          aliases
+          tags
+          referenceID
+          auditorReferenceID
+          externalID
+          externalUUID
+          controlKindName
+          environmentName
+          scopeName
+          workflowEligibleMarker
+          trustCenterVisibility
+        }
+      }
+    }
+  }
+`
+
 export const GET_PROGRAM_CONTROLS_BY_REFCODE = gql`
   query GetProgramControlsByRefCode($refCodeIn: [String!], $programId: ID!, $first: Int, $after: Cursor) {
     controls(where: { refCodeIn: $refCodeIn, hasProgramsWith: [{ id: $programId }] }, first: $first, after: $after) {

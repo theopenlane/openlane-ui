@@ -6,6 +6,8 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { pluralize, pluralizeWithCount, toLowerLabel } from '@/utils/strings'
 import { ReviewStep } from './steps/review-step'
+import { UpdatePreviewPanel } from './steps/update-preview-panel'
+import type { TUpdateRecordSource } from './lib/update-preview'
 import { IMPORT_STEPS, useRecordImport } from './lib/use-record-import'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { importDisplayNamePlural, type TImportRoute } from './lib/import-routes'
@@ -22,6 +24,7 @@ type TRecordImportFlowProps = {
   destination?: TImportDestination
   fixedFields?: readonly TDestinationField[]
   automaticValues?: readonly TImportAutomaticValue[]
+  updateSource?: TUpdateRecordSource
   onImport: (mapped: TMappedImport) => Promise<unknown>
 }
 
@@ -30,7 +33,7 @@ const MODE_COPY: Record<TImportMode, { verb: string; busy: string; done: string;
   update: { verb: 'Update', busy: 'Updating…', done: 'updated', action: 'update' },
 }
 
-export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType, route, destination, fixedFields, automaticValues, onImport }) => {
+export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType, route, destination, fixedFields, automaticValues, updateSource, onImport }) => {
   const { successNotification, warningNotification, errorNotification } = useNotification()
   const [isImporting, setIsImporting] = useState(false)
 
@@ -41,10 +44,12 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
   const mode = route.mode ?? 'create'
   const copy = MODE_COPY[mode]
 
-  const state = useRecordImport({ entityType, entityLabels, steps: IMPORT_STEPS, mode, destination, fixedFields })
-  const { step, goToStep, parsed, columns, mapping, validation, plan, toMappedImport, rowOrder, moveRow, isLoadingFields, isDestinationError } = state
+  const state = useRecordImport({ entityType, entityLabels, steps: IMPORT_STEPS, mode, destination, fixedFields, updateSource, updateLookup: route.updateLookup })
+  const { step, goToStep, parsed, columns, mapping, validation, plan, toMappedImport, updatePreview, lookupField, rowOrder, moveRow, isLoadingFields, isDestinationError } = state
 
-  const rowCount = parsed?.rows.length ?? 0
+  const matchedCount = updatePreview?.preview?.matched.length
+  const rowCount = matchedCount ?? parsed?.rows.length ?? 0
+  const previewBlockedReason = updatePreview?.blockedReason
   const recordCount = (count: number) => `${count.toLocaleString()} ${toLowerLabel(pluralize(count, entityLabel, entityLabelPlural))}`
   const hasBlockingIssues = validation.blockingIssues.length > 0
   const canContinue = step === 'upload' ? Boolean(parsed) && rowCount > 0 && !isLoadingFields : !hasBlockingIssues
@@ -89,7 +94,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
       return `${pluralizeWithCount(validation.mappedColumnCount, 'column')} mapped · ${validation.ignoredColumnCount} ignored`
     }
 
-    return 'Nothing in your original file is changed'
+    return previewBlockedReason ?? 'Nothing in your original file is changed'
   }
 
   return (
@@ -101,7 +106,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
       isBusy={isImporting}
       footerHint={footerHint()}
       finalAction={
-        <Button variant="primary" onClick={handleImport} loading={isImporting} disabled={isImporting || exit.isFinished || !parsed || hasBlockingIssues}>
+        <Button variant="primary" onClick={handleImport} loading={isImporting} disabled={isImporting || exit.isFinished || !parsed || hasBlockingIssues || Boolean(previewBlockedReason)}>
           {isImporting ? copy.busy : `${copy.verb} ${recordCount(rowCount)}`}
         </Button>
       }
@@ -120,7 +125,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
             <ReviewStep
               entityLabel={entityLabel}
               entityLabelPlural={entityLabelPlural}
-              countTitle={`${entityLabelPlural} to ${copy.action}`}
+              countTitle={updatePreview ? 'Rows in your file' : `${entityLabelPlural} to ${copy.action}`}
               parsed={parsed}
               rowOrder={rowOrder}
               columns={columns}
@@ -132,6 +137,7 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
               onEditMapping={() => goToStep('map')}
             />
           )}
+          {step === 'review' && parsed && updatePreview && <UpdatePreviewPanel state={updatePreview} entityLabel={entityLabel} entityLabelPlural={entityLabelPlural} lookupField={lookupField} />}
         </>
       )}
     </ImportFlowLayout>

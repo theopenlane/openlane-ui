@@ -28,8 +28,11 @@ const INTEGER = /^[+-]?(0|[1-9]\d*)$/
 const DECIMAL = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/
 const GO_BOOLEANS = new Set(['1', 't', 'T', 'TRUE', 'true', 'True', '0', 'f', 'F', 'FALSE', 'false', 'False'])
 const YES_NO = /^(yes|no)$/i
+const TRUE_CELLS = /^(1|t|true|yes)$/i
 const LIST_DELIMITERS = [';', '|', ',']
 const MIN_SUGGESTION_LENGTH = 3
+
+export const parseBooleanCell = (value: string): boolean | undefined => (GO_BOOLEANS.has(value) || YES_NO.test(value) ? TRUE_CELLS.test(value) : undefined)
 
 export const toEnumToken = (value: string): string =>
   value
@@ -94,7 +97,7 @@ const itemRule = (meta: ImportFieldMeta): TItemRule | null => {
     case 'id':
       return { expected: 'an Openlane ID (a 26-character ULID)', isValid: isUlid }
     case 'boolean':
-      return { expected: 'true, false, yes or no', isValid: (value) => GO_BOOLEANS.has(value) || YES_NO.test(value) }
+      return { expected: 'true, false, yes or no', isValid: (value) => parseBooleanCell(value) !== undefined }
     case 'number':
       return meta.integer ? { expected: 'a whole number', isValid: (value) => INTEGER.test(value) } : { expected: 'a number', isValid: (value) => DECIMAL.test(value.replaceAll(',', '.')) }
     case 'enum': {
