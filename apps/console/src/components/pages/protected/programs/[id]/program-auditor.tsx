@@ -27,6 +27,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
 import { Callout } from '@/components/shared/callout/callout'
 import { AUDITOR_URL } from '@/constants'
+import OfficialOnly from '@/components/shared/official-only/official-only'
 
 interface ProgramAuditorProps {
   firm?: string | null
@@ -201,10 +202,14 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
             </div>
           ) : (
             <Callout variant="recommendation" title="Auditor Recommendations">
-              You do not currently have an auditor set for this program. If you need help finding an auditor, check out our{' '}
-              <a href={AUDITOR_URL} className="underline" target="_blank" rel="noopener noreferrer">
-                audit partner list
-              </a>
+              You do not currently have an auditor set for this program.
+              <OfficialOnly>
+                {' '}
+                If you need help finding an auditor, check out our{' '}
+                <a href={AUDITOR_URL} className="underline" target="_blank" rel="noopener noreferrer">
+                  audit partner list
+                </a>
+              </OfficialOnly>
             </Callout>
           )}
         </form>

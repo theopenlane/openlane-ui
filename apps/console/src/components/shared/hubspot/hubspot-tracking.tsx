@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useOfficialDeploymentStatus } from '@repo/ui/lib/official-deployment'
 
 const HUBSPOT_PORTAL_ID = process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID
 const HUBSPOT_SCRIPT_ID = 'hs-script-loader'
@@ -10,8 +11,11 @@ const MARKETING_QUERY_PARAM = /^(utm_[a-z]+|hsa_[a-z]+|_hsenc|_hsmi|_hsfp|__hstc
 const hasOnlyMarketingParams = (search: string): boolean => Array.from(new URLSearchParams(search).keys()).every((param) => MARKETING_QUERY_PARAM.test(param))
 
 const HubspotTracking = (): null => {
+  // waits for the hostname check so tracking never loads on unofficial deployments
+  const isOfficial = useOfficialDeploymentStatus() === true
+
   useEffect(() => {
-    if (!HUBSPOT_PORTAL_ID || !hasOnlyMarketingParams(window.location.search)) {
+    if (!isOfficial || !HUBSPOT_PORTAL_ID || !hasOnlyMarketingParams(window.location.search)) {
       return
     }
 
@@ -27,7 +31,7 @@ const HubspotTracking = (): null => {
     loader.async = true
     loader.src = `https://js-na2.hs-scripts.com/${HUBSPOT_PORTAL_ID}.js`
     document.head.appendChild(loader)
-  }, [])
+  }, [isOfficial])
 
   return null
 }

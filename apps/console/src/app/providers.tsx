@@ -11,6 +11,7 @@ import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 import { InitPlugSDK } from '@/providers/chatSdk'
 import { AppTooltipProvider } from '@repo/ui/tooltip'
 import { devrevChatEnabled } from '@repo/dally/auth'
+import OfficialOnly from '@/components/shared/official-only/official-only'
 import { WebSocketProvider } from '@/providers/websocket-provider'
 import { NotificationsProvider } from '@/providers/notifications-provider'
 import { NotificationToastContainer } from '@/components/shared/SystemNotification/notification-toast-container'
@@ -106,7 +107,11 @@ const Providers = ({ children }: ProvidersProps) => {
             <WebSocketProvider>
               <NotificationsProvider>
                 <BreadcrumbProvider>
-                  {devrevChatEnabled && <InitPlugSDK />}
+                  {devrevChatEnabled && (
+                    <OfficialOnly strict>
+                      <InitPlugSDK />
+                    </OfficialOnly>
+                  )}
                   <AppTooltipProvider>
                     {children}
                     <NotificationToastContainer />

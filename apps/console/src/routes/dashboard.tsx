@@ -64,10 +64,10 @@ import { canEdit, canManageBilling } from '@/lib/authz/utils'
 import { type TPermissionData } from '@/types/authz'
 import type { Session } from 'next-auth'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
-import { featureUtil } from '@/lib/subscription-plan/plans'
+import { arePlanChecksDisabled, featureUtil } from '@/lib/subscription-plan/plans'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
-export const topNavigationItems = (session: Session | null, currentUserRole?: OrgMembershipRole): (NavItem | Separator | NavHeading)[] => {
+export const topNavigationItems = (session: Session | null, currentUserRole?: OrgMembershipRole, isOfficial = true): (NavItem | Separator | NavHeading)[] => {
   const billingExpired = featureUtil.hasNoModules(session)
   const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
   return [
@@ -201,7 +201,8 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       href: '/trust-center',
       icon: HeartHandshakeIcon,
       isChildren: true,
-      hidden: session?.user?.isOnboarding || billingExpired || isAuditor,
+      // the trust center UI is not public, so it is unsupported on unofficial deployments
+      hidden: session?.user?.isOnboarding || billingExpired || isAuditor || !isOfficial,
       children: [
         {
           title: 'Overview',
@@ -470,7 +471,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
           title: 'Billing',
           anchor: 'billing',
           href: '/organization-settings/billing',
-          hidden: !canManageBilling(currentUserRole, session),
+          hidden: arePlanChecksDisabled() || !canManageBilling(currentUserRole, session),
           icon: CreditCardIcon,
         },
         {

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { logoStyles, type LogoVariants } from './logo.styles'
 import { useTheme } from 'next-themes'
+import { useIsOfficialDeployment } from '../../lib/official-deployment'
 
 export interface LogoProps extends LogoVariants {
   width?: number
@@ -12,8 +13,14 @@ export interface LogoProps extends LogoVariants {
 export const Logo = ({ theme, width = 385, height = 38, asIcon = false }: LogoProps) => {
   const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const isOfficial = useIsOfficialDeployment()
 
   useEffect(() => setMounted(true), [])
+
+  // Openlane trademarks are not licensed for third-party deployments
+  if (mounted && !isOfficial) {
+    return null
+  }
 
   if (!mounted) {
     return (
