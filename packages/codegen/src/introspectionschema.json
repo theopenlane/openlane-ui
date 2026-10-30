@@ -272229,6 +272229,46 @@
             "description": "Create a new contact",
             "args": [
               {
+                "name": "contactFiles",
+                "description": "Files to attach to the contact",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "Upload",
+                      "kind": "SCALAR",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "contactFilesMetadata",
+                "description": null,
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "FileMetadataInput",
+                      "kind": "INPUT_OBJECT",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
                 "name": "input",
                 "description": "values of the contact",
                 "type": {
@@ -273000,6 +273040,46 @@
             "name": "createFinding",
             "description": "Create a new finding",
             "args": [
+              {
+                "name": "findingFiles",
+                "description": "Files to attach to the finding",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "Upload",
+                      "kind": "SCALAR",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "findingFilesMetadata",
+                "description": null,
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "FileMetadataInput",
+                      "kind": "INPUT_OBJECT",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
               {
                 "name": "input",
                 "description": "values of the finding",
@@ -274599,6 +274679,46 @@
                 "defaultValue": null,
                 "isDeprecated": false,
                 "deprecationReason": null
+              },
+              {
+                "name": "scanFiles",
+                "description": "Files to attach to the scan",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "Upload",
+                      "kind": "SCALAR",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "scanFilesMetadata",
+                "description": null,
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "FileMetadataInput",
+                      "kind": "INPUT_OBJECT",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
               }
             ],
             "type": {
@@ -275655,6 +275775,75 @@
             "deprecationReason": null
           },
           {
+            "name": "createUploadActionPlan",
+            "description": "Create a new actionPlan via file upload",
+            "args": [
+              {
+                "name": "actionPlanFile",
+                "description": "file containing values of the actionPlan",
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "name": "Upload",
+                    "kind": "SCALAR",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "actionPlanFileMetadata",
+                "description": null,
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "FileMetadataInput",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "managementMode",
+                "description": "How the uploaded actionPlan should be managed: parsed and edited in Openlane\n(OPENLANE_MANAGED, default) or kept as an external reference file viewed\nin Openlane (EXTERNAL_REFERENCE, e.g. Word documents managed in Microsoft Word)",
+                "type": {
+                  "kind": "ENUM",
+                  "name": "ActionPlanDocumentManagementMode",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "ownerID",
+                "description": "ID of the owner organization",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "name": "ActionPlanCreatePayload",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "createUploadInternalPolicy",
             "description": "Create a new internalPolicy via file upload",
             "args": [
@@ -275962,6 +276151,46 @@
                     "name": "CreateVulnerabilityInput",
                     "kind": "INPUT_OBJECT",
                     "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "vulnerabilityFiles",
+                "description": "Files to attach to the vulnerability",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "Upload",
+                      "kind": "SCALAR",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "vulnerabilityFilesMetadata",
+                "description": null,
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "FileMetadataInput",
+                      "kind": "INPUT_OBJECT",
+                      "ofType": null
+                    }
                   }
                 },
                 "defaultValue": null,
@@ -281878,6 +282107,30 @@
             "description": "Update an existing actionPlan",
             "args": [
               {
+                "name": "actionPlanFile",
+                "description": "file containing values of the actionPlan",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Upload",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "actionPlanFileMetadata",
+                "description": null,
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "FileMetadataInput",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
                 "name": "id",
                 "description": "ID of the actionPlan",
                 "type": {
@@ -287138,6 +287391,46 @@
             "description": "Update an existing contact",
             "args": [
               {
+                "name": "contactFiles",
+                "description": "Files to attach to the contact",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "Upload",
+                      "kind": "SCALAR",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "contactFilesMetadata",
+                "description": null,
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "FileMetadataInput",
+                      "kind": "INPUT_OBJECT",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
                 "name": "id",
                 "description": "ID of the contact",
                 "type": {
@@ -288365,6 +288658,46 @@
             "name": "updateFinding",
             "description": "Update an existing finding",
             "args": [
+              {
+                "name": "findingFiles",
+                "description": "Files to attach to the finding",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "Upload",
+                      "kind": "SCALAR",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "findingFilesMetadata",
+                "description": null,
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "FileMetadataInput",
+                      "kind": "INPUT_OBJECT",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
               {
                 "name": "id",
                 "description": "ID of the finding",
@@ -290647,6 +290980,46 @@
                 "defaultValue": null,
                 "isDeprecated": false,
                 "deprecationReason": null
+              },
+              {
+                "name": "scanFiles",
+                "description": "Files to attach to the scan",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "Upload",
+                      "kind": "SCALAR",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "scanFilesMetadata",
+                "description": null,
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "FileMetadataInput",
+                      "kind": "INPUT_OBJECT",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
               }
             ],
             "type": {
@@ -292567,6 +292940,46 @@
                     "name": "UpdateVulnerabilityInput",
                     "kind": "INPUT_OBJECT",
                     "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "vulnerabilityFiles",
+                "description": "Files to attach to the vulnerability",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "Upload",
+                      "kind": "SCALAR",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "vulnerabilityFilesMetadata",
+                "description": null,
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "FileMetadataInput",
+                      "kind": "INPUT_OBJECT",
+                      "ofType": null
+                    }
                   }
                 },
                 "defaultValue": null,

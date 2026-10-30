@@ -57,7 +57,7 @@ const LinkedFiles: React.FC<{ remediationId: string; isEditing: boolean }> = ({ 
   const { mutateAsync: updateRemediation } = useUpdateRemediation()
   const { mutateAsync: uploadFiles, isPending: isUploading } = useUploadRemediationFiles()
 
-  if (!isEditing && !isLoading && !totalCount) {
+  if (!isEditing && !isLoading && !isError && !totalCount) {
     return null
   }
 

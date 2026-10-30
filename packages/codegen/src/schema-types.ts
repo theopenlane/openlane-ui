@@ -28636,6 +28636,8 @@ export interface Mutation {
   createTrustCenterSubprocessor: TrustCenterSubprocessorCreatePayload
   /** Create a new trustCenterWatermarkConfig */
   createTrustCenterWatermarkConfig: TrustCenterWatermarkConfigCreatePayload
+  /** Create a new actionPlan via file upload */
+  createUploadActionPlan: ActionPlanCreatePayload
   /** Create a new internalPolicy via file upload */
   createUploadInternalPolicy: InternalPolicyCreatePayload
   /** Create a new procedure via file upload */
@@ -30033,6 +30035,8 @@ export interface MutationCreateCheckResultArgs {
 }
 
 export interface MutationCreateContactArgs {
+  contactFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  contactFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
   input: CreateContactInput
 }
 
@@ -30120,6 +30124,8 @@ export interface MutationCreateExportArgs {
 }
 
 export interface MutationCreateFindingArgs {
+  findingFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  findingFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
   input: CreateFindingInput
 }
 
@@ -30288,6 +30294,8 @@ export interface MutationCreateSlaDefinitionArgs {
 
 export interface MutationCreateScanArgs {
   input: CreateScanInput
+  scanFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  scanFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
 }
 
 export interface MutationCreateStandardArgs {
@@ -30400,6 +30408,13 @@ export interface MutationCreateTrustCenterWatermarkConfigArgs {
   watermarkFileMetadata?: InputMaybe<FileMetadataInput>
 }
 
+export interface MutationCreateUploadActionPlanArgs {
+  actionPlanFile: Scalars['Upload']['input']
+  actionPlanFileMetadata?: InputMaybe<FileMetadataInput>
+  managementMode?: InputMaybe<ActionPlanDocumentManagementMode>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+}
+
 export interface MutationCreateUploadInternalPolicyArgs {
   internalPolicyFile: Scalars['Upload']['input']
   internalPolicyFileMetadata?: InputMaybe<FileMetadataInput>
@@ -30434,6 +30449,8 @@ export interface MutationCreateVendorScoringConfigArgs {
 
 export interface MutationCreateVulnerabilityArgs {
   input: CreateVulnerabilityInput
+  vulnerabilityFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  vulnerabilityFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
 }
 
 export interface MutationCreateWorkflowDefinitionArgs {
@@ -31085,6 +31102,8 @@ export interface MutationUpdateApiTokenArgs {
 }
 
 export interface MutationUpdateActionPlanArgs {
+  actionPlanFile?: InputMaybe<Scalars['Upload']['input']>
+  actionPlanFileMetadata?: InputMaybe<FileMetadataInput>
   id: Scalars['ID']['input']
   input: UpdateActionPlanInput
 }
@@ -31611,6 +31630,8 @@ export interface MutationUpdateCheckResultArgs {
 }
 
 export interface MutationUpdateContactArgs {
+  contactFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  contactFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
   id: Scalars['ID']['input']
   input: UpdateContactInput
 }
@@ -31725,6 +31746,8 @@ export interface MutationUpdateExportArgs {
 }
 
 export interface MutationUpdateFindingArgs {
+  findingFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  findingFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
   id: Scalars['ID']['input']
   input: UpdateFindingInput
 }
@@ -31932,6 +31955,8 @@ export interface MutationUpdateSlaDefinitionArgs {
 export interface MutationUpdateScanArgs {
   id: Scalars['ID']['input']
   input: UpdateScanInput
+  scanFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  scanFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
 }
 
 export interface MutationUpdateStandardArgs {
@@ -32112,6 +32137,8 @@ export interface MutationUpdateVendorScoringConfigArgs {
 export interface MutationUpdateVulnerabilityArgs {
   id: Scalars['ID']['input']
   input: UpdateVulnerabilityInput
+  vulnerabilityFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  vulnerabilityFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
 }
 
 export interface MutationUpdateVulnerabilityCommentArgs {
