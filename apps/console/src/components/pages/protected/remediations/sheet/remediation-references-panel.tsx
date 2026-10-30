@@ -9,7 +9,7 @@ import { FormControl, FormField, FormItem, FormMessage } from '@repo/ui/form'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { type RemediationQuery } from '@repo/codegen/src/schema'
 import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
-import { isValidUrl } from '@/utils/normalizeUrl'
+import { isNavigableUrl } from '@/utils/normalizeUrl'
 import { type RemediationFormData } from '../hooks/use-form-schema'
 import { CollapsiblePanel } from './collapsible-panel'
 
@@ -24,7 +24,8 @@ const REFERENCE_TYPES: { field: TReferenceField; label: string; icon: LucideIcon
 
 const REFERENCE_FIELDS = REFERENCE_TYPES.map(({ field }) => field)
 
-const ReferenceValue: React.FC<{ value: string }> = ({ value }) => (isValidUrl(value) ? <ExternalLinkValue value={value} className="min-w-0 break-all" /> : <span className="break-all">{value}</span>)
+const ReferenceValue: React.FC<{ value: string }> = ({ value }) =>
+  isNavigableUrl(value) ? <ExternalLinkValue value={value} className="min-w-0 break-all" /> : <span className="break-all">{value}</span>
 
 const ReferenceRow: React.FC<{ icon: LucideIcon; label: string; children: React.ReactNode; action?: React.ReactNode }> = ({ icon: Icon, label, children, action }) => (
   <div className="grid grid-cols-[auto_minmax(0,7rem)_minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-3 py-2 last:border-b-0">

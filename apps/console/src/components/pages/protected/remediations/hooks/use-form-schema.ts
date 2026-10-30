@@ -7,12 +7,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RemediationRemediationStatus } from '@repo/codegen/src/schema'
 import { REMEDIATION_CONTEXT_TYPES } from '@/lib/graphql-hooks/remediation'
 import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils'
-import { isValidUrl } from '@/utils/normalizeUrl'
+import { isNavigableUrl } from '@/utils/normalizeUrl'
 
 const urlField = z
   .string()
   .trim()
-  .refine((url) => !url || isValidUrl(url), 'Please enter a valid URL')
+  .refine((url) => !url || isNavigableUrl(url), 'Please enter a valid URL')
   .optional()
 
 const richTextField = z.custom<Value | string>().optional()

@@ -86,6 +86,9 @@ export const useCreateRemediation = () => {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['remediations'] })
       invalidateCreateEdgeTargets(variables.input, queryClient)
+      if (variables.remediationFiles?.length) {
+        queryClient.invalidateQueries({ queryKey: ['getFiles'] })
+      }
     },
   })
 }
@@ -107,6 +110,7 @@ export const useUploadRemediationFiles = () => {
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: UPDATE_REMEDIATION, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['remediations'] })
+      queryClient.invalidateQueries({ queryKey: ['getFiles'] })
     },
   })
 }
@@ -231,7 +235,7 @@ export const useRemediationContextOptions = ({ type, searchTerm, enabled }: Reme
   }
 
   return useQuery<GetRemediationContextOptionsQuery, unknown>({
-    queryKey: ['remediationContextOptions', variables],
+    queryKey: [type, 'remediationContextOptions', variables],
     queryFn: async () => client.request(GET_REMEDIATION_CONTEXT_OPTIONS, variables),
     enabled: !!type && enabled,
   })
