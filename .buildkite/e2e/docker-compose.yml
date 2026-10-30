@@ -17,7 +17,6 @@ services:
       - ${E2E_CONSOLE_DIR:-${PWD}/console}/.buildkite/e2e/console.env
     environment:
       - CI=1
-      - E2E_HOST=e2e.theopenlane.io
       - E2E_PORT=${E2E_PORT:-3001}
       - E2E_WORKERS=${E2E_WORKERS:-4}
       - E2E_API_BASE=http://localhost:17608
@@ -50,12 +49,8 @@ services:
     # same release as the core checkout, E2E_CORE_REF is set by the core-dev-config plugin
     image: ghcr.io/theopenlane/core:${E2E_CORE_REF:-latest}
     ports: !reset []
-    # the console is served on an official hostname so it runs in official deployment mode
-    extra_hosts:
-      - 'e2e.theopenlane.io:127.0.0.1'
     environment:
       - CORE_SERVER_ENABLEGRAPHSUBSCRIPTIONS=true
-      - CORE_SERVER_CORS_ALLOWORIGINS=http://e2e.theopenlane.io:3001,http://localhost:3001
       - CORE_SERVER_TRUSTCENTERCNAMETARGET=${E2E_TRUST_CENTER_CNAME_TARGET:-cname.demo-dns.com}
     # with no signing keys configured, the dev config's generateKeys has `serve` write
     # private_key.pem to the working directory, which the image's nonroot user can't write

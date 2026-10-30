@@ -7,8 +7,6 @@ cd "$(dirname "$0")/.."
 
 PORT="${E2E_PORT:-3004}"
 BASE_URL="http://localhost:${PORT}"
-# the browser uses E2E_HOST so the console runs in official deployment mode
-SUITE_URL="http://${E2E_HOST:-localhost}:${PORT}"
 SERVER_LOG="${E2E_SERVER_LOG:-${TMPDIR:-/tmp}/openlane-e2e-prod-server.log}"
 SERVER_PID=""
 
@@ -68,9 +66,9 @@ if ! curl -sf --max-time 2 "${BASE_URL}/login" >/dev/null; then
   exit 1
 fi
 
-echo "==> running suite against ${SUITE_URL}"
+echo "==> running suite against ${BASE_URL}"
 set +e
-E2E_BASE_URL="$SUITE_URL" bunx playwright test "$@"
+E2E_BASE_URL="$BASE_URL" bunx playwright test "$@"
 STATUS=$?
 set -e
 

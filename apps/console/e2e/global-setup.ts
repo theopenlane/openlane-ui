@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
-import { BASE_URL, BROWSER_ARGS, PASSWORD, RUN_ID, emailFor, isolatedEmailFor } from './utils/constants'
+import { BASE_URL, PASSWORD, RUN_ID, emailFor, isolatedEmailFor } from './utils/constants'
 import { AUTH_DIR, MANIFEST_PATH, readManifest, type AuthManifest, type SeededRoleKey } from './utils/manifest'
 import { registerAndVerify } from './utils/registerUser'
 import { loginViaForm } from './utils/login'
@@ -63,7 +63,7 @@ const seedRoleUser = async ({ role, ownerApi, sharedOrgId }: SeedRoleArgs): Prom
 
   await setDefaultOrg(userApi, settingId, sharedOrgId)
 
-  const browser = await chromium.launch({ args: BROWSER_ARGS })
+  const browser = await chromium.launch()
   const context = await browser.newContext({ baseURL: BASE_URL })
   const page = await context.newPage()
 
@@ -98,7 +98,7 @@ const ROLE_FILES = ['owner', 'admin', 'member', 'readonly']
 
 /** Reaching /dashboard proves nothing on its own: middleware.ts decides you are logged in from the AuthJS session alone. */
 const capturedSessionWorks = async (): Promise<boolean> => {
-  const browser = await chromium.launch({ args: BROWSER_ARGS })
+  const browser = await chromium.launch()
   try {
     for (const role of ROLE_FILES) {
       const context = await browser.newContext({ baseURL: BASE_URL, storageState: path.join(AUTH_DIR, `${role}.json`) })
@@ -144,7 +144,7 @@ const seedTrustCenterFixtures = async (email: string, password: string): Promise
 
 /** Logs the demo profile in through the form, saves its session, and seeds the trust-center fixtures. */
 const captureDemoSession = async (email: string, password: string): Promise<void> => {
-  const browser = await chromium.launch({ args: BROWSER_ARGS })
+  const browser = await chromium.launch()
   try {
     const context = await browser.newContext({ baseURL: BASE_URL })
     const page = await context.newPage()
@@ -199,7 +199,7 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
 
   await registerAndVerify({ email: ownerEmail })
 
-  const browser = await chromium.launch({ args: BROWSER_ARGS })
+  const browser = await chromium.launch()
   const context = await browser.newContext({ baseURL: BASE_URL })
   const page = await context.newPage()
   await loginViaForm(page, ownerEmail, PASSWORD)

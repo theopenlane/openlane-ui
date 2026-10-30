@@ -1,8 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
 import { SEGMENT_NAMES, assertSegmentsCoverAllSpecs, segmentTestMatch } from './e2e/segments'
-import { BASE_URL, BROWSER_ARGS } from './e2e/utils/constants'
 
 const PORT = process.env.E2E_PORT ?? '3001'
+const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`
 
 assertSegmentsCoverAllSpecs()
 
@@ -43,7 +43,6 @@ export default defineConfig({
 
   use: {
     baseURL: BASE_URL,
-    launchOptions: { args: BROWSER_ARGS },
     // on-first-retry, NOT retain-on-failure: the latter instruments and records
     // EVERY test, then throws the artifacts away for the ~95% that pass. With
     // retries enabled a failure still produces a full trace + video on its
@@ -74,7 +73,7 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_USE_WEBSERVER
     ? {
         command: 'bun run dev',
-        url: `http://localhost:${PORT}`,
+        url: BASE_URL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
         stdout: 'pipe',
