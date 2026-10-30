@@ -45,10 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
     <html className="h-screen relative" lang="en" suppressHydrationWarning>
       <head>
         {recaptchaSiteKey && <Script src={`https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`} strategy="lazyOnload" />}
-        <OfficialOnly strict>
-          {pirschAnalyticsKey && <Script defer src="https://api.pirsch.io/pa.js" id="pianjs" data-code={pirschAnalyticsKey} strategy="lazyOnload" />}
-          <Script src={`https://plug-platform.devrev.ai/static/plug.js`} typeof="text/javascript"></Script>
-        </OfficialOnly>
+        <OfficialOnly strict>{pirschAnalyticsKey && <Script defer src="https://api.pirsch.io/pa.js" id="pianjs" data-code={pirschAnalyticsKey} strategy="lazyOnload" />}</OfficialOnly>
       </head>
       <body className={`${outfit.variable} ${mincho.variable} ${jetBrainsMono.variable} font-sans w-full overscroll-none`}>
         <GlobalBanners />
