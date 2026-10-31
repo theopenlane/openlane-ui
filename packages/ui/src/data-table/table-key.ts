@@ -45,6 +45,7 @@ export enum AdditionalTableKeyEnum {
   EVIDENCE_LINK_EXISTING_FILES = 'evidence-link-existing-files',
   EVIDENCE_ALL_FILES = 'evidence-all-files',
   EXISTING_FILES = 'existing-files',
+  REMEDIATION_FILES = 'remediation-files',
   POLICY_PROCEDURE_MANAGE_PERMISSION = 'policy-procedure-manage-permission',
   POLICY_PROCEDURE_ASSIGN_PERMISSION = 'policy-procedure-assign-permission',
   POLICY_WITHOUT_PROCEDURE = 'policy-without-procedure',

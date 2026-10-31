@@ -65,7 +65,21 @@ const ENTITIES: EntityConfig[] = [
     remove: deleteRemediation,
     findId: (sess, name) => idFromQuery(sess, 'titleContainsFold', 'remediations', name),
     fillCreateForm: async (sheet, name) => {
-      await sheet.getByRole('textbox').first().fill(name)
+      const page = sheet.page()
+      const vulnerabilityName = uniqueName('E2E Remediation Context')
+      contextVulnerabilityIds.push(await createVulnerability(ownerApi, vulnerabilityName, uniqueRef('CVE-E2E')))
+
+      await sheet.getByRole('combobox', { name: /^Issue type/ }).click()
+      await page.getByRole('option', { name: 'Vulnerability' }).click()
+      await sheet.getByRole('combobox', { name: /^Object/ }).click()
+      await page.getByPlaceholder('Search for object').fill(vulnerabilityName)
+      await page.getByRole('option', { name: vulnerabilityName }).click()
+
+      const title = sheet.getByRole('textbox', { name: /^Title/ })
+      await expect(title).toHaveValue(`${vulnerabilityName} Remediation`, { timeout: 30_000 })
+      await title.fill(name)
+      await sheet.getByRole('textbox', { name: /^Explain what this remediation addresses/ }).fill('Restrict public access to the affected resource.')
+      await sheet.getByRole('textbox', { name: /^List the steps needed/ }).fill('Update the configuration and re-scan.')
     },
     mutateVia: 'sheet',
   },
@@ -89,9 +103,14 @@ const ENTITIES: EntityConfig[] = [
 ]
 
 let ownerApi: ApiSession
+const contextVulnerabilityIds: string[] = []
 
 test.beforeAll(async () => {
   ownerApi = await getOwnerApi()
+})
+
+test.afterAll(async () => {
+  await Promise.allSettled(contextVulnerabilityIds.map((id) => deleteVulnerability(ownerApi, id)))
 })
 
 const openList = async (page: Page, entity: EntityConfig) => {

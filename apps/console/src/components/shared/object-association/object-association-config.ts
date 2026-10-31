@@ -73,6 +73,7 @@ import { type RequestDocument } from 'graphql-request'
 
 import {
   type CreateTaskInput,
+  type CreateRemediationInput,
   type AssetsWithFilterQuery,
   type CampaignsWithFilterQuery,
   type GetAllControlImplementationsQuery,
@@ -469,8 +470,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
   },
 }
 
-export const invalidateTaskAssociations = (payload: CreateTaskInput, queryClient: ReturnType<typeof useQueryClient>) => {
-  queryClient.invalidateQueries({ queryKey: ['tasks'] })
+export const invalidateCreateEdgeTargets = (payload: CreateTaskInput | CreateRemediationInput, queryClient: ReturnType<typeof useQueryClient>) => {
   const fields = new Map(Object.entries(payload))
 
   Object.values(OBJECT_QUERY_CONFIG).forEach((config) => {
@@ -479,6 +479,11 @@ export const invalidateTaskAssociations = (payload: CreateTaskInput, queryClient
       queryClient.invalidateQueries({ queryKey: [config.responseObjectKey] })
     }
   })
+}
+
+export const invalidateTaskAssociations = (payload: CreateTaskInput, queryClient: ReturnType<typeof useQueryClient>) => {
+  queryClient.invalidateQueries({ queryKey: ['tasks'] })
+  invalidateCreateEdgeTargets(payload, queryClient)
 }
 
 export const invalidateEdgeUpdateTargets = (input: object, queryClient: ReturnType<typeof useQueryClient>) => {

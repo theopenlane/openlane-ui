@@ -2,93 +2,27 @@
 
 import React from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
-import { type RemediationsNodeNonNull, useRemediation, useCreateRemediation, useUpdateRemediation, useBulkEditRemediation, useBulkDeleteRemediation } from '@/lib/graphql-hooks/remediation'
-import { useSearchParams } from 'next/navigation'
+import { useBulkEditRemediation, useBulkDeleteRemediation } from '@/lib/graphql-hooks/remediation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
-import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
-import { type RemediationSheetConfig, type RemediationTablePageConfig, type RemediationFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
+import { breadcrumbs, getFilterFields, visibilityFields } from './table-config'
+import { type RemediationTablePageConfig, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import { type CreateRemediationInput, type UpdateRemediationInput } from '@repo/codegen/src/schema'
+import { type UpdateRemediationInput } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
-import { buildAssociationPayload } from '@/components/shared/object-association/utils'
-import { REMEDIATION_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
-import { REMEDIATION_UPDATE_FIELDS } from '../hooks/remediation-update-fields'
+import { RemediationStatusOptions } from '@/components/shared/enum-mapper/remediation-enum'
+import RemediationSheet from '../sheet/remediation-sheet'
 
 const RemediationPage: React.FC = () => {
   const { form } = useFormSchema()
 
-  const searchParams = useSearchParams()
-  const id = searchParams.get('id')
-  const { data, isLoading } = useRemediation(id || undefined)
-
-  function getName(remediation: RemediationsNodeNonNull) {
-    return remediation?.title || remediation?.displayID || remediation?.externalID
-  }
-
-  const baseUpdateMutation = useUpdateRemediation()
-  const baseCreateMutation = useCreateRemediation()
   const baseBulkDeleteMutation = useBulkDeleteRemediation()
   const baseBulkEditMutation = useBulkEditRemediation()
 
-  const updateMutation = {
-    isPending: baseUpdateMutation.isPending,
-    mutateAsync: async (params: { id: string; input: UpdateRemediationInput }) => baseUpdateMutation.mutateAsync({ updateRemediationId: params.id, input: params.input }),
-  }
+  const { enumOptions: environmentOptions } = useCreatableEnumOptions({ field: 'environment' })
+  const { enumOptions: scopeOptions } = useCreatableEnumOptions({ field: 'scope' })
 
-  const createMutation = {
-    isPending: baseCreateMutation.isPending,
-    mutateAsync: async (input: CreateRemediationInput) => {
-      const result = await baseCreateMutation.mutateAsync({ input })
-      return result
-    },
-  }
-
-  const deleteMutation = {
-    isPending: baseBulkDeleteMutation.isPending,
-    mutateAsync: async (params: { ids: string[] }) => {
-      const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
-      return result.deleteBulkRemediation
-    },
-  }
-
-  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({
-    field: 'environment',
-  })
-
-  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({
-    field: 'scope',
-  })
-
-  const enumOpts = {
-    environmentOptions,
-    scopeOptions,
-  }
-
-  const enumCreateHandlers = {
-    environmentName: createEnvironment,
-    scopeName: createScope,
-  }
-
-  const sheetConfig: RemediationSheetConfig = {
-    objectType: objectType,
-    form,
-    data: id ? data?.remediation : undefined,
-    isFetching: isLoading,
-    createMutation,
-    deleteMutation,
-    buildPayload: async (data) => {
-      const { controlIDs, subcontrolIDs, findingIDs, vulnerabilityIDs, ...rest } = data
-      const associationPayload = buildAssociationPayload(REMEDIATION_ASSOCIATION_CONFIG.associationKeys, { controlIDs, subcontrolIDs, findingIDs, vulnerabilityIDs }, true, {})
-      return {
-        ...rest,
-        ...associationPayload,
-      }
-    },
-    update: { mutation: updateMutation, fields: REMEDIATION_UPDATE_FIELDS },
-    getName,
-    renderFields: (props: RemediationFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
-  }
+  const enumOpts = { environmentOptions, scopeOptions, statusOptions: RemediationStatusOptions }
 
   const tableConfig: RemediationTablePageConfig = {
     objectType,
@@ -104,7 +38,7 @@ const RemediationPage: React.FC = () => {
     form,
     getColumns,
     TableComponent,
-    sheetConfig,
+    renderDetailView: ({ id, isCreate, onClose }) => <RemediationSheet open={isCreate || !!id} remediationId={isCreate ? null : id} onClose={onClose} />,
     onBulkDelete: async (ids: string[]) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids })
       return result.deleteBulkRemediation

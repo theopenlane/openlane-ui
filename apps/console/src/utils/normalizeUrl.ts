@@ -65,3 +65,9 @@ export const isValidUrl = (url?: string | null) => {
   const authority = URL_AUTHORITY.exec(href)?.[1] ?? ''
   return URL_HOST.test(authority.slice(authority.lastIndexOf('@') + 1)) && URL.canParse(href)
 }
+
+export const isNavigableUrl = (url?: string | null) => {
+  const trimmed = url?.trim() ?? ''
+  if (isValidUrl(trimmed)) return true
+  return startsWithScheme(trimmed, NAVIGABLE_SCHEMES) && trimmed.length <= MAX_URL_LENGTH && !CONTROL_CHARACTER.test(trimmed) && URL.canParse(trimmed)
+}

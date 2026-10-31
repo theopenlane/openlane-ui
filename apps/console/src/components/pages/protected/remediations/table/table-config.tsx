@@ -1,16 +1,9 @@
 import { defineFilterFields } from '@/types'
-import { ObjectNames } from '@repo/codegen/src/type-names'
-import React from 'react'
-import TitleField from '../create/form/fields/title-field'
-import { type RemediationQuery, RemediationOrderField, type RemediationWhereInput } from '@repo/codegen/src/schema'
-import { AdditionalFields } from '../create/form/fields/additional-fields'
+import { RemediationOrderField, type RemediationWhereInput } from '@repo/codegen/src/schema'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
-import { type RemediationFieldProps, type EnumOptions, type EnumCreateHandlers } from './types'
+import { type EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
-import { RemediationAssociationSection } from '../create/form/fields/association-section'
 import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
-
-export const formId = 'edit' + ObjectNames.REMEDIATION
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
@@ -27,10 +20,11 @@ export const getFilterFields = (enumOptions: EnumOptions) =>
       icon: FilterIcons.Source,
     },
     {
-      key: 'stateContainsFold',
-      label: 'State',
-      type: 'text',
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
       icon: FilterIcons.Status,
+      options: enumOptions.statusOptions,
     },
     {
       key: 'sourceContainsFold',
@@ -55,7 +49,8 @@ export const visibilityFields = {
   displayID: false,
   title: true,
   summary: false,
-  state: true,
+  status: true,
+  state: false,
   source: true,
   externalID: false,
   externalOwnerID: false,
@@ -73,32 +68,4 @@ export const visibilityFields = {
   createdBy: false,
   updatedAt: true,
   updatedBy: false,
-}
-
-export const getFieldsToRender = (props: RemediationFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers) => {
-  return (
-    <div className="mr-6">
-      <div className="mb-6">
-        <TitleField
-          isEditing={props.isEditing}
-          isEditAllowed={props.isEditAllowed}
-          initialValue={props.isCreate ? '' : ((props.data as RemediationQuery['remediation'])?.title ?? '')}
-          internalEditing={props.internalEditing}
-          setInternalEditing={props.setInternalEditing}
-          handleUpdateField={props.handleUpdateField}
-        />
-      </div>
-      <AdditionalFields
-        isEditing={props.isEditing}
-        isEditAllowed={props.isEditAllowed}
-        data={props.data}
-        internalEditing={props.internalEditing}
-        setInternalEditing={props.setInternalEditing}
-        handleUpdateField={props.handleUpdateField}
-        enumOptions={enumOptions}
-        enumCreateHandlers={enumCreateHandlers}
-      />
-      <RemediationAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
-    </div>
-  )
 }

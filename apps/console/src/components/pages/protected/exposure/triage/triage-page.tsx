@@ -14,6 +14,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useDebounce } from '@uidotdev/usehooks'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { buildPastDueVulnerabilityFilter } from '@/utils/vulnerability-due-date'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
 import { buildTriageGroups, buildVulnerabilitySearchFilter, combineVulnerabilityWhere, getVulnerabilityName, type TriageFacet, type TriageGroups, type TriageVuln } from './triage-utils'
 import TriageListRail from './triage-list-rail'
@@ -206,8 +207,7 @@ const TriagePage: React.FC = () => {
       <CreateRemediationSheet
         isOpen={Boolean(remediateVuln)}
         onClose={() => setRemediateVuln(null)}
-        initialData={remediateVuln ? { vulnerabilityIDs: [remediateVuln.id] } : undefined}
-        defaultTitle={remediateVuln ? `${remediateVuln.name} Remediation`.trim() : undefined}
+        context={remediateVuln ? { type: ObjectAssociationNodeEnum.VULNERABILITY, id: remediateVuln.id } : undefined}
         onSuccess={() => {
           const remediated = remediateVuln
           setRemediateVuln(null)

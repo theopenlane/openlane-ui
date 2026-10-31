@@ -8,7 +8,7 @@ import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { NotificationRow } from '@/components/shared/SystemNotification/notification-row'
 import { ExportRow } from '@/components/shared/SystemNotification/export-row'
 import { useGetAllExports } from '@/lib/graphql-hooks/export'
-import { Bell, CheckCheck, Inbox, Stamp, Radar, FileDown, AtSign, FolderSync, ClipboardList, type LucideIcon, ArrowDownToLine, ListChecks, Plug } from 'lucide-react'
+import { Bell, CheckCheck, Inbox, Stamp, Radar, FileDown, AtSign, FolderSync, ClipboardList, type LucideIcon, ArrowDownToLine, ListChecks, Plug, UserPlus } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { Button } from '@repo/ui/button'
 import { isToday, isYesterday, format, startOfDay } from 'date-fns'
@@ -29,6 +29,7 @@ const topicIcons: Record<TopicFilter, LucideIcon> = {
   [NotificationNotificationTopic.IMPORT_COMPLETE]: ArrowDownToLine,
   [NotificationNotificationTopic.ORGANIZATION_READY]: ListChecks,
   [NotificationNotificationTopic.INTEGRATION]: Plug,
+  [NotificationNotificationTopic.REPORT_MEMBERSHIP]: UserPlus,
 }
 
 const getDateGroupLabel = (dateStr: string | null | undefined): string => {
