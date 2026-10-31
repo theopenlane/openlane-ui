@@ -11,7 +11,8 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Label } from '@repo/ui/label'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { normalizeUrl } from '@/utils/normalizeUrl'
+import { Button } from '@repo/ui/button'
+import { CustomerLogoTile } from './customer-logo-tile'
 import { useEditCustomerLogoForm, type TEditCustomerLogoFormValues } from './hooks/use-customer-logo-form-schema'
 import { orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { type UpdateTrustCenterEntityInput } from '@repo/codegen/src/schema'
@@ -25,6 +26,7 @@ type CustomerLogoCardProps = {
   name: string
   url?: string | null
   logoUrl?: string | null
+  logoBackground: string
   onUpdate: (args: { id: string; input: UpdateTrustCenterEntityInput; logoFile?: File }) => Promise<boolean>
   onDelete: (id: string) => void
   isUpdating?: boolean
@@ -32,7 +34,7 @@ type CustomerLogoCardProps = {
   canEdit?: boolean
 }
 
-export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onDelete, isUpdating, isDeleting, canEdit }: CustomerLogoCardProps) {
+export default function CustomerLogoCard({ id, name, url, logoUrl, logoBackground, onUpdate, onDelete, isUpdating, isDeleting, canEdit }: CustomerLogoCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
@@ -43,7 +45,7 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
   const handleUpload = (uploaded: TUploadedFile) => {
     if (!uploaded.file) return
     setSelectedFile(uploaded.file)
-    setPreview(URL.createObjectURL(uploaded.file))
+    setPreview(uploaded.url ?? null)
   }
 
   const startEdit = () => {
@@ -76,34 +78,19 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
       {!isEditing ? (
         <CardContent className="p-0">
           <div className="flex gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-md border bg-background overflow-hidden">
-              {logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={normalizeUrl(logoUrl)} alt={name} className="h-full w-full object-contain p-1" />
-              ) : (
-                <span className="text-xs font-semibold text-muted-foreground">
-                  <EyeNoneIcon />
-                </span>
-              )}
-            </div>
+            <CustomerLogoTile background={logoBackground} src={logoUrl} alt={name} placeholder={<EyeNoneIcon />} />
 
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm mb-1">{name}</div>
               {url ? <div className="truncate text-xs text-muted-foreground">{url}</div> : <div className="truncate text-xs text-muted-foreground">No URL</div>}
             </div>
 
-            <div className="flex items-center gap-3 text-muted-foreground ">
-              {canEdit && (
-                <button onClick={startEdit} aria-label={`Edit URL for ${name}`} disabled={isUpdating || isDeleting}>
-                  <Pencil className="h-4 w-4" />
-                </button>
-              )}
-              {canEdit && (
-                <button onClick={() => onDelete(id)} aria-label={`Delete ${name}`} disabled={isDeleting || isUpdating}>
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+            {canEdit && (
+              <div className="flex items-center gap-1">
+                <Button type="button" variant="icon" size="icon-sm" icon={<Pencil />} aria-label={`Edit URL for ${name}`} onClick={startEdit} disabled={isUpdating || isDeleting} />
+                <Button type="button" variant="icon" size="icon-sm" icon={<Trash2 />} aria-label={`Delete ${name}`} onClick={() => onDelete(id)} disabled={isDeleting || isUpdating} />
+              </div>
+            )}
           </div>
         </CardContent>
       ) : (
@@ -113,9 +100,7 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
               <div className="text-sm">Edit {name}</div>
             </div>
 
-            <button onClick={resetEdit} aria-label="Close edit" disabled={isUpdating}>
-              <X className="h-4 w-4" />
-            </button>
+            <Button type="button" variant="icon" size="icon-sm" icon={<X />} aria-label="Close edit" onClick={resetEdit} disabled={isUpdating} />
           </div>
 
           <Form {...form}>
@@ -134,27 +119,10 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
                 )}
               />
               <div className="flex gap-4 pt-2">
-                {preview ? (
-                  <div>
-                    <Label className="mb-2 block text-sm">New Preview</Label>
-                    <div className="flex h-20 w-20 items-center justify-center rounded-md border bg-background overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={preview} alt="New preview" className="h-full w-full object-contain p-1" />
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <Label className="mb-2 block text-sm">Preview</Label>
-                    <div className="flex h-20 w-20 items-center justify-center rounded-md border bg-background overflow-hidden">
-                      {logoUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={normalizeUrl(logoUrl)} alt={name} className="h-full w-full object-contain p-1" />
-                      ) : (
-                        <EyeNoneIcon className="text-muted-foreground" />
-                      )}
-                    </div>
-                  </div>
-                )}
+                <div>
+                  <Label className="mb-2 block text-sm">{preview ? 'New Preview' : 'Preview'}</Label>
+                  <CustomerLogoTile background={logoBackground} src={preview ?? logoUrl} alt={name} placeholder={<EyeNoneIcon />} className="size-20" />
+                </div>
                 <div className="flex-1">
                   <Label className="mb-2 block text-sm">Update Logo</Label>
                   <FileUpload

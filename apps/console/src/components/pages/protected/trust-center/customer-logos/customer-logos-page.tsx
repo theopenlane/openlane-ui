@@ -20,6 +20,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { type UpdateTrustCenterEntityInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
+import { resolveTrustCenterBackground } from '../shared/trust-center-background'
 
 export default function CustomerLogosPage() {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -28,8 +29,9 @@ export default function CustomerLogosPage() {
 
   const { successNotification, errorNotification } = useNotification()
 
-  const { data: trustCenterData } = useGetTrustCenter()
-  const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
+  const { trustCenter } = useGetTrustCenter()
+  const trustCenterID = trustCenter?.id ?? ''
+  const logoBackground = resolveTrustCenterBackground(trustCenter?.setting)
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
   const { data: session } = useSession()
   const canEditTc = canEdit(tcPermission?.roles, session)
@@ -77,7 +79,7 @@ export default function CustomerLogosPage() {
       <h1 className="text-2xl font-bold tracking-tight mb-8">Customer Logos</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-6">
-        {canEditTc && <CreateCustomerLogo trustCenterID={trustCenterID} />}
+        {canEditTc && <CreateCustomerLogo trustCenterID={trustCenterID} logoBackground={logoBackground} />}
 
         <div className="relative min-h-100">
           {isLoadingEntities ? (
@@ -97,6 +99,7 @@ export default function CustomerLogosPage() {
                   id={entity.id}
                   name={entity.name}
                   logoUrl={entity.logoFile?.base64 ? toBase64DataUri(entity.logoFile.base64) : null}
+                  logoBackground={logoBackground}
                   onDelete={(id) => setEntityToDelete(id)}
                   url={entity.url}
                   canEdit={canEditTc}
