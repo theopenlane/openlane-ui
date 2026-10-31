@@ -54,7 +54,7 @@
     "@types/lodash.debounce": "^4.0.9",
     "@uidotdev/usehooks": "^2.4.1",
     "@xyflow/react": "^12.12.0",
-    "ai": "7.0.139",
+    "ai": "7.0.153",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "d3-force": "^3.0.0",
