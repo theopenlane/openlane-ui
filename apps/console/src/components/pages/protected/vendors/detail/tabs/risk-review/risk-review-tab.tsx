@@ -11,8 +11,9 @@ import { Input } from '@repo/ui/input'
 import { Clock, ClipboardCheck, CalendarClock, SearchIcon } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
 import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
-import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { riskRatingFromScore, vendorRiskScoreInput } from '@/lib/vendor-risk-rating'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { riskRatingFromScore, vendorRiskRatingLevel, vendorRiskScoreInput } from '@/lib/vendor-risk-rating'
+import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import { ReadOnlyField } from '@/components/shared/read-only-field/read-only-field'
 import { useReviewsWithFilter, type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
@@ -24,6 +25,7 @@ import { reviewHistoryColumns, isHighRiskTier, mappedReviewColumns, DEFAULT_VISI
 import VendorReviewSheet from './vendor-review/vendor-review-sheet'
 import { useHasRecentReview } from '@/components/pages/protected/reviews/hooks/use-has-recent-review'
 import { Callout } from '@/components/shared/callout/callout'
+import { RiskScoringPanel } from './risk-scoring/risk-scoring-panel'
 
 interface RiskReviewTabProps {
   vendor: EntityQuery['entity']
@@ -137,7 +139,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
           </Card>
           <Card>
             <CardContent className="p-4">
-              <ReadOnlyField label="Risk Rating">{riskRating ? getEnumLabel(riskRating) : null}</ReadOnlyField>
+              <ReadOnlyField label="Risk Rating">{riskRating ? <SeverityChip severity={riskRating} level={vendorRiskRatingLevel(riskRating)} /> : null}</ReadOnlyField>
             </CardContent>
           </Card>
           <Card>
@@ -147,6 +149,8 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
           </Card>
         </div>
       </div>
+
+      <RiskScoringPanel vendorId={vendor.id} vendorRiskScore={vendor.riskScore} onViewReview={setSelectedRow} />
 
       <div>
         <h3 className="text-lg font-semibold mb-4">Review History</h3>

@@ -10100,6 +10100,34 @@ export interface VendorRiskScoresWithFilterQuery {
   }
 }
 
+export type VendorRiskScoringQueryVariables = Exact<{
+  where?: Types.VendorRiskScoreWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface VendorRiskScoringQuery {
+  vendorRiskScores: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        questionKey: string
+        questionName: string
+        questionCategory: Types.VendorRiskScoreVendorScoringCategory
+        answerType: Types.VendorRiskScoreVendorScoringAnswerType
+        answer: string | null
+        impact: Types.VendorRiskScoreVendorRiskImpact
+        likelihood: Types.VendorRiskScoreVendorRiskLikelihood
+        score: number
+        notes: string | null
+        tags: Array<string> | null
+        updatedAt: any
+      } | null
+    } | null> | null
+  }
+}
+
 export type VendorRiskScoreQueryVariables = Exact<{
   vendorRiskScoreId: string
 }>
