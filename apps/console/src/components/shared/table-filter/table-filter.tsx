@@ -20,6 +20,9 @@ import {
   type TFilterValue,
   saveQuickFilters,
   loadQuickFilter,
+  clearFilters,
+  markClearedDefaults,
+  withoutClearedDefaults,
   clearQuickFilters,
   getFiltersUpdatedEvent,
   pickDeclaredFilterKeys,
@@ -43,6 +46,7 @@ type TTableFilterProps = {
 }
 
 const EMPTY_QUICK_FILTERS: TQuickFilter[] = []
+const ANY_RADIO_OPTION: NonNullable<FilterField['radioOptions']>[number] = { value: undefined, label: 'Any' }
 
 const TableFilterComponent: React.FC<TTableFilterProps> = ({
   filterFields: filterFieldsProp,
@@ -121,11 +125,12 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
       })
       onFilterChange?.(buildQuickFilterWhereCondition(savedQuickFilter))
     } else if (saved && Object.keys(saved).length > 0) {
+      const restored = withoutClearedDefaults(saved)
       setValues((prev) => {
-        const isSame = JSON.stringify(prev) === JSON.stringify(saved)
-        return isSame ? prev : saved
+        const isSame = JSON.stringify(prev) === JSON.stringify(restored)
+        return isSame ? prev : restored
       })
-      onFilterChange?.(buildWhereCondition(saved, filterFields))
+      onFilterChange?.(buildWhereCondition(restored, filterFields))
     } else if (defaultFilterValues && Object.keys(defaultFilterValues).length > 0) {
       setValues((prev) => {
         const isSame = JSON.stringify(prev) === JSON.stringify(defaultFilterValues)
@@ -142,7 +147,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
     const declaredKeys = new Set(filterFields.map((f) => f.key))
 
     const listener = (e: CustomEvent) => {
-      const cleaned = pickDeclaredFilterKeys(e.detail as TFilterState, declaredKeys, pageKey)
+      const cleaned = withoutClearedDefaults(pickDeclaredFilterKeys(e.detail as TFilterState, declaredKeys, pageKey))
 
       userEditedRef.current = true
       setActiveQuickFilters((prev) => (prev.some((qf) => qf.isActive) ? prev.map((qf) => ({ ...qf, isActive: false })) : prev))
@@ -181,10 +186,11 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
     const restoredValues = defaultFilterValues ?? {}
     resetQuickFilters()
     if (storageEnabled && pageKey) {
-      saveFilters(pageKey, {}, currentOrgId)
+      clearFilters(pageKey, currentOrgId, restoredValues)
+    } else {
+      setValues(restoredValues)
+      onFilterChange?.(buildWhereCondition(restoredValues, filterFields))
     }
-    setValues(restoredValues)
-    onFilterChange?.(buildWhereCondition(restoredValues, filterFields))
     setOpen(false)
   }, [defaultFilterValues, resetQuickFilters, storageEnabled, pageKey, currentOrgId, onFilterChange, buildWhereCondition, filterFields])
 
@@ -247,13 +253,13 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
       handleQuickFilterSave(activeQuickFilter)
     } else {
       if (storageEnabled && pageKey) {
-        saveFilters(pageKey, values, currentOrgId)
+        saveFilters(pageKey, markClearedDefaults(values, defaultFilterValues), currentOrgId)
       }
       onFilterChange?.(buildWhereCondition(values, filterFields))
       resetQuickFilters()
     }
     setOpen(false)
-  }, [getActiveQuickFilter, handleQuickFilterSave, pageKey, values, onFilterChange, buildWhereCondition, filterFields, resetQuickFilters, storageEnabled, currentOrgId])
+  }, [getActiveQuickFilter, handleQuickFilterSave, pageKey, values, defaultFilterValues, onFilterChange, buildWhereCondition, filterFields, resetQuickFilters, storageEnabled, currentOrgId])
 
   const activeFilterKeys = filterFields
     .map((field) => field.key)
@@ -458,7 +464,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
         case 'radio':
           return (
             <div role="radiogroup" aria-label={field.label} className="flex flex-col gap-1">
-              {field.radioOptions?.map((opt) => (
+              {[ANY_RADIO_OPTION, ...(field.radioOptions ?? [])].map((opt) => (
                 <button
                   key={String(opt.value)}
                   type="button"

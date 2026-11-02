@@ -7,7 +7,7 @@ import { getOrganizationStorageItem, getOrganizationStorageKey, removeOrganizati
 import { isNullFilterValue, type TNullFilterValue } from './null-filter'
 
 export type TNumberRange = { min: number; max: number }
-export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | TNumberRange | TNullFilterValue | undefined
+export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | TNumberRange | TNullFilterValue | null | undefined
 export type TFilterState = Record<string, TFilterValue>
 export type TFilterStateFor<K extends string> = Partial<Record<string extends K ? never : K, TFilterValue>>
 export type TQuickFilterState = { key: string; condition: TFilterState | Condition } | Record<string, boolean>
@@ -19,10 +19,28 @@ const filterKey = (pageKey: TableKeyValue) => `${STORAGE_FILTER_PREFIX}${pageKey
 const quickFilterKey = (pageKey: TableKeyValue) => `${STORAGE_QUICK_FILTERS_PREFIX}${pageKey}`
 const filtersUpdatedEvent = (pageKey: TableKeyValue, organizationId?: string) => `filters-updated:${getOrganizationStorageKey(filterKey(pageKey), organizationId)}`
 
-export const saveFilters = (pageKey: TableKeyValue, state: TFilterState, organizationId?: string): void => {
-  setOrganizationStorageItem(filterKey(pageKey), JSON.stringify(state), organizationId)
+const notifyFiltersUpdated = (pageKey: TableKeyValue, state: TFilterState, organizationId?: string): void => {
   window.dispatchEvent(new CustomEvent(filtersUpdatedEvent(pageKey, organizationId), { detail: state }))
 }
+
+export const saveFilters = (pageKey: TableKeyValue, state: TFilterState, organizationId?: string): void => {
+  setOrganizationStorageItem(filterKey(pageKey), JSON.stringify(state), organizationId)
+  notifyFiltersUpdated(pageKey, state, organizationId)
+}
+
+export const clearFilters = (pageKey: TableKeyValue, organizationId?: string, effectiveState: TFilterState = {}): void => {
+  removeOrganizationStorageItem(filterKey(pageKey), organizationId)
+  notifyFiltersUpdated(pageKey, effectiveState, organizationId)
+}
+
+const isEmptyFilterValue = (value: TFilterValue): boolean => value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0)
+
+export const markClearedDefaults = (state: TFilterState, defaults: TFilterState = {}): TFilterState => {
+  const cleared = Object.keys(defaults).filter((key) => isEmptyFilterValue(state[key]))
+  return { ...state, ...Object.fromEntries(cleared.map((key) => [key, null])) }
+}
+
+export const withoutClearedDefaults = (state: TFilterState): TFilterState => Object.fromEntries(Object.entries(state).filter(([, value]) => value !== null))
 
 export const saveQuickFilters = (pageKey: TableKeyValue, activeFilter: TQuickFilter, organizationId?: string): void => {
   clearQuickFilters(pageKey, organizationId)
@@ -139,6 +157,11 @@ const validateValues = (values: TFilterState, filterFields: FilterField[]): TFil
   for (const [key, value] of Object.entries(values)) {
     const field = filterFields.find((f) => f.key === key)
     if (!field) continue
+
+    if (value === null) {
+      result[key] = null
+      continue
+    }
 
     if (field.nullableKey && isNullFilterValue(value)) {
       result[key] = value
