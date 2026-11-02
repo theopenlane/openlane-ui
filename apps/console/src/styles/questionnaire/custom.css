@@ -4,6 +4,10 @@
   min-height: 0;
 }
 
+.svc-creator {
+  isolation: isolate;
+}
+
 .dark .svc-creator ::-webkit-scrollbar-track {
   background: #162431;
 }
