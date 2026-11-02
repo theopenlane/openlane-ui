@@ -33,5 +33,16 @@ export const pdfAcceptedFileTypesShort = ['PDF']
 export const externalReferenceAcceptedFileTypes = [...wordAcceptedFileTypes, ...pdfAcceptedFileTypes]
 export const externalReferenceAcceptedFileTypesShort = [...wordAcceptedFileTypesShort, ...pdfAcceptedFileTypesShort]
 
+export const markdownAcceptedFileTypes = ['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/x-markdown', 'text/mdx', '.mdx', '.md']
+export const markdownAcceptedFileTypesShort = ['TXT', 'MD', 'MDX']
+
+// documentImportAcceptedFileTypes are the files a procedure can be imported from
+export const documentImportAcceptedFileTypes = [...markdownAcceptedFileTypes, ...wordAcceptedFileTypes]
+export const documentImportAcceptedFileTypesShort = [...markdownAcceptedFileTypesShort, ...wordAcceptedFileTypesShort]
+
+// policyImportAcceptedFileTypes are the files a policy can be imported from, which also include PDFs
+export const policyImportAcceptedFileTypes = [...markdownAcceptedFileTypes, ...externalReferenceAcceptedFileTypes]
+export const policyImportAcceptedFileTypesShort = [...markdownAcceptedFileTypesShort, ...externalReferenceAcceptedFileTypesShort]
+
 export const imageAcceptedFileTypes = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp', 'image/gif']
 export const imageAcceptedFileTypesShort = ['PNG', 'JPG', 'SVG', 'WEBP', 'GIF']

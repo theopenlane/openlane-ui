@@ -1,6 +1,8 @@
 import { formatFileSize } from '@/utils/strings'
 
-export const PDF_DOCUMENT_EMBED_BUDGET_MB = 2
+// PDF_DOCUMENT_EMBED_BUDGET_MB caps the combined size of the PDFs embedded in one questionnaire
+// they are stored base64 encoded in its json, so every load of the questionnaire carries them
+export const PDF_DOCUMENT_EMBED_BUDGET_MB = 10
 export const PDF_DOCUMENT_EMBED_BUDGET_BYTES = PDF_DOCUMENT_EMBED_BUDGET_MB * 1024 * 1024
 
 export const embedBudgetExceededMessage = (documentLabel: string, sizeBytes: number, remainingBytes: number) => {

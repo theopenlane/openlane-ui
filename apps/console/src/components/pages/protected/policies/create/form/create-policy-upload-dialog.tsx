@@ -22,7 +22,7 @@ import UploadTab from '../../../evidence/upload/upload-tab'
 import { POLICY_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
-import { externalReferenceAcceptedFileTypes } from '@/components/shared/file-upload/file-upload-config'
+import { policyImportAcceptedFileTypes, policyImportAcceptedFileTypesShort } from '@/components/shared/file-upload/file-upload-config'
 import { PolicyTemplateBrowser } from '@/components/shared/github-selector/policy-selector'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { isExternalReferenceFilename, isPdfFilename } from '@/components/pages/protected/policies/policy-management-utils'
@@ -251,11 +251,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
               Direct Link
             </TabsTrigger>
           </TabsList> */}
-          <UploadTab
-            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/x-markdown', 'text/mdx', '.mdx', '.md', ...externalReferenceAcceptedFileTypes]}
-            acceptedFileTypesShort={['TXT', 'MD', 'MDX', 'DOC', 'DOCX', 'PDF']}
-            uploadedFile={handleUploadedFile}
-          />
+          <UploadTab acceptedFileTypes={policyImportAcceptedFileTypes} acceptedFileTypesShort={policyImportAcceptedFileTypesShort} uploadedFile={handleUploadedFile} />
           {/* <DirectLinkCreatePolicyProcedureTab setLink={setPolicyMdDocumentLink} link={policyMdDocumentLink} onAddLink={handleAddLink} /> */}
         </Tabs>
         {policyMdDocumentLinks.map((link, index) => (
