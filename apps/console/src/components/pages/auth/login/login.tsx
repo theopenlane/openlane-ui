@@ -22,7 +22,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { isValidEmail } from '@/lib/validators'
 import LegalAgreement from '@/components/shared/legal-agreement/legal-agreement'
 import { cn } from '@repo/ui/lib/utils'
-import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
+import { buildTfaRedirect, sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 import Github from '@/assets/Github'
 import { recordLastLoginMethod, getLastLoginMethod } from '@/lib/auth/utils/last-login-method'
 import { LastUsedBadge } from './last-used-badge'
@@ -257,7 +257,8 @@ export const LoginPage = () => {
 
       if (res.ok && !res.error) {
         recordLastLoginMethod(UserAuthProvider.CREDENTIALS)
-        router.push(redirectUrl)
+        const pendingTfa = res.url && new URL(res.url, window.location.origin).pathname === '/tfa'
+        router.push(pendingTfa ? buildTfaRedirect(redirectUrl) : redirectUrl)
       } else {
         let errMsg = 'There was an error. Please try again.'
 

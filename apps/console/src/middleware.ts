@@ -38,12 +38,32 @@ export default auth(async (req) => {
 
   const session = req.auth
 
-  const isLoggedIn = !!session?.user
-  const isTfaEnabled = session?.user?.isTfaEnabled
+  const isLoggedIn = !!session?.user?.accessToken
   const isOnboarding = session?.user?.isOnboarding
+  const pendingTfa = req.cookies.get('tfa_pending')?.value
 
   const noModules = featureUtil.hasNoModules(session)
   const noModulesAllowedPages = ['/organization', '/organization-settings/billing', '/organization-settings/general-settings', '/user-settings/profile']
+
+  // if the cookie is yet to expire, do not let the user land on login or other pages,
+  // force them to always land here
+  //
+  // user should not be able to land on this page without the cookie, if they somehow get here,
+  // move them back to the login page
+  if (path === '/tfa') {
+    if (pendingTfa) {
+      return NextResponse.next()
+    }
+
+    const login = new URL(buildLoginRedirect(req.nextUrl.searchParams.get('redirect')), req.url)
+    login.searchParams.set('error', 'Your login attempt expired. Please sign in again.')
+    return NextResponse.redirect(login)
+  }
+
+  // if not logged in and user tries to go to another page, force them back to /tfa and add the redirect
+  if (!isLoggedIn && pendingTfa && !isPublicPage) {
+    return NextResponse.redirect(new URL(buildTfaRedirect(`${path}${req.nextUrl.search}`), req.url))
+  }
 
   if (!isLoggedIn) {
     if (isPublicPage) {
@@ -51,10 +71,6 @@ export default auth(async (req) => {
     }
     const loginRedirect = buildLoginRedirect(`${req.nextUrl.pathname}${req.nextUrl.search}`)
     return NextResponse.redirect(new URL(loginRedirect, req.url))
-  }
-
-  if (isTfaEnabled) {
-    return path === '/tfa' || path === '/login' || isSSOCallback ? NextResponse.next() : NextResponse.redirect(new URL(buildTfaRedirect(`${path}${req.nextUrl.search}`), req.url))
   }
 
   if (isInvite) {

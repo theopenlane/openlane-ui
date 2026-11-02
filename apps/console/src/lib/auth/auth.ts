@@ -98,6 +98,10 @@ export const config = {
         throw new InvalidLoginError(user.error)
       }
 
+      if (user.isTfaEnabled && !user.accessToken && account?.provider === 'credentials') {
+        return '/tfa'
+      }
+
       const email = profile?.email || user?.email || ''
 
       // Allow only specific domains if configured
