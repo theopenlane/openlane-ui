@@ -29,5 +29,9 @@ export const maxFileSizeInMb = 100
 export const pdfAcceptedFileTypes = ['application/pdf']
 export const pdfAcceptedFileTypesShort = ['PDF']
 
+// externalReferenceAcceptedFileTypes are the document types a policy can be kept as an external reference for
+export const externalReferenceAcceptedFileTypes = [...wordAcceptedFileTypes, ...pdfAcceptedFileTypes]
+export const externalReferenceAcceptedFileTypesShort = [...wordAcceptedFileTypesShort, ...pdfAcceptedFileTypesShort]
+
 export const imageAcceptedFileTypes = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp', 'image/gif']
 export const imageAcceptedFileTypesShort = ['PNG', 'JPG', 'SVG', 'WEBP', 'GIF']

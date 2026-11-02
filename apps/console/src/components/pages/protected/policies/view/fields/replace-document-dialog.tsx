@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialo
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
-import { wordAcceptedFileTypes, wordAcceptedFileTypesShort } from '@/components/shared/file-upload/file-upload-config'
+import { externalReferenceAcceptedFileTypes, externalReferenceAcceptedFileTypesShort } from '@/components/shared/file-upload/file-upload-config'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useNotification } from '@/hooks/useNotification'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
@@ -63,8 +63,8 @@ const ReplaceDocumentDialog: React.FC<Props> = ({ policy, open, onOpenChange }) 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           {!selectedFile ? (
             <FileUpload
-              acceptedFileTypes={wordAcceptedFileTypes}
-              acceptedFileTypesShort={wordAcceptedFileTypesShort}
+              acceptedFileTypes={externalReferenceAcceptedFileTypes}
+              acceptedFileTypesShort={externalReferenceAcceptedFileTypesShort}
               maxFileSizeInMb={100}
               multipleFiles={false}
               onFileUpload={(uploaded) => {

@@ -1,10 +1,10 @@
 'use client'
 
 import { useCallback } from 'react'
-import { ExportExportFormat, ExportExportType } from '@repo/codegen/src/schema'
+import { ExportExportFormat, ExportExportType, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { useCreateExport, useExportFile } from '@/lib/graphql-hooks/export'
 import { type TExportMetadata } from '@/components/shared/export/use-file-export'
-import { useFetchInternalPolicyRevision, type TInternalPolicyDocument } from '@/lib/graphql-hooks/internal-policy'
+import { useFetchInternalPolicyDocument, useFetchInternalPolicyRevision, type TInternalPolicyDocument } from '@/lib/graphql-hooks/internal-policy'
 import { PDF_MIME_TYPE } from '@/components/shared/file-preview/preview-mime'
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'
 import { getDataUrlByteSize, toDataUrl } from '@/utils/data-url'
@@ -13,15 +13,66 @@ import { embedBudgetExceededMessage } from './pdf-document-budget'
 
 const tooLargeError = (bytes: number, budgetBytes: number) => new UserFacingError(embedBudgetExceededMessage('The exported PDF', bytes, budgetBytes))
 
+const policyChangedError = () => new UserFacingError('The policy changed while it was being exported. Please try again.')
+
+type TStoredPdfFile = NonNullable<TInternalPolicyDocument['file']>
+
+// storedPdfFile returns the uploaded file of a policy kept as an external reference PDF; that file is the
+// source of truth, so it is attached as is instead of being re-rendered from the extracted text
+const storedPdfFile = (policy: TInternalPolicyDocument | null): TStoredPdfFile | null => {
+  if (policy?.managementMode !== InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE || !policy.file) return null
+  return policy.file.detectedMimeType?.toLowerCase().startsWith(PDF_MIME_TYPE) ? policy.file : null
+}
+
+// providedFileName is stored without its extension
+const pdfFileName = (name: string | null | undefined, fallback: string) => {
+  const base = name || fallback
+  return base.toLowerCase().endsWith('.pdf') ? base : `${base}.pdf`
+}
+
 export const usePolicyPdfExport = () => {
   const { mutateAsync: createExport } = useCreateExport()
   const { waitForExportFile, fetchExportFileContent } = useExportFile()
+  const fetchPolicyDocument = useFetchInternalPolicyDocument()
   const fetchPolicyRevision = useFetchInternalPolicyRevision()
+
+  // toAttachment reads a stored PDF file and checks it against the embed budget and the policy revision it was read at
+  const toAttachment = useCallback(
+    async (policy: TInternalPolicyDocument, fileId: string, fileName: string, revisionBefore: string | null, budgetBytes: number, signal: AbortSignal): Promise<TPdfDocumentAttachment> => {
+      const revisionAfter = await fetchPolicyRevision(policy.id, signal)
+      if (revisionAfter !== revisionBefore) throw policyChangedError()
+
+      const base64 = await fetchExportFileContent(fileId, signal)
+      if (!base64) throw new UserFacingError('The policy PDF could not be read. Please try again later.')
+
+      const pdfData = toDataUrl(base64, PDF_MIME_TYPE)
+      const size = getDataUrlByteSize(pdfData)
+      if (size > budgetBytes) throw tooLargeError(size, budgetBytes)
+
+      return {
+        pdfData,
+        pdfFileName: pdfFileName(fileName, policy.name),
+        policyId: policy.id,
+        policyRevision: revisionAfter ?? '',
+        suggestedTitle: policy.name,
+      }
+    },
+    [fetchExportFileContent, fetchPolicyRevision],
+  )
 
   return useCallback(
     async (policy: TInternalPolicyDocument, budgetBytes: number, signal: AbortSignal): Promise<TPdfDocumentAttachment> => {
-      const revisionBefore = await fetchPolicyRevision(policy.id, signal)
+      // read the policy's current state rather than the possibly stale search result, so a replaced file is picked up
+      const current = await fetchPolicyDocument(policy.id, signal)
       signal.throwIfAborted()
+      const revisionBefore = current?.revision ?? null
+
+      const storedPdf = storedPdfFile(current)
+      if (storedPdf) {
+        if ((storedPdf.providedFileSize ?? 0) > budgetBytes) throw tooLargeError(storedPdf.providedFileSize ?? 0, budgetBytes)
+        return toAttachment(policy, storedPdf.id, storedPdf.providedFileName, revisionBefore, budgetBytes, signal)
+      }
+
       const { createExport: created } = await createExport({
         input: {
           exportType: ExportExportType.INTERNAL_POLICY,
@@ -36,24 +87,8 @@ export const usePolicyPdfExport = () => {
       if (file.detectedMimeType && file.detectedMimeType !== PDF_MIME_TYPE) throw new UserFacingError('The policy export did not produce a PDF.')
       if ((file.providedFileSize ?? 0) > budgetBytes) throw tooLargeError(file.providedFileSize ?? 0, budgetBytes)
 
-      const revisionAfter = await fetchPolicyRevision(policy.id, signal)
-      if (revisionAfter !== revisionBefore) throw new UserFacingError('The policy changed while it was being exported. Please try again.')
-
-      const base64 = await fetchExportFileContent(file.id, signal)
-      if (!base64) throw new UserFacingError('The exported PDF could not be read. Please try again later.')
-
-      const pdfData = toDataUrl(base64, PDF_MIME_TYPE)
-      const size = getDataUrlByteSize(pdfData)
-      if (size > budgetBytes) throw tooLargeError(size, budgetBytes)
-
-      return {
-        pdfData,
-        pdfFileName: file.providedFileName || `${policy.name}.pdf`,
-        policyId: policy.id,
-        policyRevision: revisionAfter ?? '',
-        suggestedTitle: policy.name,
-      }
+      return toAttachment(policy, file.id, file.providedFileName, revisionBefore, budgetBytes, signal)
     },
-    [createExport, fetchExportFileContent, fetchPolicyRevision, waitForExportFile],
+    [createExport, fetchPolicyDocument, toAttachment, waitForExportFile],
   )
 }

@@ -4972,7 +4972,18 @@ export type SearchInternalPolicyDocumentsQueryVariables = Exact<{
 }>
 
 export interface SearchInternalPolicyDocumentsQuery {
-  internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; revision: string | null } | null } | null> | null }
+  internalPolicies: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        name: string
+        revision: string | null
+        managementMode: Types.InternalPolicyDocumentManagementMode | null
+        file: { id: string; providedFileName: string; providedFileSize: number | null; detectedMimeType: string | null } | null
+      } | null
+    } | null> | null
+  }
 }
 
 export type GetAllInternalPoliciesQueryVariables = Exact<{

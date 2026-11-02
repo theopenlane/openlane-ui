@@ -98,7 +98,7 @@ export const ProcedureStatusFilterOptions = Object.entries(ProcedureDocumentStat
 
 const MANAGEMENT_MODE_LABELS: Partial<Record<InternalPolicyDocumentManagementMode, string>> = {
   [InternalPolicyDocumentManagementMode.OPENLANE_MANAGED]: 'Manage in Openlane',
-  [InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE]: 'Keep as Word document',
+  [InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE]: 'Keep as uploaded document',
   [InternalPolicyDocumentManagementMode.INTEGRATION]: 'Sync from integration',
 }
 

@@ -12,7 +12,7 @@ import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { type EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { formatDate } from '@/utils/date'
 import { DocumentIconMapper, InternalPolicyStatusOptions, ManagementModeLabel } from '@/components/shared/enum-mapper/policy-enum'
-import { isWordExt } from '@/components/pages/protected/policies/policy-management-utils'
+import { isExternalReferenceExt } from '@/components/pages/protected/policies/policy-management-utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
@@ -37,7 +37,7 @@ type TPropertiesCardProps = {
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditing, editAllowed, handleUpdate, activeField, setActiveField }) => {
   const [internalEditingField, setInternalEditingField] = useState<null | 'status' | 'internalPolicyKindName' | 'reviewDue' | 'revision'>(null)
   const currentMode = policy.managementMode ?? InternalPolicyDocumentManagementMode.OPENLANE_MANAGED
-  const showManagementMode = isWordExt(policy.file?.providedFileExtension) || currentMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+  const showManagementMode = isExternalReferenceExt(policy.file?.providedFileExtension) || currentMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
 
   const isControlled = activeField !== undefined && setActiveField !== undefined
   const editingField = isControlled ? activeField : internalEditingField
@@ -197,7 +197,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Whether this policy is parsed and edited inside Openlane, or kept as a Word document with Openlane acting as a viewer.</p>
+                  <p>Whether this policy is parsed and edited inside Openlane, or kept as the uploaded Word document or PDF with Openlane acting as a viewer.</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
