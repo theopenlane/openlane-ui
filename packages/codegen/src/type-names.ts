@@ -36,9 +36,7 @@ import {
   TrustCenterEntity,
   TrustCenterFaq,
   TrustCenterNdaRequest,
-  TrustCenterSetting,
   TrustCenterSubprocessor,
-  TrustCenterWatermarkConfig,
   Vulnerability,
   WorkflowDefinition,
   WorkflowEvent,
@@ -314,9 +312,7 @@ export enum TypesWithPermissions {
   TRUST_CENTER_ENTITY = 'TrustCenterEntity',
   TRUST_CENTER_FAQ = 'TrustCenterFaq',
   TRUST_CENTER_NDA_REQUEST = 'TrustCenterNdaRequest',
-  TRUST_CENTER_SETTING = 'TrustCenterSetting',
   TRUST_CENTER_SUBPROCESSOR = 'TrustCenterSubprocessor',
-  TRUST_CENTER_WATERMARK_CONFIG = 'TrustCenterWatermarkConfig',
   VULNERABILITY = 'Vulnerability',
   WORKFLOW_DEFINITION = 'WorkflowDefinition',
 }
@@ -472,18 +468,8 @@ export type PermissionsAllQueriesData = {
     pageInfo?: PageInfo
     totalCount?: number
   }
-  trustCenterSettings?: {
-    edges?: Array<{ node: TrustCenterSetting }>
-    pageInfo?: PageInfo
-    totalCount?: number
-  }
   trustCenterSubprocessors?: {
     edges?: Array<{ node: TrustCenterSubprocessor }>
-    pageInfo?: PageInfo
-    totalCount?: number
-  }
-  trustCenterWatermarkConfigs?: {
-    edges?: Array<{ node: TrustCenterWatermarkConfig }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -820,30 +806,10 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     excludeViewersInFilter: true,
     extraTableColumns: undefined,
   },
-  [TypesWithPermissions.TRUST_CENTER_SETTING]: {
-    roleOptions: ['Edit', 'Blocked'],
-    responseObjectKey: 'trustCenterSettings',
-    queryDocument: '',
-    objectName: 'name',
-    searchAttribute: 'nameContainsFold',
-    inputPlaceholder: 'name',
-    excludeViewersInFilter: true,
-    extraTableColumns: undefined,
-  },
   [TypesWithPermissions.TRUST_CENTER_SUBPROCESSOR]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'trustCenterSubprocessors',
     queryDocument: GET_ALL_TRUST_CENTER_SUBPROCESSORS,
-    objectName: 'name',
-    searchAttribute: 'nameContainsFold',
-    inputPlaceholder: 'name',
-    excludeViewersInFilter: true,
-    extraTableColumns: undefined,
-  },
-  [TypesWithPermissions.TRUST_CENTER_WATERMARK_CONFIG]: {
-    roleOptions: ['Edit', 'Blocked'],
-    responseObjectKey: 'trustCenterWatermarkConfigs',
-    queryDocument: '',
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',

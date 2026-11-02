@@ -10917,6 +10917,84 @@ export interface GetVulnerabilityHistoryEdgesQuery {
   }
 }
 
+export type VulnerabilitiesGroupByQueryVariables = Exact<{
+  field: Types.VulnerabilityGroupByField
+  where?: Types.VulnerabilityWhereInput | null | undefined
+  orderBy?: Types.GroupByOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface VulnerabilitiesGroupByQuery {
+  vulnerabilitiesGroupBy: {
+    totalCount: number
+    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+    edges: Array<{ node: { key: string | null; count: number } }>
+  }
+}
+
+export type VulnerabilityDueDateSourcesQueryVariables = Exact<{
+  where?: Types.VulnerabilityWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface VulnerabilityDueDateSourcesQuery {
+  vulnerabilities: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        cveID: string | null
+        securityLevel: Types.VulnerabilitySecurityLevel | null
+        severity: string | null
+        createdAt: any
+        discoveredAt: string | null
+        remediationSLA: number | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type VulnerabilityTriageGroupsQueryVariables = Exact<{
+  where?: Types.VulnerabilityWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface VulnerabilityTriageGroupsQuery {
+  vulnerabilitiesGroupBy: {
+    totalCount: number
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        key: string | null
+        count: number
+        vulnerabilities: {
+          edges: Array<{
+            node: {
+              id: string
+              displayName: string | null
+              displayID: string
+              cveID: string | null
+              externalID: string
+              score: number | null
+              securityLevel: Types.VulnerabilitySecurityLevel | null
+              severity: string | null
+              scopeName: string | null
+              packageName: string | null
+              source: string | null
+              category: string | null
+            } | null
+          } | null> | null
+        }
+      }
+    }>
+  }
+}
+
 export type WorkflowAssignmentTargetsWithFilterQueryVariables = Exact<{
   where?: Types.WorkflowAssignmentTargetWhereInput | null | undefined
   orderBy?: Array<Types.WorkflowAssignmentTargetOrder> | Types.WorkflowAssignmentTargetOrder | null | undefined

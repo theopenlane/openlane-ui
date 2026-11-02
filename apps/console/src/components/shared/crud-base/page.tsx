@@ -27,6 +27,9 @@ import { TabbedDetailView } from '@/components/shared/crud-base/tabbed-detail-vi
 import { StepDialog } from '@/components/shared/crud-base/step-dialog'
 import { GenericTableToolbar } from '@/components/shared/crud-base/table/table-toolbar'
 import { type ResponsibilityFieldsMap, type TBulkEditAssociations } from '@/components/shared/crud-base/dialog/bulk-edit'
+import { GROUP_BY_PARAM, type TGroupByControl } from '@/components/shared/crud-base/table/group-by-select'
+import { GroupedTable, type TGroupByConfig } from '@/components/shared/crud-base/table/grouped-table'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type FilterField, type WhereInputKey } from '@/types'
@@ -137,6 +140,7 @@ export interface GenericTablePageConfig<
     additionalActiveFilterCount?: number
     defaultFilterValues?: TFilterState
     quickFilters?: TQuickFilter[]
+    groupBy?: TGroupByControl
   }>
 
   // Sheet configuration
@@ -160,6 +164,7 @@ export interface GenericTablePageConfig<
   hideCreate?: boolean
   createPermission?: TAccessRole
   hideBreadcrumbs?: boolean
+  groupBy?: TGroupByConfig<TWhereInput>
 }
 
 export function GenericTablePage<
@@ -204,6 +209,9 @@ export function GenericTablePage<
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
+  const { replace: replaceParams } = useSmartRouter()
+  const groupByParam = searchParams.get(GROUP_BY_PARAM)
+  const activeGroupBy = config.groupBy?.options.find((option) => option.value === groupByParam) ?? null
 
   const [searchQuery, setSearchQuery] = useStorageSearch(objectType)
   const { setCrumbs } = React.use(BreadcrumbContext)
@@ -255,7 +263,10 @@ export function GenericTablePage<
     return orderBy || undefined
   }, [orderBy])
 
-  const filterFingerprint = useMemo(() => JSON.stringify({ filters, debouncedSearch, additionalWhereFilter: additionalWhereFilter ?? null }), [filters, debouncedSearch, additionalWhereFilter])
+  const filterFingerprint = useMemo(
+    () => JSON.stringify({ filters, debouncedSearch, additionalWhereFilter: additionalWhereFilter ?? null, groupBy: activeGroupBy?.value ?? null }),
+    [filters, debouncedSearch, additionalWhereFilter, activeGroupBy?.value],
+  )
   const isFirstFilterRenderRef = useRef(true)
   useEffect(() => {
     if (isFirstFilterRenderRef.current) {
@@ -312,6 +323,16 @@ export function GenericTablePage<
     setSelectedItems([])
   }
 
+  const groupByControl: TGroupByControl | undefined = config.groupBy && {
+    options: config.groupBy.options,
+    value: activeGroupBy?.value ?? null,
+    onChange: (value) => {
+      setSelectedItems([])
+      setPagination((prev) => ({ ...prev, page: 1, query: { first: prev.pageSize } }))
+      replaceParams({ [GROUP_BY_PARAM]: value })
+    },
+  }
+
   const handleFilterChange = useCallback((newFilters: TWhereInput | null) => {
     setFiltersInitialized(true)
     setFilters((prev) => (JSON.stringify(prev) !== JSON.stringify(newFilters) ? newFilters : prev))
@@ -341,6 +362,22 @@ export function GenericTablePage<
     }
     return undefined
   }, [resolvedViewMode, viewEditMode])
+
+  const tableProps: TTableProps<TWhereInput> = {
+    orderByFilter,
+    pagination,
+    onPaginationChange: setPagination,
+    whereFilter,
+    onSortChange: handleSortChange,
+    columnVisibility: effectiveColumnVisibility,
+    setColumnVisibility,
+    selectedItems,
+    setSelectedItems,
+    canEdit,
+    defaultSorting,
+    permission,
+    rowHref,
+  }
 
   const renderDetailView = () => {
     // Handle step-dialog create mode
@@ -424,25 +461,15 @@ export function GenericTablePage<
         createPermission={config.createPermission}
         additionalActiveFilterCount={additionalWhereFilter ? Object.values(additionalWhereFilter).filter((v) => v != null).length : 0}
         defaultFilterValues={defaultFilterValues}
+        groupBy={groupByControl}
       />
 
-      {filtersInitialized && (
-        <TableComponent
-          orderByFilter={orderByFilter}
-          pagination={pagination}
-          onPaginationChange={setPagination}
-          whereFilter={whereFilter}
-          onSortChange={handleSortChange}
-          columnVisibility={effectiveColumnVisibility}
-          setColumnVisibility={setColumnVisibility}
-          selectedItems={selectedItems}
-          setSelectedItems={setSelectedItems}
-          canEdit={canEdit}
-          defaultSorting={defaultSorting}
-          permission={permission}
-          rowHref={rowHref}
-        />
-      )}
+      {filtersInitialized &&
+        (activeGroupBy && config.groupBy ? (
+          <GroupedTable key={activeGroupBy.value} definition={activeGroupBy} countLabel={config.groupBy.countLabel} TableComponent={TableComponent} {...tableProps} />
+        ) : (
+          <TableComponent {...tableProps} />
+        ))}
 
       {renderDetailView()}
     </MergeModeProvider>

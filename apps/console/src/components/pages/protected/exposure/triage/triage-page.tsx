@@ -1,11 +1,11 @@
 'use client'
 
-import React, { use, useEffect, useMemo, useState } from 'react'
+import React, { use, useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { VulnerabilityOrderField, OrderDirection, VulnerabilitySecurityLevel, type UpdateVulnerabilityInput, type VulnerabilityWhereInput } from '@repo/codegen/src/schema'
+import { VulnerabilityGroupByField, VulnerabilitySecurityLevel, type UpdateVulnerabilityInput, type VulnerabilityWhereInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useVulnerabilitiesInfinite, useUpdateVulnerability, useVulnerabilitiesCount } from '@/lib/graphql-hooks/vulnerability'
+import { useUpdateVulnerability } from '@/lib/graphql-hooks/vulnerability'
 import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit, hasPermission } from '@/lib/authz/utils'
@@ -15,10 +15,16 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { buildPastDueVulnerabilityFilter } from '@/utils/vulnerability-due-date'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
-import { buildTriageGroups, buildVulnerabilitySearchFilter, combineVulnerabilityWhere, getVulnerabilityName, type TriageFacet, type TriageGroups, type TriageVuln } from './triage-utils'
+import { buildVulnerabilitySearchFilter, combineVulnerabilityWhere, getVulnerabilityName, type TriageFacet, type TriageVuln, type TTriageQueue } from './triage-utils'
 import TriageListRail from './triage-list-rail'
 import TriageDetail from './triage-detail'
+import TriageGroupDetail from './triage-group-detail'
 import TriageQuickActions from './triage-quick-actions'
+import { useTriageCveGroups } from './use-triage-cve-groups'
+import { useTriageVulnQueue } from './use-triage-vuln-queue'
+import { useSearchParams } from 'next/navigation'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
+import { GROUP_BY_PARAM } from '@/components/shared/crud-base/table/group-by-select'
 import AcceptRiskDialog from './accept-risk-dialog'
 import { buildDismissVulnerabilityInput } from '../vulnerability-dismiss-reasons'
 import { useVulnerabilityReviewer } from '../../vulnerabilities/hooks/use-vulnerability-review'
@@ -27,8 +33,6 @@ import SnoozeVulnerabilityDialog from '../../vulnerabilities/snooze/snooze-vulne
 import { buildResponsibilityInlineUpdate, type ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 const MS_PER_HOUR = 1000 * 60 * 60
-const PAGE_SIZE = 20
-const ORDER_BY = [{ field: VulnerabilityOrderField.security_level, direction: OrderDirection.ASC }]
 
 const CRITICAL_SEVERITY_FILTER: VulnerabilityWhereInput = {
   or: [{ securityLevelIn: [VulnerabilitySecurityLevel.CRITICAL] }, { securityLevelIsNil: true, severityEqualFold: 'critical' }],
@@ -45,6 +49,9 @@ const TriagePage: React.FC = () => {
 
   const [search, setSearch] = useState('')
   const [facet, setFacet] = useState<TriageFacet>('all')
+  const searchParams = useSearchParams()
+  const { replace: replaceParams } = useSmartRouter()
+  const groupByCve = searchParams.get(GROUP_BY_PARAM) === VulnerabilityGroupByField.CVE_ID
   const debouncedSearch = useDebounce(search, 300)
 
   const { slaDefinitionsNodes } = useSlaDefinitionsWithFilter({})
@@ -63,27 +70,16 @@ const TriagePage: React.FC = () => {
   const pastDueWhere = useMemo(() => (pastDueFilter ? combineVulnerabilityWhere({ open: true }, pastDueFilter, searchFilter) : null), [pastDueFilter, searchFilter])
 
   const listWhere = facet === 'critical' ? criticalWhere : facet === 'pastdue' ? pastDueWhere : allWhere
-  const listEnabled = !(facet === 'pastdue' && !pastDueWhere)
+  const queueArgs = { facet, listWhere, allWhere, criticalWhere, pastDueWhere, pastDueFilter, slaDefinitions: slaDefinitionsNodes }
 
-  const { vulnerabilitiesNodes, isLoading, isFetching, hasNextPage, isFetchingNextPage, fetchNextPage } = useVulnerabilitiesInfinite({
-    where: listWhere ?? { open: true },
-    orderBy: ORDER_BY,
-    pageSize: PAGE_SIZE,
-    enabled: listEnabled,
-  })
-
-  const { count: allCount } = useVulnerabilitiesCount(allWhere)
-  const { count: criticalCount } = useVulnerabilitiesCount(criticalWhere)
-  const { count: pastDueCount } = useVulnerabilitiesCount(pastDueWhere, Boolean(pastDueWhere))
+  const vulnQueue = useTriageVulnQueue({ ...queueArgs, enabled: !groupByCve })
+  const cveQueue = useTriageCveGroups({ ...queueArgs, enabled: groupByCve })
+  const { ordered, ...railState }: TTriageQueue<{ id: string }> = groupByCve ? cveQueue : vulnQueue
 
   const { mutateAsync: updateVulnerability, isPending: isUpdating } = useUpdateVulnerability()
   const { reviewedByInput, markReviewed } = useVulnerabilityReviewer()
   const { data: orgPermission } = useOrganizationRoles()
   const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
-
-  const groups = useMemo(() => buildTriageGroups(vulnerabilitiesNodes, slaDefinitionsNodes), [vulnerabilitiesNodes, slaDefinitionsNodes])
-  const displayGroups = useMemo<TriageGroups>(() => (facet === 'pastdue' ? { pastDue: groups.pastDue, open: [], ordered: groups.pastDue } : groups), [facet, groups])
-  const ordered = displayGroups.ordered
 
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [acceptRiskOpen, setAcceptRiskOpen] = useState(false)
@@ -91,18 +87,29 @@ const TriagePage: React.FC = () => {
   const [snoozeTarget, setSnoozeTarget] = useState<TriageVuln | null>(null)
   const [remediateVuln, setRemediateVuln] = useState<{ id: string; name: string; reviewedByUserID?: string | null } | null>(null)
 
+  const lastSelectedIndexRef = useRef(0)
+
   useEffect(() => {
     if (ordered.length === 0) {
       if (selectedId !== null) setSelectedId(null)
       return
     }
-    if (!selectedId || !ordered.some((v) => v.id === selectedId)) {
-      setSelectedId(ordered[0].id)
+    const index = ordered.findIndex((v) => v.id === selectedId)
+    if (index >= 0) {
+      lastSelectedIndexRef.current = index
+      return
     }
+    setSelectedId(ordered[Math.min(lastSelectedIndexRef.current, ordered.length - 1)].id)
   }, [ordered, selectedId])
 
+  const restartQueue = () => {
+    lastSelectedIndexRef.current = 0
+    setSelectedId(null)
+  }
+
   const currentIndex = ordered.findIndex((v) => v.id === selectedId)
-  const selectedVuln = currentIndex >= 0 ? ordered[currentIndex] : undefined
+  const selectedVuln = groupByCve ? undefined : vulnQueue.ordered.find((vuln) => vuln.id === selectedId)
+  const selectedGroup = groupByCve ? cveQueue.ordered.find((group) => group.id === selectedId) : undefined
 
   const { data: selectedPermission } = useAccountRoles(ObjectTypes.VULNERABILITY, selectedVuln?.id)
   const canEditSelected = canEdit(selectedPermission?.roles, session)
@@ -149,40 +156,47 @@ const TriagePage: React.FC = () => {
       <div className="flex h-full min-h-0 overflow-hidden rounded-lg border">
         <div className="w-[340px] shrink-0">
           <TriageListRail
-            groups={displayGroups}
-            counts={{ all: allCount, pastDue: pastDueCount, critical: criticalCount }}
+            {...railState}
             search={search}
             onSearchChange={setSearch}
             facet={facet}
-            onFacetChange={setFacet}
+            onFacetChange={(next) => {
+              restartQueue()
+              setFacet(next)
+            }}
+            groupByCve={groupByCve}
+            onGroupByCveChange={(grouped) => {
+              restartQueue()
+              replaceParams({ [GROUP_BY_PARAM]: grouped ? VulnerabilityGroupByField.CVE_ID : null })
+            }}
             selectedId={selectedId}
             onSelect={setSelectedId}
-            isLoading={listEnabled && (isLoading || (isFetching && ordered.length === 0))}
-            hasMore={Boolean(hasNextPage)}
-            isLoadingMore={isFetchingNextPage}
-            onLoadMore={() => fetchNextPage()}
           />
         </div>
         <div className="flex min-w-0 flex-1 flex-col bg-secondary">
-          {selectedVuln ? (
+          {selectedVuln || selectedGroup ? (
             <>
-              <TriageDetail vuln={selectedVuln} />
+              {selectedGroup ? <TriageGroupDetail key={selectedGroup.id} group={selectedGroup} slaDefinitions={slaDefinitionsNodes} /> : selectedVuln && <TriageDetail vuln={selectedVuln} />}
               <TriageQuickActions
-                assignee={assignee}
-                onAssign={handleAssign}
-                onRemediate={handleRemediate}
-                onAcceptRisk={() => setAcceptRiskOpen(true)}
-                onSnooze={() => {
-                  setSnoozeTarget(selectedVuln)
-                  setSnoozeOpen(true)
-                }}
+                actions={
+                  selectedVuln && {
+                    assignee,
+                    onAssign: handleAssign,
+                    onRemediate: handleRemediate,
+                    onAcceptRisk: () => setAcceptRiskOpen(true),
+                    onSnooze: () => {
+                      setSnoozeTarget(selectedVuln)
+                      setSnoozeOpen(true)
+                    },
+                    canEdit: canEditSelected,
+                    canCreateRemediation,
+                  }
+                }
                 onPrev={() => goToNeighbor(-1)}
                 onNext={() => goToNeighbor(1)}
                 hasPrev={currentIndex > 0}
                 hasNext={currentIndex >= 0 && currentIndex < ordered.length - 1}
                 isBusy={isUpdating}
-                canEdit={canEditSelected}
-                canCreateRemediation={canCreateRemediation}
               />
             </>
           ) : (

@@ -38,10 +38,13 @@ export type TExposureMapState = {
   setView: (view: TExposureView) => void
 }
 
+type TExposureSubject = Pick<TVulnerabilityDetail, 'id' | 'cveID' | 'open' | 'displayName' | 'externalID' | 'displayID'>
+
 type TExposureMapTabProps = {
-  vulnerability: TVulnerabilityDetail
+  vulnerability: TExposureSubject
   canEdit: boolean
   state: TExposureMapState
+  markCurrent?: boolean
 }
 
 const LEGEND = [
@@ -52,10 +55,10 @@ const LEGEND = [
   { key: 'source-owner', swatch: <span className="size-3 rounded-sm border border-dashed border-muted-foreground" />, label: 'Source owner with no asset' },
 ]
 
-const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit, state }) => {
+const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit, state, markCurrent = true }) => {
   const { openOnly, setOpenOnly, view, setView } = state
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set())
-  const exposure = useVulnerabilityExposure({ vulnerabilityId: vulnerability.id, cveID: vulnerability.cveID, isOpen: vulnerability.open !== false, openOnly })
+  const exposure = useVulnerabilityExposure({ vulnerabilityId: vulnerability.id, cveID: vulnerability.cveID, isOpen: vulnerability.open !== false, openOnly, markCurrent })
 
   const [mapReportLimit, setMapReportLimit] = useState(MAP_REPORT_STEP)
   const reportsById = useMemo(() => {

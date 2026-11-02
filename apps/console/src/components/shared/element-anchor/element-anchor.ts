@@ -25,6 +25,7 @@ export type TTableAction =
   | 'export-pdf'
   | 'merge-records'
   | 'send-acknowledgement-request'
+  | 'group-by'
 
 export type TEntityAction = 'create' | 'invite'
 

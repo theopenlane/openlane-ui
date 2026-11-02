@@ -17,6 +17,8 @@ import { getSeverityLabel, getVulnerabilityName, type TriageVuln } from './triag
 
 type Props = {
   vuln: TriageVuln
+  dueLabel?: string
+  children?: React.ReactNode
 }
 
 const ResponsibilityValue: React.FC<{ label: string; selection: ResponsibilitySelection }> = ({ label, selection }) => (
@@ -34,7 +36,7 @@ const StatCard: React.FC<{ label: string; value: React.ReactNode; sub?: React.Re
   </div>
 )
 
-const TriageDetail: React.FC<Props> = ({ vuln }) => {
+const TriageDetail: React.FC<Props> = ({ vuln, dueLabel = 'Due date', children }) => {
   const { data: associations } = useGetVulnerabilityAssociations(vuln.id)
   const { internalOwner, assignee, reviewedBy } = useMemo(() => getVulnerabilityResponsibilities(vuln), [vuln])
   const sheetNav = useSheetNavigation()
@@ -81,7 +83,7 @@ const TriageDetail: React.FC<Props> = ({ vuln }) => {
         <StatCard label="CVSS score" value={typeof vuln.score === 'number' ? vuln.score.toFixed(1) : '—'} sub={<span className="capitalize">{severityLabel}</span>} valueClassName="text-danger" />
         <StatCard label="Exploitability" value={exploitabilityValue} />
         <StatCard
-          label="Due date"
+          label={dueLabel}
           value={dueDate ? dueDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
           sub={<span className={pastDue ? 'text-danger' : ''}>{dueSubtitle}</span>}
         />
@@ -129,6 +131,8 @@ const TriageDetail: React.FC<Props> = ({ vuln }) => {
           <p className="mt-2 text-sm text-muted-foreground">No description provided.</p>
         )}
       </div>
+
+      {children}
     </div>
   )
 }

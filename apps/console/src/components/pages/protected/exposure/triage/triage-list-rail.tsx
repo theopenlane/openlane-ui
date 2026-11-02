@@ -3,17 +3,22 @@
 import React from 'react'
 import { Loader2, Search } from 'lucide-react'
 import { Input } from '@repo/ui/input'
+import { Label } from '@repo/ui/label'
+import { Switch } from '@repo/ui/switch'
 import { getSeverityStyle } from '@/utils/severity'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
-import { getSeverityLabel, getVulnerabilityName, type TriageFacet, type TriageGroups, type TriageVuln } from './triage-utils'
+import { type TriageFacet, type TriageRailRow, type TriageRailSection } from './triage-utils'
 
 type Props = {
-  groups: TriageGroups
+  sections: TriageRailSection[]
   counts: { all: number; pastDue: number; critical: number }
   search: string
   onSearchChange: (value: string) => void
   facet: TriageFacet
   onFacetChange: (facet: TriageFacet) => void
+  groupByCve: boolean
+  onGroupByCveChange: (grouped: boolean) => void
+  notice?: string
   selectedId: string | null
   onSelect: (id: string) => void
   isLoading: boolean
@@ -22,31 +27,22 @@ type Props = {
   onLoadMore: () => void
 }
 
-const getSubline = (vuln: TriageVuln): string => {
-  const parts = [vuln.scopeName, vuln.packageName].filter(Boolean) as string[]
-  if (parts.length) return parts.join(' · ')
-  return vuln.source || vuln.category || '—'
-}
-
-const VulnRow: React.FC<{ vuln: TriageVuln; isSelected: boolean; onSelect: (id: string) => void }> = ({ vuln, isSelected, onSelect }) => {
-  const severityLabel = getSeverityLabel(vuln)
-  return (
-    <button
-      type="button"
-      onClick={() => onSelect(vuln.id)}
-      className={`flex w-full items-center gap-3 border-l-2 px-3 py-2.5 text-left transition-colors ${isSelected ? 'border-brand bg-muted' : 'border-transparent hover:bg-muted/60'}`}
-    >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-sm font-semibold" style={getSeverityStyle(severityLabel)}>
-        {typeof vuln.score === 'number' ? vuln.score.toFixed(1) : '—'}
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium">{getVulnerabilityName(vuln)}</span>
-        <span className="block truncate text-xs text-muted-foreground">{getSubline(vuln)}</span>
-      </span>
-      <PastDueBadge show={vuln.dueInfo.pastDue} />
-    </button>
-  )
-}
+const RailRow: React.FC<{ row: TriageRailRow; isSelected: boolean; onSelect: (id: string) => void }> = ({ row, isSelected, onSelect }) => (
+  <button
+    type="button"
+    onClick={() => onSelect(row.id)}
+    className={`flex w-full items-center gap-3 border-l-2 px-3 py-2.5 text-left transition-colors ${isSelected ? 'border-brand bg-muted' : 'border-transparent hover:bg-muted/60'}`}
+  >
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-sm font-semibold" style={getSeverityStyle(row.severityLabel)}>
+      {typeof row.score === 'number' ? row.score.toFixed(1) : '—'}
+    </span>
+    <span className="min-w-0 flex-1">
+      <span className="block truncate text-sm font-medium">{row.title}</span>
+      <span className="block truncate text-xs text-muted-foreground">{row.subline}</span>
+    </span>
+    <PastDueBadge show={row.pastDue} />
+  </button>
+)
 
 const Section: React.FC<{ title: string; count: number; children: React.ReactNode }> = ({ title, count, children }) => (
   <div>
@@ -57,9 +53,24 @@ const Section: React.FC<{ title: string; count: number; children: React.ReactNod
   </div>
 )
 
-const TriageListRail: React.FC<Props> = ({ groups, counts, search, onSearchChange, facet, onFacetChange, selectedId, onSelect, isLoading, hasMore, isLoadingMore, onLoadMore }) => {
-  const { pastDue, open } = groups
-  const totalShown = pastDue.length + open.length
+const TriageListRail: React.FC<Props> = ({
+  sections,
+  counts,
+  search,
+  onSearchChange,
+  facet,
+  onFacetChange,
+  groupByCve,
+  onGroupByCveChange,
+  notice,
+  selectedId,
+  onSelect,
+  isLoading,
+  hasMore,
+  isLoadingMore,
+  onLoadMore,
+}) => {
+  const totalShown = sections.reduce((total, section) => total + section.rows.length, 0)
 
   const chips: { key: TriageFacet; label: string }[] = [
     { key: 'all', label: `All ${counts.all}` },
@@ -88,6 +99,12 @@ const TriageListRail: React.FC<Props> = ({ groups, counts, search, onSearchChang
             </button>
           ))}
         </div>
+        <div className="flex items-center gap-2">
+          <Switch id="triage-group-by-cve" checked={groupByCve} onCheckedChange={onGroupByCveChange} />
+          <Label htmlFor="triage-group-by-cve" className="text-sm">
+            Group by CVE
+          </Label>
+        </div>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
@@ -97,22 +114,18 @@ const TriageListRail: React.FC<Props> = ({ groups, counts, search, onSearchChang
           </div>
         ) : (
           <>
+            {notice && <p className="px-3 py-2 text-xs text-muted-foreground">{notice}</p>}
             {totalShown === 0 && <p className="p-4 text-sm text-muted-foreground">No vulnerabilities match.</p>}
 
-            {pastDue.length > 0 && (
-              <Section title="Past Due" count={pastDue.length}>
-                {pastDue.map((vuln) => (
-                  <VulnRow key={vuln.id} vuln={vuln} isSelected={vuln.id === selectedId} onSelect={onSelect} />
-                ))}
-              </Section>
-            )}
-
-            {open.length > 0 && (
-              <Section title="Open" count={open.length}>
-                {open.map((vuln) => (
-                  <VulnRow key={vuln.id} vuln={vuln} isSelected={vuln.id === selectedId} onSelect={onSelect} />
-                ))}
-              </Section>
+            {sections.map(
+              (section) =>
+                section.rows.length > 0 && (
+                  <Section key={section.key} title={section.title} count={section.rows.length}>
+                    {section.rows.map((row) => (
+                      <RailRow key={row.id} row={row} isSelected={row.id === selectedId} onSelect={onSelect} />
+                    ))}
+                  </Section>
+                ),
             )}
 
             {hasMore && (
