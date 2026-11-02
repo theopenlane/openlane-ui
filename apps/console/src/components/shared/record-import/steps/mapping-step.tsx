@@ -37,7 +37,7 @@ type TColumnFilter = (typeof COLUMN_FILTERS)[number]
 type TMatchBadge = { label: string; variant: BadgeProps['variant'] }
 
 const matchBadge = (column: TSourceColumn, columnMapping: TColumnMapping | undefined, isDuplicate: boolean, unresolvedValueCount: number): TMatchBadge => {
-  if (isEmptyColumn(column)) return { label: 'Empty', variant: 'outline' }
+  if (isEmptyColumn(column) && !columnMapping?.field) return { label: 'Empty', variant: 'outline' }
   if (isDuplicate) return { label: 'Duplicate', variant: 'destructive' }
   if (!columnMapping?.field) return { label: columnMapping?.confidence === 'manual' ? 'Ignored' : 'No match', variant: 'outline' }
   if (columnMapping.confidence === 'none') return { label: 'No match', variant: 'outline' }
@@ -58,6 +58,7 @@ type TMappingStepProps = {
   entityLabelPlural: string
   columns: TSourceColumn[]
   fields: TDestinationField[]
+  canMapEmptyColumns: boolean
   hasRequirements: boolean
   mapping: Record<number, TColumnMapping>
   validation: TMappingValidation
@@ -73,6 +74,7 @@ export const MappingStep: React.FC<TMappingStepProps> = ({
   entityLabelPlural,
   columns,
   fields,
+  canMapEmptyColumns,
   hasRequirements,
   mapping,
   validation,
@@ -187,6 +189,7 @@ export const MappingStep: React.FC<TMappingStepProps> = ({
                   const columnMapping = mapping[column.index]
                   const hasIssue = validation.columnsWithIssues.has(column.index)
                   const isEmpty = isEmptyColumn(column)
+                  const isLocked = isEmpty && !canMapEmptyColumns
                   const badge = matchBadge(column, columnMapping, validation.duplicateColumns.has(column.index), validation.unresolvedValueCounts.get(column.index) ?? 0)
                   const selectedField = columnMapping?.field ? fieldByName.get(columnMapping.field) : undefined
                   const cellCheck = cellChecks.get(column.index)
@@ -203,7 +206,7 @@ export const MappingStep: React.FC<TMappingStepProps> = ({
                         MAPPING_ROW_GRID,
                         'border-b px-4 py-3 last:border-b-0',
                         hasIssue && 'bg-[var(--color-danger)]/5',
-                        isEmpty && 'opacity-60',
+                        isLocked && 'opacity-60',
                         highlightedColumn === column.index && 'ring-1 ring-primary',
                       )}
                     >
@@ -228,10 +231,10 @@ export const MappingStep: React.FC<TMappingStepProps> = ({
                           className="min-w-0 flex-1"
                           value={columnMapping?.field ?? ''}
                           options={options}
-                          placeholder={isEmpty ? 'Nothing to import' : 'Ignore this column'}
+                          placeholder={isLocked ? 'Nothing to import' : 'Ignore this column'}
                           clearable
                           clearLabel="Ignore this column"
-                          disabled={isEmpty}
+                          disabled={isLocked}
                           ariaLabel={`Import "${column.header}" as a ${entityLabel} field`}
                           onChange={(value) => changeColumnField(column.index, value || null)}
                         />

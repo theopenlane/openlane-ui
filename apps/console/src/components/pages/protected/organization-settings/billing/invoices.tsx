@@ -22,7 +22,7 @@ const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | unde
           Recent Invoices
         </h2>
         {stripeCustomerId && (
-          <Button className="h-8 p-2" loading={redirecting} disabled={redirecting} onClick={() => openBillingPortal(stripeCustomerId, true)}>
+          <Button className="h-8 p-2" loading={redirecting} disabled={redirecting} onClick={() => openBillingPortal(true)}>
             View all in stripe
           </Button>
         )}

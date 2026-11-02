@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
+import Script from 'next/script'
 import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import { chatAppId } from '@repo/dally/auth'
@@ -12,6 +13,7 @@ export const InitPlugSDK = () => {
   const { getOrganizationByID, currentOrgId } = useOrganization()
 
   const [sessionToken, setSessionToken] = useState<string | null>(null)
+  const [isPlugReady, setIsPlugReady] = useState(false)
   const lastInitRef = useRef<string | null>(null) // new
 
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
@@ -41,7 +43,7 @@ export const InitPlugSDK = () => {
   }, [status, session, currentOrgId, orgName, orgDisplayName])
 
   useEffect(() => {
-    if (!sessionToken || !resolvedTheme || !chatAppId || typeof window === 'undefined' || typeof window.plugSDK?.init !== 'function') {
+    if (!isPlugReady || !sessionToken || !resolvedTheme || !chatAppId || typeof window === 'undefined' || typeof window.plugSDK?.init !== 'function') {
       return
     }
 
@@ -60,7 +62,7 @@ export const InitPlugSDK = () => {
 
     window.plugSDK.__plug_initialized__ = true
     lastInitRef.current = currentInitKey
-  }, [sessionToken, resolvedTheme, currentOrgId])
+  }, [isPlugReady, sessionToken, resolvedTheme, currentOrgId])
 
-  return null
+  return <Script src="https://plug-platform.devrev.ai/static/plug.js" onReady={() => setIsPlugReady(true)} />
 }

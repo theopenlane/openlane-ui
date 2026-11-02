@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import { createControl, createRisk, getOwnerApi, readField } from '../utils/api'
 import { uniqueName, uniqueRef } from '../utils/unique'
-import { expectImportPage, uploadCsvAndAssert, uploadCsvToSingleStepDialogAndAssert } from '../utils/mutations'
+import { expectImportPage, uploadCsvAndAssert } from '../utils/mutations'
 
 interface BulkCsvCase {
   slug: string
@@ -197,16 +197,17 @@ test.describe('bulk CSV imports — bespoke import pages', () => {
     await page.getByRole('button', { name: 'Action' }).click()
     await page.getByRole('button', { name: 'Update Existing Controls' }).click()
 
-    const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading', { name: 'Bulk Update Controls' })).toBeVisible({ timeout: 30_000 })
+    const scope = await expectImportPage(page, 'control', /^Update existing controls$/)
 
-    await uploadCsvToSingleStepDialogAndAssert({
+    await uploadCsvAndAssert({
       page,
-      dialog,
+      scope,
       fileName: 'controls-update.csv',
       rows: `ID,Description\n${id},${description}\n`,
       operationName: 'UpdateBulkCSVControl',
-      expectToast: 'Controls Updated',
+      expectToast: 'Controls updated',
+      returnsTo: '/controls',
+      startLabel: /^Update \d/,
     })
 
     await expect.poll(async () => readField(ownerApi, 'control', id, 'description'), { timeout: 60_000 }).toBe(description)

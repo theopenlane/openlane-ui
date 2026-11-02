@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
+import OfficialOnly from '@/components/shared/official-only/official-only'
 import { authStyles } from './auth.styles'
 import { Button } from '@repo/ui/button'
 import Triangle from '@/assets/Triangle'
@@ -30,13 +31,15 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
       {children}
 
-      <div className={closeButton()} style={{ transform: `translateY(var(${GLOBAL_BANNER_HEIGHT_VAR}, 0px))` }}>
-        <Link href={OPENLANE_WEBSITE_URL}>
-          <Button className="!py-2 !px-1.5 !h-8 bg-transparent" variant="outline" icon={<ArrowLeft size={16} />} iconPosition="left">
-            Back to Home
-          </Button>
-        </Link>
-      </div>
+      <OfficialOnly>
+        <div className={closeButton()} style={{ transform: `translateY(var(${GLOBAL_BANNER_HEIGHT_VAR}, 0px))` }}>
+          <Link href={OPENLANE_WEBSITE_URL}>
+            <Button className="!py-2 !px-1.5 !h-8 bg-transparent" variant="outline" icon={<ArrowLeft size={16} />} iconPosition="left">
+              Back to Home
+            </Button>
+          </Link>
+        </div>
+      </OfficialOnly>
     </div>
   )
 }

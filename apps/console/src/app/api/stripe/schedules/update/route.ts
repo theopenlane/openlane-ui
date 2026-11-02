@@ -1,5 +1,6 @@
-import { auth } from '@/lib/auth/auth'
-import { getStripe } from '@/lib/stripe'
+import { billingResourceNotFound, withBillingCustomer } from '@/lib/server/billing-customer'
+import { getStripe, retrieveCustomerSchedule } from '@/lib/stripe'
+import { fetchCatalogPrices } from '@/lib/server/product-catalog'
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 
@@ -12,13 +13,7 @@ interface RequestBody {
   action: Action
 }
 
-export async function POST(req: Request) {
-  // ensure we have a valid session
-  const session = await auth()
-  if (!session || !session.user?.accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
+export const POST = withBillingCustomer(async (customerId, req) => {
   try {
     const { scheduleId, priceId, quantity = 1, action } = (await req.json()) as RequestBody
 
@@ -26,7 +21,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'scheduleId, priceId and action are required' }, { status: 400 })
     }
 
-    let schedule = (await getStripe().subscriptionSchedules.retrieve(scheduleId)) as Stripe.SubscriptionSchedule
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      return NextResponse.json({ error: 'quantity must be a positive whole number' }, { status: 400 })
+    }
+
+    if (action === 'subscribe' && !(await fetchCatalogPrices()).has(priceId)) {
+      return NextResponse.json({ error: 'This price is not available for purchase' }, { status: 400 })
+    }
+
+    let schedule = await retrieveCustomerSchedule(scheduleId, customerId)
+    if (!schedule) {
+      return billingResourceNotFound()
+    }
 
     const newPrice = (await getStripe().prices.retrieve(priceId)) as Stripe.Price
 
@@ -128,4 +134,4 @@ export async function POST(req: Request) {
     console.error('❌ Failed to update schedule:', err)
     return NextResponse.json({ error: 'Schedule update failed' }, { status: 500 })
   }
-}
+})

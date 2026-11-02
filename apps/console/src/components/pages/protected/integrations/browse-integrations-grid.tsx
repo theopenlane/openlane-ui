@@ -10,6 +10,7 @@ import AvailableIntegrationCard from './available-integration-card'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import BrowseIntegrationsFilters from './browse-integrations-filters'
 import { INFO_EMAIL } from '@/constants'
+import OfficialOnly from '@/components/shared/official-only/official-only'
 import { OTHER_TAG_SECTION_META, TAG_SECTIONS, type TagSectionMeta } from './integration-tag-pill'
 
 const COLLAPSED_SECTION_SIZE = 3
@@ -125,7 +126,7 @@ export const BrowseIntegrationsGrid = ({ availableIntegrations, statusFilter, se
         </div>
       )}
       {statusFilter === 'All' && activeFilterHints.length === 0 && (
-        <>
+        <OfficialOnly>
           <Separator className="my-1" />
           <Card className="flex items-center justify-between p-6 transition-all duration-200 hover:-translate-y-1 hover:border-primary">
             <div>
@@ -136,7 +137,7 @@ export const BrowseIntegrationsGrid = ({ availableIntegrations, statusFilter, se
               <Button variant="secondary">Request</Button>
             </a>
           </Card>
-        </>
+        </OfficialOnly>
       )}
     </div>
   )

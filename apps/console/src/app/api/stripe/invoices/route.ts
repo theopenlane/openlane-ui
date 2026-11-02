@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth/auth'
+import { withBillingCustomer } from '@/lib/server/billing-customer'
 import { type Invoice } from '@/types/stripe'
 import { getStripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
@@ -8,19 +8,9 @@ const DEFAULT_INVOICE_LIMIT = 10
 const MAX_INVOICE_LIMIT = 100
 const INVOICE_STATUSES: Stripe.InvoiceListParams.Status[] = ['draft', 'open', 'paid', 'uncollectible', 'void']
 
-export async function POST(req: Request) {
-  // ensure we have a valid session
-  const session = await auth()
-  if (!session || !session.user?.accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
+export const POST = withBillingCustomer(async (customerId, req) => {
   try {
-    const { customerId, status, limit } = (await req.json()) as { customerId?: string; status?: string; limit?: number }
-
-    if (!customerId) {
-      return NextResponse.json({ error: 'Missing customerId' }, { status: 400 })
-    }
+    const { status, limit } = (await req.json()) as { status?: string; limit?: number }
 
     const requestedStatus = INVOICE_STATUSES.find((invoiceStatus) => invoiceStatus === status)
 
@@ -47,4 +37,4 @@ export async function POST(req: Request) {
     console.error('❌ Stripe invoices error:', err)
     return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 })
   }
-}
+})

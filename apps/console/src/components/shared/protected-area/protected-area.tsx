@@ -5,6 +5,7 @@ import React from 'react'
 import { OrgMembershipRole } from '@repo/codegen/src/schema.ts'
 import { useRouter } from 'next/navigation'
 import { SUPPORT_URL } from '@/constants'
+import OfficialOnly from '@/components/shared/official-only/official-only'
 import Link from 'next/link'
 import { saveFilters, type TFilterStateFor } from '@/components/shared/table-filter/filter-storage.ts'
 import { type TMemberFilterKey } from '@/components/pages/protected/user-management/members/table/table-config.ts'
@@ -39,11 +40,14 @@ const ProtectedArea: React.FC = () => {
           If you think this is a mistake,{' '}
           <Link href={`/user-management/members`} className="underline" onClick={handleClick}>
             reach out to your org owner
-          </Link>{' '}
-          or{' '}
-          <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="underline">
-            contact support
-          </a>
+          </Link>
+          <OfficialOnly>
+            {' '}
+            or{' '}
+            <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="underline">
+              contact support
+            </a>
+          </OfficialOnly>
           .
         </>
       }

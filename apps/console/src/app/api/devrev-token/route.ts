@@ -1,7 +1,12 @@
 import { auth } from '@/lib/auth/auth'
 import { type NextRequest, NextResponse } from 'next/server'
+import { isOfficialHost } from '@repo/ui/lib/official-deployment'
 
 export async function GET(req: NextRequest) {
+  if (!isOfficialHost(req.nextUrl.hostname)) {
+    return NextResponse.json({ error: 'Openlane support chat is only available on official Openlane deployments' }, { status: 403 })
+  }
+
   const session = await auth()
   if (!session || !session.user?.accessToken) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

@@ -12,7 +12,6 @@ export const TRUST_CENTER_DOCS_URL = `${PLATFORM_DOCS_URL}/trust-center/overview
 
 // specific doc links
 export const POLICY_MANAGEMENT_DOCS_URL = `${PLATFORM_DOCS_URL}/compliance-management/policy-and-procedure-management`
-export const IMPORT_CONTROL_DOCS_URL = `${PLATFORM_DOCS_URL}/compliance-management/controls/import`
 export const GROUP_PERMISSIONS_DOCS_URL = `${PLATFORM_DOCS_URL}/basics/groups/permissions`
 export const PROGRAM_DOCS_URL = `${COMPLIANCE_MANAGEMENT_DOCS_URL}/programs/overview`
 export const PERMISSIONS_MODEL_DOCS_URL = `${PLATFORM_DOCS_URL}/settings/authorization/overview`

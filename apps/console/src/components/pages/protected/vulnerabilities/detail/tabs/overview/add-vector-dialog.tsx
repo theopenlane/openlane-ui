@@ -10,7 +10,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CVSS_VECTOR_ERROR, explainCvssVector, parseCvssVector } from '@/utils/cvss-vector'
 
 type TAddVectorDialogProps = {
-  onSave: (vector: string) => Promise<void>
+  onSave: (vector: string) => Promise<boolean>
 }
 
 const AddVectorDialog: React.FC<TAddVectorDialogProps> = ({ onSave }) => {
@@ -40,14 +40,9 @@ const AddVectorDialog: React.FC<TAddVectorDialogProps> = ({ onSave }) => {
       return
     }
     setIsSaving(true)
-    try {
-      await onSave(trimmed)
-      handleOpenChange(false)
-    } catch {
-      return
-    } finally {
-      setIsSaving(false)
-    }
+    const saved = await onSave(trimmed)
+    setIsSaving(false)
+    if (saved) handleOpenChange(false)
   }
 
   return (

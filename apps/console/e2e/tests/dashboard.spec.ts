@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test'
 import { test as freshTest } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import { seedLoggedInUser } from '../utils/seedUser'
+import { isUnofficialDeployment } from '../utils/official-deployment'
 
 test.describe('dashboard — render', () => {
   test('/dashboard renders the "Welcome, ..." headline for an onboarded user', async ({ page }) => {
@@ -133,6 +134,8 @@ freshTest.describe('dashboard — setup checklist branch', () => {
       await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
       await expect(setup).toBeVisible({ timeout: 10_000 })
     }).toPass({ timeout: 120_000 })
+
+    freshTest.skip(await isUnofficialDeployment(page), 'the Contact Us link only renders on official deployments')
 
     await expect(main.getByText(/^\d+ of \d+ completed$/)).toBeVisible()
     await expect(main.getByText('Complete these tasks to get the most out of Openlane')).toBeVisible()

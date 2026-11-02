@@ -1,24 +1,11 @@
 import { getStripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
-import { auth } from '@/lib/auth/auth'
+import { withBillingCustomer } from '@/lib/server/billing-customer'
 
-export async function POST(req: Request) {
-  // ensure we have a valid session
-  const session = await auth()
-  if (!session || !session.user?.accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
+export const POST = withBillingCustomer(async (customerId, req) => {
   try {
-    const { customerId, isBillingSettings } = (await req.json()) as {
-      customerId?: string
-      isBillingSettings?: boolean
-    }
-
-    if (!customerId) {
-      return NextResponse.json({ error: 'Missing customerId' }, { status: 400 })
-    }
+    const { isBillingSettings } = (await req.json()) as { isBillingSettings?: boolean }
 
     // ✅ Derive base URL dynamically
     const headersList = await headers()
@@ -56,4 +43,4 @@ export async function POST(req: Request) {
     console.error('❌ Stripe portal error:', err)
     return NextResponse.json({ error: 'Failed to create portal session' }, { status: 500 })
   }
-}
+})

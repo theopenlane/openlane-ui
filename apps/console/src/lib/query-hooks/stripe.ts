@@ -17,7 +17,7 @@ const schedulesQueryOptions = (customerId?: string | null) =>
     queryKey: ['stripe-schedules', customerId],
     queryFn: async (): Promise<SubscriptionSchedulesResponse> => {
       if (!customerId) return []
-      const res = await fetch(`/api/stripe/schedules?customerId=${customerId}`)
+      const res = await fetch('/api/stripe/schedules')
       if (!res.ok) throw new Error('Failed to fetch schedules')
       return res.json() as Promise<SubscriptionSchedulesResponse>
     },
@@ -30,11 +30,11 @@ export const findManageableSchedule = (schedules?: SubscriptionSchedulesResponse
 
 export const useBillingPortalMutation = () =>
   useMutation({
-    mutationFn: async ({ customerId, fullPortal = false }: { customerId: string; fullPortal?: boolean }): Promise<string> => {
+    mutationFn: async ({ fullPortal = false }: { fullPortal?: boolean }): Promise<string> => {
       const res = await fetch('/api/stripe/create-portal-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerId, isBillingSettings: fullPortal }),
+        body: JSON.stringify({ isBillingSettings: fullPortal }),
       })
       const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string }
       if (!res.ok || !data.url) {
@@ -55,7 +55,7 @@ export function useUpcomingInvoiceQuery({ customerId, scheduleId, subscriptionId
     queryKey: ['stripe-upcoming-invoice', customerId, scheduleId, subscriptionId],
     queryFn: async () => {
       if (!customerId || (!scheduleId && !subscriptionId)) return null
-      const params = new URLSearchParams({ customerId })
+      const params = new URLSearchParams()
       if (scheduleId) {
         params.set('scheduleId', scheduleId)
       } else if (subscriptionId) {
@@ -184,7 +184,7 @@ export function useSubscriptionQuery(customerId?: string | null, subscriptionId?
     queryKey: ['stripe-subscription', customerId, subscriptionId],
     queryFn: async () => {
       if (!customerId) return null
-      const params = new URLSearchParams({ customer: customerId })
+      const params = new URLSearchParams()
       if (subscriptionId) {
         params.set('subscription', subscriptionId)
       }
@@ -210,7 +210,7 @@ export function usePaymentMethodsQuery(customerId?: string | null) {
         }
       }
 
-      const res = await fetch(`/api/stripe/payment-methods?customerId=${customerId}`)
+      const res = await fetch('/api/stripe/payment-methods')
       if (!res.ok) {
         const error = await res.json().catch(() => ({}))
         throw new Error(error.error || 'Failed to fetch payment methods')
@@ -238,7 +238,7 @@ const invoicesQueryOptions = ({ customerId, status, limit = DEFAULT_INVOICE_LIMI
       const res = await fetch(`/api/stripe/invoices`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerId, status, limit }),
+        body: JSON.stringify({ status, limit }),
       })
 
       if (!res.ok) {

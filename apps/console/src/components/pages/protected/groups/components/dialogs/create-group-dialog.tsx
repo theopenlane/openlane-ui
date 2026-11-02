@@ -132,7 +132,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
         </DialogTrigger>
       )}
 
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[480px] overflow-visible">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Create a new group</DialogTitle>
         </DialogHeader>

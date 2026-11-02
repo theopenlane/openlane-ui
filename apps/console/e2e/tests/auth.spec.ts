@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { emailFor, PASSWORD } from '../utils/constants'
+import { CONFIRM_PASSWORD_INPUT, emailFor, LOGIN_EMAIL_INPUT, PASSWORD, PASSWORD_INPUT, SIGNUP_EMAIL_INPUT } from '../utils/constants'
 import { loginViaForm, waitForLoginMethodCheck } from '../utils/login'
 import { installRecaptchaShim } from '../utils/recaptcha'
 import { registerAndVerify } from '../utils/registerUser'
@@ -24,11 +24,11 @@ test.describe('auth — login', () => {
     await page.goto('/login')
 
     const loginMethodCheck = waitForLoginMethodCheck(page)
-    await page.getByPlaceholder(/Enter your email/i).fill(registeredEmail)
+    await page.locator(LOGIN_EMAIL_INPUT).fill(registeredEmail)
     const response = await loginMethodCheck
 
     expect(response.ok()).toBe(true)
-    await expect(page.locator('input[name="password"]')).toBeAttached()
+    await expect(page.locator(PASSWORD_INPUT)).toBeAttached()
     await expect(page).toHaveURL(/\/login(\?|$)/)
   })
 
@@ -50,7 +50,7 @@ test.describe('auth — login', () => {
 
     const unknown = `nobody-${Date.now().toString(36)}@openlane.test`
     const loginMethodCheck = waitForLoginMethodCheck(page)
-    await page.getByPlaceholder(/Enter your email/i).fill(unknown)
+    await page.locator(LOGIN_EMAIL_INPUT).fill(unknown)
     await loginMethodCheck
 
     await expect(page).toHaveURL(/\/login(\?|$)/)
@@ -73,9 +73,9 @@ test.describe('auth — login', () => {
     await page.goto('/login?redirect=/policies')
 
     const loginMethodCheck = waitForLoginMethodCheck(page)
-    await page.getByPlaceholder(/Enter your email/i).fill(email)
+    await page.locator(LOGIN_EMAIL_INPUT).fill(email)
     await loginMethodCheck
-    await page.locator('input[name="password"]').fill(PASSWORD)
+    await page.locator(PASSWORD_INPUT).fill(PASSWORD)
     await page.getByRole('button', { name: /^login$/i }).click()
 
     await expect(page).toHaveURL(/\/policies(\?|$)/, { timeout: 15_000 })
@@ -92,10 +92,10 @@ test.describe('auth — signup', () => {
     // Use a unique invalid-domain email so we don't pollute auto-join org allow-lists
     const email = `e2e-signup-${Date.now().toString(36)}@signup.invalid`
 
-    await page.getByPlaceholder(/^enter your email$/i).fill(email)
+    await page.locator(SIGNUP_EMAIL_INPUT).fill(email)
 
-    await page.locator('input[name="password"]').fill(PASSWORD)
-    await page.locator('input[name="confirmedPassword"]').fill(PASSWORD)
+    await page.locator(PASSWORD_INPUT).fill(PASSWORD)
+    await page.locator(CONFIRM_PASSWORD_INPUT).fill(PASSWORD)
 
     await page.getByRole('button', { name: /^sign up$/i }).click()
 
@@ -108,9 +108,9 @@ test.describe('auth — signup', () => {
     await page.goto('/signup')
 
     const email = `e2e-mismatch-${Date.now().toString(36)}@signup.invalid`
-    await page.getByPlaceholder(/^enter your email$/i).fill(email)
-    await page.locator('input[name="password"]').fill(PASSWORD)
-    await page.locator('input[name="confirmedPassword"]').fill('different-password-1234')
+    await page.locator(SIGNUP_EMAIL_INPUT).fill(email)
+    await page.locator(PASSWORD_INPUT).fill(PASSWORD)
+    await page.locator(CONFIRM_PASSWORD_INPUT).fill('different-password-1234')
 
     await page.getByRole('button', { name: /^sign up$/i }).click()
 
@@ -125,9 +125,9 @@ test.describe('auth — signup', () => {
     await installRecaptchaShim(page)
     await page.goto('/signup')
 
-    await page.getByPlaceholder(/^enter your email$/i).fill(email)
-    await page.locator('input[name="password"]').fill(PASSWORD)
-    await page.locator('input[name="confirmedPassword"]').fill(PASSWORD)
+    await page.locator(SIGNUP_EMAIL_INPUT).fill(email)
+    await page.locator(PASSWORD_INPUT).fill(PASSWORD)
+    await page.locator(CONFIRM_PASSWORD_INPUT).fill(PASSWORD)
 
     await page.getByRole('button', { name: /^sign up$/i }).click()
 
@@ -141,8 +141,8 @@ test.describe('auth — password input toggle', () => {
     await installRecaptchaShim(page)
     await page.goto('/signup')
 
-    await page.getByPlaceholder(/^enter your email$/i).fill('toggle-test@signup.invalid')
-    const passwordField = page.locator('input[name="password"]')
+    await page.locator(SIGNUP_EMAIL_INPUT).fill('toggle-test@signup.invalid')
+    const passwordField = page.locator(PASSWORD_INPUT)
     await expect(passwordField).toBeVisible({ timeout: 10_000 })
     await expect(passwordField).toHaveAttribute('type', 'password')
 
@@ -173,7 +173,7 @@ test.describe('auth — /login render', () => {
     await page.goto('/login')
 
     await expect(page.getByText(/^Login to your account$/)).toBeVisible()
-    await expect(page.getByPlaceholder(/^enter your email$/i)).toBeVisible()
+    await expect(page.locator(LOGIN_EMAIL_INPUT)).toBeVisible()
 
     await expect(page.getByRole('button', { name: /^google$/i })).toBeVisible()
     await expect(page.getByRole('button', { name: /^github$/i })).toBeVisible()
@@ -293,10 +293,10 @@ test.describe('auth — login method selection (ISS-2475)', () => {
     await page.goto('/login')
 
     const loginMethodCheck = waitForLoginMethodCheck(page)
-    await page.getByPlaceholder(/Enter your email/i).fill(ssoTestEmail)
+    await page.locator(LOGIN_EMAIL_INPUT).fill(ssoTestEmail)
     await loginMethodCheck
 
-    await expect(page.locator('input[name="password"]')).toBeAttached({ timeout: 15_000 })
+    await expect(page.locator(PASSWORD_INPUT)).toBeAttached({ timeout: 15_000 })
 
     await expect(page.getByRole('button', { name: /Continue with SSO/i })).toHaveCount(0)
     await expect(page.getByText(/Switch to SSO/i)).toHaveCount(0)
@@ -306,9 +306,9 @@ test.describe('auth — login method selection (ISS-2475)', () => {
     await page.goto('/login')
 
     const loginMethodCheck = waitForLoginMethodCheck(page)
-    await page.getByPlaceholder(/Enter your email/i).fill(ssoTestEmail)
+    await page.locator(LOGIN_EMAIL_INPUT).fill(ssoTestEmail)
     await loginMethodCheck
-    await expect(page.locator('input[name="password"]')).toBeAttached({ timeout: 15_000 })
+    await expect(page.locator(PASSWORD_INPUT)).toBeAttached({ timeout: 15_000 })
 
     await expect(page.getByText(/Switch to password/i)).toHaveCount(0)
   })

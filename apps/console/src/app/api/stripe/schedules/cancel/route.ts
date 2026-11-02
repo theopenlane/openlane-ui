@@ -1,15 +1,9 @@
-import { auth } from '@/lib/auth/auth'
-import { getStripe } from '@/lib/stripe'
+import { billingResourceNotFound, withBillingCustomer } from '@/lib/server/billing-customer'
+import { getStripe, retrieveCustomerSchedule } from '@/lib/stripe'
 import { type ExtendedPhase } from '@/types/stripe'
 import { NextResponse } from 'next/server'
 
-export async function POST(req: Request) {
-  // ensure we have a valid session
-  const session = await auth()
-  if (!session || !session.user?.accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
+export const POST = withBillingCustomer(async (customerId, req) => {
   try {
     const { scheduleId } = (await req.json()) as { scheduleId?: string }
 
@@ -17,7 +11,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'scheduleId required' }, { status: 400 })
     }
 
-    const schedule = await getStripe().subscriptionSchedules.retrieve(scheduleId)
+    const schedule = await retrieveCustomerSchedule(scheduleId, customerId)
+    if (!schedule) {
+      return billingResourceNotFound()
+    }
     const currentPhase: ExtendedPhase = schedule.phases?.[0]
     if (!currentPhase) {
       return NextResponse.json({ error: 'No active phase found' }, { status: 404 })
@@ -43,4 +40,4 @@ export async function POST(req: Request) {
     console.error('❌ Cancel subscription failed:', err)
     return NextResponse.json({ error: 'Failed to cancel subscription' }, { status: 500 })
   }
-}
+})

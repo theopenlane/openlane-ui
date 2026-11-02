@@ -6,6 +6,8 @@ import { pirschAnalyticsKey, recaptchaSiteKey } from '@repo/dally/auth'
 import Script from 'next/script'
 import type { Metadata } from 'next'
 import GlobalBanners from '@/components/shared/global-banners/global-banners'
+import OfficialOnly from '@/components/shared/official-only/official-only'
+import UnofficialDeploymentBanner from '@/components/shared/global-banners/unofficial-deployment-banner'
 import '@repo/ui/styles.css'
 
 const imageWidth = '1200'
@@ -43,8 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
     <html className="h-screen relative" lang="en" suppressHydrationWarning>
       <head>
         {recaptchaSiteKey && <Script src={`https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`} strategy="lazyOnload" />}
-        {pirschAnalyticsKey && <Script defer src="https://api.pirsch.io/pa.js" id="pianjs" data-code={pirschAnalyticsKey} strategy="lazyOnload" />}
-        <Script src={`https://plug-platform.devrev.ai/static/plug.js`} typeof="text/javascript"></Script>
+        <OfficialOnly strict>{pirschAnalyticsKey && <Script defer src="https://api.pirsch.io/pa.js" id="pianjs" data-code={pirschAnalyticsKey} strategy="lazyOnload" />}</OfficialOnly>
       </head>
       <body className={`${outfit.variable} ${mincho.variable} ${jetBrainsMono.variable} font-sans w-full overscroll-none`}>
         <GlobalBanners />
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
           <Providers>{children}</Providers>
           <Toaster />
         </SessionProvider>
+        <UnofficialDeploymentBanner />
       </body>
     </html>
   )

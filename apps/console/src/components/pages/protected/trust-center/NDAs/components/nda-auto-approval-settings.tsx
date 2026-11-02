@@ -11,6 +11,7 @@ import CollapsibleSection from '@/components/shared/collapsible-section/collapsi
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { NdaAutoApprovalRuleRow } from './nda-auto-approval-rule-row'
 import { NdaSwitchRow } from './nda-switch-row'
+import { NdaAutoApprovalRulesSummary } from './nda-auto-approval-rules-summary'
 import {
   AUTO_APPROVAL_FALLBACK_RULE,
   AUTO_APPROVAL_RULE_GROUPS,
@@ -102,7 +103,7 @@ export const NdaAutoApprovalSettings = ({ setting, readOnly, isSaving, onUpdate 
 
       {showRules && (
         <div className="px-3 pb-3">
-          <CollapsibleSection label="Approval rules" open={isExpanded} onOpenChange={setIsExpanded}>
+          <CollapsibleSection label="Approval rules" open={isExpanded} onOpenChange={setIsExpanded} summary={<NdaAutoApprovalRulesSummary rules={rules} />}>
             <div className="space-y-4">
               <section className="space-y-2">
                 <h4 className="px-1 text-sm font-medium">When no rule approves a request</h4>

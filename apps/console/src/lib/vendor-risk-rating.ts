@@ -1,5 +1,6 @@
-import { type UpdateEntityInput } from '@repo/codegen/src/schema'
+import { type UpdateEntityInput, VendorRiskScoreVendorRiskImpact, VendorRiskScoreVendorRiskLikelihood } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { type TSeverityLevel } from '@/utils/severity'
 
 export const VendorRiskRating = {
   NONE: 'NONE',
@@ -19,6 +20,44 @@ const RISK_RATING_THRESHOLDS: { rating: TVendorRiskRating; maxScore: number }[] 
   { rating: VendorRiskRating.MEDIUM, maxScore: 11 },
   { rating: VendorRiskRating.HIGH, maxScore: 15 },
 ]
+
+const highestThreshold = RISK_RATING_THRESHOLDS[RISK_RATING_THRESHOLDS.length - 1]
+
+export const RISK_RATING_BANDS: { rating: TVendorRiskRating; bound: string }[] = [
+  ...RISK_RATING_THRESHOLDS.map(({ rating, maxScore }) => ({ rating, bound: `≤${maxScore}` })),
+  { rating: VendorRiskRating.CRITICAL, bound: `>${highestThreshold.maxScore}` },
+]
+
+export const VENDOR_RISK_RATING_SEVERITY: Record<TVendorRiskRating, TSeverityLevel | 'none'> = {
+  NONE: 'none',
+  VERY_LOW: 'low',
+  LOW: 'low',
+  MEDIUM: 'medium',
+  HIGH: 'high',
+  CRITICAL: 'critical',
+}
+
+export const vendorRiskRatingLevel = (rating: string): TSeverityLevel | 'none' | undefined => (isVendorRiskRating(rating) ? VENDOR_RISK_RATING_SEVERITY[rating] : undefined)
+
+const VENDOR_RISK_IMPACT_SEVERITY: Record<VendorRiskScoreVendorRiskImpact, TSeverityLevel> = {
+  [VendorRiskScoreVendorRiskImpact.VERY_LOW]: 'low',
+  [VendorRiskScoreVendorRiskImpact.LOW]: 'low',
+  [VendorRiskScoreVendorRiskImpact.MEDIUM]: 'medium',
+  [VendorRiskScoreVendorRiskImpact.HIGH]: 'high',
+  [VendorRiskScoreVendorRiskImpact.CRITICAL]: 'critical',
+}
+
+const VENDOR_RISK_LIKELIHOOD_SEVERITY: Record<VendorRiskScoreVendorRiskLikelihood, TSeverityLevel> = {
+  [VendorRiskScoreVendorRiskLikelihood.VERY_LOW]: 'low',
+  [VendorRiskScoreVendorRiskLikelihood.LOW]: 'low',
+  [VendorRiskScoreVendorRiskLikelihood.MEDIUM]: 'medium',
+  [VendorRiskScoreVendorRiskLikelihood.HIGH]: 'high',
+  [VendorRiskScoreVendorRiskLikelihood.VERY_HIGH]: 'critical',
+}
+
+export const vendorRiskImpactLevel = (impact: VendorRiskScoreVendorRiskImpact): TSeverityLevel | undefined => VENDOR_RISK_IMPACT_SEVERITY[impact]
+
+export const vendorRiskLikelihoodLevel = (likelihood: VendorRiskScoreVendorRiskLikelihood): TSeverityLevel | undefined => VENDOR_RISK_LIKELIHOOD_SEVERITY[likelihood]
 
 export const VENDOR_RISK_RATING_OPTIONS = enumToOptions(VendorRiskRating)
 

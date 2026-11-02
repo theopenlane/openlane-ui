@@ -39,15 +39,18 @@ const VendorContactsImportPage = dynamic(() => import('@/components/pages/protec
 const TrustCenterSubscribersImportPage = dynamic(() => import('@/components/pages/protected/trust-center/subscribers/import/trust-center-subscribers-import-page'), { loading })
 
 const ControlsFromStandardsImportPage = dynamic(() => import('@/components/pages/protected/controls/import/control-standards-import-page'), { loading })
+const ControlUpdateImportPage = dynamic(() => import('@/components/pages/protected/controls/import/control-update-import-page'), { loading })
 
 const VendorContactsRunner: React.FC<{ value: string }> = ({ value }) => <VendorContactsImportPage vendorId={value} />
 const TrustCenterSubscribersRunner: React.FC<{ value: string }> = ({ value }) => <TrustCenterSubscribersImportPage trustCenterId={value} />
 const ControlsFromStandardsRunner: React.FC = () => <ControlsFromStandardsImportPage />
+const ControlsUpdateRunner: React.FC = () => <ControlUpdateImportPage />
 
 const SCOPED_IMPORT_RUNNERS: Record<TImportScopeKey, ComponentType<{ value: string }>> = {
   vendorContacts: VendorContactsRunner,
   trustCenterSubscribers: TrustCenterSubscribersRunner,
   controlsFromStandards: ControlsFromStandardsRunner,
+  controlsUpdate: ControlsUpdateRunner,
 }
 
 type TImportRunnerProps = {

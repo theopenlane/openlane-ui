@@ -71,6 +71,7 @@
     "./lib/utils": "./lib/utils.ts",
     "./lib/windowResize": "./lib/windowResize.tsx",
     "./lib/chartUtils": "./lib/chartUtils.tsx",
+    "./lib/official-deployment": "./lib/official-deployment.ts",
     "./pagination": "./src/pagination/pagination.tsx",
     "./pagination-types": "./src/pagination/types.ts",
     "./components/*": "./src/components/*",

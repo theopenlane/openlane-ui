@@ -290,7 +290,6 @@ function SortableHeaderCell<TData extends RowData>({ header, sortField, sorting,
             style={{ flex: '1 1 auto' }}
             title={sortField ? `Sort by ${sortField.label}` : undefined}
             role={sortField ? 'button' : undefined}
-            aria-disabled={!sortField}
             tabIndex={sortField ? 0 : -1}
             onKeyDown={(event) => {
               if (!sortField) return

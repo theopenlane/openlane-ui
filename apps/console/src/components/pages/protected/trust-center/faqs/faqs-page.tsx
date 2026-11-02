@@ -231,7 +231,7 @@ export default function FaqsPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-6">
         <CreateFaqForm disabled={!!editingFaqId || !canEditTc} isCreating={isCreating} onSubmit={handleCreateSubmit} canCreateCategory={canCreateCategory} />
 
         <div className="relative min-h-100">

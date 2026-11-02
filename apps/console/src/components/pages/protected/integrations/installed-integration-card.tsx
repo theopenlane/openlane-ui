@@ -74,6 +74,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
   const lastHealthCheck = health?.lastSuccessfulHealthCheck ?? ''
   const credentialEntry = resolveCredentialEntry(provider, credentialRefName)
   const connectionEntry = resolveConnectionEntry(provider, credentialRefName || undefined)
+  const isOnRetiredConnection = credentialEntry?.retired === true
   const manageUrl = resolveManageUrl(provider, connectionEntry, externalId, externalName)
 
   const disconnectMutation = useDisconnectIntegration()
@@ -97,10 +98,22 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
             {displayName}
           </div>
           <div className="flex items-center gap-2">
+            {isOnRetiredConnection ? (
+              <SystemTooltip
+                portal
+                icon={
+                  <span className="inline-flex">
+                    <Badge variant="warning">Deprecated</Badge>
+                  </span>
+                }
+                content="This connection type has been deprecated. Please disconnect and create a new installation. Reach out to support with any issues."
+              />
+            ) : null}
             {integration.primaryDirectory ? <Badge variant="blue">Primary Directory</Badge> : null}
             {isPrimaryDocument ? <Badge variant="blue">Primary Document</Badge> : null}
             {healthStatus.summary ? (
               <SystemTooltip
+                portal
                 icon={
                   <span className="inline-flex">
                     <Badge variant={healthStatus.variant}>{healthStatus.label}</Badge>

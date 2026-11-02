@@ -14,6 +14,9 @@ const MIN_SINGULAR_LENGTH = 3
 const REF_CODE = 'refcode'
 const REF_CODE_LOOKUP = `${REF_CODE}s`
 
+const NESTED_FIELD_SEPARATOR = '.'
+const INPUT_WRAPPER_TOKEN = 'input'
+
 const looksLikeReferenceCode = (column: TSourceColumn): boolean => {
   if (!CODE_HEADER.test(normalizeFieldName(column.header))) return false
   if (column.values.length === 0) return false
@@ -32,6 +35,18 @@ const singular = (token: string): string => {
 const withoutLeadingEntityTokens = (tokens: string[], entityTokens: ReadonlySet<string>): string[] => {
   const firstOwnToken = tokens.findIndex((token) => !entityTokens.has(singular(token)))
   return firstOwnToken <= 0 ? tokens : tokens.slice(firstOwnToken)
+}
+
+const isEntityNamespace = (segment: string, entityTokens: ReadonlySet<string>): boolean => {
+  const tokens = wordTokens(toHumanLabel(segment))
+  return tokens.length > 0 && tokens.every((token) => token === INPUT_WRAPPER_TOKEN || entityTokens.has(singular(token)))
+}
+
+const withoutEntityNamespace = (header: string, entityTokens: ReadonlySet<string>): string | undefined => {
+  const segments = header.split(NESTED_FIELD_SEPARATOR).map((segment) => segment.trim())
+  const firstOwnSegment = segments.findIndex((segment) => !isEntityNamespace(segment, entityTokens))
+  const ownHeader = firstOwnSegment > 0 ? segments.slice(firstOwnSegment).join(NESTED_FIELD_SEPARATOR) : ''
+  return ownHeader || undefined
 }
 
 const tokenSetKey = (value: string, entityTokens: ReadonlySet<string>): string =>
@@ -101,16 +116,26 @@ const buildFieldIndex = ({ fields, primaryField }: TDestinationFieldSet, entityL
 
 type TFieldIndex = ReturnType<typeof buildFieldIndex>
 
-const findCandidate = (column: TSourceColumn, index: TFieldIndex): TCandidate | null => {
-  const normalizedHeader = normalizeFieldName(column.header)
+const findNamedCandidate = (header: string, index: TFieldIndex): TCandidate | null => {
+  if (index.exactHeaders.has(header)) return { field: header, confidence: 'exact' }
 
-  if (index.exactHeaders.has(column.header)) return { field: column.header, confidence: 'exact' }
-
+  const normalizedHeader = normalizeFieldName(header)
   const normalized = index.byNormalizedHeader.get(normalizedHeader)
   if (normalized) return { field: normalized, confidence: 'normalized' }
 
   const alias = index.byAlias.get(normalizedHeader)
-  if (alias) return { field: alias, confidence: 'alias' }
+  return alias ? { field: alias, confidence: 'alias' } : null
+}
+
+const findCandidate = (column: TSourceColumn, index: TFieldIndex): TCandidate | null => {
+  const named = findNamedCandidate(column.header, index)
+  if (named) return named
+
+  const ownHeader = withoutEntityNamespace(column.header, index.entityTokens)
+  const namespaced = ownHeader ? findNamedCandidate(ownHeader, index) : null
+  if (namespaced) return { field: namespaced.field, confidence: 'suggested' }
+
+  const normalizedHeader = normalizeFieldName(column.header)
 
   if (index.primaryField && index.entityNames.has(normalizedHeader)) return { field: index.primaryField, confidence: 'suggested' }
 

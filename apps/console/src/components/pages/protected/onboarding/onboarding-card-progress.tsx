@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react'
 import { Badge } from '@repo/ui/badge'
+import { LinearBar } from '@/components/shared/linear-bar/linear-bar'
 
 type OnboardingCardProgressProps = {
   label?: ReactNode
@@ -13,16 +14,7 @@ const OnboardingCardProgress = ({ label, progress }: OnboardingCardProgressProps
         {label}
       </Badge>
     )}
-    <div
-      role="progressbar"
-      aria-label="Setup progress"
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={Math.round(progress * 100)}
-      className="relative h-1.5 w-full rounded-full bg-border overflow-hidden"
-    >
-      <div className="absolute inset-y-0 left-0 bg-primary rounded-full transition-all" style={{ width: `${progress * 100}%` }} />
-    </div>
+    <LinearBar value={progress} label="Setup progress" />
   </div>
 )
 

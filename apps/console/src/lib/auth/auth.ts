@@ -11,6 +11,7 @@ import { checkWebfinger } from './utils/webfinger'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { refreshSessionToken } from './utils/refresh-session-token'
 import { secureFetch } from './utils/secure-fetch'
+import { withSameOriginGuard } from './utils/same-origin'
 import { cookies } from 'next/headers'
 import { allowedLoginDomains } from '@repo/dally/auth'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
@@ -53,8 +54,6 @@ export const config = {
     credentialsProvider,
     passKeyProvider,
   ],
-  // we have our own CSRF protection on the server side that is used
-  // instead of the default NextAuth CSRF protection
   skipCSRFCheck: skipCSRFCheck,
   events: {
     async signOut(message) {
@@ -245,9 +244,8 @@ export const config = {
  * Export our route handlers and functions
  * so that we can reuse them within our app
  */
-export const {
-  handlers: { GET, POST },
-  auth,
-  signIn,
-  signOut,
-} = NextAuth(config)
+const { handlers, auth, signIn, signOut } = NextAuth(config)
+
+export const GET = handlers.GET
+export const POST = withSameOriginGuard(handlers.POST)
+export { auth, signIn, signOut }

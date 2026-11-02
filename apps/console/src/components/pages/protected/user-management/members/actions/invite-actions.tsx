@@ -20,8 +20,9 @@ type InviteActionsProps = {
 const ICON_SIZE = 12
 
 export const InviteActions = ({ inviteId, recipient, role }: InviteActionsProps) => {
-  const { canManageMembers, canInviteMembers, canInviteAdmins } = useOrgMemberPermissions()
-  // Resend re-issues the invite, so it follows the invite grant; delete is member management.
+  const { canDeleteInvites, canInviteMembers, canInviteAdmins } = useOrgMemberPermissions()
+  // Resend re-issues the invite, so it follows the invite grant
+  // Delete follows canDeleteInvites so support users can clean up invites
   const canResend = role === InviteRole.ADMIN || role === InviteRole.OWNER || role === InviteRole.SUPER_ADMIN ? canInviteAdmins : canInviteMembers
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteInvite } = useDeleteOrganizationInvite()
@@ -67,7 +68,7 @@ export const InviteActions = ({ inviteId, recipient, role }: InviteActionsProps)
     }
   }
 
-  if (!canResend && !canManageMembers) {
+  if (!canResend && !canDeleteInvites) {
     return null
   }
 
@@ -85,7 +86,7 @@ export const InviteActions = ({ inviteId, recipient, role }: InviteActionsProps)
               <RotateCw width={ICON_SIZE} /> Resend Invite
             </DropdownMenuItem>
           )}
-          {canManageMembers && (
+          {canDeleteInvites && (
             <DropdownMenuItem onSelect={handleDeleteInvite}>
               <Trash2 width={ICON_SIZE} /> Delete Invite
             </DropdownMenuItem>

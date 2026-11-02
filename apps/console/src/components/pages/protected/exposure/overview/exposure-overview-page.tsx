@@ -137,7 +137,7 @@ const ExposureOverviewPage = () => {
     [severityData],
   )
 
-  const { activityItems, isLoading: isActivityLoading } = useRecentActivityItems({ includeNonExposureActivity: false })
+  const { activityItems, allActivityItems, isLoading: isActivityLoading } = useRecentActivityItems({ includeNonExposureActivity: false })
 
   const { vulnerabilitiesNodes: critVulns, isLoading: loadingCritVulns } = useVulnerabilitiesWithFilter({
     where: { open: true },
@@ -220,7 +220,7 @@ const ExposureOverviewPage = () => {
             <ExposureSeverityChart severityData={severityData} severityItems={severityItems} isLoading={isLoading} />
           </div>
           <div className="col-span-2">
-            <ActivityFeed activityItems={activityItems} isLoading={isActivityLoading} />
+            <ActivityFeed activityItems={activityItems} allActivityItems={allActivityItems} isLoading={isActivityLoading} />
           </div>
         </div>
         <ExposureCriticalCounts counts={criticalCounts} isLoading={isLoading} />

@@ -6,7 +6,9 @@ import { Button } from '@repo/ui/button'
 import { Logo } from '@repo/ui/logo'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import { OPENLANE_WEBSITE_URL, SUPPORT_URL } from '@/constants'
+import { SUPPORT_URL } from '@/constants'
+import LegalAgreement from '@/components/shared/legal-agreement/legal-agreement'
+import OfficialOnly from '@/components/shared/official-only/official-only'
 import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
 
 // SSOInitiatePage is the public, shareable per-organization SSO entry point, e.g. /orgs/<slug>/sso. It
@@ -73,22 +75,17 @@ const SSOInitiatePage: React.FC = () => {
         </div>
 
         <p className="text-sm text-muted-foreground text-center">
-          Having trouble? Contact your administrator or{' '}
-          <Link href={`${SUPPORT_URL}`} className="underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500" target="_blank" rel="noopener noreferrer">
-            Openlane support
-          </Link>
+          Having trouble? Contact your administrator
+          <OfficialOnly>
+            {' '}
+            or{' '}
+            <Link href={`${SUPPORT_URL}`} className="underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500" target="_blank" rel="noopener noreferrer">
+              Openlane support
+            </Link>
+          </OfficialOnly>
         </p>
 
-        <div className="text-xs opacity-90 flex gap-1 text-muted-foreground">
-          By signing in, you agree to our{' '}
-          <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500">
-            Terms of Service
-          </Link>{' '}
-          and{' '}
-          <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500">
-            Privacy Policy
-          </Link>
-        </div>
+        <LegalAgreement action="signing in" />
       </div>
     </div>
   )

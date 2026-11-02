@@ -1,15 +1,22 @@
 'use client'
 
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
+import { useIsOfficialDeployment } from '@repo/ui/lib/official-deployment'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { PasswordInput } from '@repo/ui/password-input'
 import { Logo } from '@repo/ui/logo'
 import { ArrowRight, Headphones } from 'lucide-react'
 import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
+import { SUPPORT_EMAIL_ADDRESS } from '@/constants'
 
 const SupportLoginPage: React.FC = () => {
-  const [email, setEmail] = useState('support@theopenlane.io')
+  const isOfficial = useIsOfficialDeployment()
+  const [email, setEmail] = useState(SUPPORT_EMAIL_ADDRESS)
+
+  useEffect(() => {
+    if (!isOfficial) setEmail('')
+  }, [isOfficial])
   const [password, setPassword] = useState('')
   const [organizationId, setOrganizationId] = useState('')
   const [reason, setReason] = useState('')

@@ -112,7 +112,7 @@ const AddMembersDialog = () => {
           Add members
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[445px]">
+      <DialogContent className="sm:max-w-[445px] overflow-visible">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Add members</DialogTitle>
         </DialogHeader>

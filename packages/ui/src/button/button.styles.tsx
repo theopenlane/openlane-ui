@@ -16,6 +16,8 @@ export const buttonStyles = tv({
         btn-primary
         disabled:cursor-not-allowed
         disabled:text-btn-primary-text-disabled
+        aria-disabled:cursor-not-allowed
+        aria-disabled:text-btn-primary-text-disabled
         focus:shadow-[0_1px_1px_0.5px_rgba(9,21,29,0.32),_0_0_0_4px_rgba(44,203,171,0.25)]
         focus:bg-btn-primary
         focus-visible:shadow-[0_1px_1px_0.5px_rgba(9,21,29,0.32),_0_0_0_4px_rgba(44,203,171,0.25)]
@@ -27,6 +29,9 @@ export const buttonStyles = tv({
         disabled:cursor-not-allowed
         disabled:text-btn-secondary-text-disabled
         disabled:bg-btn-secondary-disabled
+        aria-disabled:cursor-not-allowed
+        aria-disabled:text-btn-secondary-text-disabled
+        aria-disabled:bg-btn-secondary-disabled
         focus:btn-secondary-focus
         focus:shadow-[0_0_0_4px_rgba(9,21,29,0.06),_0_1px_2px_0_rgba(9,21,29,0.04),_0_-1px_0_0_rgba(9,21,29,0.1)_inset]
         dark:focus:shadow-[0_0_0_4px_rgba(96,232,201,0.24),_0_1px_1px_0.5px_rgba(9,21,29,0.24)]

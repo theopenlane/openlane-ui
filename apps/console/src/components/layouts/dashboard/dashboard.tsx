@@ -23,8 +23,9 @@ import { SheetNavigationProvider } from '@/providers/sheet-navigation-provider'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ImpersonationBanner from '@/components/shared/impersonation-banner/impersonation-banner'
-import { GLOBAL_BANNER_HEIGHT_VAR, MAIN_SCROLLBAR_HEIGHT_VAR, TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
+import { BOTTOM_BANNER_HEIGHT_VAR, GLOBAL_BANNER_HEIGHT_VAR, MAIN_SCROLLBAR_HEIGHT_VAR, SIDEBAR_WIDTH_VAR, TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { ONBOARDING_ROUTE } from '@/constants'
+import { useIsOfficialDeployment } from '@repo/ui/lib/official-deployment'
 import { DashboardContentOffsetProvider } from '@/providers/DashboardContentOffsetContext'
 import { DocsHelpTopicProvider } from '@/components/shared/docs-help/docs-help-context'
 import { DocsHelpTab } from '@/components/shared/docs-help/docs-help-tab'
@@ -47,7 +48,8 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const activeOrg = allOrgs.filter((org) => org?.node?.id === currentOrgId).map((org) => org?.node)[0]
   const isOrganizationSelected = !activeOrg?.personalOrg
 
-  const navItems = !isOrganizationSelected ? [] : topNavigationItems(sessionData, currentUserRole)
+  const isOfficial = useIsOfficialDeployment()
+  const navItems = !isOrganizationSelected ? [] : topNavigationItems(sessionData, currentUserRole, isOfficial)
   const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(sessionData, orgPermission, currentUserRole)
 
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
@@ -69,6 +71,17 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
 
   const isSidebarHidden = pathname === ONBOARDING_ROUTE || sessionData?.user?.isOnboarding
   const contentMarginLeft = isSidebarHidden ? 8 : primaryWidth + secondaryWidth + 4
+
+  const sidebarWidth = isSidebarHidden ? 0 : primaryWidth + secondaryWidth
+
+  useEffect(() => {
+    const root = document.documentElement
+    root.style.setProperty(SIDEBAR_WIDTH_VAR, `${sidebarWidth}px`)
+
+    return () => {
+      root.style.removeProperty(SIDEBAR_WIDTH_VAR)
+    }
+  }, [sidebarWidth])
 
   const mainRef = useRef<HTMLElement>(null)
 
@@ -162,7 +175,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
                 marginLeft: contentMarginLeft,
                 marginRight: '8px',
                 marginTop: `var(${TOP_BANNER_HEIGHT_VAR}, 0px)`,
-                height: `calc(100vh - var(${TOP_BANNER_HEIGHT_VAR}, 0px))`,
+                height: `calc(100vh - var(${TOP_BANNER_HEIGHT_VAR}, 0px) - var(${BOTTOM_BANNER_HEIGHT_VAR}, 0px))`,
               }}
             >
               <Header />

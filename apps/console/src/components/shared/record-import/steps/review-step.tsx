@@ -19,6 +19,7 @@ const describeConversion = ({ label, rowCount, dateOrder }: TImportPlan['convert
 type TReviewStepProps = {
   entityLabelPlural: string
   entityLabel: string
+  countTitle: string
   parsed: TParsedDelimitedFile
   rowOrder: number[]
   columns: TSourceColumn[]
@@ -40,7 +41,20 @@ const SummaryCard: React.FC<{ title: string; value: string; hint: string }> = ({
   </div>
 )
 
-export const ReviewStep: React.FC<TReviewStepProps> = ({ entityLabel, entityLabelPlural, parsed, rowOrder, columns, mapping, plan, automaticValues = [], reorderable, onMoveRow, onEditMapping }) => {
+export const ReviewStep: React.FC<TReviewStepProps> = ({
+  entityLabel,
+  entityLabelPlural,
+  countTitle,
+  parsed,
+  rowOrder,
+  columns,
+  mapping,
+  plan,
+  automaticValues = [],
+  reorderable,
+  onMoveRow,
+  onEditMapping,
+}) => {
   const canReorder = reorderable && parsed.rows.length <= REORDER_ROW_LIMIT
   const buildDisplayRow = useMemo(() => {
     const displayByPosition = plan.headers.map((header) => {
@@ -84,7 +98,7 @@ export const ReviewStep: React.FC<TReviewStepProps> = ({ entityLabel, entityLabe
   return (
     <div className="flex flex-col gap-4">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard title={`${entityLabelPlural} to create`} value={parsed.rows.length.toLocaleString()} hint={`from ${parsed.fileName}`} />
+        <SummaryCard title={countTitle} value={parsed.rows.length.toLocaleString()} hint={`from ${parsed.fileName}`} />
         <SummaryCard title="Fields mapped" value={String(plan.headers.length - autoFilledFields.length)} hint={`of ${pluralizeWithCount(columns.length, 'column')}`} />
         <SummaryCard title="Columns ignored" value={String(ignoredColumns.length)} hint="left out of the import" />
         <SummaryCard

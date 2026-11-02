@@ -5770,7 +5770,6 @@ export interface GetAllOrganizationsQuery {
         displayName: string
         avatarRemoteURL: string | null
         personalOrg: boolean | null
-        stripeCustomerID: string | null
         avatarFile: { id: string; base64: string | null } | null
         setting: { identityProviderLoginEnforced: boolean } | null
       } | null
@@ -5862,7 +5861,21 @@ export type GetOrganizationBillingQueryVariables = Exact<{
 }>
 
 export interface GetOrganizationBillingQuery {
-  organization: { personalOrg: boolean | null; orgSubscriptions: Array<{ active: boolean; expiresAt: any; stripeSubscriptionStatus: string | null; trialExpiresAt: any }> | null }
+  organization: {
+    personalOrg: boolean | null
+    stripeCustomerID: string | null
+    orgSubscriptions: Array<{ active: boolean; expiresAt: any; stripeSubscriptionStatus: string | null; trialExpiresAt: any }> | null
+  }
+}
+
+export type GetOrganizationBillingAccessQueryVariables = Exact<{
+  organizationId: string
+  userId: string
+}>
+
+export interface GetOrganizationBillingAccessQuery {
+  organization: { stripeCustomerID: string | null }
+  orgMemberships: { edges: Array<{ node: { role: Types.OrgMembershipRole } | null } | null> | null }
 }
 
 export type GetOrganizationBillingBannerQueryVariables = Exact<{
@@ -10010,6 +10023,34 @@ export interface VendorRiskScoresWithFilterQuery {
   }
 }
 
+export type VendorRiskScoringQueryVariables = Exact<{
+  where?: Types.VendorRiskScoreWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface VendorRiskScoringQuery {
+  vendorRiskScores: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        questionKey: string
+        questionName: string
+        questionCategory: Types.VendorRiskScoreVendorScoringCategory
+        answerType: Types.VendorRiskScoreVendorScoringAnswerType
+        answer: string | null
+        impact: Types.VendorRiskScoreVendorRiskImpact
+        likelihood: Types.VendorRiskScoreVendorRiskLikelihood
+        score: number
+        notes: string | null
+        tags: Array<string> | null
+        updatedAt: any
+      } | null
+    } | null> | null
+  }
+}
+
 export type VendorRiskScoreQueryVariables = Exact<{
   vendorRiskScoreId: string
 }>
@@ -10420,6 +10461,21 @@ export type CreateVulnerabilityMutationVariables = Exact<{
 
 export interface CreateVulnerabilityMutation {
   createVulnerability: { vulnerability: { id: string } }
+}
+
+export type VulnerabilitySnoozeTargetsQueryVariables = Exact<{
+  where?: Types.VulnerabilityWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface VulnerabilitySnoozeTargetsQuery {
+  vulnerabilities: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: { id: string; securityLevel: Types.VulnerabilitySecurityLevel | null; severity: string | null; createdAt: any; discoveredAt: string | null; remediationSLA: number | null } | null
+    } | null> | null
+  }
 }
 
 export type UpdateVulnerabilityMutationVariables = Exact<{

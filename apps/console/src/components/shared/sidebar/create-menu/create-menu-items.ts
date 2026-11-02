@@ -11,6 +11,7 @@ type CreateMenuItemBase = {
   icon: NavIcon
   objectType?: ObjectTypes
   permission?: AccessEnum
+  officialOnly?: boolean
 }
 
 export type CreateMenuItem = CreateMenuItemBase & ({ href: string; dialog?: never } | { href?: never; dialog: CreateMenuDialogKey })
@@ -69,6 +70,7 @@ export const CREATE_MENU_ITEMS: CreateMenuItem[] = [
     href: '/trust-center/updates',
     objectType: ObjectTypes.TRUST_CENTER,
     permission: AccessEnum.CanEditTrustCenter,
+    officialOnly: true,
   },
   {
     label: 'Contact',

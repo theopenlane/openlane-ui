@@ -3,6 +3,7 @@ import Credentials from 'next-auth/providers/credentials'
 import { setSessionCookie } from '../utils/set-session-cookie'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
 import { secureFetch } from '../utils/secure-fetch'
+import { SUPPORT_EMAIL_ADDRESS } from '@/constants'
 
 export const credentialsProvider = Credentials({
   id: 'credentials',
@@ -23,7 +24,7 @@ export const credentialsProvider = Credentials({
       return {
         id: 'openlane-support',
         name: 'Openlane Support',
-        email: 'support@theopenlane.io',
+        email: SUPPORT_EMAIL_ADDRESS,
         accessToken: credentials.accessToken,
         refreshToken: '',
         session: '',

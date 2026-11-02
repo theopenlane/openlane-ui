@@ -12,7 +12,8 @@ import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
-import { INFO_EMAIL } from '@/constants'
+import { INFO_EMAIL, INFO_EMAIL_ADDRESS } from '@/constants'
+import OfficialOnly from '@/components/shared/official-only/official-only'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { type StandardWhereInput } from '@repo/codegen/src/schema'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
@@ -132,14 +133,16 @@ const StandardsPage = () => {
               </Link>
             </Card>
           ))}
-          <Card className="bg-card p-28 rounded-lg shadow-sm border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
-            <p className="mb-4">Looking for a framework that’s not supported yet? Reach out with the details.</p>
-            <a href={INFO_EMAIL}>
-              <Button variant="secondary" className="!text-brand">
-                info@theopenlane.io
-              </Button>
-            </a>
-          </Card>
+          <OfficialOnly>
+            <Card className="bg-card p-28 rounded-lg shadow-sm border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
+              <p className="mb-4">Looking for a framework that’s not supported yet? Reach out with the details.</p>
+              <a href={INFO_EMAIL}>
+                <Button variant="secondary" className="!text-brand">
+                  {INFO_EMAIL_ADDRESS}
+                </Button>
+              </a>
+            </Card>
+          </OfficialOnly>
         </div>
       )}
     </>

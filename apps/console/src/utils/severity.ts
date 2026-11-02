@@ -1,6 +1,8 @@
 import { type CSSProperties } from 'react'
 
-const SEVERITY_CSS_VARS: Record<string, string> = {
+export type TSeverityLevel = 'critical' | 'high' | 'medium' | 'low'
+
+const SEVERITY_CSS_VARS: Record<TSeverityLevel, string> = {
   critical: '--color-severity-critical',
   high: '--color-severity-high',
   medium: '--color-severity-medium',
@@ -15,6 +17,8 @@ export const getSeverityCssVar = (severity: string): string | null => {
   if (s.includes('low')) return SEVERITY_CSS_VARS.low
   return null
 }
+
+export const getSeverityColor = (level: TSeverityLevel): string => `var(${SEVERITY_CSS_VARS[level]})`
 
 export const getSeverityStyle = (severity: string): CSSProperties => {
   const cssVar = getSeverityCssVar(severity)

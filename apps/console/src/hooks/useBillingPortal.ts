@@ -7,12 +7,10 @@ export const useOpenBillingPortal = () => {
   const { mutateAsync: createPortalSession } = useBillingPortalMutation()
   const [redirecting, setRedirecting] = useState(false)
 
-  const openBillingPortal = async (customerId: string | null | undefined, fullPortal = false) => {
-    if (!customerId) return
-
+  const openBillingPortal = async (fullPortal = false) => {
     setRedirecting(true)
     try {
-      window.location.href = await createPortalSession({ customerId, fullPortal })
+      window.location.href = await createPortalSession({ fullPortal })
     } catch (err) {
       setRedirecting(false)
       errorNotification({

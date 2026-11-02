@@ -14,7 +14,6 @@ export const GET_ALL_ORGANIZATIONS = gql`
             id
             base64
           }
-          stripeCustomerID
           setting {
             identityProviderLoginEnforced
           }
@@ -127,11 +126,27 @@ export const GET_ORGANIZATION_BILLING = gql`
   query GetOrganizationBilling($organizationId: ID!) {
     organization(id: $organizationId) {
       personalOrg
+      stripeCustomerID
       orgSubscriptions {
         active
         expiresAt
         stripeSubscriptionStatus
         trialExpiresAt
+      }
+    }
+  }
+`
+
+export const GET_ORGANIZATION_BILLING_ACCESS = gql`
+  query GetOrganizationBillingAccess($organizationId: ID!, $userId: String!) {
+    organization(id: $organizationId) {
+      stripeCustomerID
+    }
+    orgMemberships(where: { userID: $userId }) {
+      edges {
+        node {
+          role
+        }
       }
     }
   }

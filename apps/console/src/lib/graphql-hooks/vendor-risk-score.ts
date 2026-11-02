@@ -17,6 +17,8 @@ import {
   type VendorRiskScoreCreatePayload,
   type VendorRiskScoreDeletePayload,
   type VendorRiskScoreUpdatePayload,
+  type VendorRiskScoringQuery,
+  type VendorRiskScoringQueryVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -29,7 +31,9 @@ import {
   CREATE_CSV_BULK_VENDOR_RISK_SCORE,
   BULK_EDIT_VENDOR_RISK_SCORE,
   BULK_DELETE_VENDOR_RISK_SCORE,
+  GET_VENDOR_RISK_SCORING,
 } from '@repo/codegen/query/vendor-risk-score'
+import { fetchAllConnectionNodes } from './fetch-all-connection-nodes'
 
 type VendorRiskScoresWithFilterQuery = {
   vendorRiskScores: VendorRiskScoreConnection
@@ -113,6 +117,28 @@ export const useVendorRiskScoresWithFilter = ({ where, orderBy, pagination, enab
   }, [])
 
   return { ...queryResult, vendorRiskScoresNodes }
+}
+
+export type TVendorRiskScoringNode = NonNullable<NonNullable<NonNullable<VendorRiskScoringQuery['vendorRiskScores']['edges']>[number]>['node']>
+
+const VENDOR_RISK_SCORING_PAGE_SIZE = 100
+
+export const useVendorRiskScoring = (entityId: string) => {
+  const { client } = useGraphQLClient()
+  return useQuery({
+    queryKey: ['vendorRiskScores', 'scoring', entityId],
+    queryFn: () =>
+      fetchAllConnectionNodes<TVendorRiskScoringNode>(async (after) => {
+        const data = await client.request<VendorRiskScoringQuery, VendorRiskScoringQueryVariables>(GET_VENDOR_RISK_SCORING, {
+          where: { entityID: entityId },
+          first: VENDOR_RISK_SCORING_PAGE_SIZE,
+          after,
+        })
+        return data.vendorRiskScores
+      }),
+    enabled: !!entityId,
+    placeholderData: undefined,
+  })
 }
 
 export const useCreateVendorRiskScore = () => {

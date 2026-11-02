@@ -50,6 +50,7 @@ export const ImportSourceStep: React.FC<TImportSourceStepProps> = ({ entityLabel
         entityLabelPlural={entityLabelPlural}
         columns={state.columns}
         fields={state.fields}
+        canMapEmptyColumns={state.canMapEmptyColumns}
         hasRequirements={state.requiredGroups.length > 0}
         mapping={state.mapping}
         validation={state.validation}

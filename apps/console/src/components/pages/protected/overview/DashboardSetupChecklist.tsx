@@ -7,13 +7,14 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { useOrganization } from '@/hooks/useOrganization'
 import type { SetupChecklistItem } from '@/hooks/useSetupChecklist'
 import { SUPPORT_URL } from '@/constants'
+import { useIsOfficialDeployment } from '@repo/ui/lib/official-deployment'
 import { DOCS_URL } from '@/constants/docs.ts'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 import SetupChecklistItemCard, { SETUP_CHECKLIST_ANCHOR, SETUP_CHECKLIST_STATUS } from './setup-checklist-item'
 
 const helpLinks = [
   { key: 'docs', label: 'View Docs', icon: <FileText size={14} className="text-muted-foreground" />, href: DOCS_URL },
-  { key: 'support', label: 'Contact Us', icon: <Headset size={14} className="text-muted-foreground" />, href: SUPPORT_URL },
+  { key: 'support', label: 'Contact Us', icon: <Headset size={14} className="text-muted-foreground" />, href: SUPPORT_URL, officialOnly: true },
 ]
 
 export type SetupChecklistProps = {
@@ -32,6 +33,7 @@ type OrderedIds = {
 const DashboardSetupChecklist = ({ items, completedCount, totalCount, markInProgress, completeItem }: SetupChecklistProps) => {
   const router = useRouter()
   const { currentOrgId } = useOrganization()
+  const isOfficial = useIsOfficialDeployment()
   const [initialOrder, setInitialOrder] = useState<OrderedIds | null>(null)
 
   useEffect(() => {
@@ -81,19 +83,21 @@ const DashboardSetupChecklist = ({ items, completedCount, totalCount, markInProg
           </div>
           <p className="text-sm text-muted-foreground">Complete these tasks to get the most out of Openlane</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
-            {helpLinks.map((link) => (
-              <a
-                key={link.key}
-                href={link.href}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-1.5 text-text-paragraph hover:text-muted-foreground transition-colors *:pointer-events-none"
-                {...elementAnchor(SETUP_CHECKLIST_ANCHOR, 'help', link.key)}
-              >
-                {link.icon}
-                {link.label}
-              </a>
-            ))}
+            {helpLinks
+              .filter((link) => isOfficial || !link.officialOnly)
+              .map((link) => (
+                <a
+                  key={link.key}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 text-text-paragraph hover:text-muted-foreground transition-colors *:pointer-events-none"
+                  {...elementAnchor(SETUP_CHECKLIST_ANCHOR, 'help', link.key)}
+                >
+                  {link.icon}
+                  {link.label}
+                </a>
+              ))}
           </div>
         </div>
 
