@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import Image from 'next/image'
 import Iso27001 from '@/assets/standards/iso27001'
 import Iso27002 from '@/assets/standards/iso27002'
 import Nist80053 from '@/assets/standards/nist80053'
@@ -23,11 +24,21 @@ type TStandardsIconMapperProps = {
   shortName: string
   height?: number
   width?: number
+  logoSrc?: string | null
+  isCustom?: boolean
 }
 
-export const StandardsIconMapper = ({ shortName, height, width }: TStandardsIconMapperProps) => {
+const DEFAULT_LOGO_SIZE = 76
+
+export const StandardsIconMapper = ({ shortName, height, width, logoSrc, isCustom = false }: TStandardsIconMapperProps) => {
   const icon = useMemo(() => {
     const sizeProps = { height, width }
+    if (logoSrc) {
+      return <Image src={logoSrc} alt={`${shortName} logo`} width={width ?? DEFAULT_LOGO_SIZE} height={height ?? DEFAULT_LOGO_SIZE} unoptimized className="shrink-0 rounded-md object-contain" />
+    }
+    if (isCustom) {
+      return <Custom {...sizeProps} label={shortName} />
+    }
     const iconMap: Record<string, React.ReactNode> = {
       'ISO 27001': <Iso27001 {...sizeProps} />,
       'ISO 27002': <Iso27002 {...sizeProps} />,
@@ -49,6 +60,6 @@ export const StandardsIconMapper = ({ shortName, height, width }: TStandardsIcon
       'FedRAMP Moderate': <FedrampModerate {...sizeProps} />,
     }
     return iconMap[shortName] || <Custom {...sizeProps} />
-  }, [shortName, width, height])
+  }, [shortName, width, height, logoSrc, isCustom])
   return <>{icon}</>
 }

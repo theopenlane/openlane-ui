@@ -24,6 +24,7 @@ import {
   Procedure,
   Program,
   Remediation,
+  Report,
   Review,
   Risk,
   Scan,
@@ -132,6 +133,7 @@ export enum ObjectTypes {
   ORG_MEMBERSHIP = 'OrgMembership',
   ORG_SUBSCRIPTION = 'OrgSubscription',
   ORGANIZATION = 'Organization',
+  ORGANIZATION_BRANDING_SETTING = 'OrganizationBrandingSetting',
   ORGANIZATION_SETTING = 'OrganizationSetting',
   PERSONAL_ACCESS_TOKEN = 'PersonalAccessToken',
   PLATFORM = 'Platform',
@@ -140,6 +142,8 @@ export enum ObjectTypes {
   PROGRAM = 'Program',
   PROGRAM_MEMBERSHIP = 'ProgramMembership',
   REMEDIATION = 'Remediation',
+  REPORT = 'Report',
+  REPORT_MEMBERSHIP = 'ReportMembership',
   REVIEW = 'Review',
   RISK = 'Risk',
   SLA_DEFINITION = 'SlaDefinition',
@@ -230,6 +234,7 @@ export enum ObjectNames {
   ORG_MEMBERSHIP = 'Org Membership',
   ORG_SUBSCRIPTION = 'Org Subscription',
   ORGANIZATION = 'Organization',
+  ORGANIZATION_BRANDING_SETTING = 'Organization Branding Setting',
   ORGANIZATION_SETTING = 'Organization Setting',
   PERSONAL_ACCESS_TOKEN = 'Personal Access Token',
   PLATFORM = 'Platform',
@@ -238,6 +243,8 @@ export enum ObjectNames {
   PROGRAM = 'Program',
   PROGRAM_MEMBERSHIP = 'Program Membership',
   REMEDIATION = 'Remediation',
+  REPORT = 'Report',
+  REPORT_MEMBERSHIP = 'Report Membership',
   REVIEW = 'Review',
   RISK = 'Risk',
   SLA_DEFINITION = 'Sla Definition',
@@ -295,6 +302,7 @@ export enum TypesWithPermissions {
   PROCEDURE = 'Procedure',
   PROGRAM = 'Program',
   REMEDIATION = 'Remediation',
+  REPORT = 'Report',
   REVIEW = 'Review',
   RISK = 'Risk',
   SLA_DEFINITION = 'SlaDefinition',
@@ -405,6 +413,11 @@ export type PermissionsAllQueriesData = {
   }
   remediations?: {
     edges?: Array<{ node: Remediation }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  reports?: {
+    edges?: Array<{ node: Report }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -694,6 +707,16 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     searchAttribute: 'titleContainsFold',
     inputPlaceholder: 'title',
     excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.REPORT]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'reports',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
     extraTableColumns: undefined,
   },
   [TypesWithPermissions.REVIEW]: {

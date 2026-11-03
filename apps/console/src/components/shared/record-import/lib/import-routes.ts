@@ -178,6 +178,7 @@ const IMPORT_TRUST_CENTER_PARAM = 'trustCenterId'
 const IMPORT_SOURCE_PARAM = 'source'
 const STANDARDS_SOURCE = 'standards'
 const IMPORT_MODE_PARAM = 'mode'
+const IMPORT_STANDARD_PARAM = 'standardId'
 const UPDATE_MODE = 'update' satisfies TImportMode
 
 const importHref = (entityType: TImportableObjectType, extra: Record<string, string> = {}): string =>
@@ -239,6 +240,17 @@ export const controlsUpdateImportRoute: TImportRoute = {
     'Every mapped column overwrites the current value of the control, and a blank cell in a mapped text column clears it. Map only the columns you want to change; a column that is blank in every row is only mapped if you pick its field.',
 }
 
+export const standardControlsImportRoute = (standardId: string, standardName = 'Framework'): TImportRoute => ({
+  ...IMPORT_ROUTE_DETAILS[ObjectTypes.CONTROL],
+  href: importHref(ObjectTypes.CONTROL, { [IMPORT_STANDARD_PARAM]: standardId }),
+  listHref: `/standards/${encodeURIComponent(standardId)}`,
+  listLabel: standardName,
+  section: { label: 'Standards', href: '/standards' },
+  title: 'Import Framework Controls',
+  heading: `Import controls into ${standardName}`,
+  subheading: 'Upload the controls that make up this framework. Each row becomes a control in your organization, linked to the framework. Ref Code is the only required column.',
+})
+
 type TImportScopeDefinition = {
   entityType: TImportableObjectType
   param: string
@@ -261,6 +273,7 @@ const IMPORT_SCOPES = {
     accepts: (value: string) => value === UPDATE_MODE,
     route: () => controlsUpdateImportRoute,
   },
+  standardControls: { entityType: ObjectTypes.CONTROL, param: IMPORT_STANDARD_PARAM, route: (standardId: string) => standardControlsImportRoute(standardId) },
 } as const satisfies Record<string, TImportScopeDefinition>
 
 export type TImportScopeKey = keyof typeof IMPORT_SCOPES

@@ -7,7 +7,9 @@ import {
   DELETE_STANDARD,
   GET_ALL_STANDARDS,
   GET_ALL_STANDARDS_SELECT,
+  GET_STANDARD_CATEGORIES,
   GET_STANDARD_DETAILS,
+  GET_STANDARDS_CATALOG,
   GET_STANDARDS_PAGINATED,
   UPDATE_STANDARD,
 } from '@repo/codegen/query/standard'
@@ -16,8 +18,10 @@ import {
   type CloneControlInput,
   type CreateControlsByCloneMutation,
   type GetAllStandardsQuery,
+  type GetAllStandardsSelectQuery,
+  type GetStandardCategoriesQuery,
   type GetStandardDetailsQuery,
-  type Standard,
+  type GetStandardsCatalogQuery,
   type CreateStandardMutation,
   type CreateStandardMutationVariables,
   type UpdateStandardMutation,
@@ -35,6 +39,7 @@ import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { EXCLUDE_SYSTEM_STANDARDS_WHERE } from '@/constants/standards'
 import { type TSystemStandard } from '@/constants/system-standards'
 import { mergeWhere } from '@/lib/merge-where'
+import { getNodes } from './connection'
 
 type TStandardsQueryArgs = {
   where?: StandardWhereInput | null
@@ -61,6 +66,22 @@ export const useGetStandards = ({ where, enabled = true, includeSystemStandards 
   }
 }
 
+export type StandardCatalogNode = NonNullable<NonNullable<NonNullable<GetStandardsCatalogQuery['standards']['edges']>[number]>['node']>
+
+export const useGetStandardsCatalog = ({ where, enabled = true }: Omit<TStandardsQueryArgs, 'includeSystemStandards'>) => {
+  const { client } = useGraphQLClient()
+  const effectiveWhere = resolveStandardsWhere(where, false)
+
+  const queryResult = useQuery<GetStandardsCatalogQuery, Error, StandardCatalogNode[]>({
+    queryKey: ['standards', 'catalog', effectiveWhere],
+    queryFn: () => client.request(GET_STANDARDS_CATALOG, { where: effectiveWhere }),
+    select: (data) => getNodes(data.standards),
+    enabled,
+  })
+
+  return { ...queryResult, standards: queryResult.data ?? [] }
+}
+
 export const useGetStandardDetails = (standardId: string | null) => {
   const { client } = useGraphQLClient()
 
@@ -69,6 +90,23 @@ export const useGetStandardDetails = (standardId: string | null) => {
     queryFn: () => client.request(GET_STANDARD_DETAILS, { standardId }),
     enabled: !!standardId,
   })
+}
+
+export const useStandardCategories = ({ enabled = true }: { enabled?: boolean } = {}) => {
+  const { client } = useGraphQLClient()
+  const where = resolveStandardsWhere({ standardTypeNotNil: true }, false)
+
+  const queryResult = useQuery<GetStandardCategoriesQuery, Error, string[]>({
+    queryKey: ['standards', 'categories', where],
+    queryFn: () => client.request(GET_STANDARD_CATEGORIES, { where }),
+    select: (data) => {
+      const categories = getNodes(data.standards).flatMap(({ standardType }) => standardType?.trim() || [])
+      return [...new Map(categories.map((category) => [category.toLowerCase(), category])).values()].sort((a, b) => a.localeCompare(b))
+    },
+    enabled,
+  })
+
+  return { ...queryResult, categories: queryResult.data ?? [] }
 }
 
 export const useCloneControls = () => {
@@ -83,16 +121,14 @@ export const useStandardsSelect = ({ where, enabled = true, includeSystemStandar
   const { client } = useGraphQLClient()
   const effectiveWhere = resolveStandardsWhere(where, includeSystemStandards)
 
-  const res = useQuery<GetAllStandardsQuery>({
+  const res = useQuery<GetAllStandardsSelectQuery>({
     queryKey: ['standards', effectiveWhere, 'select'],
     queryFn: () => client.request(GET_ALL_STANDARDS_SELECT, { where: effectiveWhere }),
     enabled,
   })
 
   const standardOptions = useMemo(() => {
-    const frameworks = res.data?.standards?.edges?.map((edge) => edge?.node as Standard).filter(Boolean) ?? []
-
-    const sorted = frameworks.sort((a, b) => (a.shortName || '').localeCompare(b.shortName || ''))
+    const sorted = getNodes(res.data?.standards).sort((a, b) => (a.shortName || '').localeCompare(b.shortName || ''))
 
     return sorted.map((framework) => ({
       label: framework.shortName || '',

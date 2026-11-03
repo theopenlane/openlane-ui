@@ -66,6 +66,7 @@ export type MergeableTypeName =
   | 'NotificationTemplate'
   | 'OrgMembership'
   | 'Organization'
+  | 'OrganizationBrandingSetting'
   | 'OrganizationSetting'
   | 'PersonalAccessToken'
   | 'Platform'
@@ -73,6 +74,8 @@ export type MergeableTypeName =
   | 'Program'
   | 'ProgramMembership'
   | 'Remediation'
+  | 'Report'
+  | 'ReportMembership'
   | 'Review'
   | 'Risk'
   | 'SLADefinition'
@@ -910,6 +913,15 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'displayName', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
     { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
   ],
+  OrganizationBrandingSetting: [
+    { name: 'backgroundColor', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'fontFamily', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'organizationID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'primaryColor', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'secondaryColor', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
+    { name: 'textColor', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+  ],
   OrganizationSetting: [
     { name: 'allowedEmailDomains', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'allowMatchingDomainsAutojoin', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
@@ -1095,6 +1107,19 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'title', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'workflowEligibleMarker', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
   ],
+  Report: [
+    { name: 'name', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
+    { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'query', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
+    { name: 'reportKindID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'reportKindName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'reportOwnerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'status', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'ReportReportStatus' },
+    { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
+    { name: 'variables', kind: 'json', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'visibility', kind: 'enum', list: false, nonNull: false, listItemNonNull: false, enumName: 'ReportReportVisibility' },
+  ],
+  ReportMembership: [{ name: 'role', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'ReportMembershipRole' }],
   Review: [
     { name: 'approved', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'approvedAt', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
@@ -1905,6 +1930,9 @@ export const MERGEABLE_EDGES_BY_TYPE = {
     { name: 'programViewers', addKey: 'addProgramViewerIDs', removeKey: 'removeProgramViewerIDs', acl: true },
     { name: 'remediationBlockedGroups', addKey: 'addRemediationBlockedGroupIDs', removeKey: 'removeRemediationBlockedGroupIDs', acl: true },
     { name: 'remediationEditors', addKey: 'addRemediationEditorIDs', removeKey: 'removeRemediationEditorIDs', acl: true },
+    { name: 'reportBlockedGroups', addKey: 'addReportBlockedGroupIDs', removeKey: 'removeReportBlockedGroupIDs', acl: true },
+    { name: 'reportEditors', addKey: 'addReportEditorIDs', removeKey: 'removeReportEditorIDs', acl: true },
+    { name: 'reportViewers', addKey: 'addReportViewerIDs', removeKey: 'removeReportViewerIDs', acl: true },
     { name: 'reviewBlockedGroups', addKey: 'addReviewBlockedGroupIDs', removeKey: 'removeReviewBlockedGroupIDs', acl: true },
     { name: 'reviewEditors', addKey: 'addReviewEditorIDs', removeKey: 'removeReviewEditorIDs', acl: true },
     { name: 'riskBlockedGroups', addKey: 'addRiskBlockedGroupIDs', removeKey: 'removeRiskBlockedGroupIDs', acl: true },
@@ -2050,6 +2078,8 @@ export const MERGEABLE_EDGES_BY_TYPE = {
     { name: 'programMembershipCreators', addKey: 'addProgramMembershipCreatorIDs', removeKey: 'removeProgramMembershipCreatorIDs', acl: true },
     { name: 'registryManager', addKey: 'addRegistryManagerIDs', removeKey: 'removeRegistryManagerIDs', acl: true },
     { name: 'remediationCreators', addKey: 'addRemediationCreatorIDs', removeKey: 'removeRemediationCreatorIDs', acl: true },
+    { name: 'reportCreators', addKey: 'addReportCreatorIDs', removeKey: 'removeReportCreatorIDs', acl: true },
+    { name: 'reportMembershipCreators', addKey: 'addReportMembershipCreatorIDs', removeKey: 'removeReportMembershipCreatorIDs', acl: true },
     { name: 'reviewCreators', addKey: 'addReviewCreatorIDs', removeKey: 'removeReviewCreatorIDs', acl: true },
     { name: 'riskCreators', addKey: 'addRiskCreatorIDs', removeKey: 'removeRiskCreatorIDs', acl: true },
     { name: 'riskManager', addKey: 'addRiskManagerIDs', removeKey: 'removeRiskManagerIDs', acl: true },
@@ -2078,6 +2108,7 @@ export const MERGEABLE_EDGES_BY_TYPE = {
     { name: 'workflowDefinitionCreators', addKey: 'addWorkflowDefinitionCreatorIDs', removeKey: 'removeWorkflowDefinitionCreatorIDs', acl: true },
     { name: 'workflowsManager', addKey: 'addWorkflowsManagerIDs', removeKey: 'removeWorkflowsManagerIDs', acl: true },
   ],
+  OrganizationBrandingSetting: [],
   OrganizationSetting: [{ name: 'files', addKey: 'addFileIDs', removeKey: 'removeFileIDs', acl: false }],
   PersonalAccessToken: [
     { name: 'events', addKey: 'addEventIDs', removeKey: 'removeEventIDs', acl: false },
@@ -2173,6 +2204,12 @@ export const MERGEABLE_EDGES_BY_TYPE = {
     { name: 'vulnerabilities', addKey: 'addVulnerabilityIDs', removeKey: 'removeVulnerabilityIDs', acl: false },
     { name: 'workflowObjectRefs', addKey: 'addWorkflowObjectRefIDs', removeKey: 'removeWorkflowObjectRefIDs', acl: false },
   ],
+  Report: [
+    { name: 'blockedGroups', addKey: 'addBlockedGroupIDs', removeKey: 'removeBlockedGroupIDs', acl: true },
+    { name: 'editors', addKey: 'addEditorIDs', removeKey: 'removeEditorIDs', acl: true },
+    { name: 'viewers', addKey: 'addViewerIDs', removeKey: 'removeViewerIDs', acl: true },
+  ],
+  ReportMembership: [],
   Review: [
     { name: 'actionPlans', addKey: 'addActionPlanIDs', removeKey: 'removeActionPlanIDs', acl: false },
     { name: 'assets', addKey: 'addAssetIDs', removeKey: 'removeAssetIDs', acl: false },
@@ -2375,6 +2412,8 @@ export const MERGEABLE_EDGES_BY_TYPE = {
     { name: 'platformsOwned', addKey: 'addPlatformsOwnedIDs', removeKey: 'removePlatformsOwnedIDs', acl: false },
     { name: 'programs', addKey: 'addProgramIDs', removeKey: 'removeProgramIDs', acl: false },
     { name: 'programsOwned', addKey: 'addProgramsOwnedIDs', removeKey: 'removeProgramsOwnedIDs', acl: false },
+    { name: 'reports', addKey: 'addReportIDs', removeKey: 'removeReportIDs', acl: false },
+    { name: 'reportsOwned', addKey: 'addReportsOwnedIDs', removeKey: 'removeReportsOwnedIDs', acl: false },
     { name: 'subcontrols', addKey: 'addSubcontrolIDs', removeKey: 'removeSubcontrolIDs', acl: false },
     { name: 'subscribers', addKey: 'addSubscriberIDs', removeKey: 'removeSubscriberIDs', acl: false },
     { name: 'tfaSettings', addKey: 'addTfaSettingIDs', removeKey: 'removeTfaSettingIDs', acl: false },
@@ -2464,6 +2503,7 @@ export const SINGLE_RECORD_QUERY_FIELD_BY_TYPE = {
   NotificationTemplate: 'notificationTemplate',
   OrgMembership: 'orgMembership',
   Organization: 'organization',
+  OrganizationBrandingSetting: 'organizationBrandingSetting',
   OrganizationSetting: 'organizationSetting',
   PersonalAccessToken: 'personalAccessToken',
   Platform: 'platform',
@@ -2471,6 +2511,8 @@ export const SINGLE_RECORD_QUERY_FIELD_BY_TYPE = {
   Program: 'program',
   ProgramMembership: 'programMembership',
   Remediation: 'remediation',
+  Report: 'report',
+  ReportMembership: 'reportMembership',
   Review: 'review',
   Risk: 'risk',
   SLADefinition: 'slaDefinition',

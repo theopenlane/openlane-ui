@@ -1,15 +1,12 @@
 import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
+import { openFirstOpenlaneStandard } from '../utils/standards'
 
 const toast = (page: Page, title: string) => page.getByText(title, { exact: true })
 
 const gotoFirstStandard = async (page: Page) => {
-  await page.goto('/standards', { waitUntil: 'domcontentloaded', timeout: 180_000 })
-  await expect(page.getByText(/Controls:\s*\d+/).first()).toBeVisible({ timeout: 30_000 })
-  const href = await page.locator('a[href^="standards/"]').first().getAttribute('href')
-  expect(href, 'the catalog rendered no standard to open').toBeTruthy()
-  await page.goto(`/${href}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+  await openFirstOpenlaneStandard(page)
   await expect(page.getByRole('button', { name: /^Add Controls/ })).toBeVisible({ timeout: 60_000 })
 }
 

@@ -5836,6 +5836,111 @@ export interface CreateOnboardingMutation {
   createOnboarding: { onboarding: { companyDetails: any; companyName: string; domains: Array<string> | null; compliance: any; id: string; organizationID: string | null; userDetails: any } }
 }
 
+export type OrganizationBrandingSettingsWithFilterQueryVariables = Exact<{
+  where?: Types.OrganizationBrandingSettingWhereInput | null | undefined
+  orderBy?: Array<Types.OrganizationBrandingSettingOrder> | Types.OrganizationBrandingSettingOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface OrganizationBrandingSettingsWithFilterQuery {
+  organizationBrandingSettings: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        backgroundColor: string | null
+        createdAt: any
+        createdBy: string | null
+        fontFamily: string | null
+        id: string
+        organizationID: string | null
+        primaryColor: string | null
+        removeAssessmentBranding: boolean | null
+        secondaryColor: string | null
+        textColor: string | null
+        updatedAt: any
+        updatedBy: string | null
+        updatedByImpersonator: string | null
+      } | null
+    } | null> | null
+    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type OrganizationBrandingSettingQueryVariables = Exact<{
+  organizationBrandingSettingId: string
+}>
+
+export interface OrganizationBrandingSettingQuery {
+  organizationBrandingSetting: {
+    backgroundColor: string | null
+    createdAt: any
+    createdBy: string | null
+    fontFamily: string | null
+    id: string
+    organizationID: string | null
+    primaryColor: string | null
+    removeAssessmentBranding: boolean | null
+    secondaryColor: string | null
+    textColor: string | null
+    updatedAt: any
+    updatedBy: string | null
+    updatedByImpersonator: string | null
+  }
+}
+
+export type CreateOrganizationBrandingSettingMutationVariables = Exact<{
+  input: Types.CreateOrganizationBrandingSettingInput
+}>
+
+export interface CreateOrganizationBrandingSettingMutation {
+  createOrganizationBrandingSetting: { organizationBrandingSetting: { id: string } }
+}
+
+export type UpdateOrganizationBrandingSettingMutationVariables = Exact<{
+  updateOrganizationBrandingSettingId: string
+  input: Types.UpdateOrganizationBrandingSettingInput
+}>
+
+export interface UpdateOrganizationBrandingSettingMutation {
+  updateOrganizationBrandingSetting: { organizationBrandingSetting: { id: string } }
+}
+
+export type DeleteOrganizationBrandingSettingMutationVariables = Exact<{
+  deleteOrganizationBrandingSettingId: string
+}>
+
+export interface DeleteOrganizationBrandingSettingMutation {
+  deleteOrganizationBrandingSetting: { deletedID: string }
+}
+
+export type CreateBulkCsvOrganizationBrandingSettingMutationVariables = Exact<{
+  input: any
+}>
+
+export interface CreateBulkCsvOrganizationBrandingSettingMutation {
+  createBulkCSVOrganizationBrandingSetting: { organizationBrandingSettings: Array<{ id: string }> | null }
+}
+
+export type DeleteBulkOrganizationBrandingSettingMutationVariables = Exact<{
+  ids: Array<string> | string
+}>
+
+export interface DeleteBulkOrganizationBrandingSettingMutation {
+  deleteBulkOrganizationBrandingSetting: { deletedIDs: Array<string>; notDeletedIDs: Array<string>; error: string | null }
+}
+
+export type UpdateBulkOrganizationBrandingSettingMutationVariables = Exact<{
+  ids: Array<string> | string
+  input: Types.UpdateOrganizationBrandingSettingInput
+}>
+
+export interface UpdateBulkOrganizationBrandingSettingMutation {
+  updateBulkOrganizationBrandingSetting: { updatedIDs: Array<string> | null }
+}
+
 export type GetAllOrganizationsQueryVariables = Exact<{ [key: string]: never }>
 
 export interface GetAllOrganizationsQuery {
@@ -8127,6 +8232,29 @@ export interface GetAllStandardsQuery {
   }
 }
 
+export type GetStandardsCatalogQueryVariables = Exact<{
+  where?: Types.StandardWhereInput | null | undefined
+}>
+
+export interface GetStandardsCatalogQuery {
+  standards: {
+    edges: Array<{
+      node: {
+        id: string
+        shortName: string | null
+        version: string | null
+        standardType: string | null
+        updatedAt: any
+        tags: Array<string> | null
+        description: string | null
+        systemOwned: boolean | null
+        logoFile: { base64: string | null } | null
+        controls: { totalCount: number }
+      } | null
+    } | null> | null
+  }
+}
+
 export type GetStandardByIdMinifiedQueryVariables = Exact<{
   standardId: string
 }>
@@ -8154,10 +8282,19 @@ export interface GetStandardDetailsQuery {
     link: string | null
     framework: string | null
     governingBody: string | null
+    systemOwned: boolean | null
     controls: { totalCount: number }
     controlsWithSubcontrols: { totalCount: number }
     logoFile: { base64: string | null } | null
   }
+}
+
+export type GetStandardCategoriesQueryVariables = Exact<{
+  where?: Types.StandardWhereInput | null | undefined
+}>
+
+export interface GetStandardCategoriesQuery {
+  standards: { edges: Array<{ node: { id: string; standardType: string | null } | null } | null> | null }
 }
 
 export type CreateControlsByCloneMutationVariables = Exact<{

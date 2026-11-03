@@ -7,24 +7,18 @@ import { Input } from '@repo/ui/input'
 import { usePathname } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type ControlListStandardFieldsFragment, type ControlWhereInput } from '@repo/codegen/src/schema'
-import { hasPermission } from '@/lib/authz/utils.ts'
-import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
-import { type TPermissionData } from '@/types/authz'
 import { DataTable } from '@repo/ui/data-table'
 import { getColumns } from './columns'
-import AddToOrganizationDialog from './add-to-organization-dialog'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
-import { type VisibilityState } from '@repo/ui/table-types'
-import ControlDetailsSheet from './control-details-sheet'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { useSession } from 'next-auth/react'
+import { STANDARD_OWN_CONTROLS_WHERE } from './custom-framework/custom-framework'
 
-const generateWhere = (id: string, searchValue: string) => ({
+const generateWhere = (id: string, searchValue: string): ControlWhereInput => ({
   and: [
-    { ownerIDIsNil: true },
+    STANDARD_OWN_CONTROLS_WHERE,
     { standardID: id },
     {
       or: [{ refCodeContainsFold: searchValue }, { categoryContainsFold: searchValue }, { subcategoryContainsFold: searchValue }, { descriptionContainsFold: searchValue }],
@@ -34,27 +28,14 @@ const generateWhere = (id: string, searchValue: string) => ({
 
 type TStandardDetailsAccordionProps = {
   standardId: string
-  standardName?: string | undefined
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
-  isDialogOpen: boolean
-  setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>
-  permission: TPermissionData | undefined
-  isLoadingPermission: boolean
+  selectable: boolean
   showSubcontrolsColumn: boolean
+  rowHref?: (control: ControlListStandardFieldsFragment) => string
+  emptyState?: React.ReactNode
 }
-const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
-  standardId,
-  standardName,
-  selectedControls,
-  setSelectedControls,
-  isDialogOpen,
-  setIsDialogOpen,
-  permission,
-  isLoadingPermission,
-  showSubcontrolsColumn,
-}) => {
-  const { data: session } = useSession()
+const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ standardId, selectedControls, setSelectedControls, selectable, showSubcontrolsColumn, rowHref, emptyState }) => {
   const pathname = usePathname()
 
   const hasInitializedRef = useRef(false)
@@ -64,12 +45,8 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const where = generateWhere(standardId, debouncedSearchQuery)
-  const allControls = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: !!standardId })
+  const allControls = useAllControlsGroupedWithListFields({ where, enabled: !!standardId })
   const { convertToReadOnly } = usePlateEditor()
-
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    select: true,
-  })
 
   const groupedControls = useMemo(() => {
     const controlsList = allControls?.allControls ?? []
@@ -93,17 +70,6 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
     },
     [setSelectedControls],
   )
-
-  useEffect(() => {
-    if (!isLoadingPermission) {
-      const canCreateControlPermission = hasPermission(permission?.roles, AccessEnum.CanCreateControl, session)
-
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canCreateControlPermission,
-      }))
-    }
-  }, [isLoadingPermission, permission, session])
 
   const columnsByCategory = useMemo(() => {
     return Object.fromEntries(
@@ -226,9 +192,9 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
                     paginationMeta={{
                       totalCount: controls.length,
                     }}
-                    rowHref={(row) => `${pathname}?controlId=${row.id}`}
+                    rowHref={rowHref ?? ((row) => `${pathname}?controlId=${row.id}`)}
                     pagination={paginations[category] ?? DEFAULT_PAGINATION}
-                    columnVisibility={columnVisibility}
+                    columnVisibility={{ select: selectable }}
                     onPaginationChange={(newPagination) => handlePaginationChange(category, newPagination)}
                     stickyHeader
                     tableKey={TableKeyEnum.STANDARD_DETAILS_ACCORDION}
@@ -240,14 +206,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
         })}
       </Accordion>
 
-      <AddToOrganizationDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        standardId={selectedControls.length === 0 ? standardId : undefined}
-        selectedControls={selectedControls.length > 0 ? selectedControls : []}
-        standardName={selectedControls.length === 0 ? standardName : undefined}
-      />
-      <ControlDetailsSheet />
+      {!allControls.isLoading && !searchQuery && allSectionKeys.length === 0 && emptyState}
     </div>
   )
 }

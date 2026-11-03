@@ -1,6 +1,7 @@
 'use client'
 import { useGetStandards } from '@/lib/graphql-hooks/standard'
-import { type ControlWhereInput, type Standard } from '@repo/codegen/src/schema'
+import { type ControlWhereInput } from '@repo/codegen/src/schema'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 import React, { useMemo, useState } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { statCardStyles } from '@/components/shared/stats-cards/stats-cards-styles'
@@ -26,7 +27,7 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
   const { data } = useGetStandards({})
 
   const [showCheckboxes, setShowCheckboxes] = useState<boolean>(false)
-  const frameworks = [...(data?.standards?.edges?.map((edge) => edge?.node as Standard) || [])]
+  const frameworks = getNodes(data?.standards)
   const { wrapper, content } = statCardStyles()
   const [customSelected, setCustomSelected] = useState(false)
 
@@ -116,7 +117,7 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
                   <div key={framework.id} className="flex items-center space-x-2">
                     <Checkbox id={framework.id} checked={selectedFrameworkIds.includes(framework.id)} onCheckedChange={() => handleToggle(framework.id)} />
                     <Label htmlFor={framework.id} className="text-sm">
-                      {framework.shortName ?? framework.name}
+                      {framework.shortName}
                     </Label>
                   </div>
                 ))}

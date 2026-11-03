@@ -29,6 +29,31 @@ export const GET_ALL_STANDARDS = gql`
     }
   }
 `
+
+export const GET_STANDARDS_CATALOG = gql`
+  query GetStandardsCatalog($where: StandardWhereInput) {
+    standards(where: $where) {
+      edges {
+        node {
+          id
+          shortName
+          version
+          standardType
+          updatedAt
+          tags
+          description
+          systemOwned
+          logoFile {
+            base64
+          }
+          controls(where: { or: [{ ownerIDIsNil: true }, { hasStandardWith: [{ or: [{ systemOwned: false }, { systemOwnedIsNil: true }] }] }] }) {
+            totalCount
+          }
+        }
+      }
+    }
+  }
+`
 export const GET_STANDARD_BY_ID_MINIFIED = gql`
   query GetStandardByIdMinified($standardId: ID!) {
     standard(id: $standardId) {
@@ -55,14 +80,28 @@ export const GET_STANDARD_DETAILS = gql`
       link
       framework
       governingBody
-      controls(where: { ownerIDIsNil: true }) {
+      systemOwned
+      controls(where: { or: [{ ownerIDIsNil: true }, { hasStandardWith: [{ or: [{ systemOwned: false }, { systemOwnedIsNil: true }] }] }] }) {
         totalCount
       }
-      controlsWithSubcontrols: controls(where: { ownerIDIsNil: true, hasSubcontrols: true }) {
+      controlsWithSubcontrols: controls(where: { hasSubcontrols: true, or: [{ ownerIDIsNil: true }, { hasStandardWith: [{ or: [{ systemOwned: false }, { systemOwnedIsNil: true }] }] }] }) {
         totalCount
       }
       logoFile {
         base64
+      }
+    }
+  }
+`
+
+export const GET_STANDARD_CATEGORIES = gql`
+  query GetStandardCategories($where: StandardWhereInput) {
+    standards(where: $where) {
+      edges {
+        node {
+          id
+          standardType
+        }
       }
     }
   }
