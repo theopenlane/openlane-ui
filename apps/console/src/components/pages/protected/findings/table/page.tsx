@@ -16,8 +16,12 @@ import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet
 import ViewFindingSheet from '../view-finding-sheet'
 import { FindingSeverityChart } from '@/components/shared/severity-chart/severity-chart'
 import { useSlaQuickFilters } from '@/hooks/useSla'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { type TBulkEditAssociations } from '@/components/shared/crud-base/dialog/bulk-edit'
 
 const DEFAULT_FILTER_VALUES = { open: true }
+
+const BULK_EDIT_ASSOCIATIONS: TBulkEditAssociations<UpdateFindingInput> = { addAssetIDs: ObjectTypeObjects.ASSET }
 
 const FindingPage: React.FC = () => {
   const router = useRouter()
@@ -66,6 +70,7 @@ const FindingPage: React.FC = () => {
       return result.updateBulkFinding
     },
     bulkEditFormSchema: bulkEditFieldSchema,
+    bulkEditAssociations: BULK_EDIT_ASSOCIATIONS,
     responsibilityFields: { internalOwner: FINDING_INTERNAL_OWNER },
     enumOpts,
     defaultFilterValues: DEFAULT_FILTER_VALUES,

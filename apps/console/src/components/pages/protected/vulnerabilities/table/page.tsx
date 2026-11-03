@@ -22,8 +22,12 @@ import { VULNERABILITY_ASSOCIATION_CONFIG } from '@/components/shared/object-ass
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { useSlaQuickFilters } from '@/hooks/useSla'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { type TBulkEditAssociations } from '@/components/shared/crud-base/dialog/bulk-edit'
 
 const DEFAULT_FILTER_VALUES = { open: true }
+
+const BULK_EDIT_ASSOCIATIONS: TBulkEditAssociations<UpdateVulnerabilityInput> = { addAssetIDs: ObjectTypeObjects.ASSET }
 
 const VulnerabilityPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -149,6 +153,7 @@ const VulnerabilityPage: React.FC = () => {
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     bulkEditFieldLabels: { assignedTo: 'Assignee' },
+    bulkEditAssociations: BULK_EDIT_ASSOCIATIONS,
     responsibilityFields: {
       internalOwner: { fieldBaseName: 'internalOwner' },
       assignedTo: { fieldBaseName: 'assignedTo' },

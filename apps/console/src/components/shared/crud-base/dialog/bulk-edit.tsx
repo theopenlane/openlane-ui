@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { z, type ZodObject, type ZodRawShape } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useWatch } from 'react-hook-form'
@@ -25,6 +25,16 @@ import { ResponsibilityPicker } from '../form-fields/responsibility-picker'
 import { useBulkUpdateFeedback } from '../use-bulk-update-feedback'
 import { type BulkUpdatePayload } from '../types'
 import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { OBJECT_QUERY_CONFIG, type ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { getAssociationActionLabel } from '@/components/shared/bulk-edit-shared-objects/association-action-labels'
+import { buildMutationKey } from '@/components/shared/object-association/utils'
+import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
+import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
+import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-single-object-association'
+
+type TAssociationAddKey<TUpdateInput> = { [K in keyof TUpdateInput]-?: K extends `add${string}IDs` ? K : never }[keyof TUpdateInput]
+
+export type TBulkEditAssociations<TUpdateInput> = Partial<Record<TAssociationAddKey<TUpdateInput>, ObjectTypeObjects>>
 
 export type ResponsibilityFieldsMap = Record<string, { fieldBaseName: string; allowPersonnel?: boolean; stringFieldName?: string }>
 
@@ -48,6 +58,7 @@ interface GenericBulkEditDialogProps<T extends { id: string }, TUpdateInput> {
   enumOpts?: EnumOptionsGeneric
   responsibilityFields?: ResponsibilityFieldsMap
   fieldLabels?: Record<string, string>
+  associations?: TBulkEditAssociations<TUpdateInput>
 }
 
 const fieldItemSchema = z.object({
@@ -85,8 +96,23 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
   enumOpts,
   responsibilityFields,
   fieldLabels,
+  associations,
 }: GenericBulkEditDialogProps<T, TUpdateInput>) {
-  const getFieldLabel = (key: string) => fieldLabels?.[key] ?? toHumanLabel(key)
+  const { hasObjectType } = useModuleAccess()
+  const associationTypes = useMemo(
+    () =>
+      new Map(
+        (Object.entries(associations ?? {}) as [string, ObjectTypeObjects][]).filter(
+          ([key, objectType]) => key === buildMutationKey('add', OBJECT_QUERY_CONFIG[objectType].inputName) && hasObjectType(OBJECT_QUERY_CONFIG[objectType].objectType),
+        ),
+      ),
+    [associations, hasObjectType],
+  )
+  const getFieldLabel = (key: string) => {
+    const associationType = associationTypes.get(key)
+    return fieldLabels?.[key] ?? (associationType ? getAssociationActionLabel(associationType) : toHumanLabel(key))
+  }
+  const [collapsedAssociations, setCollapsedAssociations] = useState<Record<string, boolean>>({})
   const [open, setOpen] = useState(openProp ?? false)
   const { errorNotification } = useNotification()
   const { notifyBulkUpdate } = useBulkUpdateFeedback()
@@ -105,7 +131,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
   })
 
   const fieldShape = schema.shape
-  const fieldKeys = Object.keys(fieldShape)
+  const fieldKeys = [...Object.keys(fieldShape), ...associationTypes.keys()]
 
   const { control, handleSubmit } = form
 
@@ -133,6 +159,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
         selectedDate: undefined,
         selectedResponsibility: undefined,
       })
+      setCollapsedAssociations({})
     }
   }, [open, append, replace])
 
@@ -218,136 +245,156 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                   return zodType
                 }
                 const innerZodType = zodType ? getInnerZodType(zodType) : undefined
+                const association = fieldKey ? associationTypes.get(fieldKey) : undefined
 
                 return (
-                  <div key={item.id} className="flex items-center gap-2 w-full">
-                    <div className="flex flex-col items-start gap-2">
-                      <Select
-                        value={fieldKey || undefined}
-                        onValueChange={(value) => {
-                          update(index, {
-                            fieldKey: value,
-                            selectedValue: undefined,
-                            selectedDate: undefined,
-                            selectedResponsibility: undefined,
-                          })
-                        }}
-                      >
-                        <SelectTrigger className="w-48">
-                          <SelectValue placeholder="Select field..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {fieldKeys.map((key) => (
-                            <SelectItem key={key} value={key} disabled={fields.some((f, i) => watchedFields[i]?.fieldKey === key && i !== index)}>
-                              {getFieldLabel(key)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {fieldKey && responsibilityFields?.[fieldKey] ? (
-                      <Controller
-                        control={control}
-                        name={`fieldsArray.${index}.selectedResponsibility`}
-                        render={({ field }) => (
-                          <ResponsibilityPicker allowPersonnel={responsibilityFields[fieldKey].allowPersonnel} value={field.value as ResponsibilitySelection} onChange={field.onChange} />
-                        )}
-                      />
-                    ) : fieldKey && innerZodType instanceof z.ZodArray && selectOptions ? (
-                      <Controller
-                        control={control}
-                        name={`fieldsArray.${index}.selectedValue`}
-                        render={({ field }) => {
-                          const selectedIds = Array.isArray(field.value) ? (field.value as string[]) : []
-                          const value: Option[] = selectedIds.map((id) => selectOptions.find((o) => o.value === id) ?? { value: id, label: id })
-                          return (
-                            <MultipleSelector
-                              commandProps={{ className: 'w-60' }}
-                              options={selectOptions}
-                              value={value}
-                              placeholder={`Select ${getFieldLabel(fieldKey).toLowerCase()}...`}
-                              onChange={(opts) => field.onChange(opts.map((o) => o.value))}
+                  <div key={item.id} className="flex flex-col gap-2 w-full">
+                    <div className="flex items-center gap-2 w-full">
+                      <div className="flex flex-col items-start gap-2">
+                        <Select
+                          value={fieldKey || undefined}
+                          onValueChange={(value) => {
+                            update(index, {
+                              fieldKey: value,
+                              selectedValue: undefined,
+                              selectedDate: undefined,
+                              selectedResponsibility: undefined,
+                            })
+                          }}
+                        >
+                          <SelectTrigger className="w-48">
+                            <SelectValue placeholder="Select field..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {fieldKeys.map((key) => (
+                              <SelectItem key={key} value={key} disabled={fields.some((f, i) => watchedFields[i]?.fieldKey === key && i !== index)}>
+                                {getFieldLabel(key)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {association ? null : fieldKey && responsibilityFields?.[fieldKey] ? (
+                        <Controller
+                          control={control}
+                          name={`fieldsArray.${index}.selectedResponsibility`}
+                          render={({ field }) => (
+                            <ResponsibilityPicker allowPersonnel={responsibilityFields[fieldKey].allowPersonnel} value={field.value as ResponsibilitySelection} onChange={field.onChange} />
+                          )}
+                        />
+                      ) : fieldKey && innerZodType instanceof z.ZodArray && selectOptions ? (
+                        <Controller
+                          control={control}
+                          name={`fieldsArray.${index}.selectedValue`}
+                          render={({ field }) => {
+                            const selectedIds = Array.isArray(field.value) ? (field.value as string[]) : []
+                            const value: Option[] = selectedIds.map((id) => selectOptions.find((o) => o.value === id) ?? { value: id, label: id })
+                            return (
+                              <MultipleSelector
+                                commandProps={{ className: 'w-60' }}
+                                options={selectOptions}
+                                value={value}
+                                placeholder={`Select ${getFieldLabel(fieldKey).toLowerCase()}...`}
+                                onChange={(opts) => field.onChange(opts.map((o) => o.value))}
+                              />
+                            )
+                          }}
+                        />
+                      ) : fieldKey && selectOptions ? (
+                        <Controller
+                          control={control}
+                          name={`fieldsArray.${index}.selectedValue`}
+                          render={({ field }) => (
+                            <Select value={field.value === undefined ? undefined : String(field.value)} onValueChange={field.onChange}>
+                              <SelectTrigger className="w-60">
+                                <SelectValue placeholder={`Select ${getFieldLabel(fieldKey).toLowerCase()}...`} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {selectOptions.map((option) => (
+                                  <SelectItem key={String(option.value)} value={String(option.value)}>
+                                    {String(option.label)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                      ) : fieldKey && innerZodType instanceof z.ZodDate ? (
+                        // Render date picker
+                        <Controller
+                          control={control}
+                          name={`fieldsArray.${index}.selectedDate`}
+                          render={({ field }) => (
+                            <CalendarPopover
+                              required={false}
+                              field={field}
+                              showNowButton={true}
+                              onChange={(date) => {
+                                if (date) field.onChange(new Date(date))
+                              }}
                             />
-                          )
-                        }}
-                      />
-                    ) : fieldKey && selectOptions ? (
-                      <Controller
-                        control={control}
-                        name={`fieldsArray.${index}.selectedValue`}
-                        render={({ field }) => (
-                          <Select value={field.value === undefined ? undefined : String(field.value)} onValueChange={field.onChange}>
-                            <SelectTrigger className="w-60">
-                              <SelectValue placeholder={`Select ${getFieldLabel(fieldKey).toLowerCase()}...`} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {selectOptions.map((option) => (
-                                <SelectItem key={String(option.value)} value={String(option.value)}>
-                                  {String(option.label)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                    ) : fieldKey && innerZodType instanceof z.ZodDate ? (
-                      // Render date picker
-                      <Controller
-                        control={control}
-                        name={`fieldsArray.${index}.selectedDate`}
-                        render={({ field }) => (
-                          <CalendarPopover
-                            required={false}
-                            field={field}
-                            showNowButton={true}
-                            onChange={(date) => {
-                              if (date) field.onChange(new Date(date))
-                            }}
+                          )}
+                        />
+                      ) : fieldKey && innerZodType instanceof z.ZodBoolean ? (
+                        // Render boolean select
+                        <Controller
+                          control={control}
+                          name={`fieldsArray.${index}.selectedValue`}
+                          render={({ field }) => (
+                            <Select value={field.value === undefined ? undefined : String(field.value)} onValueChange={(val) => field.onChange(val === 'true')}>
+                              <SelectTrigger className="w-32">
+                                <SelectValue placeholder="Select value..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="true">True</SelectItem>
+                                <SelectItem value="false">False</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                      ) : fieldKey ? (
+                        // Fallback to text input
+                        <Controller
+                          control={control}
+                          name={`fieldsArray.${index}.selectedValue`}
+                          render={({ field }) => (
+                            <Input {...field} variant="medium" placeholder={getFieldLabel(fieldKey || '')} className="w-full" value={field.value === undefined ? '' : String(field.value)} />
+                          )}
+                        />
+                      ) : null}
+                      <Button icon={<Trash2 />} iconPosition="center" variant="secondary" className={association ? 'ml-auto' : undefined} onClick={() => remove(index)}></Button>
+                    </div>
+                    {association && (
+                      <BulkEditAssociationCollapsible
+                        isCollapsed={!!collapsedAssociations[item.id]}
+                        selectedCount={Array.isArray(watchedFields[index]?.selectedValue) ? watchedFields[index].selectedValue.length : 0}
+                        displayLabel={getAssociationActionLabel(association)}
+                        onToggle={() => setCollapsedAssociations((prev) => ({ ...prev, [item.id]: !prev[item.id] }))}
+                      >
+                        <div className="max-h-[40vh] overflow-y-auto">
+                          <BulkEditSingleObjectAssociation
+                            key={association}
+                            objectType={association}
+                            onChange={(map) => form.setValue(`fieldsArray.${index}.selectedValue`, map[OBJECT_QUERY_CONFIG[association].inputName] ?? [])}
                           />
-                        )}
-                      />
-                    ) : fieldKey && innerZodType instanceof z.ZodBoolean ? (
-                      // Render boolean select
-                      <Controller
-                        control={control}
-                        name={`fieldsArray.${index}.selectedValue`}
-                        render={({ field }) => (
-                          <Select value={field.value === undefined ? undefined : String(field.value)} onValueChange={(val) => field.onChange(val === 'true')}>
-                            <SelectTrigger className="w-32">
-                              <SelectValue placeholder="Select value..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="true">True</SelectItem>
-                              <SelectItem value="false">False</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                    ) : fieldKey ? (
-                      // Fallback to text input
-                      <Controller
-                        control={control}
-                        name={`fieldsArray.${index}.selectedValue`}
-                        render={({ field }) => (
-                          <Input {...field} variant="medium" placeholder={getFieldLabel(fieldKey || '')} className="w-full" value={field.value === undefined ? '' : String(field.value)} />
-                        )}
-                      />
-                    ) : null}
-                    <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
+                        </div>
+                      </BulkEditAssociationCollapsible>
+                    )}
                   </div>
                 )
               })}
               {fields.length < fieldKeys.length && (
                 <Button
                   icon={<Plus />}
-                  onClick={() =>
+                  onClick={() => {
+                    setCollapsedAssociations(Object.fromEntries(fields.flatMap((f, i) => (associationTypes.has(watchedFields[i]?.fieldKey ?? '') ? [[f.id, true]] : []))))
                     append({
                       fieldKey: undefined,
                       selectedValue: undefined,
                       selectedDate: undefined,
                       selectedResponsibility: undefined,
                     })
-                  }
+                  }}
                   iconPosition="left"
                   variant="secondary"
                 >

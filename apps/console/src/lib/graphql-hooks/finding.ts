@@ -43,6 +43,7 @@ import {
   UPDATE_FINDING_COMMENT,
 } from '@repo/codegen/query/finding'
 import { useEntityComments } from '@/lib/graphql-hooks/entity-comments'
+import { invalidateEdgeUpdateTargets } from '@/components/shared/object-association/object-association-config'
 
 type GetAllFindingsArgs = {
   where?: FindingsWithFilterQueryVariables['where']
@@ -110,8 +111,9 @@ export const useUpdateFinding = () => {
   const queryClient = useQueryClient()
   return useMutation<UpdateFindingMutation, unknown, UpdateFindingMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_FINDING, variables),
-    onSuccess: () => {
+    onSuccess: (_, { input }) => {
       queryClient.invalidateQueries({ queryKey: ['findings'] })
+      invalidateEdgeUpdateTargets(input, queryClient)
     },
   })
 }
@@ -141,8 +143,9 @@ export const useBulkEditFinding = () => {
   const { client, queryClient } = useGraphQLClient()
   return useMutation<UpdateBulkFindingMutation, unknown, UpdateBulkFindingMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_EDIT_FINDING, variables),
-    onSuccess: () => {
+    onSuccess: (_, { input }) => {
       queryClient.invalidateQueries({ queryKey: ['findings'] })
+      invalidateEdgeUpdateTargets(input, queryClient)
     },
   })
 }

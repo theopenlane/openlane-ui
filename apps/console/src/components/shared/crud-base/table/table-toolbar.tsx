@@ -24,7 +24,7 @@ import { type TQuickFilter } from '../../table-filter/table-filter-helper'
 import { type FilterField } from '@/types'
 import type { WhereCondition } from '@/types'
 import { type TFilterState } from '../../table-filter/filter-storage'
-import { GenericBulkEditDialog, type ResponsibilityFieldsMap } from '../dialog/bulk-edit'
+import { GenericBulkEditDialog, type ResponsibilityFieldsMap, type TBulkEditAssociations } from '../dialog/bulk-edit'
 import { type EnumOptionsGeneric } from '../page'
 import type { BulkDeletePayload, BulkUpdatePayload, CreateMode } from '../types'
 import { getBulkActionFailureDescription } from '../bulk-action-feedback'
@@ -65,6 +65,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   enumOpts?: EnumOptionsGeneric
   responsibilityFields?: ResponsibilityFieldsMap
   bulkEditFieldLabels?: Record<string, string>
+  bulkEditAssociations?: TBulkEditAssociations<TUpdateInput>
   createMode?: CreateMode
   hideCreate?: boolean
   createPermission?: TAccessRole
@@ -173,6 +174,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                       displayNamePlural={props.displayNamePlural}
                       responsibilityFields={props.responsibilityFields}
                       fieldLabels={props.bulkEditFieldLabels}
+                      associations={props.bulkEditAssociations}
                     />
                   </>
                 )}

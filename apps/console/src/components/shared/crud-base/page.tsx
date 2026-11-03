@@ -26,7 +26,7 @@ import { GenericDetailsSheet, type GenericDetailsSheetConfig } from '@/component
 import { TabbedDetailView } from '@/components/shared/crud-base/tabbed-detail-view'
 import { StepDialog } from '@/components/shared/crud-base/step-dialog'
 import { GenericTableToolbar } from '@/components/shared/crud-base/table/table-toolbar'
-import { type ResponsibilityFieldsMap } from '@/components/shared/crud-base/dialog/bulk-edit'
+import { type ResponsibilityFieldsMap, type TBulkEditAssociations } from '@/components/shared/crud-base/dialog/bulk-edit'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type FilterField, type WhereInputKey } from '@/types'
@@ -151,6 +151,7 @@ export interface GenericTablePageConfig<
   onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<BulkUpdatePayload>
   bulkEditFormSchema?: ZodObject<ZodRawShape>
   bulkEditFieldLabels?: Record<string, string>
+  bulkEditAssociations?: TBulkEditAssociations<TUpdateInput>
   enumOpts?: EnumOptionsGeneric
   responsibilityFields?: ResponsibilityFieldsMap
   beforeTable?: React.ReactNode
@@ -414,6 +415,7 @@ export function GenericTablePage<
         onBulkEdit={onBulkEdit}
         bulkEditFormSchema={config.bulkEditFormSchema}
         bulkEditFieldLabels={config.bulkEditFieldLabels}
+        bulkEditAssociations={config.bulkEditAssociations}
         enumOpts={config.enumOpts}
         storageKey={tableKey}
         responsibilityFields={config.responsibilityFields}
