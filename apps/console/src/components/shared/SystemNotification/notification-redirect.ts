@@ -1,6 +1,9 @@
 import { type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { domainScanReviewHref } from '@/constants/scan-routes'
+import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
+
+export const NOTIFICATIONS_PAGE_HREF = '/notifications'
 
 interface NotificationRedirectRouter {
   push: (href: string) => void
@@ -13,38 +16,50 @@ interface DomainScanEntry {
 const isDomainScanEntryArray = (value: unknown): value is DomainScanEntry[] =>
   Array.isArray(value) && value.every((entry) => typeof entry === 'object' && entry !== null && (!('internal_scan_id' in entry) || typeof entry.internal_scan_id === 'string'))
 
-export const getNotificationRedirectUrl = (notification: Notification, returnTo?: string | null) => {
-  const isDomainScan = notification.topic === NotificationNotificationTopic.DOMAIN_SCAN || notification.objectType === 'DOMAIN_SCAN'
-  const url = notification.data?.url
+const isExternalUrl = (url: string) => url.startsWith('http://') || url.startsWith('https://')
 
-  if (isDomainScan && !url) {
+export const getNotificationHref = (notification: Notification, returnTo?: string | null) => {
+  const isDomainScan = notification.topic === NotificationNotificationTopic.DOMAIN_SCAN || notification.objectType === 'DOMAIN_SCAN'
+  const url: unknown = notification.data?.url
+  const hasUrl = typeof url === 'string' && url.trim() !== ''
+
+  if (isDomainScan && !hasUrl) {
     const scans: unknown = notification.data?.scans
     const singleScanId = isDomainScanEntryArray(scans) && scans.length === 1 ? scans[0].internal_scan_id : undefined
     return domainScanReviewHref(singleScanId || notification.id, returnTo)
   }
 
-  if (!url) {
-    return null
+  if (!hasUrl) {
+    return NOTIFICATIONS_PAGE_HREF
   }
 
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  if (isExternalUrl(url)) {
     return url
   }
 
-  return url.startsWith('/') ? url : `/${url}`
+  return sanitizeLoginRedirect(url.startsWith('/') ? url : `/${url}`, NOTIFICATIONS_PAGE_HREF)
+}
+
+export const goToNotificationsPage = (router: NotificationRedirectRouter) => {
+  if (window.location.pathname === NOTIFICATIONS_PAGE_HREF) {
+    return
+  }
+
+  router.push(NOTIFICATIONS_PAGE_HREF)
 }
 
 export const redirectToNotification = (router: NotificationRedirectRouter, notification: Notification, returnTo?: string | null) => {
-  const url = getNotificationRedirectUrl(notification, returnTo)
-  if (!url) {
-    return false
+  const url = getNotificationHref(notification, returnTo)
+
+  if (isExternalUrl(url)) {
+    window.location.assign(url)
+    return
   }
 
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    window.location.assign(url)
-    return true
+  if (url === NOTIFICATIONS_PAGE_HREF) {
+    goToNotificationsPage(router)
+    return
   }
 
   router.push(url)
-  return true
 }
