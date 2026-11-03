@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import dynamic from 'next/dynamic'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Download } from 'lucide-react'
@@ -11,6 +12,9 @@ import { SanitizedHtml } from '@/components/shared/sanitized-html/sanitized-html
 import CsvPreview from '@/components/shared/file-preview/csv-preview'
 import { isFetchedPreviewKind, resolveFileKind, type TFetchedPreviewKind, type TPreviewFileShape } from '@/components/shared/file-preview/preview-mime'
 import { InfoCard, LoadingSpinner } from '@/components/shared/file-preview/preview-chrome'
+
+// pdf.js needs the browser, so the pdf preview only loads on the client
+const PdfPreview = dynamic(() => import('@/components/shared/file-preview/pdf-preview'), { ssr: false, loading: () => <LoadingSpinner /> })
 
 export { isSafeLinkHref, SAFE_LINK_PROTOCOLS } from '@/lib/html/sanitize-html'
 
@@ -29,7 +33,6 @@ type LoadState =
   | { status: 'text'; text: string }
   | { status: 'csv'; text: string }
 
-const PREVIEW_FRAME_CLASS = 'h-[80vh] w-full overflow-hidden rounded-md border bg-muted'
 const PREVIEW_SCROLL_CLASS = 'docx-preview-container overflow-auto rounded-md border bg-card p-4 [&_.docx-wrapper]:bg-transparent!'
 const PROSE_CARD_CLASS = 'prose prose-sm dark:prose-invert max-w-none rounded-md border bg-card p-6'
 
@@ -130,7 +133,7 @@ const FetchingPreview: React.FC<{ file: PreviewFile; format: FetchedFormat }> = 
     case 'error':
       return <InfoCard tone="error" message={state.message} action={<DownloadButton file={file} />} />
     case 'pdf':
-      return <PdfPreview blob={state.blob} title={file.providedFileName} />
+      return <PdfPreview source={state.blob} title={file.providedFileName} errorAction={<DownloadButton file={file} />} />
     case 'docx':
       return <DocxPreview blob={state.blob} file={file} />
     case 'markdown':
@@ -150,21 +153,6 @@ const FetchingPreview: React.FC<{ file: PreviewFile; format: FetchedFormat }> = 
         </div>
       )
   }
-}
-
-const PdfPreview: React.FC<{ blob: Blob; title: string }> = ({ blob, title }) => {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-
-  useEffect(() => {
-    const objectUrl = URL.createObjectURL(blob)
-    setPreviewUrl(objectUrl)
-
-    return () => URL.revokeObjectURL(objectUrl)
-  }, [blob])
-
-  if (!previewUrl) return <LoadingSpinner />
-
-  return <iframe src={`${previewUrl}#toolbar=0`} className={PREVIEW_FRAME_CLASS} title={title} />
 }
 
 const DocxPreview: React.FC<{ blob: Blob; file: PreviewFile }> = ({ blob, file }) => {
