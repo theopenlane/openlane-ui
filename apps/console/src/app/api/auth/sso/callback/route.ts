@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
+import { TFA_PENDING_COOKIE_NAME } from '@/lib/auth/utils/constants'
 
 interface SSOCallbackRequest {
   code: string
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
         if (callbackResponse.tfa_enabled && !callbackResponse.access_token) {
           const responseCookies = ssoCallbackData.headers.get('set-cookie')
           if (responseCookies) {
-            parseAndSetResponseCookies(response, responseCookies, new Set(['tfa_pending']), 300)
+            parseAndSetResponseCookies(response, responseCookies, new Set([TFA_PENDING_COOKIE_NAME]), 300)
           }
         }
 

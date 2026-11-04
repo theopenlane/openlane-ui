@@ -71,7 +71,7 @@ const TfaPage: React.FC = () => {
     })
 
     if (result?.error || !result?.ok) {
-      setError('Unable to complete sign in. Please sign in again.')
+      router.push('/login?cleartfa=1')
       return
     }
 

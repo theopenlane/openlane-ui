@@ -1,5 +1,6 @@
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
+import { TFA_PENDING_COOKIE_NAME } from '@/lib/auth/utils/constants'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
 
     const responseCookies = fData.headers.get('set-cookie')
     if (responseCookies) {
-      parseAndSetResponseCookies(response, responseCookies, new Set(['tfa_pending']), 0)
+      parseAndSetResponseCookies(response, responseCookies, new Set([TFA_PENDING_COOKIE_NAME]), 0)
     }
 
     return response

@@ -1,8 +1,9 @@
+import { SUPPORT_BLOCKED_PAGES } from '@/constants/support'
+import { TFA_PENDING_COOKIE_NAME } from '@/lib/auth/utils/constants'
+import { buildLoginRedirect, buildTfaRedirect } from '@/lib/auth/utils/redirect'
+import { featureUtil } from '@/lib/subscription-plan/plans'
 import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
-import { featureUtil } from '@/lib/subscription-plan/plans'
-import { buildLoginRedirect, buildTfaRedirect } from '@/lib/auth/utils/redirect'
-import { SUPPORT_BLOCKED_PAGES } from '@/constants/support'
 
 export default auth(async (req) => {
   // Attach `next-url` header for client-side route metadata
@@ -40,10 +41,17 @@ export default auth(async (req) => {
 
   const isLoggedIn = !!session?.user?.accessToken
   const isOnboarding = session?.user?.isOnboarding
-  const pendingTfa = req.cookies.get('tfa_pending')?.value
+  const pendingTfa = req.cookies.get(TFA_PENDING_COOKIE_NAME)?.value
 
   const noModules = featureUtil.hasNoModules(session)
   const noModulesAllowedPages = ['/organization', '/organization-settings/billing', '/organization-settings/general-settings', '/user-settings/profile']
+
+  // http only cookie so could not be deleted from the client
+  // but if the user is trying to leave the tfa screen, we need to clear this out
+  if (pendingTfa && path === '/login' && req.nextUrl.searchParams.get('cleartfa')) {
+    req.cookies.delete(TFA_PENDING_COOKIE_NAME)
+    return NextResponse.next()
+  }
 
   // if the cookie is yet to expire, do not let the user land on login or other pages,
   // force them to always land here
