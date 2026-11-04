@@ -61,7 +61,7 @@ export default auth(async (req) => {
   }
 
   // if not logged in and user tries to go to another page, force them back to /tfa and add the redirect
-  if (!isLoggedIn && pendingTfa && !isPublicPage) {
+  if (!isLoggedIn && pendingTfa) {
     return NextResponse.redirect(new URL(buildTfaRedirect(`${path}${req.nextUrl.search}`), req.url))
   }
 
