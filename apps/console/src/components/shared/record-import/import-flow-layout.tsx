@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { PageHeading } from '@repo/ui/page-heading'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
-import { ImportStepNav } from './import-step-nav'
+import { StepNav } from '@/components/shared/step-nav/step-nav'
 import { importHeading, type TImportRoute } from './lib/import-routes'
 import { type TImportExit } from './lib/use-import-exit'
 import { type TImportFlowState } from './lib/use-record-import'
@@ -36,7 +36,7 @@ export const ImportFlowLayout: React.FC<TImportFlowLayoutProps> = ({ route, exit
         <PageHeading heading={importHeading(route)} subheading={route.subheading ?? DEFAULT_SUBHEADING} />
       </div>
 
-      <ImportStepNav steps={state.steps} current={state.step} />
+      <StepNav steps={state.steps} current={state.step} ariaLabel="Import steps" />
 
       {children}
 

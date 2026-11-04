@@ -1,6 +1,7 @@
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { useGetStandards } from '@/lib/graphql-hooks/standard'
 import { type Standard } from '@repo/codegen/src/schema'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { useFormContext, useWatch, useController } from 'react-hook-form'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -13,7 +14,7 @@ type StandardSelectProps = {
   defaultFramework?: string
 }
 
-const getStandardLabel = (standard: Standard) => `${standard.shortName}${standard.version ? ` (${standard.version})` : ''}`
+const getStandardLabel = (standard: Pick<Standard, 'shortName' | 'version'>) => `${standard.shortName}${standard.version ? ` (${standard.version})` : ''}`
 
 const normalizeFramework = (value?: string | null) => value?.trim().toLowerCase()
 
@@ -23,7 +24,7 @@ const StandardSelect = ({ defaultFramework }: StandardSelectProps) => {
   const { field } = useController({ name: 'framework', control })
 
   const { data } = useGetStandards({})
-  const frameworks = useMemo(() => data?.standards?.edges?.map((e) => e?.node as Standard).filter(Boolean) ?? [], [data])
+  const frameworks = useMemo(() => getNodes(data?.standards), [data])
 
   const options = useMemo(
     () =>

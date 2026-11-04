@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import { expectSlideoutMenuAction, slideoutClose, slideoutMenuAction } from '../utils/slideout'
+import { openFirstOpenlaneStandard } from '../utils/standards'
 
 test.describe('standards — list', () => {
   test('/standards renders the Standards Catalog heading for an owner', async ({ page }) => {
@@ -33,11 +34,7 @@ test.describe('standards — list', () => {
 
   test('a standard detail → Add Controls opens the add-to-organization dialog', async ({ page }) => {
     test.slow()
-    await page.goto('/standards', { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    await expect(page.getByText(/Controls:\s*\d+/).first()).toBeVisible({ timeout: 15_000 })
-
-    const href = await page.locator('a[href^="standards/"]').first().getAttribute('href')
-    await page.goto(`/${href}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await openFirstOpenlaneStandard(page)
 
     await page.getByRole('button', { name: /^Add Controls/ }).click()
     await expect(page.getByRole('dialog').getByText('Add Controls').first()).toBeVisible({ timeout: 10_000 })
@@ -46,10 +43,7 @@ test.describe('standards — list', () => {
 
 test.describe('standards — detail', () => {
   const gotoFirstStandard = async (page: Page) => {
-    await page.goto('/standards', { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    await expect(page.getByText(/Controls:\s*\d+/).first()).toBeVisible({ timeout: 15_000 })
-    const href = await page.locator('a[href^="standards/"]').first().getAttribute('href')
-    await page.goto(`/${href}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await openFirstOpenlaneStandard(page)
   }
 
   test('the Details sidebar card shows standard metadata rows', async ({ page }) => {
@@ -96,10 +90,7 @@ test.describe('standards — detail', () => {
 
 test.describe('standards — detail interactions', () => {
   const gotoFirstStandard = async (page: Page) => {
-    await page.goto('/standards', { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    await expect(page.getByText(/Controls:\s*\d+/).first()).toBeVisible({ timeout: 15_000 })
-    const href = await page.locator('a[href^="standards/"]').first().getAttribute('href')
-    await page.goto(`/${href}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await openFirstOpenlaneStandard(page)
     await expect(page.getByText('Domains', { exact: true })).toBeVisible({ timeout: 25_000 })
   }
 

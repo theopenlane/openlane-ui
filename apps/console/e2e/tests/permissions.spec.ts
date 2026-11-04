@@ -4,6 +4,7 @@ import { test, expect, readManifest, type Role } from '../fixtures/auth'
 import { loginViaApi, createInternalPolicy, createProcedure, createRisk, createEvidence, createControl, createProgram } from '../utils/api'
 import { PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON } from '../utils/permission-gating'
 import { uniqueRef } from '../utils/unique'
+import { openFirstOpenlaneStandard } from '../utils/standards'
 
 test.skip(!PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON)
 
@@ -192,12 +193,7 @@ test.describe('permissions — detail edit/delete gating', () => {
 
 test.describe('permissions — standards control import (ISS-2413)', () => {
   const gotoFirstStandard = async (page: Page): Promise<void> => {
-    await page.goto('/standards', { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    const first = page.locator('a[href^="standards/"]').first()
-    await expect(first).toBeVisible({ timeout: 30_000 })
-    const href = await first.getAttribute('href')
-    expect(href).toBeTruthy()
-    await page.goto(`/${href}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await openFirstOpenlaneStandard(page)
   }
 
   for (const role of ['owner', 'admin'] as Role[]) {

@@ -2,12 +2,14 @@
 import React from 'react'
 import { useGetStandardDetails } from '@/lib/graphql-hooks/standard'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { ExternalLink, TextCursorInput, Hammer, BookKey, FileStack, Link, Tag } from 'lucide-react'
+import { TextCursorInput, Hammer, BookKey, FileStack, Link, Tag, Shapes, Building2 } from 'lucide-react'
 import { Table, TableBody, TableCell, TableRow } from '@repo/ui/table'
 import { standardDetailsStyles } from './standard-details-card-styles'
 import StandardChip from './shared/standard-chip'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { formatDate } from '@/utils/date'
+import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
+import { isCustomStandard } from './custom-framework/custom-framework'
 
 const icons = {
   shortName: TextCursorInput,
@@ -17,6 +19,8 @@ const icons = {
   revision: FileStack,
   link: Link,
   tags: Tag,
+  category: Shapes,
+  owner: Building2,
 }
 
 type TStandardDetailsCardProps = {
@@ -36,9 +40,11 @@ const StandardDetailsCard: React.FC<TStandardDetailsCardProps> = ({ standardId }
     { label: 'Short name', value: standard.shortName, icon: icons.shortName },
     { label: 'Governing body', value: standard.governingBody, icon: icons.governingBody },
     { label: 'Framework', value: standard.framework, icon: icons.framework },
+    { label: 'Category', value: standard.standardType, icon: icons.category },
     { label: 'Version', value: standard.version, icon: icons.version },
     { label: 'Revision', value: standard.revision, icon: icons.revision },
     { label: 'Last Updated', value: formatDate(standard.updatedAt), icon: icons.revision },
+    { label: 'Owner', value: isCustomStandard(standard) ? 'Your organization' : 'Openlane', icon: icons.owner },
   ]
 
   return (
@@ -62,9 +68,7 @@ const StandardDetailsCard: React.FC<TStandardDetailsCardProps> = ({ standardId }
                   Link
                 </TableCell>
                 <TableCell className={valueCell()}>
-                  <a href={standard?.link ?? '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-500">
-                    View <ExternalLink size={16} />
-                  </a>
+                  <ExternalLinkValue value={standard.link} fallback="-" />
                 </TableCell>
               </TableRow>
               <TableRow>

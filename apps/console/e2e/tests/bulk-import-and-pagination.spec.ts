@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import { inlineCsv } from '../utils/files'
 import { expectImportPage, uploadCsvAndAssert } from '../utils/mutations'
+import { openFirstOpenlaneStandard } from '../utils/standards'
 
 const openEvidence = async (page: Page) => {
   await page.goto('/evidence', { waitUntil: 'domcontentloaded', timeout: 180_000 })
@@ -17,10 +18,7 @@ const openEvidenceImport = async (page: Page) => {
 }
 
 const openFirstStandard = async (page: Page) => {
-  await page.goto('/standards', { waitUntil: 'domcontentloaded', timeout: 180_000 })
-  await expect(page.getByText(/Controls:\s*\d+/).first()).toBeVisible({ timeout: 60_000 })
-  const href = await page.locator('a[href^="standards/"]').first().getAttribute('href')
-  await page.goto(`/${href}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+  await openFirstOpenlaneStandard(page)
   await expect(page.getByText('Domains', { exact: true })).toBeVisible({ timeout: 60_000 })
 }
 

@@ -295,6 +295,11 @@
     "keywords": ["frameworks", "regulations", "compliance"]
   },
   {
+    "route": "/standards/create",
+    "name": "Create Framework",
+    "keywords": ["custom framework", "new framework", "standards"]
+  },
+  {
     "route": "/standards/template-controls",
     "name": "Template Controls",
     "hidden": true
