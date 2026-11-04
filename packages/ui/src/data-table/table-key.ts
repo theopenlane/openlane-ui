@@ -62,6 +62,7 @@ export enum AdditionalTableKeyEnum {
   TRUST_CENTER_SUBSCRIBERS = 'trust-center-subscribers',
   TRUST_CENTER_SUBPROCESSORS = 'subprocessors',
   CUSTOM_TAGS = 'custom-tags',
+  SAVED_REPORTS = 'saved-reports',
   CUSTOM_ENUMS = 'custom-enums',
   CONTROL_DOC_PROCEDURES = 'control-doc-procedures',
   CONTROL_DOC_POLICIES = 'control-doc-policies',

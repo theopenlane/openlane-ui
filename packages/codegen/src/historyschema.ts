@@ -7348,48 +7348,28 @@ export interface UpdateBulkRemediationMutation {
   updateBulkRemediation: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
-export type ReportMembershipsWithFilterQueryVariables = Exact<{
-  where?: Types.ReportMembershipWhereInput | null | undefined
-  orderBy?: Array<Types.ReportMembershipOrder> | Types.ReportMembershipOrder | null | undefined
+export type GetReportMembersQueryVariables = Exact<{
+  reportId: string
   first?: number | null | undefined
   after?: any
-  last?: number | null | undefined
-  before?: any
 }>
 
-export interface ReportMembershipsWithFilterQuery {
-  reportMemberships: {
-    totalCount: number
-    edges: Array<{
-      node: { createdAt: any; createdBy: string | null; id: string; reportID: string; updatedAt: any; updatedBy: string | null; updatedByImpersonator: string | null; userID: string } | null
-    } | null> | null
-    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+export interface GetReportMembersQuery {
+  report: {
+    id: string
+    members: {
+      pageInfo: { hasNextPage: boolean; endCursor: any }
+      edges: Array<{ node: { id: string; role: Types.ReportMembershipRole; userID: string; user: { id: string; displayName: string; email: string } } | null } | null> | null
+    }
   }
 }
 
-export type ReportMembershipQueryVariables = Exact<{
-  reportMembershipId: string
+export type CreateBulkReportMembershipMutationVariables = Exact<{
+  input?: Array<Types.CreateReportMembershipInput> | Types.CreateReportMembershipInput | null | undefined
 }>
 
-export interface ReportMembershipQuery {
-  reportMembership: { createdAt: any; createdBy: string | null; id: string; reportID: string; updatedAt: any; updatedBy: string | null; updatedByImpersonator: string | null; userID: string }
-}
-
-export type CreateReportMembershipMutationVariables = Exact<{
-  input: Types.CreateReportMembershipInput
-}>
-
-export interface CreateReportMembershipMutation {
-  createReportMembership: { reportMembership: { id: string } }
-}
-
-export type UpdateReportMembershipMutationVariables = Exact<{
-  updateReportMembershipId: string
-  input: Types.UpdateReportMembershipInput
-}>
-
-export interface UpdateReportMembershipMutation {
-  updateReportMembership: { reportMembership: { id: string } }
+export interface CreateBulkReportMembershipMutation {
+  createBulkReportMembership: { reportMemberships: Array<{ id: string }> | null }
 }
 
 export type DeleteReportMembershipMutationVariables = Exact<{
@@ -7400,78 +7380,39 @@ export interface DeleteReportMembershipMutation {
   deleteReportMembership: { deletedID: string }
 }
 
-export type DeleteBulkReportMembershipMutationVariables = Exact<{
-  ids: Array<string> | string
-}>
-
-export interface DeleteBulkReportMembershipMutation {
-  deleteBulkReportMembership: { deletedIDs: Array<string>; notDeletedIDs: Array<string> | null; error: string | null }
-}
-
-export type UpdateBulkReportMembershipMutationVariables = Exact<{
-  ids: Array<string> | string
-  input: Types.UpdateReportMembershipInput
-}>
-
-export interface UpdateBulkReportMembershipMutation {
-  updateBulkReportMembership: { updatedIDs: Array<string> | null }
-}
-
-export type ReportsWithFilterQueryVariables = Exact<{
+export type GetAllReportsQueryVariables = Exact<{
   where?: Types.ReportWhereInput | null | undefined
-  orderBy?: Array<Types.ReportOrder> | Types.ReportOrder | null | undefined
   first?: number | null | undefined
-  after?: any
   last?: number | null | undefined
+  after?: any
   before?: any
+  orderBy?: Array<Types.ReportOrder> | Types.ReportOrder | null | undefined
 }>
 
-export interface ReportsWithFilterQuery {
+export interface GetAllReportsQuery {
   reports: {
     totalCount: number
-    edges: Array<{
-      node: {
-        createdAt: any
-        createdBy: string | null
-        displayID: string
-        id: string
-        name: string
-        query: string
-        reportKindID: string | null
-        reportKindName: string | null
-        reportOwnerID: string | null
-        requestorID: string | null
-        updatedAt: any
-        updatedBy: string | null
-        updatedByImpersonator: string | null
-        variables: any
-      } | null
-    } | null> | null
-    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+    pageInfo: { hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any; endCursor: any }
+    edges: Array<{ node: { id: string; name: string; visibility: Types.ReportReportVisibility | null; variables: any; updatedAt: any } | null } | null> | null
   }
 }
 
-export type ReportQueryVariables = Exact<{
+export type GetReportQueryVariables = Exact<{
   reportId: string
 }>
 
-export interface ReportQuery {
-  report: {
-    createdAt: any
-    createdBy: string | null
-    displayID: string
-    id: string
-    name: string
-    query: string
-    reportKindID: string | null
-    reportKindName: string | null
-    reportOwnerID: string | null
-    requestorID: string | null
-    updatedAt: any
-    updatedBy: string | null
-    updatedByImpersonator: string | null
-    variables: any
-  }
+export interface GetReportQuery {
+  report: { id: string; name: string; query: string; variables: any; visibility: Types.ReportReportVisibility | null }
+}
+
+export type GetReportViewerGroupsQueryVariables = Exact<{
+  reportId: string
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetReportViewerGroupsQuery {
+  report: { id: string; viewers: { pageInfo: { hasNextPage: boolean; endCursor: any }; edges: Array<{ node: { id: string; name: string; displayName: string } | null } | null> | null } }
 }
 
 export type CreateReportMutationVariables = Exact<{

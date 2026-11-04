@@ -147,6 +147,9 @@ const AssignPermissionsDialog = () => {
       addControlImplementationBlockedGroupIDs: [],
       addControlImplementationEditorIDs: [],
       addControlImplementationViewerIDs: [],
+      addReportViewerIDs: [],
+      addReportEditorIDs: [],
+      addReportBlockedGroupIDs: [],
     }
 
     selectedPermissions.forEach((obj) => {

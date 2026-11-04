@@ -410,7 +410,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       ],
     },
     {
-      title: 'Custom Report',
+      title: 'Reports',
       anchor: 'custom-report',
       href: '/reports/custom',
       icon: ChartLineIcon,
@@ -421,6 +421,12 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           anchor: 'builder',
           href: '/reports/custom',
           icon: ChartLineIcon,
+        },
+        {
+          title: 'Saved Reports',
+          anchor: 'saved-reports',
+          href: '/reports/saved',
+          icon: BookmarkIcon,
         },
       ],
     },
