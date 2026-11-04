@@ -5759,6 +5759,111 @@ export interface CreateOnboardingMutation {
   createOnboarding: { onboarding: { companyDetails: any; companyName: string; domains: Array<string> | null; compliance: any; id: string; organizationID: string | null; userDetails: any } }
 }
 
+export type OrganizationBrandingSettingsWithFilterQueryVariables = Exact<{
+  where?: Types.OrganizationBrandingSettingWhereInput | null | undefined
+  orderBy?: Array<Types.OrganizationBrandingSettingOrder> | Types.OrganizationBrandingSettingOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface OrganizationBrandingSettingsWithFilterQuery {
+  organizationBrandingSettings: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        backgroundColor: string | null
+        createdAt: any
+        createdBy: string | null
+        fontFamily: string | null
+        id: string
+        organizationID: string | null
+        primaryColor: string | null
+        removeAssessmentBranding: boolean | null
+        secondaryColor: string | null
+        textColor: string | null
+        updatedAt: any
+        updatedBy: string | null
+        updatedByImpersonator: string | null
+      } | null
+    } | null> | null
+    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type OrganizationBrandingSettingQueryVariables = Exact<{
+  organizationBrandingSettingId: string
+}>
+
+export interface OrganizationBrandingSettingQuery {
+  organizationBrandingSetting: {
+    backgroundColor: string | null
+    createdAt: any
+    createdBy: string | null
+    fontFamily: string | null
+    id: string
+    organizationID: string | null
+    primaryColor: string | null
+    removeAssessmentBranding: boolean | null
+    secondaryColor: string | null
+    textColor: string | null
+    updatedAt: any
+    updatedBy: string | null
+    updatedByImpersonator: string | null
+  }
+}
+
+export type CreateOrganizationBrandingSettingMutationVariables = Exact<{
+  input: Types.CreateOrganizationBrandingSettingInput
+}>
+
+export interface CreateOrganizationBrandingSettingMutation {
+  createOrganizationBrandingSetting: { organizationBrandingSetting: { id: string } }
+}
+
+export type UpdateOrganizationBrandingSettingMutationVariables = Exact<{
+  updateOrganizationBrandingSettingId: string
+  input: Types.UpdateOrganizationBrandingSettingInput
+}>
+
+export interface UpdateOrganizationBrandingSettingMutation {
+  updateOrganizationBrandingSetting: { organizationBrandingSetting: { id: string } }
+}
+
+export type DeleteOrganizationBrandingSettingMutationVariables = Exact<{
+  deleteOrganizationBrandingSettingId: string
+}>
+
+export interface DeleteOrganizationBrandingSettingMutation {
+  deleteOrganizationBrandingSetting: { deletedID: string }
+}
+
+export type CreateBulkCsvOrganizationBrandingSettingMutationVariables = Exact<{
+  input: any
+}>
+
+export interface CreateBulkCsvOrganizationBrandingSettingMutation {
+  createBulkCSVOrganizationBrandingSetting: { organizationBrandingSettings: Array<{ id: string }> | null }
+}
+
+export type DeleteBulkOrganizationBrandingSettingMutationVariables = Exact<{
+  ids: Array<string> | string
+}>
+
+export interface DeleteBulkOrganizationBrandingSettingMutation {
+  deleteBulkOrganizationBrandingSetting: { deletedIDs: Array<string>; notDeletedIDs: Array<string>; error: string | null }
+}
+
+export type UpdateBulkOrganizationBrandingSettingMutationVariables = Exact<{
+  ids: Array<string> | string
+  input: Types.UpdateOrganizationBrandingSettingInput
+}>
+
+export interface UpdateBulkOrganizationBrandingSettingMutation {
+  updateBulkOrganizationBrandingSetting: { updatedIDs: Array<string> | null }
+}
+
 export type GetAllOrganizationsQueryVariables = Exact<{ [key: string]: never }>
 
 export interface GetAllOrganizationsQuery {
@@ -9766,6 +9871,7 @@ export interface GetTrustCenterQuery {
           notifySubscribersOnSubprocessorChange: boolean | null
           allowSubscribers: boolean | null
           ndaApproverGroupID: string | null
+          disableDefaultDomain: boolean | null
           logoFile: { id: string; base64: string | null } | null
           faviconFile: { id: string; base64: string | null } | null
           ndaApproverGroup: { id: string; displayName: string; name: string } | null
@@ -9790,6 +9896,7 @@ export interface GetTrustCenterQuery {
           logoRemoteURL: string | null
           securityContact: string | null
           updatedAt: any
+          disableDefaultDomain: boolean | null
           logoFile: { id: string; base64: string | null } | null
           faviconFile: { id: string; base64: string | null } | null
         } | null

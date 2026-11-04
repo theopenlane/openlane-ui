@@ -1,26 +1,26 @@
 'use client'
 
 import Loading from '@/app/(protected)/trust-center/domain/loading'
-import { useCreateCustomDomain, useDeleteCustomDomain, useGetTrustCenter, useUpdateTrustCenterSetting, useValidateCustomDomain } from '@/lib/graphql-hooks/trust-center'
-import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { use, useEffect, useState } from 'react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
-import { Button } from '@repo/ui/button'
-import { Switch } from '@repo/ui/switch'
-import { Label } from '@repo/ui/label'
-import { Copy, ExternalLink, InfoIcon, Pencil, Save, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import UrlInput, { isBlockedDomain } from '../shared/url-input'
-import UrlDisplay from '../shared/url-display'
-import { DnsRecords } from './dns-records'
-import { PageHeading } from '@repo/ui/page-heading'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
-import { normalizeUrl } from '@/utils/normalizeUrl'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
+import { useCreateCustomDomain, useDeleteCustomDomain, useGetTrustCenter, useUpdateTrustCenterSetting, useValidateCustomDomain } from '@/lib/graphql-hooks/trust-center'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { normalizeUrl } from '@/utils/normalizeUrl'
+import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { Button } from '@repo/ui/button'
+import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Label } from '@repo/ui/label'
+import { PageHeading } from '@repo/ui/page-heading'
+import { Switch } from '@repo/ui/switch'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { Copy, ExternalLink, InfoIcon, Pencil, Save, Trash2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
+import { use, useEffect, useState } from 'react'
+import UrlDisplay from '../shared/url-display'
+import UrlInput, { isBlockedDomain } from '../shared/url-input'
+import { DnsRecords } from './dns-records'
 
 const DomainSettingsPage = () => {
   const { data, isLoading, error, refetch } = useGetTrustCenter()
@@ -76,6 +76,28 @@ const DomainSettingsPage = () => {
 
   const cnameRecord = trustCenter?.customDomain?.cnameRecord
   const cnameName = cnameRecord ? cnameRecord.split('.').slice(0, -2).join('.') : ''
+
+  const handleDisableDefaultDomain = async (isChecked: boolean) => {
+    if (!setting?.id || !canEditTc || isUpdatingTrustCenter) {
+      return
+    }
+
+    try {
+      await updateTrustCenterSetting({
+        updateTrustCenterSettingId: setting.id,
+        input: {
+          disableDefaultDomain: isChecked,
+        },
+      })
+      await refetch()
+      successNotification({ title: 'Default domain visibility updated' })
+    } catch {
+      errorNotification({
+        title: 'Update failed',
+        description: 'Updating your default domain visibility failed.',
+      })
+    }
+  }
 
   const handleToggleNoIndex = async (isChecked: boolean) => {
     if (!setting?.id || !canEditTc || isUpdatingTrustCenter) {
@@ -312,13 +334,45 @@ const DomainSettingsPage = () => {
         <Card>
           <CardContent>
             <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-1">
-                <p className="text-base font-medium leading-6">Configure URL</p>
-                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
-                  This is the link you&apos;ll send to customers so they can verify your security and compliance in real time
-                </p>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-1">
+                  <span className="flex items-center gap-1.5">
+                    <Label htmlFor="disable-default-domain" className="text-base font-medium leading-6">
+                      Disable default domain
+                    </Label>
+                    <SystemTooltip
+                      icon={<InfoIcon size={14} className="text-inverted-muted-foreground shrink-0" />}
+                      content={`When turned on, your trust center will be available on the default trust center with the ${trustCenterDefaultDomain}`}
+                    />
+                  </span>
+                  <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
+                    Enable your trust center to be available on our default trustcenter domain at {trustCenterDefaultDomain}
+                  </p>
+                </div>
+
+                <Switch
+                  id="enable-default-domain"
+                  aria-describedby="enable-default-domain-hint"
+                  checked={setting.disableDefaultDomain ?? false}
+                  onCheckedChange={handleDisableDefaultDomain}
+                  disabled={!canEditTc || isUpdatingTrustCenter}
+                  className="shrink-0"
+                />
               </div>
-              <div>{trustCenter?.slug && <UrlDisplay label="Default:" url={defaultDomain} className="w-full" />}</div>
+
+              {!setting.disableDefaultDomain && (
+                <>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-base font-medium leading-6">Configure URL</p>
+                    <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
+                      This is the link you&apos;ll send to customers so they can verify your security and compliance in real time
+                    </p>
+                  </div>
+
+                  <div>{trustCenter?.slug && <UrlDisplay label="Default:" url={defaultDomain} className="w-full" />}</div>
+                </>
+              )}
+
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-1">
                   <span className="flex items-center gap-1.5">
@@ -343,6 +397,7 @@ const DomainSettingsPage = () => {
                   className="shrink-0"
                 />
               </div>
+
               <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-3">
                 <div className="flex items-start gap-2">
                   <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />

@@ -67,6 +67,7 @@ export const GET_ALL_TRUST_CENTERS = gql`
               displayName
               name
             }
+            disableDefaultDomain
           }
           previewSetting {
             id
@@ -96,6 +97,7 @@ export const GET_ALL_TRUST_CENTERS = gql`
             logoRemoteURL
             securityContact
             updatedAt
+            disableDefaultDomain
           }
           watermarkConfig {
             id
