@@ -29,6 +29,7 @@ const topicIcons: Record<TopicFilter, LucideIcon> = {
   [NotificationNotificationTopic.IMPORT_COMPLETE]: ArrowDownToLine,
   [NotificationNotificationTopic.ORGANIZATION_READY]: ListChecks,
   [NotificationNotificationTopic.INTEGRATION]: Plug,
+  [NotificationNotificationTopic.REPORT_MEMBERSHIP]: ClipboardList,
 }
 
 const getDateGroupLabel = (dateStr: string | null | undefined): string => {
