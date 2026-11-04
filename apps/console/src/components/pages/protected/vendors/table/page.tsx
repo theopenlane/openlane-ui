@@ -50,6 +50,7 @@ const VendorPage: React.FC = () => {
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
+  const isCreate = searchParams.get('create') === 'true'
   const scanId = searchParams.get('scanId')
   const { data, isLoading } = useEntity(id || undefined)
 

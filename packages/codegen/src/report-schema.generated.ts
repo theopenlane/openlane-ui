@@ -3366,7 +3366,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.SCAN,
     whereTypeName: 'ScanWhereInput',
     defaultFields: ['id', 'status', 'createdAt'],
-    order: { typeName: 'ScanOrder', fields: ['ORIGIN', 'SCAN_TYPE', 'STATUS', 'created_at', 'external_id', 'next_scan_run_at', 'scan_date', 'updated_at'] },
+    order: { typeName: 'ScanOrder', fields: ['SCAN_TYPE', 'STATUS', 'created_at', 'external_id', 'next_scan_run_at', 'scan_date', 'updated_at'] },
     fields: [
       { name: 'assignedTo', kind: 'string', operatorSet: 8 },
       { name: 'assignedToGroupID', kind: 'id', operatorSet: 8 },
