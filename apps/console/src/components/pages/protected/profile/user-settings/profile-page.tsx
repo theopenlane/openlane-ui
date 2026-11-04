@@ -19,6 +19,14 @@ import PasskeySection from './passkeys-section'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import DeleteUserSection from '../delete-user-section'
+import Skeleton from '@/components/shared/skeleton/skeleton'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
+
+const TWO_FA_LOADING_CONFIG = {
+  badge: null,
+  text: <Skeleton role="status" aria-label="Loading two factor authentication settings" height={14} className="w-48 max-w-full rounded-md" />,
+  buttons: [<Skeleton key={0} height={32} className="mx-10 w-24 rounded-md" />],
+}
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
@@ -30,18 +38,24 @@ const ProfilePage = () => {
   const [secret, setSecret] = useState<null | string>(null)
   const [regeneratedCodes, setRegeneratedCodes] = useState<null | string[]>(null)
 
-  const { data: userData } = useGetCurrentUser(userId)
+  const { data: userData, isPending: isUserPending, isFetching: isFetchingUser, error: userError, refetch: refetchUser } = useGetCurrentUser(userId)
 
   const { mutateAsync: updateUserAvatar } = useUpdateUserAvatar()
 
-  const { data: tfaData } = useGetUserTFASettings(userId)
+  const { data: tfaData, isPending: isTfaPending, isFetching: isFetchingTfa, error: tfaError, refetch: refetchTfa } = useGetUserTFASettings(userId)
   const tfaSettings = tfaData?.user?.tfaSettings?.edges?.[0]?.node
 
   const { mutateAsync: updateTfaSetting } = useUpdateTfaSetting()
   const { mutateAsync: createTfaSetting } = useCreateTfaSetting()
   const { mutateAsync: updateUserSetting } = useUpdateUserSetting()
 
+  useQueryErrorNotification({ error: userError, description: 'Failed to load your profile' })
+  useQueryErrorNotification({ error: tfaError, description: 'Failed to load your two factor authentication settings' })
+
   const isVerified = !!tfaSettings?.verified
+  const userSettingId = userData?.user?.setting?.id
+  const isTfaEnabled = !!userData?.user?.setting?.isTfaEnabled
+  const isFetchingState = isFetchingUser || isFetchingTfa
 
   useEffect(() => {
     setCrumbs([
@@ -98,12 +112,11 @@ const ProfilePage = () => {
     setSecret(secret || null)
   }, [createTfaSetting, isVerified, tfaSettings, updateTfaSetting])
 
-  /* eslint-disable react-hooks/preserve-manual-memoization */
   const handleTfaChange = useCallback(
-    async (checked: boolean) => {
+    async (settingId: string, checked: boolean) => {
       try {
         await updateUserSetting({
-          updateUserSettingId: userData?.user?.setting?.id ?? '',
+          updateUserSettingId: settingId,
           input: {
             isTfaEnabled: checked,
           },
@@ -120,9 +133,8 @@ const ProfilePage = () => {
         })
       }
     },
-    [errorNotification, successNotification, updateUserSetting, userData?.user?.setting?.id],
+    [errorNotification, successNotification, updateUserSetting],
   )
-  /* eslint-enable react-hooks/preserve-manual-memoization */
 
   const removeTfa = useCallback(async () => {
     try {
@@ -153,43 +165,43 @@ const ProfilePage = () => {
   }, [updateTfaSetting])
 
   const twoFAConfig = useMemo(() => {
+    const retryLoad = () => {
+      if (!tfaData || tfaError) refetchTfa()
+      if (!userSettingId || userError) refetchUser()
+    }
+
+    const loadFailedConfig = {
+      badge: null,
+      text: <p className="text-sm text-muted-foreground">We couldn&apos;t load your two factor authentication settings.</p>,
+      buttons: [
+        <Button variant="secondary" key={0} className="mx-10 w-24" loading={isFetchingState} disabled={isFetchingState} onClick={retryLoad}>
+          Retry
+        </Button>,
+      ],
+    }
+
+    if (!tfaData || tfaError) {
+      return isTfaPending ? TWO_FA_LOADING_CONFIG : loadFailedConfig
+    }
+
     if (!tfaSettings || !isVerified) {
       return {
         badge: <Badge variant="secondary">Recommended</Badge>,
         text: <p className="text-sm text-muted-foreground">A second factor method has not been setup for your account.</p>,
         buttons: [
-          <Button variant="primary" key={0} className="mx-10 w-24" onClick={handleConfigure}>
+          <Button variant="primary" key={0} className="mx-10 w-24" disabled={isFetchingState} onClick={handleConfigure}>
             Configure
           </Button>,
         ],
       }
     }
 
-    if (userData?.user.setting.isTfaEnabled) {
-      return {
-        badge: <Badge variant="default">Enabled</Badge>,
-        text: (
-          <p className="text-sm text-muted-foreground">
-            A second factor method has been added for your account. Ensure you have your recovery codes stored, or{' '}
-            <span className="text-blue-400 cursor-pointer" {...activatable(regenerateCodes)}>
-              regenerate&nbsp;
-            </span>
-            them now.
-          </p>
-        ),
-        buttons: [
-          <Button key={0} className="mx-10 w-24" onClick={() => handleTfaChange(false)}>
-            Disable
-          </Button>,
-          <Button key={1} variant="destructiveOutline" className="mx-10 w-24" onClick={removeTfa}>
-            Remove
-          </Button>,
-        ],
-      }
+    if (!userSettingId || userError) {
+      return isUserPending ? TWO_FA_LOADING_CONFIG : loadFailedConfig
     }
 
     return {
-      badge: <Badge variant="destructive">Disabled</Badge>,
+      badge: <Badge variant={isTfaEnabled ? 'default' : 'destructive'}>{isTfaEnabled ? 'Enabled' : 'Disabled'}</Badge>,
       text: (
         <p className="text-sm text-muted-foreground">
           A second factor method has been added for your account. Ensure you have your recovery codes stored, or{' '}
@@ -200,15 +212,32 @@ const ProfilePage = () => {
         </p>
       ),
       buttons: [
-        <Button variant="secondary" key={0} className="mx-10 w-24" onClick={() => handleTfaChange(true)}>
-          Enable
+        <Button variant={isTfaEnabled ? 'primary' : 'secondary'} key={0} className="mx-10 w-24" disabled={isFetchingState} onClick={() => handleTfaChange(userSettingId, !isTfaEnabled)}>
+          {isTfaEnabled ? 'Disable' : 'Enable'}
         </Button>,
-        <Button key={1} variant="destructiveOutline" className="mx-10 w-24" onClick={removeTfa}>
+        <Button key={1} variant="destructiveOutline" className="mx-10 w-24" disabled={isFetchingState} onClick={removeTfa}>
           Remove
         </Button>,
       ],
     }
-  }, [tfaSettings, isVerified, userData?.user.setting.isTfaEnabled, handleConfigure, handleTfaChange, regenerateCodes, removeTfa])
+  }, [
+    tfaData,
+    tfaError,
+    isTfaPending,
+    tfaSettings,
+    isVerified,
+    userSettingId,
+    userError,
+    isUserPending,
+    isTfaEnabled,
+    isFetchingState,
+    refetchTfa,
+    refetchUser,
+    handleConfigure,
+    handleTfaChange,
+    regenerateCodes,
+    removeTfa,
+  ])
 
   return (
     <>

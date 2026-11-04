@@ -14,6 +14,7 @@ import { useGetAllOrganizations } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 
 const DefaultOrgForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
@@ -37,10 +38,14 @@ const DefaultOrgForm = () => {
     resolver: zodResolver(formSchema),
   })
 
-  const updateDefaultOrg = async (defaultOrg: string) => {
+  const isUserLoaded = !!userData
+  const userSettingId = userData?.user?.setting?.id
+  const savedDefaultOrgId = userData?.user?.setting?.defaultOrg?.id
+
+  const updateDefaultOrg = async (settingId: string, defaultOrg: string) => {
     try {
       await updateUserSetting({
-        updateUserSettingId: userData?.user?.setting?.id ?? '',
+        updateUserSettingId: settingId,
         input: {
           defaultOrgID: defaultOrg,
         },
@@ -57,18 +62,18 @@ const DefaultOrgForm = () => {
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    if (data.defaultOrg !== userData?.user.setting?.defaultOrg?.id) {
-      await updateDefaultOrg(data.defaultOrg)
+    if (userSettingId && data.defaultOrg !== savedDefaultOrgId) {
+      await updateDefaultOrg(userSettingId, data.defaultOrg)
     }
   }
 
   useEffect(() => {
-    if (userData) {
+    if (isUserLoaded) {
       form.reset({
-        defaultOrg: userData.user.setting?.defaultOrg?.id ?? '',
+        defaultOrg: savedDefaultOrgId ?? '',
       })
     }
-  }, [userData, form])
+  }, [isUserLoaded, savedDefaultOrgId, form])
 
   useEffect(() => {
     if (isSuccess) {
@@ -105,7 +110,9 @@ const DefaultOrgForm = () => {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <SaveButton className="min-w-20" title={isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'} />
+                  <DisabledReasonTooltip reason={userSettingId ? undefined : 'Your user settings have not loaded.'}>
+                    <SaveButton className="min-w-20" disabled={!userSettingId} title={isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'} />
+                  </DisabledReasonTooltip>
                 </div>
                 <FormMessage />
               </FormItem>
