@@ -1,5 +1,6 @@
 import type { NextAuthConfig } from 'next-auth'
 import NextAuth from 'next-auth'
+import { NextResponse } from 'next/server'
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
 import { csrfCookieName, isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
@@ -98,6 +99,10 @@ export const config = {
         throw new InvalidLoginError(user.error)
       }
 
+      if (user.isTfaEnabled && !user.accessToken && account?.provider === 'credentials') {
+        return '/tfa'
+      }
+
       const email = profile?.email || user?.email || ''
 
       // Allow only specific domains if configured
@@ -153,6 +158,14 @@ export const config = {
           }
 
           const apiData = result.data
+
+          if (apiData?.tfa_enabled && !apiData.access_token) {
+            const response = new NextResponse(null, { headers: result.response.headers })
+            for (const cookie of response.cookies.getAll()) {
+              cookieStore.set(cookie)
+            }
+            return '/tfa'
+          }
 
           const dashboardData = await getDashboardData(apiData.access_token, apiData.session)
 

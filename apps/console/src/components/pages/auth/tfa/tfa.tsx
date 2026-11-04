@@ -4,15 +4,14 @@ import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState, useMemo } from 'react'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
 import { useNotification } from '@/hooks/useNotification'
-import { useSession } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
-import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
+import { buildLoginRedirect, sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 
 const TfaPage: React.FC = () => {
   const [otpValue, setOtpValue] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { data: sessionData, update: updateSession } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isSecret, setIsSecret] = useState(false)
@@ -63,37 +62,40 @@ const TfaPage: React.FC = () => {
         }
   }, [isSecret])
 
-  const onVerified = async () => {
-    if (!sessionData || !sessionData.user) {
-      errorNotification({ title: 'Session is not available', variant: 'error' })
+  const onVerified = async (data: { access_token: string; refresh_token: string; session: string }) => {
+    const result = await signIn('credentials', {
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+      session: data.session,
+      redirect: false,
+    })
+
+    if (result?.error || !result?.ok) {
+      router.push('/login?cleartfa=1')
       return
     }
 
-    await updateSession({
-      ...sessionData,
-      user: {
-        ...sessionData.user,
-        isTfaEnabled: false,
-      },
-    })
-
-    const redirectTo = sanitizeLoginRedirect(searchParams?.get('redirect'), '/dashboard')
-
-    setTimeout(() => {
-      router.push(redirectTo)
-    }, 1000)
+    router.replace(sanitizeLoginRedirect(searchParams?.get('redirect'), '/dashboard'))
   }
 
   const verifyOTP = async (otp: string) => {
     try {
       const payload = isSecret ? { recovery_code: otp } : { totp_code: otp }
-      const response = await secureFetch('/api/verifyOTP', {
+      const response = await secureFetch('/api/auth/verify-totp', {
         method: 'POST',
         body: JSON.stringify(payload),
       })
 
-      if (response.ok) {
-        onVerified()
+      const data = await response.json()
+      if (response.status === 401) {
+        const login = new URL(buildLoginRedirect(searchParams?.get('redirect')), window.location.origin)
+        login.searchParams.set('error', 'Your login attempt expired. Please sign in again.')
+        router.replace(`${login.pathname}${login.search}`)
+        return
+      }
+
+      if (response.ok && data.access_token && data.refresh_token && data.session) {
+        await onVerified(data)
       } else {
         setError('Invalid authentication token entered! Please use the token provided by your authentication app')
       }

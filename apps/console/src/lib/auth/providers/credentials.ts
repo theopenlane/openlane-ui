@@ -1,9 +1,11 @@
+import { getDashboardData } from '@/app/api/getDashboardData/route'
+import { SUPPORT_EMAIL_ADDRESS } from '@/constants'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import Credentials from 'next-auth/providers/credentials'
-import { setSessionCookie } from '../utils/set-session-cookie'
-import { getDashboardData } from '@/app/api/getDashboardData/route'
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
 import { secureFetch } from '../utils/secure-fetch'
-import { SUPPORT_EMAIL_ADDRESS } from '@/constants'
+import { setSessionCookie } from '../utils/set-session-cookie'
 
 export const credentialsProvider = Credentials({
   id: 'credentials',
@@ -63,6 +65,19 @@ export const credentialsProvider = Credentials({
         accessToken = data?.access_token
         refreshToken = data?.refresh_token
         session = data?.session
+
+        if (data.tfa_enabled && !data.access_token) {
+          // pass all cookies back to the browser
+          const cookieStore = await cookies()
+          const response = new NextResponse(null, { headers: fData.headers })
+          for (const cookie of response.cookies.getAll()) {
+            cookieStore.set(cookie)
+          }
+
+          return {
+            isTfaEnabled: true,
+          }
+        }
       }
 
       const uData = await secureFetch(`${openlaneAPIUrl}/oauth/userinfo`, {
