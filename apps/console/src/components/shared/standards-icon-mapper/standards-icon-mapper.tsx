@@ -28,13 +28,26 @@ type TStandardsIconMapperProps = {
   isCustom?: boolean
 }
 
-const DEFAULT_LOGO_SIZE = 76
+export const STANDARD_ICON_WIDTH = 101
+export const STANDARD_ICON_HEIGHT = 110
 
 export const StandardsIconMapper = ({ shortName, height, width, logoSrc, isCustom = false }: TStandardsIconMapperProps) => {
   const icon = useMemo(() => {
     const sizeProps = { height, width }
     if (logoSrc) {
-      return <Image src={logoSrc} alt={`${shortName} logo`} width={width ?? DEFAULT_LOGO_SIZE} height={height ?? DEFAULT_LOGO_SIZE} unoptimized className="shrink-0 rounded-md object-contain" />
+      const logoWidth = width ?? STANDARD_ICON_WIDTH
+      const logoHeight = height ?? STANDARD_ICON_HEIGHT
+      return (
+        <Image
+          src={logoSrc}
+          alt={`${shortName} logo`}
+          width={logoWidth}
+          height={logoHeight}
+          style={{ width: logoWidth, height: logoHeight }}
+          unoptimized
+          className="shrink-0 rounded-md object-contain"
+        />
+      )
     }
     if (isCustom) {
       return <Custom {...sizeProps} label={shortName} />

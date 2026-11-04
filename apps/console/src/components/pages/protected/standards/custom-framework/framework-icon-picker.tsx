@@ -6,15 +6,10 @@ import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { imageAcceptedFileTypes, imageAcceptedFileTypesShort } from '@/components/shared/file-upload/file-upload-config'
-import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
+import { STANDARD_ICON_HEIGHT, STANDARD_ICON_WIDTH, StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 
 const MAX_LOGO_SIZE_MB = 2
-
-const PREVIEW_SIZES = [
-  { label: 'Catalog card', size: 76 },
-  { label: 'Framework page', size: 40 },
-] as const
 
 type TFrameworkIconPickerProps = {
   shortName: string
@@ -55,16 +50,14 @@ export const FrameworkIconPicker: React.FC<TFrameworkIconPickerProps> = ({ short
       </div>
       <div className="flex flex-col gap-3">
         <Label>Where it shows</Label>
-        <div className="flex flex-col gap-4 rounded-lg border p-4">
-          {PREVIEW_SIZES.map(({ label, size }) => (
-            <div key={label} className="flex items-center gap-3">
-              <StandardsIconMapper shortName={shortName} logoSrc={logoSrc} isCustom width={size} height={size} />
-              <div className="text-sm">
-                <p>{label}</p>
-                <p className="text-muted-foreground">{size} px</p>
-              </div>
-            </div>
-          ))}
+        <div className="flex items-center gap-3 rounded-lg border p-4">
+          <StandardsIconMapper shortName={shortName} logoSrc={logoSrc} isCustom />
+          <div className="text-sm">
+            <p>Catalog card and framework page</p>
+            <p className="text-muted-foreground">
+              {STANDARD_ICON_WIDTH} × {STANDARD_ICON_HEIGHT} px
+            </p>
+          </div>
         </div>
       </div>
     </div>

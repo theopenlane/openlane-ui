@@ -135,7 +135,7 @@ const StandardsPage = () => {
               }
             />
           ))}
-          {canCreateFramework && source !== StandardSource.OPENLANE && (
+          {canCreateFramework && source !== StandardSource.SUPPORTED && (
             <Card className="bg-card p-10 rounded-lg shadow-sm border border-dashed flex flex-col items-center justify-center gap-4 text-center min-h-[280px]">
               <div>
                 <p className="font-semibold">Create a custom framework</p>
