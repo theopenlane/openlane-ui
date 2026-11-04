@@ -1,6 +1,8 @@
 import { type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
-import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
-import { domainScanReviewHref } from '@/constants/scan-routes'
+import { NotificationNotificationTopic, ScanScanType } from '@repo/codegen/src/schema'
+import { scanReviewHref } from '@/constants/scan-routes'
+import { vendorDetailHref } from '@/constants/vendor-routes'
+import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 
 interface NotificationRedirectRouter {
   push: (href: string) => void
@@ -20,7 +22,17 @@ export const getNotificationRedirectUrl = (notification: Notification, returnTo?
   if (isDomainScan && !url) {
     const scans: unknown = notification.data?.scans
     const singleScanId = isDomainScanEntryArray(scans) && scans.length === 1 ? scans[0].internal_scan_id : undefined
-    return domainScanReviewHref(singleScanId || notification.id, returnTo)
+    return scanReviewHref(ScanScanType.DOMAIN, singleScanId || notification.id, returnTo)
+  }
+
+  const reviewedVendorId: unknown = notification.data?.vendor_id
+  if (notification.topic === NotificationNotificationTopic.REPORT_SCAN && typeof reviewedVendorId === 'string' && reviewedVendorId) {
+    return vendorDetailHref(reviewedVendorId, 'risk-review')
+  }
+
+  const reportScanId: unknown = notification.data?.scan_id
+  if (notification.topic === NotificationNotificationTopic.REPORT_SCAN && typeof reportScanId === 'string' && reportScanId) {
+    return scanReviewHref(ScanScanType.REPORT, reportScanId)
   }
 
   if (!url) {
@@ -31,7 +43,7 @@ export const getNotificationRedirectUrl = (notification: Notification, returnTo?
     return url
   }
 
-  return url.startsWith('/') ? url : `/${url}`
+  return sanitizeLoginRedirect(url.startsWith('/') ? url : `/${url}`, '') || null
 }
 
 export const redirectToNotification = (router: NotificationRedirectRouter, notification: Notification, returnTo?: string | null) => {

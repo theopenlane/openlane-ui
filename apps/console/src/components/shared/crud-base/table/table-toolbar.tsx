@@ -27,6 +27,7 @@ import { type TFilterState } from '../../table-filter/filter-storage'
 import { GenericBulkEditDialog, type ResponsibilityFieldsMap } from '../dialog/bulk-edit'
 import { type EnumOptionsGeneric } from '../page'
 import type { BulkDeletePayload, BulkUpdatePayload, CreateMode } from '../types'
+import { type TMenuAction } from '@/components/shared/menu/menu-action-item'
 import { getBulkActionFailureDescription } from '../bulk-action-feedback'
 import { type Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
@@ -68,6 +69,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   createMode?: CreateMode
   hideCreate?: boolean
   createPermission?: TAccessRole
+  createMenuActions?: TMenuAction[]
   additionalActiveFilterCount?: number
   defaultFilterValues?: TFilterState
 }
@@ -229,6 +231,22 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                           Merge records
                         </MenuItem>
                       )}
+                      {shouldShowCreationButton &&
+                        props.createMenuActions?.map(({ key, label, icon, anchor, disabled, onClick, href }) => (
+                          <MenuItem
+                            key={key}
+                            {...anchor}
+                            icon={icon}
+                            href={href}
+                            disabled={disabled}
+                            onSelect={() => {
+                              close()
+                              onClick?.()
+                            }}
+                          >
+                            {label}
+                          </MenuItem>
+                        ))}
                       {importRoute && canImport && (
                         <MenuItem
                           {...tableActionAnchor(props.entityType, 'bulk-upload')}
