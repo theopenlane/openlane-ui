@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
 
 interface SSOCallbackRequest {
   code: string
@@ -39,13 +40,22 @@ export async function POST(request: NextRequest) {
 
     if (ssoCallbackData.ok && callbackResponse.success) {
       try {
-        return NextResponse.json(
+        const response = NextResponse.json(
           {
             success: true,
             ...callbackResponse,
           },
           { status: 200 },
         )
+
+        if (callbackResponse.tfa_enabled && !callbackResponse.access_token) {
+          const responseCookies = ssoCallbackData.headers.get('set-cookie')
+          if (responseCookies) {
+            parseAndSetResponseCookies(response, responseCookies, new Set(['tfa_pending']), 300)
+          }
+        }
+
+        return response
       } catch (error) {
         console.error('error processing SSO authentication:', error)
         return NextResponse.json(

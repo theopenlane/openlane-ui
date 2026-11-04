@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
 import { getCookie } from '@/lib/auth/utils/getCookie'
-import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
+import { buildTfaRedirect, sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 import { clearSsoIntent, readSsoIntent, type SsoIntent } from '@/lib/auth/utils/sso-intent'
 
 const ORG_SETTINGS_URL = '/organization-settings/authentication'
@@ -72,6 +72,12 @@ const SSOCallbackPage: React.FC = () => {
         const data = await response.json()
 
         if (response.ok && data.success) {
+          if (data.tfa_enabled && !data.access_token) {
+            const destination = intent ? getRedirectUrl(intent, undefined, true).split('?')[0] : sanitizeLoginRedirect(data.redirect_url)
+            router.replace(buildTfaRedirect(destination))
+            return
+          }
+
           const signInResult = await signIn('credentials', {
             accessToken: data.access_token,
             refreshToken: data.refresh_token,

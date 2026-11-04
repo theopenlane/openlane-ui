@@ -334,6 +334,12 @@ export const LoginPage = () => {
       })
 
       if (verificationResult.success) {
+        if (verificationResult.tfa_enabled && !verificationResult.access_token) {
+          recordLastLoginMethod(UserAuthProvider.WEBAUTHN)
+          router.push(buildTfaRedirect(redirectUrl))
+          return
+        }
+
         setDirectOAuthCookie()
         recordLastLoginMethod(UserAuthProvider.WEBAUTHN)
         await signIn('passkey', {

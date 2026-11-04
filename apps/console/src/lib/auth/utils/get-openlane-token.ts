@@ -35,7 +35,7 @@ export const getSSORedirect = async (organizationId: string): Promise<{ redirect
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getTokenFromOpenlaneAPI = async (reqBody: OAuthUserRequest): Promise<{ success: true; data: any } | { success: false; message: string; status?: number }> => {
+export const getTokenFromOpenlaneAPI = async (reqBody: OAuthUserRequest): Promise<{ success: true; data: any; response: Response } | { success: false; message: string; status?: number }> => {
   try {
     const payload = {
       externalUserId: reqBody.externalUserID?.toString(),
@@ -68,7 +68,7 @@ export const getTokenFromOpenlaneAPI = async (reqBody: OAuthUserRequest): Promis
       }
     }
 
-    return { success: true, data: json }
+    return { success: true, data: json, response }
   } catch (error) {
     console.error('❌ Error in getTokenFromOpenlaneAPI:', error)
     return {

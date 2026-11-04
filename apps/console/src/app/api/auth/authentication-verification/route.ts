@@ -1,4 +1,5 @@
 import { getCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
+import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
 import { csrfHeader } from '@repo/dally/auth'
 
 import { NextResponse } from 'next/server'
@@ -28,7 +29,15 @@ export async function POST(request: Request) {
   })
 
   if (fData.ok) {
-    return NextResponse.json(await fData.json(), { status: 200 })
+    const data = await fData.json()
+    const response = NextResponse.json(data, { status: 200 })
+    if (data.tfa_enabled && !data.access_token) {
+      const responseCookies = fData.headers.get('set-cookie')
+      if (responseCookies) {
+        parseAndSetResponseCookies(response, responseCookies, new Set(['tfa_pending']), 300)
+      }
+    }
+    return response
   }
 
   if (fData.status !== 201) {
