@@ -35,6 +35,7 @@ export const useUpdateTfaSetting = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tfaSettings'] })
       queryClient.invalidateQueries({ queryKey: ['userTFASettings'] })
+      queryClient.invalidateQueries({ queryKey: ['user'] })
     },
   })
 }
