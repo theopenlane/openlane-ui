@@ -15,6 +15,7 @@ import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access
 import { useMemo } from 'react'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { buildMutationKey } from '@/components/shared/object-association/utils'
+import { getAssociationActionLabel } from './association-action-labels'
 
 export type BulkEditRisksDialogProps = {
   selectedRisks: { id: string }[]
@@ -276,20 +277,9 @@ const RISK_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.
 const EVIDENCE_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.PROGRAM, ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.SCAN] as const
 const TASK_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.PROGRAM] as const
 
-const ASSOCIATION_DISPLAY_NAMES: Partial<Record<ObjectTypeObjects, string>> = {
-  [ObjectTypeObjects.CONTROL]: 'Associate Controls',
-  [ObjectTypeObjects.PROGRAM]: 'Associate Programs',
-  [ObjectTypeObjects.INTERNAL_POLICY]: 'Associate Policies',
-  [ObjectTypeObjects.PROCEDURE]: 'Associate Procedures',
-  [ObjectTypeObjects.RISK]: 'Associate Risks',
-  [ObjectTypeObjects.SUB_CONTROL]: 'Associate Subcontrols',
-  [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: 'Associate Control Implementations',
-  [ObjectTypeObjects.SCAN]: 'Associate Scans',
-}
-
 export const generateAssociationSelectOptions = (allowedTypes: readonly ObjectTypeObjects[]): SelectOptionSelectedObject[] => {
   return allowedTypes.map((objectType) => ({
-    selectOptionEnum: ASSOCIATION_DISPLAY_NAMES[objectType] ?? objectType,
+    selectOptionEnum: getAssociationActionLabel(objectType),
     name: 'objectAssociation',
     inputType: InputType.ObjectAssociation,
     placeholder: 'Select associations',
