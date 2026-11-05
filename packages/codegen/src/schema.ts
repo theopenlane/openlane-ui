@@ -9373,7 +9373,7 @@ export type GetUserTfaSettingsQueryVariables = Exact<{
 }>
 
 export interface GetUserTfaSettingsQuery {
-  user: { tfaSettings: { edges: Array<{ node: { id: string; totpAllowed: boolean | null; verified: boolean } | null } | null> | null } }
+  user: { setting: { id: string; isTfaEnabled: boolean | null }; tfaSettings: { edges: Array<{ node: { id: string; totpAllowed: boolean | null; verified: boolean } | null } | null> | null } }
 }
 
 export type UpdateTfaSettingMutationVariables = Exact<{
@@ -10150,14 +10150,7 @@ export interface GetUserProfileQuery {
     email: string
     avatarRemoteURL: string | null
     avatarFile: { base64: string | null } | null
-    setting: {
-      id: string
-      status: Types.UserSettingUserStatus
-      tags: Array<string> | null
-      isTfaEnabled: boolean | null
-      isWebauthnAllowed: boolean | null
-      defaultOrg: { id: string; displayName: string } | null
-    }
+    setting: { id: string; status: Types.UserSettingUserStatus; tags: Array<string> | null; isWebauthnAllowed: boolean | null; defaultOrg: { id: string; displayName: string } | null }
   }
 }
 

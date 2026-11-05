@@ -38,7 +38,7 @@ const ProfilePage = () => {
   const [secret, setSecret] = useState<null | string>(null)
   const [regeneratedCodes, setRegeneratedCodes] = useState<null | string[]>(null)
 
-  const { data: userData, isPending: isUserPending, isFetching: isFetchingUser, error: userError, refetch: refetchUser } = useGetCurrentUser(userId)
+  const { data: userData, error: userError } = useGetCurrentUser(userId)
 
   const { mutateAsync: updateUserAvatar } = useUpdateUserAvatar()
 
@@ -53,9 +53,8 @@ const ProfilePage = () => {
   useQueryErrorNotification({ error: tfaError, description: 'Failed to load your two factor authentication settings' })
 
   const isVerified = !!tfaSettings?.verified
-  const userSettingId = userData?.user?.setting?.id
-  const isTfaEnabled = !!userData?.user?.setting?.isTfaEnabled
-  const isFetchingState = isFetchingUser || isFetchingTfa
+  const userSettingId = tfaData?.user?.setting?.id
+  const isTfaEnabled = !!tfaData?.user?.setting?.isTfaEnabled
 
   useEffect(() => {
     setCrumbs([
@@ -165,23 +164,20 @@ const ProfilePage = () => {
   }, [updateTfaSetting])
 
   const twoFAConfig = useMemo(() => {
-    const retryLoad = () => {
-      if (!tfaData || tfaError) refetchTfa()
-      if (!userSettingId || userError) refetchUser()
+    if (isTfaPending) {
+      return TWO_FA_LOADING_CONFIG
     }
 
-    const loadFailedConfig = {
-      badge: null,
-      text: <p className="text-sm text-muted-foreground">We couldn&apos;t load your two factor authentication settings.</p>,
-      buttons: [
-        <Button variant="secondary" key={0} className="mx-10 w-24" loading={isFetchingState} disabled={isFetchingState} onClick={retryLoad}>
-          Retry
-        </Button>,
-      ],
-    }
-
-    if (!tfaData || tfaError) {
-      return isTfaPending ? TWO_FA_LOADING_CONFIG : loadFailedConfig
+    if (tfaError || !userSettingId) {
+      return {
+        badge: null,
+        text: <p className="text-sm text-muted-foreground">We couldn&apos;t load your two factor authentication settings.</p>,
+        buttons: [
+          <Button variant="secondary" key={0} className="mx-10 w-24" loading={isFetchingTfa} disabled={isFetchingTfa} onClick={() => refetchTfa()}>
+            Retry
+          </Button>,
+        ],
+      }
     }
 
     if (!tfaSettings || !isVerified) {
@@ -189,15 +185,11 @@ const ProfilePage = () => {
         badge: <Badge variant="secondary">Recommended</Badge>,
         text: <p className="text-sm text-muted-foreground">A second factor method has not been setup for your account.</p>,
         buttons: [
-          <Button variant="primary" key={0} className="mx-10 w-24" disabled={isFetchingState} onClick={handleConfigure}>
+          <Button variant="primary" key={0} className="mx-10 w-24" disabled={isFetchingTfa} onClick={handleConfigure}>
             Configure
           </Button>,
         ],
       }
-    }
-
-    if (!userSettingId || userError) {
-      return isUserPending ? TWO_FA_LOADING_CONFIG : loadFailedConfig
     }
 
     return {
@@ -212,32 +204,15 @@ const ProfilePage = () => {
         </p>
       ),
       buttons: [
-        <Button variant={isTfaEnabled ? 'primary' : 'secondary'} key={0} className="mx-10 w-24" disabled={isFetchingState} onClick={() => handleTfaChange(userSettingId, !isTfaEnabled)}>
+        <Button variant={isTfaEnabled ? 'primary' : 'secondary'} key={0} className="mx-10 w-24" disabled={isFetchingTfa} onClick={() => handleTfaChange(userSettingId, !isTfaEnabled)}>
           {isTfaEnabled ? 'Disable' : 'Enable'}
         </Button>,
-        <Button key={1} variant="destructiveOutline" className="mx-10 w-24" disabled={isFetchingState} onClick={removeTfa}>
+        <Button key={1} variant="destructiveOutline" className="mx-10 w-24" disabled={isFetchingTfa} onClick={removeTfa}>
           Remove
         </Button>,
       ],
     }
-  }, [
-    tfaData,
-    tfaError,
-    isTfaPending,
-    tfaSettings,
-    isVerified,
-    userSettingId,
-    userError,
-    isUserPending,
-    isTfaEnabled,
-    isFetchingState,
-    refetchTfa,
-    refetchUser,
-    handleConfigure,
-    handleTfaChange,
-    regenerateCodes,
-    removeTfa,
-  ])
+  }, [tfaError, isTfaPending, tfaSettings, isVerified, userSettingId, isTfaEnabled, isFetchingTfa, refetchTfa, handleConfigure, handleTfaChange, regenerateCodes, removeTfa])
 
   return (
     <>
