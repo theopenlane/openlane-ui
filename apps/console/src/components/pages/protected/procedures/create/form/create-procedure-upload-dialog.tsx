@@ -18,7 +18,7 @@ import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-proce
 import { Callout } from '@/components/shared/callout/callout'
 import { POLICY_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
-import { wordAcceptedFileTypes } from '@/components/shared/file-upload/file-upload-config'
+import { documentImportAcceptedFileTypes, documentImportAcceptedFileTypesShort } from '@/components/shared/file-upload/file-upload-config'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TCreateProcedureUploadDialogProps = {
@@ -203,11 +203,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
               Direct Link
             </TabsTrigger>
           </TabsList>
-          <UploadTab
-            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/x-markdown', 'text/mdx', '.mdx', '.md', ...wordAcceptedFileTypes]}
-            acceptedFileTypesShort={['TXT', 'MD', 'MDX', 'DOC', 'DOCX']}
-            uploadedFile={handleUploadedFile}
-          />
+          <UploadTab acceptedFileTypes={documentImportAcceptedFileTypes} acceptedFileTypesShort={documentImportAcceptedFileTypesShort} uploadedFile={handleUploadedFile} />
           <DirectLinkCreatePolicyProcedureTab setLink={setProcedureMdDocumentLink} link={procedureMdDocumentLink} onAddLink={handleAddLink} />
         </Tabs>
         {procedureMdDocumentLinks.map((link, index) => (

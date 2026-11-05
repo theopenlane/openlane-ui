@@ -62,6 +62,7 @@ import { GET_ALL_PLATFORMS } from '@repo/codegen/query/platform'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/program'
 import { GET_ALL_REMEDIATIONS } from '@repo/codegen/query/remediation'
+import { GET_ALL_REPORTS } from '@repo/codegen/query/report'
 import { GET_ALL_REVIEWS } from '@repo/codegen/query/review'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
 import { GET_ALL_SLA_DEFINITIONS } from '@repo/codegen/query/sla-definition'
@@ -712,7 +713,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.REPORT]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'reports',
-    queryDocument: '',
+    queryDocument: GET_ALL_REPORTS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',

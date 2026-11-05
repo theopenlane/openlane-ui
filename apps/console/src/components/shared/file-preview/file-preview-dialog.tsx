@@ -11,6 +11,7 @@ import { LoadingSpinner } from './preview-chrome'
 import { usePdfBlobPreview, type TPdfPreviewState } from './use-pdf-blob-preview'
 
 const FilePreview = dynamic(() => import('./file-preview'), { ssr: false, loading: () => <LoadingSpinner /> })
+const PdfPreview = dynamic(() => import('./pdf-preview'), { ssr: false, loading: () => <LoadingSpinner /> })
 
 type TFilePreviewDialogProps = {
   file: TFile | null
@@ -30,10 +31,7 @@ const PdfBody: React.FC<{ state: TPdfPreviewState; title: string }> = ({ state, 
     case 'error':
       return <p className="text-sm text-muted-foreground">Failed to load preview. Try downloading the file instead.</p>
     case 'ready':
-      // No sandbox attribute: Chrome renders PDFs via PDFium, which is already
-      // sandboxed at the process level. An iframe sandbox="" disables the
-      // viewer because PDFium needs scripts + same-origin to run.
-      return <iframe src={`${state.blobUrl}#toolbar=0`} title={title} className="w-full h-full" style={{ border: 'none' }} />
+      return <PdfPreview source={state.blobUrl} title={title} className="h-full rounded-none border-none" />
     case 'idle':
       return null
   }

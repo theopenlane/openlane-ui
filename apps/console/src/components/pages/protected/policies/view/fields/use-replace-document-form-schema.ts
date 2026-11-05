@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 const formSchema = z.object({
-  file: z.custom<File | undefined>((value) => value instanceof File, { message: 'Please select a Word document' }),
+  file: z.custom<File | undefined>((value) => value instanceof File, { message: 'Please select a Word document or PDF' }),
 })
 
 export type ReplaceDocumentFormData = z.infer<typeof formSchema>

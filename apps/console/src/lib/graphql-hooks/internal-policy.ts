@@ -477,18 +477,25 @@ export const useInternalPolicyDocumentsByIds = (ids: string[]) => {
   return { ...query, policies: getNodes(query.data?.internalPolicies) }
 }
 
-export const useFetchInternalPolicyRevision = () => {
+// useFetchInternalPolicyDocument fetches the current revision, management mode and file of a policy
+export const useFetchInternalPolicyDocument = () => {
   const { client } = useGraphQLClient()
 
   return useCallback(
-    async (policyId: string, signal?: AbortSignal) => {
+    async (policyId: string, signal?: AbortSignal): Promise<TInternalPolicyDocument | null> => {
       const data = await client.request<SearchInternalPolicyDocumentsQuery, SearchInternalPolicyDocumentsQueryVariables>({
         document: SEARCH_INTERNAL_POLICY_DOCUMENTS,
         variables: { where: { id: policyId }, first: 1 },
         signal,
       })
-      return getNodes(data.internalPolicies)[0]?.revision ?? null
+      return getNodes(data.internalPolicies)[0] ?? null
     },
     [client],
   )
+}
+
+export const useFetchInternalPolicyRevision = () => {
+  const fetchPolicyDocument = useFetchInternalPolicyDocument()
+
+  return useCallback(async (policyId: string, signal?: AbortSignal) => (await fetchPolicyDocument(policyId, signal))?.revision ?? null, [fetchPolicyDocument])
 }

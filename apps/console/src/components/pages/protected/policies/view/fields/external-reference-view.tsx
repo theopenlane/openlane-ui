@@ -10,6 +10,7 @@ import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import ReplaceDocumentDialog from './replace-document-dialog'
+import { isPdfExt } from '@/components/pages/protected/policies/policy-management-utils'
 
 type Props = {
   policy: InternalPolicyByIdFragment
@@ -51,7 +52,7 @@ const ExternalReferenceView: React.FC<Props> = ({ policy, editAllowed }) => {
         <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-card px-3 py-2">
           <div className="min-w-0">
             <p className="truncate text-sm font-medium">{file.providedFileName}</p>
-            <p className="text-xs text-muted-foreground">Word document managed outside Openlane.</p>
+            <p className="text-xs text-muted-foreground">{isPdfExt(file.providedFileExtension) ? 'PDF' : 'Word document'} managed outside Openlane.</p>
           </div>
           <div className="flex items-center gap-2">
             <DownloadButton file={file} variant="outline" />
@@ -76,7 +77,12 @@ const ExternalReferenceView: React.FC<Props> = ({ policy, editAllowed }) => {
         confirmationText="Switch to Openlane managed"
         confirmationTextVariant="primary"
         loading={isSwitching}
-        description={<>The Policy view will switch back to the Openlane editor. The uploaded Word file remains available for download.</>}
+        description={
+          <>
+            The Policy view will switch back to the Openlane editor. The uploaded file remains available for download.
+            {isPdfExt(file.providedFileExtension) && ' PDF formatting is not preserved in the editor: only the text is kept, so tables, columns and images are lost.'}
+          </>
+        }
       />
     </div>
   )

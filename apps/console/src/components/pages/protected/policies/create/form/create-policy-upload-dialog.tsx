@@ -22,10 +22,10 @@ import UploadTab from '../../../evidence/upload/upload-tab'
 import { POLICY_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
-import { wordAcceptedFileTypes } from '@/components/shared/file-upload/file-upload-config'
+import { policyImportAcceptedFileTypes, policyImportAcceptedFileTypesShort } from '@/components/shared/file-upload/file-upload-config'
 import { PolicyTemplateBrowser } from '@/components/shared/github-selector/policy-selector'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { isWordFilename } from '@/components/pages/protected/policies/policy-management-utils'
+import { isExternalReferenceFilename, isPdfFilename } from '@/components/pages/protected/policies/policy-management-utils'
 import { ManagementModeOptions } from '@/components/shared/enum-mapper/policy-enum'
 
 type TCreatePolicyUploadDialogProps = {
@@ -57,13 +57,22 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
   const [managementMode, setManagementMode] = useState<InternalPolicyDocumentManagementMode>(InternalPolicyDocumentManagementMode.OPENLANE_MANAGED)
   const hasSingleFileOrLink = policyMdDocumentLinks.length + uploadedFiles.length === 1
   const hasFileOrLink = policyMdDocumentLinks.length + uploadedFiles.length > 0
-  const canKeepAsWord = useMemo(() => uploadedFiles.length > 0 && uploadedFiles.every((f) => isWordFilename(f.name)), [uploadedFiles])
+  const canKeepAsDocument = useMemo(() => uploadedFiles.length > 0 && uploadedFiles.every((f) => isExternalReferenceFilename(f.name)), [uploadedFiles])
+  const hasPdf = useMemo(() => uploadedFiles.some((f) => isPdfFilename(f.name)), [uploadedFiles])
+  const showPdfFormattingWarning = hasPdf && managementMode === InternalPolicyDocumentManagementMode.OPENLANE_MANAGED
+
+  // PDFs default to being kept as an uploaded document, since only their text is imported when managed in Openlane
+  useEffect(() => {
+    if (hasPdf && canKeepAsDocument) {
+      setManagementMode(InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE)
+    }
+  }, [hasPdf, canKeepAsDocument])
 
   useEffect(() => {
-    if (!canKeepAsWord && managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE) {
+    if (!canKeepAsDocument && managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE) {
       setManagementMode(InternalPolicyDocumentManagementMode.OPENLANE_MANAGED)
     }
-  }, [canKeepAsWord, managementMode])
+  }, [canKeepAsDocument, managementMode])
 
   const handleUpload = async () => {
     if (uploadedFiles.length > 0) {
@@ -124,7 +133,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
   }
 
   const modeFor = (file: TUploadedFile | undefined): InternalPolicyDocumentManagementMode =>
-    managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE && isWordFilename(file?.name)
+    managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE && isExternalReferenceFilename(file?.name)
       ? InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
       : InternalPolicyDocumentManagementMode.OPENLANE_MANAGED
 
@@ -242,11 +251,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
               Direct Link
             </TabsTrigger>
           </TabsList> */}
-          <UploadTab
-            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/x-markdown', 'text/mdx', '.mdx', '.md', ...wordAcceptedFileTypes]}
-            acceptedFileTypesShort={['TXT', 'MD', 'MDX', 'DOC', 'DOCX']}
-            uploadedFile={handleUploadedFile}
-          />
+          <UploadTab acceptedFileTypes={policyImportAcceptedFileTypes} acceptedFileTypesShort={policyImportAcceptedFileTypesShort} uploadedFile={handleUploadedFile} />
           {/* <DirectLinkCreatePolicyProcedureTab setLink={setPolicyMdDocumentLink} link={policyMdDocumentLink} onAddLink={handleAddLink} /> */}
         </Tabs>
         {policyMdDocumentLinks.map((link, index) => (
@@ -271,12 +276,12 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
             <RadioGroup value={managementMode} onValueChange={(v) => setManagementMode(v as InternalPolicyDocumentManagementMode)} className="gap-3">
               {ManagementModeOptions.filter((option) => option.value !== InternalPolicyDocumentManagementMode.INTEGRATION).map((option) => {
                 const isExternal = option.value === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
-                const disabled = isExternal && !canKeepAsWord
+                const disabled = isExternal && !canKeepAsDocument
                 const id = `mgmt-${option.value}`
                 const description = isExternal
-                  ? canKeepAsWord
-                    ? 'View this document in Openlane while continuing to manage it in Microsoft Word.'
-                    : 'Available only when every uploaded file is a .doc or .docx.'
+                  ? canKeepAsDocument
+                    ? 'View this document in Openlane while continuing to manage it outside Openlane.'
+                    : 'Available only when every uploaded file is a .doc, .docx or .pdf.'
                   : 'Parse this document and edit it directly in Openlane.'
 
                 return (
@@ -290,6 +295,11 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
                 )
               })}
             </RadioGroup>
+            {showPdfFormattingWarning && (
+              <Callout variant="warning" compact>
+                PDF formatting is not preserved when a PDF is managed in Openlane. Only its text is imported, so tables, columns and images are lost.
+              </Callout>
+            )}
           </div>
         )}
         <div className="flex flex-col gap-2">

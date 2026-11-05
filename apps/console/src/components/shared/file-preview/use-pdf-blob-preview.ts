@@ -7,25 +7,12 @@ const IDLE: TPdfPreviewState = { status: 'idle' }
 const LOADING: TPdfPreviewState = { status: 'loading' }
 const ERROR: TPdfPreviewState = { status: 'error' }
 
-// usePdfBlobPreview fetches a PDF from a presigned URL and exposes it as a
-// blob: URL safe to embed in an <iframe>.
+// usePdfBlobPreview fetches a PDF from a presigned URL and exposes it as a blob: URL for PdfPreview to render.
 //
-// The fetch+blob round-trip is required (not just convenient) because:
-//   - The disk-storage dev backend sets X-Frame-Options: SAMEORIGIN, which
-//     blocks cross-origin iframe embeds of the presigned URL.
-//   - The S3/R2 providers have historically signed URLs with
-//     Content-Disposition: attachment, which forces a download instead of
-//     inline render.
-// Both restrictions live on the original HTTP response and do not survive
-// re-serving the bytes from a blob: URL.
-//
-// We also force the MIME type to application/pdf because some legacy uploads
-// come back as application/octet-stream, and iframes will not render a blob:
-// URL without a recognized PDF MIME.
-//
-// Once the backend ships inline-disposition for safe MIMEs and re-detects
-// octet-stream at upload time, the call sites can be collapsed to
-// <iframe src={presignedURL} /> and this hook can be deleted.
+// Fetching the bytes first keeps the preview independent of how the storage backend serves the file: the
+// disk-storage dev backend sets X-Frame-Options: SAMEORIGIN, S3/R2 have signed URLs with
+// Content-Disposition: attachment, and some legacy uploads come back as application/octet-stream. None of
+// that carries over to a blob: URL, and the MIME type is forced to application/pdf.
 export const usePdfBlobPreview = (url: string, enabled: boolean): TPdfPreviewState => {
   const [state, setState] = useState<TPdfPreviewState>(IDLE)
 

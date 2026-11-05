@@ -10,6 +10,9 @@ const schemaContent = fs.readFileSync(schemaPath, 'utf8')
 const nodeTypeRegex = /export interface (\w+) extends Node\s*\{([\s\S]*?)\n\}/g
 const matches = [...schemaContent.matchAll(nodeTypeRegex)]
 
+const mutationBody = schemaContent.match(/export interface Mutation \{([\s\S]*?)\n\}/)?.[1] ?? ''
+const mutationFields = new Set([...mutationBody.matchAll(/^\s+(\w+)\??:/gm)].map((m) => m[1]))
+
 const nodeTypes = matches
   .map((m) => {
     const name = m[1]
@@ -165,7 +168,7 @@ ${fieldsGetList}
   }
 \``)
 
-  if (schemaContent.includes(`${gqlName}BulkCreatePayload`)) {
+  if (mutationFields.has(`createBulkCSV${gqlName}`)) {
     queries.push(`export const CREATE_CSV_BULK_${upperName} = gql\`
   mutation CreateBulkCSV${name}($input: Upload!) {
     createBulkCSV${gqlName}(input: $input) {
@@ -177,7 +180,8 @@ ${fieldsGetList}
 \``)
   }
 
-  queries.push(`export const BULK_DELETE_${upperName} = gql\`
+  if (mutationFields.has(`deleteBulk${gqlName}`)) {
+    queries.push(`export const BULK_DELETE_${upperName} = gql\`
   mutation DeleteBulk${name}($ids: [ID!]!) {
     deleteBulk${gqlName}(ids: $ids) {
       deletedIDs
@@ -186,6 +190,7 @@ ${fieldsGetList}
     }
   }
 \``)
+  }
 
   if (edgeFields.length > 0) {
     const associations = edgeFields
@@ -212,13 +217,15 @@ ${associations}
 \``)
   }
 
-  queries.push(`export const BULK_EDIT_${upperName} = gql\`
+  if (mutationFields.has(`updateBulk${gqlName}`)) {
+    queries.push(`export const BULK_EDIT_${upperName} = gql\`
   mutation UpdateBulk${name}($ids: [ID!]!, $input: Update${gqlName}Input!) {
     updateBulk${gqlName}(ids: $ids, input: $input) {
       updatedIDs
     }
   }
 \``)
+  }
 
   return `import { gql } from 'graphql-request'
 

@@ -137,6 +137,13 @@ export const SEARCH_INTERNAL_POLICY_DOCUMENTS = gql`
           id
           name
           revision
+          managementMode
+          file {
+            id
+            providedFileName
+            providedFileSize
+            detectedMimeType
+          }
         }
       }
     }

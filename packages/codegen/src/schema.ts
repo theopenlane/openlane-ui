@@ -4895,7 +4895,18 @@ export type SearchInternalPolicyDocumentsQueryVariables = Exact<{
 }>
 
 export interface SearchInternalPolicyDocumentsQuery {
-  internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; revision: string | null } | null } | null> | null }
+  internalPolicies: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        name: string
+        revision: string | null
+        managementMode: Types.InternalPolicyDocumentManagementMode | null
+        file: { id: string; providedFileName: string; providedFileSize: number | null; detectedMimeType: string | null } | null
+      } | null
+    } | null> | null
+  }
 }
 
 export type GetAllInternalPoliciesQueryVariables = Exact<{
@@ -7258,6 +7269,157 @@ export type UpdateBulkRemediationMutationVariables = Exact<{
 
 export interface UpdateBulkRemediationMutation {
   updateBulkRemediation: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
+}
+
+export type ReportMembershipsWithFilterQueryVariables = Exact<{
+  where?: Types.ReportMembershipWhereInput | null | undefined
+  orderBy?: Array<Types.ReportMembershipOrder> | Types.ReportMembershipOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface ReportMembershipsWithFilterQuery {
+  reportMemberships: {
+    totalCount: number
+    edges: Array<{
+      node: { createdAt: any; createdBy: string | null; id: string; reportID: string; updatedAt: any; updatedBy: string | null; updatedByImpersonator: string | null; userID: string } | null
+    } | null> | null
+    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type ReportMembershipQueryVariables = Exact<{
+  reportMembershipId: string
+}>
+
+export interface ReportMembershipQuery {
+  reportMembership: { createdAt: any; createdBy: string | null; id: string; reportID: string; updatedAt: any; updatedBy: string | null; updatedByImpersonator: string | null; userID: string }
+}
+
+export type CreateReportMembershipMutationVariables = Exact<{
+  input: Types.CreateReportMembershipInput
+}>
+
+export interface CreateReportMembershipMutation {
+  createReportMembership: { reportMembership: { id: string } }
+}
+
+export type UpdateReportMembershipMutationVariables = Exact<{
+  updateReportMembershipId: string
+  input: Types.UpdateReportMembershipInput
+}>
+
+export interface UpdateReportMembershipMutation {
+  updateReportMembership: { reportMembership: { id: string } }
+}
+
+export type DeleteReportMembershipMutationVariables = Exact<{
+  deleteReportMembershipId: string
+}>
+
+export interface DeleteReportMembershipMutation {
+  deleteReportMembership: { deletedID: string }
+}
+
+export type DeleteBulkReportMembershipMutationVariables = Exact<{
+  ids: Array<string> | string
+}>
+
+export interface DeleteBulkReportMembershipMutation {
+  deleteBulkReportMembership: { deletedIDs: Array<string>; notDeletedIDs: Array<string> | null; error: string | null }
+}
+
+export type UpdateBulkReportMembershipMutationVariables = Exact<{
+  ids: Array<string> | string
+  input: Types.UpdateReportMembershipInput
+}>
+
+export interface UpdateBulkReportMembershipMutation {
+  updateBulkReportMembership: { updatedIDs: Array<string> | null }
+}
+
+export type ReportsWithFilterQueryVariables = Exact<{
+  where?: Types.ReportWhereInput | null | undefined
+  orderBy?: Array<Types.ReportOrder> | Types.ReportOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface ReportsWithFilterQuery {
+  reports: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        createdAt: any
+        createdBy: string | null
+        displayID: string
+        id: string
+        name: string
+        query: string
+        reportKindID: string | null
+        reportKindName: string | null
+        reportOwnerID: string | null
+        requestorID: string | null
+        updatedAt: any
+        updatedBy: string | null
+        updatedByImpersonator: string | null
+        variables: any
+      } | null
+    } | null> | null
+    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type ReportQueryVariables = Exact<{
+  reportId: string
+}>
+
+export interface ReportQuery {
+  report: {
+    createdAt: any
+    createdBy: string | null
+    displayID: string
+    id: string
+    name: string
+    query: string
+    reportKindID: string | null
+    reportKindName: string | null
+    reportOwnerID: string | null
+    requestorID: string | null
+    updatedAt: any
+    updatedBy: string | null
+    updatedByImpersonator: string | null
+    variables: any
+  }
+}
+
+export type CreateReportMutationVariables = Exact<{
+  input: Types.CreateReportInput
+}>
+
+export interface CreateReportMutation {
+  createReport: { report: { id: string } }
+}
+
+export type UpdateReportMutationVariables = Exact<{
+  updateReportId: string
+  input: Types.UpdateReportInput
+}>
+
+export interface UpdateReportMutation {
+  updateReport: { report: { id: string } }
+}
+
+export type DeleteReportMutationVariables = Exact<{
+  deleteReportId: string
+}>
+
+export interface DeleteReportMutation {
+  deleteReport: { deletedID: string }
 }
 
 export type ReviewsWithFilterQueryVariables = Exact<{
