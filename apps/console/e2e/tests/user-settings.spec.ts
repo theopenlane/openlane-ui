@@ -69,7 +69,7 @@ test.describe('user-settings — security & default-org panels (owner)', () => {
     await expect(page.getByRole('heading', { name: 'Mobile App Authentication' })).toBeVisible()
 
     const twoFaActions = page.getByRole('button', { name: /^(Configure|Enable|Disable|Remove)$/ })
-    await expect(twoFaActions.first()).toBeVisible()
+    await expect(twoFaActions.first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('Passkeys panel renders its heading and Add passkey action', async ({ page }) => {

@@ -9,7 +9,6 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/
 import { useNotification } from '@/hooks/useNotification'
 import { Copy } from 'lucide-react'
 import { useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa-setting'
-import { useQueryClient } from '@tanstack/react-query'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
@@ -27,7 +26,6 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
   const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null)
   const [isSecretKeySetup, setIsSecretKeySetup] = useState<boolean>(false)
   const [modalClosable, setModalClosable] = useState(true)
-  const queryClient = useQueryClient()
 
   const { mutateAsync: updateTfaSetting } = useUpdateTfaSetting()
 
@@ -63,9 +61,6 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
 
           setRecoveryCodes(resp?.updateTFASetting?.recoveryCodes || null)
           setModalClosable(false)
-
-          queryClient.invalidateQueries({ queryKey: ['tfaSettings'] })
-          queryClient.invalidateQueries({ queryKey: ['userTFASettings'] })
         } else {
           errorNotification({ title: 'OTP validation failed', description: data.message })
         }
@@ -77,7 +72,7 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
         })
       }
     },
-    [errorNotification, queryClient, successNotification, updateTfaSetting],
+    [errorNotification, successNotification, updateTfaSetting],
   )
 
   const handleOtpChange = useCallback(
