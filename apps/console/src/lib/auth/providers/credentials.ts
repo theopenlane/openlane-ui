@@ -3,9 +3,9 @@ import { SUPPORT_EMAIL_ADDRESS } from '@/constants'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import Credentials from 'next-auth/providers/credentials'
 import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
 import { secureFetch } from '../utils/secure-fetch'
 import { setSessionCookie } from '../utils/set-session-cookie'
+import { forwardTfaPendingCookie } from '../utils/tfa-pending-cookie'
 
 export const credentialsProvider = Credentials({
   id: 'credentials',
@@ -67,12 +67,8 @@ export const credentialsProvider = Credentials({
         session = data?.session
 
         if (data.tfa_enabled && !data.access_token) {
-          // pass all cookies back to the browser
-          const cookieStore = await cookies()
-          const response = new NextResponse(null, { headers: fData.headers })
-          for (const cookie of response.cookies.getAll()) {
-            cookieStore.set(cookie)
-          }
+          // only pass the tfa pending cookie back to the browser, as a host-only cookie
+          forwardTfaPendingCookie(await cookies(), fData.headers)
 
           return {
             isTfaEnabled: true,

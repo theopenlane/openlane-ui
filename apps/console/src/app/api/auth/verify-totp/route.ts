@@ -1,6 +1,5 @@
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
-import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
-import { TFA_PENDING_COOKIE_NAME } from '@/lib/auth/utils/constants'
+import { clearTfaPendingCookie } from '@/lib/auth/utils/tfa-pending-cookie'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
@@ -19,10 +18,8 @@ export async function POST(request: Request) {
     if (fData.ok && data.success) {
       const response = NextResponse.json(data, { status: fData.status })
 
-      const responseCookies = fData.headers.get('set-cookie')
-      if (responseCookies) {
-        parseAndSetResponseCookies(response, responseCookies, new Set([TFA_PENDING_COOKIE_NAME]), 0)
-      }
+      // the pending login is consumed, always clear the cookie rather than relying on core's response
+      clearTfaPendingCookie(response.cookies)
 
       return response
     }
