@@ -21,6 +21,8 @@ export interface ObjectChipProps {
     details?: string | null
     summary?: string | null
     identityHolderType?: string | null
+    cveID?: string | null
+    displayID?: string | null
     link: string
   }
   kind?: string

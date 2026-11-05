@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
-import { useVulnerabilitySourceIntegrations } from '@/lib/graphql-hooks/vulnerability'
 import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
+import { type IntegrationProviderMatchFields } from '@/lib/integrations/types'
 import { matchIntegrationProvider, normalizeIntegrationToken } from '@/lib/integrations/utils'
 
-export type TVulnerabilitySourceFields = {
+export type TExposureSourceFields = {
   id: string
   source?: string | null
   externalID?: string | null
@@ -11,10 +11,11 @@ export type TVulnerabilitySourceFields = {
   externalURI?: string | null
 }
 
-export const hasVulnerabilitySourceDetails = (fields: TVulnerabilitySourceFields) => [fields.source, fields.externalID, fields.externalOwnerID, fields.externalURI].some((value) => !!value?.trim())
+export type TSourceIntegration = IntegrationProviderMatchFields
 
-export const useVulnerabilitySource = (fields: TVulnerabilitySourceFields) => {
-  const { integrations } = useVulnerabilitySourceIntegrations(fields.id)
+export const hasExposureSourceDetails = (fields: TExposureSourceFields) => [fields.source, fields.externalID, fields.externalOwnerID, fields.externalURI].some((value) => !!value?.trim())
+
+export const useExposureSource = (fields: TExposureSourceFields, integrations: TSourceIntegration[]) => {
   const { data: providersData } = useIntegrationProviders()
   const source = fields.source?.trim() || null
 

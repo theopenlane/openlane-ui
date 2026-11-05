@@ -243,7 +243,14 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
     const items: ActivityItem[] = []
 
     recentFindings?.forEach((f) =>
-      items.push({ id: f.id, label: f.displayName ?? ObjectTypes.FINDING, type: ObjectTypes.FINDING, createdAt: f.createdAt, href: `/exposure/findings?id=${f.id}`, source: f.source ?? null }),
+      items.push({
+        id: f.id,
+        label: f.displayName || ObjectTypes.FINDING,
+        type: ObjectTypes.FINDING,
+        createdAt: f.createdAt,
+        href: getHrefForObjectType('findings', { id: f.id }),
+        source: f.source ?? null,
+      }),
     )
     recentRisks?.forEach((r) => items.push({ id: r.id, label: r.name ?? ObjectTypes.RISK, type: ObjectTypes.RISK, createdAt: r.createdAt }))
     recentScans?.forEach((s) => items.push({ id: s.id, label: s.target ?? ObjectTypes.SCAN, type: ObjectTypes.SCAN, createdAt: s.createdAt }))

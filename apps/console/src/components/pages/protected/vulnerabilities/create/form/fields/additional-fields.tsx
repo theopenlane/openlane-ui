@@ -9,6 +9,7 @@ import { type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
+import { EXTERNAL_REF_LOCKED_TOOLTIP } from '../../../../exposure/detail/external-ref-lock'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { SeverityChip } from '@/components/shared/severity/severity-chip'
@@ -122,13 +123,12 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
   const hasPackageDetails = Boolean(data?.packageName || data?.vulnerableVersionRange || data?.firstPatchedVersion || data?.packageEcosystem || data?.manifestPath || data?.dependencyScope)
   const isDismissed = !isCreate && Boolean(data?.dismissedAt || data?.dismissedReason)
   const isExternalRefLocked = (data?.integrations?.totalCount ?? 0) > 0
-  const externalRefLockedTooltip = 'This field is managed by the source integration and cannot be edited.'
   const externalRefLockProps = isExternalRefLocked
     ? {
         isEditing: false,
         isEditAllowed: false,
         handleUpdate: undefined,
-        tooltipContent: externalRefLockedTooltip,
+        tooltipContent: EXTERNAL_REF_LOCKED_TOOLTIP,
       }
     : null
 

@@ -14,7 +14,8 @@ import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 import { getVulnerabilityDueDate } from '@/utils/vulnerability-due-date'
 import { formatDate } from '@/utils/date'
 import { pluralizeWithCount } from '@/utils/strings'
-import { exposureAssetLabel, exposureStatusLabel, type TEnvironmentGroup, type TExposureRow } from './exposure-model'
+import { exposureAssetLabel } from '../../../../exposure/detail/exposure-asset-label'
+import { exposureStatusLabel, type TEnvironmentGroup, type TExposureRow } from './exposure-model'
 import { EnvironmentChip } from './environment-chip'
 
 type TExposureMapListProps = {

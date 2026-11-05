@@ -10,8 +10,9 @@ import { HtmlOrText } from '@/components/shared/sanitized-html/sanitized-html'
 import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import { formatDateTime } from '@/utils/date'
 import { normalizeUrl } from '@/utils/normalizeUrl'
+import { isRecord } from '@/utils/type-guards'
 import { toUpperSnakeCase } from '@/utils/strings'
-import { FindingSecurityLevel, type UpdateFindingInput } from '@repo/codegen/src/schema'
+import { type UpdateFindingInput } from '@repo/codegen/src/schema'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/cardpanel'
@@ -25,6 +26,8 @@ import React, { useEffect, useState } from 'react'
 import { useFormContext, type FieldValues } from 'react-hook-form'
 import { FINDING_ASSIGNEE, FINDING_INTERNAL_OWNER, FINDING_REVIEWER } from '../../../finding-responsibility'
 import { type EnumCreateHandlers, type EnumOptions } from '../../../table/types'
+import { EXTERNAL_REF_LOCKED_TOOLTIP } from '../../../../exposure/detail/external-ref-lock'
+import { getFindingSeverity } from '../../../finding-display'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -36,7 +39,6 @@ interface AdditionalFieldsProps {
   handleUpdateField?: (input: UpdateFindingInput) => Promise<void>
   enumOptions: EnumOptions
   enumCreateHandlers?: EnumCreateHandlers
-  riskScoresAction?: React.ReactNode
 }
 
 export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
@@ -49,7 +51,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
   handleUpdateField,
   enumOptions,
   enumCreateHandlers,
-  riskScoresAction,
 }) => {
   const sharedFieldProps = {
     isEditing,
@@ -64,19 +65,18 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
   const plainChipDisplay = (v: string) => (v ? <Badge variant="secondary">{v}</Badge> : null)
   const enumChipDisplay = (v: string) => (v ? <Badge variant="secondary">{getEnumLabel(v)}</Badge> : null)
 
-  const securityLevelRaw: string = data?.securityLevel && data.securityLevel !== FindingSecurityLevel.NONE ? String(data.securityLevel) : (data?.severity ?? '')
+  const securityLevelRaw = getFindingSeverity(data ?? {}) ?? ''
   const securityLevelDisplay = securityLevelRaw ? <SeverityChip severity={securityLevelRaw} /> : ''
 
   const hasTargetDetails = isPopulatedObject(data?.targetDetails)
   const hasMetadata = Boolean(data?.source || data?.sourceUpdatedAt || data?.eventTime || data?.reportedAt)
   const isExternalRefLocked = (data?.integrations?.totalCount ?? 0) > 0
-  const externalRefLockedTooltip = 'This field is managed by the source integration and cannot be edited.'
   const externalRefLockProps = isExternalRefLocked
     ? {
         isEditing: false,
         isEditAllowed: false,
         handleUpdate: undefined,
-        tooltipContent: externalRefLockedTooltip,
+        tooltipContent: EXTERNAL_REF_LOCKED_TOOLTIP,
       }
     : null
 
@@ -101,13 +101,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
 
       <Card>
         <CardHeader className="pb-2">
-          <div className="flex items-start justify-between">
-            <div>
-              <CardTitle className="text-md p-0">Risk Scores</CardTitle>
-              <CardDescription className="p-0">Severity, scoring, and remediation timeline</CardDescription>
-            </div>
-            {riskScoresAction}
-          </div>
+          <CardTitle className="text-md p-0">Risk Scores</CardTitle>
+          <CardDescription className="p-0">Severity, scoring, and remediation timeline</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -299,10 +294,10 @@ interface ArrayTextFieldProps {
   internalEditing: string | null
   setInternalEditing: InternalEditingType
   handleUpdate?: (input: UpdateFindingInput) => Promise<void>
-  renderView: (arr: string[]) => React.ReactNode
+  renderView?: (arr: string[]) => React.ReactNode
 }
 
-const ArrayTextField: React.FC<ArrayTextFieldProps> = ({ name, label, isEditing, isEditAllowed, isCreate, data, internalEditing, setInternalEditing, handleUpdate, renderView }) => {
+export const ArrayTextField: React.FC<ArrayTextFieldProps> = ({ name, label, isEditing, isEditAllowed, isCreate, data, internalEditing, setInternalEditing, handleUpdate, renderView }) => {
   const { setValue, getValues } = useFormContext()
   const isFieldEditing = Boolean(isCreate) || isEditing || internalEditing === name
 
@@ -360,16 +355,16 @@ const ArrayTextField: React.FC<ArrayTextFieldProps> = ({ name, label, isEditing,
         <Textarea value={localValue} onChange={handleChange} onBlur={handleBlur} autoFocus={internalEditing === name} rows={4} placeholder="One entry per line" />
       ) : (
         <div className={cn('text-sm py-2 px-1 w-full rounded-md', isEditAllowed && 'cursor-pointer hover:bg-accent')} {...activatable(isEditAllowed ? handleClick : undefined)}>
-          {currentArray.length === 0 ? notSet : renderView(currentArray)}
+          {currentArray.length === 0 ? notSet : renderView?.(currentArray)}
         </div>
       )}
     </FormItem>
   )
 }
 
-const isPopulatedObject = (val: unknown): val is Record<string, unknown> => typeof val === 'object' && val !== null && !Array.isArray(val) && Object.keys(val as object).length > 0
+export const isPopulatedObject = (val: unknown): val is Record<string, unknown> => isRecord(val) && Object.keys(val).length > 0
 
-const TargetDetailsCard: React.FC<{ value: Record<string, unknown> }> = ({ value }) => {
+export const TargetDetailsCard: React.FC<{ value: Record<string, unknown> }> = ({ value }) => {
   const [view, setView] = useState<'fields' | 'json'>('fields')
   return (
     <Card>
