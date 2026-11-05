@@ -139,7 +139,15 @@ export const useReportSharingForm = ({ report, suggestedName = '' }: TUseReportS
         const { name, visibility, sharees } = values
         const viewerIDs = visibility === ReportReportVisibility.RESTRICTED ? idsOfKind(sharees, 'group') : []
         const { createReport: created } = await createReport({
-          input: { name, visibility, status: ReportReportStatus.SAVED, query: definition.query, variables: definition.variables, ...(viewerIDs.length > 0 ? { viewerIDs } : {}) },
+          input: {
+            name,
+            visibility,
+            status: ReportReportStatus.SAVED,
+            query: definition.query,
+            variables: definition.variables,
+            reportOwnerID: currentUserId,
+            ...(viewerIDs.length > 0 ? { viewerIDs } : {}),
+          },
         })
         const id = created.report.id
 
@@ -150,7 +158,7 @@ export const useReportSharingForm = ({ report, suggestedName = '' }: TUseReportS
           return { id, sharingError }
         }
       }),
-    [createReport, guarded, syncMembers],
+    [createReport, currentUserId, guarded, syncMembers],
   )
 
   const update = useCallback(

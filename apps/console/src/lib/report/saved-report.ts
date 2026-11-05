@@ -1,4 +1,4 @@
-import { ReportReportVisibility } from '@repo/codegen/src/schema'
+import { ReportReportVisibility, type ReportWhereInput } from '@repo/codegen/src/schema'
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import type { TPaginationQuery } from '@repo/ui/pagination-types'
 import { EXPORT_PAGE_SIZE } from '@/constants/pagination'
@@ -26,11 +26,20 @@ export const savedReportHref = (id: string, options?: { edit?: boolean }): strin
 
 export const savedReportUrl = (id: string): string => `${window.location.origin}/reports/${id}`
 
-export const savedReportsEmptyMessage = (search: string, hasError: boolean): string => {
+export const savedReportsEmptyMessage = (search: string, hasError: boolean, hasFilters = false): string => {
   if (hasError) return 'Saved reports could not be loaded. Please try again later.'
+  if (hasFilters) return 'No saved reports match your filters.'
 
   return search ? `No saved reports match "${search}".` : 'You have no saved reports yet. Build a report and select Save to keep it here.'
 }
+
+export const savedReportOwnerId = ({ reportOwnerID, createdBy }: { reportOwnerID?: string | null; createdBy?: string | null }): string | null => reportOwnerID || createdBy || null
+
+export const reportOwnedByWhere = (userIds: string[]): ReportWhereInput => ({ or: [{ reportOwnerIDIn: userIds }, { reportOwnerIDIsNil: true, createdByIn: userIds }] })
+
+export const reportNotOwnedByWhere = (userId: string): ReportWhereInput => ({
+  or: [{ reportOwnerIDNEQ: userId }, { reportOwnerIDIsNil: true, or: [{ createdByNEQ: userId }, { createdByIsNil: true }] }],
+})
 
 export type TReportQueryParts = {
   entity: TReportEntity

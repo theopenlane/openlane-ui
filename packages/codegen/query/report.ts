@@ -17,6 +17,8 @@ export const GET_ALL_REPORTS = gql`
           visibility
           variables
           updatedAt
+          reportOwnerID
+          createdBy
         }
       }
     }

@@ -204,7 +204,7 @@ const CustomReportPage: React.FC = () => {
       <div className="flex flex-col gap-1">
         <ReportActionsBar
           savedReport={savedReport}
-          canShare={!!savedReport && canManageSavedReport}
+          canManage={!!savedReport && canManageSavedReport}
           historyOptions={historyOptions}
           onSelectHistory={handleSelectHistory}
           saveDisabledReason={saveDisabledReason}

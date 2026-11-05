@@ -25,7 +25,10 @@ export const HoverPencilWrapper: React.FC<HoverPencilWrapperProps> = ({ children
               event.stopPropagation()
               onPencilClick(event)
             }}
-            className={clsx('shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 p-0 bg-transparent border-0 cursor-pointer', pencilClass)}
+            onClick={(event) => {
+              if (event.detail === 0) onPencilClick(event)
+            }}
+            className={clsx('shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 p-0 bg-transparent border-0 cursor-pointer', pencilClass)}
           >
             <PencilIcon size={16} />
           </button>

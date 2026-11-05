@@ -10,9 +10,11 @@ import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
 import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { type TSavedReportRef, useGetSavedReportsInfinite } from '@/lib/graphql-hooks/report'
-import { savedReportDataLabel, savedReportsEmptyMessage } from '@/lib/report/saved-report'
+import { savedReportDataLabel, savedReportOwnerId, savedReportsEmptyMessage } from '@/lib/report/saved-report'
 import { ReportVisibilityBadge } from './report-visibility'
+import { SavedReportOwner } from './saved-report-owner'
 import { SavedReportMenu, useSavedReportActions } from './use-saved-report-actions'
 
 type TSavedReportsSheetProps = {
@@ -29,6 +31,7 @@ const SavedReportsList: React.FC<Omit<TSavedReportsSheetProps, 'open'>> = ({ onO
   useQueryErrorNotification({ error, description: 'Failed to load saved reports' })
 
   const reportIds = useMemo(() => reports.map((report) => report.id), [reports])
+  const { authorMaps } = useAuthorMaps(reports.map(savedReportOwnerId))
   const isSearching = getIsSearching(isFetching && !isFetchingNextPage)
 
   const openReport = (report: TSavedReportRef, run: boolean) => {
@@ -69,6 +72,7 @@ const SavedReportsList: React.FC<Omit<TSavedReportsSheetProps, 'open'>> = ({ onO
                     <span className="flex flex-wrap items-center gap-2">
                       <span className="text-xs font-normal text-muted-foreground">{savedReportDataLabel(report.variables)}</span>
                       <ReportVisibilityBadge visibility={report.visibility} />
+                      <SavedReportOwner report={report} authorMaps={authorMaps} className="text-xs font-normal text-muted-foreground" avatarClassName="h-4 w-4" />
                     </span>
                   </span>
                 </span>
