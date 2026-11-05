@@ -113716,6 +113716,18 @@
             "deprecationReason": null
           },
           {
+            "name": "disableDefaultDomain",
+            "description": "if disabled, the default domain will not work and your trustcenter will not be viewable with the slug based routing",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "editorIDs",
             "description": null,
             "type": {
@@ -275467,6 +275479,39 @@
               "name": null,
               "ofType": {
                 "name": "TrustCenterNDARequestCreatePayload",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "createTrustCenterPreviewDomain",
+            "description": "enqueues the creation of a preview domain for the trustcenter",
+            "args": [
+              {
+                "name": "trustCenterID",
+                "description": "trust center ID",
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "name": "ID",
+                    "kind": "SCALAR",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "name": "TrustCenterPreviewDomainCreatePayload",
                 "kind": "OBJECT",
                 "ofType": null
               }
@@ -491980,6 +492025,34 @@
       },
       {
         "kind": "OBJECT",
+        "name": "TrustCenterPreviewDomainCreatePayload",
+        "description": "Return response for createTrustCenterPreviewDomain mutation",
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "success",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "name": "Boolean",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "TrustCenterPreviewSettingCreatePayload",
         "description": "Return response for createTrustCenterPreviewSetting mutation",
         "isOneOf": null,
@@ -492212,6 +492285,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "disableDefaultDomain",
+            "description": "if disabled, the default domain will not work and your trustcenter will not be viewable with the slug based routing",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "isDeprecated": false,
@@ -494083,6 +494168,54 @@
           },
           {
             "name": "createdByNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "disableDefaultDomain",
+            "description": "disable_default_domain field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "disableDefaultDomainIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "disableDefaultDomainNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "disableDefaultDomainNotNil",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -573700,6 +573833,18 @@
             "deprecationReason": null
           },
           {
+            "name": "clearDisableDefaultDomain",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "clearEditors",
             "description": null,
             "type": {
@@ -573981,6 +574126,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "disableDefaultDomain",
+            "description": "if disabled, the default domain will not work and your trustcenter will not be viewable with the slug based routing",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,

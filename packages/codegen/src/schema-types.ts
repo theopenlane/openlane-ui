@@ -12229,6 +12229,8 @@ export interface CreateTrustCenterSettingInput {
   companyDomain?: InputMaybe<Scalars['String']['input']>
   /** company name for the trust center, defaults to the organization's display name */
   companyName?: InputMaybe<Scalars['String']['input']>
+  /** if disabled, the default domain will not work and your trustcenter will not be viewable with the slug based routing */
+  disableDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** enable auto approval rules provides configurable settings to skip manual approvals */
   enableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
@@ -28628,6 +28630,8 @@ export interface Mutation {
   createTrustCenterNDA: TrustCenterNdaCreatePayload
   /** Create a new trustCenterNDARequest */
   createTrustCenterNDARequest: TrustCenterNdaRequestCreatePayload
+  /** enqueues the creation of a preview domain for the trustcenter */
+  createTrustCenterPreviewDomain: TrustCenterPreviewDomainCreatePayload
   /** Create or replace preview environment trust center settings */
   createTrustCenterPreviewSetting: TrustCenterPreviewSettingCreatePayload
   /** Create a new trustCenterSetting */
@@ -30376,6 +30380,10 @@ export interface MutationCreateTrustCenterNdaArgs {
 
 export interface MutationCreateTrustCenterNdaRequestArgs {
   input: CreateTrustCenterNdaRequestInput
+}
+
+export interface MutationCreateTrustCenterPreviewDomainArgs {
+  trustCenterID: Scalars['ID']['input']
 }
 
 export interface MutationCreateTrustCenterPreviewSettingArgs {
@@ -53172,6 +53180,12 @@ export enum TrustCenterOrderField {
   updated_at = 'updated_at',
 }
 
+/** Return response for createTrustCenterPreviewDomain mutation */
+export interface TrustCenterPreviewDomainCreatePayload {
+  __typename?: 'TrustCenterPreviewDomainCreatePayload'
+  success: Scalars['Boolean']['output']
+}
+
 /** Return response for createTrustCenterPreviewSetting mutation */
 export interface TrustCenterPreviewSettingCreatePayload {
   __typename?: 'TrustCenterPreviewSettingCreatePayload'
@@ -53198,6 +53212,8 @@ export interface TrustCenterSetting extends Node {
   companyName?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** if disabled, the default domain will not work and your trustcenter will not be viewable with the slug based routing */
+  disableDefaultDomain?: Maybe<Scalars['Boolean']['output']>
   editors: GroupConnection
   /** enable auto approval rules provides configurable settings to skip manual approvals */
   enableAutoApproval?: Maybe<Scalars['Boolean']['output']>
@@ -53441,6 +53457,11 @@ export interface TrustCenterSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** disable_default_domain field predicates */
+  disableDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
+  disableDefaultDomainIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  disableDefaultDomainNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  disableDefaultDomainNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** enable_auto_approval field predicates */
   enableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
   enableAutoApprovalIsNil?: InputMaybe<Scalars['Boolean']['input']>
@@ -60574,6 +60595,7 @@ export interface UpdateTrustCenterSettingInput {
   clearCompanyDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyName?: InputMaybe<Scalars['Boolean']['input']>
+  clearDisableDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEnableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
   clearFaviconFile?: InputMaybe<Scalars['Boolean']['input']>
@@ -60601,6 +60623,8 @@ export interface UpdateTrustCenterSettingInput {
   companyDomain?: InputMaybe<Scalars['String']['input']>
   /** company name for the trust center, defaults to the organization's display name */
   companyName?: InputMaybe<Scalars['String']['input']>
+  /** if disabled, the default domain will not work and your trustcenter will not be viewable with the slug based routing */
+  disableDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   /** enable auto approval rules provides configurable settings to skip manual approvals */
   enableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
   faviconFileID?: InputMaybe<Scalars['ID']['input']>

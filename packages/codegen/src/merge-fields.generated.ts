@@ -1437,6 +1437,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'companyDescription', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'companyDomain', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'companyName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'disableDefaultDomain', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'enableAutoApproval', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'faviconRemoteURL', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'font', kind: 'string', list: false, nonNull: false, listItemNonNull: false },

@@ -16,6 +16,7 @@ import {
 } from '../utils/api'
 import type { Locator, Page } from '@playwright/test'
 import { slideoutMenuAction, slideoutReady } from '../utils/slideout'
+import { stubDefaultDomainEnabled } from '../utils/trust-center'
 
 const openTrustCenterPage = async (page: Page, route: string) => {
   await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 180_000 })
@@ -654,6 +655,7 @@ test.describe('trust-center — NDA template', () => {
 
 test.describe('trust-center — branding publish', () => {
   test.use({ authProfile: 'demo' })
+  test.beforeEach(async ({ page }) => stubDefaultDomainEnabled(page))
 
   test('publishing branding persists the security contact on the live setting', async ({ page }) => {
     test.slow()
@@ -770,6 +772,7 @@ test.describe('trust-center — subprocessor edit and delete', () => {
 
 test.describe('trust-center — custom domain lifecycle', () => {
   test.use({ authProfile: 'demo' })
+  test.beforeEach(async ({ page }) => stubDefaultDomainEnabled(page))
 
   test('a vanity domain is set and deleted', async ({ page }) => {
     test.slow()

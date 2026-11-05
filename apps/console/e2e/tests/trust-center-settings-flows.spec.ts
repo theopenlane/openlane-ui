@@ -1,8 +1,9 @@
-import type { Page, Route } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
 import { createSubprocessor, createTrustCenterSubprocessor, getDemoApi, getTrustCenterId, gql, type ApiSession } from '../utils/api'
 import { expectMutationOk, toast } from '../utils/mutations'
+import { isGetTrustCenter, stubDefaultDomainEnabled } from '../utils/trust-center'
 import { uniqueName } from '../utils/unique'
 
 const openTrustCenterPage = async (page: Page, route: string) => {
@@ -46,11 +47,6 @@ interface TrustCenterPayload {
   }
 }
 
-const isGetTrustCenter = (route: Route): boolean => {
-  const body = route.request().postData() ?? ''
-  return route.request().method() === 'POST' && /"operationName":"GetTrustCenter"|query GetTrustCenter\b/.test(body)
-}
-
 const stubBrandingPreview = async (page: Page, cnameRecord: string | null) => {
   await page.route('**/query', async (route) => {
     if (!isGetTrustCenter(route)) return route.fallback()
@@ -69,6 +65,7 @@ const unpublishedWarning = (page: Page) => page.locator('p').filter({ hasText: '
 
 test.describe('trust-center — search engine visibility (#2356)', () => {
   test.use({ authProfile: 'demo' })
+  test.beforeEach(async ({ page }) => stubDefaultDomainEnabled(page))
 
   test('toggling Hide from search engines persists noindexDefaultDomain on the live setting', async ({ page }) => {
     test.slow()
@@ -132,7 +129,7 @@ test.describe('trust-center — branding unpublished-changes preview link (ISS-3
     const warning = unpublishedWarning(page)
     await expect(warning).toHaveCount(1, { timeout: 30_000 })
     await expect(warning.getByRole('link')).toHaveCount(0)
-    await expect(page.getByText('Preview URL not available yet')).toBeVisible()
+    await expect(page.getByText('No preview URL yet. Create your Trust Center URLs to preview your changes.')).toBeVisible()
   })
 })
 

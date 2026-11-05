@@ -1,10 +1,12 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   CREATE_CUSTOM_DOMAIN,
+  CREATE_TRUST_CENTER_PREVIEW_DOMAIN,
   DELETE_CUSTOM_DOMAIN,
   GET_ALL_TRUST_CENTERS,
   GET_ALL_TRUST_CENTER_LAST_UPDATED,
   GET_ALL_TRUST_CENTER_POSTS,
+  GET_TRUST_CENTER_PREVIEW_DOMAIN,
   UPDATE_TRUST_CENTER,
   UPDATE_TRUST_CENTER_POST,
   UPDATE_TRUST_CENTER_SETTING,
@@ -14,9 +16,13 @@ import {
 import {
   type CreateCustomDomainMutation,
   type CreateCustomDomainMutationVariables,
+  type CreateTrustCenterPreviewDomainMutation,
+  type CreateTrustCenterPreviewDomainMutationVariables,
   type GetTrustCenterPostsQuery,
   type GetTrustCenterPostsQueryVariables,
+  type GetTrustCenterPreviewDomainQuery,
   type GetTrustCenterQuery,
+  type TrustCenterTrustCenterPreviewStatus,
   type TrustCenterLastUpdatedQuery,
   type TrustCenterLastUpdatedQueryVariables,
   type UpdateTrustCenterMutation,
@@ -29,6 +35,7 @@ import {
   type UpdateTrustCenterWatermarkConfigMutationVariables,
 } from '@repo/codegen/src/schema'
 import { useQuery, useMutation } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 
 export const TRUST_CENTER_QUERY_KEY = ['trustCenter'] as const
@@ -92,6 +99,40 @@ export const useCreateCustomDomain = () => {
       })
     },
   })
+}
+
+export const useCreateTrustCenterPreviewDomain = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<CreateTrustCenterPreviewDomainMutation, Error, CreateTrustCenterPreviewDomainMutationVariables>({
+    mutationFn: async (variables) => client.request<CreateTrustCenterPreviewDomainMutation, CreateTrustCenterPreviewDomainMutationVariables>(CREATE_TRUST_CENTER_PREVIEW_DOMAIN, variables),
+  })
+}
+
+type TPollTrustCenterPreviewDomainArgs = {
+  enabled: boolean
+  intervalMs: number
+  hasPreviewDomain: boolean
+  previewStatus?: TrustCenterTrustCenterPreviewStatus | null
+}
+
+export const usePollTrustCenterPreviewDomain = ({ enabled, intervalMs, hasPreviewDomain, previewStatus }: TPollTrustCenterPreviewDomainArgs) => {
+  const { client, queryClient } = useGraphQLClient()
+
+  const { data, dataUpdatedAt } = useQuery({
+    queryKey: [...TRUST_CENTER_QUERY_KEY, 'previewDomainPoll'],
+    queryFn: async () => client.request<GetTrustCenterPreviewDomainQuery>(GET_TRUST_CENTER_PREVIEW_DOMAIN),
+    enabled,
+    refetchInterval: enabled ? intervalMs : false,
+    gcTime: 0,
+  })
+
+  const polled = data?.trustCenters?.edges?.[0]?.node
+  const hasChanged = enabled && !!polled && (!!polled.previewDomain !== hasPreviewDomain || polled.previewStatus !== previewStatus)
+
+  useEffect(() => {
+    if (hasChanged) queryClient.invalidateQueries({ queryKey: TRUST_CENTER_QUERY_KEY, exact: true })
+  }, [hasChanged, dataUpdatedAt, queryClient])
 }
 
 export function useDeleteCustomDomain() {
