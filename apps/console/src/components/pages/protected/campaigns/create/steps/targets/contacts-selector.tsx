@@ -4,11 +4,12 @@ import React, { useCallback, useEffect, useMemo, useState, type Dispatch, type S
 import { useDebounce } from '@uidotdev/usehooks'
 import { ContactOrderField, OrderDirection, type ContactOrder, type ContactWhereInput } from '@repo/codegen/src/schema'
 import { useFetchAllContacts } from '@/lib/graphql-hooks/contact'
+import { emailOrFullNameSearchWhere } from '@/lib/graphql-hooks/identity-holder'
 import { useVendorOptions, VENDOR_ENTITY_TYPE_WHERE } from '@/lib/graphql-hooks/entity'
 import { RecipientPicker } from './recipient-picker'
 import { dedupeRecipientOptions, type RecipientOption } from './recipient-option'
 import { SelectedTargetsPreview } from './selected-targets-preview'
-import { ALL_SCOPE, PICKER_PAGINATION, getRecipientDisplayName, mergeTargets, removeTarget, toggleTarget, type CampaignTargetEntry } from './target-entry'
+import { ALL_FILTER_VALUE, PICKER_PAGINATION, getRecipientDisplayName, mergeTargets, removeTarget, toggleTarget, type CampaignTargetEntry } from './target-entry'
 import { normalizeEmail } from '@/lib/validators'
 import { sliceByPagination } from '@/utils/pagination'
 import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
@@ -20,7 +21,7 @@ const FETCH_PAGE_SIZE = 100
 const FETCH_MAX_PAGES = 5
 
 const vendorScopeWhere = (scope: string): ContactWhereInput => {
-  if (scope === ALL_SCOPE) return {}
+  if (scope === ALL_FILTER_VALUE) return {}
   if (scope === ANY_VENDOR) return { hasEntitiesWith: [VENDOR_ENTITY_TYPE_WHERE] }
   return { hasEntitiesWith: [{ id: scope }] }
 }
@@ -41,22 +42,17 @@ interface ContactsSelectorProps {
 }
 
 export const ContactsSelector: React.FC<ContactsSelectorProps> = ({ targets, onTargetsChange, lockedEmails }) => {
-  const [scope, setScope] = useState<string>(ALL_SCOPE)
+  const [scope, setScope] = useState<string>(ALL_FILTER_VALUE)
   const [searchText, setSearchText] = useState('')
   const [pagination, setPagination] = useState<TPagination>(PICKER_PAGINATION)
 
   const debouncedSearch = useDebounce(searchText, 300)
   const { vendorOptions } = useVendorOptions()
 
-  const scopeOptions = useMemo(() => [{ label: 'All contacts', value: ALL_SCOPE }, { label: 'All vendor contacts', value: ANY_VENDOR }, ...vendorOptions], [vendorOptions])
+  const scopeOptions = useMemo(() => [{ label: 'All contacts', value: ALL_FILTER_VALUE }, { label: 'All vendor contacts', value: ANY_VENDOR }, ...vendorOptions], [vendorOptions])
 
-  const handleScopeChange = (value: string) => {
-    setScope(value)
-    setPagination(PICKER_PAGINATION)
-  }
-
-  const handleSearchChange = (value: string) => {
-    setSearchText(value)
+  const resettingPage = (setValue: (value: string) => void) => (value: string) => {
+    setValue(value)
     setPagination(PICKER_PAGINATION)
   }
 
@@ -65,7 +61,7 @@ export const ContactsSelector: React.FC<ContactsSelectorProps> = ({ targets, onT
       emailNEQ: '',
       emailNotNil: true,
       ...vendorScopeWhere(scope),
-      ...(debouncedSearch.trim() ? { or: [{ fullNameContainsFold: debouncedSearch.trim() }, { emailContainsFold: debouncedSearch.trim() }] } : {}),
+      ...(debouncedSearch.trim() ? emailOrFullNameSearchWhere(debouncedSearch.trim()) : {}),
     }),
     [scope, debouncedSearch],
   )
@@ -114,12 +110,9 @@ export const ContactsSelector: React.FC<ContactsSelectorProps> = ({ targets, onT
   return (
     <div className="flex flex-col gap-4">
       <RecipientPicker
-        scopeLabel="Vendor"
-        scopeValue={scope}
-        scopeOptions={scopeOptions}
-        onScopeChange={handleScopeChange}
+        filters={[{ label: 'Vendor', value: scope, options: scopeOptions, onChange: resettingPage(setScope) }]}
         searchText={searchText}
-        onSearchChange={handleSearchChange}
+        onSearchChange={resettingPage(setSearchText)}
         searchPlaceholder="Search by name or email..."
         options={pageOptions}
         isLoading={isLoading}

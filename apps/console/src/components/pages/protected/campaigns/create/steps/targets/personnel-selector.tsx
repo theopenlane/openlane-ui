@@ -2,17 +2,23 @@
 
 import React, { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { IdentityHolderIdentityHolderType, type IdentityHolderWhereInput } from '@repo/codegen/src/schema'
-import { useIdentityHolderOptions } from '@/lib/graphql-hooks/identity-holder'
-import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { IdentityHolderIdentityHolderType, IdentityHolderUserStatus, type IdentityHolderWhereInput } from '@repo/codegen/src/schema'
+import { emailOrFullNameSearchWhere, useIdentityHolderOptions } from '@/lib/graphql-hooks/identity-holder'
+import { enumToOptions, enumValuesToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { UserStatusIcon } from '@/components/shared/enum-mapper/user-status-enum'
 import { RecipientPicker } from './recipient-picker'
 import { type RecipientOption } from './recipient-option'
 import { SelectedTargetsPreview } from './selected-targets-preview'
-import { ALL_SCOPE, PICKER_PAGINATION, getRecipientDisplayName, mergeTargets, removeTarget, toggleTarget, type CampaignTargetEntry } from './target-entry'
+import { ALL_FILTER_VALUE, PICKER_PAGINATION, getRecipientDisplayName, mergeTargets, removeTarget, toggleTarget, type CampaignTargetEntry } from './target-entry'
 import { normalizeEmail } from '@/lib/validators'
 import { type TPagination } from '@repo/ui/pagination-types'
 
-const scopeOptions = [{ label: 'All personnel', value: ALL_SCOPE }, ...enumToOptions(IdentityHolderIdentityHolderType)]
+const scopeOptions = [{ label: 'All personnel', value: ALL_FILTER_VALUE }, ...enumToOptions(IdentityHolderIdentityHolderType)]
+
+const statusOptions = [
+  { label: 'All statuses', value: ALL_FILTER_VALUE },
+  ...enumValuesToOptions(Object.values(IdentityHolderUserStatus)).map((option) => ({ ...option, icon: <UserStatusIcon status={option.value} /> })),
+]
 
 const toEntry = (option: RecipientOption): CampaignTargetEntry => ({ email: option.email, fullName: getRecipientDisplayName(option.name, option.email), source: 'personnel' })
 
@@ -23,29 +29,26 @@ interface PersonnelSelectorProps {
 }
 
 export const PersonnelSelector: React.FC<PersonnelSelectorProps> = ({ targets, onTargetsChange, lockedEmails }) => {
-  const [scope, setScope] = useState<string>(ALL_SCOPE)
+  const [scope, setScope] = useState<string>(ALL_FILTER_VALUE)
+  const [status, setStatus] = useState<string>(IdentityHolderUserStatus.ACTIVE)
   const [searchText, setSearchText] = useState('')
   const [pagination, setPagination] = useState<TPagination>(PICKER_PAGINATION)
 
   const debouncedSearch = useDebounce(searchText, 300)
 
-  const handleScopeChange = (value: string) => {
-    setScope(value)
-    setPagination(PICKER_PAGINATION)
-  }
-
-  const handleSearchChange = (value: string) => {
-    setSearchText(value)
+  const resettingPage = (setValue: (value: string) => void) => (value: string) => {
+    setValue(value)
     setPagination(PICKER_PAGINATION)
   }
 
   const where = useMemo<IdentityHolderWhereInput>(
     () => ({
       emailNEQ: '',
-      ...(scope !== ALL_SCOPE ? { identityHolderType: scope as IdentityHolderIdentityHolderType } : {}),
-      ...(debouncedSearch.trim() ? { or: [{ fullNameContainsFold: debouncedSearch.trim() }, { emailContainsFold: debouncedSearch.trim() }] } : {}),
+      ...(scope !== ALL_FILTER_VALUE ? { identityHolderType: scope as IdentityHolderIdentityHolderType } : {}),
+      ...(status !== ALL_FILTER_VALUE ? { status: status as IdentityHolderUserStatus } : {}),
+      ...(debouncedSearch.trim() ? emailOrFullNameSearchWhere(debouncedSearch.trim()) : {}),
     }),
-    [scope, debouncedSearch],
+    [scope, status, debouncedSearch],
   )
 
   const { nodes, isFetching, paginationMeta } = useIdentityHolderOptions({ where, pagination })
@@ -74,12 +77,12 @@ export const PersonnelSelector: React.FC<PersonnelSelectorProps> = ({ targets, o
   return (
     <div className="flex flex-col gap-4">
       <RecipientPicker
-        scopeLabel="Personnel type"
-        scopeValue={scope}
-        scopeOptions={scopeOptions}
-        onScopeChange={handleScopeChange}
+        filters={[
+          { label: 'Personnel type', value: scope, options: scopeOptions, onChange: resettingPage(setScope) },
+          { label: 'Status', value: status, options: statusOptions, onChange: resettingPage(setStatus) },
+        ]}
         searchText={searchText}
-        onSearchChange={handleSearchChange}
+        onSearchChange={resettingPage(setSearchText)}
         searchPlaceholder="Search by name or email..."
         options={options}
         isLoading={isFetching}
@@ -90,7 +93,7 @@ export const PersonnelSelector: React.FC<PersonnelSelectorProps> = ({ targets, o
         lockedEmails={lockedEmails}
         onToggle={handleToggle}
         onToggleAll={handleToggleAll}
-        emptyLabel="No personnel found."
+        emptyLabel={status === ALL_FILTER_VALUE ? 'No personnel found.' : `No ${getEnumLabel(status).toLowerCase()} personnel found. Try All statuses to see everyone.`}
       />
       <SelectedTargetsPreview title="Selected personnel" targets={selectedPersonnel} onRemove={handleRemove} onClearAll={handleClear} />
     </div>
