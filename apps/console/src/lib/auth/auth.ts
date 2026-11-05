@@ -1,6 +1,5 @@
 import type { NextAuthConfig } from 'next-auth'
 import NextAuth from 'next-auth'
-import { NextResponse } from 'next/server'
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
 import { csrfCookieName, isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
@@ -10,6 +9,7 @@ import { credentialsProvider } from './providers/credentials'
 import { getTokenFromOpenlaneAPI, type OAuthUserRequest } from './utils/get-openlane-token'
 import { checkWebfinger } from './utils/webfinger'
 import { setSessionCookie } from './utils/set-session-cookie'
+import { clearTfaPendingCookie, forwardTfaPendingCookie } from './utils/tfa-pending-cookie'
 import { refreshSessionToken } from './utils/refresh-session-token'
 import { secureFetch } from './utils/secure-fetch'
 import { withSameOriginGuard } from './utils/same-origin'
@@ -59,6 +59,10 @@ export const config = {
   events: {
     async signOut(message) {
       const cookieStore = await cookies()
+
+      // a pending tfa cookie left behind would send the logged out user straight back to /tfa
+      clearTfaPendingCookie(cookieStore)
+
       // revoke the tokens and session on the server so logout is enforced server-side rather
       // than only clearing client state. Without this the access and refresh tokens remain valid
       // until they expire even after the user signs out
@@ -160,10 +164,7 @@ export const config = {
           const apiData = result.data
 
           if (apiData?.tfa_enabled && !apiData.access_token) {
-            const response = new NextResponse(null, { headers: result.response.headers })
-            for (const cookie of response.cookies.getAll()) {
-              cookieStore.set(cookie)
-            }
+            forwardTfaPendingCookie(cookieStore, result.response.headers)
             return '/tfa'
           }
 
