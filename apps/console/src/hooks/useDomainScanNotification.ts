@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
-import { getNotificationRedirectUrl, redirectToNotification } from '@/components/shared/SystemNotification/notification-redirect'
+import { redirectToNotification } from '@/components/shared/SystemNotification/notification-redirect'
 import { type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 
@@ -20,7 +20,7 @@ export const useDomainScanNotification = () => {
     })
   }, [addNewNotificationListener])
 
-  const canReviewDomainScanFindings = !!domainScanNotification && !!getNotificationRedirectUrl(domainScanNotification)
+  const canReviewDomainScanFindings = !!domainScanNotification
 
   const reviewDomainScanFindings = async () => {
     if (!domainScanNotification) return

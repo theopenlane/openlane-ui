@@ -7,7 +7,7 @@ import { useReviewsWithFilter } from '@/lib/graphql-hooks/review'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { useNotificationsContext } from '@/providers/notifications-provider'
-import { getNotificationRedirectUrl } from '@/components/shared/SystemNotification/notification-redirect'
+import { getNotificationHref } from '@/components/shared/SystemNotification/notification-redirect'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import {
   OrderDirection,
@@ -254,7 +254,7 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
         label: notification.title,
         type: 'Mention',
         createdAt: notification.createdAt ?? null,
-        href: getNotificationRedirectUrl(notification) ?? undefined,
+        href: getNotificationHref(notification),
       }),
     )
 

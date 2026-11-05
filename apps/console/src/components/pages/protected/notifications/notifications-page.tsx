@@ -6,6 +6,7 @@ import { useNotificationsContext } from '@/providers/notifications-provider'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { NotificationRow } from '@/components/shared/SystemNotification/notification-row'
+import { NOTIFICATIONS_PAGE_HREF } from '@/components/shared/SystemNotification/notification-redirect'
 import { ExportRow } from '@/components/shared/SystemNotification/export-row'
 import { useGetAllExports } from '@/lib/graphql-hooks/export'
 import { Bell, CheckCheck, Inbox, Stamp, Radar, FileDown, AtSign, FolderSync, ClipboardList, type LucideIcon, ArrowDownToLine, ListChecks, Plug, Share2 } from 'lucide-react'
@@ -57,7 +58,7 @@ const isNotificationTopic = (value: string | null): value is NotificationNotific
 
 const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Notifications', href: '/notifications' },
+  { label: 'Notifications', href: NOTIFICATIONS_PAGE_HREF },
 ]
 
 const NotificationsPage = () => {
@@ -103,7 +104,7 @@ const NotificationsPage = () => {
   const unreadCount = useMemo(() => notifications.filter((n) => !n.readAt).length, [notifications])
 
   const handleTopicChange = (topic: TopicFilter) => {
-    router.replace(topic === 'ALL' ? '/notifications' : `/notifications?topic=${topic}`, { scroll: false })
+    router.replace(topic === 'ALL' ? NOTIFICATIONS_PAGE_HREF : `${NOTIFICATIONS_PAGE_HREF}?topic=${topic}`, { scroll: false })
   }
 
   return (

@@ -5,6 +5,7 @@ import { TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { Bell, CheckCheck } from 'lucide-react'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { NotificationRow } from './notification-row'
+import { NOTIFICATIONS_PAGE_HREF } from './notification-redirect'
 import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { useGetAllExports } from '@/lib/graphql-hooks/export'
 import { ExportRow } from './export-row'
@@ -95,7 +96,7 @@ export default function SystemNotificationTracker({ open, onOpenChange }: System
                           exportIDs.includes(n.data?.export_id) ? (
                             <ExportRow key={n.id} notification={n} exportData={exportData?.exports.edges?.find((e) => e?.node?.id === n.data?.export_id)?.node} onRead={markAsRead} />
                           ) : (
-                            <NotificationRow key={n.id} notification={n} onRead={markAsRead} />
+                            <NotificationRow key={n.id} notification={n} onRead={markAsRead} onNavigate={() => onOpenChange(false)} />
                           ),
                         )}
                       </>
@@ -104,7 +105,7 @@ export default function SystemNotificationTracker({ open, onOpenChange }: System
                 </div>
 
                 <div className="border-t p-3 flex justify-center">
-                  <Link href="/notifications" onClick={() => onOpenChange(false)} className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors">
+                  <Link href={NOTIFICATIONS_PAGE_HREF} onClick={() => onOpenChange(false)} className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors">
                     View All
                   </Link>
                 </div>

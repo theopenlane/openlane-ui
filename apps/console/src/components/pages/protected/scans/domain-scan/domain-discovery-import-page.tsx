@@ -25,6 +25,7 @@ import { DOMAIN_SCAN_EXIT_FALLBACK_HREF } from '@/constants/scan-routes'
 import { domainScanStepVisibility } from './step-visibility'
 import { DOMAIN_SCAN_STEPS, type EditableStepId, type LinkableItem } from './types'
 import { readReturnTo } from '@/utils/return-to'
+import { NOTIFICATIONS_PAGE_HREF } from '@/components/shared/SystemNotification/notification-redirect'
 
 const EMPTY_LINKED_VENDOR_IDS: string[] = []
 
@@ -112,7 +113,7 @@ const DomainDiscoveryImportPage = () => {
               ? `The scan for ${report.scanQuery.scan.target ?? 'this domain'} still exists, but its detailed report is only kept in the notification that delivered it. Try opening it again from the notification bell.`
               : 'Try opening this report again from the notification bell, or re-run the scan.'}
           </p>
-          <Button className="mt-4" variant="secondary" onClick={() => router.push('/notifications')}>
+          <Button className="mt-4" variant="secondary" onClick={() => router.push(NOTIFICATIONS_PAGE_HREF)}>
             Back to notifications
           </Button>
         </div>

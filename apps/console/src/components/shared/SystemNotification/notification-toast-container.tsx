@@ -8,7 +8,7 @@ import { TruncatedCell } from '@repo/ui/truncated-cell'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { currentLocationPath } from '@/utils/return-to'
-import { getNotificationRedirectUrl, redirectToNotification } from './notification-redirect'
+import { goToNotificationsPage, redirectToNotification } from './notification-redirect'
 import { useRouter } from 'next/navigation'
 
 const BATCH_WINDOW_MS = 1500
@@ -23,7 +23,7 @@ interface NotificationToastData {
 }
 
 const toastRootClass = cn(
-  'group pointer-events-auto relative flex w-full items-center gap-3 overflow-hidden rounded-lg',
+  'group pointer-events-auto relative cursor-pointer flex w-full items-center gap-3 overflow-hidden rounded-lg',
   'border border-border bg-card p-4 shadow-lg',
   'transition-all',
   'data-[swipe=cancel]:translate-x-0',
@@ -69,16 +69,16 @@ interface ToastItemProps {
 
 const SingleNotificationToast = ({ data, onOpenChange, onView }: ToastItemProps) => {
   const notification = data.notifications[0]
-  const hasUrl = !!(notification && getNotificationRedirectUrl(notification))
-
   return (
     <ToastPrimitives.Root
       open={data.open}
       onOpenChange={onOpenChange}
       duration={TOAST_DURATION_MS}
       className={toastRootClass}
-      onClick={() => onView(data.notifications)}
-      style={{ cursor: hasUrl ? 'pointer' : 'default' }}
+      onClick={() => {
+        onOpenChange(false)
+        onView(data.notifications)
+      }}
     >
       <BellIconContainer />
       <div className="min-w-0 flex-1">
@@ -92,11 +92,9 @@ const SingleNotificationToast = ({ data, onOpenChange, onView }: ToastItemProps)
             </TruncatedCell>
           </ToastPrimitives.Description>
         )}
-        {hasUrl && (
-          <p className="mt-1.5 text-xs font-medium" style={{ color: BELL_COLOR }}>
-            View →
-          </p>
-        )}
+        <p className="mt-1.5 text-xs font-medium" style={{ color: BELL_COLOR }}>
+          View →
+        </p>
       </div>
       <DismissButton />
     </ToastPrimitives.Root>
@@ -107,7 +105,16 @@ const BatchNotificationToast = ({ data, onOpenChange, onView }: ToastItemProps) 
   const count = data.notifications.length
 
   return (
-    <ToastPrimitives.Root open={data.open} onOpenChange={onOpenChange} duration={TOAST_DURATION_MS} className={toastRootClass} onClick={() => onView(data.notifications)} style={{ cursor: 'pointer' }}>
+    <ToastPrimitives.Root
+      open={data.open}
+      onOpenChange={onOpenChange}
+      duration={TOAST_DURATION_MS}
+      className={toastRootClass}
+      onClick={() => {
+        onOpenChange(false)
+        onView(data.notifications)
+      }}
+    >
       <BellIconContainer />
       <div className="min-w-0 flex-1">
         <ToastPrimitives.Title className="text-sm font-semibold text-foreground">{count} new notifications</ToastPrimitives.Title>
@@ -172,15 +179,12 @@ export const NotificationToastContainer = () => {
       const unread = notifications.filter((n) => !n.readAt)
       await Promise.all(unread.map((n) => markAsRead(n.id)))
 
-      if (notifications.length > 1) {
-        router.push('/notifications')
+      if (notifications.length === 1) {
+        redirectToNotification(router, notifications[0], currentLocationPath())
         return
       }
 
-      const firstWithUrl = notifications.find((notification) => getNotificationRedirectUrl(notification))
-      if (firstWithUrl) {
-        redirectToNotification(router, firstWithUrl, currentLocationPath())
-      }
+      goToNotificationsPage(router)
     },
     [markAsRead, router],
   )

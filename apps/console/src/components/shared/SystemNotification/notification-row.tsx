@@ -13,9 +13,10 @@ import { useRouter } from 'next/navigation'
 interface NotificationRowProps {
   notification: Notification
   onRead: (id: string) => void
+  onNavigate?: () => void
 }
 
-export const NotificationRow = ({ notification, onRead }: NotificationRowProps) => {
+export const NotificationRow = ({ notification, onRead, onNavigate }: NotificationRowProps) => {
   const router = useRouter()
   const isUnread = !notification.readAt
   const handleClick = async () => {
@@ -23,6 +24,7 @@ export const NotificationRow = ({ notification, onRead }: NotificationRowProps) 
       await onRead(notification.id)
     }
     redirectToNotification(router, notification, currentLocationPath())
+    onNavigate?.()
   }
 
   return (
