@@ -17,6 +17,8 @@ export const isGroupBy = (value: string): value is GroupBy => GROUP_BY_OPTIONS.s
 
 export const ALL_FILTER_KEY = 'all'
 export const UNCATEGORIZED_KIND = 'Uncategorized'
+export const TASK_DUE_WINDOW_DAYS = 30 // 30 days
+export const ALL_TASKS_HREF = '/automation/tasks'
 
 export const FILTER_LABELS: Record<'recommendations' | 'tasks' | 'approvals' | 'evidenceRequests', string> = {
   recommendations: 'Recommendations',

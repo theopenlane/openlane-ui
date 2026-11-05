@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { CardContent } from '@repo/ui/cardpanel'
 import { TriangleAlert } from 'lucide-react'
 import { PartyPopperIcon } from '@/components/shared/icons/animated'
@@ -8,7 +9,7 @@ import type { PartyPopperIconHandle } from '@/components/shared/icons/animated/p
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import SuggestedTaskDetailsSheet from '@/components/pages/protected/overview/suggested-task-details-sheet'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ALL_FILTER_KEY, FILTER_LABELS } from './work-items/types'
+import { ALL_FILTER_KEY, ALL_TASKS_HREF, FILTER_LABELS, TASK_DUE_WINDOW_DAYS } from './work-items/types'
 import { useWorkItems } from './work-items/use-work-items'
 import WorkItemSection from './work-items/work-item-section'
 import ApprovalsSection from './work-items/approvals-section'
@@ -83,6 +84,13 @@ const DashboardTasksAndSuggestions = () => {
                   <p className="text-sm text-muted-foreground">All caught up!</p>
                 </div>
               )}
+
+              <p className="text-xs text-muted-foreground">
+                Showing tasks due in the next {TASK_DUE_WINDOW_DAYS} days or with no due date.{' '}
+                <Link href={ALL_TASKS_HREF} className="text-blue-500 hover:underline">
+                  View all tasks
+                </Link>
+              </p>
             </>
           )}
         </CardContent>

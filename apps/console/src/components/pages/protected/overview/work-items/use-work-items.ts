@@ -4,8 +4,8 @@ import { useCallback, useMemo, useState } from 'react'
 import type React from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { isToday } from 'date-fns'
-import { EvidenceEvidenceStatus, NotificationNotificationTopic, OrderDirection, TaskOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { addDays, isToday } from 'date-fns'
+import { EvidenceEvidenceStatus, NotificationNotificationTopic, OrderDirection, TaskOrderField, TaskTaskStatus, type TaskWhereInput } from '@repo/codegen/src/schema'
 import type { Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { useTasksWithFilter, useUpdateTask } from '@/lib/graphql-hooks/task'
 import { useGetEvidenceListLightInfinite } from '@/lib/graphql-hooks/evidence'
@@ -19,15 +19,20 @@ import { redirectToNotification } from '@/components/shared/SystemNotification/n
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { currentLocationPath } from '@/utils/return-to'
 import { isPastDate } from '@/utils/date'
+import { toDayStartIso } from '@/components/shared/table-filter/table-filter-helper'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { firstLineOf } from '@/lib/suggested-tasks/utils'
 import { SuggestedTaskSource, TASK_TERMINAL_STATUSES, type SuggestedTask } from '@/lib/suggested-tasks/types'
-import { ALL_FILTER_KEY, FILTER_LABELS, UNCATEGORIZED_KIND, type FilterKey, type WorkItem, type WorkItemFilter } from './types'
+import { ALL_FILTER_KEY, FILTER_LABELS, TASK_DUE_WINDOW_DAYS, UNCATEGORIZED_KIND, type FilterKey, type WorkItem, type WorkItemFilter } from './types'
 import { workItemsGroupByStore } from './group-by-storage'
 
 const TASK_ORDER_BY = [{ field: TaskOrderField.due, direction: OrderDirection.ASC }]
 const EVIDENCE_REQUESTS_PAGE_SIZE = 10
 const TASK_KIND_ENUM_WHERE = { objectType: 'task', field: 'kind' }
+
+const dueWithinWindowWhere = (): TaskWhereInput => ({
+  or: [{ dueIsNil: true }, { dueLT: toDayStartIso(addDays(new Date(), TASK_DUE_WINDOW_DAYS + 1)) }],
+})
 
 const dueLabelFor = (due: string | null | undefined): string | null => {
   if (!due) return null
@@ -56,7 +61,7 @@ export const useWorkItems = () => {
     isLoading: isTasksLoading,
     error: tasksError,
   } = useTasksWithFilter({
-    where: { assigneeID: userId, statusNotIn: TASK_TERMINAL_STATUSES },
+    where: { assigneeID: userId, statusNotIn: TASK_TERMINAL_STATUSES, ...dueWithinWindowWhere() },
     orderBy: TASK_ORDER_BY,
     pagination: DEFAULT_PAGINATION,
     enabled: !!userId,
