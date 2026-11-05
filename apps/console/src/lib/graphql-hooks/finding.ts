@@ -1,5 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { type InfiniteData, type QueryClient, useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { useHistoryGraphQLClient } from '@/hooks/useHistoryGraphQLClient'
 import {
   type FindingsWithFilterQuery,
   type FindingsWithFilterQueryVariables,
@@ -24,8 +26,13 @@ import {
   type GetFindingCommentsQueryVariables,
   type UpdateFindingCommentMutation,
   type UpdateFindingCommentMutationVariables,
+  type GetFindingRemediationWorkQuery,
+  type GetFindingRemediationWorkQueryVariables,
+  type GetFindingHistoryEdgesQuery,
+  type GetFindingHistoryEdgesQueryVariables,
   FindingSecurityLevel,
 } from '@repo/codegen/src/schema'
+import { FindingHistoryOrderField, OrderDirection, type GetFindingHistoriesQuery, type GetFindingHistoriesQueryVariables } from '@repo/codegen/src/historyschema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
@@ -41,8 +48,13 @@ import {
   GET_FINDING_ASSOCIATIONS,
   GET_FINDING_COMMENTS,
   UPDATE_FINDING_COMMENT,
+  GET_FINDING_REMEDIATION_WORK,
+  GET_FINDING_HISTORY_EDGES,
 } from '@repo/codegen/query/finding'
+import { GET_FINDING_HISTORIES } from '@repo/codegen/query-history/finding'
 import { useEntityComments } from '@/lib/graphql-hooks/entity-comments'
+import { getNodes } from '@/lib/graphql-hooks/connection'
+import { exposureRelatedSections, useRefreshOnRelatedChange } from '@/lib/graphql-hooks/use-refresh-on-related-change'
 import { invalidateEdgeUpdateTargets } from '@/components/shared/object-association/object-association-config'
 
 type GetAllFindingsArgs = {
@@ -57,6 +69,16 @@ export type FindingsNode = NonNullable<NonNullable<NonNullable<FindingsWithFilte
 export type FindingsNodeNonNull = NonNullable<FindingsNode>
 
 export type FindingDetailNode = NonNullable<FindingQuery['finding']>
+
+const FINDING_COMMENTS_KEY = 'findingComments'
+const RELATED_SECTIONS = exposureRelatedSections(FINDING_COMMENTS_KEY)
+
+export const invalidateFindingQueries = (queryClient: QueryClient) => {
+  queryClient.invalidateQueries({ queryKey: ['findings'] })
+  queryClient.invalidateQueries({ queryKey: ['findingHistories'] })
+}
+
+export const invalidateFindingCommentQueries = (queryClient: QueryClient) => queryClient.invalidateQueries({ queryKey: [FINDING_COMMENTS_KEY] })
 
 export const useFindingsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllFindingsArgs) => {
   const { client } = useGraphQLClient()
@@ -112,7 +134,7 @@ export const useUpdateFinding = () => {
   return useMutation<UpdateFindingMutation, unknown, UpdateFindingMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_FINDING, variables),
     onSuccess: (_, { input }) => {
-      queryClient.invalidateQueries({ queryKey: ['findings'] })
+      invalidateFindingQueries(queryClient)
       invalidateEdgeUpdateTargets(input, queryClient)
     },
   })
@@ -144,7 +166,7 @@ export const useBulkEditFinding = () => {
   return useMutation<UpdateBulkFindingMutation, unknown, UpdateBulkFindingMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_EDIT_FINDING, variables),
     onSuccess: (_, { input }) => {
-      queryClient.invalidateQueries({ queryKey: ['findings'] })
+      invalidateFindingQueries(queryClient)
       invalidateEdgeUpdateTargets(input, queryClient)
     },
   })
@@ -169,11 +191,13 @@ export const useFinding = (findingId?: FindingQueryVariables['findingId']) => {
       return result as FindingQuery
     },
     enabled: !!findingId,
+    placeholderData: undefined,
   })
 }
 
 export const useGetFindingAssociations = (findingId?: string) => {
   const { client } = useGraphQLClient()
+  useRefreshOnRelatedChange('findings', findingId, RELATED_SECTIONS)
   return useQuery<GetFindingAssociationsQuery, unknown>({
     queryKey: ['findings', findingId, 'associations'],
     queryFn: async () => client.request<GetFindingAssociationsQuery>(GET_FINDING_ASSOCIATIONS, { findingId: findingId as string }),
@@ -219,10 +243,69 @@ export const useFindingSeverityCounts = (enabled: boolean = true) => {
 
 export const useFindingComments = (findingId: string | null | undefined) =>
   useEntityComments({
-    queryKeyPrefix: 'findingComments',
+    queryKeyPrefix: FINDING_COMMENTS_KEY,
     entityId: findingId,
     fetchComments: async (client, id) => (await client.request<GetFindingCommentsQuery, GetFindingCommentsQueryVariables>(GET_FINDING_COMMENTS, { findingId: id })).finding.comments,
     addComment: (client, id, text) => client.request<UpdateFindingMutation, UpdateFindingMutationVariables>(UPDATE_FINDING, { updateFindingId: id, input: { addComment: { text } } }),
     editComment: (client, commentId, text) =>
       client.request<UpdateFindingCommentMutation, UpdateFindingCommentMutationVariables>(UPDATE_FINDING_COMMENT, { updateFindingCommentId: commentId, input: { text } }),
   })
+
+const FINDING_REMEDIATION_WORK_LIMIT = 50
+
+export const useFindingRemediationWork = (findingId?: string) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetFindingRemediationWorkQuery, unknown>({
+    queryKey: ['findings', findingId, 'remediation-work'],
+    queryFn: async () =>
+      client.request<GetFindingRemediationWorkQuery, GetFindingRemediationWorkQueryVariables>(GET_FINDING_REMEDIATION_WORK, {
+        findingId: findingId as string,
+        first: FINDING_REMEDIATION_WORK_LIMIT,
+      }),
+    enabled: !!findingId,
+    placeholderData: undefined,
+  })
+}
+
+const FINDING_HISTORY_EDGE_LIMIT = 25
+
+export const useFindingHistoryEdges = (findingId?: string) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetFindingHistoryEdgesQuery, unknown>({
+    queryKey: ['findings', findingId, 'history-edges'],
+    queryFn: async () =>
+      client.request<GetFindingHistoryEdgesQuery, GetFindingHistoryEdgesQueryVariables>(GET_FINDING_HISTORY_EDGES, {
+        findingId: findingId as string,
+        first: FINDING_HISTORY_EDGE_LIMIT,
+      }),
+    enabled: !!findingId,
+    placeholderData: undefined,
+  })
+}
+
+const FINDING_HISTORY_PAGE_SIZE = 25
+const FINDING_HISTORY_ORDER = { field: FindingHistoryOrderField.history_time, direction: OrderDirection.DESC }
+
+export const useFindingHistories = (findingId?: string) => {
+  const { client } = useHistoryGraphQLClient()
+  const queryResult = useInfiniteQuery<GetFindingHistoriesQuery, unknown, InfiniteData<GetFindingHistoriesQuery>, unknown[], string | null>({
+    initialPageParam: null,
+    queryKey: ['findingHistories', findingId],
+    queryFn: async ({ pageParam }) =>
+      client.request<GetFindingHistoriesQuery, GetFindingHistoriesQueryVariables>(GET_FINDING_HISTORIES, {
+        where: { ref: findingId },
+        orderBy: FINDING_HISTORY_ORDER,
+        first: FINDING_HISTORY_PAGE_SIZE,
+        after: pageParam,
+      }),
+    getNextPageParam: (lastPage) => (lastPage.findingHistories.pageInfo.hasNextPage ? (lastPage.findingHistories.pageInfo.endCursor ?? null) : undefined),
+    enabled: !!findingId,
+    placeholderData: undefined,
+  })
+
+  const histories = useMemo(() => queryResult.data?.pages.flatMap((page) => getNodes({ edges: page.findingHistories.edges })) ?? [], [queryResult.data])
+
+  return { ...queryResult, histories }
+}

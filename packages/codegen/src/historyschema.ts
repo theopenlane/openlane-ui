@@ -7,6 +7,40 @@ import type * as Types from './historyschema-types'
 
 import type { TVendorRiskThresholdsConfig, TVendorScoringQuestionsConfig } from './vendor-scoring-defaults.generated'
 export * from './historyschema-types'
+export type GetFindingHistoriesQueryVariables = Exact<{
+  where?: Types.FindingHistoryWhereInput | null | undefined
+  orderBy?: Types.FindingHistoryOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetFindingHistoriesQuery {
+  findingHistories: {
+    edges: Array<{
+      node: {
+        id: string
+        historyTime: any
+        operation: Types.FindingHistoryOpType
+        createdBy: string | null
+        updatedBy: string | null
+        internalOwner: string | null
+        internalOwnerUserID: string | null
+        internalOwnerGroupID: string | null
+        internalOwnerIdentityHolderID: string | null
+        assignedTo: string | null
+        assignedToUserID: string | null
+        assignedToGroupID: string | null
+        assignedToIdentityHolderID: string | null
+        reviewedBy: string | null
+        reviewedByUserID: string | null
+        reviewedByGroupID: string | null
+        reviewedByIdentityHolderID: string | null
+      } | null
+    } | null> | null
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+  }
+}
+
 export type GetInternalPolicyHistoriesQueryVariables = Exact<{
   where?: Types.InternalPolicyHistoryWhereInput | null | undefined
   orderBy?: Types.InternalPolicyHistoryOrder | null | undefined
@@ -4162,13 +4196,11 @@ export interface FindingQuery {
     id: string
     impact: number | null
     sourceDefinitionID: string | null
-    metadata: any
     numericSeverity: number | null
     open: boolean | null
     priority: string | null
     production: boolean | null
     public: boolean | null
-    rawPayload: any
     recommendation: string | null
     recommendedActions: string | null
     references: Array<string> | null
@@ -4187,6 +4219,7 @@ export interface FindingQuery {
     findingStatusName: string | null
     systemOwned: boolean | null
     targetDetails: any
+    targets: Array<string> | null
     updatedAt: any
     updatedBy: string | null
     validated: boolean | null
@@ -4259,6 +4292,7 @@ export type GetFindingAssociationsQueryVariables = Exact<{
 
 export interface GetFindingAssociationsQuery {
   finding: {
+    id: string
     controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; description: string | null; displayID: string } | null } | null> | null }
     controlMappings: { totalCount: number; edges: Array<{ node: { id: string; controlID: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
@@ -4270,6 +4304,7 @@ export interface GetFindingAssociationsQuery {
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
+    actionPlans: { totalCount: number; edges: Array<{ node: { id: string; name: string } | null } | null> | null }
   }
 }
 
@@ -4315,6 +4350,61 @@ export type UpdateFindingCommentMutationVariables = Exact<{
 
 export interface UpdateFindingCommentMutation {
   updateFindingComment: { finding: { id: string } }
+}
+
+export type GetFindingRemediationWorkQueryVariables = Exact<{
+  findingId: string
+  first?: number | null | undefined
+}>
+
+export interface GetFindingRemediationWorkQuery {
+  finding: {
+    id: string
+    remediations: {
+      totalCount: number
+      edges: Array<{
+        node: { id: string; displayID: string; title: string | null; status: Types.RemediationRemediationStatus | null; ownerReference: string | null; dueAt: string | null } | null
+      } | null> | null
+    }
+    tasks: {
+      totalCount: number
+      edges: Array<{
+        node: { id: string; displayID: string; title: string; status: Types.TaskTaskStatus; due: string | null; assignee: { id: string; displayName: string } | null } | null
+      } | null> | null
+    }
+    actionPlans: {
+      totalCount: number
+      edges: Array<{
+        node: {
+          id: string
+          name: string
+          title: string
+          status: Types.ActionPlanDocumentStatus | null
+          dueDate: any
+          internalOwner: string | null
+          internalOwnerUser: { id: string; displayName: string } | null
+          internalOwnerGroup: { id: string; displayName: string } | null
+          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type GetFindingHistoryEdgesQueryVariables = Exact<{
+  findingId: string
+  first?: number | null | undefined
+}>
+
+export interface GetFindingHistoryEdgesQuery {
+  finding: {
+    id: string
+    tasks: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; title: string; createdAt: any; createdBy: string | null } | null } | null> | null }
+    comments: { totalCount: number; edges: Array<{ node: { id: string; text: string; createdAt: any; createdBy: string | null } | null } | null> | null }
+    assets: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayName: string | null; createdAt: any; createdBy: string | null } | null } | null> | null }
+    remediations: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; title: string | null; createdAt: any; createdBy: string | null } | null } | null> | null }
+    reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string; createdAt: any; createdBy: string | null } | null } | null> | null }
+  }
 }
 
 export type GroupSettingsWithFilterQueryVariables = Exact<{

@@ -250,7 +250,7 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
         label: getObjectDisplayName(f) || ObjectTypes.FINDING,
         type: ObjectTypes.FINDING,
         createdAt: f.createdAt,
-        href: `/exposure/findings?id=${f.id}`,
+        href: getHrefForObjectType('findings', { id: f.id }),
         source: f.source ?? null,
       }),
     )

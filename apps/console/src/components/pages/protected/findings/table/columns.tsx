@@ -84,7 +84,9 @@ export const getColumns = ({
       id: 'dueDate',
       header: 'Due Date',
       size: 130,
-      cell: ({ row }) => <SlaDueDateCell createdAt={row.original.createdAt} securityLevel={row.original.securityLevel} open={row.original.open} slaDaysByLevel={slaDaysByLevel ?? {}} />,
+      cell: ({ row }) => (
+        <SlaDueDateCell createdAt={row.original.reportedAt || row.original.createdAt} securityLevel={row.original.securityLevel} open={row.original.open} slaDaysByLevel={slaDaysByLevel ?? {}} />
+      ),
     },
     { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
@@ -119,7 +121,7 @@ export const getColumns = ({
       header: '',
       size: 50,
       cell: ({ row }) => (
-        <div role="presentation" onClick={(e) => e.stopPropagation()} className="flex justify-end">
+        <div role="presentation" onClick={(e) => e.stopPropagation()} onAuxClick={(e) => e.stopPropagation()} className="flex justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" className="h-8 w-8 p-0">

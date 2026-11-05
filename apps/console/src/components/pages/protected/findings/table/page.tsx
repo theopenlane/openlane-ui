@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { useBulkEditFinding, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -13,7 +13,7 @@ import { type UpdateFindingInput } from '@repo/codegen/src/schema'
 import { FINDING_INTERNAL_OWNER } from '../finding-responsibility'
 import { useFindingSheetConfig } from '../hooks/use-finding-sheet-config'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
-import ViewFindingSheet from '../view-finding-sheet'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { FindingSeverityChart } from '@/components/shared/severity-chart/severity-chart'
 import { useSlaQuickFilters } from '@/hooks/useSla'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
@@ -32,14 +32,11 @@ const FindingPage: React.FC = () => {
 
   const { enumOpts, form, ...sheetConfig } = useFindingSheetConfig(null, isCreate)
 
-  const quickFilters = useSlaQuickFilters()
+  const quickFilters = useSlaQuickFilters('reportedAt')
 
-  const handleCloseViewSheet = () => {
-    const newSearchParams = new URLSearchParams(searchParams.toString())
-    newSearchParams.delete('id')
-    newSearchParams.delete('trackRemediation')
-    router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
-  }
+  useEffect(() => {
+    if (id && !isCreate) router.replace(getHrefForObjectType('findings', { id }))
+  }, [id, isCreate, router])
 
   const baseBulkDeleteMutation = useBulkDeleteFinding()
   const baseBulkEditMutation = useBulkEditFinding()
@@ -61,6 +58,7 @@ const FindingPage: React.FC = () => {
     getColumns,
     TableComponent,
     sheetConfig,
+    viewEditMode: { type: 'full-page', route: '/exposure/findings' },
     onBulkDelete: async (ids: string[]) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids })
       return result.deleteBulkFinding
@@ -84,7 +82,6 @@ const FindingPage: React.FC = () => {
   return (
     <>
       <GenericTablePage {...tableConfig} />
-      <ViewFindingSheet entityId={isCreate ? null : id} onClose={handleCloseViewSheet} />
       <TaskDetailsSheet queryParamKey="taskId" />
     </>
   )

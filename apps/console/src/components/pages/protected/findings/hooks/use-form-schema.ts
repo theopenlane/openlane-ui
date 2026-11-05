@@ -1,6 +1,7 @@
 'use client'
 
 import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { toValidHref } from '@/utils/normalizeUrl'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type Value } from 'platejs'
 import { useForm, type Resolver } from 'react-hook-form'
@@ -37,14 +38,18 @@ const formSchema = z.object({
   blocksProduction: z.boolean().optional(),
   externalID: z.string().optional(),
   externalOwnerID: z.string().optional(),
-  externalURI: z.url('Please enter a valid URL').optional().or(z.literal('')),
+  externalURI: z
+    .string()
+    .trim()
+    .refine((url) => !url || (!/\s/.test(url) && !!toValidHref(url)), 'Please enter a valid URL')
+    .optional(),
   source: z.string().optional(),
   findingClass: z.string().optional(),
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
-  stepsToReproduce: z.array(z.string()).optional(),
+  stepsToReproduce: z.array(z.string()).nullable().optional(),
   recommendedActions: z.string().optional(),
-  references: z.array(z.string()).optional(),
+  references: z.array(z.string()).nullable().optional(),
   controlIDs: z.array(z.string()).optional(),
   subcontrolIDs: z.array(z.string()).optional(),
   riskIDs: z.array(z.string()).optional(),
@@ -55,6 +60,7 @@ const formSchema = z.object({
   remediationIDs: z.array(z.string()).optional(),
   reviewIDs: z.array(z.string()).optional(),
   vulnerabilityIDs: z.array(z.string()).optional(),
+  actionPlanIDs: z.array(z.string()).optional(),
 })
 
 export const bulkEditFieldSchema = z.object({

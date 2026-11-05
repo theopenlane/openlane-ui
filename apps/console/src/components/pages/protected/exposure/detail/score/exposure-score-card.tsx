@@ -5,11 +5,12 @@ import { RadarChart } from '@repo/ui/radar-chart'
 import { Card } from '@repo/ui/cardpanel'
 import { explainParsedCvssVector, getCvssRadarData, getCvssSeverityBand, parseCvssVector } from '@/utils/cvss-vector'
 import { getSeverityCssVar } from '@/utils/severity'
+import { isProvidedScore } from './score-meta'
 import { SectionLabel } from './section-label'
 import { CvssSeverityScale } from './cvss-severity-scale'
 import AddVectorDialog from './add-vector-dialog'
 
-type TVulnerabilityScoreCardProps = {
+type TExposureScoreCardProps = {
   score?: number | null
   impact?: number | null
   exploitability?: number | null
@@ -22,20 +23,18 @@ type TVulnerabilityScoreCardProps = {
 const V4_CAPTION = 'AV–UI exploitability · VC–VA this system · SC–SA connected systems'
 const V3_CAPTION = 'AV–UI exploitability · S scope · C–A impact'
 
-const isProvided = (value?: number | null): value is number => typeof value === 'number' && value > 0
-
 const ScoreValue: React.FC<{ label: string; value?: number | null }> = ({ label, value }) => (
   <div className="flex flex-col gap-1">
     <SectionLabel>{label}</SectionLabel>
-    <span className="text-base font-semibold">{isProvided(value) ? value.toFixed(1) : '—'}</span>
+    <span className="text-base font-semibold">{isProvidedScore(value) ? value.toFixed(1) : '—'}</span>
   </div>
 )
 
-const VulnerabilityScoreCard: React.FC<TVulnerabilityScoreCardProps> = ({ score, impact, exploitability, vector, source, canEdit, onSaveVector }) => {
+const ExposureScoreCard: React.FC<TExposureScoreCardProps> = ({ score, impact, exploitability, vector, source, canEdit, onSaveVector }) => {
   const parsed = useMemo(() => parseCvssVector(vector), [vector])
   const explanation = useMemo(() => (parsed ? explainParsedCvssVector(parsed) : null), [parsed])
   const radarData = useMemo(() => (parsed ? getCvssRadarData(parsed) : []), [parsed])
-  const hasScore = isProvided(score)
+  const hasScore = isProvidedScore(score)
   const severityVar = getSeverityCssVar(getCvssSeverityBand(score)?.label ?? '')
   const rawVector = vector?.trim()
 
@@ -98,4 +97,4 @@ const VulnerabilityScoreCard: React.FC<TVulnerabilityScoreCardProps> = ({ score,
   )
 }
 
-export default VulnerabilityScoreCard
+export default ExposureScoreCard

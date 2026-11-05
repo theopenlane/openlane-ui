@@ -1,6 +1,6 @@
 import { createOrgPersistedStore, parseStringArray, type OrgPersistedStore } from '@/lib/storage/org-persisted-store'
 
-export type TDetailTabsPage = 'control' | 'risk' | 'personnel' | 'vendor' | 'policy' | 'vulnerability'
+export type TDetailTabsPage = 'control' | 'risk' | 'personnel' | 'vendor' | 'policy' | 'vulnerability' | 'finding'
 
 const EMPTY_HIDDEN_TABS: string[] = []
 
@@ -13,4 +13,5 @@ export const HIDDEN_DETAIL_TABS_STORES: Record<TDetailTabsPage, OrgPersistedStor
   vendor: createHiddenTabsStore('vendor'),
   policy: createHiddenTabsStore('policy'),
   vulnerability: createHiddenTabsStore('vulnerability'),
+  finding: createHiddenTabsStore('finding'),
 }

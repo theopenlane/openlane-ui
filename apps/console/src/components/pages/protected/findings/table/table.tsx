@@ -1,9 +1,8 @@
 'use client'
 
 import { DataTable } from '@repo/ui/data-table'
-import { getObjectDisplayName } from '@/utils/object-display-name'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { type FindingWhereInput, type FindingOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { type FindingWhereInput, type FindingOrderField } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/findings/table/columns.tsx'
 import { type FindingsNodeNonNull, useFindingsWithFilter } from '@/lib/graphql-hooks/finding'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
@@ -24,6 +23,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSlaDaysByLevel } from '@/hooks/useSla'
+import { buildFindingTaskDefaults, getFindingTitle } from '../finding-display'
 
 const TableComponent = ({
   onSortChange,
@@ -128,16 +128,7 @@ const TableComponent = ({
     [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, handleOpenRemediation, canCreateRemediation, slaDaysByLevel],
   )
 
-  const createTaskInitialValues = useMemo(() => {
-    if (!createTaskRow) return undefined
-    const displayName = getObjectDisplayName(createTaskRow) || 'Finding'
-    return {
-      title: `Finding: ${displayName} Remediation`,
-      taskKindName: 'Finding Remediation',
-      assigneeID: session?.user?.id,
-      status: TaskTaskStatus.OPEN,
-    }
-  }, [createTaskRow, session?.user?.id])
+  const createTaskInitialValues = useMemo(() => (createTaskRow ? buildFindingTaskDefaults(getFindingTitle(createTaskRow), session?.user?.userId) : undefined), [createTaskRow, session?.user?.userId])
 
   const createTaskInitialData = useMemo(() => {
     if (!createTaskRow) return undefined
@@ -153,9 +144,6 @@ const TableComponent = ({
         data={items}
         loading={fetching || fetchingUsers}
         sorting={orderBy}
-        onRowClick={(item) => {
-          replace({ id: item.id })
-        }}
         rowHref={rowHref}
         pagination={pagination}
         onPaginationChange={onPaginationChange}
