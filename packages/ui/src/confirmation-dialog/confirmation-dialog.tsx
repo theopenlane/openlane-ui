@@ -21,12 +21,26 @@ type ConfirmationAlertProps = {
   title?: string
   description: React.ReactNode
   confirmationText?: string
+  cancellationText?: string
   confirmationTextVariant?: ButtonProps['variant']
   showInput?: boolean
   loading?: boolean
+  closeOnConfirm?: boolean
 }
 
-export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, description, confirmationText, confirmationTextVariant, showInput, loading }: ConfirmationAlertProps) => {
+export const ConfirmationDialog = ({
+  open,
+  onOpenChange,
+  onConfirm,
+  title,
+  description,
+  confirmationText,
+  cancellationText = 'Cancel',
+  confirmationTextVariant,
+  showInput,
+  loading,
+  closeOnConfirm = true,
+}: ConfirmationAlertProps) => {
   const [confirmationValue, setConfirmationValue] = useState('')
   const isConfirmDisabled = (showInput && confirmationValue.toUpperCase() !== 'DELETE'.toUpperCase()) || loading
 
@@ -59,10 +73,18 @@ export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, descr
         )}
         <AlertDialogFooter>
           <AlertDialogCancel asChild>
-            <Button variant="secondary">Cancel</Button>
+            <Button variant="secondary">{cancellationText}</Button>
           </AlertDialogCancel>
           <AlertDialogAction asChild>
-            <Button type="button" variant={confirmationTextVariant ?? 'destructive'} disabled={isConfirmDisabled} onClick={onConfirm}>
+            <Button
+              type="button"
+              variant={confirmationTextVariant ?? 'destructive'}
+              disabled={isConfirmDisabled}
+              onClick={(event) => {
+                if (!closeOnConfirm) event.preventDefault()
+                onConfirm()
+              }}
+            >
               {confirmationText ?? 'Delete'}
             </Button>
           </AlertDialogAction>
