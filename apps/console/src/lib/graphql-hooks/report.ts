@@ -14,9 +14,11 @@ import {
   OrderDirection,
   ReportOrderField,
   ReportReportStatus,
+  type ReportWhereInput,
   type UpdateReportMutation,
   type UpdateReportMutationVariables,
 } from '@repo/codegen/src/schema'
+import { type SortCondition } from '@repo/ui/data-table'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { getNodes } from './connection'
@@ -29,18 +31,27 @@ export type TReportViewerGroup = NonNullable<NonNullable<NonNullable<GetReportVi
 
 const SAVED_REPORTS_SHEET_PAGE_SIZE = 25
 
-const REPORTS_ORDER: GetAllReportsQueryVariables['orderBy'] = [{ field: ReportOrderField.name, direction: OrderDirection.ASC }]
+export const SAVED_REPORTS_DEFAULT_ORDER: SortCondition<ReportOrderField>[] = [{ field: ReportOrderField.name, direction: OrderDirection.ASC }]
 
 const savedReportsWhere = (search: string): NonNullable<GetAllReportsQueryVariables['where']> => ({ status: ReportReportStatus.SAVED, ...(search ? { nameContainsFold: search } : {}) })
 
 export const invalidateReportQueries = (queryClient: QueryClient) => queryClient.invalidateQueries({ queryKey: ['reports'] })
 
-export const useGetSavedReports = ({ search, pagination }: { search: string; pagination: TPagination }) => {
+type TUseGetSavedReportsArgs = {
+  search: string
+  filters: ReportWhereInput | null
+  orderBy: GetAllReportsQueryVariables['orderBy']
+  pagination: TPagination
+}
+
+export const useGetSavedReports = ({ search, filters, orderBy, pagination }: TUseGetSavedReportsArgs) => {
   const { client } = useGraphQLClient()
+  const where = { ...filters, ...savedReportsWhere(search) }
 
   const queryResult = useQuery<GetAllReportsQuery>({
-    queryKey: ['reports', 'list', search, pagination.page, pagination.pageSize],
-    queryFn: () => client.request<GetAllReportsQuery, GetAllReportsQueryVariables>(GET_ALL_REPORTS, { where: savedReportsWhere(search), orderBy: REPORTS_ORDER, ...pagination.query }),
+    queryKey: ['reports', 'list', where, orderBy, pagination.page, pagination.pageSize],
+    queryFn: () => client.request<GetAllReportsQuery, GetAllReportsQueryVariables>(GET_ALL_REPORTS, { where, orderBy, ...pagination.query }),
+    enabled: filters !== null,
   })
 
   const reports = useMemo(() => getNodes(queryResult.data?.reports), [queryResult.data])
@@ -58,7 +69,7 @@ export const useGetSavedReportsInfinite = (search: string) => {
     queryFn: ({ pageParam }) =>
       client.request<GetAllReportsQuery, GetAllReportsQueryVariables>(GET_ALL_REPORTS, {
         where: savedReportsWhere(search),
-        orderBy: REPORTS_ORDER,
+        orderBy: SAVED_REPORTS_DEFAULT_ORDER,
         first: SAVED_REPORTS_SHEET_PAGE_SIZE,
         after: pageParam,
       }),

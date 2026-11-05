@@ -8,11 +8,12 @@ import { elementAnchor } from '@/components/shared/element-anchor/element-anchor
 import type { TSavedReportRef } from '@/lib/graphql-hooks/report'
 import { ReportVisibilityBadge } from '../saved/report-visibility'
 import ReportHistoryMenu from './report-history-menu'
+import SavedReportTitle from './saved-report-title'
 import type { TReportHistoryOption } from './use-report-history'
 
 type TReportActionsBarProps = {
   savedReport: TSavedReportRef | null
-  canShare: boolean
+  canManage: boolean
   historyOptions: TReportHistoryOption[]
   onSelectHistory: React.ComponentProps<typeof ReportHistoryMenu>['onSelect']
   saveDisabledReason?: string
@@ -27,7 +28,7 @@ type TReportActionsBarProps = {
 
 const ReportActionsBar: React.FC<TReportActionsBarProps> = ({
   savedReport,
-  canShare,
+  canManage,
   historyOptions,
   onSelectHistory,
   saveDisabledReason,
@@ -41,11 +42,19 @@ const ReportActionsBar: React.FC<TReportActionsBarProps> = ({
 }) => (
   <div className="flex items-center gap-2 flex-wrap">
     {savedReport && (
-      <div className="flex min-w-0 max-w-full items-center gap-2">
-        <span className="truncate text-sm font-medium">{savedReport.name}</span>
+      <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
+        <SavedReportTitle key={savedReport.id} report={savedReport} canRename={canManage} />
         <ReportVisibilityBadge visibility={savedReport.visibility} />
-        <Button type="button" variant="icon" size="icon-sm" descriptiveTooltipText="Close saved report" onClick={onClose}>
-          <X size={14} />
+        <Button
+          type="button"
+          variant="transparent"
+          icon={<X size={14} />}
+          iconPosition="left"
+          className="shrink-0"
+          descriptiveTooltipText="Close this saved report. Your columns and filters stay here as a new, unsaved report."
+          onClick={onClose}
+        >
+          Close report
         </Button>
       </div>
     )}
@@ -55,7 +64,7 @@ const ReportActionsBar: React.FC<TReportActionsBarProps> = ({
       <Button type="button" variant="outline" icon={<FolderOpen size={14} />} iconPosition="left" onClick={onOpenSavedReports} {...elementAnchor('custom-report', 'saved-reports')}>
         Saved Reports
       </Button>
-      {canShare && (
+      {canManage && (
         <Button type="button" variant="outline" icon={<Share2 size={14} />} iconPosition="left" onClick={onShare}>
           Share
         </Button>

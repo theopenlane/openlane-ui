@@ -7393,7 +7393,9 @@ export interface GetAllReportsQuery {
   reports: {
     totalCount: number
     pageInfo: { hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any; endCursor: any }
-    edges: Array<{ node: { id: string; name: string; visibility: Types.ReportReportVisibility | null; variables: any; updatedAt: any } | null } | null> | null
+    edges: Array<{
+      node: { id: string; name: string; visibility: Types.ReportReportVisibility | null; variables: any; updatedAt: any; reportOwnerID: string | null; createdBy: string | null } | null
+    } | null> | null
   }
 }
 
