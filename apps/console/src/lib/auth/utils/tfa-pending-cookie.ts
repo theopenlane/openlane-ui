@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
+import { useInsecureCookies } from '@repo/dally/auth'
 import { TFA_PENDING_COOKIE_NAME, TFA_PENDING_MAX_AGE_SECONDS } from './constants'
 
 // host-only (no Domain) so it never reaches other subdomains; set and clear must use the same attributes
 // or the browser keeps the cookie, so always go through these helpers
 const tfaPendingCookieOptions = {
   httpOnly: true,
-  secure: true,
+  secure: !useInsecureCookies,
   sameSite: 'lax' as const,
   path: '/',
 }
