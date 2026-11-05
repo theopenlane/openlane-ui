@@ -10935,29 +10935,6 @@ export interface VulnerabilitiesGroupByQuery {
   }
 }
 
-export type VulnerabilityDueDateSourcesQueryVariables = Exact<{
-  where?: Types.VulnerabilityWhereInput | null | undefined
-  first?: number | null | undefined
-  after?: any
-}>
-
-export interface VulnerabilityDueDateSourcesQuery {
-  vulnerabilities: {
-    pageInfo: { endCursor: any; hasNextPage: boolean }
-    edges: Array<{
-      node: {
-        id: string
-        cveID: string | null
-        securityLevel: Types.VulnerabilitySecurityLevel | null
-        severity: string | null
-        createdAt: any
-        discoveredAt: string | null
-        remediationSLA: number | null
-      } | null
-    } | null> | null
-  }
-}
-
 export type VulnerabilityTriageGroupsQueryVariables = Exact<{
   where?: Types.VulnerabilityWhereInput | null | undefined
   first?: number | null | undefined
@@ -10987,6 +10964,9 @@ export interface VulnerabilityTriageGroupsQuery {
               packageName: string | null
               source: string | null
               category: string | null
+              createdAt: any
+              discoveredAt: string | null
+              remediationSLA: number | null
             } | null
           } | null> | null
         }

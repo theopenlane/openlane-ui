@@ -1,8 +1,9 @@
 import { type VulnerabilityWhereInput } from '@repo/codegen/src/schema'
-import { type VulnerabilitiesNodeNonNull, type VulnerabilityDueDateSource, type VulnerabilityTriageGroupNode } from '@/lib/graphql-hooks/vulnerability'
+import { getNodes } from '@/lib/graphql-hooks/connection'
+import { type VulnerabilitiesNodeNonNull, type VulnerabilityTriageGroupNode } from '@/lib/graphql-hooks/vulnerability'
 import { pluralizeWithCount } from '@/utils/strings'
 import { type SlaDefinitionsNodeNonNull } from '@/lib/graphql-hooks/sla-definition'
-import { getVulnerabilityDueDate, type DueDateInfo } from '@/utils/vulnerability-due-date'
+import { getVulnerabilityDueDate, type DueDateInfo, type TVulnerabilityDueDateSource } from '@/utils/vulnerability-due-date'
 
 export type TriageVuln = VulnerabilitiesNodeNonNull & { dueInfo: DueDateInfo }
 
@@ -139,23 +140,18 @@ export type TriageCveGroups = {
   ordered: TriageCveGroup[]
 }
 
-const summarizeGroupDue = (reports: VulnerabilityDueDateSource[], slaDefinitions: SlaDefinitionsNodeNonNull[]) => {
+const summarizeGroupDue = (reports: TVulnerabilityDueDateSource[], slaDefinitions: SlaDefinitionsNodeNonNull[]) => {
   const dueInfos = reports.map((report) => getVulnerabilityDueDate(report, slaDefinitions))
   const worst = dueInfos.reduce<DueDateInfo | null>((current, info) => (info.dueDate && (!current?.dueDate || info.dueDate < current.dueDate) ? info : current), null)
   return { pastDueCount: dueInfos.filter((info) => info.pastDue).length, dueInfo: worst }
 }
 
-export const buildTriageCveGroups = (nodes: VulnerabilityTriageGroupNode[], dueSources: VulnerabilityDueDateSource[], slaDefinitions: SlaDefinitionsNodeNonNull[]): TriageCveGroups => {
-  const sourcesByCve = new Map<string, VulnerabilityDueDateSource[]>()
-  dueSources.forEach((source) => {
-    if (!source.cveID) return
-    sourcesByCve.set(source.cveID, [...(sourcesByCve.get(source.cveID) ?? []), source])
-  })
-
+export const buildTriageCveGroups = (nodes: VulnerabilityTriageGroupNode[], slaDefinitions: SlaDefinitionsNodeNonNull[]): TriageCveGroups => {
   const groups = nodes.flatMap((node): TriageCveGroup[] => {
-    const representative = node.vulnerabilities.edges?.[0]?.node
+    const reports = getNodes(node.vulnerabilities)
+    const representative = reports[0]
     if (!representative || !node.key) return []
-    return [{ id: node.key, count: node.count, ...summarizeGroupDue(sourcesByCve.get(node.key) ?? [], slaDefinitions), representative }]
+    return [{ id: node.key, count: node.count, ...summarizeGroupDue(reports, slaDefinitions), representative }]
   })
 
   const byRepresentative = (a: TriageCveGroup, b: TriageCveGroup) => bySeverityThenScore(a.representative, b.representative)
