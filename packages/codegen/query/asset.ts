@@ -269,6 +269,7 @@ export const GET_ASSET_ASSOCIATIONS = gql`
         edges {
           node {
             id
+            cveID
             displayName
             displayID
           }

@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RemediationRemediationStatus } from '@repo/codegen/src/schema'
 import { REMEDIATION_CONTEXT_TYPES } from '@/lib/graphql-hooks/remediation'
-import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils'
 import { isNavigableUrl } from '@/utils/normalizeUrl'
 
 const urlField = z
@@ -52,12 +51,6 @@ const buildFormSchema = (isCreate: boolean) =>
       }
       if (!values.status) {
         ctx.addIssue({ code: 'custom', path: ['status'], message: 'Status is required' })
-      }
-      if (isPlateValueEmpty(values.explanation)) {
-        ctx.addIssue({ code: 'custom', path: ['explanation'], message: 'Explanation is required' })
-      }
-      if (isPlateValueEmpty(values.instructions)) {
-        ctx.addIssue({ code: 'custom', path: ['instructions'], message: 'Instructions are required' })
       }
     })
 

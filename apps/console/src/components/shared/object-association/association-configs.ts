@@ -2,6 +2,7 @@ import { ObjectTypeObjects } from '@/components/shared/object-association/object
 import type { AssociationEntityConfig, AssociationNode } from '@/components/shared/object-association/association-section'
 import type { TBaseAssociatedNode } from '@/components/shared/object-association/types/object-association-types'
 import { buildRelatedInvalidateKeys } from '@/components/shared/object-association/utils'
+import { getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilities/vulnerability-display'
 
 const buildAssociationEntityConfig = <const TConfig extends AssociationEntityConfig>(config: TConfig): TConfig => config
 
@@ -19,7 +20,7 @@ const SECTION_MAPPINGS = {
     extraFields: (n: AssociationNode) => ({ description: n.description }),
   },
   entities: { key: 'entities', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayName ?? '' },
-  findings: { key: 'findings', nameExtractor: (n: AssociationNode) => n.displayName ?? n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  findings: { key: 'findings', nameExtractor: (n: AssociationNode) => n.displayName || n.name || n.displayID || '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
   identityHolders: { key: 'identityHolders', nameExtractor: (n: AssociationNode) => n.fullName ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
   internalPolicies: { key: 'internalPolicies', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
   procedures: { key: 'procedures', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
@@ -40,7 +41,7 @@ const SECTION_MAPPINGS = {
     displayIdExtractor: (n: AssociationNode) => n.displayID ?? '',
     extraFields: (n: AssociationNode) => ({ title: n.title }),
   },
-  vulnerabilities: { key: 'vulnerabilities', nameExtractor: (n: AssociationNode) => n.displayName ?? n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  vulnerabilities: { key: 'vulnerabilities', nameExtractor: (n: AssociationNode) => getVulnerabilityTitle(n), displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
 } as const
 
 const withExtras = <TMapping extends { key: string; extraFields?: ExtraFieldsExtractor }>(mapping: TMapping, extraFields: ExtraFieldsExtractor) => ({

@@ -194,6 +194,7 @@ export const GET_REMEDIATION_ASSOCIATIONS = gql`
         edges {
           node {
             id
+            cveID
             displayName
             displayID
           }

@@ -21,10 +21,10 @@ import { type TRemediation } from './remediation-context'
 
 type TRichTextFieldName = 'explanation' | 'instructions' | 'intent'
 
-const RICH_TEXT_FIELDS: { name: TRichTextFieldName; label: string; placeholder: string; required: boolean }[] = [
-  { name: 'explanation', label: 'Explanation', placeholder: 'Explain what this remediation addresses and why', required: true },
-  { name: 'instructions', label: 'Instructions', placeholder: 'List the steps needed to remediate the issue', required: true },
-  { name: 'intent', label: 'Intent', placeholder: 'Describe the goal or expected outcome of the remediation', required: false },
+const RICH_TEXT_FIELDS: { name: TRichTextFieldName; label: string; placeholder: string }[] = [
+  { name: 'explanation', label: 'Explanation', placeholder: 'Explain what this remediation addresses and why' },
+  { name: 'instructions', label: 'Instructions', placeholder: 'List the steps needed to remediate the issue' },
+  { name: 'intent', label: 'Intent', placeholder: 'Describe the goal or expected outcome of the remediation' },
 ]
 
 type TRemediationFieldsPanelProps = {
@@ -132,14 +132,14 @@ const RemediationFieldsEdit: React.FC<Omit<TRemediationFieldsPanelProps, 'isEdit
         />
       </div>
 
-      {RICH_TEXT_FIELDS.map(({ name, label, placeholder, required }) => (
+      {RICH_TEXT_FIELDS.map(({ name, label, placeholder }) => (
         <FormField
           key={name}
           control={form.control}
           name={name}
           render={({ field }) => (
             <FormItem>
-              <FormLabel required={isCreate && required}>{label}</FormLabel>
+              <FormLabel>{label}</FormLabel>
               <FormControl>
                 <PlateEditor onChange={field.onChange} onHydrate={hydrate(field.name)} initialValue={initialRichText[name]} placeholder={placeholder} />
               </FormControl>
