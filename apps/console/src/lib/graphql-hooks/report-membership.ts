@@ -1,123 +1,64 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { GET_REPORT_VIEWER_GROUPS } from '@repo/codegen/query/report'
+import { CREATE_BULK_REPORT_MEMBERSHIP, DELETE_REPORT_MEMBERSHIP, GET_REPORT_MEMBERS } from '@repo/codegen/query/report-membership'
 import {
-  type ReportMembershipsWithFilterQuery,
-  type ReportMembershipsWithFilterQueryVariables,
-  type CreateReportMembershipMutation,
-  type CreateReportMembershipMutationVariables,
-  type UpdateReportMembershipMutation,
-  type UpdateReportMembershipMutationVariables,
+  type CreateBulkReportMembershipMutation,
+  type CreateBulkReportMembershipMutationVariables,
   type DeleteReportMembershipMutation,
   type DeleteReportMembershipMutationVariables,
-  type ReportMembershipQuery,
-  type ReportMembershipQueryVariables,
-  type UpdateBulkReportMembershipMutation,
-  type UpdateBulkReportMembershipMutationVariables,
-  type DeleteBulkReportMembershipMutation,
-  type DeleteBulkReportMembershipMutationVariables,
+  type GetReportMembersQuery,
+  type GetReportMembersQueryVariables,
+  type GetReportViewerGroupsQuery,
+  type GetReportViewerGroupsQueryVariables,
 } from '@repo/codegen/src/schema'
+import { EXPORT_PAGE_SIZE } from '@/constants/pagination'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { fetchAllConnectionNodes } from './fetch-all-connection-nodes'
+import type { TReportViewerGroup } from './report'
 
-import { type TPagination } from '@repo/ui/pagination-types'
-import {
-  GET_ALL_REPORT_MEMBERSHIPS,
-  CREATE_REPORT_MEMBERSHIP,
-  UPDATE_REPORT_MEMBERSHIP,
-  DELETE_REPORT_MEMBERSHIP,
-  REPORT_MEMBERSHIP,
-  BULK_EDIT_REPORT_MEMBERSHIP,
-  BULK_DELETE_REPORT_MEMBERSHIP,
-} from '@repo/codegen/query/report-membership'
+type TReportMembershipNode = NonNullable<NonNullable<NonNullable<GetReportMembersQuery['report']['members']['edges']>[number]>['node']>
 
-type GetAllReportMembershipsArgs = {
-  where?: ReportMembershipsWithFilterQueryVariables['where']
-  orderBy?: ReportMembershipsWithFilterQueryVariables['orderBy']
-  pagination?: TPagination
-  enabled?: boolean
+export type TReportSharing = {
+  memberships: TReportMembershipNode[]
+  groups: TReportViewerGroup[]
 }
 
-export type ReportMembershipsNode = NonNullable<NonNullable<NonNullable<ReportMembershipsWithFilterQuery['reportMemberships']>['edges']>[number]>['node']
-
-export type ReportMembershipsNodeNonNull = NonNullable<ReportMembershipsNode>
-
-export const useReportMembershipsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllReportMembershipsArgs) => {
+export const useReportSharing = (reportId: string | null | undefined) => {
   const { client } = useGraphQLClient()
-  const queryResult = useQuery<ReportMembershipsWithFilterQuery, unknown>({
-    queryKey: ['reportMemberships', where, orderBy, pagination?.page, pagination?.pageSize],
-    queryFn: async (): Promise<ReportMembershipsWithFilterQuery> => {
-      const result = await client.request<ReportMembershipsWithFilterQuery>(GET_ALL_REPORT_MEMBERSHIPS, { where, orderBy, ...pagination?.query })
-      return result
-    },
-    enabled,
-  })
 
-  const edges = queryResult.data?.reportMemberships?.edges ?? []
+  return useQuery<TReportSharing>({
+    queryKey: ['reports', 'sharing', reportId],
+    enabled: !!reportId,
+    placeholderData: undefined,
+    queryFn: async () => {
+      const id = reportId ?? ''
+      const [memberships, groups] = await Promise.all([
+        fetchAllConnectionNodes<TReportMembershipNode>(
+          async (after) => (await client.request<GetReportMembersQuery, GetReportMembersQueryVariables>(GET_REPORT_MEMBERS, { reportId: id, first: EXPORT_PAGE_SIZE, after })).report.members,
+        ),
+        fetchAllConnectionNodes<TReportViewerGroup>(
+          async (after) =>
+            (await client.request<GetReportViewerGroupsQuery, GetReportViewerGroupsQueryVariables>(GET_REPORT_VIEWER_GROUPS, { reportId: id, first: EXPORT_PAGE_SIZE, after })).report.viewers,
+        ),
+      ])
 
-  const reportMembershipsNodes: ReportMembershipsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as ReportMembershipsNodeNonNull)
-
-  return { ...queryResult, reportMembershipsNodes }
-}
-
-export const useCreateReportMembership = () => {
-  const { client } = useGraphQLClient()
-  const queryClient = useQueryClient()
-  return useMutation<CreateReportMembershipMutation, unknown, CreateReportMembershipMutationVariables>({
-    mutationFn: async (variables) => client.request(CREATE_REPORT_MEMBERSHIP, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reportMemberships'] })
+      return { memberships, groups }
     },
   })
 }
 
-export const useUpdateReportMembership = () => {
+export const useCreateBulkReportMembership = () => {
   const { client } = useGraphQLClient()
-  const queryClient = useQueryClient()
-  return useMutation<UpdateReportMembershipMutation, unknown, UpdateReportMembershipMutationVariables>({
-    mutationFn: async (variables) => client.request(UPDATE_REPORT_MEMBERSHIP, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reportMemberships'] })
-    },
+
+  return useMutation<CreateBulkReportMembershipMutation, unknown, CreateBulkReportMembershipMutationVariables>({
+    mutationFn: (variables) => client.request(CREATE_BULK_REPORT_MEMBERSHIP, variables),
   })
 }
 
 export const useDeleteReportMembership = () => {
   const { client } = useGraphQLClient()
-  const queryClient = useQueryClient()
+
   return useMutation<DeleteReportMembershipMutation, unknown, DeleteReportMembershipMutationVariables>({
-    mutationFn: async (variables) => client.request(DELETE_REPORT_MEMBERSHIP, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reportMemberships'] })
-    },
-  })
-}
-
-export const useReportMembership = (reportMembershipId?: ReportMembershipQueryVariables['reportMembershipId']) => {
-  const { client } = useGraphQLClient()
-  return useQuery<ReportMembershipQuery, unknown>({
-    queryKey: ['reportMemberships', reportMembershipId],
-    queryFn: async (): Promise<ReportMembershipQuery> => {
-      const result = await client.request(REPORT_MEMBERSHIP, { reportMembershipId })
-      return result as ReportMembershipQuery
-    },
-    enabled: !!reportMembershipId,
-  })
-}
-
-export const useBulkEditReportMembership = () => {
-  const { client, queryClient } = useGraphQLClient()
-  return useMutation<UpdateBulkReportMembershipMutation, unknown, UpdateBulkReportMembershipMutationVariables>({
-    mutationFn: async (variables) => client.request(BULK_EDIT_REPORT_MEMBERSHIP, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reportMemberships'] })
-    },
-  })
-}
-
-export const useBulkDeleteReportMembership = () => {
-  const { client, queryClient } = useGraphQLClient()
-  return useMutation<DeleteBulkReportMembershipMutation, unknown, DeleteBulkReportMembershipMutationVariables>({
-    mutationFn: async (variables) => client.request(BULK_DELETE_REPORT_MEMBERSHIP, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reportMemberships'] })
-    },
+    mutationFn: (variables) => client.request(DELETE_REPORT_MEMBERSHIP, variables),
   })
 }

@@ -1,54 +1,57 @@
 import { gql } from 'graphql-request'
 
 export const GET_ALL_REPORTS = gql`
-  query ReportsWithFilter($where: ReportWhereInput, $orderBy: [ReportOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
-    reports(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
+  query GetAllReports($where: ReportWhereInput, $first: Int, $last: Int, $after: Cursor, $before: Cursor, $orderBy: [ReportOrder!]) {
+    reports(where: $where, first: $first, last: $last, after: $after, before: $before, orderBy: $orderBy) {
       totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
       edges {
         node {
-          createdAt
-          createdBy
-          displayID
           id
           name
-          query
-          reportKindID
-          reportKindName
-          reportOwnerID
-          requestorID
-          updatedAt
-          updatedBy
-          updatedByImpersonator
+          visibility
           variables
+          updatedAt
         }
-      }
-      pageInfo {
-        endCursor
-        startCursor
-        hasPreviousPage
-        hasNextPage
       }
     }
   }
 `
 
-export const REPORT = gql`
-  query Report($reportId: ID!) {
+export const GET_REPORT = gql`
+  query GetReport($reportId: ID!) {
     report(id: $reportId) {
-      createdAt
-      createdBy
-      displayID
       id
       name
       query
-      reportKindID
-      reportKindName
-      reportOwnerID
-      requestorID
-      updatedAt
-      updatedBy
-      updatedByImpersonator
       variables
+      visibility
+    }
+  }
+`
+
+export const GET_REPORT_VIEWER_GROUPS = gql`
+  query GetReportViewerGroups($reportId: ID!, $first: Int, $after: Cursor) {
+    report(id: $reportId) {
+      id
+      viewers(first: $first, after: $after) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+      }
     }
   }
 `

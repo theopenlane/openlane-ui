@@ -1,6 +1,7 @@
-import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
+import { REPORT_OPERATOR_SUFFIX, type TReportEntity, type TReportOperator } from '@repo/codegen/src/report-schema.generated'
 import { OrderDirection } from '@repo/codegen/src/schema'
 import { toHumanLabel } from '@/utils/strings'
+import { isRecord, isStringArray } from '@/utils/type-guards'
 import { filterOperators, isFilterComplete, listValues, resolveFilterField, type TReportFilter } from './report-filters'
 import { isOwnerColumn, migrateLegacyOwnerFilter } from './report-owner-filters'
 import { getEntity, pathEdgeName, pathLabel, resolveColumn, type TReportCombinator, type TReportOrder, type TReportSort } from './report-schema'
@@ -58,6 +59,58 @@ export const reconcileReportConfig = (config: TReportQueryConfig): TReportQueryC
   const sort = config.sort.field !== null && !sortable.includes(config.sort.field) ? DEFAULT_REPORT_SORT : config.sort
 
   return { entityName: config.entityName, columnPaths, filters, combinator: config.combinator, sort, limit: config.limit }
+}
+
+const isReportOperator = (value: string): value is TReportOperator => Object.hasOwn(REPORT_OPERATOR_SUFFIX, value)
+
+const isOrderDirection = (value: string): value is OrderDirection => value === OrderDirection.ASC || value === OrderDirection.DESC
+
+const parseFilters = (value: unknown): TReportFilter[] | null => {
+  if (!Array.isArray(value)) return null
+
+  const filters: TReportFilter[] = []
+
+  for (const item of value) {
+    if (!isRecord(item)) return null
+
+    const { id, field, operator, value: filterValue } = item
+
+    if (typeof id !== 'string' || typeof field !== 'string' || typeof filterValue !== 'string') return null
+    if (typeof operator !== 'string' || !isReportOperator(operator)) return null
+
+    filters.push({ id, field, operator, value: filterValue })
+  }
+
+  return filters
+}
+
+const parseSort = (value: unknown): TReportSort | null => {
+  if (!isRecord(value)) return null
+
+  const { field, direction } = value
+
+  if (field !== null && typeof field !== 'string') return null
+  if (typeof direction !== 'string' || !isOrderDirection(direction)) return null
+
+  return { field, direction }
+}
+
+export const parseReportQueryConfig = (value: unknown): TReportQueryConfig | null => {
+  if (!isRecord(value)) return null
+
+  const { entityName, columnPaths, filters, combinator, sort, limit } = value
+
+  if (typeof entityName !== 'string' || !isStringArray(columnPaths)) return null
+  if (combinator !== 'and' && combinator !== 'or') return null
+  if (limit !== null && (typeof limit !== 'number' || !Number.isInteger(limit) || limit <= 0)) return null
+
+  const parsedSort = parseSort(sort)
+  if (parsedSort === null) return null
+
+  const parsedFilters = parseFilters(filters)
+  if (parsedFilters === null) return null
+
+  return { entityName, columnPaths, filters: parsedFilters, combinator, sort: parsedSort, limit }
 }
 
 const MAX_DESCRIBED_PARTS = 2
