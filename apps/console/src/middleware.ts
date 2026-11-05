@@ -4,7 +4,6 @@ import { buildLoginRedirect, buildTfaRedirect } from '@/lib/auth/utils/redirect'
 import { featureUtil } from '@/lib/subscription-plan/plans'
 import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
-import { cookies } from 'next/headers'
 
 export default auth(async (req) => {
   // Attach `next-url` header for client-side route metadata
@@ -50,8 +49,11 @@ export default auth(async (req) => {
   // http only cookie so could not be deleted from the client
   // but if the user is trying to leave the tfa screen, we need to clear this out
   if (pendingTfa && path === '/login' && req.nextUrl.searchParams.get('cleartfa')) {
-    ;(await cookies()).delete(TFA_PENDING_COOKIE_NAME)
-    return NextResponse.next()
+    const response = NextResponse.next()
+
+    response.cookies.delete(TFA_PENDING_COOKIE_NAME)
+
+    return response
   }
 
   // if the cookie is yet to expire, do not let the user land on login or other pages,
