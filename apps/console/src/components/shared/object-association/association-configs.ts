@@ -40,7 +40,7 @@ const SECTION_MAPPINGS = {
     displayIdExtractor: (n: AssociationNode) => n.displayID ?? '',
     extraFields: (n: AssociationNode) => ({ title: n.title }),
   },
-  vulnerabilities: { key: 'vulnerabilities', nameExtractor: (n: AssociationNode) => n.displayName ?? n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  vulnerabilities: { key: 'vulnerabilities', nameExtractor: (n: AssociationNode) => n.cveID || n.displayName || n.name || '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
 } as const
 
 const withExtras = <TMapping extends { key: string; extraFields?: ExtraFieldsExtractor }>(mapping: TMapping, extraFields: ExtraFieldsExtractor) => ({
@@ -244,6 +244,7 @@ const findingAllowedObjectTypes = [
   ObjectTypeObjects.REMEDIATION,
   ObjectTypeObjects.REVIEW,
   ObjectTypeObjects.VULNERABILITY,
+  ObjectTypeObjects.ACTION_PLAN,
 ]
 const findingInitialDataKeys = {
   controlIDs: 'controls',
@@ -256,6 +257,7 @@ const findingInitialDataKeys = {
   remediationIDs: 'remediations',
   reviewIDs: 'reviews',
   vulnerabilityIDs: 'vulnerabilities',
+  actionPlanIDs: 'actionPlans',
 }
 const findingAssociationKeys = [
   'controlIDs',
@@ -268,6 +270,7 @@ const findingAssociationKeys = [
   'remediationIDs',
   'reviewIDs',
   'vulnerabilityIDs',
+  'actionPlanIDs',
 ] as const satisfies readonly (keyof typeof findingInitialDataKeys)[]
 
 export const FINDING_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
@@ -288,6 +291,7 @@ export const FINDING_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     SECTION_MAPPINGS.remediations,
     SECTION_MAPPINGS.reviews,
     SECTION_MAPPINGS.vulnerabilities,
+    SECTION_MAPPINGS.actionPlans,
   ],
   dialogConfig: {
     dataRootField: 'finding',

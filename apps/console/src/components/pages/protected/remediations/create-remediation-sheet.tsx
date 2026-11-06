@@ -14,16 +14,17 @@ type Props = {
   onClose: () => void
   initialData?: Partial<CreateRemediationInput>
   defaultTitle?: string
+  defaultInstructions?: string
   onSuccess?: () => void
 }
 
-const CreateRemediationSheet = ({ isOpen, onClose, initialData, defaultTitle, onSuccess }: Props) => {
+const CreateRemediationSheet = ({ isOpen, onClose, initialData, defaultTitle, defaultInstructions, onSuccess }: Props) => {
   const { form } = useFormSchema()
   useEffect(() => {
     if (isOpen) {
-      form.reset({ title: defaultTitle ?? '' })
+      form.reset({ title: defaultTitle ?? '', instructions: defaultInstructions })
     }
-  }, [isOpen, defaultTitle, form])
+  }, [isOpen, defaultTitle, defaultInstructions, form])
 
   const baseCreateMutation = useCreateRemediation()
 

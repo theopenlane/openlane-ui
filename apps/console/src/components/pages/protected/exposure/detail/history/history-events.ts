@@ -1,8 +1,16 @@
-import { VulnerabilityHistoryOpType } from '@repo/codegen/src/historyschema'
-import { type VulnerabilityHistoryNode } from '@/lib/graphql-hooks/vulnerability'
 import { normalizeResponsibilityField, type ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 type TResponsibilityKey = 'internalOwner' | 'assignedTo' | 'reviewedBy'
+
+type TResponsibilityColumn = TResponsibilityKey | `${TResponsibilityKey}UserID` | `${TResponsibilityKey}GroupID` | `${TResponsibilityKey}IdentityHolderID`
+
+export type TOwnershipHistoryNode = Partial<Record<TResponsibilityColumn, string | null>> & {
+  id: string
+  historyTime: string
+  operation: string
+  createdBy?: string | null
+  updatedBy?: string | null
+}
 
 type TResolveName = (kind: 'user' | 'group' | 'personnel', id: string) => string
 
@@ -21,7 +29,7 @@ const RESPONSIBILITY_FIELDS: { key: TResponsibilityKey; label: string }[] = [
   { key: 'reviewedBy', label: 'Reviewed by' },
 ]
 
-const responsibilityRef = (node: VulnerabilityHistoryNode, key: TResponsibilityKey): ResponsibilitySelection =>
+const responsibilityRef = (node: TOwnershipHistoryNode, key: TResponsibilityKey): ResponsibilitySelection =>
   normalizeResponsibilityField({
     userID: node[`${key}UserID`],
     groupID: node[`${key}GroupID`],
@@ -33,7 +41,7 @@ const refKey = (ref: ResponsibilitySelection) => (ref ? `${ref.type}:${ref.value
 
 const refLabel = (ref: ResponsibilitySelection, resolveName: TResolveName) => (ref ? (ref.type === 'string' ? ref.value : resolveName(ref.type, ref.value)) : null)
 
-export const historyReferencedIds = (nodes: VulnerabilityHistoryNode[]): { userIds: string[]; groupIds: string[]; personnelIds: string[] } => {
+export const historyReferencedIds = (nodes: TOwnershipHistoryNode[]): { userIds: string[]; groupIds: string[]; personnelIds: string[] } => {
   const ids = { user: new Set<string>(), group: new Set<string>(), personnel: new Set<string>() }
   nodes.forEach((node) => {
     if (node.updatedBy) ids.user.add(node.updatedBy)
@@ -46,10 +54,10 @@ export const historyReferencedIds = (nodes: VulnerabilityHistoryNode[]): { userI
   return { userIds: [...ids.user], groupIds: [...ids.group], personnelIds: [...ids.personnel] }
 }
 
-export const buildOwnershipChanges = (nodesNewestFirst: VulnerabilityHistoryNode[], resolveName: TResolveName): TOwnershipChange[] =>
+export const buildOwnershipChanges = (nodesNewestFirst: TOwnershipHistoryNode[], updateOperation: string, resolveName: TResolveName): TOwnershipChange[] =>
   nodesNewestFirst.flatMap((node, index) => {
     const previous = nodesNewestFirst[index + 1]
-    if (node.operation !== VulnerabilityHistoryOpType.UPDATE || !previous) return []
+    if (node.operation !== updateOperation || !previous) return []
 
     return RESPONSIBILITY_FIELDS.flatMap(({ key, label }) => {
       const from = responsibilityRef(previous, key)

@@ -2,6 +2,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectAssociationNodeEnum, type TBaseAssociatedNode, type TEdgeNode, type TLinkedProgram } from '@/components/shared/object-association/types/object-association-types.ts'
 import { type TAssociationMutationKey, type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilities/vulnerability-display'
 import type { AssociationsData, AssociationsRoot } from '@/components/shared/object-association/association-section'
 
 export const getEdgeNodes = <T>(edges: TEdgeNode<T>[] | null | undefined): T[] => (edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
@@ -54,7 +55,14 @@ const IDENTITY_HOLDER_DISPLAY_CONFIG: TAssociationDisplayConfig = {
   getDetailContentIsRichText: () => false,
 }
 
+const VULNERABILITY_DISPLAY_CONFIG: TAssociationDisplayConfig = {
+  ...DEFAULT_ASSOCIATION_DISPLAY_CONFIG,
+  getName: (node) => node.cveID || node.name || getVulnerabilityTitle(node),
+}
+
 const ASSOCIATION_DISPLAY_CONFIG: Record<string, TAssociationDisplayConfig> = {
+  [ObjectAssociationNodeEnum.VULNERABILITY]: VULNERABILITY_DISPLAY_CONFIG,
+  [ObjectTypes.VULNERABILITY]: VULNERABILITY_DISPLAY_CONFIG,
   [ObjectAssociationNodeEnum.IDENTITY_HOLDER]: IDENTITY_HOLDER_DISPLAY_CONFIG,
   [ObjectTypes.IDENTITY_HOLDER]: IDENTITY_HOLDER_DISPLAY_CONFIG,
 }

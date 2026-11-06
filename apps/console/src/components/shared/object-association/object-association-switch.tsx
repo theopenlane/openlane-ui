@@ -11,6 +11,7 @@ import { SetProcedureAssociationDialog } from '@/components/pages/protected/proc
 import { SetRiskAssociationDialog } from '@/components/pages/protected/risks/set-risk-association-dialog'
 import { SetVendorAssociationDialog } from '@/components/pages/protected/vendors/set-vendor-association-dialog'
 import { SetVulnerabilityAssociationDialog } from '@/components/pages/protected/vulnerabilities/set-vulnerability-association-dialog'
+import { SetFindingAssociationDialog } from '@/components/pages/protected/findings/set-finding-association-dialog'
 import { SetPersonnelAssociationDialog } from '@/components/pages/protected/personnel/set-personnel-association-dialog'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
@@ -55,6 +56,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
       case ObjectAssociationNodeEnum.VULNERABILITY:
         return <SetVulnerabilityAssociationDialog vulnerabilityId={nodeId} />
       case ObjectAssociationNodeEnum.FINDING:
+        return <SetFindingAssociationDialog findingId={nodeId} />
       case ObjectAssociationNodeEnum.SCAN:
       case ObjectAssociationNodeEnum.REVIEW:
       case ObjectAssociationNodeEnum.REMEDIATION:

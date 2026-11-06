@@ -36,7 +36,7 @@ const ENTITIES: EntityConfig[] = [
     fillCreateForm: async (sheet, name) => {
       await sheet.getByRole('textbox').first().fill(name)
     },
-    mutateVia: 'sheet',
+    mutateVia: 'page',
   },
   {
     slug: 'scans',

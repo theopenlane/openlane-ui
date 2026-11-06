@@ -1,14 +1,12 @@
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { type TimelineNode } from '@/lib/graphql-hooks/associations-timeline'
-import { type VulnerabilityHistoryEdges } from '@/lib/graphql-hooks/vulnerability'
-import { getNodes } from '@/lib/graphql-hooks/connection'
+import { type Connection, getNodes } from '@/lib/graphql-hooks/connection'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { htmlToInlineText } from '@/lib/html/html-to-text'
 import { formatDate } from '@/utils/date'
 import { toHumanLabel } from '@/utils/strings'
-import { getVulnerabilityTitle, type TVulnerabilityDetail } from '../../../vulnerability-display'
-import { exposureAssetLabel } from '../exposure-map/exposure-model'
-import { type TOwnershipChange } from './vulnerability-history-events'
+import { exposureAssetLabel } from '../exposure-asset-label'
+import { type TOwnershipChange } from './history-events'
 
 const COMMENT_EXCERPT_LENGTH = 80
 
@@ -61,32 +59,44 @@ const HISTORY_EDGES: THistoryEdge[] = [
   { key: 'reviews', noun: 'review', type: toHumanLabel(ObjectTypes.REVIEW), verb: 'created', sheetKind: ObjectAssociationNodeEnum.REVIEW, name: (node) => node.title || node.id },
 ]
 
-const edgeNodes = (edges: VulnerabilityHistoryEdges | undefined, key: THistoryEdge['key']): THistoryEdgeNode[] => (edges ? getNodes<THistoryEdgeNode>(edges[key]) : [])
+export type TExposureHistoryEdges = Record<THistoryEdge['key'], Connection<THistoryEdgeNode> & { totalCount: number }>
+
+const edgeNodes = (edges: TExposureHistoryEdges | undefined, key: THistoryEdge['key']): THistoryEdgeNode[] => (edges ? getNodes(edges[key]) : [])
 
 const byLine = (phrase: string, actorId: string | null | undefined, at: string, resolveAuthor: TResolveAuthor) => {
   const actor = actorId ? resolveAuthor(actorId) : null
   return `${phrase}${actor ? ` by ${actor}` : ''} on ${formatDate(at)}`
 }
 
-export const historyEdgeAuthorIds = (edges: VulnerabilityHistoryEdges | undefined) => HISTORY_EDGES.flatMap(({ key }) => edgeNodes(edges, key).map((node) => node.createdBy))
+export const historyEdgeAuthorIds = (edges: TExposureHistoryEdges | undefined) => HISTORY_EDGES.flatMap(({ key }) => edgeNodes(edges, key).map((node) => node.createdBy))
+
+export type TExposureHistoryEntity = {
+  id: string
+  createdAt?: string | null
+  createdBy?: string | null
+  source?: string | null
+}
 
 type TBuildArgs = {
-  edges: VulnerabilityHistoryEdges | undefined
+  edges: TExposureHistoryEdges | undefined
   ownershipChanges: TOwnershipChange[]
-  vulnerability: Pick<TVulnerabilityDetail, 'id' | 'createdAt' | 'createdBy' | 'source' | 'cveID' | 'displayName' | 'externalID' | 'displayID'>
+  entity: TExposureHistoryEntity
+  title: string
+  objectType: ObjectTypes
+  entityName: string
   resolveAuthor: TResolveAuthor
 }
 
 const isBefore = (at: string, reference: string) => new Date(at).getTime() < new Date(reference).getTime()
 
-export const buildVulnerabilityTimeline = ({ edges, ownershipChanges, vulnerability, resolveAuthor }: TBuildArgs): TimelineNode[] => {
+export const buildExposureTimeline = ({ edges, ownershipChanges, entity, title, objectType, entityName, resolveAuthor }: TBuildArgs): TimelineNode[] => {
+  const entityCreatedAt = entity.createdAt
   const linked: TimelineNode[] = HISTORY_EDGES.flatMap(({ key, type, verb, sheetKind, name }) =>
     edgeNodes(edges, key).flatMap((node) => {
       if (!node.createdAt) return []
       const created = byLine(verb, node.createdBy, node.createdAt, resolveAuthor)
-      const predatesVulnerability = vulnerability.createdAt && isBefore(node.createdAt, vulnerability.createdAt)
-      return predatesVulnerability
-        ? [{ id: node.id, name: name(node), type, sheetKind, createdAt: vulnerability.createdAt, subtext: `associated with this vulnerability · ${created}` }]
+      return entityCreatedAt && isBefore(node.createdAt, entityCreatedAt)
+        ? [{ id: node.id, name: name(node), type, sheetKind, createdAt: entityCreatedAt, subtext: `associated with this ${entityName} · ${created}` }]
         : [{ id: node.id, name: name(node), type, sheetKind, createdAt: node.createdAt, subtext: created }]
     }),
   )
@@ -99,15 +109,15 @@ export const buildVulnerabilityTimeline = ({ edges, ownershipChanges, vulnerabil
     subtext: byLine(change.from ? `changed from ${change.from}` : 'set', change.actorId, change.at, resolveAuthor),
   }))
 
-  const creation: TimelineNode[] = vulnerability.createdAt
+  const creation: TimelineNode[] = entityCreatedAt
     ? [
         {
-          id: vulnerability.id,
-          name: getVulnerabilityTitle(vulnerability),
-          type: toHumanLabel(ObjectTypes.VULNERABILITY),
+          id: entity.id,
+          name: title,
+          type: toHumanLabel(objectType),
           role: 'source',
-          createdAt: vulnerability.createdAt,
-          subtext: byLine(vulnerability.source ? `created from ${vulnerability.source}` : 'created', vulnerability.createdBy, vulnerability.createdAt, resolveAuthor),
+          createdAt: entityCreatedAt,
+          subtext: byLine(entity.source ? `created from ${entity.source}` : 'created', entity.createdBy, entityCreatedAt, resolveAuthor),
         },
       ]
     : []
@@ -115,7 +125,7 @@ export const buildVulnerabilityTimeline = ({ edges, ownershipChanges, vulnerabil
   return [...linked, ...ownership, ...creation].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 }
 
-export const hiddenEdgeCounts = (edges: VulnerabilityHistoryEdges | undefined) =>
+export const hiddenEdgeCounts = (edges: TExposureHistoryEdges | undefined) =>
   edges
     ? HISTORY_EDGES.flatMap(({ key, noun }) => {
         const hidden = edges[key].totalCount - (edges[key].edges?.length ?? 0)

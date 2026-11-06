@@ -11,12 +11,12 @@ const cweHref = (cweId: string) => {
   return match ? `https://cwe.mitre.org/data/definitions/${match[1]}.html` : null
 }
 
-type TVulnerabilityReferencesProps = {
+type TExposureReferencesProps = {
   references?: string[] | null
   cweIds?: string[] | null
 }
 
-const VulnerabilityReferences: React.FC<TVulnerabilityReferencesProps> = ({ references, cweIds }) => {
+const ExposureReferences: React.FC<TExposureReferencesProps> = ({ references, cweIds }) => {
   const links = [...new Set((references ?? []).map((reference) => reference.trim()).filter(Boolean))]
   const weaknesses = [...new Set((cweIds ?? []).map((cwe) => cwe.trim()).filter(Boolean))]
 
@@ -62,4 +62,4 @@ const VulnerabilityReferences: React.FC<TVulnerabilityReferencesProps> = ({ refe
   )
 }
 
-export default VulnerabilityReferences
+export default ExposureReferences

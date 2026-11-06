@@ -26,19 +26,25 @@ export const getSlaDueDate = (createdAt: string | null | undefined, securityLeve
 
 export const isSlaPastDue = (dueDate: Date | null | undefined): boolean => !!dueDate && dueDate < new Date()
 
+export type TSlaSourceDateField = 'reportedAt'
+
+type TDateRange = { gte?: string; lt: string }
+
+const dateRangeCondition = (field: string, { gte, lt }: TDateRange): Condition => ({ ...(gte && { [`${field}GTE`]: gte }), [`${field}LT`]: lt })
+
+const baseDateCondition = (range: TDateRange, sourceDateField?: TSlaSourceDateField): Condition =>
+  sourceDateField ? { or: [dateRangeCondition(sourceDateField, range), { [`${sourceDateField}IsNil`]: true, ...dateRangeCondition('createdAt', range) }] } : dateRangeCondition('createdAt', range)
+
 const buildSeverityDateCondition = (slaDaysByLevel: SlaDaysByLevel, toDateCondition: (slaDays: number) => Condition): Condition => ({
   open: true,
   or: Object.entries(slaDaysByLevel).map(([securityLevel, slaDays]) => ({ securityLevel, ...toDateCondition(slaDays) })),
 })
 
-export const buildPastDueCondition = (slaDaysByLevel: SlaDaysByLevel): Condition =>
-  buildSeverityDateCondition(slaDaysByLevel, (slaDays) => ({ createdAtLT: subDays(startOfDay(new Date()), slaDays).toISOString() }))
+export const buildPastDueCondition = (slaDaysByLevel: SlaDaysByLevel, sourceDateField?: TSlaSourceDateField): Condition =>
+  buildSeverityDateCondition(slaDaysByLevel, (slaDays) => baseDateCondition({ lt: subDays(startOfDay(new Date()), slaDays).toISOString() }, sourceDateField))
 
-export const buildDueSoonCondition = (slaDaysByLevel: SlaDaysByLevel): Condition =>
+export const buildDueSoonCondition = (slaDaysByLevel: SlaDaysByLevel, sourceDateField?: TSlaSourceDateField): Condition =>
   buildSeverityDateCondition(slaDaysByLevel, (slaDays) => {
     const lower = subDays(startOfDay(new Date()), slaDays)
-    return {
-      createdAtGTE: lower.toISOString(),
-      createdAtLT: addDays(lower, DUE_SOON_WINDOW_DAYS).toISOString(),
-    }
+    return baseDateCondition({ gte: lower.toISOString(), lt: addDays(lower, DUE_SOON_WINDOW_DAYS).toISOString() }, sourceDateField)
   })

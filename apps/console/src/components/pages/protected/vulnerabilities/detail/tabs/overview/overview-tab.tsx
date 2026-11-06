@@ -1,14 +1,14 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React from 'react'
 import { type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type TPersistOptions, usePersistFormField } from '@/components/shared/crud-base/persist-form-field'
 import { type VulnerabilityFormData } from '../../../hooks/use-form-schema'
 import DescriptionField from '../../../create/form/fields/description-field'
 import { type TVulnerabilityDetail } from '../../../vulnerability-display'
-import VulnerabilityScoreCard from './vulnerability-score-card'
-import VulnerabilityReferences from './vulnerability-references'
+import ExposureScoreCard from '../../../../exposure/detail/score/exposure-score-card'
+import ExposureReferences from '../../../../exposure/detail/exposure-references'
+import { ReadOnlyRichText } from '../../../../exposure/detail/read-only-rich-text'
 import VulnerabilityDetailsEditCard from './vulnerability-details-edit-card'
 
 type TOverviewTabProps = {
@@ -16,17 +16,6 @@ type TOverviewTabProps = {
   isEditing: boolean
   canEdit: boolean
   handleUpdateField: (input: UpdateVulnerabilityInput, options?: TPersistOptions) => Promise<void>
-}
-
-const ReadOnlyDescription: React.FC<{ description: string }> = ({ description }) => {
-  const { convertToReadOnly } = usePlateEditor()
-  const content = useMemo(() => convertToReadOnly(description), [convertToReadOnly, description])
-
-  return (
-    <section aria-label="Description" className="min-w-0 whitespace-pre-wrap break-words">
-      {content}
-    </section>
-  )
 }
 
 const OverviewTab: React.FC<TOverviewTabProps> = ({ vulnerability, isEditing, canEdit, handleUpdateField }) => {
@@ -40,10 +29,10 @@ const OverviewTab: React.FC<TOverviewTabProps> = ({ vulnerability, isEditing, ca
           <VulnerabilityDetailsEditCard vulnerability={vulnerability} />
         </>
       ) : (
-        vulnerability.description && <ReadOnlyDescription description={vulnerability.description} />
+        vulnerability.description && <ReadOnlyRichText value={vulnerability.description} label="Description" />
       )}
 
-      <VulnerabilityScoreCard
+      <ExposureScoreCard
         score={vulnerability.score}
         impact={vulnerability.impact}
         exploitability={vulnerability.exploitability}
@@ -53,7 +42,7 @@ const OverviewTab: React.FC<TOverviewTabProps> = ({ vulnerability, isEditing, ca
         onSaveVector={(vector) => persistField('vector', vector, (options) => handleUpdateField({ vector }, options))}
       />
 
-      <VulnerabilityReferences references={vulnerability.references} cweIds={vulnerability.cweIds} />
+      <ExposureReferences references={vulnerability.references} cweIds={vulnerability.cweIds} />
     </div>
   )
 }
