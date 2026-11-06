@@ -2,9 +2,9 @@
 
 import { useMemo } from 'react'
 import { Mail } from 'lucide-react'
-import { SearchableItemSelect, type TSearchableItemSelectAriaProps } from '@/components/shared/searchable-item-select/searchable-item-select'
+import { SearchableItemSelect, type TSearchableItemSelectAriaProps } from '@repo/ui/searchable-item-select'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum'
-import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { useAsyncCommandSearch } from '@repo/ui/use-async-command-search'
 import { emailOrFullNameSearchWhere, useIdentityHolderOptions } from '@/lib/graphql-hooks/identity-holder'
 import { type TAssessmentRecipient } from '@/lib/graphql-hooks/assessment-response'
 import { isValidEmail, normalizeEmail } from '@/lib/validators'

@@ -15,7 +15,7 @@ import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
-import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { useAsyncCommandSearch } from '@repo/ui/use-async-command-search'
 import {
   type ResponsibilitySelection,
   type TResponsibilityCustomValue,
