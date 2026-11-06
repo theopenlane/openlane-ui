@@ -4,8 +4,7 @@ import React, { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { CardContent } from '@repo/ui/cardpanel'
 import { TriangleAlert } from 'lucide-react'
-import { PartyPopperIcon } from '@/components/shared/icons/animated'
-import type { PartyPopperIconHandle } from '@/components/shared/icons/animated/party-popper'
+import { PartyPopperIcon, type AnimatedIconHandle } from '@theopenlane/animated-icons'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import SuggestedTaskDetailsSheet from '@/components/pages/protected/overview/suggested-task-details-sheet'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -20,7 +19,7 @@ import { WorkItemsCard, WorkItemsCardSkeletonContent } from './work-items/work-i
 const DashboardTasksAndSuggestions = () => {
   const workItems = useWorkItems()
   const showSectionHeaders = workItems.activeFilter === ALL_FILTER_KEY
-  const tadaRef = useRef<PartyPopperIconHandle>(null)
+  const tadaRef = useRef<AnimatedIconHandle>(null)
 
   // play the celebration once when the caught-up state appears
   useEffect(() => {

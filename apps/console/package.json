@@ -47,6 +47,7 @@
     "@tailwindcss/postcss": "^4.3.3",
     "@tanstack/react-query": "^5.104.2",
     "@tanstack/react-virtual": "^3.14.18",
+    "@theopenlane/animated-icons": "^0.2.2",
     "@theopenlane/surveyjs-components": "^0.1.0",
     "@types/d3-force": "^3.0.10",
     "@types/jest": "^30.0.0",

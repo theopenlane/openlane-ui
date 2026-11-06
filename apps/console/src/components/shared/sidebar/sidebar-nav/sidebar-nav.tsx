@@ -49,6 +49,7 @@ const SidebarChildLink: React.FC<{ child: NavItem; anchor: TElementAnchor; pathn
           window.open(child.href ?? '#', '_blank', 'noopener')
         }
       }}
+      data-animated-icon-trigger
       className={`group relative flex gap-2 mb-2 rounded-md *:pointer-events-none hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
         secondaryExpanded ? 'items-start min-h-8 px-2.5 py-1.5' : 'items-center justify-center h-8'
       }`}
@@ -175,7 +176,7 @@ export default function SideNav({
 
       if ('icon' in item && item.icon) {
         const Icon = item.icon
-        // icons that animate themselves (see components/shared/icons/animated) skip the generic CSS hover pop
+        // icons that animate themselves (see @theopenlane/animated-icons) skip the generic CSS hover pop
         const iconHoverClass = 'animated' in Icon && Icon.animated ? '' : 'group-hover:animate-nav-pop'
         const isExpandable = !!item.children
         const isActive = activeNav?.title === item.title
@@ -193,6 +194,7 @@ export default function SideNav({
                 variant="sidebar"
                 {...anchor}
                 onClick={() => handleTogglePanel(item)}
+                data-animated-icon-trigger
                 className={`group relative flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center [&_svg]:size-5!'}`}
               >
                 <Icon size={primaryExpanded ? 16 : 20} className={`shrink-0 ${iconHoverClass}`} />
@@ -217,6 +219,7 @@ export default function SideNav({
                     window.open(url, '_blank', 'noopener')
                   }
                 }}
+                data-animated-icon-trigger
                 className={`group relative flex items-center px-2 gap-2 h-8 *:pointer-events-none bg-transparent border border-transparent rounded-[6px] text-muted-foreground transition-all duration-500 ease-in-out hover:bg-nav hover:border-border hover:text-text-paragraph [&.is-active]:bg-nav [&.is-active]:border-border [&.is-active]:text-text-paragraph ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2 justify-start' : 'w-8 justify-center'}`}
               >
                 <Icon size={primaryExpanded ? 16 : 20} className={`shrink-0 ${iconHoverClass}`} />
