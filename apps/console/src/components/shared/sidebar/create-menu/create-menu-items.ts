@@ -1,4 +1,4 @@
-import { ClipboardCheckIcon, FileTextIcon, FingerprintIcon, GalleryVerticalEndIcon, GaugeIcon, MessageCirclePlusIcon, ShieldCheckIcon, WorkflowIcon } from '@/components/shared/icons/animated'
+import { ClipboardCheckIcon, FileTextIcon, FingerprintIcon, GalleryVerticalEndIcon, GaugeIcon, MessageCirclePlusIcon, ShieldCheckIcon, WorkflowIcon } from '@theopenlane/animated-icons'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { type NavIcon } from '@/types'

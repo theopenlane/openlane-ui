@@ -70,6 +70,7 @@
         "@tailwindcss/postcss": "^4.3.3",
         "@tanstack/react-query": "^5.104.2",
         "@tanstack/react-virtual": "^3.14.18",
+        "@theopenlane/animated-icons": "^0.2.0",
         "@theopenlane/surveyjs-components": "^0.1.0",
         "@types/d3-force": "^3.0.10",
         "@types/jest": "^30.0.0",
@@ -1393,6 +1394,8 @@
     "@tanstack/table-core": ["@tanstack/table-core@9.3.1", "", { "dependencies": { "@tanstack/store": "^0.11.2" } }, "sha512-zQvlxSNi2qGM3L4jh85Z6hqMfdIR5qOfD9KHOU32nuKFJGN0RlJ7UvV1lsPb1fPVhpFYI0VP3jJGxLdLDpTKjQ=="],
 
     "@tanstack/virtual-core": ["@tanstack/virtual-core@3.19.3", "", {}, "sha512-jPxPiyBaUn+IChc8sfYNKn7B2SCOxYO1mCJrh7U4ldmrMxun19q/iw+jHRYk2cR/KNEjW8ABJrufX41m342Sqw=="],
+
+    "@theopenlane/animated-icons": ["@theopenlane/animated-icons@0.2.0", "", { "peerDependencies": { "motion": "^14.0.0", "react": "^19.0.0" } }, "sha512-nrZ4xOamTIW2qqbLH8W5cuXng87RKEpZtarGZgkLnJ7uDE5L00bCFoEdPbI8R3lu3qHyYWMXU8f+cEswuxwxDQ=="],
 
     "@theopenlane/surveyjs-components": ["@theopenlane/surveyjs-components@0.1.0", "", { "dependencies": { "date-fns": "^4.4.0", "lucide-react": "^1.56.0" }, "peerDependencies": { "react": "^19.0.0", "react-pdf": "^11.0.0", "survey-core": "^3.2.1", "survey-creator-core": "^3.2.1", "survey-react-ui": "^3.2.1" }, "optionalPeers": ["survey-creator-core"] }, "sha512-CNfXf8J00swq3vMZR6PZt7aq86jd2lTyltzUmvLSZQSiY38hS7y7U5CzYl0em0jYdBmBi7un1SAH0dmI89FtZw=="],
 
