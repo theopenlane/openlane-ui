@@ -1,11 +1,10 @@
 import { type PageInfo } from '@repo/codegen/src/schema'
+import { type Edge } from '@repo/dally/connection'
 
-export type Edge<T> = { node?: T | null } | null
+export { getNodes, type Edge } from '@repo/dally/connection'
 
 export type Connection<T> = {
   edges?: Array<Edge<T>> | null
   totalCount?: number | null
   pageInfo?: PageInfo | null
 }
-
-export const getNodes = <T>(connection?: Pick<Connection<T>, 'edges'> | null): T[] => (connection?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))

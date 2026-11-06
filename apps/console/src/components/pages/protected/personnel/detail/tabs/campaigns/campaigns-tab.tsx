@@ -8,7 +8,7 @@ import { CampaignTargetOrderField, OrderDirection, type CampaignTargetWhereInput
 import { useCampaignTargetsWithCampaign } from '@/lib/graphql-hooks/campaign-target'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
-import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { useAsyncCommandSearch } from '@repo/ui/use-async-command-search'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
