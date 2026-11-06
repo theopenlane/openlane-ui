@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import type { ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useNavigationGuard } from 'nextjs-nav-guard'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useEntity, useGetEntityAssociations, useUpdateEntity, useDeleteEntity } from '@/lib/graphql-hooks/entity'
+import { useEntity, useGetEntityAssociations, useUpdateEntity, useDeleteEntity, vendorDisplayName } from '@/lib/graphql-hooks/entity'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { useNotification } from '@/hooks/useNotification'
@@ -331,7 +331,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
         title="Delete Vendor"
         description={
           <>
-            This action cannot be undone. This will permanently remove <b>{vendor.name}</b> from the organization.
+            This action cannot be undone. This will permanently remove <b>{vendorDisplayName(vendor)}</b> from the organization.
           </>
         }
       />
