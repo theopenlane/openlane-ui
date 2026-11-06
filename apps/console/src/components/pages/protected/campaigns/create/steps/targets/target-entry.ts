@@ -13,7 +13,7 @@ export interface CampaignTargetEntry {
   contactID?: string
 }
 
-export const ALL_SCOPE = 'ALL'
+export const ALL_FILTER_VALUE = 'ALL'
 
 export const PICKER_PAGE_SIZE = 5
 
