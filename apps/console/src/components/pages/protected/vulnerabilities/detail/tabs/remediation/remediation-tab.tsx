@@ -216,11 +216,10 @@ const RemediationTab: React.FC<TRemediationTabProps> = ({ vulnerability, canEdit
       <CreateRemediationSheet
         isOpen={isCreateRemediationOpen}
         onClose={() => setIsCreateRemediationOpen(false)}
-        initialData={{ vulnerabilityIDs: [vulnerability.id] }}
-        defaultTitle={`${title} Remediation`}
+        context={{ type: ObjectAssociationNodeEnum.VULNERABILITY, id: vulnerability.id }}
         onSuccess={() => {
           setIsCreateRemediationOpen(false)
-          invalidateVulnerabilityQueries(queryClient)
+          queryClient.invalidateQueries({ queryKey: ['vulnerabilityHistories'] })
         }}
       />
     </div>

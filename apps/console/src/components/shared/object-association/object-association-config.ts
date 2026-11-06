@@ -15,6 +15,7 @@ import { GET_ALL_FINDINGS } from '@repo/codegen/query/finding'
 import { GET_ALL_REMEDIATIONS } from '@repo/codegen/query/remediation'
 import { GET_ALL_REVIEWS } from '@repo/codegen/query/review'
 import { GET_ALL_VULNERABILITIES } from '@repo/codegen/query/vulnerability'
+import { getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilities/vulnerability-display'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
 import { GET_ALL_SCANS } from '@repo/codegen/query/scan'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
@@ -73,6 +74,7 @@ import { type RequestDocument } from 'graphql-request'
 
 import {
   type CreateTaskInput,
+  type CreateRemediationInput,
   type AssetsWithFilterQuery,
   type CampaignsWithFilterQuery,
   type GetAllControlImplementationsQuery,
@@ -469,8 +471,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
   },
 }
 
-export const invalidateTaskAssociations = (payload: CreateTaskInput, queryClient: ReturnType<typeof useQueryClient>) => {
-  queryClient.invalidateQueries({ queryKey: ['tasks'] })
+export const invalidateCreateEdgeTargets = (payload: CreateTaskInput | CreateRemediationInput, queryClient: ReturnType<typeof useQueryClient>) => {
   const fields = new Map(Object.entries(payload))
 
   Object.values(OBJECT_QUERY_CONFIG).forEach((config) => {
@@ -479,6 +480,11 @@ export const invalidateTaskAssociations = (payload: CreateTaskInput, queryClient
       queryClient.invalidateQueries({ queryKey: [config.responseObjectKey] })
     }
   })
+}
+
+export const invalidateTaskAssociations = (payload: CreateTaskInput, queryClient: ReturnType<typeof useQueryClient>) => {
+  queryClient.invalidateQueries({ queryKey: ['tasks'] })
+  invalidateCreateEdgeTargets(payload, queryClient)
 }
 
 export const invalidateEdgeUpdateTargets = (input: object, queryClient: ReturnType<typeof useQueryClient>) => {
@@ -763,7 +769,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as FindingsWithFilterQuery).findings?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.displayName ?? '',
+        name: item?.node?.displayName || item?.node?.displayID || '',
         inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
       }))
@@ -803,7 +809,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as VulnerabilitiesWithFilterQuery).vulnerabilities?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.displayName ?? '',
+        name: item?.node ? getVulnerabilityTitle(item.node) : '',
         inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
       }))

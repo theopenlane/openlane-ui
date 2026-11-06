@@ -359,6 +359,7 @@ export const GET_FINDING_ASSOCIATIONS = gql`
         edges {
           node {
             id
+            cveID
             displayName
             displayID
           }

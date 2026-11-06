@@ -8,7 +8,7 @@ import ViewVulnerabilitySheet from '@/components/pages/protected/vulnerabilities
 import ViewRiskSheet from '@/components/pages/protected/risks/view-risk-sheet'
 import ViewScanSheet from '@/components/pages/protected/scans/view-scan-sheet'
 import ViewFindingSheet from '@/components/pages/protected/findings/view-finding-sheet'
-import ViewRemediationSheet from '@/components/pages/protected/remediations/view-remediation-sheet'
+import RemediationSheet from '@/components/pages/protected/remediations/sheet/remediation-sheet'
 import ViewAssetSheet from '@/components/pages/protected/assets/view-asset-sheet'
 import ControlObjectiveDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-objectives-components/control-objective-details-sheet'
 import ControlImplementationDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/control-implementation-details-sheet'
@@ -93,7 +93,7 @@ const renderSheetContent = (id: string, kind: SheetKind, onClose: () => void) =>
     case ObjectAssociationNodeEnum.FINDING:
       return <ViewFindingSheet entityId={id} onClose={onClose} />
     case ObjectAssociationNodeEnum.REMEDIATION:
-      return <ViewRemediationSheet entityId={id} onClose={onClose} />
+      return <RemediationSheet open remediationId={id} onClose={onClose} />
     case ObjectAssociationNodeEnum.ASSET:
       return <ViewAssetSheet entityId={id} onClose={onClose} />
     case ObjectAssociationNodeEnum.CONTROL_OBJECTIVE:
