@@ -43,7 +43,7 @@ export const exposureStatusLabel = (row: TExposureRow): string => {
   return 'Closed'
 }
 
-export const buildExposureRows = (reports: VulnerabilityExposureNode[], currentId: string): TExposureRow[] => {
+export const buildExposureRows = (reports: VulnerabilityExposureNode[], currentId: string | null): TExposureRow[] => {
   const rows = reports.flatMap((report) => {
     const assets: (TExposureAsset | null)[] = getNodes({ edges: report.assets.edges })
     const hiddenAssetCount = Math.max((report.assets.totalCount ?? 0) - assets.length, 0)

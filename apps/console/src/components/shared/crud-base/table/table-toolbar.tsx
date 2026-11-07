@@ -35,6 +35,7 @@ import { cn } from '@repo/ui/lib/utils'
 import MenuItem from '@/components/shared/menu/menu-item'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
 import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { GroupBySelect, type TGroupByControl } from './group-by-select'
 
 type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInput> = {
   entityType: ObjectTypes
@@ -71,6 +72,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   createPermission?: TAccessRole
   additionalActiveFilterCount?: number
   defaultFilterValues?: TFilterState
+  groupBy?: TGroupByControl
 }
 
 function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput>(props: GenericTableToolbarProps<T, TWhereInput, TUpdateInput>) {
@@ -248,6 +250,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                   )}
                 />
 
+                {props.groupBy && <GroupBySelect {...props.groupBy} entityType={props.entityType} />}
                 {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                   <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={props.storageKey} />
                 )}

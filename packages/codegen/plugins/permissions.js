@@ -2,11 +2,18 @@ const path = require('path')
 const fs = require('fs')
 const { pluralizeTypeName, toUpperSnake, getObjectNameFromBody, toHumanLabel, getQueryNameFor, toKebab } = require('./lib')
 
+const hasListingQuery = (typeName) => {
+  const kebab = toKebab(typeName)
+  return fs.existsSync(path.join(__dirname, '..', 'query', `${kebab}.ts`)) || fs.existsSync(path.join(__dirname, '..', 'query', `${kebab}`, 'index.ts'))
+}
+
 function generatePermissionsSection({ nodeTypes, PERMISSIONS_EXCLUDE, schemaImportLine }) {
-  // Find types with editors or viewers
+  // Find types with editors or viewers that the assign-permissions dialog can list
   const typesWithPermissions = Array.from(
     new Set(
-      nodeTypes.filter(({ body, name }) => !PERMISSIONS_EXCLUDE.includes(name) && (body.includes('editors: GroupConnection') || body.includes('viewers: GroupConnection'))).map(({ name }) => name),
+      nodeTypes
+        .filter(({ body, name }) => !PERMISSIONS_EXCLUDE.includes(name) && (body.includes('editors: GroupConnection') || body.includes('viewers: GroupConnection')) && hasListingQuery(name))
+        .map(({ name }) => name),
     ),
   )
 
@@ -61,16 +68,8 @@ function generatePermissionsSection({ nodeTypes, PERMISSIONS_EXCLUDE, schemaImpo
     const responseKey = pluralizeTypeName(typeName)
     const kebab = toKebab(typeName)
     const queryName = getQueryNameFor(typeName)
-    const candidateTs = path.join(__dirname, '..', 'query', `${kebab}.ts`)
-    const candidateIndexTs = path.join(__dirname, '..', 'query', `${kebab}`, 'index.ts')
-    const hasQuery = fs.existsSync(candidateTs) || fs.existsSync(candidateIndexTs)
-    const queryDocRef = hasQuery ? queryName : `''`
-
-    // Only track queries that are actually referenced in the config
-    if (hasQuery && queryDocRef !== `''`) {
-      usedQueryNames.add(queryName)
-      usedQueryKebabs.set(queryName, kebab)
-    }
+    usedQueryNames.add(queryName)
+    usedQueryKebabs.set(queryName, kebab)
 
     const objectName = getObjectNameFromBody(body)
     const searchAttribute = `${objectName}ContainsFold`
@@ -94,7 +93,7 @@ function generatePermissionsSection({ nodeTypes, PERMISSIONS_EXCLUDE, schemaImpo
       `  [TypesWithPermissions.${toUpperSnake(typeName)}]: {`,
       `    roleOptions: ${roleOptionsString},`,
       `    responseObjectKey: '${responseKey}',`,
-      `    queryDocument: ${queryDocRef},`,
+      `    queryDocument: ${queryName},`,
       `    objectName: '${objectName}',`,
       `    searchAttribute: '${searchAttribute}',`,
       `    inputPlaceholder: '${inputPlaceholder}',`,
