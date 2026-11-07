@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { buildDestinationFields, buildUpdateDestination, type TImportFieldMetadata } from './destination-fields'
 import { useExampleCSV } from './use-example-csv'
-import type { TImportDestination, TImportMode } from './types'
+import type { TImportDestination, TImportMode, TUpdateLookupField } from './types'
 
 const METADATA_LOADERS: Record<TImportMode, () => Promise<Readonly<Record<string, TImportFieldMetadata>>>> = {
   create: async () => (await import('@repo/codegen/src/import-fields.generated')).IMPORT_FIELDS,
@@ -23,7 +23,7 @@ const useFieldMetadata = (mode: TImportMode, entityType: ObjectTypes, enabled: b
 
 type TImportDestinationState = { destination?: TImportDestination; isLoading: boolean; isError: boolean }
 
-export const useImportDestination = (entityType: ObjectTypes, mode: TImportMode, override?: TImportDestination): TImportDestinationState => {
+export const useImportDestination = (entityType: ObjectTypes, mode: TImportMode, override?: TImportDestination, lookup?: TUpdateLookupField): TImportDestinationState => {
   const fromBackend = !override
   const isUpdate = mode === 'update'
   const example = useExampleCSV(entityType, { enabled: fromBackend })
@@ -37,8 +37,8 @@ export const useImportDestination = (entityType: ObjectTypes, mode: TImportMode,
     if (!isUpdate) return { fieldSet: buildDestinationFields(entityType, example.data, createMetadata.data), exampleCsv: example.data, exampleFilename: example.filename }
     if (!createMetadata.data || !updateMetadata.data) return undefined
 
-    return buildUpdateDestination({ entityType, sampleCsv: example.data, sampleFilename: example.filename, createMetadata: createMetadata.data, updateMetadata: updateMetadata.data })
-  }, [entityType, isUpdate, example.data, example.filename, isMetadataPending, createMetadata.data, updateMetadata.data])
+    return buildUpdateDestination({ entityType, sampleCsv: example.data, sampleFilename: example.filename, createMetadata: createMetadata.data, updateMetadata: updateMetadata.data, lookup })
+  }, [entityType, isUpdate, example.data, example.filename, isMetadataPending, createMetadata.data, updateMetadata.data, lookup])
 
   if (override) return { destination: override, isLoading: false, isError: false }
 

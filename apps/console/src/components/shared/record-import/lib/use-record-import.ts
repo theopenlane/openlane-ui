@@ -10,8 +10,11 @@ import { checkColumnCells, suggestedValueMap, type TColumnCellCheck } from './va
 import { buildImportPlan, buildMappedImport } from './build-mapped-import'
 import { getRegistryFixedFields, withFixedFields } from './destination-fields'
 import { useImportDestination } from './use-import-destination'
+import { useUpdatePreview } from './use-update-preview'
+import type { TUpdateRecordSource } from './update-preview'
 import type { TDateOrder } from '@/utils/loose-date'
-import type { TColumnMapping, TDestinationField, TDestinationFieldSet, TImportDestination, TImportMode, TParsedDelimitedFile, TValueMap } from './types'
+import { toLowerLabel } from '@/utils/strings'
+import type { TColumnMapping, TDestinationField, TDestinationFieldSet, TImportDestination, TImportMode, TParsedDelimitedFile, TUpdateLookupField, TValueMap } from './types'
 
 export type TImportStepDescriptor<TId extends string = string> = { id: TId; label: string }
 
@@ -31,9 +34,20 @@ type TUseRecordImportArgs<TStepId extends string> = {
   mode?: TImportMode
   destination?: TImportDestination
   fixedFields?: readonly TDestinationField[]
+  updateSource?: TUpdateRecordSource
+  updateLookup?: TUpdateLookupField
 }
 
-export const useRecordImport = <TStepId extends string>({ entityType, entityLabels, steps, mode = 'create', destination, fixedFields = NO_FIXED_FIELDS }: TUseRecordImportArgs<TStepId>) => {
+export const useRecordImport = <TStepId extends string>({
+  entityType,
+  entityLabels,
+  steps,
+  mode = 'create',
+  destination,
+  fixedFields = NO_FIXED_FIELDS,
+  updateSource,
+  updateLookup,
+}: TUseRecordImportArgs<TStepId>) => {
   const [stepIndex, setStepIndex] = useState(0)
   const [parsed, setParsed] = useState<TParsedDelimitedFile | null>(null)
   const [overrides, setOverrides] = useState<Record<number, string | null>>({})
@@ -41,7 +55,7 @@ export const useRecordImport = <TStepId extends string>({ entityType, entityLabe
   const [dateOrders, setDateOrders] = useState<Record<number, TDateOrder>>({})
   const [rowOrder, setRowOrder] = useState<number[] | null>(null)
 
-  const { destination: resolved, isLoading: isLoadingFields, isError: isDestinationError } = useImportDestination(entityType, mode, destination)
+  const { destination: resolved, isLoading: isLoadingFields, isError: isDestinationError } = useImportDestination(entityType, mode, destination, updateSource ? updateLookup : undefined)
   const allFixedFields = useMemo(() => [...(mode === 'create' ? getRegistryFixedFields(entityType) : []), ...fixedFields], [entityType, mode, fixedFields])
   const fieldSet = useMemo(() => (resolved ? withFixedFields(resolved.fieldSet, allFixedFields) : EMPTY_FIELD_SET), [resolved, allFixedFields])
   const columns = useMemo(() => (parsed ? toSourceColumns(parsed) : []), [parsed])
@@ -113,17 +127,26 @@ export const useRecordImport = <TStepId extends string>({ entityType, entityLabe
   const validation = useMemo(() => validateMapping({ columns, fieldSet, mapping, rows: parsed?.rows ?? [], cellChecks }), [columns, fieldSet, mapping, parsed, cellChecks])
   const plan = useMemo(() => buildImportPlan({ columns, fields: [...fieldSet.fields, ...fieldSet.fixedFields], mapping }), [columns, fieldSet, mapping])
 
-  const toMappedImport = useCallback(
-    () =>
-      parsed
-        ? buildMappedImport(
-            parsed.fileName,
-            orderedRowIndexes.map((index) => parsed.rows[index]),
-            plan,
-          )
-        : null,
-    [parsed, orderedRowIndexes, plan],
-  )
+  const updatePreview = useUpdatePreview({
+    source: updateSource,
+    parsed,
+    plan,
+    fields: fieldSet.fields,
+    lookupField: fieldSet.lookupField,
+    entityLabel: toLowerLabel(entityLabels[0] ?? ''),
+    enabled: steps[stepIndex].id === REVIEW_STEP.id && validation.blockingIssues.length === 0,
+  })
+
+  const toMappedImport = useCallback(() => {
+    if (!parsed) return null
+    if (!updatePreview)
+      return buildMappedImport(
+        parsed.fileName,
+        orderedRowIndexes.map((index) => parsed.rows[index]),
+        plan,
+      )
+    return updatePreview.resolved ? buildMappedImport(parsed.fileName, updatePreview.resolved.rows, updatePreview.resolved.plan) : null
+  }, [parsed, orderedRowIndexes, plan, updatePreview])
 
   const goToStep = useCallback(
     (id: TStepId) => {
@@ -157,6 +180,8 @@ export const useRecordImport = <TStepId extends string>({ entityType, entityLabe
     cellChecks,
     plan,
     toMappedImport,
+    updatePreview,
+    lookupField: fieldSet.lookupField,
     rowOrder: orderedRowIndexes,
     moveRow,
     exampleCsv: resolved?.exampleCsv,
