@@ -470,6 +470,7 @@ export const REPORT_EDGE_FIELDS: Record<string, TReportField[]> = {
     { name: 'companyName', kind: 'string', operatorSet: 8 },
     { name: 'createdAt', kind: 'time', operatorSet: 2 },
     { name: 'createdBy', kind: 'string', operatorSet: 8 },
+    { name: 'disableDefaultDomain', kind: 'boolean', operatorSet: 15 },
     { name: 'enableAutoApproval', kind: 'boolean', operatorSet: 15 },
     { name: 'environment', kind: 'enum', enumName: 'TrustCenterSettingTrustCenterEnvironment', operatorSet: 14 },
     { name: 'faviconLocalFileID', kind: 'id', operatorSet: 8 },

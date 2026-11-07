@@ -7,14 +7,13 @@ import { Button } from '@repo/ui/button'
 import { Copy } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { TRUST_CENTER_HOST } from '../../shared/trust-center-urls'
 
 type EmbedSubprocessorSheetProps = {
   open: boolean
   onOpenChangeAction: (open: boolean) => void
   slug: string
 }
-
-const TRUST_CENTER_HOST = 'trust.theopenlane.net'
 
 export const EmbedSubprocessorSheet: React.FC<EmbedSubprocessorSheetProps> = ({ open, onOpenChangeAction, slug }) => {
   const { successNotification } = useNotification()

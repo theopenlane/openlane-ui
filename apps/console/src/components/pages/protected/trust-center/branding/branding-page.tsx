@@ -25,6 +25,8 @@ import { getBrandingPreviewDifference } from './helpers/preview-difference'
 import { UnpublishedChangesWarning } from './section-warning'
 import { useFixedToolbarOffset } from '@/hooks/useFixedToolbarOffset'
 import { buildPreviewUrl } from './helpers/preview-url'
+import { getTrustCenterUrlState } from '../shared/trust-center-urls'
+import { TrustCenterPreviewStatusNote } from '../shared/trust-center-urls-setup'
 import { BRANDING_PREVIEW_FIELDS, clearableSettingInput, FAVICON_ASSET, LOGO_ASSET, publishAssetInput, revertAssetInput } from './helpers/branding-setting-input'
 import { useDirtyInput } from '@/hooks/useDirtyInput'
 
@@ -47,6 +49,7 @@ const BrandPage: React.FC = () => {
 
   const setting: TrustCenterSetting = trustCenter?.setting
   const previewSetting: TrustCenterPreviewSetting = trustCenter?.previewSetting
+  const { isDefaultDomainDisabled, needsSetup, defaultUrl } = getTrustCenterUrlState(trustCenter)
 
   const { stickyChromeRef, fixedToolbarOffset } = useFixedToolbarOffset()
 
@@ -153,7 +156,7 @@ const BrandPage: React.FC = () => {
     if (!setting?.id) return
 
     const input = await buildPublishInput(values)
-    const published = await updateTrustCenterSetting({ id: setting.id, input, ...stagedUploads(values) })
+    const published = await updateTrustCenterSetting({ id: setting.id, input: { ...input, ...(isDefaultDomainDisabled ? { disableDefaultDomain: false } : {}) }, ...stagedUploads(values) })
     if (!published) return
 
     if (previewSetting?.id) {
@@ -203,10 +206,13 @@ const BrandPage: React.FC = () => {
             hasUnsavedChanges={hasUnsavedChanges}
             hasPreviewChanges={hasPreviewDifference.any}
             isPreviewAvailable={hasPreviewDifference.comparable}
+            isFirstPublish={isDefaultDomainDisabled}
+            needsUrlSetup={needsSetup}
             onPreview={handleSubmit(savePreview)}
             onRevert={handleRevert}
             onPublish={() => setIsConfirmationDialogOpen(true)}
           />
+          <TrustCenterPreviewStatusNote status={trustCenter?.previewStatus} />
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'preview' | 'published')} className="w-full">
             <TabsList className="grid w-full max-w-[400px] grid-cols-2">
               <TabsTrigger value="preview">Preview</TabsTrigger>
@@ -233,7 +239,11 @@ const BrandPage: React.FC = () => {
           onConfirm={handleSubmit(publish)}
           confirmationText="Publish"
           title="Publish"
-          description="Publishing will apply these changes to your live site..."
+          description={
+            isDefaultDomainDisabled
+              ? `Publishing will apply these changes to your live site and make your Trust Center publicly available at ${defaultUrl}.`
+              : 'Publishing will apply these changes to your live site...'
+          }
         />
         <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={() => navGuard.reject()} />
       </form>

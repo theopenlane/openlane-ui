@@ -10086,6 +10086,7 @@ export interface GetTrustCenterQuery {
         subprocessorURL: string | null
         pirschDomainID: string | null
         pirschAccessLink: string | null
+        previewStatus: Types.TrustCenterTrustCenterPreviewStatus | null
         customDomain: {
           id: string
           cnameRecord: string
@@ -10098,6 +10099,7 @@ export interface GetTrustCenterQuery {
           title: string | null
           overview: string | null
           noindexDefaultDomain: boolean | null
+          disableDefaultDomain: boolean | null
           primaryColor: string | null
           themeMode: Types.TrustCenterSettingTrustCenterThemeMode | null
           foregroundColor: string | null
@@ -10162,6 +10164,12 @@ export interface GetTrustCenterQuery {
   }
 }
 
+export type GetTrustCenterPreviewDomainQueryVariables = Exact<{ [key: string]: never }>
+
+export interface GetTrustCenterPreviewDomainQuery {
+  trustCenters: { edges: Array<{ node: { id: string; previewStatus: Types.TrustCenterTrustCenterPreviewStatus | null; previewDomain: { id: string } | null } | null } | null> | null }
+}
+
 export type UpdateTrustCenterSettingMutationVariables = Exact<{
   updateTrustCenterSettingId: string
   input: Types.UpdateTrustCenterSettingInput
@@ -10179,6 +10187,14 @@ export type CreateCustomDomainMutationVariables = Exact<{
 
 export interface CreateCustomDomainMutation {
   createTrustCenterDomain: { customDomain: { id: string } }
+}
+
+export type CreateTrustCenterPreviewDomainMutationVariables = Exact<{
+  trustCenterID: string
+}>
+
+export interface CreateTrustCenterPreviewDomainMutation {
+  createTrustCenterPreviewDomain: { success: boolean }
 }
 
 export type DeleteCustomDomainMutationVariables = Exact<{
