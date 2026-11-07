@@ -449,7 +449,6 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
           title: 'General Settings',
           anchor: 'general-settings',
           href: '/organization-settings/general-settings',
-          hidden: !canEdit(orgPermission?.roles, session),
           icon: SettingsIcon,
         },
         {

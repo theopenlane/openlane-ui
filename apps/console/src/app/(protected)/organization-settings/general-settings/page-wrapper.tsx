@@ -7,19 +7,17 @@ import { DemoData } from '@/components/pages/protected/organization-settings/gen
 import { use, useEffect, useState } from 'react'
 import { LoaderCircle } from 'lucide-react'
 import { canEdit } from '@/lib/authz/utils.ts'
-import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { Loading } from '@/components/shared/loading/loading'
 import { useSession } from 'next-auth/react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 export const PageWrapper: React.FC = () => {
   const { wrapper } = pageStyles()
   const [loading, setLoading] = useState(false)
-  const { data: orgPermission, isPending } = useOrganizationRoles()
+  const { data: orgPermission } = useOrganizationRoles()
   const { data: session } = useSession()
   const { setCrumbs } = use(BreadcrumbContext)
-  const canView = canEdit(orgPermission?.roles, session)
+  const canEditOrganization = canEdit(orgPermission?.roles, session)
 
   useEffect(() => {
     setCrumbs([
@@ -37,15 +35,11 @@ export const PageWrapper: React.FC = () => {
     )
   }
 
-  if (!canView) {
-    return isPending ? <Loading /> : <ProtectedArea />
-  }
-
   return (
     <>
       <PageHeading eyebrow="Organization Settings" heading="General" />
       <div className={wrapper()}>
-        <OrganizationNameForm />
+        <OrganizationNameForm canEdit={canEditOrganization} />
         <DemoData />
         <OrganizationManagement onLoadingChange={setLoading} />
       </div>
