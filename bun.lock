@@ -60,6 +60,7 @@
         "@react-google-maps/api": "^2.20.8",
         "@repo/codegen": "workspace:*",
         "@repo/dally": "workspace:*",
+        "@repo/evidence-capture": "workspace:*",
         "@repo/ui": "workspace:*",
         "@rjsf/core": "^6.11.0",
         "@rjsf/utils": "^6.11.0",
@@ -196,6 +197,17 @@
         "typescript-eslint": "8.71.2",
       },
     },
+    "packages/evidence-capture": {
+      "name": "@repo/evidence-capture",
+      "version": "0.0.0",
+      "dependencies": {
+        "zod": "^4.6.7",
+      },
+      "devDependencies": {
+        "@repo/typescript-config": "workspace:*",
+        "typescript": "^6.0.3",
+      },
+    },
     "packages/ui": {
       "name": "@repo/ui",
       "version": "0.0.0",
@@ -286,6 +298,7 @@
         "lowlight": "^3.3.0",
         "lucide-react": "^1.56.0",
         "next": "16.4.2",
+        "next-themes": "^0.4.6",
         "pdf-lib": "^1.17.1",
         "platejs": "^53.3.15",
         "prismjs": "^1.30.0",
@@ -1206,6 +1219,8 @@
     "@repo/dally": ["@repo/dally@workspace:packages/dally"],
 
     "@repo/eslint-config": ["@repo/eslint-config@workspace:packages/eslint-config"],
+
+    "@repo/evidence-capture": ["@repo/evidence-capture@workspace:packages/evidence-capture"],
 
     "@repo/typescript-config": ["@repo/typescript-config@workspace:packages/config-typescript"],
 

@@ -6,7 +6,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Button } from '@repo/ui/button'
 import { ChevronsUpDown } from 'lucide-react'
 import type { MergeSearchHookResult } from './types'
-import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { useAsyncCommandSearch } from '@repo/ui/use-async-command-search'
 
 type Props = {
   placeholder: string
