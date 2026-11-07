@@ -23,16 +23,24 @@ import { useDomainScanSummarySections } from './hooks/use-domain-scan-summary-se
 import { domainScanProgressStorageKey } from './progress-storage'
 import { DOMAIN_SCAN_EXIT_FALLBACK_HREF } from '@/constants/scan-routes'
 import { domainScanStepVisibility } from './step-visibility'
-import { DOMAIN_SCAN_STEPS, type EditableStepId, type LinkableItem } from './types'
+import { DOMAIN_SCAN_STEPS, type LinkableItem, type StepId } from './types'
 import { readReturnTo } from '@/utils/return-to'
 import { NOTIFICATIONS_PAGE_HREF } from '@/components/shared/SystemNotification/notification-redirect'
 
 const EMPTY_LINKED_VENDOR_IDS: string[] = []
 
+const { useStepper } = defineStepper(DOMAIN_SCAN_STEPS)
+
 const DomainDiscoveryImportPage = () => {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const scanIdParam = searchParams.get('scanId') ?? searchParams.get('id')
+
+  return <DomainDiscoveryImport key={scanIdParam} scanIdParam={scanIdParam} />
+}
+
+const DomainDiscoveryImport = ({ scanIdParam }: { scanIdParam: string | null }) => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const exitHref = readReturnTo(searchParams, DOMAIN_SCAN_EXIT_FALLBACK_HREF)
 
   const report = useDomainScanReport(scanIdParam)
@@ -40,16 +48,26 @@ const DomainDiscoveryImportPage = () => {
 
   const { allDomains, vendors, findings, systemCandidates } = report
   const stepVisibility = useMemo(() => domainScanStepVisibility({ systemCandidates, allDomains, vendors, findings }), [allDomains, findings, systemCandidates, vendors])
-  const visibleSteps = useMemo(() => DOMAIN_SCAN_STEPS.filter((step) => stepVisibility[step.id]), [stepVisibility])
-  const { useStepper } = useMemo(() => defineStepper(visibleSteps), [visibleSteps])
   const stepper = useStepper()
+
+  const isVisible = ({ id }: { id: StepId }) => stepVisibility[id]
+  const visibleStepCount = DOMAIN_SCAN_STEPS.filter(isVisible).length
+  const visibleStepsBefore = DOMAIN_SCAN_STEPS.slice(0, stepper.index).filter(isVisible)
+  const visibleStepNumber = visibleStepsBefore.length + 1
+  const prevVisibleStep = visibleStepsBefore.at(-1)
+  const nextVisibleStep = DOMAIN_SCAN_STEPS.slice(stepper.index + 1).find(isVisible)
+  const isLastVisibleStep = !nextVisibleStep
+
+  const goToVisibleStep = (stepId: StepId) => {
+    if (stepVisibility[stepId]) stepper.goTo(stepId)
+  }
 
   const selection = useDomainScanSelection({
     report,
     stepVisibility,
     storageKey,
     currentStepId: stepper.current.id,
-    goToStep: (stepId) => stepper.goTo(stepId),
+    goToStep: goToVisibleStep,
   })
 
   const { handleImport, isImporting, canImport } = useDomainScanImport({ report, selection, storageKey, exitHref })
@@ -86,16 +104,14 @@ const DomainDiscoveryImportPage = () => {
     systemDefaultLinkedVendorIds: isSingleMode ? EMPTY_LINKED_VENDOR_IDS : selection.defaultLinkedVendorIds,
   })
 
-  const goToStep = (stepId: EditableStepId) => stepper.goTo(stepId)
-
   const handleFinishLater = () => {
     selection.persistProgress()
     router.push(exitHref)
   }
 
   const handleNextButton = () => {
-    if (!stepper.isLast) {
-      stepper.next()
+    if (nextVisibleStep) {
+      stepper.goTo(nextVisibleStep.id)
       return
     }
 
@@ -156,10 +172,10 @@ const DomainDiscoveryImportPage = () => {
         <div className="min-w-0">
           <div className="mb-6 flex flex-col gap-3">
             <Badge variant="primary" className="w-fit uppercase tracking-wide border-primary/24">
-              Step {stepper.index + 1} of {stepper.count} - {stepper.current.label}
+              Step {visibleStepNumber} of {visibleStepCount} - {stepper.current.label}
             </Badge>
             <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-border">
-              <div className="absolute inset-y-0 left-0 rounded-full bg-primary transition-all" style={{ width: `${((stepper.index + 1) / stepper.count) * 100}%` }} />
+              <div className="absolute inset-y-0 left-0 rounded-full bg-primary transition-all" style={{ width: `${(visibleStepNumber / visibleStepCount) * 100}%` }} />
             </div>
           </div>
 
@@ -169,13 +185,13 @@ const DomainDiscoveryImportPage = () => {
             </Button>
 
             <div className="flex items-center gap-3">
-              {!stepper.isFirst ? (
-                <Button variant="secondary" onClick={() => stepper.prev()}>
+              {prevVisibleStep ? (
+                <Button variant="secondary" onClick={() => stepper.goTo(prevVisibleStep.id)}>
                   Back
                 </Button>
               ) : null}
-              <Button variant="primary" onClick={handleNextButton} loading={isImporting} disabled={isImporting || (stepper.isLast && !canImport)}>
-                {stepper.isLast ? 'Import' : 'Save and continue'}
+              <Button variant="primary" onClick={handleNextButton} loading={isImporting} disabled={isImporting || (isLastVisibleStep && !canImport)}>
+                {isLastVisibleStep ? 'Import' : 'Save and continue'}
               </Button>
             </div>
           </div>
@@ -256,13 +272,13 @@ const DomainDiscoveryImportPage = () => {
                 setOverrides={selection.setFindingOverrides}
               />
             ),
-            confirm: () => <ConfirmStep sections={summarySections} onEditStep={goToStep} />,
+            confirm: () => <ConfirmStep sections={summarySections} onEditStep={goToVisibleStep} />,
           })}
         </div>
 
         {!isConfirmStep ? (
           <div>
-            <ScanSummarySidebar sections={summarySections} onEditStep={goToStep} />
+            <ScanSummarySidebar sections={summarySections} onEditStep={goToVisibleStep} />
           </div>
         ) : null}
       </div>
