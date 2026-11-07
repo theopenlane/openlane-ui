@@ -1,6 +1,6 @@
 'use server'
 
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { sessionCookieName } from '@repo/dally/auth'
 
 interface GraphQLResponse<T> {
@@ -12,7 +12,7 @@ export const fetchGraphqlServer = async <T>(query: string, variables: Record<str
   const url = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
 
   try {
-    const response = await secureFetch(url, {
+    const response = await serverSecureFetch(url, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${accessToken}`,

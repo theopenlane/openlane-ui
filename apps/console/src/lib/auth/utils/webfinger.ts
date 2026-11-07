@@ -1,5 +1,6 @@
 import 'server-only'
 import { openlaneAPIUrl } from '@repo/dally/auth'
+import { coreFetch } from '@/lib/server/core-fetch'
 
 const WEBFINGER_TIMEOUT_MS = 5000 // 5s
 
@@ -15,7 +16,7 @@ type TSSOWebfingerConfig = WebfingerConfig & { provider: string; organization_id
 
 export const fetchWebfinger = async (email: string): Promise<WebfingerConfig | null> => {
   try {
-    const webfingerResponse = await fetch(`${openlaneAPIUrl}/.well-known/webfinger?resource=acct:${encodeURIComponent(email)}`, {
+    const webfingerResponse = await coreFetch(`${openlaneAPIUrl}/.well-known/webfinger?resource=acct:${encodeURIComponent(email)}`, {
       headers: { Accept: 'application/json' },
       signal: AbortSignal.timeout(WEBFINGER_TIMEOUT_MS),
     })

@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { csrfCookieName, openlaneAPIUrl } from '@repo/dally/auth'
 import { auth } from '../auth'
-import { secureFetch } from './secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { parseSSORequirement, type SSOUnauthorizedBody } from './sso-required'
 
 export const HTTP_METHODS = {
@@ -89,7 +89,7 @@ export async function coreAPIRequestWithBody(route: string, method: HttpMethod, 
   let response: Response
 
   try {
-    response = await secureFetch(
+    response = await serverSecureFetch(
       upstreamUrl,
       {
         method,

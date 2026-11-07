@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
 import { resolveSSOOrganizationId } from '@/lib/auth/utils/webfinger'
 import { isValidEmail } from '@/lib/validators'
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'SSO is not available for this account' }, { status: 400 })
     }
 
-    const ssoData = await secureFetch(`${process.env.API_REST_URL}${SSO_LOGIN_PATH}`, {
+    const ssoData = await serverSecureFetch(`${process.env.API_REST_URL}${SSO_LOGIN_PATH}`, {
       method: 'POST',
       body: JSON.stringify({
         organization_id: organizationId,
