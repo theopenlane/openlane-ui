@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { forwardTfaPendingCookie } from '@/lib/auth/utils/tfa-pending-cookie'
 
 interface SSOCallbackRequest {
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       ...(cookies ? { cookie: cookies } : {}),
     }
 
-    const ssoCallbackData = await secureFetch(`${process.env.API_REST_URL}/v1/sso/callback`, {
+    const ssoCallbackData = await serverSecureFetch(`${process.env.API_REST_URL}/v1/sso/callback`, {
       method: 'POST',
       headers,
       body: JSON.stringify({

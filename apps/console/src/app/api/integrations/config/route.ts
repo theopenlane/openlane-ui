@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth/auth'
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { type NextRequest, NextResponse } from 'next/server'
 import { parseProxyResponse } from '../proxy-response'
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Definition ID is required' }, { status: 400 })
     }
 
-    const upstreamResponse = await secureFetch(`${openlaneAPIUrl}/v1/integrations/${encodeURIComponent(definitionId)}/config`, {
+    const upstreamResponse = await serverSecureFetch(`${openlaneAPIUrl}/v1/integrations/${encodeURIComponent(definitionId)}/config`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

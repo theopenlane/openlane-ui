@@ -1,5 +1,5 @@
 import { openlaneAPIUrl } from '@repo/dally/auth'
-import { secureFetch } from './secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { parseRetryAfter } from './retry-after'
 import { readSSORequirement, type SSORequirement } from './sso-required'
 
@@ -14,7 +14,7 @@ export const fetchNewAccessToken = async (refreshToken: string): Promise<Refresh
   let response: Response
 
   try {
-    response = await secureFetch(`${openlaneAPIUrl}/v1/refresh`, {
+    response = await serverSecureFetch(`${openlaneAPIUrl}/v1/refresh`, {
       method: 'POST',
       body: JSON.stringify({ refresh_token: refreshToken }),
     })
