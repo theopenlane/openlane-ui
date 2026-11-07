@@ -13,7 +13,6 @@ import { resolveAuthor } from '@/lib/authors'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { type TEntityComments } from '@/lib/graphql-hooks/entity-comments'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { cn } from '@repo/ui/lib/utils'
 
 type TCommentsSectionProps = TEntityComments & {
   showHeading?: boolean
@@ -91,9 +90,9 @@ const CommentsSection: React.FC<TCommentsSectionProps> = ({ comments, totalCount
   }
 
   return (
-    <section className={cn('space-y-3 pb-4', showHeading && 'mt-6')} aria-labelledby={showHeading ? headingId : undefined}>
+    <section className="space-y-3" aria-labelledby={showHeading ? headingId : undefined}>
       {showHeading && (
-        <h3 id={headingId} className="text-lg font-medium">
+        <h3 id={headingId} className="text-lg font-semibold">
           Comments
         </h3>
       )}

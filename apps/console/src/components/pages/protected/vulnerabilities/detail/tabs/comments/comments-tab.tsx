@@ -7,7 +7,11 @@ import { useVulnerabilityComments } from '@/lib/graphql-hooks/vulnerability'
 const CommentsTab: React.FC<{ vulnerabilityId: string }> = ({ vulnerabilityId }) => {
   const comments = useVulnerabilityComments(vulnerabilityId)
 
-  return <CommentsSection key={vulnerabilityId} {...comments} />
+  return (
+    <div className="mt-6 pb-4">
+      <CommentsSection key={vulnerabilityId} {...comments} />
+    </div>
+  )
 }
 
 export default CommentsTab
