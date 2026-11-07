@@ -9,6 +9,13 @@ import { HIDDEN_DETAIL_TABS_STORES, type TDetailTabsPage } from './hidden-detail
 
 const TAB_QUERY_PARAM = 'tab'
 
+export const detailTabHref = (href: string, tab: string) => {
+  const [path, query = ''] = href.split('?')
+  const params = new URLSearchParams(query)
+  params.set(TAB_QUERY_PARAM, tab)
+  return `${path}?${params}`
+}
+
 export type TDetailTab<T extends string> = {
   value: T
   label: string

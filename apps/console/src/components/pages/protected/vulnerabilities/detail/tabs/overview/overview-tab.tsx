@@ -49,8 +49,7 @@ const OverviewTab: React.FC<TOverviewTabProps> = ({ vulnerability, isEditing, ca
         exploitability={vulnerability.exploitability}
         vector={vulnerability.vector}
         source={vulnerability.source}
-        canEdit={canEdit && !isEditing}
-        onSaveVector={(vector) => persistField('vector', vector, (options) => handleUpdateField({ vector }, options))}
+        onSaveVector={canEdit && !isEditing ? (vector) => persistField('vector', vector, (options) => handleUpdateField({ vector }, options)) : undefined}
       />
 
       <VulnerabilityReferences references={vulnerability.references} cweIds={vulnerability.cweIds} />
