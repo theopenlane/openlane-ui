@@ -86,8 +86,8 @@ const CommentsSection: React.FC<TEntityComments> = ({ comments, totalCount, isLo
   }
 
   return (
-    <section className="mt-6 space-y-3 pb-4" aria-labelledby={headingId}>
-      <h3 id={headingId} className="text-lg font-medium">
+    <section className="space-y-3" aria-labelledby={headingId}>
+      <h3 id={headingId} className="text-lg font-semibold">
         Comments
       </h3>
       {renderList()}

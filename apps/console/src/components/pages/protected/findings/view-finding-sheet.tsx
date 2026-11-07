@@ -96,7 +96,13 @@ const ViewFindingSheet: React.FC<Props> = ({ entityId, onClose }) => {
       onClose={handleClose}
       basePath="/exposure/findings"
       {...sheetConfig}
-      extraContent={entityId ? <CommentsSection key={entityId} {...comments} /> : undefined}
+      extraContent={
+        entityId ? (
+          <div className="mt-6 pb-4">
+            <CommentsSection key={entityId} {...comments} />
+          </div>
+        ) : undefined
+      }
       overrideContent={
         isTrackingRemediation && entityId ? (
           <RemediationSheetBody
