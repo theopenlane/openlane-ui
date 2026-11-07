@@ -16,8 +16,7 @@ type TExposureScoreCardProps = {
   exploitability?: number | null
   vector?: string | null
   source?: string | null
-  canEdit: boolean
-  onSaveVector: (vector: string) => Promise<boolean>
+  onSaveVector?: (vector: string) => Promise<boolean>
 }
 
 const V4_CAPTION = 'AV–UI exploitability · VC–VA this system · SC–SA connected systems'
@@ -30,7 +29,7 @@ const ScoreValue: React.FC<{ label: string; value?: number | null }> = ({ label,
   </div>
 )
 
-const ExposureScoreCard: React.FC<TExposureScoreCardProps> = ({ score, impact, exploitability, vector, source, canEdit, onSaveVector }) => {
+const ExposureScoreCard: React.FC<TExposureScoreCardProps> = ({ score, impact, exploitability, vector, source, onSaveVector }) => {
   const parsed = useMemo(() => parseCvssVector(vector), [vector])
   const explanation = useMemo(() => (parsed ? explainParsedCvssVector(parsed) : null), [parsed])
   const radarData = useMemo(() => (parsed ? getCvssRadarData(parsed) : []), [parsed])
@@ -64,7 +63,7 @@ const ExposureScoreCard: React.FC<TExposureScoreCardProps> = ({ score, impact, e
                     `Not provided${source ? ` by ${source}` : ''}`
                   )}
                 </p>
-                {canEdit && <AddVectorDialog onSave={onSaveVector} />}
+                {onSaveVector && <AddVectorDialog onSave={onSaveVector} />}
               </div>
             )}
           </div>

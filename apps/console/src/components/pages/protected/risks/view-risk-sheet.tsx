@@ -109,7 +109,19 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
     renderHeader,
   }
 
-  return <GenericDetailsSheet onClose={onClose} {...sheetConfig} extraContent={entityId ? <CommentsSection key={entityId} {...comments} /> : undefined} />
+  return (
+    <GenericDetailsSheet
+      onClose={onClose}
+      {...sheetConfig}
+      extraContent={
+        entityId ? (
+          <div className="mt-6 pb-4">
+            <CommentsSection key={entityId} {...comments} />
+          </div>
+        ) : undefined
+      }
+    />
+  )
 }
 
 export default ViewRiskSheet

@@ -45,7 +45,11 @@ const ViewFindingSheet: React.FC<Props> = ({ entityId, onClose }) => {
     getName: getFindingTitle,
     renderHeader,
     renderFields: (props: FindingFieldProps) => getFieldsToRender(props, enumOpts),
-    extraContent: entityId ? <CommentsSection key={entityId} {...comments} /> : undefined,
+    extraContent: entityId ? (
+      <div className="mt-6 pb-4">
+        <CommentsSection key={entityId} {...comments} />
+      </div>
+    ) : undefined,
   }
 
   return <GenericDetailsSheet {...sheetConfig} />
