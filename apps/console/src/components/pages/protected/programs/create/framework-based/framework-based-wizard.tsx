@@ -47,14 +47,16 @@ const FrameworkBasedWizard = () => {
   const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
 
-  const { useStepper } = defineStepper([
-    { id: '0', label: 'Select Framework', schema: wizardSchema.pick({ framework: true, standardID: true, name: true }) },
-    ...(includeSuggestedControls
-      ? [{ id: '1', label: 'Import Controls', schema: suggestedControlsStepSchema }]
-      : [{ id: '1', label: 'Select Categories', schema: wizardSchema.pick({ categories: true }) }]),
-    ...(!isOnboardingFlow ? [{ id: '2', label: 'Team Setup', schema: wizardSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) }] : []),
-    { id: '3', label: 'Program Type', schema: wizardSchema.pick({ programKindName: true }) },
-  ])
+  const [{ useStepper }] = useState(() =>
+    defineStepper([
+      { id: '0', label: 'Select Framework', schema: wizardSchema.pick({ framework: true, standardID: true, name: true }) },
+      ...(includeSuggestedControls
+        ? [{ id: '1', label: 'Import Controls', schema: suggestedControlsStepSchema }]
+        : [{ id: '1', label: 'Select Categories', schema: wizardSchema.pick({ categories: true }) }]),
+      ...(!isOnboardingFlow ? [{ id: '2', label: 'Team Setup', schema: wizardSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) }] : []),
+      { id: '3', label: 'Program Type', schema: wizardSchema.pick({ programKindName: true }) },
+    ]),
+  )
 
   const stepper = useStepper()
 
