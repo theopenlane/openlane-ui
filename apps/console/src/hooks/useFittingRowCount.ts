@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const countFittingRows = (container: HTMLElement): number => {
   const rows = container.children
@@ -15,7 +15,7 @@ export const useFittingRowCount = (items: readonly unknown[]) => {
   const [container, setContainer] = useState<HTMLElement | null>(null)
   const [fittingCount, setFittingCount] = useState(items.length)
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!container) {
       return
     }
