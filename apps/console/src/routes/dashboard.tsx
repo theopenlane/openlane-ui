@@ -1,4 +1,4 @@
-import { UserRoundPen } from 'lucide-react'
+import { BadgeCheck, UserRoundPen } from 'lucide-react'
 import {
   ActivityIcon,
   ArchiveIcon,
@@ -465,6 +465,13 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
           href: '/organization-settings/custom-data',
           hidden: billingExpired,
           icon: BookmarkIcon,
+        },
+        {
+          title: 'Badges',
+          anchor: 'badges',
+          href: '/organization-settings/badges',
+          hidden: billingExpired,
+          icon: BadgeCheck,
         },
         {
           title: 'Subscribers',
