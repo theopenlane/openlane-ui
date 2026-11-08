@@ -3,6 +3,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { OrganizationNameForm } from '@/components/pages/protected/organization-settings/general-settings/organization-name-form'
 import { pageStyles } from './page.styles'
 import { OrganizationManagement } from '@/components/pages/protected/organization-settings/general-settings/organization-management'
+import { DemoData } from '@/components/pages/protected/organization-settings/general-settings/demo-data'
 import { use, useEffect, useState } from 'react'
 import { LoaderCircle } from 'lucide-react'
 import { canEdit } from '@/lib/authz/utils.ts'
@@ -45,6 +46,7 @@ export const PageWrapper: React.FC = () => {
       <PageHeading eyebrow="Organization Settings" heading="General" />
       <div className={wrapper()}>
         <OrganizationNameForm />
+        <DemoData />
         <OrganizationManagement onLoadingChange={setLoading} />
       </div>
     </>

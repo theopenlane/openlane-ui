@@ -13,7 +13,7 @@ type ManagementRowProps = {
 
 const ManagementRow = ({ icon, iconClassName, title, description, descriptionClassName, action }: ManagementRowProps) => {
   return (
-    <div className="flex items-center justify-between gap-6">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
       <div className="flex items-start gap-4">
         <div className={cn('flex size-10 shrink-0 items-center justify-center rounded-full', iconClassName)}>{icon}</div>
         <div className="flex flex-col gap-1">

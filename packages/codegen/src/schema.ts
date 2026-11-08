@@ -2477,6 +2477,38 @@ export interface DeleteCustomTypeEnumMutation {
   deleteCustomTypeEnum: { deletedID: string }
 }
 
+export type SeedDemoDataMutationVariables = Exact<{
+  input: Types.SeedDemoDataInput
+}>
+
+export interface SeedDemoDataMutation {
+  seedDemoData: { accepted: boolean }
+}
+
+export type DeleteDemoDataMutationVariables = Exact<{
+  input: Types.DeleteDemoDataInput
+}>
+
+export interface DeleteDemoDataMutation {
+  deleteDemoData: { accepted: boolean }
+}
+
+export type GetDemoDataPresenceQueryVariables = Exact<{
+  sourceKey: string
+}>
+
+export interface GetDemoDataPresenceQuery {
+  programs: { totalCount: number }
+  controls: { totalCount: number }
+  internalPolicies: { totalCount: number }
+  procedures: { totalCount: number }
+  risks: { totalCount: number }
+  entities: { totalCount: number }
+  assets: { totalCount: number }
+  evidences: { totalCount: number }
+  tasks: { totalCount: number }
+}
+
 export type DirectoryAccountsWithFilterQueryVariables = Exact<{
   where?: Types.DirectoryAccountWhereInput | null | undefined
   orderBy?: Array<Types.DirectoryAccountOrder> | Types.DirectoryAccountOrder | null | undefined
