@@ -25,6 +25,8 @@ import { PROGRAMS_LIST_HREF } from '@/constants/programs'
 import { ProgramsPageSkeleton } from '../skeleton/programs-page-skeleton'
 import { useSession } from 'next-auth/react'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
+import { SocBadgeDialog } from '@/components/shared/soc-badge/soc-badge-dialog'
+import { isSoc2Framework } from '@/constants/trust-services-categories'
 
 const PROGRAM_TABS = ['overview', 'work'] as const
 type TProgramTabValue = (typeof PROGRAM_TABS)[number]
@@ -60,6 +62,7 @@ const ProgramDetailsPage: React.FC = () => {
   const deleteAllowed = canDelete(objectPermission?.roles)
   const isArchived = basicInfoData?.program?.status === ProgramProgramStatus.ARCHIVED
   const programName = basicInfoData?.program?.name ?? ''
+  const showSocBadge = basicInfoData?.program?.status === ProgramProgramStatus.COMPLETED && isSoc2Framework(basicInfoData?.program?.frameworkName)
 
   const handleToggleArchive = async () => {
     try {
@@ -130,6 +133,7 @@ const ProgramDetailsPage: React.FC = () => {
               <h1 className="truncate">{programName}</h1>
             </div>
             <div className="flex gap-2.5 items-center">
+              {showSocBadge && <SocBadgeDialog surface="program" />}
               <Link href={`/programs/${id}/settings`}>
                 <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<Cog />} iconPosition="left">
                   Edit Settings

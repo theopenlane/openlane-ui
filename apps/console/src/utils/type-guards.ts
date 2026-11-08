@@ -6,3 +6,5 @@ export const isOneOf =
   <T extends string>(values: readonly T[]) =>
   (value: string): value is T =>
     (values as readonly string[]).includes(value)
+
+export const isEnumValue = <T extends Record<string, string>>(enumObject: T, value: string): value is T[keyof T] => Object.values<string>(enumObject).includes(value)

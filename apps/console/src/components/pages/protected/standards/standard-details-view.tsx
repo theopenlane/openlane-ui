@@ -22,6 +22,8 @@ import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import AddToOrganizationDialog from './add-to-organization-dialog'
+import { SocBadgeDialog } from '@/components/shared/soc-badge/soc-badge-dialog'
+import { isSoc2Framework } from '@/constants/trust-services-categories'
 import ControlDetailsSheet from './control-details-sheet'
 import { CustomFrameworkHeaderActions } from './custom-framework/custom-framework-header-actions'
 import { STANDARDS_CATALOG_HREF, isCustomStandard, standardDisplayName, standardLogoSrc } from './custom-framework/custom-framework'
@@ -91,11 +93,14 @@ const StandardDetailsView: React.FC<TStandardDetailsViewProps> = ({ standardId, 
         ) : (
           <DetailHeaderActions
             actions={
-              canAdoptControls && (
-                <Button variant="secondary" onClick={() => setIsDialogOpen(true)}>
-                  {selectedControls.length > 0 ? `Add Controls (${selectedControls.length})` : 'Add Controls'}
-                </Button>
-              )
+              <>
+                {isSoc2Framework(standard.shortName) && <SocBadgeDialog surface="standard" />}
+                {canAdoptControls && (
+                  <Button variant="secondary" onClick={() => setIsDialogOpen(true)}>
+                    {selectedControls.length > 0 ? `Add Controls (${selectedControls.length})` : 'Add Controls'}
+                  </Button>
+                )}
+              </>
             }
           />
         )}
