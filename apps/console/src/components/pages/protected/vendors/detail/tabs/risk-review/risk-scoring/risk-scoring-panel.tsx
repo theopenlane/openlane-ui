@@ -14,6 +14,7 @@ import { vendorRiskRatingLevel } from '@/lib/vendor-risk-rating'
 import { formatDate } from '@/utils/date'
 import { pluralize, pluralizeWithCount } from '@/utils/strings'
 import { RiskScoreScale } from './risk-score-scale'
+import { useVendorRiskThresholds } from '@/lib/graphql-hooks/vendor-scoring-config'
 import { RiskScoreSources } from './risk-score-sources'
 import { RiskScoringCategoryTable } from './risk-scoring-category-table'
 import { buildRiskScoring, formatScoreValue, SOC2_REPORT_REVIEW_WHERE, type TRiskScoring } from './risk-scoring-utils'
@@ -163,7 +164,8 @@ const RiskScoringContent = ({ scoring, vendorRiskScore }: TRiskScoringContentPro
 export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, vendorRiskScore, onViewReview }) => {
   const { data: scores, isPending, error } = useVendorRiskScoring(vendorId)
   useQueryErrorNotification({ error, description: 'Failed to load risk scoring' })
-  const scoring = useMemo(() => buildRiskScoring(scores ?? []), [scores])
+  const riskThresholds = useVendorRiskThresholds()
+  const scoring = useMemo(() => buildRiskScoring(scores ?? [], riskThresholds), [scores, riskThresholds])
   const isFromReport = scoring.reportSource !== 'none'
   const {
     reviewsNodes: reportReviews,

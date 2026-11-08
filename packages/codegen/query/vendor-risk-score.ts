@@ -137,3 +137,11 @@ export const BULK_EDIT_VENDOR_RISK_SCORE = gql`
     }
   }
 `
+
+export const GET_VENDOR_RISK_SCORE_QUESTION_USAGE = gql`
+  query VendorRiskScoreQuestionUsage($questionKey: String!) {
+    vendorRiskScores(where: { questionKey: $questionKey }) {
+      totalCount
+    }
+  }
+`

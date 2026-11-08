@@ -6,6 +6,7 @@ import {
   type EntitiesWithFilterQuery,
   type EntitiesWithFilterQueryVariables,
   type EntityWhereInput,
+  type VendorRiskRatingCountsQuery,
   type CreateEntityMutation,
   type CreateEntityMutationVariables,
   type CreateEntityInput,
@@ -36,6 +37,7 @@ import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_ENTITIES,
+  GET_VENDOR_RISK_RATING_COUNTS,
   GET_ENTITY_OPTIONS,
   CREATE_ENTITY,
   CREATE_BULK_ENTITY,
@@ -299,5 +301,13 @@ export const useUpdateEntityLogo = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['entities'] })
     },
+  })
+}
+
+export const useVendorRiskRatingCounts = () => {
+  const { client } = useGraphQLClient()
+  return useQuery({
+    queryKey: ['entities', 'riskRatingCounts'],
+    queryFn: () => client.request<VendorRiskRatingCountsQuery>(GET_VENDOR_RISK_RATING_COUNTS, { where: vendorEntitiesWhere() }),
   })
 }

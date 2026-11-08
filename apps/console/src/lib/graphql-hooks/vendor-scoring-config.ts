@@ -1,12 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { useOrganization } from '@/hooks/useOrganization'
 import {
   type MutationCreateBulkCsvVendorScoringConfigArgs,
-  type MutationCreateVendorScoringConfigArgs,
   type MutationDeleteBulkVendorScoringConfigArgs,
-  type MutationDeleteVendorScoringConfigArgs,
   type MutationUpdateBulkVendorScoringConfigArgs,
-  type MutationUpdateVendorScoringConfigArgs,
+  type UpdateVendorScoringConfigMutationVariables,
+  type UpdateVendorScoringConfigMutation,
+  type CreateVendorScoringConfigMutation,
+  type CreateVendorScoringConfigMutationVariables,
+  type DeleteVendorScoringConfigMutation,
+  type DeleteVendorScoringConfigMutationVariables,
+  type OrganizationVendorScoringConfigQuery,
   type QueryVendorScoringConfigArgs,
   type QueryVendorScoringConfigsArgs,
   type VendorScoringConfig,
@@ -14,14 +19,12 @@ import {
   type VendorScoringConfigBulkDeletePayload,
   type VendorScoringConfigBulkUpdatePayload,
   type VendorScoringConfigConnection,
-  type VendorScoringConfigCreatePayload,
-  type VendorScoringConfigDeletePayload,
-  type VendorScoringConfigUpdatePayload,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_VENDOR_SCORING_CONFIGS,
+  GET_ORGANIZATION_VENDOR_SCORING_CONFIG,
   CREATE_VENDOR_SCORING_CONFIG,
   UPDATE_VENDOR_SCORING_CONFIG,
   DELETE_VENDOR_SCORING_CONFIG,
@@ -30,30 +33,13 @@ import {
   BULK_EDIT_VENDOR_SCORING_CONFIG,
   BULK_DELETE_VENDOR_SCORING_CONFIG,
 } from '@repo/codegen/query/vendor-scoring-config'
+import { EMPTY_PARSED_VENDOR_SCORING_CONFIG, mergeRiskThresholds, parseVendorScoringConfig } from '@/lib/vendor-scoring-config'
 
 type VendorScoringConfigsWithFilterQuery = {
   vendorScoringConfigs: VendorScoringConfigConnection
 }
 
 type VendorScoringConfigsWithFilterQueryVariables = QueryVendorScoringConfigsArgs
-
-type CreateVendorScoringConfigMutation = {
-  createVendorScoringConfig: VendorScoringConfigCreatePayload
-}
-
-type CreateVendorScoringConfigMutationVariables = MutationCreateVendorScoringConfigArgs
-
-type UpdateVendorScoringConfigMutation = {
-  updateVendorScoringConfig: VendorScoringConfigUpdatePayload
-}
-
-type UpdateVendorScoringConfigMutationVariables = MutationUpdateVendorScoringConfigArgs
-
-type DeleteVendorScoringConfigMutation = {
-  deleteVendorScoringConfig: VendorScoringConfigDeletePayload
-}
-
-type DeleteVendorScoringConfigMutationVariables = MutationDeleteVendorScoringConfigArgs
 
 type VendorScoringConfigQuery = {
   vendorScoringConfig: VendorScoringConfig
@@ -120,9 +106,7 @@ export const useCreateVendorScoringConfig = () => {
   const queryClient = useQueryClient()
   return useMutation<CreateVendorScoringConfigMutation, unknown, CreateVendorScoringConfigMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_VENDOR_SCORING_CONFIG, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vendorScoringConfigs'] })
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['vendorScoringConfigs'] }),
   })
 }
 
@@ -131,8 +115,11 @@ export const useUpdateVendorScoringConfig = () => {
   const queryClient = useQueryClient()
   return useMutation<UpdateVendorScoringConfigMutation, unknown, UpdateVendorScoringConfigMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_VENDOR_SCORING_CONFIG, variables),
-    onSuccess: () => {
+    onSuccess: (_data, { input }) => {
       queryClient.invalidateQueries({ queryKey: ['vendorScoringConfigs'] })
+      if (input.scoringMode !== undefined || input.riskThresholds !== undefined) {
+        queryClient.invalidateQueries({ queryKey: ['entities'] })
+      }
     },
   })
 }
@@ -189,3 +176,33 @@ export const useBulkDeleteVendorScoringConfig = () => {
     },
   })
 }
+
+const DEFAULT_RISK_THRESHOLDS = mergeRiskThresholds([])
+
+const selectOrganizationVendorScoringConfig = (data: OrganizationVendorScoringConfigQuery) => {
+  const config = data.vendorScoringConfigs?.edges?.[0]?.node
+  if (!config) return { config, parsedConfig: EMPTY_PARSED_VENDOR_SCORING_CONFIG, riskThresholds: DEFAULT_RISK_THRESHOLDS }
+  const parsed = parseVendorScoringConfig(config.questions, config.riskThresholds)
+  return { config, parsedConfig: parsed.config, riskThresholds: parsed.customThresholds ? mergeRiskThresholds(parsed.customThresholds) : DEFAULT_RISK_THRESHOLDS }
+}
+
+export const useOrganizationVendorScoringConfig = () => {
+  const { client } = useGraphQLClient()
+  const { currentOrgId } = useOrganization()
+  const query = useQuery({
+    queryKey: ['vendorScoringConfigs', 'organization', currentOrgId],
+    queryFn: () => client.request<OrganizationVendorScoringConfigQuery>(GET_ORGANIZATION_VENDOR_SCORING_CONFIG),
+    select: selectOrganizationVendorScoringConfig,
+  })
+
+  return {
+    ...query,
+    config: query.data?.config,
+    parsedConfig: query.data ? query.data.parsedConfig : EMPTY_PARSED_VENDOR_SCORING_CONFIG,
+    riskThresholds: query.data?.riskThresholds ?? DEFAULT_RISK_THRESHOLDS,
+    isConfigured: !!query.data?.config,
+    isResolved: query.isSuccess && !query.isPlaceholderData,
+  }
+}
+
+export const useVendorRiskThresholds = () => useOrganizationVendorScoringConfig().riskThresholds

@@ -1,32 +1,19 @@
 import { type UpdateEntityInput, VendorRiskScoreVendorRiskImpact, VendorRiskScoreVendorRiskLikelihood } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { type TSeverityLevel } from '@/utils/severity'
+import { isOneOf } from '@/utils/type-guards'
+import { VendorRiskRating, type TVendorRiskRating, type TVendorRiskThreshold } from '@repo/codegen/src/vendor-scoring-defaults.generated'
 
-export const VendorRiskRating = {
-  NONE: 'NONE',
-  VERY_LOW: 'VERY_LOW',
-  LOW: 'LOW',
-  MEDIUM: 'MEDIUM',
-  HIGH: 'HIGH',
-  CRITICAL: 'CRITICAL',
-} as const
+export { VendorRiskRating, type TVendorRiskRating, type TVendorRiskThreshold }
 
-export type TVendorRiskRating = (typeof VendorRiskRating)[keyof typeof VendorRiskRating]
+export const sortRiskThresholds = (thresholds: readonly TVendorRiskThreshold[]): TVendorRiskThreshold[] => [...thresholds].sort((a, b) => a.maxScore - b.maxScore)
 
-const RISK_RATING_THRESHOLDS: { rating: TVendorRiskRating; maxScore: number }[] = [
-  { rating: VendorRiskRating.NONE, maxScore: 0 },
-  { rating: VendorRiskRating.VERY_LOW, maxScore: 3 },
-  { rating: VendorRiskRating.LOW, maxScore: 5 },
-  { rating: VendorRiskRating.MEDIUM, maxScore: 11 },
-  { rating: VendorRiskRating.HIGH, maxScore: 15 },
-]
-
-const highestThreshold = RISK_RATING_THRESHOLDS[RISK_RATING_THRESHOLDS.length - 1]
-
-export const RISK_RATING_BANDS: { rating: TVendorRiskRating; bound: string }[] = [
-  ...RISK_RATING_THRESHOLDS.map(({ rating, maxScore }) => ({ rating, bound: `≤${maxScore}` })),
-  { rating: VendorRiskRating.CRITICAL, bound: `>${highestThreshold.maxScore}` },
-]
+export const riskRatingBands = (thresholds: readonly TVendorRiskThreshold[]): { rating: TVendorRiskRating; bound: string }[] => {
+  const sorted = sortRiskThresholds(thresholds)
+  const highest = sorted[sorted.length - 1]
+  const belowHighest = sorted[sorted.length - 2]
+  return sorted.map(({ rating, maxScore }) => ({ rating, bound: rating === highest.rating && belowHighest ? `>${belowHighest.maxScore}` : `≤${maxScore}` }))
+}
 
 export const VENDOR_RISK_RATING_SEVERITY: Record<TVendorRiskRating, TSeverityLevel | 'none'> = {
   NONE: 'none',
@@ -36,6 +23,17 @@ export const VENDOR_RISK_RATING_SEVERITY: Record<TVendorRiskRating, TSeverityLev
   HIGH: 'high',
   CRITICAL: 'critical',
 }
+
+const VENDOR_RISK_RATING_COLOR_VAR: Record<TVendorRiskRating, string> = {
+  NONE: '--color-muted-foreground',
+  VERY_LOW: '--color-success',
+  LOW: '--color-severity-low',
+  MEDIUM: '--color-severity-medium',
+  HIGH: '--color-severity-high',
+  CRITICAL: '--color-severity-critical',
+}
+
+export const vendorRiskRatingColor = (rating: TVendorRiskRating) => `var(${VENDOR_RISK_RATING_COLOR_VAR[rating]})`
 
 export const vendorRiskRatingLevel = (rating: string): TSeverityLevel | 'none' | undefined => (isVendorRiskRating(rating) ? VENDOR_RISK_RATING_SEVERITY[rating] : undefined)
 
@@ -61,7 +59,7 @@ export const vendorRiskLikelihoodLevel = (likelihood: VendorRiskScoreVendorRiskL
 
 export const VENDOR_RISK_RATING_OPTIONS = enumToOptions(VendorRiskRating)
 
-export const riskRatingFromScore = (riskScore: number | string | null | undefined): TVendorRiskRating | undefined => {
+export const riskRatingFromScore = (riskScore: number | string | null | undefined, thresholds: readonly TVendorRiskThreshold[]): TVendorRiskRating | undefined => {
   if (riskScore === null || riskScore === undefined || riskScore === '') {
     return undefined
   }
@@ -71,10 +69,11 @@ export const riskRatingFromScore = (riskScore: number | string | null | undefine
     return undefined
   }
 
-  return RISK_RATING_THRESHOLDS.find((threshold) => score <= threshold.maxScore)?.rating ?? VendorRiskRating.CRITICAL
+  const sorted = sortRiskThresholds(thresholds)
+  return sorted.find((threshold) => score <= threshold.maxScore)?.rating ?? sorted[sorted.length - 1]?.rating
 }
 
-export const isVendorRiskRating = (value: string): value is TVendorRiskRating => (Object.values(VendorRiskRating) as string[]).includes(value)
+export const isVendorRiskRating = isOneOf(Object.values(VendorRiskRating))
 
 const parseRiskScore = (riskScore: number | string | null | undefined): number | null => {
   if (riskScore === null || riskScore === undefined || riskScore === '') return null
@@ -84,9 +83,11 @@ const parseRiskScore = (riskScore: number | string | null | undefined): number |
 
 export const vendorRiskScoreInput = (value: number | string | null | undefined): UpdateEntityInput => {
   const riskScore = parseRiskScore(value)
-  const riskRating = riskRatingFromScore(riskScore)
-  return {
-    ...(riskScore === null ? { clearRiskScore: true } : { riskScore }),
-    ...(riskRating ? { riskRating } : { clearRiskRating: true }),
-  }
+  return riskScore === null ? { clearRiskScore: true } : { riskScore }
+}
+
+export const withRiskRating = (input: UpdateEntityInput, thresholds: readonly TVendorRiskThreshold[]): UpdateEntityInput => {
+  if (input.clearRiskScore) return { ...input, clearRiskRating: true }
+  const riskRating = riskRatingFromScore(input.riskScore, thresholds)
+  return riskRating ? { ...input, riskRating } : input
 }

@@ -30,7 +30,8 @@ import VendorDetailHeader from './vendor-detail-header'
 import VendorPropertiesSidebar from './vendor-properties-sidebar'
 import VendorDetailTabs from './tabs/vendor-detail-tabs'
 import type { EditVendorFormData } from '../hooks/use-form-schema'
-import { vendorRiskScoreInput } from '@/lib/vendor-risk-rating'
+import { vendorRiskScoreInput, withRiskRating } from '@/lib/vendor-risk-rating'
+import { useVendorRiskThresholds } from '@/lib/graphql-hooks/vendor-scoring-config'
 import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { useSession } from 'next-auth/react'
 
@@ -134,6 +135,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
 
   const { isDirty } = form.formState
   const buildDirtyInput = useDirtyInput(form)
+  const riskThresholds = useVendorRiskThresholds()
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   useEffect(() => {
@@ -192,7 +194,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
 
   const onSubmit = async (values: VendorFormValues) => {
     try {
-      const input = await buildDirtyInput<UpdateEntityInput>(values, VENDOR_UPDATE_FIELDS)
+      const input = withRiskRating(await buildDirtyInput<UpdateEntityInput>(values, VENDOR_UPDATE_FIELDS), riskThresholds)
 
       if (Object.keys(input).length === 0) {
         form.reset()

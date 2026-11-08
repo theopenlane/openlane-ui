@@ -4,9 +4,9 @@ import {
   type MutationCreateBulkCsvVendorRiskScoreArgs,
   type MutationCreateVendorRiskScoreArgs,
   type MutationDeleteBulkVendorRiskScoreArgs,
-  type MutationDeleteVendorRiskScoreArgs,
+  type DeleteVendorRiskScoreMutationVariables,
   type MutationUpdateBulkVendorRiskScoreArgs,
-  type MutationUpdateVendorRiskScoreArgs,
+  type UpdateVendorRiskScoreMutationVariables,
   type QueryVendorRiskScoreArgs,
   type QueryVendorRiskScoresArgs,
   type VendorRiskScore,
@@ -18,12 +18,14 @@ import {
   type VendorRiskScoreDeletePayload,
   type VendorRiskScoreUpdatePayload,
   type VendorRiskScoringQuery,
+  type VendorRiskScoreQuestionUsageQuery,
   type VendorRiskScoringQueryVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_VENDOR_RISK_SCORES,
+  GET_VENDOR_RISK_SCORE_QUESTION_USAGE,
   CREATE_VENDOR_RISK_SCORE,
   UPDATE_VENDOR_RISK_SCORE,
   DELETE_VENDOR_RISK_SCORE,
@@ -34,6 +36,7 @@ import {
   GET_VENDOR_RISK_SCORING,
 } from '@repo/codegen/query/vendor-risk-score'
 import { fetchAllConnectionNodes } from './fetch-all-connection-nodes'
+import { chunk } from '@/utils/async'
 
 type VendorRiskScoresWithFilterQuery = {
   vendorRiskScores: VendorRiskScoreConnection
@@ -51,13 +54,9 @@ type UpdateVendorRiskScoreMutation = {
   updateVendorRiskScore: VendorRiskScoreUpdatePayload
 }
 
-type UpdateVendorRiskScoreMutationVariables = MutationUpdateVendorRiskScoreArgs
-
 type DeleteVendorRiskScoreMutation = {
   deleteVendorRiskScore: VendorRiskScoreDeletePayload
 }
-
-type DeleteVendorRiskScoreMutationVariables = MutationDeleteVendorRiskScoreArgs
 
 type VendorRiskScoreQuery = {
   vendorRiskScore: VendorRiskScore
@@ -214,4 +213,36 @@ export const useBulkDeleteVendorRiskScore = () => {
       queryClient.invalidateQueries({ queryKey: ['vendorRiskScores'] })
     },
   })
+}
+
+export const useVendorRiskScoreQuestionUsage = (questionKey: string | undefined) => {
+  const { client } = useGraphQLClient()
+  const query = useQuery({
+    queryKey: ['vendorRiskScores', 'questionUsage', questionKey],
+    queryFn: () => client.request<VendorRiskScoreQuestionUsageQuery>(GET_VENDOR_RISK_SCORE_QUESTION_USAGE, { questionKey }),
+    enabled: !!questionKey,
+    placeholderData: undefined,
+  })
+
+  return { ...query, answerCount: query.data?.vendorRiskScores.totalCount }
+}
+
+export const useLinkUnconfiguredVendorRiskScores = () => {
+  const { client } = useGraphQLClient()
+  return async (vendorScoringConfigID: string) => {
+    const scores = await fetchAllConnectionNodes<{ id: string }>(async (after) => {
+      const data = await client.request<VendorRiskScoresWithFilterQuery>(GET_ALL_VENDOR_RISK_SCORES, {
+        where: { vendorScoringConfigIDIsNil: true },
+        first: VENDOR_RISK_SCORING_PAGE_SIZE,
+        after,
+      })
+      return data.vendorRiskScores
+    })
+    for (const ids of chunk(
+      scores.map((score) => score.id),
+      VENDOR_RISK_SCORING_PAGE_SIZE,
+    )) {
+      await client.request<UpdateBulkVendorRiskScoreMutation, UpdateBulkVendorRiskScoreMutationVariables>(BULK_EDIT_VENDOR_RISK_SCORE, { ids, input: { vendorScoringConfigID } })
+    }
+  }
 }

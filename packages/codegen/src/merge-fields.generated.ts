@@ -1351,7 +1351,6 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'scopeID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'scopeName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'source', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'sourceKey', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'status', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'TaskTaskStatus' },
     { name: 'systemGenerated', kind: 'boolean', list: false, nonNull: true, listItemNonNull: false },
     { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
