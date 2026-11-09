@@ -24,18 +24,18 @@ const today = new Date()
 const oneYearFromToday = addYears(today, 1)
 const currentYear = getYear(today)
 
+const { useStepper } = defineStepper([
+  { id: '0', label: 'Pick Categories', schema: selectFrameworkSchema },
+  { id: '1', label: 'Team Setup', schema: programInviteSchema },
+  { id: '2', label: 'Access Control', schema: step3Schema },
+])
+
 export default function RiskAssessmentWizard() {
   const router = useRouter()
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false) // ✅ new state
-
-  const { useStepper } = defineStepper([
-    { id: '0', label: 'Pick Categories', schema: selectFrameworkSchema },
-    { id: '1', label: 'Team Setup', schema: programInviteSchema },
-    { id: '2', label: 'Access Control', schema: step3Schema },
-  ])
 
   const stepper = useStepper()
 

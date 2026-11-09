@@ -26,6 +26,12 @@ const today = new Date()
 const oneYearFromToday = addYears(today, 1)
 const currentYear = getYear(today)
 
+const { useStepper } = defineStepper([
+  { id: '0', label: 'Pick Categories', schema: fullSchema.pick({ categories: true, standardID: true }) },
+  { id: '1', label: 'Team Setup', schema: fullSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) },
+  { id: '2', label: 'Access Control', schema: fullSchema.pick({ programKindName: true }) },
+])
+
 export default function Soc2Wizard() {
   const router = useRouter()
   const { errorNotification, successNotification } = useNotification()
@@ -36,11 +42,6 @@ export default function Soc2Wizard() {
 
   const standardID = data?.standards?.edges?.[0]?.node?.id
 
-  const { useStepper } = defineStepper([
-    { id: '0', label: 'Pick Categories', schema: fullSchema.pick({ categories: true, standardID: true }) },
-    { id: '1', label: 'Team Setup', schema: fullSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) },
-    { id: '2', label: 'Access Control', schema: fullSchema.pick({ programKindName: true }) },
-  ])
   const stepper = useStepper()
 
   const methods = useForm<WizardValues>({
