@@ -5,7 +5,7 @@ import Credentials from 'next-auth/providers/credentials'
 import { cookies } from 'next/headers'
 import { secureFetch } from '../utils/secure-fetch'
 import { setSessionCookie } from '../utils/set-session-cookie'
-import { forwardTfaPendingCookie } from '../utils/tfa-pending-cookie'
+import { clearTfaPendingCookie, forwardTfaPendingCookie } from '../utils/tfa-pending-cookie'
 
 export const credentialsProvider = Credentials({
   id: 'credentials',
@@ -91,6 +91,10 @@ export const credentialsProvider = Credentials({
       const isTfaEnabled = data?.edges?.setting?.is_tfa_enabled ?? false
 
       await setSessionCookie(session)
+      const cookieStore = await cookies()
+      if (credentials.accessToken && cookieStore.has('access_token')) {
+        clearTfaPendingCookie(cookieStore, true)
+      }
 
       return {
         isTfaEnabled,

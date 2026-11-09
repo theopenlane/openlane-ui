@@ -5,6 +5,7 @@ import { featureUtil } from '@/lib/subscription-plan/plans'
 import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
 import { clearTfaPendingCookie } from '@/lib/auth/utils/tfa-pending-cookie'
+import { isTfaEnrollmentToken } from '@/lib/auth/utils/token-claims'
 import type { NextAuthRequest } from 'next-auth'
 
 export default auth(async (req) => {
@@ -56,15 +57,17 @@ const handleRequest = async (req: NextAuthRequest) => {
   const isLoggedIn = !!session?.user?.accessToken
   const isOnboarding = session?.user?.isOnboarding
   const pendingTfa = req.cookies.get(TFA_PENDING_COOKIE_NAME)?.value
+  const accessTokenCookie = req.cookies.get('access_token')?.value
+  const pendingEnrollment = isTfaEnrollmentToken(accessTokenCookie)
 
   const noModules = featureUtil.hasNoModules(session)
   const noModulesAllowedPages = ['/organization', '/organization-settings/billing', '/organization-settings/general-settings', '/user-settings/profile']
 
   // http only cookie so could not be deleted from the client
   // but if the user is trying to leave the tfa screen, we need to clear this out
-  if (pendingTfa && path === '/login' && req.nextUrl.searchParams.get('cleartfa')) {
+  if ((pendingTfa || accessTokenCookie) && path === '/login' && req.nextUrl.searchParams.get('cleartfa')) {
     const response = NextResponse.next()
-    clearTfaPendingCookie(response.cookies)
+    clearTfaPendingCookie(response.cookies, true)
     return response
   }
 
@@ -74,7 +77,7 @@ const handleRequest = async (req: NextAuthRequest) => {
   // user should not be able to land on this page without the cookie, if they somehow get here,
   // move them back to the login page
   if (path === '/tfa') {
-    if (pendingTfa) {
+    if (pendingTfa || pendingEnrollment) {
       return NextResponse.next()
     }
 
@@ -84,7 +87,7 @@ const handleRequest = async (req: NextAuthRequest) => {
   }
 
   // if not logged in and user tries to go to another page, force them back to /tfa and add the redirect
-  if (!isLoggedIn && pendingTfa) {
+  if (pendingEnrollment || (!isLoggedIn && pendingTfa)) {
     return NextResponse.redirect(new URL(buildTfaRedirect(`${path}${req.nextUrl.search}`), req.url))
   }
 

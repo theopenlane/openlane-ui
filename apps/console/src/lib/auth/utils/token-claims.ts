@@ -49,3 +49,11 @@ export const tokenUsableFrom = (token?: string | null): number | null => {
 
   return claims.nbf ? claims.nbf * 1000 : null
 }
+
+export const isTfaEnrollmentToken = (token?: string): boolean => {
+  if (!token) {
+    return false
+  }
+  const claims = decodeTokenClaims<{ tfa_enrollment_required?: boolean; exp?: number }>(token)
+  return claims?.tfa_enrollment_required === true && !!claims.exp && claims.exp > Date.now() / 1000
+}
