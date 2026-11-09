@@ -450,6 +450,7 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
         edges {
           node {
             id
+            cveID
             displayName
             displayID
           }

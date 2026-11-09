@@ -5,7 +5,7 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
 
 export const DEFAULT_ACTIVITY_FEED_TITLE = 'Recent Activity'
-export const ACTIVITY_FEED_PREVIEW_LIMIT = 5
+const ACTIVITY_FEED_SKELETON_ROW_COUNT = 5
 
 type ActivityFeedCardProps = {
   title: string
@@ -20,12 +20,14 @@ export const ActivityFeedCard = ({ title, action, children }: ActivityFeedCardPr
         <p className="text-xl font-medium leading-7">{title}</p>
         {action}
       </div>
-      {children}
+      <div className="relative min-h-72 flex-1">
+        <div className="absolute inset-0 flex flex-col overflow-hidden">{children}</div>
+      </div>
     </CardContent>
   </Card>
 )
 
-export const ActivityFeedRowsSkeleton = ({ className }: { className?: string }) => <SkeletonRows count={ACTIVITY_FEED_PREVIEW_LIMIT} height={36} className={cn('rounded-md', className)} />
+export const ActivityFeedRowsSkeleton = ({ className }: { className?: string }) => <SkeletonRows count={ACTIVITY_FEED_SKELETON_ROW_COUNT} height={36} className={cn('rounded-md', className)} />
 
 export const ActivityFeedSkeleton = ({ title = DEFAULT_ACTIVITY_FEED_TITLE }: { title?: string }) => (
   <ActivityFeedCard title={title} action={<Skeleton width={54} height={28} className="rounded-md" />}>

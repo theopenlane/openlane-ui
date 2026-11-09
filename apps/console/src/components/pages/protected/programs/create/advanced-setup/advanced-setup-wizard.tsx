@@ -43,6 +43,15 @@ import { SOC_2_REQUIRED_CATEGORY } from '@/constants/trust-services-category-nam
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
 
+const { useStepper } = defineStepper([
+  { id: '0', label: 'Select a Program Type', schema: step1Schema },
+  { id: '1', label: 'General Information', schema: step2Schema },
+  { id: '2', label: 'Select SOC 2 Categories', schema: categoriesStepSchema },
+  { id: '3', label: 'Auditors', schema: step3Schema },
+  { id: '4', label: 'Add Team Members', schema: step4Schema },
+  { id: '5', label: 'Associate Existing Objects', schema: step5Schema },
+])
+
 const AdvancedSetupWizard = () => {
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
@@ -54,15 +63,6 @@ const AdvancedSetupWizard = () => {
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [isMemberSheetOpen, setIsMemberSheetOpen] = useState(false)
   const { canInvite } = useOrgMemberPermissions()
-
-  const { useStepper } = defineStepper([
-    { id: '0', label: 'Select a Program Type', schema: step1Schema },
-    { id: '1', label: 'General Information', schema: step2Schema },
-    { id: '2', label: 'Select SOC 2 Categories', schema: categoriesStepSchema },
-    { id: '3', label: 'Auditors', schema: step3Schema },
-    { id: '4', label: 'Add Team Members', schema: step4Schema },
-    { id: '5', label: 'Associate Existing Objects', schema: step5Schema },
-  ])
 
   const stepper = useStepper()
 
@@ -119,8 +119,7 @@ const AdvancedSetupWizard = () => {
   const handleBack = () => {
     if (stepper.isFirst) {
       setShowExitConfirm(true)
-    } else {
-      stepper.prev()
+      return
     }
 
     let prevStepIndex = stepper.steps.findIndex((s) => s.id === stepper.current.id) - 1

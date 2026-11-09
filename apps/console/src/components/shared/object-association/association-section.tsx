@@ -26,6 +26,7 @@ export type AssociationNode = {
   name?: string | null
   displayName?: string | null
   displayID?: string
+  cveID?: string | null
   fullName?: string
   target?: string
   title?: string | null

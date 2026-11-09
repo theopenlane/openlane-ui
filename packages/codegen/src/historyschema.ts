@@ -814,7 +814,7 @@ export interface GetAssetAssociationsQuery {
     internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayID: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
   }
@@ -1886,7 +1886,7 @@ export interface GetControlAssociationsByIdQuery {
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
     controlMappings: { totalCount: number; edges: Array<{ node: { id: string; findingID: string } | null } | null> | null }
   }
 }
@@ -3405,7 +3405,7 @@ export interface GetEntityAssociationsQuery {
     internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayID: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
   }
@@ -4188,7 +4188,7 @@ export interface GetFindingAssociationsQuery {
     scans: { totalCount: number; edges: Array<{ node: { id: string; target: string } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }
 
@@ -7234,6 +7234,7 @@ export interface RemediationsWithFilterQuery {
         scopeName: string | null
         source: string | null
         state: string | null
+        status: Types.RemediationRemediationStatus | null
         summary: string | null
         systemOwned: boolean | null
         ticketReference: string | null
@@ -7276,17 +7277,23 @@ export interface RemediationQuery {
     scopeName: string | null
     source: string | null
     state: string | null
+    status: Types.RemediationRemediationStatus | null
     summary: string | null
     systemOwned: boolean | null
     ticketReference: string | null
     title: string | null
     updatedAt: any
     updatedBy: string | null
+    vulnerabilities: { edges: Array<{ node: { id: string } | null } | null> | null }
+    findings: { edges: Array<{ node: { id: string } | null } | null> | null }
+    risks: { edges: Array<{ node: { id: string } | null } | null> | null }
   }
 }
 
 export type CreateRemediationMutationVariables = Exact<{
   input: Types.CreateRemediationInput
+  remediationFiles?: Array<any> | any | null | undefined
+  remediationFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
 }>
 
 export interface CreateRemediationMutation {
@@ -7296,6 +7303,8 @@ export interface CreateRemediationMutation {
 export type UpdateRemediationMutationVariables = Exact<{
   updateRemediationId: string
   input: Types.UpdateRemediationInput
+  remediationFiles?: Array<any> | any | null | undefined
+  remediationFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
 }>
 
 export interface UpdateRemediationMutation {
@@ -7335,7 +7344,7 @@ export interface GetRemediationAssociationsQuery {
     controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; description: string | null; displayID: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }
 
@@ -7346,6 +7355,108 @@ export type UpdateBulkRemediationMutationVariables = Exact<{
 
 export interface UpdateBulkRemediationMutation {
   updateBulkRemediation: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
+}
+
+export type GetRemediationFilesPaginatedQueryVariables = Exact<{
+  remediationId: string
+  after?: any
+  first?: number | null | undefined
+  before?: any
+  last?: number | null | undefined
+  orderBy?: Array<Types.FileOrder> | Types.FileOrder | null | undefined
+}>
+
+export interface GetRemediationFilesPaginatedQuery {
+  remediation: {
+    files: {
+      totalCount: number
+      pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
+      edges: Array<{
+        node: {
+          name: string | null
+          providedFileName: string
+          providedFileSize: number | null
+          providedFileExtension: string
+          categoryName: string | null
+          id: string
+          uri: string | null
+          presignedURL: string | null
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type GetRemediationContextSubjectQueryVariables = Exact<{
+  id: string
+  withVulnerability: boolean
+  withFinding: boolean
+  withRisk: boolean
+}>
+
+export interface GetRemediationContextSubjectQuery {
+  vulnerability?: {
+    id: string
+    displayID: string
+    displayName: string | null
+    cveID: string | null
+    externalID: string
+    description: string | null
+    source: string | null
+    severity: string | null
+    securityLevel: Types.VulnerabilitySecurityLevel | null
+    score: number | null
+    environmentName: string | null
+    scopeName: string | null
+  }
+  finding?: {
+    id: string
+    displayID: string
+    displayName: string | null
+    description: string | null
+    source: string | null
+    severity: string | null
+    securityLevel: Types.FindingSecurityLevel | null
+    score: number | null
+    environmentName: string | null
+    scopeName: string | null
+  }
+  risk?: {
+    id: string
+    displayID: string
+    name: string
+    details: string | null
+    riskCategoryName: string | null
+    impact: Types.RiskRiskImpact | null
+    score: number | null
+    environmentName: string | null
+    scopeName: string | null
+  }
+}
+
+export type GetRemediationContextOptionsQueryVariables = Exact<{
+  vulnerabilityWhere?: Types.VulnerabilityWhereInput | null | undefined
+  findingWhere?: Types.FindingWhereInput | null | undefined
+  riskWhere?: Types.RiskWhereInput | null | undefined
+  withVulnerabilities: boolean
+  withFindings: boolean
+  withRisks: boolean
+}>
+
+export interface GetRemediationContextOptionsQuery {
+  vulnerabilities?: { edges: Array<{ node: { id: string; displayID: string; displayName: string | null; cveID: string | null; externalID: string } | null } | null> | null }
+  findings?: { edges: Array<{ node: { id: string; displayID: string; displayName: string | null } | null } | null> | null }
+  risks?: { edges: Array<{ node: { id: string; displayID: string; name: string } | null } | null> | null }
+}
+
+export type GetRemediationFileIdsQueryVariables = Exact<{
+  remediationId: string
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetRemediationFileIdsQuery {
+  remediation: { files: { pageInfo: { endCursor: any; hasNextPage: boolean }; edges: Array<{ node: { id: string } | null } | null> | null } }
 }
 
 export type GetReportMembersQueryVariables = Exact<{
@@ -7598,7 +7709,7 @@ export interface GetReviewAssociationsQuery {
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string; description: string | null } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; displayName: string | null } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; displayName: string | null } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayID: string; displayName: string | null } | null } | null> | null }
     entities: { totalCount: number; edges: Array<{ node: { id: string; name: string | null; displayName: string | null } | null } | null> | null }
     tasks: { totalCount: number; edges: Array<{ node: { id: string; title: string; displayID: string } | null } | null> | null }
     assets: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayName: string | null } | null } | null> | null }
@@ -8006,7 +8117,7 @@ export interface GetRiskAssociationsQuery {
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     actionPlans: { totalCount: number; edges: Array<{ node: { id: string; name: string; status: Types.ActionPlanDocumentStatus | null } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }
@@ -8184,7 +8295,7 @@ export interface GetScanAssociationsQuery {
     findings: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
     tasks: { totalCount: number; edges: Array<{ node: { id: string; title: string; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }
 
@@ -8579,7 +8690,7 @@ export interface GetSubcontrolAssociationsByIdQuery {
       totalCount: number
       edges: Array<{ node: { id: string; fullName: string; displayID: string; identityHolderType: Types.IdentityHolderIdentityHolderType; title: string | null } | null } | null> | null
     }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }

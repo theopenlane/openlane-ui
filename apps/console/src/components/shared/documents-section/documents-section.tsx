@@ -32,8 +32,7 @@ type DocumentsSectionProps = {
   onPaginationChange: (pagination: TPagination) => void
   defaultSorting: SortCondition<FileOrderField>[]
   onSortChange: (next: SortCondition<FileOrderField>[]) => void
-  onUpload: (uploads: StagedUpload[]) => Promise<void>
-  isUploading: boolean
+  upload?: { onUpload: (uploads: StagedUpload[]) => Promise<void>; isUploading: boolean }
   onRemoveFile: (fileId: string) => Promise<void>
 }
 
@@ -49,8 +48,7 @@ const DocumentsSection: React.FC<DocumentsSectionProps> = ({
   onPaginationChange,
   defaultSorting,
   onSortChange,
-  onUpload,
-  isUploading,
+  upload,
   onRemoveFile,
 }) => {
   const { enumOptions: categoryOptions } = useGetCustomTypeEnums({ where: FILE_CATEGORY_ENUM })
@@ -121,8 +119,8 @@ const DocumentsSection: React.FC<DocumentsSectionProps> = ({
       <div className="flex items-center justify-between mb-3">
         <p className="text-lg">Documents</p>
         <div className="flex items-center gap-2">
-          {editAllowed && <DocumentsUploadDialog onUpload={onUpload} isUploading={isUploading} />}
-          <Button variant="secondary" icon={<Download />} iconPosition="left" onClick={() => handleDownloadAll()} disabled={files?.length === 0}>
+          {editAllowed && upload && <DocumentsUploadDialog onUpload={upload.onUpload} isUploading={upload.isUploading} />}
+          <Button type="button" variant="secondary" icon={<Download />} iconPosition="left" onClick={() => handleDownloadAll()} disabled={files?.length === 0}>
             Download All
           </Button>
         </div>

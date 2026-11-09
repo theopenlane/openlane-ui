@@ -293,6 +293,7 @@ export const GET_SCAN_ASSOCIATIONS = gql`
         edges {
           node {
             id
+            cveID
             displayName
             displayID
           }
