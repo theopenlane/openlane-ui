@@ -9,7 +9,7 @@ type WorkItemsCardProps = {
 }
 
 export const WorkItemsCard = ({ children }: WorkItemsCardProps) => (
-  <Card className="bg-homepage-card border-homepage-card-border h-full">
+  <Card className="bg-homepage-card border-homepage-card-border h-full min-h-105 flex flex-col">
     <CardTitle className="px-6 pt-6 pb-0 text-lg font-semibold">Your Work</CardTitle>
     <CardDescription className="pt-1 pb-3">Tasks, recommendations, evidence requests, and notifications that need your attention</CardDescription>
     {children}

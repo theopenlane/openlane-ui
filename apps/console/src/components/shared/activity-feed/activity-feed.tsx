@@ -6,7 +6,7 @@ import { Shield } from 'lucide-react'
 import Link from 'next/link'
 import { Sheet, SheetContent, SheetTrigger } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { ACTIVITY_FEED_PREVIEW_LIMIT, ActivityFeedCard, ActivityFeedRowsSkeleton, DEFAULT_ACTIVITY_FEED_TITLE } from './activity-feed-card'
+import { ActivityFeedCard, ActivityFeedRowsSkeleton, DEFAULT_ACTIVITY_FEED_TITLE } from './activity-feed-card'
 import ViewVulnerabilitySheet from '@/components/pages/protected/vulnerabilities/view-vulnerability-sheet'
 import ViewFindingSheet from '@/components/pages/protected/findings/view-finding-sheet'
 import ViewScanSheet from '@/components/pages/protected/scans/view-scan-sheet'
@@ -17,6 +17,8 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'
 import type { ActivityItem } from './use-recent-activity-items'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { cn } from '@repo/ui/lib/utils'
+import { useFittingRowCount } from '@/hooks/useFittingRowCount'
 
 const CREATED_ACTIVITY_TYPES = new Set<string>([ObjectTypes.INTERNAL_POLICY, ObjectTypes.CONTROL])
 
@@ -33,7 +35,13 @@ const activitySubtitle = (item: ActivityItem) => {
   return item.source ? `${prefix} by ${item.source}` : prefix
 }
 
-const ActivityRow = ({ item, onLabelClick }: { item: ActivityItem; onLabelClick?: (item: ActivityItem) => void }) => {
+type ActivityRowProps = {
+  item: ActivityItem
+  onLabelClick?: (item: ActivityItem) => void
+  hidden?: boolean
+}
+
+const ActivityRow = ({ item, onLabelClick, hidden }: ActivityRowProps) => {
   const Icon = searchTypeIcons[item.type] ?? Shield
   const hasSheet = SHEET_ENABLED_TYPES.has(item.type) && !!onLabelClick && !item.isGrouped
   const subtitle = activitySubtitle(item)
@@ -51,7 +59,7 @@ const ActivityRow = ({ item, onLabelClick }: { item: ActivityItem; onLabelClick?
   )
 
   return (
-    <div className="flex items-start gap-3 py-2 border-b last:border-0">
+    <div className={cn('flex items-start gap-3 py-2 border-t first:border-t-0', hidden && 'invisible')}>
       <div className="mt-0.5 p-1.5 rounded-md bg-secondary">
         <Icon size={14} className="text-muted-foreground" />
       </div>
@@ -79,7 +87,7 @@ const ActivityFeed = ({ activityItems, allActivityItems = activityItems, title =
     setIsSeeAllOpen(false)
     setViewItem(item)
   }
-  const preview = activityItems.slice(0, ACTIVITY_FEED_PREVIEW_LIMIT)
+  const { containerRef: previewRef, fittingCount } = useFittingRowCount(activityItems)
 
   const renderPreview = () => {
     if (isLoading) {
@@ -90,7 +98,7 @@ const ActivityFeed = ({ activityItems, allActivityItems = activityItems, title =
       )
     }
 
-    if (preview.length === 0) {
+    if (activityItems.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center flex-1 text-center">
           <Shield size={24} className="mb-2 text-muted-foreground" />
@@ -100,9 +108,9 @@ const ActivityFeed = ({ activityItems, allActivityItems = activityItems, title =
     }
 
     return (
-      <div className="flex-1">
-        {preview.map((item) => (
-          <ActivityRow key={`${item.type}-${item.id}`} item={item} onLabelClick={handleViewItem} />
+      <div ref={previewRef} className="relative min-h-0 flex-1">
+        {activityItems.map((item, index) => (
+          <ActivityRow key={`${item.type}-${item.id}`} item={item} onLabelClick={handleViewItem} hidden={index >= fittingCount} />
         ))}
       </div>
     )
