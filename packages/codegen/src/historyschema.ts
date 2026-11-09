@@ -10108,6 +10108,7 @@ export interface GetTrustCenterQuery {
           faviconRemoteURL: string | null
           logoRemoteURL: string | null
           securityContact: string | null
+          disableDefaultDomain: boolean | null
           updatedAt: any
           logoFile: { id: string; base64: string | null } | null
           faviconFile: { id: string; base64: string | null } | null
@@ -10153,12 +10154,12 @@ export interface CreateCustomDomainMutation {
   createTrustCenterDomain: { customDomain: { id: string } }
 }
 
-export type CreateTrustCenterPreviewDomainMutationVariables = Exact<{
+export type SetupTrustCenterDomainsMutationVariables = Exact<{
   trustCenterID: string
 }>
 
-export interface CreateTrustCenterPreviewDomainMutation {
-  createTrustCenterPreviewDomain: { success: boolean }
+export interface SetupTrustCenterDomainsMutation {
+  setupTrustCenterDomains: { success: boolean }
 }
 
 export type DeleteCustomDomainMutationVariables = Exact<{

@@ -1,7 +1,7 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   CREATE_CUSTOM_DOMAIN,
-  CREATE_TRUST_CENTER_PREVIEW_DOMAIN,
+  SETUP_TRUST_CENTER_DOMAINS,
   DELETE_CUSTOM_DOMAIN,
   GET_ALL_TRUST_CENTERS,
   GET_ALL_TRUST_CENTER_LAST_UPDATED,
@@ -16,8 +16,8 @@ import {
 import {
   type CreateCustomDomainMutation,
   type CreateCustomDomainMutationVariables,
-  type CreateTrustCenterPreviewDomainMutation,
-  type CreateTrustCenterPreviewDomainMutationVariables,
+  type SetupTrustCenterDomainsMutation,
+  type SetupTrustCenterDomainsMutationVariables,
   type GetTrustCenterPostsQuery,
   type GetTrustCenterPostsQueryVariables,
   type GetTrustCenterPreviewDomainQuery,
@@ -101,11 +101,11 @@ export const useCreateCustomDomain = () => {
   })
 }
 
-export const useCreateTrustCenterPreviewDomain = () => {
+export const useSetupTrustCenterDomains = () => {
   const { client } = useGraphQLClient()
 
-  return useMutation<CreateTrustCenterPreviewDomainMutation, Error, CreateTrustCenterPreviewDomainMutationVariables>({
-    mutationFn: async (variables) => client.request<CreateTrustCenterPreviewDomainMutation, CreateTrustCenterPreviewDomainMutationVariables>(CREATE_TRUST_CENTER_PREVIEW_DOMAIN, variables),
+  return useMutation<SetupTrustCenterDomainsMutation, Error, SetupTrustCenterDomainsMutationVariables>({
+    mutationFn: async (variables) => client.request<SetupTrustCenterDomainsMutation, SetupTrustCenterDomainsMutationVariables>(SETUP_TRUST_CENTER_DOMAINS, variables),
   })
 }
 

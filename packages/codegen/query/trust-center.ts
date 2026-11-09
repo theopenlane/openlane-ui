@@ -158,9 +158,9 @@ export const CREATE_CUSTOM_DOMAIN = gql`
     }
   }
 `
-export const CREATE_TRUST_CENTER_PREVIEW_DOMAIN = gql`
-  mutation CreateTrustCenterPreviewDomain($trustCenterID: ID!) {
-    createTrustCenterPreviewDomain(trustCenterID: $trustCenterID) {
+export const SETUP_TRUST_CENTER_DOMAINS = gql`
+  mutation SetupTrustCenterDomains($trustCenterID: ID!) {
+    setupTrustCenterDomains(trustCenterID: $trustCenterID) {
       success
     }
   }

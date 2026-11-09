@@ -6,7 +6,7 @@ import { TrustCenterTrustCenterPreviewStatus } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useNotification } from '@/hooks/useNotification'
 import { canEdit } from '@/lib/authz/utils'
-import { useCreateTrustCenterPreviewDomain, useGetTrustCenter, usePollTrustCenterPreviewDomain } from '@/lib/graphql-hooks/trust-center'
+import { useSetupTrustCenterDomains, useGetTrustCenter, usePollTrustCenterPreviewDomain } from '@/lib/graphql-hooks/trust-center'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { createOrgPersistedStore, useOrgPersistedState } from '@/lib/storage/org-persisted-store'
 import { isRecord } from '@/utils/type-guards'
@@ -41,7 +41,7 @@ export const useCreateTrustCenterUrls = () => {
   const isSubmittingRef = useRef(false)
 
   const { trustCenter, isPlaceholderData, refetch } = useGetTrustCenter()
-  const { mutateAsync: createPreviewDomain } = useCreateTrustCenterPreviewDomain()
+  const { mutateAsync: setupDomains } = useSetupTrustCenterDomains()
 
   const trustCenterId = trustCenter?.id
   const hasPreviewDomain = !!trustCenter?.previewDomain
@@ -77,7 +77,7 @@ export const useCreateTrustCenterUrls = () => {
     isSubmittingRef.current = true
     setAttempt({ trustCenterId, startedAt: Date.now() })
     try {
-      await createPreviewDomain({ trustCenterID: trustCenterId })
+      await setupDomains({ trustCenterID: trustCenterId })
     } catch (error) {
       setAttempt(null)
       const { data } = await refetch()
