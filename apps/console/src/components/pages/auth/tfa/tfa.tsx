@@ -189,7 +189,7 @@ const TfaPage: React.FC<{ enrollment?: boolean }> = ({ enrollment = false }) => 
     return (
       <div className="flex flex-col self-center m-auto max-w-lg gap-6 p-6">
         <h1 className="text-3xl text-center">Set up two-factor authentication</h1>
-        <p>Your organization requires two-factor authentication to be set up and configured. You do not have tfa configured so set it up below before you can work with your team.</p>
+        <p>Your organization requires two-factor authentication (2FA). Set it up below to continue working with your team.</p>
         <Button onClick={handleEnrollment} disabled={isSubmitting}>
           Set up authenticator
         </Button>
