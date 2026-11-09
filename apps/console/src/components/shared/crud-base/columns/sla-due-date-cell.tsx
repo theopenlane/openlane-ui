@@ -1,18 +1,17 @@
-import { getSlaDueDate, isSlaPastDue, type SlaDaysByLevel } from '@/lib/sla'
+import { isSlaPastDue, type SlaDaysByLevel } from '@/lib/sla'
 import { formatDate } from '@/utils/date'
+import { getSlaDueDate, type TVulnerabilityDueDateSource } from '@/utils/vulnerability-due-date'
 import { cn } from '@repo/ui/lib/utils'
 
 type SlaDueDateCellProps = {
-  createdAt: string | null | undefined
-  securityLevel: string | null | undefined
-  open?: boolean | null
+  item: TVulnerabilityDueDateSource & { open?: boolean | null }
   slaDaysByLevel: SlaDaysByLevel
 }
 
-export function SlaDueDateCell({ createdAt, securityLevel, open, slaDaysByLevel }: SlaDueDateCellProps) {
-  const dueDate = getSlaDueDate(createdAt, securityLevel, slaDaysByLevel)
+export const SlaDueDateCell = ({ item, slaDaysByLevel }: SlaDueDateCellProps) => {
+  const dueDate = getSlaDueDate(item, slaDaysByLevel)
   if (!dueDate) return <span className="text-muted-foreground">-</span>
 
-  const pastDue = open === true && isSlaPastDue(dueDate)
+  const pastDue = item.open === true && isSlaPastDue(dueDate)
   return <span className={cn('whitespace-nowrap', pastDue && 'text-danger')}>{formatDate(dueDate.toISOString())}</span>
 }

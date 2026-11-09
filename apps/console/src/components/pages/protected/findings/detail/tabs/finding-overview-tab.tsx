@@ -8,10 +8,12 @@ import { type FindingDetailNode } from '@/lib/graphql-hooks/finding'
 import ExposureReferences from '../../../exposure/detail/exposure-references'
 import { ReadOnlyRichText } from '../../../exposure/detail/read-only-rich-text'
 import ExposureScoreCard from '../../../exposure/detail/score/exposure-score-card'
+import { hasCvssDetails } from '../../../exposure/detail/score/score-meta'
 import DescriptionField from '../../create/form/fields/description-field'
-import { isPopulatedObject, TargetDetailsCard } from '../../create/form/fields/additional-fields'
 import { type FindingFormData } from '../../hooks/use-form-schema'
 import FindingDetailsEditCard from './finding-details-edit-card'
+import { FindingTargetsCard } from './finding-targets-card'
+import { OverviewSection } from './overview-section'
 
 type TFindingOverviewTabProps = {
   finding: FindingDetailNode
@@ -20,17 +22,9 @@ type TFindingOverviewTabProps = {
   handleUpdateField: (input: UpdateFindingInput, options?: TPersistOptions) => Promise<void>
 }
 
-const OverviewSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <section className="min-w-0 space-y-2">
-    <h2 className="text-lg font-semibold">{title}</h2>
-    {children}
-  </section>
-)
-
 const FindingOverviewTab: React.FC<TFindingOverviewTabProps> = ({ finding, isEditing, canEdit, handleUpdateField }) => {
   const persistField = usePersistFormField<FindingFormData>()
   const steps = finding.stepsToReproduce?.filter((step) => step.trim()) ?? []
-  const targets = [...new Set(finding.targets?.filter((target) => target.trim()) ?? [])]
 
   return (
     <div className="space-y-8">
@@ -43,15 +37,17 @@ const FindingOverviewTab: React.FC<TFindingOverviewTabProps> = ({ finding, isEdi
         finding.description && <ReadOnlyRichText value={finding.description} label="Description" />
       )}
 
-      <ExposureScoreCard
-        score={finding.score}
-        impact={finding.impact}
-        exploitability={finding.exploitability}
-        vector={finding.vector}
-        source={finding.source}
-        canEdit={canEdit && !isEditing}
-        onSaveVector={(vector) => persistField('vector', vector, (options) => handleUpdateField({ vector }, options))}
-      />
+      {hasCvssDetails(finding) && (
+        <ExposureScoreCard
+          score={finding.score}
+          impact={finding.impact}
+          exploitability={finding.exploitability}
+          vector={finding.vector}
+          source={finding.source}
+          canEdit={canEdit && !isEditing}
+          onSaveVector={(vector) => persistField('vector', vector, (options) => handleUpdateField({ vector }, options))}
+        />
+      )}
 
       {!isEditing && (
         <>
@@ -71,18 +67,7 @@ const FindingOverviewTab: React.FC<TFindingOverviewTabProps> = ({ finding, isEdi
               </ol>
             </OverviewSection>
           )}
-          {targets.length > 0 && (
-            <OverviewSection title="Targets">
-              <ul className="space-y-1 text-sm">
-                {targets.map((target) => (
-                  <li key={target} className="break-all">
-                    {target}
-                  </li>
-                ))}
-              </ul>
-            </OverviewSection>
-          )}
-          {isPopulatedObject(finding.targetDetails) && <TargetDetailsCard value={finding.targetDetails} />}
+          <FindingTargetsCard targets={finding.targets} targetDetails={finding.targetDetails} />
           <ExposureReferences references={finding.references} />
         </>
       )}

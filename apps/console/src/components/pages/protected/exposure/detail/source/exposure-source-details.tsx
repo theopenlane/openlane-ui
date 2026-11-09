@@ -5,13 +5,7 @@ import { ExternalLink } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import CopyableText from '@/components/shared/copyable-text/copyable-text'
 import { toValidHref } from '@/utils/normalizeUrl'
-import { type TExposureSourceFields, useExposureSource } from './use-exposure-source'
-
-type TSourceDetailRow = {
-  label: string
-  value?: string | null
-  copyable?: boolean
-}
+import { getExposureSourceRows, type TExposureSourceFields, type TSourceDetailRow, useExposureSource } from './use-exposure-source'
 
 export type TExposureSourceDetailsProps = {
   fields: TExposureSourceFields
@@ -34,14 +28,9 @@ const SourceDetailRow: React.FC<{ row: TSourceDetailRow }> = ({ row }) => {
 
 export const ExposureSourceDetails: React.FC<TExposureSourceDetailsProps> = ({ fields, header, extraRows = [], footer }) => {
   const { label, openLabel } = useExposureSource(fields)
-  const href = toValidHref(fields.externalURI ?? '')
+  const href = toValidHref(fields.externalURI?.trim() ?? '')
 
-  const rows: TSourceDetailRow[] = [
-    { label: 'External ID', value: fields.externalID, copyable: true },
-    { label: 'External Owner ID', value: fields.externalOwnerID, copyable: true },
-    ...extraRows,
-    { label: 'External URI', value: fields.externalURI, copyable: true },
-  ]
+  const rows = getExposureSourceRows(fields, extraRows)
 
   return (
     <div className="space-y-3">

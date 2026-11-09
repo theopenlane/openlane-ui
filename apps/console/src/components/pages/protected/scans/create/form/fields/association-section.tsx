@@ -1,5 +1,6 @@
 'use client'
 
+import { getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilities/vulnerability-display'
 import { useMemo } from 'react'
 import { useGetScanAssociations } from '@/lib/graphql-hooks/scan'
 import { Panel, PanelHeader } from '@repo/ui/panel'
@@ -57,7 +58,7 @@ export const ScanAssociationsSection = ({ scanId }: ScanAssociationsSectionProps
     if (scan.vulnerabilities?.edges?.length) {
       result['vulnerabilities'] = {
         edges: scan.vulnerabilities.edges.map((e) => ({
-          node: e?.node ? { id: e.node.id, name: e.node.displayName ?? '', displayID: e.node.displayID } : null,
+          node: e?.node ? { id: e.node.id, name: getVulnerabilityTitle(e.node), displayID: e.node.displayID } : null,
         })),
         totalCount: scan.vulnerabilities.totalCount,
       }

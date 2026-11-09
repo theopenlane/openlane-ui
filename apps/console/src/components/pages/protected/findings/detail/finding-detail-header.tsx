@@ -12,8 +12,8 @@ import { MetaItem } from '../../exposure/detail/meta-item'
 import { RemediationSla } from '../../exposure/detail/remediation-sla'
 import { RemediationSlaField } from '../../exposure/detail/remediation-sla-field'
 import { ScoreMeta } from '../../exposure/detail/score/score-meta'
-import { hasExposureSourceDetails } from '../../exposure/detail/source/use-exposure-source'
 import { getFindingSeverity, getFindingTitle } from '../finding-display'
+import { hasFindingSourceDetails } from './finding-source'
 import { FindingSourcePopover } from './finding-source-popover'
 import { FindingStatusField } from './finding-status-field'
 
@@ -58,7 +58,7 @@ const FindingDetailHeader: React.FC<TFindingDetailHeaderProps> = ({ finding, isE
           <ScoreMeta score={finding.score} vector={finding.vector} />
         </MetaItem>
         <MetaItem label="Remediation SLA">{isEditing ? <RemediationSlaField /> : <RemediationSla item={finding} />}</MetaItem>
-        {hasExposureSourceDetails(finding) && (
+        {hasFindingSourceDetails(finding) && (
           <MetaItem label="Source">
             <FindingSourcePopover finding={finding} />
           </MetaItem>

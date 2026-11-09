@@ -4,6 +4,9 @@ import { parseCvssVector } from '@/utils/cvss-vector'
 
 export const isProvidedScore = (value?: number | null): value is number => typeof value === 'number' && value > 0
 
+export const hasCvssDetails = ({ vector, impact, exploitability }: { vector?: string | null; impact?: number | null; exploitability?: number | null }) =>
+  !!vector?.trim() || isProvidedScore(impact) || isProvidedScore(exploitability)
+
 export const ScoreMeta: React.FC<{ score?: number | null; vector?: string | null }> = ({ score, vector }) => {
   const cvssVersion = parseCvssVector(vector)?.version
 

@@ -84,9 +84,7 @@ export const getColumns = ({
       id: 'dueDate',
       header: 'Due Date',
       size: 130,
-      cell: ({ row }) => (
-        <SlaDueDateCell createdAt={row.original.reportedAt || row.original.createdAt} securityLevel={row.original.securityLevel} open={row.original.open} slaDaysByLevel={slaDaysByLevel ?? {}} />
-      ),
+      cell: ({ row }) => <SlaDueDateCell item={row.original} slaDaysByLevel={slaDaysByLevel ?? {}} />,
     },
     { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },

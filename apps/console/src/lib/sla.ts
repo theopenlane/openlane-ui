@@ -1,4 +1,4 @@
-import { addDays, subDays, startOfDay, isValid } from 'date-fns'
+import { addDays, subDays, startOfDay } from 'date-fns'
 import { type Condition } from '@/types'
 import { type SlaDefinitionsNodeNonNull } from '@/lib/graphql-hooks/sla-definition'
 
@@ -6,27 +6,23 @@ export const DUE_SOON_WINDOW_DAYS = 14
 
 export type SlaDaysByLevel = Record<string, number>
 
+export const isPositiveSlaDays = (value: number | null | undefined): value is number => typeof value === 'number' && value > 0
+
 export const buildSlaDaysByLevel = (slaDefinitions: SlaDefinitionsNodeNonNull[]): SlaDaysByLevel =>
   slaDefinitions.reduce<SlaDaysByLevel>((acc, def) => {
     const level = def.securityLevel?.toUpperCase()
-    if (level && !(level in acc) && typeof def.slaDays === 'number' && def.slaDays > 0) {
+    if (level && !(level in acc) && isPositiveSlaDays(def.slaDays)) {
       acc[level] = def.slaDays
     }
     return acc
   }, {})
 
-export const getSlaDueDate = (createdAt: string | null | undefined, securityLevel: string | null | undefined, slaDaysByLevel: SlaDaysByLevel): Date | null => {
-  if (!createdAt || !securityLevel) return null
-  const slaDays = slaDaysByLevel[securityLevel.toUpperCase()]
-  if (typeof slaDays !== 'number') return null
-  const createdDate = new Date(createdAt)
-  if (!isValid(createdDate)) return null
-  return addDays(createdDate, slaDays)
-}
+export const getEffectiveSlaDays = (remediationSLA: number | null | undefined, defaultSlaDays: number | null | undefined): number | null =>
+  isPositiveSlaDays(remediationSLA) ? remediationSLA : isPositiveSlaDays(defaultSlaDays) ? defaultSlaDays : null
 
 export const isSlaPastDue = (dueDate: Date | null | undefined): boolean => !!dueDate && dueDate < new Date()
 
-export type TSlaSourceDateField = 'reportedAt'
+export type TSlaSourceDateField = 'reportedAt' | 'discoveredAt'
 
 type TDateRange = { gte?: string; lt: string }
 
