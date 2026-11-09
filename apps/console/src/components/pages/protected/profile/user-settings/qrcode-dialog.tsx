@@ -180,7 +180,7 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes, onVerify, onC
         body: (
           <>
             <p className="text-sm">Use your authenticator app to scan this QR code.</p>
-            {qrcode && <QRCodeSVG value={qrcode} size={180} className="shadow-lg" />}
+            {qrcode && <QRCodeSVG marginSize={4} value={qrcode} size={180} className="shadow-lg" />}
 
             {isSecretKeySetup ? (
               <div className="flex flex-col gap-1 items-center">
