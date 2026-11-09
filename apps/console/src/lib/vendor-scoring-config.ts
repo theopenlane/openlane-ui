@@ -2,6 +2,7 @@ import { z } from 'zod'
 import {
   type UpdateVendorScoringConfigInput,
   VendorRiskScoreVendorRiskImpact,
+  VendorRiskScoreVendorRiskLikelihood,
   VendorRiskScoreVendorScoringAnswerType,
   VendorRiskScoreVendorScoringCategory,
   VendorScoringConfigVendorScoringMode,
@@ -29,6 +30,22 @@ const DEFAULT_MAX_SCORE_BY_RATING = new Map(DEFAULT_VENDOR_RISK_THRESHOLDS.map((
 export const getDefaultQuestion = (key: string) => DEFAULT_QUESTION_BY_KEY.get(key)
 
 export const getDefaultMaxScore = (rating: TVendorRiskRating) => DEFAULT_MAX_SCORE_BY_RATING.get(rating)
+
+export const LIKELIHOOD_ORDER: readonly VendorRiskScoreVendorRiskLikelihood[] = [
+  VendorRiskScoreVendorRiskLikelihood.VERY_LOW,
+  VendorRiskScoreVendorRiskLikelihood.LOW,
+  VendorRiskScoreVendorRiskLikelihood.MEDIUM,
+  VendorRiskScoreVendorRiskLikelihood.HIGH,
+  VendorRiskScoreVendorRiskLikelihood.VERY_HIGH,
+]
+
+export const IMPACT_ORDER: readonly VendorRiskScoreVendorRiskImpact[] = [
+  VendorRiskScoreVendorRiskImpact.VERY_LOW,
+  VendorRiskScoreVendorRiskImpact.LOW,
+  VendorRiskScoreVendorRiskImpact.MEDIUM,
+  VendorRiskScoreVendorRiskImpact.HIGH,
+  VendorRiskScoreVendorRiskImpact.CRITICAL,
+]
 
 export const EDITABLE_RISK_RATINGS: readonly TVendorRiskRating[] = [VendorRiskRating.VERY_LOW, VendorRiskRating.LOW, VendorRiskRating.MEDIUM, VendorRiskRating.HIGH, VendorRiskRating.CRITICAL]
 
@@ -88,7 +105,7 @@ export const parseVendorScoringConfig = (questions: unknown, riskThresholds: unk
   }
 }
 
-const mergeVendorScoringQuestions = (customQuestions: readonly TVendorScoringQuestionDef[]): TVendorScoringQuestionDef[] => {
+export const mergeVendorScoringQuestions = (customQuestions: readonly TVendorScoringQuestionDef[]): TVendorScoringQuestionDef[] => {
   const overrides = new Map(customQuestions.map((question) => [question.key, question]))
   return [...DEFAULT_VENDOR_SCORING_QUESTIONS.map((question) => overrides.get(question.key) ?? question), ...customQuestions.filter((question) => !DEFAULT_QUESTION_BY_KEY.has(question.key))]
 }

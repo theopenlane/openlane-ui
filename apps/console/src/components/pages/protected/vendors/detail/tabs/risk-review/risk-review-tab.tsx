@@ -27,6 +27,7 @@ import VendorReviewSheet from './vendor-review/vendor-review-sheet'
 import { useHasRecentReview } from '@/components/pages/protected/reviews/hooks/use-has-recent-review'
 import { Callout } from '@/components/shared/callout/callout'
 import { RiskScoringPanel } from './risk-scoring/risk-scoring-panel'
+import { vendorDisplayName } from '@/lib/graphql-hooks/entity'
 
 interface RiskReviewTabProps {
   vendor: EntityQuery['entity']
@@ -153,7 +154,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
         </div>
       </div>
 
-      <RiskScoringPanel vendorId={vendor.id} vendorRiskScore={vendor.riskScore} onViewReview={setSelectedRow} />
+      <RiskScoringPanel vendorId={vendor.id} vendorName={vendorDisplayName(vendor)} vendorRiskScore={vendor.riskScore} canEdit={canEdit} onViewReview={setSelectedRow} />
 
       <div>
         <h3 className="text-lg font-semibold mb-4">Review History</h3>

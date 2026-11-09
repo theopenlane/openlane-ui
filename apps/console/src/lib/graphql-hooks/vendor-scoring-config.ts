@@ -33,7 +33,7 @@ import {
   BULK_EDIT_VENDOR_SCORING_CONFIG,
   BULK_DELETE_VENDOR_SCORING_CONFIG,
 } from '@repo/codegen/query/vendor-scoring-config'
-import { EMPTY_PARSED_VENDOR_SCORING_CONFIG, mergeRiskThresholds, parseVendorScoringConfig } from '@/lib/vendor-scoring-config'
+import { EMPTY_PARSED_VENDOR_SCORING_CONFIG, mergeRiskThresholds, mergeVendorScoringQuestions, parseVendorScoringConfig } from '@/lib/vendor-scoring-config'
 
 type VendorScoringConfigsWithFilterQuery = {
   vendorScoringConfigs: VendorScoringConfigConnection
@@ -179,11 +179,18 @@ export const useBulkDeleteVendorScoringConfig = () => {
 
 const DEFAULT_RISK_THRESHOLDS = mergeRiskThresholds([])
 
+const DEFAULT_QUESTIONS = mergeVendorScoringQuestions([])
+
 const selectOrganizationVendorScoringConfig = (data: OrganizationVendorScoringConfigQuery) => {
   const config = data.vendorScoringConfigs?.edges?.[0]?.node
-  if (!config) return { config, parsedConfig: EMPTY_PARSED_VENDOR_SCORING_CONFIG, riskThresholds: DEFAULT_RISK_THRESHOLDS }
+  if (!config) return { config, parsedConfig: EMPTY_PARSED_VENDOR_SCORING_CONFIG, riskThresholds: DEFAULT_RISK_THRESHOLDS, questions: DEFAULT_QUESTIONS }
   const parsed = parseVendorScoringConfig(config.questions, config.riskThresholds)
-  return { config, parsedConfig: parsed.config, riskThresholds: parsed.customThresholds ? mergeRiskThresholds(parsed.customThresholds) : DEFAULT_RISK_THRESHOLDS }
+  return {
+    config,
+    parsedConfig: parsed.config,
+    riskThresholds: parsed.customThresholds ? mergeRiskThresholds(parsed.customThresholds) : DEFAULT_RISK_THRESHOLDS,
+    questions: parsed.config ? mergeVendorScoringQuestions(parsed.config.customQuestions) : DEFAULT_QUESTIONS,
+  }
 }
 
 export const useOrganizationVendorScoringConfig = () => {
@@ -200,6 +207,7 @@ export const useOrganizationVendorScoringConfig = () => {
     config: query.data?.config,
     parsedConfig: query.data ? query.data.parsedConfig : EMPTY_PARSED_VENDOR_SCORING_CONFIG,
     riskThresholds: query.data?.riskThresholds ?? DEFAULT_RISK_THRESHOLDS,
+    questions: query.data?.questions ?? DEFAULT_QUESTIONS,
     isConfigured: !!query.data?.config,
     isResolved: query.isSuccess && !query.isPlaceholderData,
   }

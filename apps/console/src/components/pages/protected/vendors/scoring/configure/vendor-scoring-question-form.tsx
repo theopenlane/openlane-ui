@@ -9,22 +9,15 @@ import { Textarea } from '@repo/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 import { cn } from '@repo/ui/lib/utils'
-import { VendorRiskScoreVendorRiskImpact, VendorRiskScoreVendorScoringAnswerType, VendorRiskScoreVendorScoringCategory } from '@repo/codegen/src/schema'
+import { VendorRiskScoreVendorScoringAnswerType, VendorRiskScoreVendorScoringCategory } from '@repo/codegen/src/schema'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Callout } from '@/components/shared/callout/callout'
 import { ANSWER_TYPE_COPY, ANSWER_TYPE_ORDER } from '../vendor-scoring-copy'
+import { IMPACT_ORDER } from '@/lib/vendor-scoring-config'
 import { toQuestionDraftValues, useVendorScoringQuestionForm, type TVendorScoringQuestionFormData } from './use-vendor-scoring-question-form-schema'
 import { type TQuestionDraftValues } from '@/lib/vendor-scoring-config'
 
 export const VENDOR_SCORING_QUESTION_FORM_ID = 'vendor-scoring-question-form'
-
-const IMPACT_ORDER: readonly VendorRiskScoreVendorRiskImpact[] = [
-  VendorRiskScoreVendorRiskImpact.VERY_LOW,
-  VendorRiskScoreVendorRiskImpact.LOW,
-  VendorRiskScoreVendorRiskImpact.MEDIUM,
-  VendorRiskScoreVendorRiskImpact.HIGH,
-  VendorRiskScoreVendorRiskImpact.CRITICAL,
-]
 
 const CATEGORY_OPTIONS = enumToOptions(VendorRiskScoreVendorScoringCategory)
 

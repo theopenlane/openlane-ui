@@ -5,7 +5,7 @@ export type TExportColumn<T> = {
   accessor: (item: T) => string | number | null | undefined
 }
 
-const FORMULA_TRIGGER = /^[=+\-@\t\r]/
+export const FORMULA_TRIGGER = /^[=+\-@\t\r]/
 const UTF8_BOM = '\uFEFF'
 
 const escapeCsvValue = (value: string | number | null | undefined): string => {

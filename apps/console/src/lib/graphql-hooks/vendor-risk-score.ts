@@ -1,8 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { useHistoryGraphQLClient } from '@/hooks/useHistoryGraphQLClient'
+import { type GetVendorRiskScoreHistoriesQuery, type GetVendorRiskScoreHistoriesQueryVariables } from '@repo/codegen/src/historyschema'
+import { GET_VENDOR_RISK_SCORE_HISTORIES } from '@repo/codegen/query-history/vendor-risk-score'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type MutationCreateBulkCsvVendorRiskScoreArgs,
-  type MutationCreateVendorRiskScoreArgs,
+  type CreateVendorRiskScoreMutation,
+  type CreateVendorRiskScoreMutationVariables,
+  type UpdateVendorRiskScoreMutation,
+  type CreateVendorRiskScoreInput,
+  type UpdateVendorRiskScoreInput,
+  type UpdateBulkCsvVendorRiskScoreMutation,
+  type UpdateBulkCsvVendorRiskScoreMutationVariables,
   type MutationDeleteBulkVendorRiskScoreArgs,
   type DeleteVendorRiskScoreMutationVariables,
   type MutationUpdateBulkVendorRiskScoreArgs,
@@ -14,9 +24,7 @@ import {
   type VendorRiskScoreBulkDeletePayload,
   type VendorRiskScoreBulkUpdatePayload,
   type VendorRiskScoreConnection,
-  type VendorRiskScoreCreatePayload,
   type VendorRiskScoreDeletePayload,
-  type VendorRiskScoreUpdatePayload,
   type VendorRiskScoringQuery,
   type VendorRiskScoreQuestionUsageQuery,
   type VendorRiskScoringQueryVariables,
@@ -31,6 +39,7 @@ import {
   DELETE_VENDOR_RISK_SCORE,
   VENDOR_RISK_SCORE,
   CREATE_CSV_BULK_VENDOR_RISK_SCORE,
+  UPDATE_CSV_BULK_VENDOR_RISK_SCORE,
   BULK_EDIT_VENDOR_RISK_SCORE,
   BULK_DELETE_VENDOR_RISK_SCORE,
   GET_VENDOR_RISK_SCORING,
@@ -43,16 +52,6 @@ type VendorRiskScoresWithFilterQuery = {
 }
 
 type VendorRiskScoresWithFilterQueryVariables = QueryVendorRiskScoresArgs
-
-type CreateVendorRiskScoreMutation = {
-  createVendorRiskScore: VendorRiskScoreCreatePayload
-}
-
-type CreateVendorRiskScoreMutationVariables = MutationCreateVendorRiskScoreArgs
-
-type UpdateVendorRiskScoreMutation = {
-  updateVendorRiskScore: VendorRiskScoreUpdatePayload
-}
 
 type DeleteVendorRiskScoreMutation = {
   deleteVendorRiskScore: VendorRiskScoreDeletePayload
@@ -245,4 +244,63 @@ export const useLinkUnconfiguredVendorRiskScores = () => {
       await client.request<UpdateBulkVendorRiskScoreMutation, UpdateBulkVendorRiskScoreMutationVariables>(BULK_EDIT_VENDOR_RISK_SCORE, { ids, input: { vendorScoringConfigID } })
     }
   }
+}
+
+type TSaveVendorRiskAnswerVariables = { kind: 'create'; input: CreateVendorRiskScoreInput } | { kind: 'update'; id: string; input: UpdateVendorRiskScoreInput }
+
+export const useSaveVendorRiskAnswer = (entityId: string) => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<TVendorRiskScoringNode, unknown, TSaveVendorRiskAnswerVariables>({
+    mutationFn: async (variables) => {
+      if (variables.kind === 'create') {
+        const data = await client.request<CreateVendorRiskScoreMutation, CreateVendorRiskScoreMutationVariables>(CREATE_VENDOR_RISK_SCORE, { input: variables.input })
+        return data.createVendorRiskScore.vendorRiskScore
+      }
+      const data = await client.request<UpdateVendorRiskScoreMutation, UpdateVendorRiskScoreMutationVariables>(UPDATE_VENDOR_RISK_SCORE, {
+        updateVendorRiskScoreId: variables.id,
+        input: variables.input,
+      })
+      return data.updateVendorRiskScore.vendorRiskScore
+    },
+    onSuccess: (saved, variables) => {
+      queryClient.setQueryData<TVendorRiskScoringNode[]>(['vendorRiskScores', 'scoring', entityId], (current) =>
+        current?.some((score) => score.id === saved.id) ? current.map((score) => (score.id === saved.id ? saved : score)) : [...(current ?? []), saved],
+      )
+      if (variables.kind === 'update') queryClient.invalidateQueries({ queryKey: ['vendorRiskScoreHistories', entityId] })
+    },
+  })
+}
+
+export const useUpdateBulkCSVVendorRiskScore = () => {
+  const { queryClient } = useGraphQLClient()
+  return useMutation<UpdateBulkCsvVendorRiskScoreMutation, unknown, UpdateBulkCsvVendorRiskScoreMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: UPDATE_CSV_BULK_VENDOR_RISK_SCORE, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendorRiskScores'] })
+    },
+  })
+}
+
+export type TVendorRiskScoreHistoryNode = NonNullable<NonNullable<NonNullable<GetVendorRiskScoreHistoriesQuery['vendorRiskScoreHistories']['edges']>[number]>['node']>
+
+const HISTORY_FETCH_LIMIT = 500
+
+export const useVendorRiskScoreHistories = (entityId: string, refs: readonly string[], enabled: boolean) => {
+  const { client } = useHistoryGraphQLClient()
+  const sortedRefs = useMemo(() => [...refs].sort(), [refs])
+  return useQuery({
+    queryKey: ['vendorRiskScoreHistories', entityId, sortedRefs],
+    queryFn: () =>
+      fetchAllConnectionNodes<TVendorRiskScoreHistoryNode>(async (after) => {
+        const data = await client.request<GetVendorRiskScoreHistoriesQuery, GetVendorRiskScoreHistoriesQueryVariables>(GET_VENDOR_RISK_SCORE_HISTORIES, {
+          where: { refIn: sortedRefs },
+          first: VENDOR_RISK_SCORING_PAGE_SIZE,
+          after,
+        })
+        return data.vendorRiskScoreHistories
+      }, HISTORY_FETCH_LIMIT),
+    enabled: enabled && sortedRefs.length > 0,
+    placeholderData: undefined,
+  })
 }

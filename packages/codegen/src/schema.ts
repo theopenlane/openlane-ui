@@ -10441,7 +10441,22 @@ export type CreateVendorRiskScoreMutationVariables = Exact<{
 }>
 
 export interface CreateVendorRiskScoreMutation {
-  createVendorRiskScore: { vendorRiskScore: { id: string } }
+  createVendorRiskScore: {
+    vendorRiskScore: {
+      id: string
+      questionKey: string
+      questionName: string
+      questionCategory: Types.VendorRiskScoreVendorScoringCategory
+      answerType: Types.VendorRiskScoreVendorScoringAnswerType
+      answer: string | null
+      impact: Types.VendorRiskScoreVendorRiskImpact
+      likelihood: Types.VendorRiskScoreVendorRiskLikelihood
+      score: number
+      notes: string | null
+      tags: Array<string> | null
+      updatedAt: any
+    }
+  }
 }
 
 export type UpdateVendorRiskScoreMutationVariables = Exact<{
@@ -10450,7 +10465,22 @@ export type UpdateVendorRiskScoreMutationVariables = Exact<{
 }>
 
 export interface UpdateVendorRiskScoreMutation {
-  updateVendorRiskScore: { vendorRiskScore: { id: string } }
+  updateVendorRiskScore: {
+    vendorRiskScore: {
+      id: string
+      questionKey: string
+      questionName: string
+      questionCategory: Types.VendorRiskScoreVendorScoringCategory
+      answerType: Types.VendorRiskScoreVendorScoringAnswerType
+      answer: string | null
+      impact: Types.VendorRiskScoreVendorRiskImpact
+      likelihood: Types.VendorRiskScoreVendorRiskLikelihood
+      score: number
+      notes: string | null
+      tags: Array<string> | null
+      updatedAt: any
+    }
+  }
 }
 
 export type DeleteVendorRiskScoreMutationVariables = Exact<{
@@ -10467,6 +10497,14 @@ export type CreateBulkCsvVendorRiskScoreMutationVariables = Exact<{
 
 export interface CreateBulkCsvVendorRiskScoreMutation {
   createBulkCSVVendorRiskScore: { vendorRiskScores: Array<{ id: string }> | null }
+}
+
+export type UpdateBulkCsvVendorRiskScoreMutationVariables = Exact<{
+  input: any
+}>
+
+export interface UpdateBulkCsvVendorRiskScoreMutation {
+  updateBulkCSVVendorRiskScore: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type DeleteBulkVendorRiskScoreMutationVariables = Exact<{
