@@ -66,9 +66,8 @@ export const credentialsProvider = Credentials({
         refreshToken = data?.refresh_token
         session = data?.session
 
-        if (data.tfa_enabled && !data.access_token) {
-          // only pass the tfa pending cookie back to the browser, as a host-only cookie
-          forwardTfaPendingCookie(await cookies(), fData.headers)
+        if (data.tfa_required || (data.tfa_enabled && !data.access_token)) {
+          forwardTfaPendingCookie(await cookies(), fData.headers, data.tfa_required ? data.access_token : undefined)
 
           return {
             isTfaEnabled: true,
