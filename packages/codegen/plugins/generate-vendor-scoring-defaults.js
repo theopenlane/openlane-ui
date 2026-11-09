@@ -35,6 +35,7 @@ const CODEGEN_ENUMS = {
 }
 
 const INVALID_ENUM_VALUE = 'INVALID'
+const ENUM_VALUE_PATTERN = /^[A-Z][A-Z0-9_]*$/
 
 const FETCH_TIMEOUT_MS = 30 * 1000 // 30s
 
@@ -113,7 +114,11 @@ const assertJsonTags = (source, structName, expected) => {
 const parseGoEnum = (source, goType) => {
   const values = new Map()
   for (const [, constant, value] of source.matchAll(new RegExp(`^\\s*(${goType}\\w+)\\s+${goType}\\s*=\\s*"([^"]+)"`, 'gm'))) {
-    if (value !== INVALID_ENUM_VALUE) values.set(constant, value)
+    if (value === INVALID_ENUM_VALUE) continue
+    if (!ENUM_VALUE_PATTERN.test(value)) {
+      throw new Error(`Go enum ${goType} value ${JSON.stringify(value)} is not an UPPER_SNAKE identifier this generator can emit`)
+    }
+    values.set(constant, value)
   }
   if (values.size === 0) {
     throw new Error(`no values found for Go enum ${goType}`)
@@ -196,7 +201,7 @@ const parseQuestions = (models, enums) => {
     const key = parseGoString(readField(entry, STRING_FIELD('Key'), 'Key'), 'Key')
     const nameMatch = entry.match(literalField('Name'))
     const descriptionMatch = entry.match(literalField('Description'))
-    const optionsMatch = entry.match(/^\s*AnswerOptions:\s*\[\]string\{((?:\s*"(?:[^"\\]|\\.)*"\s*,?)*)\s*\}\s*,?\s*$/m)
+    const optionsMatch = entry.match(/^\s*AnswerOptions:\s*\[\]string\{\s*((?:"(?:[^"\\]|\\.)*"(?:\s*,\s*"(?:[^"\\]|\\.)*")*)?)\s*,?\s*\}\s*,?\s*$/m)
     const enabledMatch = entry.match(/^\s*Enabled:\s*(true|false)\s*,?\s*$/m)
     assertParsedWhenPresent(entry, 'Name', nameMatch, key)
     assertParsedWhenPresent(entry, 'Description', descriptionMatch, key)
@@ -280,8 +285,6 @@ const emitQuestion = (question) => {
   return `  {\n${lines.map((line) => `    ${line},`).join('\n')}\n  },`
 }
 
-const toConstantKey = (value) => value.replace(/[^A-Z0-9_]/g, '_')
-
 const main = async () => {
   const [models, categorySource, answerTypeSource, impactSource, ratingSource] = await Promise.all(Object.values(SOURCES).map(readSource))
   const schemaTypes = fs.readFileSync(schemaTypesPath, 'utf8')
@@ -306,7 +309,7 @@ const main = async () => {
 import { ${Object.values(CODEGEN_ENUMS).join(', ')} } from './schema-types'
 
 export const VendorRiskRating = {
-${[...ratingValues.values()].map((value) => `  ${toConstantKey(value)}: '${value}',`).join('\n')}
+${[...ratingValues.values()].map((value) => `  ${value}: ${emitString(value)},`).join('\n')}
 } as const
 
 export type TVendorRiskRating = (typeof VendorRiskRating)[keyof typeof VendorRiskRating]
@@ -338,7 +341,7 @@ ${questions.map(emitQuestion).join('\n')}
 ]
 
 export const DEFAULT_VENDOR_RISK_THRESHOLDS: readonly TVendorRiskThreshold[] = [
-${thresholds.map(({ rating, maxScore }) => `  { rating: VendorRiskRating.${toConstantKey(rating)}, maxScore: ${maxScore} },`).join('\n')}
+${thresholds.map(({ rating, maxScore }) => `  { rating: VendorRiskRating.${rating}, maxScore: ${maxScore} },`).join('\n')}
 ]
 `
 
