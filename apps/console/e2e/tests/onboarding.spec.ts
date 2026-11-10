@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 import { PASSWORD, RUN_ID } from '../utils/constants'
 import { loginViaForm } from '../utils/login'
-import { backButton, companyNameInput, completeOnboarding, ensureOnboardingRoute, nextButton } from '../utils/onboarding'
+import { backButton, chooseEmptyOrganization, companyNameInput, completeOnboarding, ensureOnboardingRoute, nextButton } from '../utils/onboarding'
 import { registerAndVerify } from '../utils/registerUser'
 
 // Onboarding is one-shot per account, so every test that completes the wizard needs a fresh user
@@ -72,6 +72,7 @@ test.describe('onboarding', () => {
 
     const companyName = 'Back Button Test'
     await companyNameInput(page).fill(companyName)
+    await chooseEmptyOrganization(page)
     await nextButton(page).click()
 
     await expect(page.getByRole('heading', { name: /^Compliance Setup$/ })).toBeVisible()
@@ -143,6 +144,8 @@ test.describe('onboarding', () => {
     await ensureOnboardingRoute(page)
 
     await companyNameInput(page).fill('Select Co')
+
+    await chooseEmptyOrganization(page)
     await nextButton(page).click()
     await expect(page.getByRole('heading', { name: /^Compliance Setup$/ })).toBeVisible()
     await nextButton(page).click()
@@ -168,6 +171,8 @@ test.describe('onboarding', () => {
     await ensureOnboardingRoute(page)
 
     await companyNameInput(page).fill('Boolean Co')
+
+    await chooseEmptyOrganization(page)
     await nextButton(page).click()
     await expect(page.getByRole('heading', { name: /^Compliance Setup$/ })).toBeVisible()
     await nextButton(page).click()
@@ -195,6 +200,8 @@ test.describe('onboarding', () => {
     await expect(page.getByRole('button', { name: 'Exit the onboarding process' })).toHaveCount(0)
 
     await companyNameInput(page).fill(`Early Exit Co ${Date.now().toString(36)}`)
+
+    await chooseEmptyOrganization(page)
     await nextButton(page).click()
     await expect(page.getByRole('heading', { name: /^Compliance Setup$/ })).toBeVisible()
 

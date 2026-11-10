@@ -7,6 +7,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useDomainScanNotification } from '@/hooks/useDomainScanNotification'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateOnboarding } from '@/lib/graphql-hooks/onboarding'
+import { SEED_DEMO_DATA_KEY } from '@/lib/onboarding-questions/question-keys'
+import { useDemoDataSeedStatus } from '@/components/pages/protected/onboarding/hooks/use-demo-data-seed-status'
 import { buildOnboardingInput, getExistingControls, getSelectedFrameworkLabels } from '@/lib/onboarding-questions/submit-mapping'
 import { type OnboardingQuestion, type SubmitStage } from '@/lib/onboarding-questions/types'
 import { clearOnboardingCreatedOrganization, getOnboardingCreatedOrganization, setOnboardingCreatedOrganization } from '@/lib/storage/onboarding-created-organization'
@@ -35,6 +37,7 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
   const [workspaceReady, setWorkspaceReady] = useState(false)
   const [organizationReady, setOrganizationReady] = useState(false)
   const [organizationReadyWaitOver, setOrganizationReadyWaitOver] = useState(false)
+  const [demoDataRequestedAt, setDemoDataRequestedAt] = useState<number | null>(null)
 
   const userId = sessionData?.user?.userId
   const isSubmittingRef = useRef(false)
@@ -42,6 +45,7 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
   const isWorkspaceSwitched = formStage === 'transition' && workspaceReady
   const submitStage: SubmitStage = isWorkspaceSwitched && (organizationReady || organizationReadyWaitOver) ? 'ready' : formStage
   const isAwaitingOrganization = isWorkspaceSwitched && !organizationReady
+  const demoDataSeedStatus = useDemoDataSeedStatus({ requestedAt: demoDataRequestedAt, isWorkspaceReady: isWorkspaceSwitched })
 
   useEffect(() => {
     return addNewNotificationListener((notification) => {
@@ -155,6 +159,7 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
 
     setFormStage('transition')
     setWorkspaceReady(false)
+    setDemoDataRequestedAt(formValues[SEED_DEMO_DATA_KEY] === true ? Date.now() : null)
 
     try {
       const didComplete = await runOnboardingOnce(formValues)
@@ -205,5 +210,6 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
     leaveOnboarding,
     domainScanNotification,
     reviewDomainScanFindings,
+    demoDataSeedStatus,
   }
 }

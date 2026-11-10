@@ -13563,10 +13563,14 @@ export interface CreateOnboardingInput {
   companyName: Scalars['String']['input']
   /** details given about the compliance requirements during the onboarding process, such as coming with existing policies, controls, risk assessments, etc */
   compliance?: InputMaybe<Scalars['Map']['input']>
+  /** the demo dataset to seed when seed_demo_data is true */
+  demoDataset?: InputMaybe<Scalars['String']['input']>
   demoRequested?: InputMaybe<Scalars['Boolean']['input']>
   /** domains associated with the company */
   domains?: InputMaybe<Array<Scalars['String']['input']>>
   organizationID?: InputMaybe<Scalars['ID']['input']>
+  /** whether the organization starts with demo data, unset when the question was not answered */
+  seedDemoData?: InputMaybe<Scalars['Boolean']['input']>
   /** details given about the user during the onboarding process, including things such as name, job title, department, etc */
   userDetails?: InputMaybe<Scalars['Map']['input']>
 }
@@ -41627,12 +41631,16 @@ export interface Onboarding extends Node {
   companyName: Scalars['String']['output']
   /** details given about the compliance requirements during the onboarding process, such as coming with existing policies, controls, risk assessments, etc */
   compliance?: Maybe<Scalars['Map']['output']>
+  /** the demo dataset to seed when seed_demo_data is true */
+  demoDataset?: Maybe<Scalars['String']['output']>
   demoRequested?: Maybe<Scalars['Boolean']['output']>
   /** domains associated with the company */
   domains?: Maybe<Array<Scalars['String']['output']>>
   id: Scalars['ID']['output']
   organization?: Maybe<Organization>
   organizationID?: Maybe<Scalars['ID']['output']>
+  /** whether the organization starts with demo data, unset when the question was not answered */
+  seedDemoData?: Maybe<Scalars['Boolean']['output']>
   /** details given about the user during the onboarding process, including things such as name, job title, department, etc */
   userDetails?: Maybe<Scalars['Map']['output']>
 }
@@ -41660,6 +41668,18 @@ export interface OnboardingWhereInput {
   companyNameIn?: InputMaybe<Array<Scalars['String']['input']>>
   companyNameNEQ?: InputMaybe<Scalars['String']['input']>
   companyNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** demo_dataset field predicates */
+  demoDataset?: InputMaybe<Scalars['String']['input']>
+  demoDatasetContains?: InputMaybe<Scalars['String']['input']>
+  demoDatasetContainsFold?: InputMaybe<Scalars['String']['input']>
+  demoDatasetEqualFold?: InputMaybe<Scalars['String']['input']>
+  demoDatasetHasPrefix?: InputMaybe<Scalars['String']['input']>
+  demoDatasetHasSuffix?: InputMaybe<Scalars['String']['input']>
+  demoDatasetIn?: InputMaybe<Array<Scalars['String']['input']>>
+  demoDatasetIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  demoDatasetNEQ?: InputMaybe<Scalars['String']['input']>
+  demoDatasetNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  demoDatasetNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** demo_requested field predicates */
   demoRequested?: InputMaybe<Scalars['Boolean']['input']>
   demoRequestedIsNil?: InputMaybe<Scalars['Boolean']['input']>
@@ -41691,6 +41711,11 @@ export interface OnboardingWhereInput {
   organizationIDNEQ?: InputMaybe<Scalars['ID']['input']>
   organizationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   organizationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** seed_demo_data field predicates */
+  seedDemoData?: InputMaybe<Scalars['Boolean']['input']>
+  seedDemoDataIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  seedDemoDataNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  seedDemoDataNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /** Possible directions in which to order a list of items when provided an `orderBy` argument. */
