@@ -119,7 +119,7 @@ test.describe('trust-center — branding unpublished-changes preview link (ISS-3
     await expect(warning).toHaveCount(1, { timeout: 30_000 })
     const link = warning.getByRole('link', { name: 'Preview' })
     await expect(link).toBeVisible()
-    await expect(link).toHaveAttribute('href', 'https://preview-e2e.example.test?fresh=1')
+    await expect(link).toHaveAttribute('href', 'https://preview-e2e.example.test')
     await expect(link).toHaveAttribute('target', '_blank')
     await expect(link).toHaveAttribute('rel', /noopener/)
   })
