@@ -69,6 +69,12 @@ const CustomReportPage: React.FC = () => {
   const selectedPaths = useMemo(() => new Set(columnPaths), [columnPaths])
 
   const [request, setRequest] = useState<TReportRequest | null>(null)
+  const [isCancelled, setIsCancelled] = useState(false)
+
+  const clearRequest = useCallback(() => {
+    setRequest(null)
+    setIsCancelled(false)
+  }, [])
 
   const patchConfig = useCallback((patch: Partial<TReportQueryConfig>) => setConfig((current) => ({ ...current, ...patch })), [])
 
@@ -93,10 +99,29 @@ const CustomReportPage: React.FC = () => {
     })
   }, [])
 
-  const { data: result, error, isFetching } = useReportQuery(request, pagination.query)
-  const { runExport, isExporting } = useReportExport(request)
+  const { data: result, error, isFetching, isPlaceholderData } = useReportQuery(request, pagination.query)
+  const { runExport, isExporting, cancelExport } = useReportExport(request)
+
+  const settledPageRef = useRef<{ runId: number; pagination: TPagination } | null>(null)
+
+  useEffect(() => {
+    if (request && result && !isFetching && !isPlaceholderData) settledPageRef.current = { runId: request.runId, pagination }
+  }, [isFetching, isPlaceholderData, pagination, request, result])
+
+  const handleCancel = useCallback(() => {
+    const settled = settledPageRef.current
+
+    if (request && settled?.runId === request.runId) {
+      setPagination(settled.pagination)
+      return
+    }
+
+    setRequest(null)
+    setIsCancelled(true)
+  }, [request])
 
   const reportResult = request ? result : undefined
+  const isRunning = isFetching && (!reportResult || isPlaceholderData)
 
   const rowPerChoices = useMemo(() => (request ? rowPerOptions(request.columns) : []), [request])
   const selectedRowPer = rowPerChoices.find((option) => option.path === rowPerPath)
@@ -142,10 +167,10 @@ const CustomReportPage: React.FC = () => {
         setTab('results')
         runConfig(next)
       } else {
-        setRequest(null)
+        clearRequest()
       }
     },
-    [runConfig],
+    [clearRequest, runConfig],
   )
 
   const {
@@ -165,7 +190,7 @@ const CustomReportPage: React.FC = () => {
     if (!nextEntity) return
 
     setConfig((current) => ({ ...reportConfigForEntity(nextEntity), limit: current.limit }))
-    setRequest(null)
+    clearRequest()
     setRowPerPath(ROW_PER_RECORD)
     setPagination(resetPagination(pagination.pageSize))
     if (reportId) detachReport()
@@ -209,12 +234,13 @@ const CustomReportPage: React.FC = () => {
           onSelectHistory={handleSelectHistory}
           saveDisabledReason={saveDisabledReason}
           runDisabled={runDisabled}
-          isRunning={isFetching}
+          isRunning={isRunning}
           onClose={detachReport}
           onOpenSavedReports={() => setIsSavedListOpen(true)}
           onShare={() => setShareTarget(savedReport)}
           onSave={() => setIsSaveOpen(true)}
           onRun={handleRun}
+          onCancel={handleCancel}
         />
         {entity && columnPaths.length === 0 && <p className="text-xs text-muted-foreground text-right">Select at least one column to run this report.</p>}
         {incompleteFilters > 0 && <p className="text-xs text-muted-foreground text-right">Give every filter a value, or remove it, before running this report.</p>}
@@ -269,10 +295,20 @@ const CustomReportPage: React.FC = () => {
                 onViewChange={setView}
                 canExport={!!request}
                 isExporting={isExporting}
+                onCancelExport={cancelExport}
                 onExport={(format) => runExport(format, rowPer ?? [])}
               />
 
-              <ReportResults result={reportResult} rows={pageRows} error={error} isLoading={isFetching} view={view} pagination={pagination} onPaginationChange={setPagination} />
+              <ReportResults
+                result={reportResult}
+                rows={pageRows}
+                error={error}
+                isLoading={isFetching}
+                isCancelled={isCancelled && !request}
+                view={view}
+                pagination={pagination}
+                onPaginationChange={setPagination}
+              />
             </TabsContent>
 
             <TabsContent value="query" className="mt-4 flex flex-col gap-3">

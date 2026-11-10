@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { GraphQLClient } from 'graphql-request'
 import type { TReportEdge, TReportEntity } from '@repo/codegen/src/report-schema.generated'
@@ -31,18 +31,18 @@ type TReportConnection = {
   edges?: ({ node?: Record<string, unknown> | null } | null)[] | null
 }
 
-const fetchConnection = async (client: GraphQLClient, request: TReportRequest, pageQuery: TPaginationQuery): Promise<TReportConnection | undefined> => {
+const fetchConnection = async (client: GraphQLClient, request: TReportRequest, pageQuery: TPaginationQuery, signal: AbortSignal): Promise<TReportConnection | undefined> => {
   const { query, variables } = buildReportQuery({ entity: request.entity, columns: request.columns, where: request.where, relatedWhere: request.relatedWhere, orderBy: request.orderBy, pageQuery })
-  const response = await client.request<Record<string, TReportConnection | null>>(query, variables)
+  const response = await client.request<Record<string, TReportConnection | null>>({ document: query, variables, signal })
 
   return response[request.entity.queryName] ?? undefined
 }
 
-const fetchWindow = async (client: GraphQLClient, request: TReportRequest, limit: number | null) => {
+const fetchWindow = async (client: GraphQLClient, request: TReportRequest, limit: number | null, signal: AbortSignal) => {
   let matchedCount = 0
 
   const nodes = await fetchAllConnectionNodes<TReportNode>(async (after, remaining) => {
-    const connection = await fetchConnection(client, request, { first: Math.min(EXPORT_PAGE_SIZE, remaining), after })
+    const connection = await fetchConnection(client, request, { first: Math.min(EXPORT_PAGE_SIZE, remaining), after }, signal)
     matchedCount = connection?.totalCount ?? matchedCount
 
     return connection
@@ -73,11 +73,11 @@ export const useReportQuery = (request: TReportRequest | null, pageQuery: TPagin
     queryKey: reportQueryKey(request, limit ? null : pageQuery),
     enabled: !!request,
     retry: false,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       if (!request) throw new Error('No report configured')
 
       if (request.limit) {
-        const { nodes, matchedCount } = await fetchWindow(client, request, request.limit)
+        const { nodes, matchedCount } = await fetchWindow(client, request, request.limit, signal)
 
         return {
           totalCount: nodes.length,
@@ -87,7 +87,7 @@ export const useReportQuery = (request: TReportRequest | null, pageQuery: TPagin
         }
       }
 
-      const connection = await fetchConnection(client, request, pageQuery)
+      const connection = await fetchConnection(client, request, pageQuery, signal)
       const nodes = (connection?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
       const totalCount = connection?.totalCount ?? nodes.length
 
@@ -107,13 +107,16 @@ export const useReportExport = (request: TReportRequest | null) => {
   const queryClient = useQueryClient()
   const { successNotification, warningNotification, errorNotification, infoNotification } = useNotification()
   const [isExporting, setIsExporting] = useState(false)
+  const exportControllerRef = useRef<AbortController | null>(null)
+
+  const cancelExport = useCallback(() => exportControllerRef.current?.abort(), [])
 
   const collectNodes = useCallback(
-    async (exportRequest: TReportRequest): Promise<TReportNode[]> => {
+    async (exportRequest: TReportRequest, signal: AbortSignal): Promise<TReportNode[]> => {
       const windowed = queryClient.getQueryData<TReportResult>(reportQueryKey(exportRequest, null))
       if (windowed && !windowed.pageInfo) return windowed.nodes
 
-      const { nodes } = await fetchWindow(client, exportRequest, exportRequest.limit)
+      const { nodes } = await fetchWindow(client, exportRequest, exportRequest.limit, signal)
 
       return nodes
     },
@@ -124,11 +127,17 @@ export const useReportExport = (request: TReportRequest | null) => {
     async (format: TReportExportFormat, rowPer: TReportEdge[]) => {
       if (!request) return
 
+      const controller = new AbortController()
+      exportControllerRef.current = controller
+
       setIsExporting(true)
       infoNotification({ title: 'Preparing export', description: 'Collecting records. This can take a moment for large reports.' })
 
       try {
-        const rows = flattenRows(await collectNodes(request), request.columns, rowPer)
+        const nodes = await collectNodes(request, controller.signal)
+        controller.signal.throwIfAborted()
+
+        const rows = flattenRows(nodes, request.columns, rowPer)
 
         if (rows.length === 0) {
           warningNotification({ title: 'Nothing to export', description: 'No records match this report.' })
@@ -138,13 +147,19 @@ export const useReportExport = (request: TReportRequest | null) => {
         exportReport(format, rows, request.columns, `${request.entity.queryName}-report`)
         successNotification({ title: 'Export complete', description: `${rows.length.toLocaleString()} rows exported as ${EXPORT_FORMAT_LABELS[format]}.` })
       } catch (error) {
+        if (controller.signal.aborted) {
+          infoNotification({ title: 'Export cancelled', description: 'No file was downloaded.' })
+          return
+        }
+
         errorNotification({ title: 'Export failed', description: exportErrorMessage(error) })
       } finally {
+        exportControllerRef.current = null
         setIsExporting(false)
       }
     },
     [collectNodes, errorNotification, infoNotification, request, successNotification, warningNotification],
   )
 
-  return { runExport, isExporting }
+  return { runExport, isExporting, cancelExport }
 }
