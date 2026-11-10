@@ -1,14 +1,16 @@
 'use client'
 
 import React, { useId } from 'react'
-import { Download } from 'lucide-react'
+import { Download, X } from 'lucide-react'
 import { Button } from '@repo/ui/button'
+import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { EXPORT_FORMAT_LABELS, EXPORT_FORMATS, type TReportExportFormat } from '@/lib/report/report-export'
 import { RELATED_RECORD_LIMIT } from '@/lib/report/build-report-query'
 import type { TRowPerOption } from '@/lib/report/report-rows'
 import { PATH_SEPARATOR } from '@/lib/report/report-schema'
+import { useBusyFocusHandoff } from './use-busy-focus-handoff'
 
 export type TReportView = 'table' | 'json'
 
@@ -24,12 +26,26 @@ type TReportResultsToolbarProps = {
   onViewChange: (view: TReportView) => void
   canExport: boolean
   isExporting: boolean
+  onCancelExport: () => void
   onExport: (format: TReportExportFormat) => void
 }
 
-const ReportResultsToolbar: React.FC<TReportResultsToolbarProps> = ({ summary, recordLabel, rowPerOptions, rowPer, onRowPerChange, view, onViewChange, canExport, isExporting, onExport }) => {
+const ReportResultsToolbar: React.FC<TReportResultsToolbarProps> = ({
+  summary,
+  recordLabel,
+  rowPerOptions,
+  rowPer,
+  onRowPerChange,
+  view,
+  onViewChange,
+  canExport,
+  isExporting,
+  onCancelExport,
+  onExport,
+}) => {
   const rowPerLabelId = useId()
   const formatLabelId = useId()
+  const { startRef: exportRef, cancelRef: cancelExportRef } = useBusyFocusHandoff(isExporting)
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -75,13 +91,25 @@ const ReportResultsToolbar: React.FC<TReportResultsToolbarProps> = ({ summary, r
           </SelectContent>
         </Select>
 
+        {isExporting && (
+          <Button ref={cancelExportRef} type="button" variant="outline" icon={<X size={14} />} iconPosition="left" onClick={onCancelExport} {...elementAnchor('custom-report', 'cancel-export')}>
+            Cancel export
+          </Button>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button type="button" variant="outline" size="md" icon={<Download size={14} />} iconPosition="left" loading={isExporting} disabled={!canExport || isExporting}>
+            <Button ref={exportRef} type="button" variant="outline" size="md" icon={<Download size={14} />} iconPosition="left" loading={isExporting} disabled={!canExport || isExporting}>
               Export
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent
+            align="end"
+            onCloseAutoFocus={(event) => {
+              if (!cancelExportRef.current) return
+              event.preventDefault()
+              cancelExportRef.current.focus()
+            }}
+          >
             {EXPORT_FORMATS.map((format) => (
               <DropdownMenuItem key={format} onClick={() => onExport(format)}>
                 {EXPORT_FORMAT_LABELS[format]}

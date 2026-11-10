@@ -18,6 +18,7 @@ type TReportResultsProps = {
   rows: TReportRow[]
   error: Error | null
   isLoading: boolean
+  isCancelled: boolean
   view: TReportView
   pagination: TPagination
   onPaginationChange: (pagination: TPagination) => void
@@ -36,7 +37,7 @@ const pageQueryFor = (page: number, pagination: TPagination, totalPages: number,
   return page > pagination.page ? { first: pagination.pageSize, after: pageInfo.endCursor } : { last: pagination.pageSize, before: pageInfo.startCursor }
 }
 
-const ReportResults: React.FC<TReportResultsProps> = ({ result, rows, error, isLoading, view, pagination, onPaginationChange }) => {
+const ReportResults: React.FC<TReportResultsProps> = ({ result, rows, error, isLoading, isCancelled, view, pagination, onPaginationChange }) => {
   const tableColumns = useMemo<ColumnDef<TReportRow>[]>(
     () =>
       (result?.columns ?? []).map((column) => {
@@ -65,9 +66,18 @@ const ReportResults: React.FC<TReportResultsProps> = ({ result, rows, error, isL
     )
   }
 
+  if (!result && isCancelled) {
+    return (
+      <div role="status" className="flex flex-col items-center justify-center gap-2 py-16 text-center">
+        <p className="font-medium">Report cancelled</p>
+        <p className="text-sm text-muted-foreground max-w-sm">Adjust the columns or filters if you need to, then run the report again.</p>
+      </div>
+    )
+  }
+
   if (!result) {
     return isLoading ? (
-      <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
+      <div role="status" className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
         <LoaderCircle className="animate-spin" size={16} />
         Running your report
       </div>
