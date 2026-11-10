@@ -1,8 +1,8 @@
 import { gql } from 'graphql-request'
 
 export const GET_ALL_SUBCONTROLS = gql`
-  query GetAllSubcontrols($where: SubcontrolWhereInput, $after: Cursor, $first: Int) {
-    subcontrols(where: $where, after: $after, first: $first) {
+  query GetAllSubcontrols($where: SubcontrolWhereInput, $after: Cursor, $first: Int, $orderBy: [SubcontrolOrder!] = [{ field: ref_code, direction: ASC }]) {
+    subcontrols(where: $where, after: $after, first: $first, orderBy: $orderBy) {
       edges {
         node {
           __typename
@@ -291,8 +291,8 @@ export const CREATE_SUBCONTROL = gql`
 `
 
 export const GET_SUBCONTROLS_PAGINATED = gql`
-  query GetSubcontrolsPaginated($where: SubcontrolWhereInput, $after: Cursor, $before: Cursor, $first: Int, $last: Int) {
-    subcontrols(where: $where, after: $after, before: $before, first: $first, last: $last) {
+  query GetSubcontrolsPaginated($where: SubcontrolWhereInput, $after: Cursor, $before: Cursor, $first: Int, $last: Int, $orderBy: [SubcontrolOrder!] = [{ field: ref_code, direction: ASC }]) {
+    subcontrols(where: $where, after: $after, before: $before, first: $first, last: $last, orderBy: $orderBy) {
       totalCount
       edges {
         node {

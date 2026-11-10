@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery, type InfiniteData, type QueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { compareNatural } from '@/lib/sort'
 import {
   CREATE_CONTROL,
   CREATE_CSV_BULK_CONTROL,
@@ -162,7 +161,7 @@ export const useGetAllControls = ({ where, pagination, orderBy, enabled = true, 
     queryFn: () =>
       client.request(GET_ALL_CONTROLS, {
         where,
-        orderBy,
+        orderBy: Array.isArray(orderBy) && orderBy.length === 0 ? undefined : (orderBy ?? undefined),
         ...includeVars,
         ...pagination?.query,
       }),
@@ -499,22 +498,16 @@ export function useAllControlsGroupedWithListFields({ where, enabled = true, inc
     return raw.filter((c): c is ControlListStandardFieldsFragment => c != null)
   }, [data?.pages])
 
-  const groupedControls = useMemo(() => {
-    const groups = allControls.reduce<Record<string, ControlListStandardFieldsFragment[]>>((acc, control) => {
-      const category = control.category || 'Uncategorized'
-      if (!acc[category]) acc[category] = []
-      acc[category].push(control)
-      return acc
-    }, {})
-
-    for (const controls of Object.values(groups)) {
-      controls.sort((a, b) => compareNatural(a.refCode, b.refCode))
-    }
-
-    const sortedEntries = Object.entries(groups).sort(([, controlsA], [, controlsB]) => compareNatural(controlsA[0]?.refCode ?? '', controlsB[0]?.refCode ?? ''))
-
-    return Object.fromEntries(sortedEntries)
-  }, [allControls])
+  const groupedControls = useMemo(
+    () =>
+      allControls.reduce<Record<string, ControlListStandardFieldsFragment[]>>((acc, control) => {
+        const category = control.category || 'Uncategorized'
+        if (!acc[category]) acc[category] = []
+        acc[category].push(control)
+        return acc
+      }, {}),
+    [allControls],
+  )
 
   const isLoadingAll = isLoading || isFetchingNextPage || hasNextPage || isFetching
 

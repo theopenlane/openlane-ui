@@ -286,7 +286,7 @@ export const GET_ALL_CONTROLS = gql`
   ${CONTROL_LIST_FIELDS_FRAGMENT}
   query GetAllControls(
     $where: ControlWhereInput
-    $orderBy: [ControlOrder!]
+    $orderBy: [ControlOrder!] = [{ field: ref_code, direction: ASC }]
     $first: Int
     $after: Cursor
     $last: Int
@@ -630,8 +630,8 @@ export const CREATE_CONTROL = gql`
 `
 
 export const GET_CONTROL_SELECT_OPTIONS = gql`
-  query GetControlSelectOptions($where: ControlWhereInput, $first: Int = 10) {
-    controls(where: $where, first: $first) {
+  query GetControlSelectOptions($where: ControlWhereInput, $first: Int = 10, $orderBy: [ControlOrder!] = [{ field: ref_code, direction: ASC }]) {
+    controls(where: $where, first: $first, orderBy: $orderBy) {
       edges {
         node {
           id
@@ -658,8 +658,8 @@ export const GET_CONTROL_SUBCATEGORIES = gql`
 `
 
 export const GET_CONTROLS_PAGINATED = gql`
-  query GetControlsPaginated($where: ControlWhereInput, $after: Cursor) {
-    controls(where: $where, after: $after) {
+  query GetControlsPaginated($where: ControlWhereInput, $after: Cursor, $orderBy: [ControlOrder!] = [{ field: ref_code, direction: ASC }]) {
+    controls(where: $where, after: $after, orderBy: $orderBy) {
       totalCount
       edges {
         node {
@@ -772,8 +772,8 @@ export const GET_CONTROL_BY_ID_MINIFIED = gql`
 
 export const GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS = gql`
   ${CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT}
-  query GetControlsPaginatedWithListFields($where: ControlWhereInput, $after: Cursor, $includeRelatedControls: Boolean = false) {
-    controls(where: $where, after: $after) {
+  query GetControlsPaginatedWithListFields($where: ControlWhereInput, $after: Cursor, $orderBy: [ControlOrder!] = [{ field: ref_code, direction: ASC }], $includeRelatedControls: Boolean = false) {
+    controls(where: $where, after: $after, orderBy: $orderBy) {
       totalCount
       edges {
         node {
@@ -1107,8 +1107,8 @@ export const INSERT_CONTROL_PLATE_COMMENT = gql`
 // Template controls with the framework controls they map to, so the console can
 // index suggestions by ref code without a lookup per control
 export const GET_TEMPLATE_CONTROLS_WITH_MAPPINGS = gql`
-  query GetTemplateControlsWithMappings($where: ControlWhereInput, $after: Cursor, $first: Int) {
-    controls(where: $where, after: $after, first: $first) {
+  query GetTemplateControlsWithMappings($where: ControlWhereInput, $after: Cursor, $first: Int, $orderBy: [ControlOrder!] = [{ field: ref_code, direction: ASC }]) {
+    controls(where: $where, after: $after, first: $first, orderBy: $orderBy) {
       pageInfo {
         hasNextPage
         endCursor

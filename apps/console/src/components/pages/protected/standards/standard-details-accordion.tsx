@@ -45,21 +45,8 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ st
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const where = generateWhere(standardId, debouncedSearchQuery)
-  const allControls = useAllControlsGroupedWithListFields({ where, enabled: !!standardId })
+  const { groupedControls, isLoading: isLoadingControls } = useAllControlsGroupedWithListFields({ where, enabled: !!standardId })
   const { convertToReadOnly } = usePlateEditor()
-
-  const groupedControls = useMemo(() => {
-    const controlsList = allControls?.allControls ?? []
-
-    if (!controlsList || controlsList.length === 0) return {}
-
-    return controlsList.reduce<Record<string, ControlListStandardFieldsFragment[]>>((acc, control) => {
-      const category = control.category || 'Uncategorized'
-      if (!acc[category]) acc[category] = []
-      acc[category].push(control)
-      return acc
-    }, {})
-  }, [allControls])
 
   const toggleSelection = useCallback(
     (control: { id: string; refCode: string }) => {
@@ -186,7 +173,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ st
               <AccordionContent>
                 <div className="">
                   <DataTable
-                    loading={allControls.isLoading}
+                    loading={isLoadingControls}
                     columns={columns}
                     data={getPaginatedControls(category, controls)}
                     paginationMeta={{
@@ -206,7 +193,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ st
         })}
       </Accordion>
 
-      {!allControls.isLoading && !searchQuery && allSectionKeys.length === 0 && emptyState}
+      {!isLoadingControls && !searchQuery && allSectionKeys.length === 0 && emptyState}
     </div>
   )
 }

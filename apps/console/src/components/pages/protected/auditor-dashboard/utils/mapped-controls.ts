@@ -1,5 +1,6 @@
 import { type AuditorDashboardRelatedControl } from '@/lib/graphql-hooks/control'
 import { type ControlControlStatus } from '@repo/codegen/src/schema'
+import { compareNatural } from '@/lib/sort'
 
 const CUSTOM_FRAMEWORK_LABEL = 'CUSTOM'
 
@@ -8,7 +9,7 @@ const isCustomControl = (related: AuditorDashboardRelatedControl): boolean => !r
 const isInProgramScope = (related: AuditorDashboardRelatedControl, programFrameworks: Set<string>): boolean => isCustomControl(related) || programFrameworks.has(related.referenceFramework ?? '')
 
 const compareForDisplay = (a: AuditorDashboardRelatedControl, b: AuditorDashboardRelatedControl): number =>
-  (a.referenceFramework ?? CUSTOM_FRAMEWORK_LABEL).localeCompare(b.referenceFramework ?? CUSTOM_FRAMEWORK_LABEL) || a.refCode.localeCompare(b.refCode) || a.id.localeCompare(b.id)
+  (a.referenceFramework ?? CUSTOM_FRAMEWORK_LABEL).localeCompare(b.referenceFramework ?? CUSTOM_FRAMEWORK_LABEL) || compareNatural(a.refCode, b.refCode) || a.id.localeCompare(b.id)
 
 type GetProgramScopedMappedControlsArgs = {
   relatedControls?: AuditorDashboardRelatedControl[] | null

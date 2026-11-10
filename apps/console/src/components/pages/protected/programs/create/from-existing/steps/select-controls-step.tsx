@@ -38,15 +38,7 @@ const SelectControlsStep = ({ sourceProgramName }: SelectControlsStepProps) => {
   const selectedControlIDs = useWatch({ control, name: 'controlIDs' }) ?? emptySelection
   const selectedControlSet = useMemo(() => new Set(selectedControlIDs), [selectedControlIDs])
 
-  const groupedByFramework = useMemo(() => {
-    const groups = groupControlsByFramework(orgControls)
-
-    for (const controls of Object.values(groups)) {
-      controls.sort((a, b) => a.refCode.localeCompare(b.refCode, undefined, { numeric: true }))
-    }
-
-    return groups
-  }, [orgControls])
+  const groupedByFramework = useMemo(() => groupControlsByFramework(orgControls), [orgControls])
 
   const frameworks = useMemo(() => Object.keys(groupedByFramework).sort((a, b) => a.localeCompare(b)), [groupedByFramework])
 
