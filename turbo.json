@@ -49,9 +49,6 @@
         // reCAPTCHA
         "RECAPTCHA_SECRET_KEY",
 
-        // For bedrock chat integration (unused in production)
-        "AWS_REGION",
-
         // for customer support chat
         "DEVREV_AAT",
 
