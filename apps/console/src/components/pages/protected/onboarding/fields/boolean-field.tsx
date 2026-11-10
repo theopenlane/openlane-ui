@@ -23,7 +23,7 @@ export const BooleanField: React.FC<{ question: OnboardingQuestion }> = ({ quest
   const isChoiceCards = options.some((option) => !!option.description)
 
   return (
-    <div className={cn('space-y-3', isChoiceCards && 'border-t pt-6')}>
+    <div className={cn('space-y-3', isChoiceCards && 'border-t pt-5')}>
       <div className="space-y-1">
         <QuestionLabel question={question} />
         <QuestionDescription text={question.description} />
@@ -31,7 +31,7 @@ export const BooleanField: React.FC<{ question: OnboardingQuestion }> = ({ quest
       <RadioGroup
         value={value === undefined ? '' : String(value)}
         onValueChange={(next) => setValue(question.key, next === 'true', { shouldDirty: true, shouldValidate: true })}
-        className={isChoiceCards ? 'grid gap-3' : 'flex flex-wrap gap-6'}
+        className={isChoiceCards ? 'grid gap-3 sm:grid-cols-2' : 'flex flex-wrap gap-6'}
       >
         {options.map((option) => {
           const id = `${question.key}-${option.value}`
@@ -43,7 +43,7 @@ export const BooleanField: React.FC<{ question: OnboardingQuestion }> = ({ quest
               className={cn(
                 'flex cursor-pointer font-normal text-sm',
                 isChoiceCards
-                  ? 'items-start gap-4 rounded-lg border p-4 transition-colors hover:border-primary/50 has-data-[state=checked]:border-primary has-data-[state=checked]:bg-primary/5'
+                  ? 'items-start gap-4 rounded-lg border px-4 py-3 transition-colors hover:border-primary/50 has-data-[state=checked]:border-primary has-data-[state=checked]:bg-primary/5'
                   : 'items-center gap-2',
               )}
             >

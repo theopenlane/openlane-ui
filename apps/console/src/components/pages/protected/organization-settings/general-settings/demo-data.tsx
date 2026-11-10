@@ -9,25 +9,16 @@ import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-toolt
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
-import { DEMO_DATASET, type TDemoDataPresence, useDeleteDemoData, useDemoDataPresence, useSeedDemoData } from '@/lib/graphql-hooks/demo-data'
+import { DEMO_DATA_SECTION_ID, DEMO_DATASET, useDeleteDemoData, useDemoDataPresence, useSeedDemoData } from '@/lib/graphql-hooks/demo-data'
+import { DEMO_DATA_DELETE_JOB, DEMO_DATA_POLL_INTERVAL_MS, DEMO_DATA_SEED_JOB, type TDemoDataJob, useDemoDataJobWatch } from '@/hooks/useDemoDataJobWatch'
 import { useHasOrgFullAccess } from '@/lib/query-hooks/permissions'
-import { type Notification } from '@/lib/graphql-hooks/notifications'
-import { useNotificationsContext } from '@/providers/notifications-provider'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { isRecord } from '@/utils/type-guards'
 import { ManagementRow } from './management-row'
-
-const DEMO_DATA_SECTION_ID = 'demo-data'
-const DEMO_DATA_SETTINGS_URL = `/organization-settings/general-settings#${DEMO_DATA_SECTION_ID}`
-
-const PENDING_POLL_INTERVAL_MS = 5000 // 5s
-const PENDING_TIMEOUT_MS = 10 * 60 * 1000 // 10min
 
 type TPendingAction = 'seed' | 'delete'
 
 type TActionConfig = {
-  isOutcome: (notification: Notification) => boolean
-  isSettled: (presence: TDemoDataPresence) => boolean
+  job: TDemoDataJob
   started: string
   startedDescription: string
   failed: string
@@ -36,16 +27,14 @@ type TActionConfig = {
 
 const ACTIONS: Record<TPendingAction, TActionConfig> = {
   seed: {
-    isOutcome: (notification) => notification.objectType === 'import.completed' && isRecord(notification.data) && notification.data.url === DEMO_DATA_SETTINGS_URL,
-    isSettled: (presence) => presence.hasAll,
+    job: DEMO_DATA_SEED_JOB,
     started: 'Adding demo data',
     startedDescription: "You'll receive a notification when the sample records are ready.",
     failed: 'Unable to add demo data',
     inFlight: 'Adding...',
   },
   delete: {
-    isOutcome: (notification) => notification.objectType === 'delete.completed',
-    isSettled: (presence) => !presence.hasAny,
+    job: DEMO_DATA_DELETE_JOB,
     started: 'Removing demo data',
     startedDescription: "You'll receive a notification when the sample records are removed.",
     failed: 'Unable to remove demo data',
@@ -66,39 +55,27 @@ const DemoData = () => {
   const hasFullAccess = useHasOrgFullAccess()
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
-  const { addNewNotificationListener } = useNotificationsContext()
   const [pendingAction, setPendingAction] = useState<TPendingAction | null>(null)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
   const hasScrolledRef = useRef(false)
   const isDispatchingRef = useRef(false)
 
-  const { data: presence, isPending, error } = useDemoDataPresence({ enabled: hasFullAccess, refetchInterval: pendingAction ? PENDING_POLL_INTERVAL_MS : false })
+  const { data: presence, dataUpdatedAt, isPending, error } = useDemoDataPresence({ enabled: hasFullAccess, refetchInterval: pendingAction ? DEMO_DATA_POLL_INTERVAL_MS : false })
   const { mutateAsync: seedDemoData, isPending: isSeeding } = useSeedDemoData()
   const { mutateAsync: deleteDemoData, isPending: isDeleting } = useDeleteDemoData()
 
   useQueryErrorNotification({ error, description: 'Failed to load demo data status' })
 
-  useEffect(() => {
-    if (!pendingAction) return
-    return addNewNotificationListener((notification) => {
-      if (!ACTIONS[pendingAction].isOutcome(notification)) return
+  useDemoDataJobWatch({
+    job: pendingAction ? ACTIONS[pendingAction].job : null,
+    presence,
+    presenceUpdatedAt: dataUpdatedAt,
+    onFinish: () => {
       setPendingAction(null)
       queryClient.invalidateQueries()
-    })
-  }, [pendingAction, addNewNotificationListener, queryClient])
-
-  useEffect(() => {
-    if (!pendingAction || !presence || !ACTIONS[pendingAction].isSettled(presence)) return
-    setPendingAction(null)
-    queryClient.invalidateQueries()
-  }, [pendingAction, presence, queryClient])
-
-  useEffect(() => {
-    if (!pendingAction) return
-    const timeout = setTimeout(() => setPendingAction(null), PENDING_TIMEOUT_MS)
-    return () => clearTimeout(timeout)
-  }, [pendingAction])
+    },
+  })
 
   useEffect(() => {
     const scrollToSection = () => {
