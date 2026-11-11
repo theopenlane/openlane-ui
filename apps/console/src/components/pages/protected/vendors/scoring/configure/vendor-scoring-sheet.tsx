@@ -169,14 +169,14 @@ const VendorScoringEditor: React.FC<TVendorScoringEditorProps> = ({ loadFailed, 
   return (
     <Sheet open={isConfigurationOpen} onOpenChange={(open) => !open && requestClose()}>
       <SheetContent
-        initialWidth={720}
+        initialWidth="70vw"
         minWidth={480}
         header={<SlideoutHeader title="Configure risk scoring" onClose={requestClose} />}
         footer={footer}
         aria-describedby="vendor-scoring-sheet-description"
       >
         <SheetDescription id="vendor-scoring-sheet-description" className="mb-4">
-          The questions and rating rules used to score every vendor.
+          Configure how vendors are assessed and assigned risk ratings
         </SheetDescription>
 
         {loadFailed && (
@@ -250,9 +250,9 @@ const VendorScoringEditor: React.FC<TVendorScoringEditorProps> = ({ loadFailed, 
           <Tabs value={tab} onValueChange={(value) => setTab(value === 'scoring' ? 'scoring' : 'questions')}>
             <TabsList className="mb-4">
               <TabsTrigger value="questions">
-                Questions <CountBadge count={enabledCount} label="on" className="ml-1.5 py-0" />
+                Questions <CountBadge count={enabledCount} className="ml-1.5" />
               </TabsTrigger>
-              <TabsTrigger value="scoring">Scoring and rating bands</TabsTrigger>
+              <TabsTrigger value="scoring">Scoring & rating bands</TabsTrigger>
             </TabsList>
             <TabsContent value="questions">
               <VendorScoringQuestionsPanel

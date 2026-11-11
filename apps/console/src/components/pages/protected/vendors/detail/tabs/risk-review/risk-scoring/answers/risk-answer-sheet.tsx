@@ -8,6 +8,7 @@ import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { cn } from '@repo/ui/lib/utils'
 import { type VendorRiskScoreVendorScoringCategory } from '@repo/codegen/src/schema'
+import { VendorLogo } from '@/components/shared/vendor-logo/vendor-logo'
 import { LinearBar } from '@/components/shared/linear-bar/linear-bar'
 import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
@@ -24,6 +25,7 @@ type TRiskAnswerSheetProps = {
   onOpenChange: (open: boolean) => void
   vendorId: string
   vendorName: string
+  vendorLogoUrl?: string
   items: readonly TRiskQuestion[]
   scoreSoFar: number
   rating: TVendorRiskRating | undefined
@@ -37,7 +39,7 @@ const CategoryProgressIcon = ({ group }: { group: TRiskQuestionCategory }) => {
   return <Circle size={14} className="shrink-0 text-muted-foreground" aria-hidden />
 }
 
-export const RiskAnswerSheet: React.FC<TRiskAnswerSheetProps> = ({ open, onOpenChange, vendorId, vendorName, items, scoreSoFar, rating, hiddenAnswerCount, readOnly }) => {
+export const RiskAnswerSheet: React.FC<TRiskAnswerSheetProps> = ({ open, onOpenChange, vendorId, vendorName, vendorLogoUrl, items, scoreSoFar, rating, hiddenAnswerCount, readOnly }) => {
   const queryClient = useQueryClient()
   const [selectedCategory, setSelectedCategory] = useState<VendorRiskScoreVendorScoringCategory | null>(null)
   const [unansweredSnapshot, setUnansweredSnapshot] = useState<ReadonlySet<string> | null>(null)
@@ -82,9 +84,12 @@ export const RiskAnswerSheet: React.FC<TRiskAnswerSheetProps> = ({ open, onOpenC
         header={
           <div className="flex flex-col gap-3 pr-1">
             <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <SheetTitle className="truncate text-lg font-normal">Risk questions · {vendorName}</SheetTitle>
-                <SheetDescription id={descriptionId}>Each answer saves as soon as you make it.</SheetDescription>
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <VendorLogo name={vendorName} logoUrl={vendorLogoUrl} />
+                <div className="min-w-0">
+                  <SheetTitle className="truncate text-lg font-normal">{vendorName}</SheetTitle>
+                  <SheetDescription id={descriptionId}>Review and answer risk assessment questions for this vendor</SheetDescription>
+                </div>
               </div>
               <div className="shrink-0 text-right">
                 <p className="text-xs text-muted-foreground">Score so far</p>
@@ -111,16 +116,20 @@ export const RiskAnswerSheet: React.FC<TRiskAnswerSheetProps> = ({ open, onOpenC
         }
         footer={
           <>
-            <p className="mr-auto hidden text-xs text-muted-foreground sm:block">Yes means the control is in place and adds nothing. No asks for likelihood and impact.</p>
-            {nextGroup && (
-              <Button type="button" variant="secondary" onClick={() => selectCategory(nextGroup)}>
-                Next category
-                <ChevronRight size={16} aria-hidden />
+            <p className="hidden min-w-0 flex-1 text-xs text-muted-foreground sm:block">
+              Yes indicates the control is in place and does not increase risk. No requires you to assess likelihood and impact.
+            </p>
+            <div className="flex shrink-0 items-center gap-2">
+              {nextGroup && (
+                <Button type="button" variant="secondary" onClick={() => selectCategory(nextGroup)}>
+                  Next category
+                  <ChevronRight size={16} aria-hidden />
+                </Button>
+              )}
+              <Button type="button" onClick={() => handleOpenChange(false)}>
+                Done
               </Button>
-            )}
-            <Button type="button" onClick={() => handleOpenChange(false)}>
-              Done
-            </Button>
+            </div>
           </>
         }
       >

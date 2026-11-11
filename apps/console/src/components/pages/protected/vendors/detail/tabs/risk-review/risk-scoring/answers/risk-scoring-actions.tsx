@@ -31,19 +31,21 @@ export const RiskScoringActions: React.FC<TRiskScoringActionsProps> = ({ hasScor
   const downloadQuestions = () => downloadRiskQuestionsCsv(items, `${vendorName} risk questions`)
 
   const options: TMenuOption[] = [
-    { key: 'answer', title: 'Answer in Openlane', description: canEdit ? 'Fill in each question yourself' : disabledReason, onSelect: onAnswer, disabled: !canEdit },
-    { key: 'download', title: 'Download questions (CSV)', description: 'Send to the vendor to fill in', onSelect: downloadQuestions },
-    { key: 'upload', title: 'Upload answered CSV', description: canEdit ? 'Import answers the vendor returned' : disabledReason, onSelect: onUpload, disabled: !canEdit },
-    { key: 'questionnaire', title: 'Send questionnaire', description: 'The vendor answers online, kept year over year', disabled: true, comingSoon: true },
-    { key: 'soc2', title: 'Import from SOC 2 report', description: 'Answers drafted from the report for you to check', disabled: true, comingSoon: true },
+    { key: 'answer', title: 'Answer questions', description: canEdit ? 'Complete the assessment yourself' : disabledReason, onSelect: onAnswer, disabled: !canEdit },
+    { key: 'download', title: 'Download questions (CSV)', description: 'Share with the vendor to complete', onSelect: downloadQuestions },
+    { key: 'upload', title: 'Upload completed questionnaire', description: canEdit ? 'Import answers from a CSV file' : disabledReason, onSelect: onUpload, disabled: !canEdit },
+    { key: 'questionnaire', title: 'Send questionnaire to vendor', description: 'Let vendors answer directly in Openlane', disabled: true, comingSoon: true },
+    { key: 'soc2', title: 'Import from SOC 2 report', description: 'Generate draft answers from a SOC 2 report', disabled: true, comingSoon: true },
   ]
+
+  const variant = canEdit && !hasScores ? 'primary' : 'secondary'
 
   return (
     <div className="inline-flex">
       <DisabledReasonTooltip reason={canEdit || hasScores ? undefined : disabledReason}>
         <Button
           type="button"
-          variant="secondary"
+          variant={variant}
           className="rounded-r-none"
           icon={canEdit ? <Pencil size={16} /> : <Eye size={16} />}
           iconPosition="left"
@@ -55,7 +57,7 @@ export const RiskScoringActions: React.FC<TRiskScoringActionsProps> = ({ hasScor
       </DisabledReasonTooltip>
       <DropdownMenu>
         <DropdownMenuTrigger asChild {...MENU_ANCHOR}>
-          <Button type="button" variant="secondary" className="rounded-l-none border-l-0 px-2" icon={<ChevronDown size={16} />} descriptiveTooltipText="More ways to score" />
+          <Button type="button" variant={variant} className="rounded-l-none border-l-0 px-2" icon={<ChevronDown size={16} />} descriptiveTooltipText="More ways to score" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-72" aria-labelledby={MENU_ANCHOR.id}>
           {options.map((option, index) => (

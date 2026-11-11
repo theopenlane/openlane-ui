@@ -109,7 +109,7 @@ export const RiskAnswersUploadDialog: React.FC<TRiskAnswersUploadDialogProps> = 
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Upload answered CSV</DialogTitle>
+          <DialogTitle>Upload completed questionnaire</DialogTitle>
           <DialogDescription>
             Use the questions CSV you downloaded, with the Answer, Likelihood and Impact columns filled in. Rows without an answer are skipped, and a blank Notes cell keeps the current note.
           </DialogDescription>

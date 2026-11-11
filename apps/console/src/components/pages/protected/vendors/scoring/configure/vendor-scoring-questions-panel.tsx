@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { ChevronDown, ChevronRight, Plus, SearchIcon } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown, Plus, SearchIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
@@ -16,7 +16,7 @@ const QUESTION_FILTERS = ['all', 'on', 'off', 'changed'] as const
 
 export type TQuestionFilter = (typeof QUESTION_FILTERS)[number]
 
-const QUESTION_FILTER_LABEL: Record<TQuestionFilter, string> = { all: 'All', on: 'On', off: 'Off', changed: 'Changed' }
+const QUESTION_FILTER_LABEL: Record<TQuestionFilter, string> = { all: 'All', on: 'Enabled', off: 'Disabled', changed: 'Changed' }
 
 const isQuestionFilter = isOneOf(QUESTION_FILTERS)
 
@@ -84,6 +84,10 @@ export const VendorScoringQuestionsPanel: React.FC<TVendorScoringQuestionsPanelP
   )
   const groups = useMemo(() => groupByCategory(questions, visible), [questions, visible])
 
+  const isFiltering = !!term || filter !== 'all'
+  const isAllExpanded = groups.every((group) => !collapsedCategories.has(group.category))
+  const toggleAllGroups = () => onCollapsedCategoriesChange(isAllExpanded ? new Set(groups.map((group) => group.category)) : new Set())
+
   const toggleGroup = (category: VendorRiskScoreVendorScoringCategory) => {
     const next = new Set(collapsedCategories)
     if (next.has(category)) next.delete(category)
@@ -125,8 +129,21 @@ export const VendorScoringQuestionsPanel: React.FC<TVendorScoringQuestionsPanelP
         <EmptyTabState description={term ? `No questions match "${search.trim()}".` : 'No questions match this filter.'} />
       ) : (
         <div className="flex flex-col gap-2">
+          {!isFiltering && (
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="link"
+                className="text-blue-500"
+                icon={isAllExpanded ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
+                iconPosition="left"
+                onClick={toggleAllGroups}
+              >
+                {isAllExpanded ? 'Collapse all' : 'Expand all'}
+              </Button>
+            </div>
+          )}
           {groups.map((group) => {
-            const isFiltering = !!term || filter !== 'all'
             const isOpen = isFiltering || !collapsedCategories.has(group.category)
             const label = getEnumLabel(group.category)
             const header = (
@@ -136,7 +153,7 @@ export const VendorScoringQuestionsPanel: React.FC<TVendorScoringQuestionsPanelP
                   {label}
                 </span>
                 <span className="text-xs font-normal text-muted-foreground">
-                  {group.enabledCount} of {group.totalCount} on
+                  {group.enabledCount} of {group.totalCount} enabled
                 </span>
               </>
             )

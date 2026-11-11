@@ -26,6 +26,7 @@ import { buildRiskScoring, formatScoreValue, SOC2_REPORT_REVIEW_WHERE, type TRis
 type TRiskScoringPanelProps = {
   vendorId: string
   vendorName: string
+  vendorLogoUrl?: string
   vendorRiskScore: number | null | undefined
   canEdit: boolean
   onViewReview: (review: ReviewsNodeNonNull) => void
@@ -167,24 +168,19 @@ const RiskScoringContent = ({ scoring, vendorRiskScore }: TRiskScoringContentPro
   )
 }
 
-const NotScoredState = ({ canEdit, onStart }: { canEdit: boolean; onStart: () => void }) => (
+const NotScoredState = () => (
   <Card className="flex flex-wrap items-center gap-4 p-4">
     <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
       <ClipboardCheck size={18} aria-hidden />
     </span>
     <div className="min-w-0 flex-1">
-      <p className="text-sm font-medium">This vendor hasn&apos;t been scored yet</p>
-      <p className="text-sm text-muted-foreground">Answer the risk questions to give it a score and rating. You can stop and come back any time.</p>
+      <p className="text-sm font-medium">This vendor has not been scored yet</p>
+      <p className="text-sm text-muted-foreground">Answer risk questions to calculate this vendor&apos;s score and rating</p>
     </div>
-    {canEdit && (
-      <Button type="button" onClick={onStart}>
-        Start scoring
-      </Button>
-    )}
   </Card>
 )
 
-export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, vendorName, vendorRiskScore, canEdit, onViewReview }) => {
+export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, vendorName, vendorLogoUrl, vendorRiskScore, canEdit, onViewReview }) => {
   const { data: scores, isPending, error } = useVendorRiskScoring(vendorId)
   useQueryErrorNotification({ error, description: 'Failed to load risk scoring' })
   const { riskThresholds, questions, isPending: isConfigPending, isResolved: isConfigResolved, parsedConfig } = useOrganizationVendorScoringConfig()
@@ -248,13 +244,14 @@ export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, v
           </div>
         }
       >
-        {hasScores ? <RiskScoringContent scoring={scoring} vendorRiskScore={vendorRiskScore} /> : <NotScoredState canEdit={canAnswer} onStart={() => setIsAnswerSheetOpen(true)} />}
+        {hasScores ? <RiskScoringContent scoring={scoring} vendorRiskScore={vendorRiskScore} /> : <NotScoredState />}
       </RiskScoringSection>
       <RiskAnswerSheet
         open={isAnswerSheetOpen}
         onOpenChange={setIsAnswerSheetOpen}
         vendorId={vendorId}
         vendorName={vendorName}
+        vendorLogoUrl={vendorLogoUrl}
         items={riskQuestions}
         scoreSoFar={scoring.totalScore}
         rating={scoring.answeredCount > 0 ? scoring.rating : undefined}

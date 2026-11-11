@@ -163,7 +163,7 @@ function SheetContent({
           <div className="flex flex-col h-full">{children}</div>
         </div>
 
-        {footer && <SheetFooter>{footer}</SheetFooter>}
+        {footer && <SheetFooter className={cn(side === 'right' && 'pr-12')}>{footer}</SheetFooter>}
       </SheetPrimitive.Content>
     </SheetPortal>
   )
