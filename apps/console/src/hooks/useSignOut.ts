@@ -5,6 +5,7 @@ import { signOut, type SignOutParams } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { clearSessionExpired, markSessionExpired } from '@/lib/auth/utils/session-status'
 import { invalidateCSRFToken } from '@/lib/auth/utils/secure-fetch'
+import { clearAllCachedOrganizationRoles } from '@/lib/authz/organization-roles-cache'
 
 export const useSignOut = () => {
   const queryClient = useQueryClient()
@@ -14,6 +15,7 @@ export const useSignOut = () => {
       markSessionExpired()
       invalidateCSRFToken()
       queryClient.clear()
+      clearAllCachedOrganizationRoles()
 
       try {
         if (options?.redirect === false) {

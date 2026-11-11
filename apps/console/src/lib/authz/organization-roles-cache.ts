@@ -1,7 +1,7 @@
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { getOrganizationStorageKey } from '@/lib/storage/organization-storage'
 import { parseStringArray } from '@/lib/storage/org-persisted-store'
-import { safeGetItem, safeRemoveItem, safeSetItem } from '@/lib/storage/safe-local-storage'
+import { safeGetItem, safeRemoveItem, safeRemoveItemsWithPrefix, safeSetItem } from '@/lib/storage/safe-local-storage'
 import { NON_ENUM_ACCESS_ROLES, type TAccessRole, type TPermissionData } from '@/types/authz'
 
 const ORGANIZATION_ROLES_STORAGE_KEY = 'organization-roles'
@@ -32,3 +32,5 @@ export const clearCachedOrganizationRoles = (userId: string | undefined, organiz
 
   safeRemoveItem(storageKey(userId, organizationId))
 }
+
+export const clearAllCachedOrganizationRoles = (): void => safeRemoveItemsWithPrefix(`${ORGANIZATION_ROLES_STORAGE_KEY}:`)

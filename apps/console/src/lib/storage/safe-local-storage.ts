@@ -25,3 +25,13 @@ export const safeRemoveItem = (key: string): void => {
     return
   }
 }
+
+export const safeRemoveItemsWithPrefix = (prefix: string): void => {
+  if (typeof window === 'undefined') return
+  try {
+    const keys = Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index)).filter((key): key is string => !!key?.startsWith(prefix))
+    keys.forEach((key) => localStorage.removeItem(key))
+  } catch {
+    return
+  }
+}
