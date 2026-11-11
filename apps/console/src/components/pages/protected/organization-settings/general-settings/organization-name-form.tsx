@@ -19,7 +19,11 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import CopyableText from '@/components/shared/copyable-text/copyable-text'
 import { OrganizationDomains } from './organization-domains'
 
-const OrganizationNameForm = () => {
+type OrganizationNameFormProps = {
+  canEdit: boolean
+}
+
+const OrganizationNameForm = ({ canEdit }: OrganizationNameFormProps) => {
   const [isSuccess, setIsSuccess] = useState(false)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const { mutateAsync: uploadAvatar } = useUpdateOrgAvatar()
@@ -84,7 +88,7 @@ const OrganizationNameForm = () => {
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    if (!dirtyFields.displayName) {
+    if (!canEdit || !dirtyFields.displayName) {
       return
     }
     await updateOrganization({ displayName: data.displayName })
@@ -139,10 +143,10 @@ const OrganizationNameForm = () => {
                 <FormItem className="w-full space-y-0">
                   <div className="flex gap-4 items-center">
                     <FormControl className="flex-1">
-                      <Input {...field} variant="medium" className="h-10" />
+                      <Input {...field} variant="medium" className="h-10" readOnly={!canEdit} />
                     </FormControl>
 
-                    <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving...' : isSuccess ? 'Saved' : 'Save'} />
+                    {canEdit && <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving...' : isSuccess ? 'Saved' : 'Save'} />}
                   </div>
                   <FormMessage />
                 </FormItem>
@@ -150,7 +154,7 @@ const OrganizationNameForm = () => {
             />
           </form>
         </Form>
-        <OrganizationDomains />
+        <OrganizationDomains canEdit={canEdit} />
         {currentOrgId && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t pt-6">
             <div className="flex items-center gap-3">
@@ -161,7 +165,7 @@ const OrganizationNameForm = () => {
           </div>
         )}
       </Panel>
-      <AvatarUpload fallbackString={currentOrganization?.displayName?.substring(0, 2) || 'N/A'} uploadCallback={handleUploadAvatar} placeholderImage={image} />
+      {canEdit && <AvatarUpload fallbackString={currentOrganization?.displayName?.substring(0, 2) || 'N/A'} uploadCallback={handleUploadAvatar} placeholderImage={image} />}
     </>
   )
 }
