@@ -21,6 +21,7 @@ import { GET_CUSTOM_TYPE_ENUMS_PAGINATED, GET_CUSTOM_TYPE_ENUM_BY_ID, CREATE_CUS
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { useSession } from 'next-auth/react'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 
 export type CustomTypeEnumOption = Option & { color?: string; description?: string }
 
@@ -78,57 +79,64 @@ const useAllCustomTypeEnums = () => {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const allEdges = useMemo(() => {
-    return data?.pages.flatMap((page) => page.edges ?? []) ?? []
-  }, [data?.pages])
+  const allNodes = useMemo(() => data?.pages.flatMap((page) => getNodes(page)) ?? [], [data?.pages])
 
   const isLoadingAll = isLoading || isFetchingNextPage || hasNextPage || isFetching
+  const isComplete = rest.isError || (!!data && !hasNextPage)
 
-  return { ...rest, allEdges, isLoading: isLoadingAll, isSuccess: !isLoadingAll && !rest.isError }
+  return { ...rest, allNodes, isComplete, isLoading: isLoadingAll, isSuccess: !isLoadingAll && !rest.isError }
+}
+
+const enumIdentityKey = ({ objectType, field, name }: CustomTypeEnumNodeNonNull) => `${objectType}\u0000${field}\u0000${name.toLowerCase()}`
+
+type TEnumGroup = { orgOwned?: CustomTypeEnumNodeNonNull; systemOwned?: CustomTypeEnumNodeNonNull }
+
+const groupCustomTypeEnums = (nodes: CustomTypeEnumNodeNonNull[]): TEnumGroup[] => {
+  const groups = new Map<string, TEnumGroup>()
+  nodes.forEach((node) => {
+    const key = enumIdentityKey(node)
+    const group = groups.get(key) ?? {}
+    const slot = node.systemOwned ? 'systemOwned' : 'orgOwned'
+    group[slot] ??= node
+    groups.set(key, group)
+  })
+  return Array.from(groups.values())
+}
+
+const getShadowedSystemEnumIds = (nodes: CustomTypeEnumNodeNonNull[]): string[] =>
+  groupCustomTypeEnums(nodes)
+    .flatMap(({ orgOwned, systemOwned }) => (orgOwned && systemOwned ? [systemOwned.id] : []))
+    .sort()
+
+export const findCustomTypeEnumOption = (options: CustomTypeEnumOption[], value?: string | null): CustomTypeEnumOption | undefined => {
+  if (!value) return undefined
+  const normalized = value.toLowerCase()
+  return options.find((option) => option.value === value) ?? options.find((option) => option.value.toLowerCase() === normalized)
+}
+
+export const useShadowedSystemEnumIds = () => {
+  const { allNodes, isComplete } = useAllCustomTypeEnums()
+  const shadowedIds = useMemo(() => getShadowedSystemEnumIds(allNodes), [allNodes])
+  return { shadowedIds, isResolved: isComplete }
 }
 
 export const useGetCustomTypeEnums = ({ where }: { where?: CustomTypeEnumWhereInput } = {}) => {
-  const { allEdges, ...queryRest } = useAllCustomTypeEnums()
+  const { allNodes, ...queryRest } = useAllCustomTypeEnums()
 
   const objectType = resolveEnumObjectType(where?.objectType, where?.field)
   const field = where?.field
 
-  const filteredEdges = useMemo(() => {
-    if (!allEdges || allEdges.length === 0) return null
-    if (objectType === undefined && !field) return allEdges
-    return allEdges.filter((edge) => {
-      const node = edge?.node
-      if (!node) return false
-      if (objectType !== undefined && node.objectType !== objectType) return false
-      if (field && node.field !== field) return false
-      return true
+  const enumOptions: CustomTypeEnumOption[] = useMemo(() => {
+    const nodes = allNodes.filter((node) => (objectType === undefined || node.objectType === objectType) && (!field || node.field === field))
+    return groupCustomTypeEnums(nodes).flatMap(({ orgOwned, systemOwned }) => {
+      const display = orgOwned ?? systemOwned
+      const resolved = systemOwned ?? orgOwned
+      if (!display || !resolved) return []
+      return [{ value: resolved.name, label: display.name, color: display.color ?? undefined, description: display.description ?? '' }]
     })
-  }, [allEdges, objectType, field])
+  }, [allNodes, objectType, field])
 
-  const enumOptions: CustomTypeEnumOption[] = useMemo(
-    () =>
-      filteredEdges?.reduce<CustomTypeEnumOption[]>((acc, edge) => {
-        if (edge?.node) {
-          acc.push({
-            value: edge.node.name,
-            label: edge.node.name,
-            color: edge.node.color ?? undefined,
-            description: edge.node.description ?? '',
-          })
-        }
-        return acc
-      }, []) ?? [],
-    [filteredEdges],
-  )
-
-  const data = useMemo(() => {
-    if (allEdges.length === 0 && !filteredEdges) return undefined
-    return {
-      customTypeEnums: { edges: filteredEdges },
-    }
-  }, [allEdges, filteredEdges])
-
-  return { ...queryRest, data, enumOptions }
+  return { ...queryRest, enumOptions }
 }
 
 export type CustomTypeEnumNode = NonNullable<NonNullable<NonNullable<GetCustomTypeEnumsPaginatedQuery['customTypeEnums']>['edges']>[number]>['node']
@@ -159,12 +167,7 @@ export const useCustomTypeEnumsPaginated = ({
     enabled,
   })
 
-  const edges = query.data?.customTypeEnums?.edges ?? []
-
-  const enums: CustomTypeEnumNodeNonNull[] = edges
-    .filter((edge): edge is NonNullable<(typeof edges)[number]> => edge != null)
-    .map((edge) => edge.node)
-    .filter((node): node is CustomTypeEnumNodeNonNull => node != null)
+  const enums = getNodes(query.data?.customTypeEnums)
 
   const paginationMeta = {
     totalCount: query.data?.customTypeEnums?.totalCount ?? 0,

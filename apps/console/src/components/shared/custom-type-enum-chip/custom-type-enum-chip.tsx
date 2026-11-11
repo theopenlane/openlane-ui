@@ -1,4 +1,4 @@
-import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
+import { type CustomTypeEnumOption, findCustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { Badge } from '@repo/ui/badge'
 import { TruncatedCell } from '@repo/ui/truncated-cell'
 import React from 'react'
@@ -32,7 +32,7 @@ interface CustomTypeEnumValueProps {
 }
 
 export const CustomTypeEnumValue = ({ value, options, placeholder }: CustomTypeEnumValueProps) => {
-  const option = options.find((o) => o.value === value)
+  const option = findCustomTypeEnumOption(options, value)
 
   if (!option) {
     return <span className="text-muted-foreground">{placeholder}</span>
