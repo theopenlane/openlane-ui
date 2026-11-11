@@ -220,7 +220,7 @@
     "postcss": "^8.5.30",
     "tailwind-variants": "^3.3.1",
     "tailwindcss": "^4.3.3",
-    "tsup": "^8.5.1",
+    "tsup": "^9.0.0",
     "typescript": "^6.0.3"
   }
 }
