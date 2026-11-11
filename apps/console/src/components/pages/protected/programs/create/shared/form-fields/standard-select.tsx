@@ -5,7 +5,7 @@ import { getNodes } from '@/lib/graphql-hooks/connection'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { useFormContext, useWatch, useController } from 'react-hook-form'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { findCustomTypeEnumOption, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 import { PROGRAM_KIND } from '../program-kind'
@@ -47,7 +47,7 @@ const StandardSelect = ({ defaultFramework }: StandardSelectProps) => {
       const currentYear = new Date().getFullYear()
       const selected = frameworks.find((f) => f.shortName === value)
       field.onChange(value)
-      const selectedLabel = enumOptions.find((t) => t.value === programKindName)?.label
+      const selectedLabel = findCustomTypeEnumOption(enumOptions, programKindName)?.label
       const autoName = programKindName === PROGRAM_KIND.GAP_ANALYSIS ? `${selectedLabel} - ${value} - ${currentYear}` : `${value} - ${currentYear}`
 
       setValue('name', autoName, { shouldValidate: true })

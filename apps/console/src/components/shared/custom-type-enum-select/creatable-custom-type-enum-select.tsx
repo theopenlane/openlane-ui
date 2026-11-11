@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { cn } from '@repo/ui/lib/utils'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
+import { type CustomTypeEnumOption, findCustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
@@ -62,17 +62,20 @@ export const CreatableCustomTypeEnumSelect = ({
     const combined = [...options, ...createdOptions]
     const seen = new Set<string>()
     return combined.filter((option) => {
-      if (seen.has(option.value)) return false
-      seen.add(option.value)
+      const key = option.value.toLowerCase()
+      if (seen.has(key)) return false
+      seen.add(key)
       return true
     })
   }, [options, createdOptions])
 
+  const selectedOption = findCustomTypeEnumOption(allOptions, value)
   const trimmedSearch = searchValue.trim()
 
   const showCreateOption = useMemo(() => {
     if (!canCreate || !trimmedSearch) return false
-    return !allOptions.some((option) => option.label.toLowerCase() === trimmedSearch.toLowerCase() || option.value.toLowerCase() === trimmedSearch.toLowerCase())
+    const needle = trimmedSearch.toLowerCase()
+    return !allOptions.some((option) => option.value.toLowerCase() === needle || option.label.toLowerCase() === needle)
   }, [allOptions, canCreate, trimmedSearch])
 
   const handleSelectValue = async (nextValue: string) => {
@@ -113,7 +116,7 @@ export const CreatableCustomTypeEnumSelect = ({
             triggerClassName,
           )}
         >
-          {useCustomDisplay ? <CustomTypeEnumValue value={value} options={allOptions} placeholder={placeholder} /> : <span>{allOptions.find((opt) => opt.value === value)?.label || placeholder}</span>}
+          {useCustomDisplay ? <CustomTypeEnumValue value={value} options={allOptions} placeholder={placeholder} /> : <span>{selectedOption?.label || placeholder}</span>}
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
@@ -141,7 +144,7 @@ export const CreatableCustomTypeEnumSelect = ({
                     handleSelectValue(option.value)
                   }}
                 >
-                  <Check className={cn('mr-2 h-4 w-4', value === option.value ? 'opacity-100' : 'opacity-0')} />
+                  <Check className={cn('mr-2 h-4 w-4', selectedOption?.value === option.value ? 'opacity-100' : 'opacity-0')} />
                   {useCustomDisplay ? <CustomTypeEnumOptionChip option={option} /> : <span>{option.label}</span>}
                 </CommandItem>
               ))}
