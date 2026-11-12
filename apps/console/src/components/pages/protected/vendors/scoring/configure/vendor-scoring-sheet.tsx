@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useMemo, useRef, useState } from 'react'
-import { Info } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription } from '@repo/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Button } from '@repo/ui/button'
@@ -16,8 +15,8 @@ import { useOrganizationVendorScoringConfig, useUpdateVendorScoringConfig } from
 import {
   createVendorScoringDraft,
   EMPTY_PARSED_VENDOR_SCORING_CONFIG,
+  getDefaultQuestion,
   getRiskThresholdErrors,
-  questionOrigin,
   type TParsedVendorScoringConfig,
   type TVendorScoringDraft,
 } from '@/lib/vendor-scoring-config'
@@ -28,6 +27,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useVendorScoringDisplay } from '../use-vendor-scoring-display'
 import { useSetUpVendorScoring, useVendorScoringAccess } from '../use-vendor-scoring-access'
 import { useVendorScoringDraft } from './use-vendor-scoring-draft'
+import { BUILT_IN_LOCKS, DISCARD_COPY, EDITOR_COPY, FooterNote, type TDiscardTarget, type TQuestionEditor } from './vendor-scoring-sheet-parts'
 import { VendorScoringQuestionsPanel, type TQuestionFilter } from './vendor-scoring-questions-panel'
 import { VendorScoringScoringPanel } from './vendor-scoring-scoring-panel'
 import { VENDOR_SCORING_QUESTION_FORM_ID, VendorScoringQuestionForm } from './vendor-scoring-question-form'
@@ -35,15 +35,6 @@ import { NEW_QUESTION_DEFAULTS, toQuestionFormData } from './use-vendor-scoring-
 import { useLinkUnconfiguredVendorRiskScores, useVendorRiskScoreQuestionUsage } from '@/lib/graphql-hooks/vendor-risk-score'
 
 type TScoringTab = 'questions' | 'scoring'
-
-type TQuestionEditor = { mode: 'add' } | { mode: 'edit'; draftId: string }
-
-const FooterNote = ({ children }: { children: React.ReactNode }) => (
-  <p className="mr-auto flex items-center gap-1.5 text-xs text-warning">
-    <Info size={14} className="shrink-0" />
-    {children}
-  </p>
-)
 
 const initialCollapsedCategories = (draft: TVendorScoringDraft) => new Set(draft.questions.map((question) => question.category).filter((category) => category !== draft.questions[0]?.category))
 
@@ -72,7 +63,8 @@ const VendorScoringEditor: React.FC<TVendorScoringEditorProps> = ({ loadFailed, 
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<TQuestionFilter>('all')
   const [editor, setEditor] = useState<TQuestionEditor | null>(null)
-  const [isDiscardOpen, setIsDiscardOpen] = useState(false)
+  const [isEditorDirty, setIsEditorDirty] = useState(false)
+  const [discardTarget, setDiscardTarget] = useState<TDiscardTarget | null>(null)
   const [collapsedCategories, setCollapsedCategories] = useState<ReadonlySet<VendorRiskScoreVendorScoringCategory>>(() => initialCollapsedCategories(initialDraft))
 
   const isUnreadable = !loadFailed && parsedConfig === null
@@ -81,8 +73,8 @@ const VendorScoringEditor: React.FC<TVendorScoringEditorProps> = ({ loadFailed, 
   const hasThresholdErrors = Object.keys(thresholdErrors).length > 0
   const enabledCount = draft.questions.filter((question) => question.enabled).length
   const editingQuestion = editor?.mode === 'edit' ? draft.questions.find((question) => question.draftId === editor.draftId) : undefined
-  const editingOrigin = editingQuestion && questionOrigin(editingQuestion)
-  const editingSavedCustomKey = editingOrigin === 'custom' ? editingQuestion?.key || undefined : undefined
+  const editingDefault = editingQuestion && getDefaultQuestion(editingQuestion.key)
+  const editingSavedCustomKey = editingQuestion && !editingDefault ? editingQuestion.key || undefined : undefined
   const editingUsage = useVendorRiskScoreQuestionUsage(editingSavedCustomKey)
   const answerTypeLock = !editingSavedCustomKey
     ? undefined
@@ -94,9 +86,16 @@ const VendorScoringEditor: React.FC<TVendorScoringEditorProps> = ({ loadFailed, 
           ? 'This question is already used in vendor scores, so its answer type cannot change.'
           : undefined
 
+  const closeEditor = () => {
+    setEditor(null)
+    setIsEditorDirty(false)
+  }
+
+  const requestCloseEditor = () => (isEditorDirty ? setDiscardTarget('editor') : closeEditor())
+
   const resetSession = () => {
     draftState.discard()
-    setEditor(null)
+    closeEditor()
     setTab('questions')
     setSearch('')
     setFilter('all')
@@ -110,8 +109,8 @@ const VendorScoringEditor: React.FC<TVendorScoringEditorProps> = ({ loadFailed, 
 
   const requestClose = () => {
     if (isSaving) return
-    if (isDirty || editor) {
-      setIsDiscardOpen(true)
+    if (isDirty || isEditorDirty) {
+      setDiscardTarget('sheet')
       return
     }
     close()
@@ -149,8 +148,8 @@ const VendorScoringEditor: React.FC<TVendorScoringEditorProps> = ({ loadFailed, 
 
   const footer = editor ? (
     <>
-      <FooterNote>{editor.mode === 'add' ? 'New questions apply to future answers.' : 'Changes apply to answers recorded from now on.'}</FooterNote>
-      <SlideoutFormActions formId={VENDOR_SCORING_QUESTION_FORM_ID} onCancel={() => setEditor(null)} saveLabel={editor.mode === 'add' ? 'Add question' : 'Save question'} />
+      <FooterNote>{EDITOR_COPY[editor.mode].note}</FooterNote>
+      <SlideoutFormActions formId={VENDOR_SCORING_QUESTION_FORM_ID} onCancel={requestCloseEditor} saveLabel={EDITOR_COPY[editor.mode].saveLabel} />
     </>
   ) : readOnly ? (
     <Button type="button" variant="secondary" onClick={close}>
@@ -171,7 +170,7 @@ const VendorScoringEditor: React.FC<TVendorScoringEditorProps> = ({ loadFailed, 
       <SheetContent
         initialWidth="70vw"
         minWidth={480}
-        header={<SlideoutHeader title="Configure risk scoring" onClose={requestClose} />}
+        header={<SlideoutHeader title={editor ? EDITOR_COPY[editor.mode].title : 'Configure risk scoring'} onBack={editor ? requestCloseEditor : undefined} onClose={requestClose} />}
         footer={footer}
         aria-describedby="vendor-scoring-sheet-description"
       >
@@ -191,7 +190,14 @@ const VendorScoringEditor: React.FC<TVendorScoringEditorProps> = ({ loadFailed, 
             className="mb-4"
             title="Someone else changed vendor scoring"
             action={
-              <Button type="button" variant="secondary" onClick={draftState.discard}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  closeEditor()
+                  draftState.discard()
+                }}
+              >
                 Load their changes
               </Button>
             }
@@ -232,18 +238,14 @@ const VendorScoringEditor: React.FC<TVendorScoringEditorProps> = ({ loadFailed, 
         {editor ? (
           <VendorScoringQuestionForm
             key={editor.mode === 'edit' ? editor.draftId : 'new'}
-            title={editor.mode === 'add' ? 'Add a question' : 'Edit question'}
             defaultValues={editingQuestion ? toQuestionFormData(editingQuestion) : NEW_QUESTION_DEFAULTS}
-            lockedReason={
-              editingOrigin && editingOrigin !== 'custom'
-                ? { category: 'Openlane questions keep their category.', answerType: 'Openlane questions keep their answer type.' }
-                : { answerType: answerTypeLock }
-            }
-            onBack={() => setEditor(null)}
+            openlaneDefault={editingDefault}
+            lockedReason={editingDefault ? BUILT_IN_LOCKS : { answerType: answerTypeLock }}
+            onDirtyChange={setIsEditorDirty}
             onSubmit={(values) => {
               if (editor.mode === 'edit') draftState.updateQuestion(editor.draftId, answerTypeLock && editingQuestion ? { ...values, answerType: editingQuestion.answerType } : values)
               else draftState.addQuestion(values)
-              setEditor(null)
+              closeEditor()
             }}
           />
         ) : (
@@ -267,7 +269,6 @@ const VendorScoringEditor: React.FC<TVendorScoringEditorProps> = ({ loadFailed, 
                 onAdd={() => setEditor({ mode: 'add' })}
                 onToggle={draftState.setQuestionEnabled}
                 onEdit={(draftId) => setEditor({ mode: 'edit', draftId })}
-                onReset={draftState.resetQuestion}
                 onRemove={draftState.removeQuestion}
               />
             </TabsContent>
@@ -286,11 +287,11 @@ const VendorScoringEditor: React.FC<TVendorScoringEditorProps> = ({ loadFailed, 
       </SheetContent>
 
       <ConfirmationDialog
-        open={isDiscardOpen}
-        onOpenChange={setIsDiscardOpen}
-        onConfirm={close}
-        title="Discard your changes?"
-        description="Your scoring changes have not been saved."
+        open={discardTarget !== null}
+        onOpenChange={(open) => !open && setDiscardTarget(null)}
+        onConfirm={discardTarget === 'editor' ? closeEditor : close}
+        title={DISCARD_COPY[discardTarget ?? 'sheet'].title}
+        description={DISCARD_COPY[discardTarget ?? 'sheet'].description}
         confirmationText="Discard changes"
       />
     </Sheet>

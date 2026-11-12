@@ -18,7 +18,8 @@ import { useOrganizationVendorScoringConfig } from '@/lib/graphql-hooks/vendor-s
 import { buildRiskQuestions, hasAnswer } from './answers/risk-answers'
 import { RiskScoringActions } from './answers/risk-scoring-actions'
 import { RiskAnswerSheet } from './answers/risk-answer-sheet'
-import { RiskAnswersUploadDialog } from './answers/risk-answers-upload-dialog'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+import { vendorRiskAnswersImportRoute } from '@/components/shared/record-import/lib/import-routes'
 import { RiskScoreSources } from './risk-score-sources'
 import { RiskScoringCategoryTable } from './risk-scoring-category-table'
 import { buildRiskScoring, formatScoreValue, SOC2_REPORT_REVIEW_WHERE, type TRiskScoring } from './risk-scoring-utils'
@@ -28,6 +29,7 @@ type TRiskScoringPanelProps = {
   vendorName: string
   vendorLogoUrl?: string
   vendorRiskScore: number | null | undefined
+  vendorRiskRating: string | null | undefined
   canEdit: boolean
   onViewReview: (review: ReviewsNodeNonNull) => void
 }
@@ -180,7 +182,7 @@ const NotScoredState = () => (
   </Card>
 )
 
-export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, vendorName, vendorLogoUrl, vendorRiskScore, canEdit, onViewReview }) => {
+export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, vendorName, vendorLogoUrl, vendorRiskScore, vendorRiskRating, canEdit, onViewReview }) => {
   const { data: scores, isPending, error } = useVendorRiskScoring(vendorId)
   useQueryErrorNotification({ error, description: 'Failed to load risk scoring' })
   const { riskThresholds, questions, isPending: isConfigPending, isResolved: isConfigResolved, parsedConfig } = useOrganizationVendorScoringConfig()
@@ -191,7 +193,7 @@ export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, v
     return (scores ?? []).filter((score) => hasAnswer(score) && !shownIds.has(score.id)).length
   }, [riskQuestions, scores])
   const [isAnswerSheetOpen, setIsAnswerSheetOpen] = useState(false)
-  const [isUploadOpen, setIsUploadOpen] = useState(false)
+  const openImport = useOpenImport()
   const isFromReport = scoring.reportSource !== 'none'
   const {
     reviewsNodes: reportReviews,
@@ -239,7 +241,7 @@ export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, v
               vendorName={vendorName}
               items={riskQuestions}
               onAnswer={() => setIsAnswerSheetOpen(true)}
-              onUpload={() => setIsUploadOpen(true)}
+              onUpload={() => openImport(vendorRiskAnswersImportRoute(vendorId, vendorName))}
             />
           </div>
         }
@@ -253,12 +255,11 @@ export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, v
         vendorName={vendorName}
         vendorLogoUrl={vendorLogoUrl}
         items={riskQuestions}
-        scoreSoFar={scoring.totalScore}
-        rating={scoring.answeredCount > 0 ? scoring.rating : undefined}
+        riskScore={vendorRiskScore}
+        riskRating={vendorRiskRating}
         hiddenAnswerCount={hiddenAnswerCount}
         readOnly={!canAnswer}
       />
-      <RiskAnswersUploadDialog open={isUploadOpen} onOpenChange={setIsUploadOpen} vendorId={vendorId} items={riskQuestions} />
     </>
   )
 }

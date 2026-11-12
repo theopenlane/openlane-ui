@@ -69,8 +69,10 @@ const questionsConfigSchema = z.strictObject({ custom: z.array(questionSchema).n
 
 const thresholdsConfigSchema = z.strictObject({ custom: z.array(thresholdSchema).nullish() }).nullish()
 
+export const normalizeAnswerOptions = (options: readonly string[]) => [...new Set(options.map((option) => option.trim()).filter(Boolean))]
+
 const normalizeQuestion = ({ key, name, description, category, answerType, answerOptions, suggestedImpact, enabled }: TVendorScoringQuestionDef): TVendorScoringQuestionDef => {
-  const options = answerType === VendorRiskScoreVendorScoringAnswerType.SINGLE_SELECT ? answerOptions?.map((option) => option.trim()).filter(Boolean) : undefined
+  const options = answerType === VendorRiskScoreVendorScoringAnswerType.SINGLE_SELECT ? normalizeAnswerOptions(answerOptions ?? []) : undefined
   return {
     key,
     name: name.trim(),
@@ -126,10 +128,29 @@ export type TVendorScoringDraft = {
   preservedThresholds: TVendorRiskThreshold[]
 }
 
+export type TEditableQuestionField = keyof TQuestionDraftValues
+
+const EDITABLE_QUESTION_FIELD_SET = {
+  name: true,
+  description: true,
+  category: true,
+  suggestedImpact: true,
+  answerType: true,
+  answerOptions: true,
+} as const satisfies Record<TEditableQuestionField, true>
+
+const EDITABLE_QUESTION_FIELDS = Object.keys(EDITABLE_QUESTION_FIELD_SET) as TEditableQuestionField[]
+
+export const getEditedQuestionFields = (question: TQuestionDraftValues, defaultQuestion: TVendorScoringQuestionDef): ReadonlySet<TEditableQuestionField> => {
+  const current = normalizeQuestion({ ...defaultQuestion, ...question })
+  const original = normalizeQuestion(defaultQuestion)
+  return new Set(EDITABLE_QUESTION_FIELDS.filter((field) => !isDeepEqual(current[field], original[field])))
+}
+
 export const questionOrigin = (question: TVendorScoringQuestionDef): 'default' | 'edited' | 'custom' => {
   const defaultQuestion = getDefaultQuestion(question.key)
   if (!defaultQuestion) return 'custom'
-  return isSameQuestion({ ...question, enabled: defaultQuestion.enabled }, defaultQuestion) ? 'default' : 'edited'
+  return getEditedQuestionFields(question, defaultQuestion).size > 0 ? 'edited' : 'default'
 }
 
 const differsFromDefault = (question: TVendorScoringQuestionDef) => {

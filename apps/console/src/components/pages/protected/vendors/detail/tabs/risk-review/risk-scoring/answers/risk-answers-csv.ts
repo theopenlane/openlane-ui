@@ -1,12 +1,13 @@
-import { VendorRiskScoreVendorRiskImpact, VendorRiskScoreVendorRiskLikelihood, VendorRiskScoreVendorScoringAnswerType } from '@repo/codegen/src/schema'
+import { VendorRiskScoreVendorRiskImpact, VendorRiskScoreVendorRiskLikelihood } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { type TDelimitedGrid } from '@/components/shared/record-import/lib/delimited-file'
+import { type TImportRecord } from '@/components/shared/record-import/lib/types'
+import { serializeCsv } from '@/components/shared/record-import/lib/delimited-file'
 import { toEnumToken } from '@/components/shared/record-import/lib/validate-cells'
-import { exportToCSV, FORMULA_TRIGGER } from '@/utils/exportToCSV'
-import { formatList, normalizeFieldName } from '@/utils/strings'
+import { exportToCSV, FORMULA_TRIGGER, guardCsvFormula } from '@/utils/exportToCSV'
+import { formatList } from '@/utils/strings'
 import { isOneOf } from '@/utils/type-guards'
 import { ANSWER_TYPE_COPY } from '@/components/pages/protected/vendors/scoring/vendor-scoring-copy'
-import { BOOLEAN_ANSWER, formatAnswer, hasAnswer, IMPACT_ORDER, isYesAnswer, LIKELIHOOD_ORDER, NO_RISK_LIKELIHOOD, type TRiskQuestion } from './risk-answers'
+import { formatAnswer, hasAnswer, IMPACT_ORDER, isYesAnswer, LIKELIHOOD_ORDER, NO_RISK_LIKELIHOOD, parseAnswer, type TRiskQuestion } from './risk-answers'
 
 const COLUMNS = ['Question Key', 'Category', 'Question', 'Why It Matters', 'Answer Type', 'Answer Options', 'Answer', 'Likelihood', 'Impact', 'Notes'] as const
 
@@ -17,8 +18,6 @@ const isImpact = isOneOf(Object.values(VendorRiskScoreVendorRiskImpact))
 
 const LIKELIHOOD_CHOICES = formatList(LIKELIHOOD_ORDER.map(getEnumLabel), 'disjunction')
 const IMPACT_CHOICES = formatList(IMPACT_ORDER.map(getEnumLabel), 'disjunction')
-
-const BOOLEAN_TOKENS: Record<string, string> = { YES: BOOLEAN_ANSWER.YES, TRUE: BOOLEAN_ANSWER.YES, Y: BOOLEAN_ANSWER.YES, NO: BOOLEAN_ANSWER.NO, FALSE: BOOLEAN_ANSWER.NO, N: BOOLEAN_ANSWER.NO }
 
 const toCsvRow = ({ question, score }: TRiskQuestion): Record<TCsvColumn, string> => ({
   'Question Key': question.key,
@@ -33,6 +32,12 @@ const toCsvRow = ({ question, score }: TRiskQuestion): Record<TCsvColumn, string
   Notes: score?.notes ?? '',
 })
 
+export const riskQuestionsCsv = (items: readonly TRiskQuestion[]) =>
+  serializeCsv(
+    [...COLUMNS],
+    items.map(toCsvRow).map((row) => COLUMNS.map((column) => guardCsvFormula(row[column]))),
+  )
+
 export const downloadRiskQuestionsCsv = (items: readonly TRiskQuestion[], fileName: string) =>
   exportToCSV(
     items.map(toCsvRow),
@@ -40,7 +45,7 @@ export const downloadRiskQuestionsCsv = (items: readonly TRiskQuestion[], fileNa
     fileName,
   )
 
-export type TRiskAnswerImportRow = {
+type TRiskAnswerImportRow = {
   item: TRiskQuestion
   answer: string
   likelihood: VendorRiskScoreVendorRiskLikelihood
@@ -48,76 +53,47 @@ export type TRiskAnswerImportRow = {
   notes: string
 }
 
-export type TRiskAnswerImportPlan = {
+type TRiskAnswerImportPlan = {
   creates: TRiskAnswerImportRow[]
   updates: (TRiskAnswerImportRow & { scoreId: string })[]
-  skippedCount: number
   errors: string[]
 }
 
-const emptyPlan = (errors: string[] = []): TRiskAnswerImportPlan => ({ creates: [], updates: [], skippedCount: 0, errors })
+export type TRiskAnswerImportField = 'QuestionKey' | 'Answer' | 'Likelihood' | 'Impact' | 'Notes'
 
-const parseAnswer = ({ question }: TRiskQuestion, raw: string): string | { error: string } => {
-  const value = raw.trim()
-  switch (question.answerType) {
-    case VendorRiskScoreVendorScoringAnswerType.BOOLEAN:
-      return BOOLEAN_TOKENS[toEnumToken(value)] ?? { error: `"${value}" is not Yes or No` }
-    case VendorRiskScoreVendorScoringAnswerType.NUMERIC:
-      return Number.isFinite(Number(value)) ? value : { error: `"${value}" is not a number` }
-    case VendorRiskScoreVendorScoringAnswerType.SINGLE_SELECT: {
-      const options = question.answerOptions ?? []
-      return options.find((option) => option.trim().toLowerCase() === value.toLowerCase()) ?? { error: `"${value}" is not one of ${formatList(options, 'disjunction')}` }
-    }
-    default:
-      return value
-  }
+const readCell = (record: TImportRecord, field: TRiskAnswerImportField) => {
+  const value = (record[field] ?? '').trim()
+  return value.startsWith("'") && FORMULA_TRIGGER.test(value.slice(1)) ? value.slice(1) : value
 }
 
-export const planRiskAnswerImport = (grid: TDelimitedGrid, items: readonly TRiskQuestion[]): TRiskAnswerImportPlan => {
-  if (grid.malformed) {
-    return emptyPlan([`${grid.raggedRowCount || 'Some'} rows have a different number of columns than the header, usually from an unquoted comma. Fix them and upload again.`])
-  }
-
-  const columnIndex = new Map(grid.headers.map((header, index) => [normalizeFieldName(header), index]))
-  if (!columnIndex.has(normalizeFieldName('Question Key')) || !columnIndex.has(normalizeFieldName('Answer'))) {
-    return emptyPlan(['The file needs a "Question Key" and an "Answer" column. Download the questions CSV to get the right layout.'])
-  }
-
-  const cell = (row: string[], column: TCsvColumn) => {
-    const index = columnIndex.get(normalizeFieldName(column))
-    const value = index === undefined ? '' : (row[index] ?? '').trim()
-    return value.startsWith("'") && FORMULA_TRIGGER.test(value.slice(1)) ? value.slice(1) : value
-  }
-
+export const planRiskAnswerImport = (records: readonly TImportRecord[], items: readonly TRiskQuestion[]): TRiskAnswerImportPlan => {
   const itemByKey = new Map(items.map((item) => [item.question.key.toUpperCase(), item]))
   const seenKeys = new Set<string>()
-  const plan = emptyPlan()
+  const plan: TRiskAnswerImportPlan = { creates: [], updates: [], errors: [] }
 
-  grid.rows.forEach((row, index) => {
+  records.forEach((record, index) => {
     const line = index + 2
-    const key = cell(row, 'Question Key').toUpperCase()
-    const rawAnswer = cell(row, 'Answer')
-    if (!key && !rawAnswer) return
-    if (!rawAnswer) {
-      plan.skippedCount += 1
-      return
-    }
+    const rawKey = readCell(record, 'QuestionKey')
+    const key = rawKey.toUpperCase()
+    const rawAnswer = readCell(record, 'Answer')
+    if (!rawAnswer) return
 
+    if (!key) return void plan.errors.push(`Row ${line}: add the question key for this answer.`)
     const item = itemByKey.get(key)
-    if (!item) return void plan.errors.push(`Row ${line}: "${cell(row, 'Question Key')}" is not an active question.`)
+    if (!item) return void plan.errors.push(`Row ${line}: "${rawKey}" is not an active question.`)
     if (seenKeys.has(key)) return void plan.errors.push(`Row ${line}: ${item.question.key} appears more than once.`)
     seenKeys.add(key)
 
     const answer = parseAnswer(item, rawAnswer)
     if (typeof answer !== 'string') return void plan.errors.push(`Row ${line} (${item.question.key}): ${answer.error}.`)
 
-    const likelihoodToken = toEnumToken(cell(row, 'Likelihood'))
-    const impactToken = toEnumToken(cell(row, 'Impact'))
+    const likelihoodToken = toEnumToken(readCell(record, 'Likelihood'))
+    const impactToken = toEnumToken(readCell(record, 'Impact'))
     if (!isYesAnswer(item.question, answer) && !isLikelihood(likelihoodToken)) {
       return void plan.errors.push(`Row ${line} (${item.question.key}): set a likelihood (${LIKELIHOOD_CHOICES}).`)
     }
     if (impactToken && !isImpact(impactToken)) {
-      return void plan.errors.push(`Row ${line} (${item.question.key}): "${cell(row, 'Impact')}" is not an impact (${IMPACT_CHOICES}).`)
+      return void plan.errors.push(`Row ${line} (${item.question.key}): "${readCell(record, 'Impact')}" is not an impact (${IMPACT_CHOICES}).`)
     }
 
     const importRow: TRiskAnswerImportRow = {
@@ -125,7 +101,7 @@ export const planRiskAnswerImport = (grid: TDelimitedGrid, items: readonly TRisk
       answer,
       likelihood: isLikelihood(likelihoodToken) ? likelihoodToken : (item.score?.likelihood ?? NO_RISK_LIKELIHOOD),
       impact: isImpact(impactToken) ? impactToken : (item.score?.impact ?? item.question.suggestedImpact),
-      notes: cell(row, 'Notes') || item.score?.notes || '',
+      notes: readCell(record, 'Notes') || item.score?.notes || '',
     }
     if (item.score) plan.updates.push({ ...importRow, scoreId: item.score.id })
     else plan.creates.push(importRow)

@@ -25,6 +25,8 @@ type TRiskScoringActionsProps = {
   onUpload: () => void
 }
 
+export const UPLOAD_ANSWERS_LABEL = 'Upload completed questionnaire'
+
 const EDIT_DISABLED_REASON = 'You need edit access to this vendor to answer its risk questions.'
 
 export const RiskScoringActions: React.FC<TRiskScoringActionsProps> = ({ hasScores, canEdit, disabledReason = EDIT_DISABLED_REASON, vendorName, items, onAnswer, onUpload }) => {
@@ -33,7 +35,7 @@ export const RiskScoringActions: React.FC<TRiskScoringActionsProps> = ({ hasScor
   const options: TMenuOption[] = [
     { key: 'answer', title: 'Answer questions', description: canEdit ? 'Complete the assessment yourself' : disabledReason, onSelect: onAnswer, disabled: !canEdit },
     { key: 'download', title: 'Download questions (CSV)', description: 'Share with the vendor to complete', onSelect: downloadQuestions },
-    { key: 'upload', title: 'Upload completed questionnaire', description: canEdit ? 'Import answers from a CSV file' : disabledReason, onSelect: onUpload, disabled: !canEdit },
+    { key: 'upload', title: UPLOAD_ANSWERS_LABEL, description: canEdit ? 'Import answers from a CSV file' : disabledReason, onSelect: onUpload, disabled: !canEdit },
     { key: 'questionnaire', title: 'Send questionnaire to vendor', description: 'Let vendors answer directly in Openlane', disabled: true, comingSoon: true },
     { key: 'soc2', title: 'Import from SOC 2 report', description: 'Generate draft answers from a SOC 2 report', disabled: true, comingSoon: true },
   ]
@@ -63,16 +65,16 @@ export const RiskScoringActions: React.FC<TRiskScoringActionsProps> = ({ hasScor
           {options.map((option, index) => (
             <React.Fragment key={option.key}>
               {option.comingSoon && !options[index - 1]?.comingSoon && <DropdownMenuSeparator />}
-              <DropdownMenuItem disabled={option.disabled} onSelect={option.onSelect} className="flex items-start justify-between gap-3">
-                <span className="flex min-w-0 flex-col">
+              <DropdownMenuItem disabled={option.disabled} onSelect={option.onSelect} className="flex flex-col items-stretch gap-0.5">
+                <span className="flex items-center justify-between gap-3">
                   <span className={cn('text-sm font-medium', option.disabled && 'text-muted-foreground')}>{option.title}</span>
-                  <span className="text-xs text-muted-foreground">{option.description}</span>
+                  {option.comingSoon && (
+                    <Badge variant="outline" className="shrink-0">
+                      Coming soon
+                    </Badge>
+                  )}
                 </span>
-                {option.comingSoon && (
-                  <Badge variant="outline" className="shrink-0">
-                    Coming soon
-                  </Badge>
-                )}
+                <span className="text-xs text-muted-foreground">{option.description}</span>
               </DropdownMenuItem>
             </React.Fragment>
           ))}

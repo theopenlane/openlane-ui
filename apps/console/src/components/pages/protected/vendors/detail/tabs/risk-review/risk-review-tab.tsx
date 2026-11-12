@@ -160,6 +160,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
         vendorName={vendorDisplayName(vendor)}
         vendorLogoUrl={getVendorLogoUrl(vendor.logoFile)}
         vendorRiskScore={vendor.riskScore}
+        vendorRiskRating={vendor.riskRating}
         canEdit={canEdit}
         onViewReview={setSelectedRow}
       />

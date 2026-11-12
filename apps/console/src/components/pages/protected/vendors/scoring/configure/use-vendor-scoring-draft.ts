@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react'
 import { type VendorScoringConfigVendorScoringMode } from '@repo/codegen/src/schema'
-import { buildVendorScoringConfigInput, getDefaultMaxScore, getDefaultQuestion, type TDraftQuestion, type TQuestionDraftValues, type TVendorScoringDraft } from '@/lib/vendor-scoring-config'
+import { buildVendorScoringConfigInput, getDefaultMaxScore, type TDraftQuestion, type TQuestionDraftValues, type TVendorScoringDraft } from '@/lib/vendor-scoring-config'
 import { type TVendorRiskRating } from '@/lib/vendor-risk-rating'
 import { diffBuiltInput, isDeepEqual } from '@/utils/input-diff'
 
@@ -21,15 +21,6 @@ export const useVendorScoringDraft = (initial: TVendorScoringDraft) => {
   const setQuestionEnabled = useCallback((draftId: string, enabled: boolean) => mapQuestion(draftId, (question) => ({ ...question, enabled })), [mapQuestion])
 
   const updateQuestion = useCallback((draftId: string, values: TQuestionDraftValues) => mapQuestion(draftId, (question) => ({ ...question, ...values })), [mapQuestion])
-
-  const resetQuestion = useCallback(
-    (draftId: string) =>
-      mapQuestion(draftId, (question) => {
-        const defaultQuestion = getDefaultQuestion(question.key)
-        return defaultQuestion ? { ...defaultQuestion, enabled: question.enabled, draftId } : question
-      }),
-    [mapQuestion],
-  )
 
   const addQuestion = useCallback((values: TQuestionDraftValues) => {
     nextNewQuestionId += 1
@@ -73,7 +64,6 @@ export const useVendorScoringDraft = (initial: TVendorScoringDraft) => {
     hasNewerVersion,
     setQuestionEnabled,
     updateQuestion,
-    resetQuestion,
     addQuestion,
     removeQuestion,
     setScoringMode,

@@ -10556,6 +10556,7 @@ export interface CreateVendorRiskScoreMutation {
       notes: string | null
       tags: Array<string> | null
       updatedAt: any
+      entity: { id: string; riskScore: number | null; riskRating: string | null; updatedAt: any }
     }
   }
 }
@@ -10580,6 +10581,7 @@ export interface UpdateVendorRiskScoreMutation {
       notes: string | null
       tags: Array<string> | null
       updatedAt: any
+      entity: { id: string; riskScore: number | null; riskRating: string | null; updatedAt: any }
     }
   }
 }

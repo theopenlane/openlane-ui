@@ -96,6 +96,12 @@ export const CREATE_VENDOR_RISK_SCORE = gql`
         notes
         tags
         updatedAt
+        entity {
+          id
+          riskScore
+          riskRating
+          updatedAt
+        }
       }
     }
   }
@@ -117,6 +123,12 @@ export const UPDATE_VENDOR_RISK_SCORE = gql`
         notes
         tags
         updatedAt
+        entity {
+          id
+          riskScore
+          riskRating
+          updatedAt
+        }
       }
     }
   }

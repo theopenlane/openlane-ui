@@ -142,13 +142,6 @@ export interface ApiToken extends Node {
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
-/** Return response for createBulkAPIToken mutation */
-export interface ApiTokenBulkCreatePayload {
-  __typename?: 'APITokenBulkCreatePayload'
-  /** Created apiTokens */
-  apiTokens?: Maybe<Array<ApiToken>>
-}
-
 /** Return response for deleteBulkAPIToken mutation */
 export interface ApiTokenBulkDeletePayload {
   __typename?: 'APITokenBulkDeletePayload'
@@ -13572,10 +13565,14 @@ export interface CreateOnboardingInput {
   companyName: Scalars['String']['input']
   /** details given about the compliance requirements during the onboarding process, such as coming with existing policies, controls, risk assessments, etc */
   compliance?: InputMaybe<Scalars['Map']['input']>
+  /** the demo dataset to seed when seed_demo_data is true */
+  demoDataset?: InputMaybe<Scalars['String']['input']>
   demoRequested?: InputMaybe<Scalars['Boolean']['input']>
   /** domains associated with the company */
   domains?: InputMaybe<Array<Scalars['String']['input']>>
   organizationID?: InputMaybe<Scalars['ID']['input']>
+  /** whether the organization starts with demo data, unset when the question was not answered */
+  seedDemoData?: InputMaybe<Scalars['Boolean']['input']>
   /** details given about the user during the onboarding process, including things such as name, job title, department, etc */
   userDetails?: InputMaybe<Scalars['Map']['input']>
 }
@@ -15076,6 +15073,8 @@ export interface CreateTrustCenterSettingInput {
   companyDomain?: InputMaybe<Scalars['String']['input']>
   /** company name for the trust center, defaults to the organization's display name */
   companyName?: InputMaybe<Scalars['String']['input']>
+  /** if disabled, the default domain will not work and your trustcenter will not be viewable with the slug based routing */
+  disableDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** enable auto approval rules provides configurable settings to skip manual approvals */
   enableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
@@ -15264,8 +15263,11 @@ export interface CreateVendorRiskScoreInput {
   answer?: InputMaybe<Scalars['String']['input']>
   assessmentResponseID?: InputMaybe<Scalars['ID']['input']>
   entityID: Scalars['ID']['input']
+  /** identifier of the record in an external system */
+  externalID?: InputMaybe<Scalars['String']['input']>
   /** user-assigned impact for this specific vendor using the 5-point TPRM scale (VERY_LOW=1 through CRITICAL=5); the same question may carry different impact across vendors */
   impact: VendorRiskScoreVendorRiskImpact
+  integrationRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** user-assigned likelihood of the risk condition occurring for this vendor using the 5-point TPRM scale (VERY_LOW=0.5 through VERY_HIGH=4) */
   likelihood: VendorRiskScoreVendorRiskLikelihood
   /** optional justification or context for the assigned impact and likelihood */
@@ -16564,37 +16566,6 @@ export interface DnsVerificationCustomDomainsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<CustomDomainOrder>>
   where?: InputMaybe<CustomDomainWhereInput>
-}
-
-/** Return response for createBulkDNSVerification mutation */
-export interface DnsVerificationBulkCreatePayload {
-  __typename?: 'DNSVerificationBulkCreatePayload'
-  /** Created dnsVerifications */
-  dnsVerifications?: Maybe<Array<DnsVerification>>
-}
-
-/** Return response for deleteBulkDNSVerification mutation */
-export interface DnsVerificationBulkDeletePayload {
-  __typename?: 'DNSVerificationBulkDeletePayload'
-  /** Deleted dnsVerification IDs */
-  deletedIDs: Array<Scalars['ID']['output']>
-  /** Error message when the bulk delete did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not deleted */
-  notDeletedIDs: Array<Scalars['ID']['output']>
-}
-
-/** Return response for updateBulkDNSVerification mutation */
-export interface DnsVerificationBulkUpdatePayload {
-  __typename?: 'DNSVerificationBulkUpdatePayload'
-  /** Updated dnsVerifications */
-  dnsVerifications?: Maybe<Array<DnsVerification>>
-  /** Error message when the bulk update did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not updated */
-  notUpdatedIDs: Array<Scalars['ID']['output']>
-  /** IDs of the updated dnsVerifications */
-  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -29507,13 +29478,6 @@ export interface HushIntegrationsArgs {
   where?: InputMaybe<IntegrationWhereInput>
 }
 
-/** Return response for createBulkHush mutation */
-export interface HushBulkCreatePayload {
-  __typename?: 'HushBulkCreatePayload'
-  /** Created hushs */
-  hushes?: Maybe<Array<Hush>>
-}
-
 /** Return response for deleteBulkHush mutation */
 export interface HushBulkDeletePayload {
   __typename?: 'HushBulkDeletePayload'
@@ -34107,37 +34071,6 @@ export interface MappableDomainCustomDomainsArgs {
   where?: InputMaybe<CustomDomainWhereInput>
 }
 
-/** Return response for createBulkMappableDomain mutation */
-export interface MappableDomainBulkCreatePayload {
-  __typename?: 'MappableDomainBulkCreatePayload'
-  /** Created mappableDomains */
-  mappableDomains?: Maybe<Array<MappableDomain>>
-}
-
-/** Return response for deleteBulkMappableDomain mutation */
-export interface MappableDomainBulkDeletePayload {
-  __typename?: 'MappableDomainBulkDeletePayload'
-  /** Deleted mappableDomain IDs */
-  deletedIDs: Array<Scalars['ID']['output']>
-  /** Error message when the bulk delete did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not deleted */
-  notDeletedIDs: Array<Scalars['ID']['output']>
-}
-
-/** Return response for updateBulkMappableDomain mutation */
-export interface MappableDomainBulkUpdatePayload {
-  __typename?: 'MappableDomainBulkUpdatePayload'
-  /** Error message when the bulk update did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** Updated mappableDomains */
-  mappableDomains?: Maybe<Array<MappableDomain>>
-  /** IDs that were not updated */
-  notUpdatedIDs: Array<Scalars['ID']['output']>
-  /** IDs of the updated mappableDomains */
-  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
-}
-
 /** A connection to a list of items. */
 export interface MappableDomainConnection {
   __typename?: 'MappableDomainConnection'
@@ -35162,16 +35095,12 @@ export interface Mutation {
   createAssessmentWithPolicies: AssessmentCreatePayload
   /** Create a new asset */
   createAsset: AssetCreatePayload
-  /** Create multiple new apiTokens */
-  createBulkAPIToken: ApiTokenBulkCreatePayload
   /** Create multiple new actionPlans */
   createBulkActionPlan: ActionPlanBulkCreatePayload
   /** Create multiple new assessmentPolicys */
   createBulkAssessmentPolicy: AssessmentPolicyBulkCreatePayload
   /** Create multiple new assets */
   createBulkAsset: AssetBulkCreatePayload
-  /** Create multiple new apiTokens via file upload */
-  createBulkCSVAPIToken: ApiTokenBulkCreatePayload
   /** Create multiple new actionPlans via file upload */
   createBulkCSVActionPlan: ActionPlanBulkCreatePayload
   /** Create multiple new assessmentPolicys via file upload */
@@ -35196,8 +35125,6 @@ export interface Mutation {
   createBulkCSVCustomDomain: CustomDomainBulkCreatePayload
   /** Create multiple new customTypeEnums via file upload */
   createBulkCSVCustomTypeEnum: CustomTypeEnumBulkCreatePayload
-  /** Create multiple new dnsVerifications via file upload */
-  createBulkCSVDNSVerification: DnsVerificationBulkCreatePayload
   /** Create multiple new directoryAccounts via file upload */
   createBulkCSVDirectoryAccount: DirectoryAccountBulkCreatePayload
   /** Create multiple new directoryGroups via file upload */
@@ -35228,16 +35155,12 @@ export interface Mutation {
   createBulkCSVGroupMembership: GroupMembershipBulkCreatePayload
   /** Create multiple new groupSettings via file upload */
   createBulkCSVGroupSetting: GroupSettingBulkCreatePayload
-  /** Create multiple new hushs via file upload */
-  createBulkCSVHush: HushBulkCreatePayload
   /** Create multiple new identityHolders via file upload */
   createBulkCSVIdentityHolder: IdentityHolderBulkCreatePayload
   /** Create multiple new internalPolicys via file upload */
   createBulkCSVInternalPolicy: InternalPolicyBulkCreatePayload
   /** Create multiple new invites via file upload */
   createBulkCSVInvite: InviteBulkCreatePayload
-  /** Create multiple new mappableDomains via file upload */
-  createBulkCSVMappableDomain: MappableDomainBulkCreatePayload
   /** Create multiple new mappedControls via file upload */
   createBulkCSVMappedControl: MappedControlBulkCreatePayload
   /** Create multiple new narratives via file upload */
@@ -35250,8 +35173,6 @@ export interface Mutation {
   createBulkCSVOrgMembership: OrgMembershipBulkCreatePayload
   /** Create multiple new organizationBrandingSettings via file upload */
   createBulkCSVOrganizationBrandingSetting: OrganizationBrandingSettingBulkCreatePayload
-  /** Create multiple new organizationSettings via file upload */
-  createBulkCSVOrganizationSetting: OrganizationSettingBulkCreatePayload
   /** Create multiple new platforms via file upload */
   createBulkCSVPlatform: PlatformBulkCreatePayload
   /** Create multiple new procedures via file upload */
@@ -35296,8 +35217,6 @@ export interface Mutation {
   createBulkCSVTrustCenterNDARequest: TrustCenterNdaRequestBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors via file upload */
   createBulkCSVTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new userSettings via file upload */
-  createBulkCSVUserSetting: UserSettingBulkCreatePayload
   /** Create multiple new vendorRiskScores via file upload */
   createBulkCSVVendorRiskScore: VendorRiskScoreBulkCreatePayload
   /** Create multiple new vendorScoringConfigs via file upload */
@@ -35324,8 +35243,6 @@ export interface Mutation {
   createBulkCustomDomain: CustomDomainBulkCreatePayload
   /** Create multiple new customTypeEnums */
   createBulkCustomTypeEnum: CustomTypeEnumBulkCreatePayload
-  /** Create multiple new dnsVerifications */
-  createBulkDNSVerification: DnsVerificationBulkCreatePayload
   /** Create multiple new directoryAccounts */
   createBulkDirectoryAccount: DirectoryAccountBulkCreatePayload
   /** Create multiple new directoryGroups */
@@ -35356,16 +35273,12 @@ export interface Mutation {
   createBulkGroupMembership: GroupMembershipBulkCreatePayload
   /** Create multiple new groupSettings */
   createBulkGroupSetting: GroupSettingBulkCreatePayload
-  /** Create multiple new hushs */
-  createBulkHush: HushBulkCreatePayload
   /** Create multiple new identityHolders */
   createBulkIdentityHolder: IdentityHolderBulkCreatePayload
   /** Create multiple new internalPolicys */
   createBulkInternalPolicy: InternalPolicyBulkCreatePayload
   /** Create multiple new invites */
   createBulkInvite: InviteBulkCreatePayload
-  /** Create multiple new mappableDomains */
-  createBulkMappableDomain: MappableDomainBulkCreatePayload
   /** Create multiple new mappedControls */
   createBulkMappedControl: MappedControlBulkCreatePayload
   /** Create multiple new narratives */
@@ -35378,8 +35291,6 @@ export interface Mutation {
   createBulkOrgMembership: OrgMembershipBulkCreatePayload
   /** Create multiple new organizationBrandingSettings */
   createBulkOrganizationBrandingSetting: OrganizationBrandingSettingBulkCreatePayload
-  /** Create multiple new organizationSettings */
-  createBulkOrganizationSetting: OrganizationSettingBulkCreatePayload
   /** Create multiple new platforms */
   createBulkPlatform: PlatformBulkCreatePayload
   /** Create multiple new procedures */
@@ -35426,8 +35337,6 @@ export interface Mutation {
   createBulkTrustCenterNDARequest: TrustCenterNdaRequestBulkCreatePayload
   /** Create multiple new trustCenterSubprocessors */
   createBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkCreatePayload
-  /** Create multiple new userSettings */
-  createBulkUserSetting: UserSettingBulkCreatePayload
   /** Create multiple new vendorRiskScores */
   createBulkVendorRiskScore: VendorRiskScoreBulkCreatePayload
   /** Create multiple new vendorScoringConfigs */
@@ -35594,6 +35503,8 @@ export interface Mutation {
   createTrustCenterNDA: TrustCenterNdaCreatePayload
   /** Create a new trustCenterNDARequest */
   createTrustCenterNDARequest: TrustCenterNdaRequestCreatePayload
+  /** enqueues the creation of a preview domain for the trustcenter */
+  createTrustCenterPreviewDomain: TrustCenterPreviewDomainCreatePayload
   /** Create or replace preview environment trust center settings */
   createTrustCenterPreviewSetting: TrustCenterPreviewSettingCreatePayload
   /** Create a new trustCenterSetting */
@@ -35654,8 +35565,6 @@ export interface Mutation {
   deleteBulkControlObjective: ControlObjectiveBulkDeletePayload
   /** Delete multiple customDomains */
   deleteBulkCustomDomain: CustomDomainBulkDeletePayload
-  /** Delete multiple dnsVerifications */
-  deleteBulkDNSVerification: DnsVerificationBulkDeletePayload
   /** Delete multiple documentData */
   deleteBulkDocumentData: DocumentDataBulkDeletePayload
   /** Delete multiple emailTemplates */
@@ -35688,8 +35597,6 @@ export interface Mutation {
   deleteBulkInternalPolicy: InternalPolicyBulkDeletePayload
   /** Delete multiple invites */
   deleteBulkInvite: InviteBulkDeletePayload
-  /** Delete multiple mappableDomains */
-  deleteBulkMappableDomain: MappableDomainBulkDeletePayload
   /** Delete multiple mappedControls */
   deleteBulkMappedControl: MappedControlBulkDeletePayload
   /** Delete multiple narratives */
@@ -35702,8 +35609,6 @@ export interface Mutation {
   deleteBulkOrgMembership: OrgMembershipBulkDeletePayload
   /** Delete multiple organizationBrandingSettings */
   deleteBulkOrganizationBrandingSetting: OrganizationBrandingSettingBulkDeletePayload
-  /** Delete multiple organizationSettings */
-  deleteBulkOrganizationSetting: OrganizationSettingBulkDeletePayload
   /** Delete multiple procedures */
   deleteBulkProcedure: ProcedureBulkDeletePayload
   /** Delete multiple programs */
@@ -35742,8 +35647,6 @@ export interface Mutation {
   deleteBulkTrustCenterNDARequest: TrustCenterNdaRequestBulkDeletePayload
   /** Delete multiple trustCenterSubprocessors */
   deleteBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkDeletePayload
-  /** Delete multiple userSettings */
-  deleteBulkUserSetting: UserSettingBulkDeletePayload
   /** Delete multiple vendorRiskScores */
   deleteBulkVendorRiskScore: VendorRiskScoreBulkDeletePayload
   /** Delete multiple vendorScoringConfigs */
@@ -35946,6 +35849,8 @@ export interface Mutation {
   seedDemoData: SeedDemoDataPayload
   /** Send a test email for a campaign without creating campaign targets */
   sendCampaignTestEmail: CampaignTestEmailPayload
+  /** enqueues the creation of a preview domain and enables the default domain for the trustcenter */
+  setupTrustCenterDomains: TrustCenterDomainsSetupPayload
   /** Submit a response to a Trust Center NDA */
   submitTrustCenterNDAResponse: SubmitTrustCenterNdaResponsePayload
   /** Submit a draft workflow proposal for approval */
@@ -35972,8 +35877,6 @@ export interface Mutation {
   updateBulkAssessmentPolicy: AssessmentPolicyBulkUpdatePayload
   /** Update multiple existing assets */
   updateBulkAsset: AssetBulkUpdatePayload
-  /** Update multiple existing apiTokens via file upload */
-  updateBulkCSVAPIToken: ApiTokenBulkUpdatePayload
   /** Update multiple existing actionPlans via file upload */
   updateBulkCSVActionPlan: ActionPlanBulkUpdatePayload
   /** Update multiple existing assessmentPolicys via file upload */
@@ -35992,12 +35895,8 @@ export interface Mutation {
   updateBulkCSVControlObjective: ControlObjectiveBulkUpdatePayload
   /** Update multiple existing customDomains via file upload */
   updateBulkCSVCustomDomain: CustomDomainBulkUpdatePayload
-  /** Update multiple existing dnsVerifications via file upload */
-  updateBulkCSVDNSVerification: DnsVerificationBulkUpdatePayload
   /** Update multiple existing documentDatas via file upload */
   updateBulkCSVDocumentData: DocumentDataBulkUpdatePayload
-  /** Update multiple existing emailTemplates via file upload */
-  updateBulkCSVEmailTemplate: EmailTemplateBulkUpdatePayload
   /** Update multiple existing entitys via file upload */
   updateBulkCSVEntity: EntityBulkUpdatePayload
   /** Update multiple existing entityTypes via file upload */
@@ -36014,16 +35913,12 @@ export interface Mutation {
   updateBulkCSVGroupMembership: GroupMembershipBulkUpdatePayload
   /** Update multiple existing groupSettings via file upload */
   updateBulkCSVGroupSetting: GroupSettingBulkUpdatePayload
-  /** Update multiple existing hushs via file upload */
-  updateBulkCSVHush: HushBulkUpdatePayload
   /** Update multiple existing identityHolders via file upload */
   updateBulkCSVIdentityHolder: IdentityHolderBulkUpdatePayload
   /** Update multiple existing internalPolicys via file upload */
   updateBulkCSVInternalPolicy: InternalPolicyBulkUpdatePayload
   /** Update multiple existing invites via file upload */
   updateBulkCSVInvite: InviteBulkUpdatePayload
-  /** Update multiple existing mappableDomains via file upload */
-  updateBulkCSVMappableDomain: MappableDomainBulkUpdatePayload
   /** Update multiple existing mappedControls via file upload */
   updateBulkCSVMappedControl: MappedControlBulkUpdatePayload
   /** Update multiple existing narratives via file upload */
@@ -36036,8 +35931,6 @@ export interface Mutation {
   updateBulkCSVOrgMembership: OrgMembershipBulkUpdatePayload
   /** Update multiple existing organizationBrandingSettings via file upload */
   updateBulkCSVOrganizationBrandingSetting: OrganizationBrandingSettingBulkUpdatePayload
-  /** Update multiple existing organizationSettings via file upload */
-  updateBulkCSVOrganizationSetting: OrganizationSettingBulkUpdatePayload
   /** Update multiple existing procedures via file upload */
   updateBulkCSVProcedure: ProcedureBulkUpdatePayload
   /** Update multiple existing programs via file upload */
@@ -36072,8 +35965,6 @@ export interface Mutation {
   updateBulkCSVTrustCenterFAQ: TrustCenterFaqBulkUpdatePayload
   /** Update multiple existing trustCenterSubprocessors via file upload */
   updateBulkCSVTrustCenterSubprocessor: TrustCenterSubprocessorBulkUpdatePayload
-  /** Update multiple existing userSettings via file upload */
-  updateBulkCSVUserSetting: UserSettingBulkUpdatePayload
   /** Update multiple existing vendorRiskScores via file upload */
   updateBulkCSVVendorRiskScore: VendorRiskScoreBulkUpdatePayload
   /** Update multiple existing vendorScoringConfigs via file upload */
@@ -36092,8 +35983,6 @@ export interface Mutation {
   updateBulkControlObjective: ControlObjectiveBulkUpdatePayload
   /** Update multiple existing customDomains */
   updateBulkCustomDomain: CustomDomainBulkUpdatePayload
-  /** Update multiple existing dnsVerifications */
-  updateBulkDNSVerification: DnsVerificationBulkUpdatePayload
   /** Update multiple existing documentDatas */
   updateBulkDocumentData: DocumentDataBulkUpdatePayload
   /** Update multiple existing emailTemplates */
@@ -36122,8 +36011,6 @@ export interface Mutation {
   updateBulkInternalPolicy: InternalPolicyBulkUpdatePayload
   /** Update multiple existing invites */
   updateBulkInvite: InviteBulkUpdatePayload
-  /** Update multiple existing mappableDomains */
-  updateBulkMappableDomain: MappableDomainBulkUpdatePayload
   /** Update multiple existing mappedControls */
   updateBulkMappedControl: MappedControlBulkUpdatePayload
   /** Update multiple existing narratives */
@@ -36136,8 +36023,6 @@ export interface Mutation {
   updateBulkOrgMembership: OrgMembershipBulkUpdatePayload
   /** Update multiple existing organizationBrandingSettings */
   updateBulkOrganizationBrandingSetting: OrganizationBrandingSettingBulkUpdatePayload
-  /** Update multiple existing organizationSettings */
-  updateBulkOrganizationSetting: OrganizationSettingBulkUpdatePayload
   /** Update multiple existing procedures */
   updateBulkProcedure: ProcedureBulkUpdatePayload
   /** Update multiple existing programs */
@@ -36174,8 +36059,6 @@ export interface Mutation {
   updateBulkTrustCenterFAQ: TrustCenterFaqBulkUpdatePayload
   /** Update multiple existing trustCenterSubprocessors */
   updateBulkTrustCenterSubprocessor: TrustCenterSubprocessorBulkUpdatePayload
-  /** Update multiple existing userSettings */
-  updateBulkUserSetting: UserSettingBulkUpdatePayload
   /** Update multiple existing vendorRiskScores */
   updateBulkVendorRiskScore: VendorRiskScoreBulkUpdatePayload
   /** Update multiple existing vendorScoringConfigs */
@@ -36442,10 +36325,6 @@ export interface MutationCreateAssetArgs {
   input: CreateAssetInput
 }
 
-export interface MutationCreateBulkApiTokenArgs {
-  input?: InputMaybe<Array<CreateApiTokenInput>>
-}
-
 export interface MutationCreateBulkActionPlanArgs {
   input?: InputMaybe<Array<CreateActionPlanInput>>
 }
@@ -36456,10 +36335,6 @@ export interface MutationCreateBulkAssessmentPolicyArgs {
 
 export interface MutationCreateBulkAssetArgs {
   input?: InputMaybe<Array<CreateAssetInput>>
-}
-
-export interface MutationCreateBulkCsvapiTokenArgs {
-  input: Scalars['Upload']['input']
 }
 
 export interface MutationCreateBulkCsvActionPlanArgs {
@@ -36507,10 +36382,6 @@ export interface MutationCreateBulkCsvCustomDomainArgs {
 }
 
 export interface MutationCreateBulkCsvCustomTypeEnumArgs {
-  input: Scalars['Upload']['input']
-}
-
-export interface MutationCreateBulkCsvdnsVerificationArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -36575,10 +36446,6 @@ export interface MutationCreateBulkCsvGroupSettingArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationCreateBulkCsvHushArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationCreateBulkCsvIdentityHolderArgs {
   input: Scalars['Upload']['input']
 }
@@ -36588,10 +36455,6 @@ export interface MutationCreateBulkCsvInternalPolicyArgs {
 }
 
 export interface MutationCreateBulkCsvInviteArgs {
-  input: Scalars['Upload']['input']
-}
-
-export interface MutationCreateBulkCsvMappableDomainArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -36616,10 +36479,6 @@ export interface MutationCreateBulkCsvOrgMembershipArgs {
 }
 
 export interface MutationCreateBulkCsvOrganizationBrandingSettingArgs {
-  input: Scalars['Upload']['input']
-}
-
-export interface MutationCreateBulkCsvOrganizationSettingArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -36711,10 +36570,6 @@ export interface MutationCreateBulkCsvTrustCenterSubprocessorArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationCreateBulkCsvUserSettingArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationCreateBulkCsvVendorRiskScoreArgs {
   input: Scalars['Upload']['input']
 }
@@ -36765,10 +36620,6 @@ export interface MutationCreateBulkCustomDomainArgs {
 
 export interface MutationCreateBulkCustomTypeEnumArgs {
   input?: InputMaybe<Array<CreateCustomTypeEnumInput>>
-}
-
-export interface MutationCreateBulkDnsVerificationArgs {
-  input?: InputMaybe<Array<CreateDnsVerificationInput>>
 }
 
 export interface MutationCreateBulkDirectoryAccountArgs {
@@ -36832,10 +36683,6 @@ export interface MutationCreateBulkGroupSettingArgs {
   input?: InputMaybe<Array<CreateGroupSettingInput>>
 }
 
-export interface MutationCreateBulkHushArgs {
-  input?: InputMaybe<Array<CreateHushInput>>
-}
-
 export interface MutationCreateBulkIdentityHolderArgs {
   input?: InputMaybe<Array<CreateIdentityHolderInput>>
 }
@@ -36846,10 +36693,6 @@ export interface MutationCreateBulkInternalPolicyArgs {
 
 export interface MutationCreateBulkInviteArgs {
   input?: InputMaybe<Array<CreateInviteInput>>
-}
-
-export interface MutationCreateBulkMappableDomainArgs {
-  input?: InputMaybe<Array<CreateMappableDomainInput>>
 }
 
 export interface MutationCreateBulkMappedControlArgs {
@@ -36874,10 +36717,6 @@ export interface MutationCreateBulkOrgMembershipArgs {
 
 export interface MutationCreateBulkOrganizationBrandingSettingArgs {
   input?: InputMaybe<Array<CreateOrganizationBrandingSettingInput>>
-}
-
-export interface MutationCreateBulkOrganizationSettingArgs {
-  input?: InputMaybe<Array<CreateOrganizationSettingInput>>
 }
 
 export interface MutationCreateBulkPlatformArgs {
@@ -36970,10 +36809,6 @@ export interface MutationCreateBulkTrustCenterNdaRequestArgs {
 
 export interface MutationCreateBulkTrustCenterSubprocessorArgs {
   input?: InputMaybe<Array<CreateTrustCenterSubprocessorInput>>
-}
-
-export interface MutationCreateBulkUserSettingArgs {
-  input?: InputMaybe<Array<CreateUserSettingInput>>
 }
 
 export interface MutationCreateBulkVendorRiskScoreArgs {
@@ -37357,6 +37192,10 @@ export interface MutationCreateTrustCenterNdaRequestArgs {
   input: CreateTrustCenterNdaRequestInput
 }
 
+export interface MutationCreateTrustCenterPreviewDomainArgs {
+  trustCenterID: Scalars['ID']['input']
+}
+
 export interface MutationCreateTrustCenterPreviewSettingArgs {
   faviconFile?: InputMaybe<Scalars['Upload']['input']>
   faviconFileMetadata?: InputMaybe<FileMetadataInput>
@@ -37504,10 +37343,6 @@ export interface MutationDeleteBulkCustomDomainArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
-export interface MutationDeleteBulkDnsVerificationArgs {
-  ids: Array<Scalars['ID']['input']>
-}
-
 export interface MutationDeleteBulkDocumentDataArgs {
   ids: Array<Scalars['ID']['input']>
 }
@@ -37572,10 +37407,6 @@ export interface MutationDeleteBulkInviteArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
-export interface MutationDeleteBulkMappableDomainArgs {
-  ids: Array<Scalars['ID']['input']>
-}
-
 export interface MutationDeleteBulkMappedControlArgs {
   ids: Array<Scalars['ID']['input']>
 }
@@ -37597,10 +37428,6 @@ export interface MutationDeleteBulkOrgMembershipArgs {
 }
 
 export interface MutationDeleteBulkOrganizationBrandingSettingArgs {
-  ids: Array<Scalars['ID']['input']>
-}
-
-export interface MutationDeleteBulkOrganizationSettingArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
@@ -37677,10 +37504,6 @@ export interface MutationDeleteBulkTrustCenterNdaRequestArgs {
 }
 
 export interface MutationDeleteBulkTrustCenterSubprocessorArgs {
-  ids: Array<Scalars['ID']['input']>
-}
-
-export interface MutationDeleteBulkUserSettingArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
@@ -38071,6 +37894,10 @@ export interface MutationSendCampaignTestEmailArgs {
   input: SendCampaignTestEmailInput
 }
 
+export interface MutationSetupTrustCenterDomainsArgs {
+  trustCenterID: Scalars['ID']['input']
+}
+
 export interface MutationSubmitTrustCenterNdaResponseArgs {
   input: SubmitTrustCenterNdaResponseInput
 }
@@ -38134,10 +37961,6 @@ export interface MutationUpdateBulkAssetArgs {
   input: UpdateAssetInput
 }
 
-export interface MutationUpdateBulkCsvapiTokenArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationUpdateBulkCsvActionPlanArgs {
   input: Scalars['Upload']['input']
 }
@@ -38174,15 +37997,7 @@ export interface MutationUpdateBulkCsvCustomDomainArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationUpdateBulkCsvdnsVerificationArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationUpdateBulkCsvDocumentDataArgs {
-  input: Scalars['Upload']['input']
-}
-
-export interface MutationUpdateBulkCsvEmailTemplateArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -38218,10 +38033,6 @@ export interface MutationUpdateBulkCsvGroupSettingArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationUpdateBulkCsvHushArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationUpdateBulkCsvIdentityHolderArgs {
   input: Scalars['Upload']['input']
 }
@@ -38231,10 +38042,6 @@ export interface MutationUpdateBulkCsvInternalPolicyArgs {
 }
 
 export interface MutationUpdateBulkCsvInviteArgs {
-  input: Scalars['Upload']['input']
-}
-
-export interface MutationUpdateBulkCsvMappableDomainArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -38259,10 +38066,6 @@ export interface MutationUpdateBulkCsvOrgMembershipArgs {
 }
 
 export interface MutationUpdateBulkCsvOrganizationBrandingSettingArgs {
-  input: Scalars['Upload']['input']
-}
-
-export interface MutationUpdateBulkCsvOrganizationSettingArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -38334,10 +38137,6 @@ export interface MutationUpdateBulkCsvTrustCenterSubprocessorArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationUpdateBulkCsvUserSettingArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationUpdateBulkCsvVendorRiskScoreArgs {
   input: Scalars['Upload']['input']
 }
@@ -38378,11 +38177,6 @@ export interface MutationUpdateBulkControlObjectiveArgs {
 export interface MutationUpdateBulkCustomDomainArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateCustomDomainInput
-}
-
-export interface MutationUpdateBulkDnsVerificationArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateDnsVerificationInput
 }
 
 export interface MutationUpdateBulkDocumentDataArgs {
@@ -38455,11 +38249,6 @@ export interface MutationUpdateBulkInviteArgs {
   input: UpdateInviteInput
 }
 
-export interface MutationUpdateBulkMappableDomainArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateMappableDomainInput
-}
-
 export interface MutationUpdateBulkMappedControlArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateMappedControlInput
@@ -38488,11 +38277,6 @@ export interface MutationUpdateBulkOrgMembershipArgs {
 export interface MutationUpdateBulkOrganizationBrandingSettingArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateOrganizationBrandingSettingInput
-}
-
-export interface MutationUpdateBulkOrganizationSettingArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateOrganizationSettingInput
 }
 
 export interface MutationUpdateBulkProcedureArgs {
@@ -38583,11 +38367,6 @@ export interface MutationUpdateBulkTrustCenterFaqArgs {
 export interface MutationUpdateBulkTrustCenterSubprocessorArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateTrustCenterSubprocessorInput
-}
-
-export interface MutationUpdateBulkUserSettingArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateUserSettingInput
 }
 
 export interface MutationUpdateBulkVendorRiskScoreArgs {
@@ -41854,12 +41633,16 @@ export interface Onboarding extends Node {
   companyName: Scalars['String']['output']
   /** details given about the compliance requirements during the onboarding process, such as coming with existing policies, controls, risk assessments, etc */
   compliance?: Maybe<Scalars['Map']['output']>
+  /** the demo dataset to seed when seed_demo_data is true */
+  demoDataset?: Maybe<Scalars['String']['output']>
   demoRequested?: Maybe<Scalars['Boolean']['output']>
   /** domains associated with the company */
   domains?: Maybe<Array<Scalars['String']['output']>>
   id: Scalars['ID']['output']
   organization?: Maybe<Organization>
   organizationID?: Maybe<Scalars['ID']['output']>
+  /** whether the organization starts with demo data, unset when the question was not answered */
+  seedDemoData?: Maybe<Scalars['Boolean']['output']>
   /** details given about the user during the onboarding process, including things such as name, job title, department, etc */
   userDetails?: Maybe<Scalars['Map']['output']>
 }
@@ -41887,6 +41670,18 @@ export interface OnboardingWhereInput {
   companyNameIn?: InputMaybe<Array<Scalars['String']['input']>>
   companyNameNEQ?: InputMaybe<Scalars['String']['input']>
   companyNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** demo_dataset field predicates */
+  demoDataset?: InputMaybe<Scalars['String']['input']>
+  demoDatasetContains?: InputMaybe<Scalars['String']['input']>
+  demoDatasetContainsFold?: InputMaybe<Scalars['String']['input']>
+  demoDatasetEqualFold?: InputMaybe<Scalars['String']['input']>
+  demoDatasetHasPrefix?: InputMaybe<Scalars['String']['input']>
+  demoDatasetHasSuffix?: InputMaybe<Scalars['String']['input']>
+  demoDatasetIn?: InputMaybe<Array<Scalars['String']['input']>>
+  demoDatasetIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  demoDatasetNEQ?: InputMaybe<Scalars['String']['input']>
+  demoDatasetNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  demoDatasetNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** demo_requested field predicates */
   demoRequested?: InputMaybe<Scalars['Boolean']['input']>
   demoRequestedIsNil?: InputMaybe<Scalars['Boolean']['input']>
@@ -41918,6 +41713,11 @@ export interface OnboardingWhereInput {
   organizationIDNEQ?: InputMaybe<Scalars['ID']['input']>
   organizationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   organizationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** seed_demo_data field predicates */
+  seedDemoData?: InputMaybe<Scalars['Boolean']['input']>
+  seedDemoDataIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  seedDemoDataNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  seedDemoDataNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /** Possible directions in which to order a list of items when provided an `orderBy` argument. */
@@ -44236,37 +44036,6 @@ export interface OrganizationSettingFilesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder>>
   where?: InputMaybe<FileWhereInput>
-}
-
-/** Return response for createBulkOrganizationSetting mutation */
-export interface OrganizationSettingBulkCreatePayload {
-  __typename?: 'OrganizationSettingBulkCreatePayload'
-  /** Created organizationSettings */
-  organizationSettings?: Maybe<Array<OrganizationSetting>>
-}
-
-/** Return response for deleteBulkOrganizationSetting mutation */
-export interface OrganizationSettingBulkDeletePayload {
-  __typename?: 'OrganizationSettingBulkDeletePayload'
-  /** Deleted organizationSetting IDs */
-  deletedIDs: Array<Scalars['ID']['output']>
-  /** Error message when the bulk delete did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not deleted */
-  notDeletedIDs: Array<Scalars['ID']['output']>
-}
-
-/** Return response for updateBulkOrganizationSetting mutation */
-export interface OrganizationSettingBulkUpdatePayload {
-  __typename?: 'OrganizationSettingBulkUpdatePayload'
-  /** Error message when the bulk update did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not updated */
-  notUpdatedIDs: Array<Scalars['ID']['output']>
-  /** Updated organizationSettings */
-  organizationSettings?: Maybe<Array<OrganizationSetting>>
-  /** IDs of the updated organizationSettings */
-  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -65795,6 +65564,12 @@ export interface TrustCenterDomainCreatePayload {
   customDomain: CustomDomain
 }
 
+/** Return response for setupTrustCenterDomains mutation */
+export interface TrustCenterDomainsSetupPayload {
+  __typename?: 'TrustCenterDomainsSetupPayload'
+  success: Scalars['Boolean']['output']
+}
+
 /** An edge in a connection. */
 export interface TrustCenterEdge {
   __typename?: 'TrustCenterEdge'
@@ -67443,6 +67218,12 @@ export enum TrustCenterOrderField {
   updated_at = 'updated_at',
 }
 
+/** Return response for createTrustCenterPreviewDomain mutation */
+export interface TrustCenterPreviewDomainCreatePayload {
+  __typename?: 'TrustCenterPreviewDomainCreatePayload'
+  success: Scalars['Boolean']['output']
+}
+
 /** Return response for createTrustCenterPreviewSetting mutation */
 export interface TrustCenterPreviewSettingCreatePayload {
   __typename?: 'TrustCenterPreviewSettingCreatePayload'
@@ -67469,6 +67250,8 @@ export interface TrustCenterSetting extends Node {
   companyName?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** if disabled, the default domain will not work and your trustcenter will not be viewable with the slug based routing */
+  disableDefaultDomain?: Maybe<Scalars['Boolean']['output']>
   editors: GroupConnection
   /** enable auto approval rules provides configurable settings to skip manual approvals */
   enableAutoApproval?: Maybe<Scalars['Boolean']['output']>
@@ -67606,6 +67389,8 @@ export interface TrustCenterSettingHistory extends Node {
   companyName?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** if disabled, the default domain will not work and your trustcenter will not be viewable with the slug based routing */
+  disableDefaultDomain?: Maybe<Scalars['Boolean']['output']>
   /** enable auto approval rules provides configurable settings to skip manual approvals */
   enableAutoApproval?: Maybe<Scalars['Boolean']['output']>
   /** environment of the trust center */
@@ -67934,6 +67719,11 @@ export interface TrustCenterSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** disable_default_domain field predicates */
+  disableDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
+  disableDefaultDomainIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  disableDefaultDomainNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  disableDefaultDomainNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** enable_auto_approval field predicates */
   enableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
   enableAutoApprovalIsNil?: InputMaybe<Scalars['Boolean']['input']>
@@ -75419,6 +75209,7 @@ export interface UpdateTrustCenterSettingInput {
   clearCompanyDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyName?: InputMaybe<Scalars['Boolean']['input']>
+  clearDisableDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEnableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
   clearFaviconFile?: InputMaybe<Scalars['Boolean']['input']>
@@ -75446,6 +75237,8 @@ export interface UpdateTrustCenterSettingInput {
   companyDomain?: InputMaybe<Scalars['String']['input']>
   /** company name for the trust center, defaults to the organization's display name */
   companyName?: InputMaybe<Scalars['String']['input']>
+  /** if disabled, the default domain will not work and your trustcenter will not be viewable with the slug based routing */
+  disableDefaultDomain?: InputMaybe<Scalars['Boolean']['input']>
   /** enable auto approval rules provides configurable settings to skip manual approvals */
   enableAutoApproval?: InputMaybe<Scalars['Boolean']['input']>
   faviconFileID?: InputMaybe<Scalars['ID']['input']>
@@ -75713,17 +75506,22 @@ export interface UpdateUserSettingInput {
  * Input was generated by ent.
  */
 export interface UpdateVendorRiskScoreInput {
+  addIntegrationRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** factual answer to the question (e.g. 'true', 'false', '48 hours', 'ISO 27001'); retained permanently even if the question text changes, because question_key is the stable reference not the display name */
   answer?: InputMaybe<Scalars['String']['input']>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   assessmentResponseID?: InputMaybe<Scalars['ID']['input']>
   clearAnswer?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessmentResponse?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalID?: InputMaybe<Scalars['Boolean']['input']>
+  clearIntegrationRuns?: InputMaybe<Scalars['Boolean']['input']>
   clearNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearQuestionDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearVendorScoringConfig?: InputMaybe<Scalars['Boolean']['input']>
   entityID?: InputMaybe<Scalars['ID']['input']>
+  /** identifier of the record in an external system */
+  externalID?: InputMaybe<Scalars['String']['input']>
   /** user-assigned impact for this specific vendor using the 5-point TPRM scale (VERY_LOW=1 through CRITICAL=5); the same question may carry different impact across vendors */
   impact?: InputMaybe<VendorRiskScoreVendorRiskImpact>
   /** user-assigned likelihood of the risk condition occurring for this vendor using the 5-point TPRM scale (VERY_LOW=0.5 through VERY_HIGH=4) */
@@ -75738,6 +75536,7 @@ export interface UpdateVendorRiskScoreInput {
   questionKey?: InputMaybe<Scalars['String']['input']>
   /** question text as it existed when this assessment was created; preserved for historical accuracy if the question wording changes later */
   questionName?: InputMaybe<Scalars['String']['input']>
+  removeIntegrationRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   vendorScoringConfigID?: InputMaybe<Scalars['ID']['input']>
@@ -76664,37 +76463,6 @@ export interface UserSetting extends Node {
   userID?: Maybe<Scalars['ID']['output']>
 }
 
-/** Return response for createBulkUserSetting mutation */
-export interface UserSettingBulkCreatePayload {
-  __typename?: 'UserSettingBulkCreatePayload'
-  /** Created userSettings */
-  userSettings?: Maybe<Array<UserSetting>>
-}
-
-/** Return response for deleteBulkUserSetting mutation */
-export interface UserSettingBulkDeletePayload {
-  __typename?: 'UserSettingBulkDeletePayload'
-  /** Deleted userSetting IDs */
-  deletedIDs: Array<Scalars['ID']['output']>
-  /** Error message when the bulk delete did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not deleted */
-  notDeletedIDs: Array<Scalars['ID']['output']>
-}
-
-/** Return response for updateBulkUserSetting mutation */
-export interface UserSettingBulkUpdatePayload {
-  __typename?: 'UserSettingBulkUpdatePayload'
-  /** Error message when the bulk update did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not updated */
-  notUpdatedIDs: Array<Scalars['ID']['output']>
-  /** IDs of the updated userSettings */
-  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
-  /** Updated userSettings */
-  userSettings?: Maybe<Array<UserSetting>>
-}
-
 /** A connection to a list of items. */
 export interface UserSettingConnection {
   __typename?: 'UserSettingConnection'
@@ -77416,11 +77184,18 @@ export interface VendorRiskScore extends Node {
   entity: Entity
   /** the vendor entity being assessed */
   entityID: Scalars['ID']['output']
+  /** identifier of the record in an external system */
+  externalID?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   /** user-assigned impact for this specific vendor using the 5-point TPRM scale (VERY_LOW=1 through CRITICAL=5); the same question may carry different impact across vendors */
   impact: VendorRiskScoreVendorRiskImpact
+  /** id of the integration run that last wrote this record */
+  integrationRunID?: Maybe<Scalars['String']['output']>
+  integrationRuns: IntegrationRunConnection
   /** user-assigned likelihood of the risk condition occurring for this vendor using the 5-point TPRM scale (VERY_LOW=0.5 through VERY_HIGH=4) */
   likelihood: VendorRiskScoreVendorRiskLikelihood
+  /** id of the integration installation managing the record, empty when the record is unclaimed */
+  managedBy?: Maybe<Scalars['String']['output']>
   /** optional justification or context for the assigned impact and likelihood */
   notes?: Maybe<Scalars['String']['output']>
   owner?: Maybe<Organization>
@@ -77436,6 +77211,14 @@ export interface VendorRiskScore extends Node {
   questionName: Scalars['String']['output']
   /** hook-computed risk score: impactNumeric x likelihoodNumeric */
   score: Scalars['Float']['output']
+  /** canonical id of the integration definition that created or last enriched the record */
+  sourceDefinitionID?: Maybe<Scalars['String']['output']>
+  /** integration definition version recorded when the record was created or last enriched */
+  sourceDefinitionVersion?: Maybe<Scalars['String']['output']>
+  /** stable identifier of the external system instance the record was sourced from */
+  sourceInstanceID?: Maybe<Scalars['String']['output']>
+  /** key grouping the records runtime ingest wrote from one named source */
+  sourceKey?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -77445,6 +77228,15 @@ export interface VendorRiskScore extends Node {
   vendorScoringConfig?: Maybe<VendorScoringConfig>
   /** the scoring config this assessment belongs to; auto-resolved from org context if not provided */
   vendorScoringConfigID?: Maybe<Scalars['ID']['output']>
+}
+
+export interface VendorRiskScoreIntegrationRunsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<IntegrationRunOrder>
+  where?: InputMaybe<IntegrationRunWhereInput>
 }
 
 /** Return response for createBulkVendorRiskScore mutation */
@@ -77524,12 +77316,18 @@ export interface VendorRiskScoreHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the vendor entity being assessed */
   entityID: Scalars['String']['output']
+  /** identifier of the record in an external system */
+  externalID?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   /** user-assigned impact for this specific vendor using the 5-point TPRM scale (VERY_LOW=1 through CRITICAL=5); the same question may carry different impact across vendors */
   impact: VendorRiskScoreHistoryVendorRiskImpact
+  /** id of the integration run that last wrote this record */
+  integrationRunID?: Maybe<Scalars['String']['output']>
   /** user-assigned likelihood of the risk condition occurring for this vendor using the 5-point TPRM scale (VERY_LOW=0.5 through VERY_HIGH=4) */
   likelihood: VendorRiskScoreHistoryVendorRiskLikelihood
+  /** id of the integration installation managing the record, empty when the record is unclaimed */
+  managedBy?: Maybe<Scalars['String']['output']>
   /** optional justification or context for the assigned impact and likelihood */
   notes?: Maybe<Scalars['String']['output']>
   operation: VendorRiskScoreHistoryOpType
@@ -77546,6 +77344,14 @@ export interface VendorRiskScoreHistory extends Node {
   ref?: Maybe<Scalars['String']['output']>
   /** hook-computed risk score: impactNumeric x likelihoodNumeric */
   score: Scalars['Float']['output']
+  /** canonical id of the integration definition that created or last enriched the record */
+  sourceDefinitionID?: Maybe<Scalars['String']['output']>
+  /** integration definition version recorded when the record was created or last enriched */
+  sourceDefinitionVersion?: Maybe<Scalars['String']['output']>
+  /** stable identifier of the external system instance the record was sourced from */
+  sourceInstanceID?: Maybe<Scalars['String']['output']>
+  /** key grouping the records runtime ingest wrote from one named source */
+  sourceKey?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -77594,6 +77400,7 @@ export interface VendorRiskScoreHistoryOrder {
 /** Properties by which VendorRiskScoreHistory connections can be ordered. */
 export enum VendorRiskScoreHistoryOrderField {
   created_at = 'created_at',
+  external_id = 'external_id',
   history_time = 'history_time',
   impact = 'impact',
   likelihood = 'likelihood',
@@ -77757,6 +77564,7 @@ export interface VendorRiskScoreOrder {
 /** Properties by which VendorRiskScore connections can be ordered. */
 export enum VendorRiskScoreOrderField {
   created_at = 'created_at',
+  external_id = 'external_id',
   impact = 'impact',
   likelihood = 'likelihood',
   question_category = 'question_category',
@@ -77876,12 +77684,27 @@ export interface VendorRiskScoreWhereInput {
   entityIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDNEQ?: InputMaybe<Scalars['ID']['input']>
   entityIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** external_id field predicates */
+  externalID?: InputMaybe<Scalars['String']['input']>
+  externalIDContains?: InputMaybe<Scalars['String']['input']>
+  externalIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** assessment_response edge predicates */
   hasAssessmentResponse?: InputMaybe<Scalars['Boolean']['input']>
   hasAssessmentResponseWith?: InputMaybe<Array<AssessmentResponseWhereInput>>
   /** entity edge predicates */
   hasEntity?: InputMaybe<Scalars['Boolean']['input']>
   hasEntityWith?: InputMaybe<Array<EntityWhereInput>>
+  /** integration_runs edge predicates */
+  hasIntegrationRuns?: InputMaybe<Scalars['Boolean']['input']>
+  hasIntegrationRunsWith?: InputMaybe<Array<IntegrationRunWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -77900,11 +77723,35 @@ export interface VendorRiskScoreWhereInput {
   impactIn?: InputMaybe<Array<VendorRiskScoreVendorRiskImpact>>
   impactNEQ?: InputMaybe<VendorRiskScoreVendorRiskImpact>
   impactNotIn?: InputMaybe<Array<VendorRiskScoreVendorRiskImpact>>
+  /** integration_run_id field predicates */
+  integrationRunID?: InputMaybe<Scalars['String']['input']>
+  integrationRunIDContains?: InputMaybe<Scalars['String']['input']>
+  integrationRunIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  integrationRunIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  integrationRunIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  integrationRunIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  integrationRunIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  integrationRunIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  integrationRunIDNEQ?: InputMaybe<Scalars['String']['input']>
+  integrationRunIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  integrationRunIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** likelihood field predicates */
   likelihood?: InputMaybe<VendorRiskScoreVendorRiskLikelihood>
   likelihoodIn?: InputMaybe<Array<VendorRiskScoreVendorRiskLikelihood>>
   likelihoodNEQ?: InputMaybe<VendorRiskScoreVendorRiskLikelihood>
   likelihoodNotIn?: InputMaybe<Array<VendorRiskScoreVendorRiskLikelihood>>
+  /** managed_by field predicates */
+  managedBy?: InputMaybe<Scalars['String']['input']>
+  managedByContains?: InputMaybe<Scalars['String']['input']>
+  managedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  managedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  managedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  managedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  managedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  managedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  managedByNEQ?: InputMaybe<Scalars['String']['input']>
+  managedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  managedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<VendorRiskScoreWhereInput>
   /** notes field predicates */
   notes?: InputMaybe<Scalars['String']['input']>
@@ -77977,6 +77824,54 @@ export interface VendorRiskScoreWhereInput {
   scoreLTE?: InputMaybe<Scalars['Float']['input']>
   scoreNEQ?: InputMaybe<Scalars['Float']['input']>
   scoreNotIn?: InputMaybe<Array<Scalars['Float']['input']>>
+  /** source_definition_id field predicates */
+  sourceDefinitionID?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionIDContains?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceDefinitionIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sourceDefinitionIDNEQ?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceDefinitionIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source_definition_version field predicates */
+  sourceDefinitionVersion?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionVersionContains?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionVersionContainsFold?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionVersionEqualFold?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionVersionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionVersionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionVersionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceDefinitionVersionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sourceDefinitionVersionNEQ?: InputMaybe<Scalars['String']['input']>
+  sourceDefinitionVersionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceDefinitionVersionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source_instance_id field predicates */
+  sourceInstanceID?: InputMaybe<Scalars['String']['input']>
+  sourceInstanceIDContains?: InputMaybe<Scalars['String']['input']>
+  sourceInstanceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  sourceInstanceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  sourceInstanceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  sourceInstanceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  sourceInstanceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceInstanceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sourceInstanceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  sourceInstanceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceInstanceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source_key field predicates */
+  sourceKey?: InputMaybe<Scalars['String']['input']>
+  sourceKeyContains?: InputMaybe<Scalars['String']['input']>
+  sourceKeyContainsFold?: InputMaybe<Scalars['String']['input']>
+  sourceKeyEqualFold?: InputMaybe<Scalars['String']['input']>
+  sourceKeyHasPrefix?: InputMaybe<Scalars['String']['input']>
+  sourceKeyHasSuffix?: InputMaybe<Scalars['String']['input']>
+  sourceKeyIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceKeyIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sourceKeyNEQ?: InputMaybe<Scalars['String']['input']>
+  sourceKeyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceKeyNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for tagsHas to contain a specific value */
   tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */

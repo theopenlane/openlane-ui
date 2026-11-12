@@ -121,10 +121,12 @@ export type TVendorRiskScoringNode = NonNullable<NonNullable<NonNullable<VendorR
 
 const VENDOR_RISK_SCORING_PAGE_SIZE = 100
 
+export const vendorRiskScoringQueryKey = (entityId: string) => ['vendorRiskScores', 'scoring', entityId] as const
+
 export const useVendorRiskScoring = (entityId: string) => {
   const { client } = useGraphQLClient()
   return useQuery({
-    queryKey: ['vendorRiskScores', 'scoring', entityId],
+    queryKey: vendorRiskScoringQueryKey(entityId),
     queryFn: () =>
       fetchAllConnectionNodes<TVendorRiskScoringNode>(async (after) => {
         const data = await client.request<VendorRiskScoringQuery, VendorRiskScoringQueryVariables>(GET_VENDOR_RISK_SCORING, {
@@ -248,23 +250,34 @@ export const useLinkUnconfiguredVendorRiskScores = () => {
 
 type TSaveVendorRiskAnswerVariables = { kind: 'create'; input: CreateVendorRiskScoreInput } | { kind: 'update'; id: string; input: UpdateVendorRiskScoreInput }
 
+type TSavedVendorRiskScore = CreateVendorRiskScoreMutation['createVendorRiskScore']['vendorRiskScore'] | UpdateVendorRiskScoreMutation['updateVendorRiskScore']['vendorRiskScore']
+
+export type TVendorRiskAggregate = Pick<NonNullable<TSavedVendorRiskScore['entity']>, 'riskScore' | 'riskRating' | 'updatedAt'>
+
+type TSavedVendorRiskAnswer = { score: TVendorRiskScoringNode; aggregate: TVendorRiskAggregate | undefined }
+
+const toSavedAnswer = ({ entity, ...score }: TSavedVendorRiskScore): TSavedVendorRiskAnswer => ({
+  score,
+  aggregate: entity ? { riskScore: entity.riskScore, riskRating: entity.riskRating, updatedAt: entity.updatedAt } : undefined,
+})
+
 export const useSaveVendorRiskAnswer = (entityId: string) => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-  return useMutation<TVendorRiskScoringNode, unknown, TSaveVendorRiskAnswerVariables>({
+  return useMutation<TSavedVendorRiskAnswer, unknown, TSaveVendorRiskAnswerVariables>({
     mutationFn: async (variables) => {
       if (variables.kind === 'create') {
         const data = await client.request<CreateVendorRiskScoreMutation, CreateVendorRiskScoreMutationVariables>(CREATE_VENDOR_RISK_SCORE, { input: variables.input })
-        return data.createVendorRiskScore.vendorRiskScore
+        return toSavedAnswer(data.createVendorRiskScore.vendorRiskScore)
       }
       const data = await client.request<UpdateVendorRiskScoreMutation, UpdateVendorRiskScoreMutationVariables>(UPDATE_VENDOR_RISK_SCORE, {
         updateVendorRiskScoreId: variables.id,
         input: variables.input,
       })
-      return data.updateVendorRiskScore.vendorRiskScore
+      return toSavedAnswer(data.updateVendorRiskScore.vendorRiskScore)
     },
-    onSuccess: (saved, variables) => {
-      queryClient.setQueryData<TVendorRiskScoringNode[]>(['vendorRiskScores', 'scoring', entityId], (current) =>
+    onSuccess: ({ score: saved }, variables) => {
+      queryClient.setQueryData<TVendorRiskScoringNode[]>(vendorRiskScoringQueryKey(entityId), (current) =>
         current?.some((score) => score.id === saved.id) ? current.map((score) => (score.id === saved.id ? saved : score)) : [...(current ?? []), saved],
       )
       if (variables.kind === 'update') queryClient.invalidateQueries({ queryKey: ['vendorRiskScoreHistories', entityId] })

@@ -11,9 +11,13 @@ import { IMPACT_ORDER, LIKELIHOOD_ORDER, type TVendorScoringQuestionDef } from '
 
 export { IMPACT_ORDER, LIKELIHOOD_ORDER }
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { toEnumToken } from '@/components/shared/record-import/lib/validate-cells'
+import { formatList } from '@/utils/strings'
 import { formatDate } from '@/utils/date'
 
 export const BOOLEAN_ANSWER = { YES: 'true', NO: 'false' } as const
+
+const BOOLEAN_TOKENS: Record<string, string> = { YES: BOOLEAN_ANSWER.YES, TRUE: BOOLEAN_ANSWER.YES, Y: BOOLEAN_ANSWER.YES, NO: BOOLEAN_ANSWER.NO, FALSE: BOOLEAN_ANSWER.NO, N: BOOLEAN_ANSWER.NO }
 
 export const NO_RISK_LIKELIHOOD = VendorRiskScoreVendorRiskLikelihood.VERY_LOW
 
@@ -58,6 +62,39 @@ export const groupRiskQuestions = (items: readonly TRiskQuestion[]): TRiskQuesti
     groups.set(category, group)
   })
   return [...groups.values()]
+}
+
+export type TAnswerDraft = {
+  answer: string
+  likelihood: VendorRiskScoreVendorRiskLikelihood | undefined
+  impact: VendorRiskScoreVendorRiskImpact
+  notes: string
+}
+
+export const parseAnswer = ({ question }: TRiskQuestion, raw: string): string | { error: string } => {
+  const value = raw.trim()
+  switch (question.answerType) {
+    case VendorRiskScoreVendorScoringAnswerType.BOOLEAN:
+      return BOOLEAN_TOKENS[toEnumToken(value)] ?? { error: `"${value}" is not Yes or No` }
+    case VendorRiskScoreVendorScoringAnswerType.NUMERIC:
+      return Number.isFinite(Number(value)) ? value : { error: `"${value}" is not a number` }
+    case VendorRiskScoreVendorScoringAnswerType.SINGLE_SELECT: {
+      const options = question.answerOptions ?? []
+      return options.find((option) => option.trim().toLowerCase() === value.toLowerCase()) ?? { error: `"${value}" is not one of ${formatList(options, 'disjunction')}` }
+    }
+    default:
+      return value
+  }
+}
+
+export const isValidAnswer = (item: TRiskQuestion, raw: string) => !!raw.trim() && typeof parseAnswer(item, raw) === 'string'
+
+export const incompleteDraftReason = (item: TRiskQuestion, draft: TAnswerDraft): string | undefined => {
+  const answer = draft.answer.trim()
+  if (!answer) return !item.score && draft.notes.trim() ? 'Answer the question to save your notes' : undefined
+  const parsed = parseAnswer(item, answer)
+  if (typeof parsed !== 'string') return `${parsed.error}. Fix it to save`
+  return !isYesAnswer(item.score ?? item.question, answer) && !draft.likelihood ? 'Pick a likelihood to save' : undefined
 }
 
 export const formatAnswer = (question: TAnswerType, answer: string | null | undefined) => {
