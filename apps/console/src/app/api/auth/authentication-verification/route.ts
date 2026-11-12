@@ -31,8 +31,8 @@ export async function POST(request: Request) {
   if (fData.ok) {
     const data = await fData.json()
     const response = NextResponse.json(data, { status: 200 })
-    if (data.tfa_enabled && !data.access_token) {
-      forwardTfaPendingCookie(response.cookies, fData.headers)
+    if (data.tfa_required || (data.tfa_enabled && !data.access_token)) {
+      forwardTfaPendingCookie(response.cookies, fData.headers, data.tfa_required ? data.access_token : undefined)
     }
     return response
   }

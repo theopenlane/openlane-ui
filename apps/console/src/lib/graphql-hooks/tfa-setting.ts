@@ -27,8 +27,8 @@ export const useGetUserTFASettings = (userId?: string) => {
   })
 }
 
-export const useUpdateTfaSetting = () => {
-  const { client } = useGraphQLClient()
+export const useUpdateTfaSetting = (cookieAuth = false) => {
+  const { client } = useGraphQLClient(cookieAuth)
   const queryClient = useQueryClient()
   return useMutation<UpdateTfaSettingMutation, unknown, { input: UpdateTfaSettingInput }>({
     mutationFn: async (input) => client.request(UPDATE_TFA_SETTING, input),
@@ -39,8 +39,8 @@ export const useUpdateTfaSetting = () => {
   })
 }
 
-export const useCreateTfaSetting = () => {
-  const { client } = useGraphQLClient()
+export const useCreateTfaSetting = (cookieAuth = false) => {
+  const { client } = useGraphQLClient(cookieAuth)
   const queryClient = useQueryClient()
   return useMutation<CreateTfaSettingMutation, unknown, { input: CreateTfaSettingInput }>({
     mutationFn: async (input) => client.request(CREATE_TFA_SETTING, input),

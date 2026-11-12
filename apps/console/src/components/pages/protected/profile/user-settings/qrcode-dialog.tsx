@@ -17,9 +17,11 @@ interface QRCodeProps {
   secret: string | null
   onClose: () => void
   regeneratedCodes: null | string[]
+  onVerify?: (otp: string) => Promise<string[] | undefined>
+  onComplete?: () => Promise<void>
 }
 
-const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps) => {
+const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes, onVerify, onComplete }: QRCodeProps) => {
   const { successNotification, errorNotification } = useNotification()
   const [isOpen, setIsOpen] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -39,6 +41,17 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
   const verifyOTP = useCallback(
     async (otp: string) => {
       try {
+        if (onVerify) {
+          const codes = await onVerify(otp)
+          if (!codes) {
+            return
+          }
+          setRecoveryCodes(codes)
+          setModalClosable(false)
+          successNotification({ title: 'OTP validated successfully' })
+          return
+        }
+
         const response = await secureFetch('/api/verifyOTP', {
           method: 'POST',
           body: JSON.stringify({ totp_code: otp }),
@@ -72,7 +85,7 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
         })
       }
     },
-    [errorNotification, successNotification, updateTfaSetting],
+    [errorNotification, successNotification, updateTfaSetting, onVerify],
   )
 
   const handleOtpChange = useCallback(
@@ -124,13 +137,22 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
 
   const handleOpenChange = useCallback(
     (isOpen: boolean) => {
+      if (!isOpen && onComplete) {
+        if (isSubmitting || !modalClosable) {
+          return
+        }
+        if (recoveryCodes) {
+          onComplete()
+          return
+        }
+      }
       setIsOpen(isOpen)
       if (!isOpen) {
         resetState()
         onClose()
       }
     },
-    [onClose],
+    [onClose, onComplete, isSubmitting, recoveryCodes, modalClosable],
   )
 
   const config = useMemo(() => {
@@ -158,7 +180,7 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
         body: (
           <>
             <p className="text-sm">Use your authenticator app to scan this QR code.</p>
-            {qrcode && <QRCodeSVG value={qrcode} size={180} className="shadow-lg" />}
+            {qrcode && <QRCodeSVG marginSize={4} value={qrcode} size={180} className="shadow-lg" />}
 
             {isSecretKeySetup ? (
               <div className="flex flex-col gap-1 items-center">

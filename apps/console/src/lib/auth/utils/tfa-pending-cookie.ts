@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { useInsecureCookies } from '@repo/dally/auth'
+import { cookieDomain, useInsecureCookies } from '@repo/dally/auth'
 import { TFA_PENDING_COOKIE_NAME, TFA_PENDING_MAX_AGE_SECONDS } from './constants'
 
 // host-only (no Domain) so it never reaches other subdomains; set and clear must use the same attributes
@@ -11,12 +11,20 @@ const tfaPendingCookieOptions = {
   path: '/',
 }
 
-type CookieWriter = {
-  set: (name: string, value: string, options: typeof tfaPendingCookieOptions & { maxAge: number }) => unknown
-}
+// so we do not have to keep extending the custom type
+type CookieWriter = Pick<NextResponse['cookies'], 'set'>
 
-// copies only tfa_pending from core's response onto the store as a host-only cookie
-export const forwardTfaPendingCookie = (store: CookieWriter, upstreamHeaders: Headers) => {
+export const forwardTfaPendingCookie = (store: CookieWriter, upstreamHeaders: Headers, accessToken?: string) => {
+  if (accessToken) {
+    store.set('access_token', accessToken, {
+      ...tfaPendingCookieOptions,
+      sameSite: useInsecureCookies ? 'lax' : 'none',
+      domain: useInsecureCookies ? undefined : cookieDomain,
+      maxAge: TFA_PENDING_MAX_AGE_SECONDS,
+    })
+    return
+  }
+
   const value = new NextResponse(null, { headers: upstreamHeaders }).cookies.get(TFA_PENDING_COOKIE_NAME)?.value
 
   if (!value) {
@@ -26,7 +34,15 @@ export const forwardTfaPendingCookie = (store: CookieWriter, upstreamHeaders: He
   store.set(TFA_PENDING_COOKIE_NAME, value, { ...tfaPendingCookieOptions, maxAge: TFA_PENDING_MAX_AGE_SECONDS })
 }
 
-// expires tfa_pending using the same attributes it was set with
-export const clearTfaPendingCookie = (store: CookieWriter) => {
+// expires cookies using the same attributes they were set with
+export const clearTfaPendingCookie = (store: CookieWriter, clearAccessToken = false) => {
   store.set(TFA_PENDING_COOKIE_NAME, '', { ...tfaPendingCookieOptions, maxAge: 0 })
+  if (clearAccessToken) {
+    store.set('access_token', '', {
+      ...tfaPendingCookieOptions,
+      sameSite: useInsecureCookies ? 'lax' : 'none',
+      domain: useInsecureCookies ? undefined : cookieDomain,
+      maxAge: 0,
+    })
+  }
 }

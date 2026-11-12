@@ -163,8 +163,8 @@ export const config = {
 
           const apiData = result.data
 
-          if (apiData?.tfa_enabled && !apiData.access_token) {
-            forwardTfaPendingCookie(cookieStore, result.response.headers)
+          if (apiData?.tfa_required || (apiData?.tfa_enabled && !apiData.access_token)) {
+            forwardTfaPendingCookie(cookieStore, result.response.headers, apiData.tfa_required ? apiData.access_token : undefined)
             return '/tfa'
           }
 
