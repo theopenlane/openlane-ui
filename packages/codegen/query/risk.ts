@@ -282,6 +282,25 @@ export const INSERT_RISK_COMMENT = gql`
     }
   }
 `
+export const GET_RISK_COMMENTS = gql`
+  query GetRiskComments($riskId: ID!) {
+    risk(id: $riskId) {
+      id
+      comments(first: 100, where: { discussionIDIsNil: true }, orderBy: [{ field: created_at, direction: DESC }]) {
+        totalCount
+        edges {
+          node {
+            id
+            createdAt
+            createdBy
+            text
+          }
+        }
+      }
+    }
+  }
+`
+
 export const UPDATE_RISK_COMMENT = gql`
   mutation UpdateRiskComment($updateRiskCommentId: ID!, $input: UpdateNoteInput!) {
     updateRiskComment(id: $updateRiskCommentId, input: $input) {

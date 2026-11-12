@@ -15,6 +15,7 @@ import {
   INSERT_RISK_COMMENT,
   UPDATE_RISK_COMMENT,
   GET_RISK_ASSOCIATIONS,
+  GET_RISK_COMMENTS,
 } from '@repo/codegen/query/risk'
 
 import {
@@ -43,10 +44,15 @@ import {
   type UpdateRiskCommentMutation,
   type UpdateRiskCommentMutationVariables,
   type GetRiskAssociationsQuery,
+  type GetRiskCommentsQuery,
+  type GetRiskCommentsQueryVariables,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { useMemo } from 'react'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
+import { useEntityComments } from '@/lib/graphql-hooks/entity-comments'
+
+const RISK_COMMENTS_KEY = 'riskComments'
 
 type UseRisksProps = {
   where?: RiskWhereInput
@@ -227,10 +233,19 @@ export const useUpdateRiskComment = () => {
   return useMutation<UpdateRiskCommentMutation, unknown, UpdateRiskCommentMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_RISK_COMMENT, variables),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['riskComments', data.updateRiskComment.risk.id] })
+      queryClient.invalidateQueries({ queryKey: [RISK_COMMENTS_KEY, data.updateRiskComment.risk.id] })
     },
   })
 }
+
+export const useRiskComments = (riskId: string | null | undefined) =>
+  useEntityComments({
+    queryKeyPrefix: RISK_COMMENTS_KEY,
+    entityId: riskId,
+    fetchComments: async (client, id) => (await client.request<GetRiskCommentsQuery, GetRiskCommentsQueryVariables>(GET_RISK_COMMENTS, { riskId: id })).risk.comments,
+    addComment: (client, id, text) => client.request<UpdateRiskMutation, UpdateRiskMutationVariables>(UPDATE_RISK, { updateRiskId: id, input: { addComment: { text } } }),
+    editComment: (client, commentId, text) => client.request<UpdateRiskCommentMutation, UpdateRiskCommentMutationVariables>(UPDATE_RISK_COMMENT, { updateRiskCommentId: commentId, input: { text } }),
+  })
 
 export const useGetRiskAssociations = (riskId?: string) => {
   const { client } = useGraphQLClient()

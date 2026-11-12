@@ -8027,6 +8027,14 @@ export interface InsertRiskCommentMutation {
   }
 }
 
+export type GetRiskCommentsQueryVariables = Exact<{
+  riskId: string
+}>
+
+export interface GetRiskCommentsQuery {
+  risk: { id: string; comments: { totalCount: number; edges: Array<{ node: { id: string; createdAt: any; createdBy: string | null; text: string } | null } | null> | null } }
+}
+
 export type UpdateRiskCommentMutationVariables = Exact<{
   updateRiskCommentId: string
   input: Types.UpdateNoteInput
@@ -10176,7 +10184,6 @@ export interface GetTrustCenterQuery {
           faviconRemoteURL: string | null
           logoRemoteURL: string | null
           securityContact: string | null
-          disableDefaultDomain: boolean | null
           updatedAt: any
           logoFile: { id: string; base64: string | null } | null
           faviconFile: { id: string; base64: string | null } | null
