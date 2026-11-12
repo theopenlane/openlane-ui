@@ -72,6 +72,19 @@ const RISK_UPDATE_FIELDS = {
   environmentName: orClear('clearEnvironmentName'),
   scopeName: orClear('clearScopeName'),
   name: passthrough,
+  controlIDs: omit,
+  subcontrolIDs: omit,
+  programIDs: omit,
+  taskIDs: omit,
+  internalPolicyIDs: omit,
+  procedureIDs: omit,
+  assetIDs: omit,
+  entityIDs: omit,
+  scanIDs: omit,
+  actionPlanIDs: omit,
+  vulnerabilityIDs: omit,
+  findingIDs: omit,
+  reviewIDs: omit,
 } satisfies TFieldMappers<RiskFormValues, UpdateRiskInput>
 
 const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {

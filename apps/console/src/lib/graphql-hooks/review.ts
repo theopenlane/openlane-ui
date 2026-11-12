@@ -21,6 +21,7 @@ import {
 } from '@repo/codegen/src/schema'
 
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
+import { invalidateCreateEdgeTargets, invalidateEdgeUpdateTargets } from '@/components/shared/object-association/object-association-config'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_REVIEWS,
@@ -90,8 +91,9 @@ export const useCreateReview = () => {
   const { queryClient } = useGraphQLClient()
   return useMutation<CreateReviewMutation, unknown, CreateReviewMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_REVIEW, variables }),
-    onSuccess: () => {
+    onSuccess: (_, { input }) => {
       queryClient.invalidateQueries({ queryKey: ['reviews'] })
+      invalidateCreateEdgeTargets(input, queryClient)
     },
   })
 }
@@ -101,8 +103,9 @@ export const useUpdateReview = () => {
   const queryClient = useQueryClient()
   return useMutation<UpdateReviewMutation, unknown, UpdateReviewMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_REVIEW, variables),
-    onSuccess: () => {
+    onSuccess: (_, { input }) => {
       queryClient.invalidateQueries({ queryKey: ['reviews'] })
+      invalidateEdgeUpdateTargets(input, queryClient)
     },
   })
 }
