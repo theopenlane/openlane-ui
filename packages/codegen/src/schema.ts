@@ -4821,6 +4821,475 @@ export interface GetIdentityHolderAssociationsTimelineQuery {
   }
 }
 
+export type IntegrationRunSummaryFieldsFragment = {
+  id: string
+  integrationID: string | null
+  operationName: string | null
+  operationKind: Types.IntegrationRunIntegrationOperationKind | null
+  runType: Types.IntegrationRunIntegrationRunType | null
+  status: Types.IntegrationRunIntegrationRunStatus
+  createdAt: any
+  startedAt: any
+  finishedAt: any
+  durationMs: number | null
+  summary: string | null
+  error: string | null
+}
+
+export type IntegrationRunFieldsFragment = {
+  metrics: any
+  id: string
+  integrationID: string | null
+  operationName: string | null
+  operationKind: Types.IntegrationRunIntegrationOperationKind | null
+  runType: Types.IntegrationRunIntegrationRunType | null
+  status: Types.IntegrationRunIntegrationRunStatus
+  createdAt: any
+  startedAt: any
+  finishedAt: any
+  durationMs: number | null
+  summary: string | null
+  error: string | null
+}
+
+export type GetIntegrationRunSummariesQueryVariables = Exact<{
+  where?: Types.IntegrationRunWhereInput | null | undefined
+  orderBy?: Types.IntegrationRunOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface GetIntegrationRunSummariesQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        integrationID: string | null
+        operationName: string | null
+        operationKind: Types.IntegrationRunIntegrationOperationKind | null
+        runType: Types.IntegrationRunIntegrationRunType | null
+        status: Types.IntegrationRunIntegrationRunStatus
+        createdAt: any
+        startedAt: any
+        finishedAt: any
+        durationMs: number | null
+        summary: string | null
+        error: string | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunsQueryVariables = Exact<{
+  where?: Types.IntegrationRunWhereInput | null | undefined
+  orderBy?: Types.IntegrationRunOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunsQuery {
+  integrationRuns: {
+    totalCount: number
+    pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+    edges: Array<{
+      node: {
+        metrics: any
+        id: string
+        integrationID: string | null
+        operationName: string | null
+        operationKind: Types.IntegrationRunIntegrationOperationKind | null
+        runType: Types.IntegrationRunIntegrationRunType | null
+        status: Types.IntegrationRunIntegrationRunStatus
+        createdAt: any
+        startedAt: any
+        finishedAt: any
+        durationMs: number | null
+        summary: string | null
+        error: string | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunStatsQueryVariables = Exact<{
+  totalWhere?: Types.IntegrationRunWhereInput | null | undefined
+  failedWhere?: Types.IntegrationRunWhereInput | null | undefined
+  lastSuccessWhere?: Types.IntegrationRunWhereInput | null | undefined
+}>
+
+export interface GetIntegrationRunStatsQuery {
+  total: { totalCount: number }
+  failed: { totalCount: number }
+  lastSuccess: { edges: Array<{ node: { id: string; integrationID: string | null; operationName: string | null; finishedAt: any } | null } | null> | null }
+}
+
+export type GetIntegrationRunQueryVariables = Exact<{
+  integrationRunId: string
+}>
+
+export interface GetIntegrationRunQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        metrics: any
+        id: string
+        integrationID: string | null
+        operationName: string | null
+        operationKind: Types.IntegrationRunIntegrationOperationKind | null
+        runType: Types.IntegrationRunIntegrationRunType | null
+        status: Types.IntegrationRunIntegrationRunStatus
+        createdAt: any
+        startedAt: any
+        finishedAt: any
+        durationMs: number | null
+        summary: string | null
+        error: string | null
+        actionPlans: { totalCount: number }
+        assets: { totalCount: number }
+        checkResults: { totalCount: number }
+        contacts: { totalCount: number }
+        directoryAccounts: { totalCount: number }
+        directoryGroups: { totalCount: number }
+        directoryMemberships: { totalCount: number }
+        entities: { totalCount: number }
+        findings: { totalCount: number }
+        internalPolicies: { totalCount: number }
+        procedures: { totalCount: number }
+        risks: { totalCount: number }
+        vulnerabilities: { totalCount: number }
+      } | null
+    } | null> | null
+  }
+}
+
+export type IntegrationRunRecordPageInfoFragment = { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+
+export type GetIntegrationRunActionPlansQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunActionPlansQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        actionPlans: {
+          totalCount: number
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; name: string; status: Types.ActionPlanDocumentStatus | null; externalID: string | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunAssetsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunAssetsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        assets: {
+          totalCount: number
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; name: string; displayName: string | null; assetType: Types.AssetAssetType; identifier: string | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunCheckResultsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunCheckResultsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        checkResults: {
+          totalCount: number
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; source: string; status: Types.CheckResultCheckStatus; sourceKey: string | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunContactsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunContactsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        contacts: {
+          totalCount: number
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; fullName: string | null; email: string | null; status: Types.ContactUserStatus; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunDirectoryAccountsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunDirectoryAccountsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        directoryAccounts: {
+          totalCount: number
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{
+            node: { id: string; displayName: string | null; canonicalEmail: string | null; externalID: string; status: Types.DirectoryAccountDirectoryAccountStatus; updatedAt: any } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunDirectoryGroupsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunDirectoryGroupsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        directoryGroups: {
+          totalCount: number
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{
+            node: { id: string; displayName: string | null; email: string | null; externalID: string; status: Types.DirectoryGroupDirectoryGroupStatus; updatedAt: any } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunDirectoryMembershipsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunDirectoryMembershipsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        directoryMemberships: {
+          totalCount: number
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{
+            node: {
+              id: string
+              displayID: string
+              role: Types.DirectoryMembershipDirectoryMembershipRole | null
+              updatedAt: any
+              directoryAccount: { id: string; displayName: string | null; canonicalEmail: string | null }
+              directoryGroup: { id: string; displayName: string | null }
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunEntitiesQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunEntitiesQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        entities: {
+          totalCount: number
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; name: string | null; displayName: string | null; status: Types.EntityEntityStatus | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunFindingsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunFindingsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        findings: {
+          totalCount: number
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{
+            node: {
+              id: string
+              displayID: string
+              displayName: string | null
+              externalID: string | null
+              category: string | null
+              severity: string | null
+              resourceName: string | null
+              updatedAt: any
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunInternalPoliciesQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunInternalPoliciesQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        internalPolicies: {
+          totalCount: number
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; displayID: string; name: string; status: Types.InternalPolicyDocumentStatus | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunProceduresQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunProceduresQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        procedures: {
+          totalCount: number
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; displayID: string; name: string; status: Types.ProcedureDocumentStatus | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunRisksQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunRisksQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        risks: {
+          totalCount: number
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; displayID: string; name: string; status: Types.RiskRiskStatus | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunVulnerabilitiesQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunVulnerabilitiesQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        vulnerabilities: {
+          totalCount: number
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{
+            node: { id: string; displayID: string; displayName: string | null; cveID: string | null; externalID: string; severity: string | null; category: string | null; updatedAt: any } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
 export type GetIntegrationsQueryVariables = Exact<{
   where?: Types.IntegrationWhereInput | null | undefined
 }>

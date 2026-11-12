@@ -194,6 +194,31 @@ const formatDateTimeWithZone = (date: string | null | undefined, empty?: string)
 
 export { formatDateTimeWithZone }
 
+export const hourStartIso = (time: number): string => {
+  const start = new Date(time)
+  start.setMinutes(0, 0, 0)
+
+  return start.toISOString()
+}
+
+export const formatDurationMs = (durationMs?: number | null, empty = '-'): string => {
+  if (durationMs === null || durationMs === undefined) {
+    return empty
+  }
+
+  if (durationMs < 1000) {
+    return `${durationMs} ms`
+  }
+
+  if (durationMs < 59_950) {
+    return `${(durationMs / 1000).toFixed(1)} s`
+  }
+
+  const totalSeconds = Math.round(durationMs / 1000)
+
+  return `${Math.floor(totalSeconds / 60)}m ${totalSeconds % 60}s`
+}
+
 export const formatDistanceUntil = (target: number, from: number, empty = '-') => {
   if (!Number.isFinite(target) || !Number.isFinite(from) || target <= from) return empty
   return formatDistance(target, from)

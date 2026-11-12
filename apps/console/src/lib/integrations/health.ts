@@ -1,12 +1,20 @@
 import { IntegrationIntegrationStatus } from '@repo/codegen/src/schema'
 import { type BadgeProps } from '@repo/ui/badge'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { formatList } from '@/utils/strings'
 import { type IntegrationHealth, type IntegrationHealthFilter, type IntegrationNode } from './types'
 
 export type TIntegrationHealthBadge = {
   label: string
   summary?: string
   variant: NonNullable<BadgeProps['variant']>
+  severity: number
+  textClassName?: string
+}
+
+type TIntegrationHealthBadgeOptions = {
+  failingOperations?: string[]
+  isChecking?: boolean
 }
 
 export type TIntegrationHealthOption = {
@@ -51,14 +59,26 @@ const UNKNOWN_HEALTH_META: Omit<TIntegrationHealthMeta, 'label'> = { variant: 'o
 
 const healthMeta = (status: IntegrationIntegrationStatus): TIntegrationHealthMeta => INTEGRATION_HEALTH[status] ?? { ...UNKNOWN_HEALTH_META, label: getEnumLabel(status) }
 
-export const integrationHealthBadge = (status: IntegrationIntegrationStatus, health?: IntegrationHealth, isChecking = false): TIntegrationHealthBadge => {
+export const integrationHealthBadge = (
+  status: IntegrationIntegrationStatus,
+  health?: IntegrationHealth,
+  { failingOperations = [], isChecking = false }: TIntegrationHealthBadgeOptions = {},
+): TIntegrationHealthBadge => {
   if (isChecking) {
-    return { label: 'Checking', variant: 'secondary' }
+    return { label: 'Checking', variant: 'secondary', severity: 0 }
   }
 
-  const { label, variant } = healthMeta(status)
+  const { label, variant, isUnhealthy, rank } = healthMeta(status)
 
-  return { label, variant, summary: integrationHealthSummary(status, health) }
+  if (isUnhealthy) {
+    return { label, variant, summary: integrationHealthSummary(status, health), severity: rank + 1, textClassName: 'text-destructive' }
+  }
+
+  if (status === IntegrationIntegrationStatus.CONNECTED && failingOperations.length > 0) {
+    return { label: 'Runs Failing', variant: 'warning', summary: `${formatList(failingOperations)} failing`, severity: 1, textClassName: 'text-warning' }
+  }
+
+  return { label, variant, severity: 0, textClassName: status === IntegrationIntegrationStatus.CONNECTED ? 'text-success' : undefined }
 }
 
 export const isOperableIntegration = (status: IntegrationIntegrationStatus): boolean => healthMeta(status).isOperable
