@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
@@ -10,6 +11,9 @@ import {
 } from '@repo/codegen/query/workflows'
 import { GET_ALL_WORKFLOW_INSTANCES } from '@repo/codegen/query/workflow-instance'
 import type { WorkflowInstance, WorkflowInstanceWhereInput, WorkflowMetadataQuery, GetWorkflowProposalsForObjectQuery } from '@repo/codegen/src/schema'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 
 export type WorkflowObjectTypeMetadata = WorkflowMetadataQuery['workflowMetadata']['objectTypes'][number]
 
@@ -61,6 +65,7 @@ type UseWorkflowInstancesArgs = {
 
 export const useWorkflowInstancesForObject = ({ objectId, objectType, first = 50, enabled = true }: UseWorkflowInstancesArgs) => {
   const { client } = useGraphQLClient()
+  const hasWorkflowAccess = useHasObjectType(ObjectTypes.WORKFLOW_INSTANCE)
   const normalized = objectType ? normalizeObjectType(objectType) : ''
   const whereField = normalized ? WORKFLOW_OBJECT_WHERE_FIELD_MAP[normalized] : undefined
 
@@ -69,10 +74,10 @@ export const useWorkflowInstancesForObject = ({ objectId, objectType, first = 50
   const queryResult = useQuery<WorkflowInstancesResponse>({
     queryKey: ['workflowInstances', objectType, objectId, first],
     queryFn: () => client.request(GET_ALL_WORKFLOW_INSTANCES, { where, first }),
-    enabled: Boolean(whereField && objectId) && enabled,
+    enabled: Boolean(whereField && objectId) && enabled && hasWorkflowAccess,
   })
 
-  const instances = (queryResult.data?.workflowInstances?.edges ?? []).map((edge) => edge?.node).filter(Boolean) as WorkflowInstance[]
+  const instances = useMemo(() => (hasWorkflowAccess ? getNodes(queryResult.data?.workflowInstances) : []), [hasWorkflowAccess, queryResult.data])
 
   return {
     ...queryResult,

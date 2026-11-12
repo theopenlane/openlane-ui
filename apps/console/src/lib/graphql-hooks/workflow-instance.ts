@@ -1,9 +1,13 @@
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { type WorkflowInstancesWithFilterQuery, type WorkflowInstancesWithFilterQueryVariables, type WorkflowInstanceQuery, type WorkflowInstanceQueryVariables } from '@repo/codegen/src/schema'
 
 import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_WORKFLOW_INSTANCES, WORKFLOW_INSTANCE } from '@repo/codegen/query/workflow-instance'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 
 type GetAllWorkflowInstancesArgs = {
   where?: WorkflowInstancesWithFilterQueryVariables['where']
@@ -18,18 +22,17 @@ export type WorkflowInstancesNodeNonNull = NonNullable<WorkflowInstancesNode>
 
 export const useWorkflowInstancesWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllWorkflowInstancesArgs) => {
   const { client } = useGraphQLClient()
+  const hasWorkflowAccess = useHasObjectType(ObjectTypes.WORKFLOW_INSTANCE)
   const queryResult = useQuery<WorkflowInstancesWithFilterQuery, unknown>({
     queryKey: ['workflowInstances', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async (): Promise<WorkflowInstancesWithFilterQuery> => {
       const result = await client.request<WorkflowInstancesWithFilterQuery>(GET_ALL_WORKFLOW_INSTANCES, { where, orderBy, ...pagination?.query })
       return result
     },
-    enabled,
+    enabled: enabled && hasWorkflowAccess,
   })
 
-  const edges = queryResult.data?.workflowInstances?.edges ?? []
-
-  const workflowInstancesNodes: WorkflowInstancesNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as WorkflowInstancesNodeNonNull)
+  const workflowInstancesNodes: WorkflowInstancesNodeNonNull[] = useMemo(() => (hasWorkflowAccess ? getNodes(queryResult.data?.workflowInstances) : []), [hasWorkflowAccess, queryResult.data])
 
   return { ...queryResult, workflowInstancesNodes }
 }
