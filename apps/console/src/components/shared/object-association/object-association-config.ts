@@ -75,6 +75,8 @@ import { type RequestDocument } from 'graphql-request'
 import {
   type CreateTaskInput,
   type CreateRemediationInput,
+  type CreateRiskInput,
+  type CreateReviewInput,
   type AssetsWithFilterQuery,
   type CampaignsWithFilterQuery,
   type GetAllControlImplementationsQuery,
@@ -471,7 +473,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
   },
 }
 
-export const invalidateCreateEdgeTargets = (payload: CreateTaskInput | CreateRemediationInput, queryClient: ReturnType<typeof useQueryClient>) => {
+export const invalidateCreateEdgeTargets = (payload: CreateTaskInput | CreateRemediationInput | CreateRiskInput | CreateReviewInput, queryClient: ReturnType<typeof useQueryClient>) => {
   const fields = new Map(Object.entries(payload))
 
   Object.values(OBJECT_QUERY_CONFIG).forEach((config) => {

@@ -51,6 +51,7 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import { useMemo } from 'react'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useEntityComments } from '@/lib/graphql-hooks/entity-comments'
+import { invalidateCreateEdgeTargets, invalidateEdgeUpdateTargets } from '@/components/shared/object-association/object-association-config'
 
 const RISK_COMMENTS_KEY = 'riskComments'
 
@@ -129,9 +130,10 @@ export const useUpdateRisk = () => {
 
   return useMutation<UpdateRiskMutation, unknown, UpdateRiskMutationVariables>({
     mutationFn: (variables) => client.request(UPDATE_RISK, variables),
-    onSuccess: () => {
+    onSuccess: (_, { input }) => {
       queryClient.invalidateQueries({ queryKey: ['risksDiscussion'] })
       queryClient.invalidateQueries({ queryKey: ['risks'] })
+      invalidateEdgeUpdateTargets(input, queryClient)
     },
   })
 }
@@ -175,8 +177,9 @@ export const useCreateRisk = () => {
     mutationFn: async (payload) => {
       return client.request(CREATE_RISK, payload)
     },
-    onSuccess: () => {
+    onSuccess: (_, { input }) => {
       queryClient.invalidateQueries({ queryKey: ['risks'] })
+      invalidateCreateEdgeTargets(input, queryClient)
     },
   })
 }

@@ -709,6 +709,7 @@ const riskAllowedObjectTypes = [
   ObjectTypeObjects.TASK,
   ObjectTypeObjects.VULNERABILITY,
   ObjectTypeObjects.FINDING,
+  ObjectTypeObjects.REVIEW,
 ]
 const riskInitialDataKeys = {
   controlIDs: 'controls',
@@ -723,6 +724,7 @@ const riskInitialDataKeys = {
   actionPlanIDs: 'actionPlans',
   vulnerabilityIDs: 'vulnerabilities',
   findingIDs: 'findings',
+  reviewIDs: 'reviews',
 }
 const riskAssociationKeys = [
   'controlIDs',
@@ -737,6 +739,7 @@ const riskAssociationKeys = [
   'actionPlanIDs',
   'vulnerabilityIDs',
   'findingIDs',
+  'reviewIDs',
 ] as const satisfies readonly (keyof typeof riskInitialDataKeys)[]
 
 export const RISK_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
@@ -759,6 +762,7 @@ export const RISK_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     SECTION_MAPPINGS.actionPlans,
     SECTION_MAPPINGS.vulnerabilities,
     SECTION_MAPPINGS.findings,
+    SECTION_MAPPINGS.reviews,
   ],
   dialogConfig: {
     dataRootField: 'risk',

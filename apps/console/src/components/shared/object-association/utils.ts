@@ -173,6 +173,20 @@ export const getAssociationInput = <TFieldKey extends string>(initialData: TObje
   return payload
 }
 
+export const splitAssociationFields = <TFieldKey extends string, TValues extends Partial<Record<TFieldKey, string[] | undefined>>>(
+  values: TValues,
+  associationKeys: readonly TFieldKey[],
+): { fields: Omit<TValues, TFieldKey>; associations: TObjectAssociationMap<TFieldKey> } => {
+  const keySet = new Set<string>(associationKeys)
+  const fields = Object.fromEntries(Object.entries(values).filter(([key]) => !keySet.has(key))) as Omit<TValues, TFieldKey>
+  const associations: TObjectAssociationMap<TFieldKey> = {}
+  associationKeys.forEach((key) => {
+    const ids = values[key]
+    if (ids?.length) associations[key] = ids
+  })
+  return { fields, associations }
+}
+
 export const buildAssociationPayload = <TFieldKey extends string>(
   associationKeys: readonly TFieldKey[],
   formData: Partial<Record<TFieldKey, string[] | undefined>>,
