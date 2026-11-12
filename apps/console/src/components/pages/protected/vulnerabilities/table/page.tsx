@@ -12,6 +12,7 @@ import { breadcrumbs, DISMISSED_QUICK_FILTER, getFieldsToRender, getFilterFields
 import { type VulnerabilitySheetConfig, type VulnerabilityTablePageConfig, type VulnerabilityFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
+import { VULNERABILITY_GROUP_BY } from '../vulnerability-group-by'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import { type CreateVulnerabilityInput, type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
@@ -141,6 +142,7 @@ const VulnerabilityPage: React.FC = () => {
     form,
     getColumns,
     TableComponent,
+    groupBy: VULNERABILITY_GROUP_BY,
     sheetConfig,
     viewEditMode: { type: 'full-page', route: '/exposure/vulnerabilities' },
     onBulkDelete: async (ids: string[]) => {

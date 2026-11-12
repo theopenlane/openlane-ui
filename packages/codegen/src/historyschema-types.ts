@@ -8703,6 +8703,52 @@ export interface ControlGroup {
   controls: ControlConnection
 }
 
+/** ControlGroupByBucket is a group of controls sharing the same value for the grouped field */
+export interface ControlGroupByBucket {
+  __typename?: 'ControlGroupByBucket'
+  /** The controls in the group */
+  controls: ControlConnection
+  /** The number of controls in the group */
+  count: Scalars['Int']['output']
+  /** The grouped value, null when the rows have no value */
+  key?: Maybe<Scalars['String']['output']>
+}
+
+/** ControlGroupByBucket is a group of controls sharing the same value for the grouped field */
+export interface ControlGroupByBucketControlsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlOrder>>
+}
+
+/** ControlGroupByConnection is a paginated list of Control group by buckets */
+export interface ControlGroupByConnection {
+  __typename?: 'ControlGroupByConnection'
+  /** A list of edges */
+  edges: Array<ControlGroupByEdge>
+  /** Information to aid in pagination */
+  pageInfo: PageInfo
+  /** Identifies the total count of groups in the connection */
+  totalCount: Scalars['Int']['output']
+}
+
+/** ControlGroupByEdge is a Control group by bucket with its pagination cursor */
+export interface ControlGroupByEdge {
+  __typename?: 'ControlGroupByEdge'
+  /** A cursor for use in pagination */
+  cursor: Scalars['Cursor']['output']
+  /** The bucket at the end of the edge */
+  node: ControlGroupByBucket
+}
+
+/** ControlGroupByField are the Control fields that can be grouped on */
+export enum ControlGroupByField {
+  CATEGORY = 'CATEGORY',
+  SUBCATEGORY = 'SUBCATEGORY',
+}
+
 export interface ControlGroupConnection {
   __typename?: 'ControlGroupConnection'
   edges: Array<ControlGroupEdge>
@@ -27823,6 +27869,20 @@ export interface GroupBulkUpdatePayload {
   notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated groups */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
+/** GroupByOrder is the ordering of group by buckets */
+export interface GroupByOrder {
+  /** The ordering direction */
+  direction?: OrderDirection
+  /** The field by which to order the groups */
+  field?: GroupByOrderField
+}
+
+/** GroupByOrderField is the field group by buckets are ordered by */
+export enum GroupByOrderField {
+  COUNT = 'COUNT',
+  KEY = 'KEY',
 }
 
 /** A connection to a list of items. */
@@ -49731,9 +49791,15 @@ export interface Query {
   contacts: ContactConnection
   /** Look up control by ID */
   control: Control
-  /** All existing categories or domains used in the organization @deprecated */
+  /**
+   * All existing categories or domains used in the organization @deprecated
+   * @deprecated use controlsGroupBy and subcontrolsGroupBy with field: CATEGORY
+   */
   controlCategories?: Maybe<Array<Scalars['String']['output']>>
-  /** Existing categories or domains for controls used in the organization */
+  /**
+   * Existing categories or domains for controls used in the organization
+   * @deprecated use controlsGroupBy with field: CATEGORY
+   */
   controlCategoriesByFramework?: Maybe<Array<ControlCategoryEdge>>
   /** Compare a system-owned control between two framework revisions to see which fields changed */
   controlDiff: ControlDiffPayload
@@ -49754,12 +49820,23 @@ export interface Query {
   controlReportsByCategory: Array<ControlReportCategory>
   /** Search across Control objects */
   controlSearch?: Maybe<ControlConnection>
-  /** All existing subcategories or domains used in the organization @deprecated */
+  /**
+   * All existing subcategories or domains used in the organization @deprecated
+   * @deprecated use controlsGroupBy and subcontrolsGroupBy with field: SUBCATEGORY
+   */
   controlSubcategories?: Maybe<Array<Scalars['String']['output']>>
-  /** Existing subcategories or subdomains for controls used in the organization */
+  /**
+   * Existing subcategories or subdomains for controls used in the organization
+   * @deprecated use controlsGroupBy with field: SUBCATEGORY
+   */
   controlSubcategoriesByFramework?: Maybe<Array<ControlCategoryEdge>>
   controls: ControlConnection
-  /** Get controls grouped by category */
+  /** controlsGroupBy groups controls by a field and returns each group with its count and rows */
+  controlsGroupBy: ControlGroupByConnection
+  /**
+   * Get controls grouped by category
+   * @deprecated use controlsGroupBy with field: CATEGORY
+   */
   controlsGroupByCategory: ControlGroupConnection
   /** Look up customDomain by ID */
   customDomain: CustomDomain
@@ -50022,6 +50099,8 @@ export interface Query {
   /** Search across Subcontrol objects */
   subcontrolSearch?: Maybe<SubcontrolConnection>
   subcontrols: SubcontrolConnection
+  /** subcontrolsGroupBy groups subcontrols by a field and returns each group with its count and rows */
+  subcontrolsGroupBy: SubcontrolGroupByConnection
   /** Look up subprocessor by ID */
   subprocessor: Subprocessor
   subprocessorHistories: SubprocessorHistoryConnection
@@ -50119,12 +50198,17 @@ export interface Query {
   vendorScoringConfigHistories: VendorScoringConfigHistoryConnection
   vendorScoringConfigs: VendorScoringConfigConnection
   vulnerabilities: VulnerabilityConnection
+  /** vulnerabilitiesGroupBy groups vulnerabilities by a field and returns each group with its count and rows */
+  vulnerabilitiesGroupBy: VulnerabilityGroupByConnection
   /** Look up vulnerability by ID */
   vulnerability: Vulnerability
   vulnerabilityHistories: VulnerabilityHistoryConnection
   /** Search across Vulnerability objects */
   vulnerabilitySearch?: Maybe<VulnerabilityConnection>
-  /** Aggregate vulnerability counts for dashboards. */
+  /**
+   * Aggregate vulnerability counts for dashboards.
+   * @deprecated use vulnerabilitiesGroupBy with field: SEVERITY, SOURCE, or VULNERABILITY_STATUS_NAME
+   */
   vulnerabilitySummary: VulnerabilitySummary
   webauthns: WebauthnConnection
   /** Look up workflowAssignment by ID */
@@ -50522,6 +50606,16 @@ export interface QueryControlsArgs {
   first?: InputMaybe<Scalars['Int']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
+export interface QueryControlsGroupByArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  field: ControlGroupByField
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<GroupByOrder>
   where?: InputMaybe<ControlWhereInput>
 }
 
@@ -51759,6 +51853,16 @@ export interface QuerySubcontrolsArgs {
   where?: InputMaybe<SubcontrolWhereInput>
 }
 
+export interface QuerySubcontrolsGroupByArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  field: SubcontrolGroupByField
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<GroupByOrder>
+  where?: InputMaybe<SubcontrolWhereInput>
+}
+
 export interface QuerySubprocessorArgs {
   id: Scalars['ID']['input']
 }
@@ -52234,6 +52338,16 @@ export interface QueryVulnerabilitiesArgs {
   first?: InputMaybe<Scalars['Int']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<VulnerabilityOrder>>
+  where?: InputMaybe<VulnerabilityWhereInput>
+}
+
+export interface QueryVulnerabilitiesGroupByArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  field: VulnerabilityGroupByField
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<GroupByOrder>
   where?: InputMaybe<VulnerabilityWhereInput>
 }
 
@@ -59641,6 +59755,52 @@ export interface SubcontrolEdge {
   cursor: Scalars['Cursor']['output']
   /** The item at the end of the edge. */
   node?: Maybe<Subcontrol>
+}
+
+/** SubcontrolGroupByBucket is a group of subcontrols sharing the same value for the grouped field */
+export interface SubcontrolGroupByBucket {
+  __typename?: 'SubcontrolGroupByBucket'
+  /** The number of subcontrols in the group */
+  count: Scalars['Int']['output']
+  /** The grouped value, null when the rows have no value */
+  key?: Maybe<Scalars['String']['output']>
+  /** The subcontrols in the group */
+  subcontrols: SubcontrolConnection
+}
+
+/** SubcontrolGroupByBucket is a group of subcontrols sharing the same value for the grouped field */
+export interface SubcontrolGroupByBucketSubcontrolsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubcontrolOrder>>
+}
+
+/** SubcontrolGroupByConnection is a paginated list of Subcontrol group by buckets */
+export interface SubcontrolGroupByConnection {
+  __typename?: 'SubcontrolGroupByConnection'
+  /** A list of edges */
+  edges: Array<SubcontrolGroupByEdge>
+  /** Information to aid in pagination */
+  pageInfo: PageInfo
+  /** Identifies the total count of groups in the connection */
+  totalCount: Scalars['Int']['output']
+}
+
+/** SubcontrolGroupByEdge is a Subcontrol group by bucket with its pagination cursor */
+export interface SubcontrolGroupByEdge {
+  __typename?: 'SubcontrolGroupByEdge'
+  /** A cursor for use in pagination */
+  cursor: Scalars['Cursor']['output']
+  /** The bucket at the end of the edge */
+  node: SubcontrolGroupByBucket
+}
+
+/** SubcontrolGroupByField are the Subcontrol fields that can be grouped on */
+export enum SubcontrolGroupByField {
+  CATEGORY = 'CATEGORY',
+  SUBCATEGORY = 'SUBCATEGORY',
 }
 
 export interface SubcontrolHistory extends Node {
@@ -78767,6 +78927,55 @@ export interface VulnerabilityEdge {
   cursor: Scalars['Cursor']['output']
   /** The item at the end of the edge. */
   node?: Maybe<Vulnerability>
+}
+
+/** VulnerabilityGroupByBucket is a group of vulnerabilities sharing the same value for the grouped field */
+export interface VulnerabilityGroupByBucket {
+  __typename?: 'VulnerabilityGroupByBucket'
+  /** The number of vulnerabilities in the group */
+  count: Scalars['Int']['output']
+  /** The grouped value, null when the rows have no value */
+  key?: Maybe<Scalars['String']['output']>
+  /** The vulnerabilities in the group */
+  vulnerabilities: VulnerabilityConnection
+}
+
+/** VulnerabilityGroupByBucket is a group of vulnerabilities sharing the same value for the grouped field */
+export interface VulnerabilityGroupByBucketVulnerabilitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<VulnerabilityOrder>>
+}
+
+/** VulnerabilityGroupByConnection is a paginated list of Vulnerability group by buckets */
+export interface VulnerabilityGroupByConnection {
+  __typename?: 'VulnerabilityGroupByConnection'
+  /** A list of edges */
+  edges: Array<VulnerabilityGroupByEdge>
+  /** Information to aid in pagination */
+  pageInfo: PageInfo
+  /** Identifies the total count of groups in the connection */
+  totalCount: Scalars['Int']['output']
+}
+
+/** VulnerabilityGroupByEdge is a Vulnerability group by bucket with its pagination cursor */
+export interface VulnerabilityGroupByEdge {
+  __typename?: 'VulnerabilityGroupByEdge'
+  /** A cursor for use in pagination */
+  cursor: Scalars['Cursor']['output']
+  /** The bucket at the end of the edge */
+  node: VulnerabilityGroupByBucket
+}
+
+/** VulnerabilityGroupByField are the Vulnerability fields that can be grouped on */
+export enum VulnerabilityGroupByField {
+  CVE_ID = 'CVE_ID',
+  EXTERNAL_OWNER_ID = 'EXTERNAL_OWNER_ID',
+  SEVERITY = 'SEVERITY',
+  SOURCE = 'SOURCE',
+  VULNERABILITY_STATUS_NAME = 'VULNERABILITY_STATUS_NAME',
 }
 
 export interface VulnerabilityHistory extends Node {
