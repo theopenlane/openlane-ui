@@ -479,3 +479,32 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
     }
   }
 `
+
+export const GET_VENDOR_RISK_RATING_COUNTS = gql`
+  query VendorRiskRatingCounts($where: EntityWhereInput!) {
+    total: entities(where: $where) {
+      totalCount
+    }
+    critical: entities(where: { and: [$where, { riskRating: "CRITICAL" }] }) {
+      totalCount
+    }
+    high: entities(where: { and: [$where, { riskRating: "HIGH" }] }) {
+      totalCount
+    }
+    medium: entities(where: { and: [$where, { riskRating: "MEDIUM" }] }) {
+      totalCount
+    }
+    low: entities(where: { and: [$where, { riskRating: "LOW" }] }) {
+      totalCount
+    }
+    veryLow: entities(where: { and: [$where, { riskRating: "VERY_LOW" }] }) {
+      totalCount
+    }
+    none: entities(where: { and: [$where, { riskRating: "NONE" }] }) {
+      totalCount
+    }
+    notScored: entities(where: { and: [$where, { riskRatingIsNil: true }] }) {
+      totalCount
+    }
+  }
+`

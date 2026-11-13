@@ -1,4 +1,6 @@
 /* eslint-disable */
+import type { TVendorRiskThresholdsConfig } from './vendor-scoring-defaults.generated'
+import type { TVendorScoringQuestionsConfig } from './vendor-scoring-defaults.generated'
 export type Maybe<T> = T | null
 export type InputMaybe<T> = T | null
 /** All built-in and custom scalars, mapped to their actual values */
@@ -63,7 +65,7 @@ export interface Scalars {
   /** The `Reference` represents are links to external sources that can be used to gain more information about the control */
   Reference: { input: any; output: any }
   /** RiskThresholdsConfig holds org-custom threshold overrides for vendor risk levels */
-  RiskThresholdsConfig: { input: any; output: any }
+  RiskThresholdsConfig: { input: TVendorRiskThresholdsConfig; output: TVendorRiskThresholdsConfig }
   /**
    * SSOAuthorizationMap is a map of organization IDs to SSO verification timestamps.
    * This scalar is used to track SSO verification times for organizations in the context of token authorization.
@@ -84,7 +86,7 @@ export interface Scalars {
   /** UploadFileName allows passing file name overrides for uploaded files without requiring a resolver. */
   UploadFileName: { input: any; output: any }
   /** VendorScoringQuestionsConfig holds org-custom question overrides and additions for vendor scoring */
-  VendorScoringQuestionsConfig: { input: any; output: any }
+  VendorScoringQuestionsConfig: { input: TVendorScoringQuestionsConfig; output: TVendorScoringQuestionsConfig }
   /** VersionBump allows a revision to automatically be bumped based on "Major", "Minor", "Patch", or "Draft" */
   VersionBump: { input: any; output: any }
   /** WorkflowAssignmentApproval captures structured metadata for workflow assignment approvals. */

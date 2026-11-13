@@ -5,6 +5,7 @@ export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' |
 /* eslint-disable */
 import type * as Types from './schema-types'
 
+import type { TVendorRiskThresholdsConfig, TVendorScoringQuestionsConfig } from './vendor-scoring-defaults.generated'
 export * from './schema-types'
 export type ActionPlansWithFilterQueryVariables = Exact<{
   where?: Types.ActionPlanWhereInput | null | undefined
@@ -3364,6 +3365,21 @@ export interface GetEntityAssociationsQuery {
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
   }
+}
+
+export type VendorRiskRatingCountsQueryVariables = Exact<{
+  where: Types.EntityWhereInput
+}>
+
+export interface VendorRiskRatingCountsQuery {
+  total: { totalCount: number }
+  critical: { totalCount: number }
+  high: { totalCount: number }
+  medium: { totalCount: number }
+  low: { totalCount: number }
+  veryLow: { totalCount: number }
+  none: { totalCount: number }
+  notScored: { totalCount: number }
 }
 
 export type CreateEvidenceMutationVariables = Exact<{
@@ -10481,7 +10497,23 @@ export type CreateVendorRiskScoreMutationVariables = Exact<{
 }>
 
 export interface CreateVendorRiskScoreMutation {
-  createVendorRiskScore: { vendorRiskScore: { id: string } }
+  createVendorRiskScore: {
+    vendorRiskScore: {
+      id: string
+      questionKey: string
+      questionName: string
+      questionCategory: Types.VendorRiskScoreVendorScoringCategory
+      answerType: Types.VendorRiskScoreVendorScoringAnswerType
+      answer: string | null
+      impact: Types.VendorRiskScoreVendorRiskImpact
+      likelihood: Types.VendorRiskScoreVendorRiskLikelihood
+      score: number
+      notes: string | null
+      tags: Array<string> | null
+      updatedAt: any
+      entity: { id: string; riskScore: number | null; riskRating: string | null; updatedAt: any }
+    }
+  }
 }
 
 export type UpdateVendorRiskScoreMutationVariables = Exact<{
@@ -10490,7 +10522,23 @@ export type UpdateVendorRiskScoreMutationVariables = Exact<{
 }>
 
 export interface UpdateVendorRiskScoreMutation {
-  updateVendorRiskScore: { vendorRiskScore: { id: string } }
+  updateVendorRiskScore: {
+    vendorRiskScore: {
+      id: string
+      questionKey: string
+      questionName: string
+      questionCategory: Types.VendorRiskScoreVendorScoringCategory
+      answerType: Types.VendorRiskScoreVendorScoringAnswerType
+      answer: string | null
+      impact: Types.VendorRiskScoreVendorRiskImpact
+      likelihood: Types.VendorRiskScoreVendorRiskLikelihood
+      score: number
+      notes: string | null
+      tags: Array<string> | null
+      updatedAt: any
+      entity: { id: string; riskScore: number | null; riskRating: string | null; updatedAt: any }
+    }
+  }
 }
 
 export type DeleteVendorRiskScoreMutationVariables = Exact<{
@@ -10507,6 +10555,14 @@ export type CreateBulkCsvVendorRiskScoreMutationVariables = Exact<{
 
 export interface CreateBulkCsvVendorRiskScoreMutation {
   createBulkCSVVendorRiskScore: { vendorRiskScores: Array<{ id: string }> | null }
+}
+
+export type UpdateBulkCsvVendorRiskScoreMutationVariables = Exact<{
+  input: any
+}>
+
+export interface UpdateBulkCsvVendorRiskScoreMutation {
+  updateBulkCSVVendorRiskScore: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type DeleteBulkVendorRiskScoreMutationVariables = Exact<{
@@ -10526,6 +10582,14 @@ export interface UpdateBulkVendorRiskScoreMutation {
   updateBulkVendorRiskScore: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
+export type VendorRiskScoreQuestionUsageQueryVariables = Exact<{
+  questionKey: string
+}>
+
+export interface VendorRiskScoreQuestionUsageQuery {
+  vendorRiskScores: { totalCount: number }
+}
+
 export type VendorScoringConfigsWithFilterQueryVariables = Exact<{
   where?: Types.VendorScoringConfigWhereInput | null | undefined
   orderBy?: Array<Types.VendorScoringConfigOrder> | Types.VendorScoringConfigOrder | null | undefined
@@ -10538,8 +10602,29 @@ export type VendorScoringConfigsWithFilterQueryVariables = Exact<{
 export interface VendorScoringConfigsWithFilterQuery {
   vendorScoringConfigs: {
     totalCount: number
-    edges: Array<{ node: { createdAt: any; createdBy: string | null; id: string; questions: any; riskThresholds: any; updatedAt: any; updatedBy: string | null } | null } | null> | null
+    edges: Array<{
+      node: {
+        createdAt: any
+        createdBy: string | null
+        id: string
+        questions: TVendorScoringQuestionsConfig
+        riskThresholds: TVendorRiskThresholdsConfig
+        scoringMode: Types.VendorScoringConfigVendorScoringMode
+        updatedAt: any
+        updatedBy: string | null
+      } | null
+    } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type OrganizationVendorScoringConfigQueryVariables = Exact<{ [key: string]: never }>
+
+export interface OrganizationVendorScoringConfigQuery {
+  vendorScoringConfigs: {
+    edges: Array<{
+      node: { id: string; questions: TVendorScoringQuestionsConfig; riskThresholds: TVendorRiskThresholdsConfig; scoringMode: Types.VendorScoringConfigVendorScoringMode; updatedAt: any } | null
+    } | null> | null
   }
 }
 
@@ -10548,7 +10633,16 @@ export type VendorScoringConfigQueryVariables = Exact<{
 }>
 
 export interface VendorScoringConfigQuery {
-  vendorScoringConfig: { createdAt: any; createdBy: string | null; id: string; questions: any; riskThresholds: any; updatedAt: any; updatedBy: string | null }
+  vendorScoringConfig: {
+    createdAt: any
+    createdBy: string | null
+    id: string
+    questions: TVendorScoringQuestionsConfig
+    riskThresholds: TVendorRiskThresholdsConfig
+    scoringMode: Types.VendorScoringConfigVendorScoringMode
+    updatedAt: any
+    updatedBy: string | null
+  }
 }
 
 export type CreateVendorScoringConfigMutationVariables = Exact<{
