@@ -10367,43 +10367,60 @@ export interface DeleteUserMutation {
 }
 
 export type GetVendorDirectoryQueryVariables = Exact<{
-  integrationIDs: Array<string> | string
+  where: Types.DirectoryGroupWhereInput
   first?: number | null | undefined
   after?: any
 }>
 
 export interface GetVendorDirectoryQuery {
   directoryGroups: {
-    totalCount: number
     pageInfo: { endCursor: any; hasNextPage: boolean }
     edges: Array<{
-      node: {
-        id: string
-        displayName: string | null
-        email: string | null
-        integration: { id: string; name: string }
-        members: {
-          totalCount: number
-          edges: Array<{
-            node: {
-              id: string
-              role: Types.DirectoryMembershipDirectoryMembershipRole | null
-              addedAt: any
-              removedAt: any
-              directoryAccount: {
-                id: string
-                canonicalEmail: string | null
-                displayName: string | null
-                givenName: string | null
-                familyName: string | null
-                identityHolderID: string | null
-                identityHolder: { id: string; fullName: string; email: string } | null
-              }
-            } | null
-          } | null> | null
-        }
-      } | null
+      node: { id: string; displayName: string | null; email: string | null; integration: { id: string; name: string }; members: { totalCount: number }; matchedAccounts: { totalCount: number } } | null
     } | null> | null
+  }
+}
+
+export type GetVendorDirectoryCoverageQueryVariables = Exact<{
+  integrationIDs: Array<string> | string
+}>
+
+export interface GetVendorDirectoryCoverageQuery {
+  allGroups: { totalCount: number }
+  emptyGroups: { totalCount: number }
+  groupedAccounts: { totalCount: number }
+  matchedAccounts: { totalCount: number }
+}
+
+export type GetDirectoryGroupMembersQueryVariables = Exact<{
+  groupID: string
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetDirectoryGroupMembersQuery {
+  directoryGroup: {
+    id: string
+    members: {
+      totalCount: number
+      pageInfo: { endCursor: any; hasNextPage: boolean }
+      edges: Array<{
+        node: {
+          id: string
+          role: Types.DirectoryMembershipDirectoryMembershipRole | null
+          addedAt: any
+          removedAt: any
+          directoryAccount: {
+            id: string
+            canonicalEmail: string | null
+            displayName: string | null
+            givenName: string | null
+            familyName: string | null
+            identityHolder: { id: string; fullName: string; email: string } | null
+          }
+        } | null
+      } | null> | null
+    }
   }
 }
 

@@ -1,9 +1,8 @@
 import { gql } from 'graphql-request'
 
 export const GET_VENDOR_DIRECTORY = gql`
-  query GetVendorDirectory($integrationIDs: [ID!]!, $first: Int, $after: Cursor) {
-    directoryGroups(where: { integrationIDIn: $integrationIDs }, orderBy: [{ field: display_name, direction: ASC }], first: $first, after: $after) {
-      totalCount
+  query GetVendorDirectory($where: DirectoryGroupWhereInput!, $first: Int, $after: Cursor) {
+    directoryGroups(where: $where, orderBy: [{ field: display_name, direction: ASC }], first: $first, after: $after) {
       pageInfo {
         endCursor
         hasNextPage
@@ -17,27 +16,61 @@ export const GET_VENDOR_DIRECTORY = gql`
             id
             name
           }
-          members(first: 250, orderBy: [{ field: created_at, direction: DESC }]) {
+          members {
             totalCount
-            edges {
-              node {
+          }
+          matchedAccounts: accounts(where: { identityHolderIDNotNil: true }) {
+            totalCount
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_VENDOR_DIRECTORY_COVERAGE = gql`
+  query GetVendorDirectoryCoverage($integrationIDs: [ID!]!) {
+    allGroups: directoryGroups(where: { integrationIDIn: $integrationIDs }) {
+      totalCount
+    }
+    emptyGroups: directoryGroups(where: { integrationIDIn: $integrationIDs, hasMembers: false }) {
+      totalCount
+    }
+    groupedAccounts: directoryAccounts(where: { integrationIDIn: $integrationIDs, hasGroups: true }) {
+      totalCount
+    }
+    matchedAccounts: directoryAccounts(where: { integrationIDIn: $integrationIDs, hasGroups: true, identityHolderIDNotNil: true }) {
+      totalCount
+    }
+  }
+`
+
+export const GET_DIRECTORY_GROUP_MEMBERS = gql`
+  query GetDirectoryGroupMembers($groupID: ID!, $first: Int, $after: Cursor) {
+    directoryGroup(id: $groupID) {
+      id
+      members(first: $first, after: $after, orderBy: [{ field: created_at, direction: DESC }]) {
+        totalCount
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+        edges {
+          node {
+            id
+            role
+            addedAt
+            removedAt
+            directoryAccount {
+              id
+              canonicalEmail
+              displayName
+              givenName
+              familyName
+              identityHolder {
                 id
-                role
-                addedAt
-                removedAt
-                directoryAccount {
-                  id
-                  canonicalEmail
-                  displayName
-                  givenName
-                  familyName
-                  identityHolderID
-                  identityHolder {
-                    id
-                    fullName
-                    email
-                  }
-                }
+                fullName
+                email
               }
             }
           }
