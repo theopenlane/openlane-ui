@@ -6,10 +6,10 @@ import { ExternalLink } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { type InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
-import { HTML_DOCUMENT_SANITIZE_CONFIG, isSafeLinkHref, sanitizeHtml } from '@/lib/html/sanitize-html'
+import { HTML_DOCUMENT_SANITIZE_CONFIG, sanitizeHtml } from '@/lib/html/sanitize-html'
 import { getProviderIcon } from '@/lib/integrations/utils'
 import { useSourceIntegrationProvider } from '@/lib/query-hooks/integrations'
-import { resolvePolicyIntegrationProvider } from '@/components/pages/protected/policies/view/fields/policy-integration-providers'
+import { getPolicyDocumentEmbed, isEmbedOnlyDocument, resolvePolicyIntegrationProvider } from '@/components/pages/protected/policies/view/fields/policy-integration-providers'
 
 type Props = {
   policy: InternalPolicyByIdFragment
@@ -18,29 +18,13 @@ type Props = {
 const IntegrationDocumentView: React.FC<Props> = ({ policy }) => {
   const contents = policy.liveExternalContents
   const sourceProvider = useSourceIntegrationProvider(policy.sourceDefinitionID)
-  const integrationFamily = sourceProvider?.family
-  const providerName = sourceProvider?.displayName || integrationFamily || 'integration'
-  const provider = resolvePolicyIntegrationProvider(integrationFamily)
+  const providerName = sourceProvider?.displayName || sourceProvider?.family || 'integration'
+  const provider = resolvePolicyIntegrationProvider(policy.sourceDefinitionID)
   const sourceUrl = provider?.buildSourceUrl(policy) ?? null
   const sanitizedDocument = useMemo(() => (contents ? sanitizeHtml(contents, HTML_DOCUMENT_SANITIZE_CONFIG) : ''), [contents])
 
-  // OneDrive (Microsoft) returns a ready-to-use iframe embed rather than document
-  // HTML, so render that iframe directly instead of sanitizing it into srcDoc
-  // this comes from liveExternalContents which is an internally populated field, not ever
-  // set by external user
-  const oneDriveEmbed = (() => {
-    if (!contents) {
-      return null
-    }
-    const src = contents.match(/<iframe[^>]*\ssrc=["']([^"']+)["']/i)?.[1]
-    if (!src || !isSafeLinkHref(src, 'https://onedrive.live.com')) {
-      return null
-    }
-    return sanitizeHtml(contents, {
-      ALLOWED_TAGS: ['iframe'],
-      ALLOWED_ATTR: ['src', 'width', 'height', 'frameborder', 'scrolling', 'allowfullscreen', 'allow', 'style', 'class'],
-    })
-  })()
+  const documentEmbed = getPolicyDocumentEmbed(policy)
+  const showDocument = !!contents && !documentEmbed && !isEmbedOnlyDocument(contents)
 
   return (
     <div className="flex flex-col gap-3">
@@ -62,9 +46,9 @@ const IntegrationDocumentView: React.FC<Props> = ({ policy }) => {
         )}
       </div>
 
-      {oneDriveEmbed ? (
-        <div className="h-[80vh] w-full overflow-hidden rounded-md border bg-white [&>iframe]:h-full [&>iframe]:w-full [&>iframe]:border-0" dangerouslySetInnerHTML={{ __html: oneDriveEmbed }} />
-      ) : contents ? (
+      {documentEmbed ? (
+        <div className="h-[80vh] w-full overflow-hidden rounded-md border bg-white [&>iframe]:h-full [&>iframe]:w-full [&>iframe]:border-0" dangerouslySetInnerHTML={{ __html: documentEmbed }} />
+      ) : showDocument ? (
         <iframe
           srcDoc={sanitizedDocument}
           sandbox="allow-popups allow-popups-to-escape-sandbox"

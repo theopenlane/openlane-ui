@@ -237,15 +237,11 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
           imported separately and create its own policy.{' '}
           {canManageIntegrations && (
             <>
-              Want to import from Google Drive? Try our{' '}
-              <Link href={INTEGRATIONS_DOCUMENT_FILTER_URL} className="text-blue-500 hover:underline">
-                Google Drive integration
-              </Link>{' '}
-              instead.{' '}
+              Want to import from Google Drive? Try our <Link href={INTEGRATIONS_DOCUMENT_FILTER_URL}>Google Drive integration</Link> instead.{' '}
             </>
           )}
           For more details on supported file types and formatting, please refer to our{' '}
-          <a href={`${POLICY_MANAGEMENT_DOCS_URL}/import`} target="_blank" className="text-blue-500 hover:underline" rel="noreferrer">
+          <a href={`${POLICY_MANAGEMENT_DOCS_URL}/import`} target="_blank" rel="noreferrer">
             documentation
           </a>
           .
