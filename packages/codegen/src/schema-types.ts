@@ -9860,6 +9860,7 @@ export interface CreateEntityInput {
   reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
   reviewedByIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
   reviewedByUserID?: InputMaybe<Scalars['ID']['input']>
+  riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the risk rating label for the entity */
   riskRating?: InputMaybe<Scalars['String']['input']>
   /** the risk score for the entity */
@@ -11634,6 +11635,7 @@ export interface CreateRiskInput {
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the time when the risk was last reviewed */
   lastReviewedAt?: InputMaybe<Scalars['DateTime']['input']>
+  legacyEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** likelihood of the risk occurring; unlikely, likely, highly likely */
   likelihood?: InputMaybe<RiskRiskLikelihood>
   /** the time when the risk was mitigated */
@@ -17057,6 +17059,7 @@ export interface Entity extends Node {
   riskScore?: Maybe<Scalars['Int']['output']>
   /** number of scoring questions answered for the current risk score; used to contextualize partial assessments */
   riskScoreCoverage?: Maybe<Scalars['Int']['output']>
+  risks: RiskConnection
   scans: ScanConnection
   scope?: Maybe<CustomTypeEnum>
   /** the scope of the entity */
@@ -17301,6 +17304,15 @@ export interface EntityReviewsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ReviewOrder>>
   where?: InputMaybe<ReviewWhereInput>
+}
+
+export interface EntityRisksArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RiskOrder>>
+  where?: InputMaybe<RiskWhereInput>
 }
 
 export interface EntityScansArgs {
@@ -18131,6 +18143,9 @@ export interface EntityWhereInput {
   /** reviews edge predicates */
   hasReviews?: InputMaybe<Scalars['Boolean']['input']>
   hasReviewsWith?: InputMaybe<Array<ReviewWhereInput>>
+  /** risks edge predicates */
+  hasRisks?: InputMaybe<Scalars['Boolean']['input']>
+  hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
   /** scans edge predicates */
   hasScans?: InputMaybe<Scalars['Boolean']['input']>
   hasScansWith?: InputMaybe<Array<ScanWhereInput>>
@@ -44885,6 +44900,8 @@ export interface Risk extends Node {
   internalPolicies: InternalPolicyConnection
   /** the time when the risk was last reviewed */
   lastReviewedAt?: Maybe<Scalars['DateTime']['output']>
+  /** @deprecated use entities instead */
+  legacyEntities: EntityConnection
   /** likelihood of the risk occurring; unlikely, likely, highly likely */
   likelihood?: Maybe<RiskRiskLikelihood>
   /** id of the integration installation managing the record, empty when the record is unclaimed */
@@ -45079,6 +45096,15 @@ export interface RiskInternalPoliciesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<InternalPolicyOrder>>
   where?: InputMaybe<InternalPolicyWhereInput>
+}
+
+export interface RiskLegacyEntitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
 }
 
 export interface RiskPlatformsArgs {
@@ -45566,6 +45592,9 @@ export interface RiskWhereInput {
   /** internal_policies edge predicates */
   hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
+  /** legacy_entities edge predicates */
+  hasLegacyEntities?: InputMaybe<Scalars['Boolean']['input']>
+  hasLegacyEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -56552,6 +56581,7 @@ export interface UpdateEntityInput {
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSourcePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56644,6 +56674,7 @@ export interface UpdateEntityInput {
   clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskRating?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskScore?: InputMaybe<Scalars['Boolean']['input']>
+  clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearSSOEnforced?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearScope?: InputMaybe<Scalars['Boolean']['input']>
@@ -56746,6 +56777,7 @@ export interface UpdateEntityInput {
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSourcePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -59691,6 +59723,7 @@ export interface UpdateRiskInput {
   addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIntegrationRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addLegacyEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -59738,6 +59771,7 @@ export interface UpdateRiskInput {
   clearIntegrationRuns?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearLastReviewedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearLegacyEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearLikelihood?: InputMaybe<Scalars['Boolean']['input']>
   clearMitigatedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearMitigation?: InputMaybe<Scalars['Boolean']['input']>
@@ -59826,6 +59860,7 @@ export interface UpdateRiskInput {
   removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeLegacyEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>

@@ -1,4 +1,5 @@
 import { type GetRemediationContextSubjectQuery, type RemediationQuery } from '@repo/codegen/src/schema'
+import { getObjectDisplayName } from '@/utils/object-display-name'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { getVulnerabilitySeverity, getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilities/vulnerability-display'
@@ -42,7 +43,7 @@ export const toRemediationContext = (ref: TRemediationContextRef, data?: GetReme
     const vulnerability = data.vulnerability
     return {
       ...ref,
-      heading: vulnerability.displayName || getVulnerabilityTitle(vulnerability),
+      heading: getVulnerabilityTitle(vulnerability),
       level: getVulnerabilitySeverity(vulnerability),
       details: [
         { label: 'Source', value: vulnerability.source },
@@ -58,7 +59,7 @@ export const toRemediationContext = (ref: TRemediationContextRef, data?: GetReme
     const finding = data.finding
     return {
       ...ref,
-      heading: finding.displayName || finding.displayID,
+      heading: getObjectDisplayName(finding),
       level: getVulnerabilitySeverity({ severity: finding.securityLevel ?? finding.severity }),
       details: [
         { label: 'Source', value: finding.source },
@@ -74,7 +75,7 @@ export const toRemediationContext = (ref: TRemediationContextRef, data?: GetReme
     const risk = data.risk
     return {
       ...ref,
-      heading: risk.name || risk.displayID,
+      heading: getObjectDisplayName(risk),
       level: risk.impact ?? null,
       details: [
         { label: 'Category', value: risk.riskCategoryName },

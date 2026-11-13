@@ -195,6 +195,7 @@ export const GET_REMEDIATION_ASSOCIATIONS = gql`
           node {
             id
             cveID
+            externalID
             displayName
             displayID
           }
@@ -263,6 +264,7 @@ export const GET_REMEDIATION_CONTEXT_SUBJECT = gql`
       id
       displayID
       displayName
+      externalID
       description
       source
       severity
@@ -311,6 +313,7 @@ export const GET_REMEDIATION_CONTEXT_OPTIONS = gql`
           id
           displayID
           displayName
+          externalID
         }
       }
     }

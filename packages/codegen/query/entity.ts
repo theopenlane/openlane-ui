@@ -451,6 +451,7 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
           node {
             id
             cveID
+            externalID
             displayName
             displayID
           }

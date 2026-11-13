@@ -7,22 +7,10 @@ import ObjectsChip from '../objects-chip/objects-chip'
 import { useSheetNavigation, isSheetKind, FULL_PAGE_KINDS } from '@/providers/sheet-navigation-provider'
 import { useRouter } from 'next/navigation'
 import { getAssociationDisplayModel } from '@/components/shared/object-association/utils'
+import { type TBaseAssociatedNode } from '@/components/shared/object-association/types/object-association-types'
 
 export interface ObjectChipProps {
-  object: {
-    id: string
-    refCode?: string | null
-    displayName?: string | null
-    name?: string | null
-    fullName?: string | null
-    title?: string | null
-    description?: string | null
-    desiredOutcome?: string | null
-    details?: string | null
-    summary?: string | null
-    identityHolderType?: string | null
-    link: string
-  }
+  object: TBaseAssociatedNode & { link: string }
   kind?: string
   removable?: boolean
   onRemove?: () => void
@@ -72,7 +60,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
                 <span className="font-medium">Name</span>
               </div>
               <div className="w-full border-b pb-2">
-                <span className="text-brand pl-3 cursor-pointer hover:underline inline-flex items-center gap-1" {...activatable(handleNavigate)}>
+                <span className="text-blue-500 pl-3 cursor-pointer hover:underline inline-flex items-center gap-1" {...activatable(handleNavigate)}>
                   {display.name}
                   <ExternalLink size={12} />
                 </span>

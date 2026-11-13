@@ -360,6 +360,7 @@ export const GET_FINDING_ASSOCIATIONS = gql`
           node {
             id
             cveID
+            externalID
             displayName
             displayID
           }

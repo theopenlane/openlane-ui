@@ -1,15 +1,10 @@
-export type TBaseAssociatedNode = {
+import { getObjectDisplayName, type TObjectNameSource } from '@/utils/object-display-name'
+export type TBaseAssociatedNode = TObjectNameSource & {
   id: string
-  displayID?: string | null
-  displayName?: string | null
-  name?: string | null
-  fullName?: string | null
-  title?: string | null
   summary?: string | null
   description?: string | null
   desiredOutcome?: string | null
   details?: string | null
-  refCode?: string | null
   identityHolderType?: string | null
   __typename?: string
 }
@@ -31,7 +26,7 @@ export type TCenterNode = {
   node: TBaseAssociatedNode
 }
 
-export const getObjectName = (node: TBaseAssociatedNode | undefined): string => node?.refCode ?? node?.fullName ?? node?.displayName ?? node?.name ?? node?.title ?? 'this object'
+export const getObjectName = (node: TBaseAssociatedNode | undefined): string => getObjectDisplayName(node) || 'this object'
 
 export const getCenterNodeObjectName = (centerNode: TCenterNode): string => getObjectName(centerNode?.node)
 
