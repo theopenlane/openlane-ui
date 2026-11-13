@@ -11,6 +11,7 @@ export enum AccessEnum {
   CanCreateProcedure = 'can_create_procedure',
   CanCreateGroup = 'can_create_group',
   CanManageGroups = 'can_manage_group',
+  CanManageIntegrations = 'can_manage_integrations',
   CanCreateScheduledJob = 'can_create_scheduled_job',
   AuditLogViewer = 'audit_log_viewer',
   CanCreateRisk = 'can_create_risk',

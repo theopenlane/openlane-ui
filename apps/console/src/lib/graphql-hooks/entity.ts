@@ -1,6 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useQuery, useQueries, useMutation, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
+import { useCallback, useMemo } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 import {
   type Entity,
   type EntitiesWithFilterQuery,
@@ -16,6 +17,10 @@ import {
   type DeleteEntityMutation,
   type DeleteEntityMutationVariables,
   type EntityQuery,
+  type GetVendorInstallationsQuery,
+  type GetVendorInstallationsQueryVariables,
+  type GetVendorsByInstallationQuery,
+  type GetVendorsByInstallationQueryVariables,
   type EntityQueryVariables,
   type CreateBulkCsvEntityMutation,
   type CreateBulkCsvEntityMutationVariables,
@@ -52,6 +57,8 @@ import {
   GET_ENTITY_FILES_PAGINATED,
   UPDATE_ENTITY_WITH_FILES,
   CREATE_ENTITY_WITH_FILES,
+  GET_VENDOR_INSTALLATIONS,
+  GET_VENDORS_BY_INSTALLATION,
 } from '@repo/codegen/query/entity'
 
 type GetAllEntitiesArgs = {
@@ -193,6 +200,37 @@ export const useEntity = (entityId?: EntityQueryVariables['entityId']) => {
       return result as EntityQuery
     },
     enabled: !!entityId,
+  })
+}
+
+export const useVendorInstallations = (entityId: string, enabled: boolean) => {
+  const { client } = useGraphQLClient()
+  const queryResult = useQuery<GetVendorInstallationsQuery, unknown>({
+    queryKey: ['entities', entityId, 'installations'],
+    queryFn: () => client.request<GetVendorInstallationsQuery, GetVendorInstallationsQueryVariables>(GET_VENDOR_INSTALLATIONS, { entityId }),
+    enabled: enabled && !!entityId,
+  })
+
+  const installations = useMemo(() => (enabled ? getNodes(queryResult.data?.entity.integrations) : []), [enabled, queryResult.data])
+
+  return { ...queryResult, installations }
+}
+
+export const useVendorsByInstallation = (installationIds: string[]) => {
+  const { client } = useGraphQLClient()
+  const uniqueIds = useMemo(() => [...new Set(installationIds.filter(Boolean))].sort(), [installationIds])
+
+  const combine = useCallback(
+    (results: UseQueryResult<GetVendorsByInstallationQuery>[]) => new Map(uniqueIds.map((installationId, index) => [installationId, results[index]?.data?.entities] as const)),
+    [uniqueIds],
+  )
+
+  return useQueries({
+    queries: uniqueIds.map((installationId) => ({
+      queryKey: ['entities', 'by-installation', installationId],
+      queryFn: () => client.request<GetVendorsByInstallationQuery, GetVendorsByInstallationQueryVariables>(GET_VENDORS_BY_INSTALLATION, { installationId }),
+    })),
+    combine,
   })
 }
 

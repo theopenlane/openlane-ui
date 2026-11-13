@@ -135,18 +135,6 @@ export const ENTITY = gql`
       environmentName
       hasSoc2
       id
-      integrations {
-        edges {
-          node {
-            id
-            definitionID
-            name
-            directoryGroups(first: 1) {
-              totalCount
-            }
-          }
-        }
-      }
       internalOwner
       internalOwnerIdentityHolder {
         id
@@ -391,20 +379,6 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
         }
         totalCount
       }
-      integrations {
-        edges {
-          node {
-            id
-            name
-            kind
-            description
-            environmentName
-            integrationType
-            updatedAt
-          }
-        }
-        totalCount
-      }
       controls {
         edges {
           node {
@@ -506,6 +480,35 @@ export const GET_VENDOR_RISK_RATING_COUNTS = gql`
     }
     notScored: entities(where: { and: [$where, { riskRatingIsNil: true }] }) {
       totalCount
+    }
+  }
+`
+
+export const GET_VENDOR_INSTALLATIONS = gql`
+  query GetVendorInstallations($entityId: ID!) {
+    entity(id: $entityId) {
+      id
+      integrations {
+        edges {
+          node {
+            id
+            definitionID
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_VENDORS_BY_INSTALLATION = gql`
+  query GetVendorsByInstallation($installationId: ID!) {
+    entities(where: { hasIntegrationsWith: [{ id: $installationId }] }, first: 2) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
     }
   }
 `

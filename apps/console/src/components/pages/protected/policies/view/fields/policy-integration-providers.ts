@@ -2,8 +2,6 @@ import { type InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 import { isSafeLinkHref } from '@/lib/html/sanitize-html'
 import { IntegrationFamily } from '@/lib/enums/integration'
 
-export type PolicyIntegrationNode = NonNullable<NonNullable<NonNullable<InternalPolicyByIdFragment['integrations']['edges']>[number]>['node']>
-
 type PolicyIntegrationProvider = {
   family: IntegrationFamily
   buildSourceUrl: (policy: InternalPolicyByIdFragment) => string | null
@@ -32,9 +30,5 @@ const POLICY_INTEGRATION_PROVIDERS: PolicyIntegrationProvider[] = [
   },
 ]
 
-export const resolvePolicyIntegrationProvider = (integration: PolicyIntegrationNode | null | undefined): PolicyIntegrationProvider | undefined => {
-  if (!integration?.family) {
-    return undefined
-  }
-  return POLICY_INTEGRATION_PROVIDERS.find((provider) => provider.family === integration.family)
-}
+export const resolvePolicyIntegrationProvider = (family: string | null | undefined): PolicyIntegrationProvider | undefined =>
+  family ? POLICY_INTEGRATION_PROVIDERS.find((provider) => provider.family === family) : undefined

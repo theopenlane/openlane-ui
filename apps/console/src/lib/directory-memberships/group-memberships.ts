@@ -24,10 +24,7 @@ type MembershipEntityConnection = {
   edges?: ReadonlyArray<MembershipEntityEdge> | null
 }
 
-type MembershipIntegration = {
-  id?: string | null
-  entities?: MembershipEntityConnection | null
-}
+export type VendorsByInstallation = ReadonlyMap<string, MembershipEntityConnection | null | undefined>
 
 type MembershipEdgeNode = {
   id: string
@@ -38,7 +35,7 @@ type MembershipEdgeNode = {
   directoryGroup: {
     id?: string | null
     displayName?: string | null
-    integration?: MembershipIntegration | null
+    managedBy?: string | null
   }
 }
 
@@ -49,7 +46,7 @@ export type MembershipConnection = {
   edges?: ReadonlyArray<MembershipEdge> | null
 }
 
-export const resolveSingleEntityVendor = (entities: MembershipEntityConnection | null | undefined): MembershipVendor | null => {
+const resolveSingleEntityVendor = (entities: MembershipEntityConnection | null | undefined): MembershipVendor | null => {
   const edges = entities?.edges ?? []
   const nodes = edges.flatMap((edge) => {
     const node = edge?.node
@@ -58,6 +55,12 @@ export const resolveSingleEntityVendor = (entities: MembershipEntityConnection |
   })
   return nodes.length === 1 ? nodes[0] : null
 }
+
+export const resolveInstallationVendor = (installationId: string | null | undefined, vendorsByInstallation: VendorsByInstallation): MembershipVendor | null =>
+  installationId ? resolveSingleEntityVendor(vendorsByInstallation.get(installationId)) : null
+
+export const membershipInstallationIds = (connection: MembershipConnection | null | undefined): string[] =>
+  (connection?.edges ?? []).flatMap((edge) => (edge?.node?.directoryGroup?.managedBy ? [edge.node.directoryGroup.managedBy] : []))
 
 const compareMemberships = (a: GroupedMembership, b: GroupedMembership): number => {
   const aActive = a.removedAt === null
@@ -70,7 +73,7 @@ const compareMemberships = (a: GroupedMembership, b: GroupedMembership): number 
   return b.groupName.localeCompare(a.groupName)
 }
 
-export const buildMembershipList = (connection: MembershipConnection | null | undefined): MembershipList => {
+export const buildMembershipList = (connection: MembershipConnection | null | undefined, vendorsByInstallation: VendorsByInstallation): MembershipList => {
   const items: GroupedMembership[] = []
   if (!connection) return { items, totalCount: 0 }
   for (const edge of connection.edges ?? []) {
@@ -83,7 +86,7 @@ export const buildMembershipList = (connection: MembershipConnection | null | un
       role: node.role ?? '',
       addedAt: node.addedAt ?? node.createdAt ?? null,
       removedAt: node.removedAt ?? null,
-      vendor: resolveSingleEntityVendor(node.directoryGroup?.integration?.entities),
+      vendor: resolveInstallationVendor(node.directoryGroup?.managedBy, vendorsByInstallation),
     })
   }
   items.sort(compareMemberships)

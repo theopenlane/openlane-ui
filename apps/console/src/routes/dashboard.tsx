@@ -60,14 +60,14 @@ import {
 } from '@theopenlane/animated-icons'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
-import { canEdit, canManageBilling } from '@/lib/authz/utils'
+import { canEdit, canManageBilling, canManageIntegrations } from '@/lib/authz/utils'
 import { type TPermissionData } from '@/types/authz'
 import type { Session } from 'next-auth'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
 import { arePlanChecksDisabled, featureUtil } from '@/lib/subscription-plan/plans'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
-export const topNavigationItems = (session: Session | null, currentUserRole?: OrgMembershipRole, isOfficial = true): (NavItem | Separator | NavHeading)[] => {
+export const topNavigationItems = (session: Session | null, currentUserRole?: OrgMembershipRole, isOfficial = true, orgPermission?: TPermissionData): (NavItem | Separator | NavHeading)[] => {
   const billingExpired = featureUtil.hasNoModules(session)
   const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
   return [
@@ -366,6 +366,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           anchor: 'integrations',
           href: '/automation/integrations',
           icon: ConnectIcon,
+          hidden: !canManageIntegrations(orgPermission?.roles, session),
         },
         {
           title: 'Workflow Definitions',

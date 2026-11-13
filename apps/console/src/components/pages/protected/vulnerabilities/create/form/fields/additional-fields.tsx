@@ -1,4 +1,5 @@
 'use client'
+import { isIntegrationSourced } from '@/lib/integrations/utils'
 
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { activatable } from '@repo/ui/lib/a11y'
@@ -121,7 +122,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
 
   const hasPackageDetails = Boolean(data?.packageName || data?.vulnerableVersionRange || data?.firstPatchedVersion || data?.packageEcosystem || data?.manifestPath || data?.dependencyScope)
   const isDismissed = !isCreate && Boolean(data?.dismissedAt || data?.dismissedReason)
-  const isExternalRefLocked = (data?.integrations?.totalCount ?? 0) > 0
+  const isExternalRefLocked = isIntegrationSourced(data)
   const externalRefLockedTooltip = 'This field is managed by the source integration and cannot be edited.'
   const externalRefLockProps = isExternalRefLocked
     ? {

@@ -9,11 +9,13 @@ import {
   type GetDirectoryGroupMembersQueryVariables,
   type GetVendorDirectoryCoverageQuery,
   type GetVendorDirectoryCoverageQueryVariables,
+  type GetVendorDirectoryGroupCountQuery,
+  type GetVendorDirectoryGroupCountQueryVariables,
   type GetVendorDirectoryQuery,
   type GetVendorDirectoryQueryVariables,
   type PageInfo,
 } from '@repo/codegen/src/schema'
-import { GET_DIRECTORY_GROUP_MEMBERS, GET_VENDOR_DIRECTORY, GET_VENDOR_DIRECTORY_COVERAGE } from '@repo/codegen/query/vendor-directory'
+import { GET_DIRECTORY_GROUP_MEMBERS, GET_VENDOR_DIRECTORY, GET_VENDOR_DIRECTORY_COVERAGE, GET_VENDOR_DIRECTORY_GROUP_COUNT } from '@repo/codegen/query/vendor-directory'
 
 export type VendorDirectoryGroup = NonNullable<NonNullable<NonNullable<GetVendorDirectoryQuery['directoryGroups']['edges']>[number]>['node']>
 export type VendorDirectoryMember = NonNullable<NonNullable<NonNullable<GetDirectoryGroupMembersQuery['directoryGroup']['members']['edges']>[number]>['node']>
@@ -21,12 +23,14 @@ export type VendorDirectoryMember = NonNullable<NonNullable<NonNullable<GetDirec
 const VENDOR_DIRECTORY_GROUPS_PAGE_SIZE = 30
 const VENDOR_DIRECTORY_STALE_TIME_MS = 5 * 60 * 1000 // 5min
 
+const vendorDirectoryGroupWhere = (vendorId: string): DirectoryGroupWhereInput => ({ hasIntegrationWith: [{ hasEntitiesWith: [{ id: vendorId }] }] })
+
 const nextCursor = (pageInfo: Pick<PageInfo, 'hasNextPage' | 'endCursor'>): string | undefined => (pageInfo.hasNextPage ? (pageInfo.endCursor ?? undefined) : undefined)
 
-export const useVendorDirectoryGroups = ({ integrationIDs, includeEmptyGroups }: { integrationIDs: string[]; includeEmptyGroups: boolean }) => {
+export const useVendorDirectoryGroups = ({ vendorId, includeEmptyGroups }: { vendorId: string; includeEmptyGroups: boolean }) => {
   const { client } = useGraphQLClient()
 
-  const where: DirectoryGroupWhereInput = includeEmptyGroups ? { integrationIDIn: integrationIDs } : { integrationIDIn: integrationIDs, hasMembers: true }
+  const where: DirectoryGroupWhereInput = includeEmptyGroups ? vendorDirectoryGroupWhere(vendorId) : { ...vendorDirectoryGroupWhere(vendorId), hasMembers: true }
 
   const queryResult = useInfiniteQuery({
     queryKey: ['vendorDirectory', 'groups', where],
@@ -38,7 +42,7 @@ export const useVendorDirectoryGroups = ({ integrationIDs, includeEmptyGroups }:
         after: pageParam,
       }),
     getNextPageParam: (lastPage) => nextCursor(lastPage.directoryGroups.pageInfo),
-    enabled: integrationIDs.length > 0,
+    enabled: !!vendorId,
     staleTime: VENDOR_DIRECTORY_STALE_TIME_MS,
   })
 
@@ -48,17 +52,17 @@ export const useVendorDirectoryGroups = ({ integrationIDs, includeEmptyGroups }:
   return { ...queryResult, groups }
 }
 
-export const useVendorDirectoryGroup = ({ integrationIDs, groupID }: { integrationIDs: string[]; groupID: string | null }) => {
+export const useVendorDirectoryGroup = ({ vendorId, groupID }: { vendorId: string; groupID: string | null }) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery({
-    queryKey: ['vendorDirectory', 'group', integrationIDs, groupID],
+    queryKey: ['vendorDirectory', 'group', vendorId, groupID],
     queryFn: () =>
       client.request<GetVendorDirectoryQuery, GetVendorDirectoryQueryVariables>(GET_VENDOR_DIRECTORY, {
-        where: { integrationIDIn: integrationIDs, id: groupID },
+        where: { ...vendorDirectoryGroupWhere(vendorId), id: groupID },
         first: 1,
       }),
-    enabled: !!groupID && integrationIDs.length > 0,
+    enabled: !!groupID && !!vendorId,
     staleTime: VENDOR_DIRECTORY_STALE_TIME_MS,
     placeholderData: undefined,
   })
@@ -69,13 +73,13 @@ export const useVendorDirectoryGroup = ({ integrationIDs, groupID }: { integrati
   }
 }
 
-export const useVendorDirectoryCoverage = ({ integrationIDs }: { integrationIDs: string[] }) => {
+export const useVendorDirectoryCoverage = ({ vendorId }: { vendorId: string }) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery({
-    queryKey: ['vendorDirectory', 'coverage', integrationIDs],
-    queryFn: () => client.request<GetVendorDirectoryCoverageQuery, GetVendorDirectoryCoverageQueryVariables>(GET_VENDOR_DIRECTORY_COVERAGE, { integrationIDs }),
-    enabled: integrationIDs.length > 0,
+    queryKey: ['vendorDirectory', 'coverage', vendorId],
+    queryFn: () => client.request<GetVendorDirectoryCoverageQuery, GetVendorDirectoryCoverageQueryVariables>(GET_VENDOR_DIRECTORY_COVERAGE, { vendorId }),
+    enabled: !!vendorId,
     staleTime: VENDOR_DIRECTORY_STALE_TIME_MS,
   })
 
@@ -112,4 +116,15 @@ export const useDirectoryGroupMembers = ({ groupID }: { groupID: string }) => {
     members,
     totalMembers: pages?.[0]?.directoryGroup.members.totalCount ?? 0,
   }
+}
+
+export const useVendorDirectoryGroupCount = (vendorId: string) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery({
+    queryKey: ['vendorDirectory', vendorId, 'count'],
+    queryFn: () => client.request<GetVendorDirectoryGroupCountQuery, GetVendorDirectoryGroupCountQueryVariables>(GET_VENDOR_DIRECTORY_GROUP_COUNT, { vendorId }),
+    select: (data) => data.directoryGroups.totalCount,
+    enabled: !!vendorId,
+  })
 }

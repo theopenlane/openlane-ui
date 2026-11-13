@@ -8,8 +8,8 @@ import { Badge } from '@repo/ui/badge'
 import { type InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 import { HTML_DOCUMENT_SANITIZE_CONFIG, isSafeLinkHref, sanitizeHtml } from '@/lib/html/sanitize-html'
 import { getProviderIcon } from '@/lib/integrations/utils'
+import { useSourceIntegrationProvider } from '@/lib/query-hooks/integrations'
 import { resolvePolicyIntegrationProvider } from '@/components/pages/protected/policies/view/fields/policy-integration-providers'
-import { IntegrationFamily } from '@/lib/enums/integration'
 
 type Props = {
   policy: InternalPolicyByIdFragment
@@ -17,10 +17,10 @@ type Props = {
 
 const IntegrationDocumentView: React.FC<Props> = ({ policy }) => {
   const contents = policy.liveExternalContents
-  const integration = policy.integrations?.edges?.find((edge) => edge?.node)?.node ?? null
-  const integrationFamily = integration?.family
-  const providerName = integration?.name || integration?.family || 'integration'
-  const provider = resolvePolicyIntegrationProvider(integration)
+  const sourceProvider = useSourceIntegrationProvider(policy.sourceDefinitionID)
+  const integrationFamily = sourceProvider?.family
+  const providerName = sourceProvider?.displayName || integrationFamily || 'integration'
+  const provider = resolvePolicyIntegrationProvider(integrationFamily)
   const sourceUrl = provider?.buildSourceUrl(policy) ?? null
   const sanitizedDocument = useMemo(() => (contents ? sanitizeHtml(contents, HTML_DOCUMENT_SANITIZE_CONFIG) : ''), [contents])
 
@@ -29,7 +29,7 @@ const IntegrationDocumentView: React.FC<Props> = ({ policy }) => {
   // this comes from liveExternalContents which is an internally populated field, not ever
   // set by external user
   const oneDriveEmbed = (() => {
-    if (integrationFamily !== IntegrationFamily.MICROSOFT || !contents) {
+    if (!contents) {
       return null
     }
     const src = contents.match(/<iframe[^>]*\ssrc=["']([^"']+)["']/i)?.[1]

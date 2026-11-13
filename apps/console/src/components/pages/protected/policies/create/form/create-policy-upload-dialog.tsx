@@ -12,6 +12,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { INTEGRATIONS_DOCUMENT_FILTER_URL } from '@/constants'
+import { useCanManageIntegrations } from '@/lib/authz/use-can-manage-integrations'
 import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
 import { type CreateInternalPolicyInput, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { Import, Trash2 } from 'lucide-react'
@@ -50,6 +51,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
   const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy({ autoInvalidate: false })
 
   const [showTemplateBrowser, setShowTemplateBrowser] = useState(false)
+  const { canManageIntegrations } = useCanManageIntegrations()
 
   const [defaultTab, setDefaultTab] = useState<PolicyProcedureTabEnum>(PolicyProcedureTabEnum.Upload)
   const [_policyMdDocumentLink, setPolicyMdDocumentLink] = useState<string>('')
@@ -232,12 +234,18 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
         </DialogHeader>
         <Callout title="File Format">
           You can upload one or multiple files at once, or pull documents directly from a public URL (for example, if your policies are stored in GitHub as Markdown). Each uploaded file will be
-          imported separately and create its own policy. Want to import from Google Drive? Try our{' '}
-          <Link href={INTEGRATIONS_DOCUMENT_FILTER_URL} className="text-brand hover:underline">
-            Google Drive integration
-          </Link>{' '}
-          instead. For more details on supported file types and formatting, please refer to our{' '}
-          <a href={`${POLICY_MANAGEMENT_DOCS_URL}/import`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+          imported separately and create its own policy.{' '}
+          {canManageIntegrations && (
+            <>
+              Want to import from Google Drive? Try our{' '}
+              <Link href={INTEGRATIONS_DOCUMENT_FILTER_URL} className="text-blue-500 hover:underline">
+                Google Drive integration
+              </Link>{' '}
+              instead.{' '}
+            </>
+          )}
+          For more details on supported file types and formatting, please refer to our{' '}
+          <a href={`${POLICY_MANAGEMENT_DOCS_URL}/import`} target="_blank" className="text-blue-500 hover:underline" rel="noreferrer">
             documentation
           </a>
           .
