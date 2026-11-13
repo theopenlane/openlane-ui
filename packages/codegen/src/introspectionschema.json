@@ -59244,6 +59244,42 @@
             "deprecationReason": null
           },
           {
+            "name": "controlOrigin",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "CustomTypeEnum",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginID",
+            "description": "the control_origin of the control",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginName",
+            "description": "the control_origin of the control",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "controlOwner",
             "description": "the group of users who are responsible for the control, will be assigned tasks, approval, etc.",
             "args": [],
@@ -61444,8 +61480,8 @@
               "name": "String",
               "ofType": null
             },
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "use control_origin_name instead"
           },
           {
             "name": "standard",
@@ -75652,6 +75688,302 @@
             "deprecationReason": null
           },
           {
+            "name": "controlOriginID",
+            "description": "control_origin_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginName",
+            "description": "control_origin_name field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "controlOwnerID",
             "description": "control_owner_id field predicates",
             "type": {
@@ -77366,6 +77698,38 @@
                 "kind": "NON_NULL",
                 "ofType": {
                   "name": "ControlObjectiveWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasControlOrigin",
+            "description": "control_origin edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasControlOriginWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "CustomTypeEnumWhereInput",
                   "kind": "INPUT_OBJECT",
                   "ofType": null
                 }
@@ -87376,6 +87740,30 @@
             "deprecationReason": null
           },
           {
+            "name": "controlOriginID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginName",
+            "description": "the control_origin of the control",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "controlOwnerID",
             "description": null,
             "type": {
@@ -92394,6 +92782,26 @@
               "kind": "SCALAR",
               "name": "ID",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "riskIDs",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -101868,7 +102276,7 @@
             "deprecationReason": null
           },
           {
-            "name": "campaignTargetCreatorIDs",
+            "name": "campaignManagerIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -101888,7 +102296,7 @@
             "deprecationReason": null
           },
           {
-            "name": "campaignsManagerIDs",
+            "name": "campaignTargetCreatorIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -102524,6 +102932,26 @@
             "deprecationReason": null
           },
           {
+            "name": "integrationManagerIDs",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "internalPolicyCreatorIDs",
             "description": null,
             "type": {
@@ -102784,7 +103212,7 @@
             "deprecationReason": null
           },
           {
-            "name": "policiesManagerIDs",
+            "name": "policyManagerIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -103496,7 +103924,7 @@
             "deprecationReason": null
           },
           {
-            "name": "workflowsManagerIDs",
+            "name": "workflowManagerIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -109100,6 +109528,26 @@
             "deprecationReason": null
           },
           {
+            "name": "legacyEntityIDs",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "likelihood",
             "description": "likelihood of the risk occurring; unlikely, likely, highly likely",
             "type": {
@@ -111002,6 +111450,30 @@
                   "ofType": null
                 }
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginName",
+            "description": "the control_origin of the subcontrol",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -161316,6 +161788,103 @@
             "deprecationReason": null
           },
           {
+            "name": "risks",
+            "description": null,
+            "args": [
+              {
+                "name": "after",
+                "description": "Returns the elements in the list that come after the specified cursor.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Cursor",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "before",
+                "description": "Returns the elements in the list that come before the specified cursor.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Cursor",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "first",
+                "description": "Returns the first _n_ elements from the list.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "last",
+                "description": "Returns the last _n_ elements from the list.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "orderBy",
+                "description": "Ordering options for Risks returned from the connection.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "RiskOrder",
+                      "kind": "INPUT_OBJECT",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "where",
+                "description": "Filtering options for Risks returned from the connection.",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "RiskWhereInput",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "name": "RiskConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "scans",
             "description": null,
             "args": [
@@ -169417,6 +169986,38 @@
                 "kind": "NON_NULL",
                 "ofType": {
                   "name": "ReviewWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasRisks",
+            "description": "risks edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasRisksWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "RiskWhereInput",
                   "kind": "INPUT_OBJECT",
                   "ofType": null
                 }
@@ -319355,7 +319956,7 @@
             "deprecationReason": null
           },
           {
-            "name": "campaignTargetCreators",
+            "name": "campaignManager",
             "description": null,
             "args": [
               {
@@ -319452,7 +320053,7 @@
             "deprecationReason": null
           },
           {
-            "name": "campaignsManager",
+            "name": "campaignTargetCreators",
             "description": null,
             "args": [
               {
@@ -322430,6 +323031,103 @@
             "deprecationReason": null
           },
           {
+            "name": "integrationManager",
+            "description": null,
+            "args": [
+              {
+                "name": "after",
+                "description": "Returns the elements in the list that come after the specified cursor.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Cursor",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "before",
+                "description": "Returns the elements in the list that come before the specified cursor.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Cursor",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "first",
+                "description": "Returns the first _n_ elements from the list.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "last",
+                "description": "Returns the last _n_ elements from the list.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "orderBy",
+                "description": "Ordering options for Groups returned from the connection.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "GroupOrder",
+                      "kind": "INPUT_OBJECT",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "where",
+                "description": "Filtering options for Groups returned from the connection.",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "GroupWhereInput",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "name": "GroupConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "internalPolicyCreators",
             "description": null,
             "args": [
@@ -323557,7 +324255,7 @@
             "deprecationReason": null
           },
           {
-            "name": "policiesManager",
+            "name": "policyManager",
             "description": null,
             "args": [
               {
@@ -327044,7 +327742,7 @@
             "deprecationReason": null
           },
           {
-            "name": "workflowsManager",
+            "name": "workflowManager",
             "description": null,
             "args": [
               {
@@ -335051,8 +335749,8 @@
             "deprecationReason": null
           },
           {
-            "name": "hasCampaignTargetCreators",
-            "description": "campaign_target_creators edge predicates",
+            "name": "hasCampaignManager",
+            "description": "campaign_manager edge predicates",
             "type": {
               "kind": "SCALAR",
               "name": "Boolean",
@@ -335063,7 +335761,7 @@
             "deprecationReason": null
           },
           {
-            "name": "hasCampaignTargetCreatorsWith",
+            "name": "hasCampaignManagerWith",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -335083,8 +335781,8 @@
             "deprecationReason": null
           },
           {
-            "name": "hasCampaignsManager",
-            "description": "campaigns_manager edge predicates",
+            "name": "hasCampaignTargetCreators",
+            "description": "campaign_target_creators edge predicates",
             "type": {
               "kind": "SCALAR",
               "name": "Boolean",
@@ -335095,7 +335793,7 @@
             "deprecationReason": null
           },
           {
-            "name": "hasCampaignsManagerWith",
+            "name": "hasCampaignTargetCreatorsWith",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -336043,6 +336741,38 @@
             "deprecationReason": null
           },
           {
+            "name": "hasIntegrationManager",
+            "description": "integration_manager edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasIntegrationManagerWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "GroupWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "hasInternalPolicyCreators",
             "description": "internal_policy_creators edge predicates",
             "type": {
@@ -336459,8 +337189,8 @@
             "deprecationReason": null
           },
           {
-            "name": "hasPoliciesManager",
-            "description": "policies_manager edge predicates",
+            "name": "hasPolicyManager",
+            "description": "policy_manager edge predicates",
             "type": {
               "kind": "SCALAR",
               "name": "Boolean",
@@ -336471,7 +337201,7 @@
             "deprecationReason": null
           },
           {
-            "name": "hasPoliciesManagerWith",
+            "name": "hasPolicyManagerWith",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -337611,8 +338341,8 @@
             "deprecationReason": null
           },
           {
-            "name": "hasWorkflowsManager",
-            "description": "workflows_manager edge predicates",
+            "name": "hasWorkflowManager",
+            "description": "workflow_manager edge predicates",
             "type": {
               "kind": "SCALAR",
               "name": "Boolean",
@@ -337623,7 +338353,7 @@
             "deprecationReason": null
           },
           {
-            "name": "hasWorkflowsManagerWith",
+            "name": "hasWorkflowManagerWith",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -414869,6 +415599,103 @@
             "deprecationReason": null
           },
           {
+            "name": "legacyEntities",
+            "description": null,
+            "args": [
+              {
+                "name": "after",
+                "description": "Returns the elements in the list that come after the specified cursor.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Cursor",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "before",
+                "description": "Returns the elements in the list that come before the specified cursor.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Cursor",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "first",
+                "description": "Returns the first _n_ elements from the list.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "last",
+                "description": "Returns the last _n_ elements from the list.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "orderBy",
+                "description": "Ordering options for Entities returned from the connection.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "name": null,
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "name": "EntityOrder",
+                      "kind": "INPUT_OBJECT",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "where",
+                "description": "Filtering options for Entities returned from the connection.",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "EntityWhereInput",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "name": "EntityConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            "isDeprecated": true,
+            "deprecationReason": "use entities instead"
+          },
+          {
             "name": "likelihood",
             "description": "likelihood of the risk occurring; unlikely, likely, highly likely",
             "args": [],
@@ -419981,6 +420808,38 @@
                 "kind": "NON_NULL",
                 "ofType": {
                   "name": "InternalPolicyWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasLegacyEntities",
+            "description": "legacy_entities edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasLegacyEntitiesWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "EntityWhereInput",
                   "kind": "INPUT_OBJECT",
                   "ofType": null
                 }
@@ -441924,6 +442783,42 @@
             "deprecationReason": null
           },
           {
+            "name": "controlOrigin",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "CustomTypeEnum",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginID",
+            "description": "the control_origin of the subcontrol",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginName",
+            "description": "the control_origin of the subcontrol",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "controlOwner",
             "description": "the group of users who are responsible for the control, will be assigned tasks, approval, etc.",
             "args": [],
@@ -443749,8 +444644,8 @@
               "name": "String",
               "ofType": null
             },
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "use control_origin_name instead"
           },
           {
             "name": "status",
@@ -445604,6 +446499,302 @@
             "deprecationReason": null
           },
           {
+            "name": "controlOriginID",
+            "description": "control_origin_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginName",
+            "description": "control_origin_name field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginNameNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "controlOwnerID",
             "description": "control_owner_id field predicates",
             "type": {
@@ -446874,6 +448065,38 @@
                 "kind": "NON_NULL",
                 "ofType": {
                   "name": "ControlObjectiveWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasControlOrigin",
+            "description": "control_origin edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasControlOriginWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "CustomTypeEnumWhereInput",
                   "kind": "INPUT_OBJECT",
                   "ofType": null
                 }
@@ -520166,6 +521389,30 @@
             "deprecationReason": null
           },
           {
+            "name": "clearControlOrigin",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "clearControlOriginName",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "clearControlOwner",
             "description": null,
             "type": {
@@ -520816,6 +522063,30 @@
           {
             "name": "controlKindName",
             "description": "the kind of the control",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginName",
+            "description": "the control_origin of the control",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -528046,6 +529317,26 @@
             "deprecationReason": null
           },
           {
+            "name": "addRiskIDs",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "addScanIDs",
             "description": null,
             "type": {
@@ -529202,6 +530493,18 @@
             "deprecationReason": null
           },
           {
+            "name": "clearRisks",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "clearSSOEnforced",
             "description": null,
             "type": {
@@ -530295,6 +531598,26 @@
           },
           {
             "name": "removeReviewIDs",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "removeRiskIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -548946,7 +550269,7 @@
             "deprecationReason": null
           },
           {
-            "name": "addCampaignTargetCreatorIDs",
+            "name": "addCampaignManagerIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -548966,7 +550289,7 @@
             "deprecationReason": null
           },
           {
-            "name": "addCampaignsManagerIDs",
+            "name": "addCampaignTargetCreatorIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -549566,6 +550889,26 @@
             "deprecationReason": null
           },
           {
+            "name": "addIntegrationManagerIDs",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "addInternalPolicyCreatorIDs",
             "description": null,
             "type": {
@@ -549806,7 +551149,7 @@
             "deprecationReason": null
           },
           {
-            "name": "addPoliciesManagerIDs",
+            "name": "addPolicyManagerIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -550486,7 +551829,7 @@
             "deprecationReason": null
           },
           {
-            "name": "addWorkflowsManagerIDs",
+            "name": "addWorkflowManagerIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -550694,7 +552037,7 @@
             "deprecationReason": null
           },
           {
-            "name": "clearCampaignTargetCreators",
+            "name": "clearCampaignManager",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -550706,7 +552049,7 @@
             "deprecationReason": null
           },
           {
-            "name": "clearCampaignsManager",
+            "name": "clearCampaignTargetCreators",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -551078,6 +552421,18 @@
             "deprecationReason": null
           },
           {
+            "name": "clearIntegrationManager",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "clearInternalPolicyCreators",
             "description": null,
             "type": {
@@ -551210,7 +552565,7 @@
             "deprecationReason": null
           },
           {
-            "name": "clearPoliciesManager",
+            "name": "clearPolicyManager",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -551642,7 +552997,7 @@
             "deprecationReason": null
           },
           {
-            "name": "clearWorkflowsManager",
+            "name": "clearWorkflowManager",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -551798,7 +553153,7 @@
             "deprecationReason": null
           },
           {
-            "name": "removeCampaignTargetCreatorIDs",
+            "name": "removeCampaignManagerIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -551818,7 +553173,7 @@
             "deprecationReason": null
           },
           {
-            "name": "removeCampaignsManagerIDs",
+            "name": "removeCampaignTargetCreatorIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -552418,6 +553773,26 @@
             "deprecationReason": null
           },
           {
+            "name": "removeIntegrationManagerIDs",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "removeInternalPolicyCreatorIDs",
             "description": null,
             "type": {
@@ -552658,7 +554033,7 @@
             "deprecationReason": null
           },
           {
-            "name": "removePoliciesManagerIDs",
+            "name": "removePolicyManagerIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -553338,7 +554713,7 @@
             "deprecationReason": null
           },
           {
-            "name": "removeWorkflowsManagerIDs",
+            "name": "removeWorkflowManagerIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -564770,6 +566145,26 @@
             "deprecationReason": null
           },
           {
+            "name": "addLegacyEntityIDs",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "addPlatformIDs",
             "description": null,
             "type": {
@@ -565427,6 +566822,18 @@
           },
           {
             "name": "clearLastReviewedAt",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "clearLegacyEntities",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -566375,6 +567782,26 @@
           },
           {
             "name": "removeInternalPolicyIDs",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "removeLegacyEntityIDs",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -570206,6 +571633,30 @@
             "deprecationReason": null
           },
           {
+            "name": "clearControlOrigin",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "clearControlOriginName",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "clearControlOwner",
             "description": null,
             "type": {
@@ -570763,6 +572214,30 @@
             "type": {
               "kind": "SCALAR",
               "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "controlOriginName",
+            "description": "the control_origin of the subcontrol",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null,
