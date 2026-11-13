@@ -1892,6 +1892,7 @@ export interface CreateControlMutation {
 export type GetControlSelectOptionsQueryVariables = Exact<{
   where?: Types.ControlWhereInput | null | undefined
   first?: number | null | undefined
+  orderBy?: Array<Types.ControlOrder> | Types.ControlOrder | null | undefined
 }>
 
 export interface GetControlSelectOptionsQuery {
@@ -1913,6 +1914,7 @@ export interface GetControlSubcategoriesQuery {
 export type GetControlsPaginatedQueryVariables = Exact<{
   where?: Types.ControlWhereInput | null | undefined
   after?: any
+  orderBy?: Array<Types.ControlOrder> | Types.ControlOrder | null | undefined
 }>
 
 export interface GetControlsPaginatedQuery {
@@ -1991,6 +1993,7 @@ export interface GetControlByIdMinifiedQuery {
 export type GetControlsPaginatedWithListFieldsQueryVariables = Exact<{
   where?: Types.ControlWhereInput | null | undefined
   after?: any
+  orderBy?: Array<Types.ControlOrder> | Types.ControlOrder | null | undefined
   includeRelatedControls?: boolean | null | undefined
 }>
 
@@ -2364,6 +2367,7 @@ export type GetTemplateControlsWithMappingsQueryVariables = Exact<{
   where?: Types.ControlWhereInput | null | undefined
   after?: any
   first?: number | null | undefined
+  orderBy?: Array<Types.ControlOrder> | Types.ControlOrder | null | undefined
 }>
 
 export interface GetTemplateControlsWithMappingsQuery {
@@ -8558,6 +8562,7 @@ export type GetAllSubcontrolsQueryVariables = Exact<{
   where?: Types.SubcontrolWhereInput | null | undefined
   after?: any
   first?: number | null | undefined
+  orderBy?: Array<Types.SubcontrolOrder> | Types.SubcontrolOrder | null | undefined
 }>
 
 export interface GetAllSubcontrolsQuery {
@@ -8714,6 +8719,7 @@ export type GetSubcontrolsPaginatedQueryVariables = Exact<{
   before?: any
   first?: number | null | undefined
   last?: number | null | undefined
+  orderBy?: Array<Types.SubcontrolOrder> | Types.SubcontrolOrder | null | undefined
 }>
 
 export interface GetSubcontrolsPaginatedQuery {

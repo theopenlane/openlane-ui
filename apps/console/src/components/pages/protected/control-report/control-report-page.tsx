@@ -24,7 +24,6 @@ import { getOrgRelatedControls, getFrameworkRelatedControls } from './report-cov
 import { QUERY_REPORT_FILTER_IDS, type ReportFilterId } from './report-filter-options'
 import { controlOwnedByUserWhere } from '@/lib/control-where'
 import { getOrganizationStorageItem, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
-import { compareNatural } from '@/lib/sort'
 import { useSession } from 'next-auth/react'
 import { organizationStandardsWhere } from '@/constants/standards'
 
@@ -127,21 +126,12 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     enabled: Boolean(currentOrgId) && (Boolean(effectiveStandard) || isSuccessStandards),
   })
 
-  const sortedData = useMemo(() => {
-    if (!data) return data
-    const sorted = data.map((entry) => ({
-      ...entry,
-      controls: [...entry.controls].sort((a, b) => compareNatural(a.refCode, b.refCode)),
-    }))
-    return sorted.sort((a, b) => compareNatural(a.controls[0]?.refCode ?? '', b.controls[0]?.refCode ?? ''))
-  }, [data])
-
   const hasNoOrganizationControls = organizationControlsData?.controls.totalCount === 0
-  const hasNoReportControls = !sortedData || sortedData.length === 0 || sortedData.every((entry) => entry.controls.length === 0)
+  const hasNoReportControls = !data || data.length === 0 || data.every((entry) => entry.controls.length === 0)
 
   const mappedControlIdsByControl = useMemo(() => {
     const map = new Map<string, string[]>()
-    for (const entry of sortedData ?? []) {
+    for (const entry of data ?? []) {
       for (const control of entry.controls) {
         const related = isCustomView ? getFrameworkRelatedControls(control.relatedControls) : getOrgRelatedControls(control.relatedControls)
         map.set(
@@ -151,14 +141,14 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
       }
     }
     return map
-  }, [sortedData, isCustomView])
+  }, [data, isCustomView])
 
   const clientReportFilters = useMemo(() => [...reportFilters].filter((filterId) => !QUERY_REPORT_FILTER_IDS.has(filterId)), [reportFilters])
 
-  const filteredSortedData = useMemo(() => {
-    if (!sortedData || clientReportFilters.length === 0) return sortedData
+  const filteredData = useMemo(() => {
+    if (!data || clientReportFilters.length === 0) return data
 
-    return sortedData
+    return data
       .map((entry) => ({
         ...entry,
         controls: entry.controls.filter((control) => {
@@ -181,7 +171,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
         }),
       }))
       .filter((entry) => entry.controls.length > 0)
-  }, [sortedData, clientReportFilters, isCustomView])
+  }, [data, clientReportFilters, isCustomView])
 
   useEffect(() => {
     setSelectedStandard(getOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId) ?? '')
@@ -233,8 +223,8 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   }, [effectiveStandard, hasNarrowingFilters, isLoading, isLoadingMore, data, hasNoReportControls, isSuccessStandards, standardOptions])
 
   useEffect(() => {
-    if (!sortedData) return
-    const categories = sortedData.map((item) => item.category)
+    if (!data) return
+    const categories = data.map((item) => item.category)
 
     if (expansionScopeRef.current !== where) {
       expansionScopeRef.current = where
@@ -249,7 +239,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
       const unseen = categories.filter((category) => !prev.includes(category))
       return unseen.length === 0 ? prev : [...prev, ...unseen]
     })
-  }, [sortedData, where])
+  }, [data, where])
 
   const { data: groupsData } = useGetAllGroups({ where: {}, enabled: true })
   const groups = useMemo(() => (groupsData?.groups?.edges ?? []).map((e) => e?.node).filter((g): g is NonNullable<typeof g> => !!g), [groupsData])
@@ -281,10 +271,11 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     setExpandedItems((prev) => (prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]))
   }, [])
 
+  const visibleCategories = filteredData ?? []
+
   const toggleAll = () => {
-    const activeData = filteredSortedData ?? sortedData
-    if (!activeData) return
-    const allCategories = activeData.map((item) => item.category)
+    if (visibleCategories.length === 0) return
+    const allCategories = visibleCategories.map((item) => item.category)
     const hasAllExpanded = allCategories.every((cat) => expandedItems.includes(cat))
     userTouchedExpansionRef.current = hasAllExpanded
     setExpandedItems(hasAllExpanded ? [] : allCategories)
@@ -338,8 +329,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     return <ControlReportPageSkeleton />
   }
 
-  const hasNoMatchingControls = !filteredSortedData || filteredSortedData.length === 0 || filteredSortedData.every((entry) => entry.controls.length === 0)
-  const visibleCategories = filteredSortedData ?? sortedData ?? []
+  const hasNoMatchingControls = !filteredData || filteredData.length === 0 || filteredData.every((entry) => entry.controls.length === 0)
   const allExpanded = visibleCategories.length > 0 && visibleCategories.every((e) => expandedItems.includes(e.category))
   const showList = !hasNoOrganizationControls && !hasNoMatchingControls
 
@@ -390,7 +380,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
           <ControlReportPageSkeleton />
         ) : showList ? (
           <ReportVirtualList
-            categories={filteredSortedData ?? []}
+            categories={visibleCategories}
             expandedItems={expandedItems}
             expandedControls={expandedControls}
             isCustomView={isCustomView}

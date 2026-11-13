@@ -121,7 +121,6 @@ const SuggestedControlsStep = ({ frameworkName }: { frameworkName?: string }) =>
         const category = suggestedControl.category ?? UNCATEGORIZED
         if (!groups[category]) groups[category] = []
         groups[category].push(suggestedControl)
-        groups[category].sort((a, b) => a.refCode.localeCompare(b.refCode, undefined, { numeric: true }))
 
         return groups
       }, {}),
@@ -137,7 +136,6 @@ const SuggestedControlsStep = ({ frameworkName }: { frameworkName?: string }) =>
         for (const category of categoriesForControl) {
           if (!groups[category]) groups[category] = []
           groups[category].push(suggestedControl)
-          groups[category].sort((a, b) => a.refCode.localeCompare(b.refCode, undefined, { numeric: true }))
         }
 
         return groups
