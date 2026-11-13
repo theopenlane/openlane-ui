@@ -117,12 +117,12 @@ const RunHistoryTable = ({ providerId, integrationIds, instanceLabels, operation
 
   return (
     <section>
-      <h3 className="text-lg font-medium">Run history</h3>
-      <p className="mb-3 text-sm text-muted-foreground">Every recorded run.</p>
+      <h3 className="mb-3 text-lg font-medium">Run history</h3>
       <div className="mb-3 flex w-full flex-wrap items-center justify-between gap-2">
         <Input
           icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
-          placeholder="Search by operation, error or summary"
+          placeholder="Search..."
+          aria-label="Search run history"
           value={searchText}
           onChange={(event) => setSearchText(event.currentTarget.value)}
           variant="searchTable"
@@ -145,7 +145,7 @@ const RunHistoryTable = ({ providerId, integrationIds, instanceLabels, operation
         }}
         pagination={pagination}
         onPaginationChange={setPagination}
-        paginationMeta={{ totalCount: data?.integrationRuns?.totalCount, pageInfo: data?.integrationRuns?.pageInfo, isLoading: isFetching }}
+        paginationMeta={{ unknownTotalCount: true, pageInfo: data?.integrationRuns?.pageInfo, isLoading: isFetching }}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         rowHref={(run) => integrationRunHref(providerId, run.id)}

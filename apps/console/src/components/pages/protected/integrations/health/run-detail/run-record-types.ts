@@ -49,7 +49,6 @@ export type TRunRecordRow = {
 
 type TRunRecordPage = {
   rows: TRunRecordRow[]
-  totalCount: number
   pageInfo?: TPageInfo
 }
 
@@ -68,7 +67,7 @@ export type TRunRecordType = {
 
 export const runRecordCount = (run: TIntegrationRunDetail, type: TRunRecordType): number => run[type.key].totalCount
 
-type TRecordConnection<TNode> = { totalCount: number; pageInfo: PageInfo; edges?: Array<Edge<TNode>> | null }
+type TRecordConnection<TNode> = { pageInfo: PageInfo; edges?: Array<Edge<TNode>> | null }
 
 type TRunRecordDefinition<TQuery, TNode> = Omit<TRunRecordType, 'fetchPage'> & {
   document: string
@@ -81,7 +80,7 @@ const defineRunRecordType = <TQuery, TNode>({ document, connection, toRow, ...ty
   fetchPage: async (client, variables) => {
     const records = connection(await client.request<TQuery>(document, variables))
 
-    return { rows: getNodes(records).map(toRow), totalCount: records?.totalCount ?? 0, pageInfo: records?.pageInfo }
+    return { rows: getNodes(records).map(toRow), pageInfo: records?.pageInfo }
   },
 })
 

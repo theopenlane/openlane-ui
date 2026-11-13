@@ -4890,7 +4890,6 @@ export type GetIntegrationRunsQueryVariables = Exact<{
 
 export interface GetIntegrationRunsQuery {
   integrationRuns: {
-    totalCount: number
     pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
     edges: Array<{
       node: {
@@ -4979,7 +4978,6 @@ export interface GetIntegrationRunActionPlansQuery {
       node: {
         id: string
         actionPlans: {
-          totalCount: number
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{ node: { id: string; name: string; status: Types.ActionPlanDocumentStatus | null; externalID: string | null; updatedAt: any } | null } | null> | null
         }
@@ -5002,7 +5000,6 @@ export interface GetIntegrationRunAssetsQuery {
       node: {
         id: string
         assets: {
-          totalCount: number
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{ node: { id: string; name: string; displayName: string | null; assetType: Types.AssetAssetType; identifier: string | null; updatedAt: any } | null } | null> | null
         }
@@ -5025,7 +5022,6 @@ export interface GetIntegrationRunCheckResultsQuery {
       node: {
         id: string
         checkResults: {
-          totalCount: number
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{ node: { id: string; source: string; status: Types.CheckResultCheckStatus; sourceKey: string | null; updatedAt: any } | null } | null> | null
         }
@@ -5048,7 +5044,6 @@ export interface GetIntegrationRunContactsQuery {
       node: {
         id: string
         contacts: {
-          totalCount: number
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{ node: { id: string; fullName: string | null; email: string | null; status: Types.ContactUserStatus; updatedAt: any } | null } | null> | null
         }
@@ -5071,7 +5066,6 @@ export interface GetIntegrationRunDirectoryAccountsQuery {
       node: {
         id: string
         directoryAccounts: {
-          totalCount: number
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{
             node: { id: string; displayName: string | null; canonicalEmail: string | null; externalID: string; status: Types.DirectoryAccountDirectoryAccountStatus; updatedAt: any } | null
@@ -5096,7 +5090,6 @@ export interface GetIntegrationRunDirectoryGroupsQuery {
       node: {
         id: string
         directoryGroups: {
-          totalCount: number
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{
             node: { id: string; displayName: string | null; email: string | null; externalID: string; status: Types.DirectoryGroupDirectoryGroupStatus; updatedAt: any } | null
@@ -5121,7 +5114,6 @@ export interface GetIntegrationRunDirectoryMembershipsQuery {
       node: {
         id: string
         directoryMemberships: {
-          totalCount: number
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{
             node: {
@@ -5153,7 +5145,6 @@ export interface GetIntegrationRunEntitiesQuery {
       node: {
         id: string
         entities: {
-          totalCount: number
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{ node: { id: string; name: string | null; displayName: string | null; status: Types.EntityEntityStatus | null; updatedAt: any } | null } | null> | null
         }
@@ -5176,7 +5167,6 @@ export interface GetIntegrationRunFindingsQuery {
       node: {
         id: string
         findings: {
-          totalCount: number
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{
             node: {
@@ -5210,7 +5200,6 @@ export interface GetIntegrationRunInternalPoliciesQuery {
       node: {
         id: string
         internalPolicies: {
-          totalCount: number
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{ node: { id: string; displayID: string; name: string; status: Types.InternalPolicyDocumentStatus | null; updatedAt: any } | null } | null> | null
         }
@@ -5233,7 +5222,6 @@ export interface GetIntegrationRunProceduresQuery {
       node: {
         id: string
         procedures: {
-          totalCount: number
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{ node: { id: string; displayID: string; name: string; status: Types.ProcedureDocumentStatus | null; updatedAt: any } | null } | null> | null
         }
@@ -5256,7 +5244,6 @@ export interface GetIntegrationRunRisksQuery {
       node: {
         id: string
         risks: {
-          totalCount: number
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{ node: { id: string; displayID: string; name: string; status: Types.RiskRiskStatus | null; updatedAt: any } | null } | null> | null
         }
@@ -5279,7 +5266,6 @@ export interface GetIntegrationRunVulnerabilitiesQuery {
       node: {
         id: string
         vulnerabilities: {
-          totalCount: number
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{
             node: { id: string; displayID: string; displayName: string | null; cveID: string | null; externalID: string; severity: string | null; category: string | null; updatedAt: any } | null

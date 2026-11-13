@@ -42,7 +42,6 @@ export const GET_INTEGRATION_RUNS = gql`
   ${INTEGRATION_RUN_FIELDS}
   query GetIntegrationRuns($where: IntegrationRunWhereInput, $orderBy: IntegrationRunOrder, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     integrationRuns(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
-      totalCount
       pageInfo {
         startCursor
         endCursor
@@ -148,7 +147,6 @@ export const GET_INTEGRATION_RUN_ACTION_PLANS = gql`
         node {
           id
           actionPlans(first: $first, after: $after, last: $last, before: $before) {
-            totalCount
             pageInfo {
               ...IntegrationRunRecordPageInfo
             }
@@ -176,7 +174,6 @@ export const GET_INTEGRATION_RUN_ASSETS = gql`
         node {
           id
           assets(first: $first, after: $after, last: $last, before: $before) {
-            totalCount
             pageInfo {
               ...IntegrationRunRecordPageInfo
             }
@@ -205,7 +202,6 @@ export const GET_INTEGRATION_RUN_CHECK_RESULTS = gql`
         node {
           id
           checkResults(first: $first, after: $after, last: $last, before: $before) {
-            totalCount
             pageInfo {
               ...IntegrationRunRecordPageInfo
             }
@@ -233,7 +229,6 @@ export const GET_INTEGRATION_RUN_CONTACTS = gql`
         node {
           id
           contacts(first: $first, after: $after, last: $last, before: $before) {
-            totalCount
             pageInfo {
               ...IntegrationRunRecordPageInfo
             }
@@ -261,7 +256,6 @@ export const GET_INTEGRATION_RUN_DIRECTORY_ACCOUNTS = gql`
         node {
           id
           directoryAccounts(first: $first, after: $after, last: $last, before: $before) {
-            totalCount
             pageInfo {
               ...IntegrationRunRecordPageInfo
             }
@@ -290,7 +284,6 @@ export const GET_INTEGRATION_RUN_DIRECTORY_GROUPS = gql`
         node {
           id
           directoryGroups(first: $first, after: $after, last: $last, before: $before) {
-            totalCount
             pageInfo {
               ...IntegrationRunRecordPageInfo
             }
@@ -319,7 +312,6 @@ export const GET_INTEGRATION_RUN_DIRECTORY_MEMBERSHIPS = gql`
         node {
           id
           directoryMemberships(first: $first, after: $after, last: $last, before: $before) {
-            totalCount
             pageInfo {
               ...IntegrationRunRecordPageInfo
             }
@@ -355,7 +347,6 @@ export const GET_INTEGRATION_RUN_ENTITIES = gql`
         node {
           id
           entities(first: $first, after: $after, last: $last, before: $before) {
-            totalCount
             pageInfo {
               ...IntegrationRunRecordPageInfo
             }
@@ -383,7 +374,6 @@ export const GET_INTEGRATION_RUN_FINDINGS = gql`
         node {
           id
           findings(first: $first, after: $after, last: $last, before: $before) {
-            totalCount
             pageInfo {
               ...IntegrationRunRecordPageInfo
             }
@@ -414,7 +404,6 @@ export const GET_INTEGRATION_RUN_INTERNAL_POLICIES = gql`
         node {
           id
           internalPolicies(first: $first, after: $after, last: $last, before: $before) {
-            totalCount
             pageInfo {
               ...IntegrationRunRecordPageInfo
             }
@@ -442,7 +431,6 @@ export const GET_INTEGRATION_RUN_PROCEDURES = gql`
         node {
           id
           procedures(first: $first, after: $after, last: $last, before: $before) {
-            totalCount
             pageInfo {
               ...IntegrationRunRecordPageInfo
             }
@@ -470,7 +458,6 @@ export const GET_INTEGRATION_RUN_RISKS = gql`
         node {
           id
           risks(first: $first, after: $after, last: $last, before: $before) {
-            totalCount
             pageInfo {
               ...IntegrationRunRecordPageInfo
             }
@@ -498,7 +485,6 @@ export const GET_INTEGRATION_RUN_VULNERABILITIES = gql`
         node {
           id
           vulnerabilities(first: $first, after: $after, last: $last, before: $before) {
-            totalCount
             pageInfo {
               ...IntegrationRunRecordPageInfo
             }

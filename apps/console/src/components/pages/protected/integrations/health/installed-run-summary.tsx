@@ -31,7 +31,7 @@ const InstalledRunSummary = ({ newestFirstRuns, failingOperations, isLoading, pr
         <span className="whitespace-nowrap">Last run {formatTimeSince(latestRun.startedAt)}</span>
         {failingOperations.length > 0 ? <span className="truncate text-destructive">{formatList(failingOperations)} failing</span> : null}
       </div>
-      <RunStrip newestFirstRuns={newestFirstRuns} providerId={providerId} />
+      <RunStrip newestFirstRuns={newestFirstRuns} providerId={providerId} stretch />
     </div>
   )
 }

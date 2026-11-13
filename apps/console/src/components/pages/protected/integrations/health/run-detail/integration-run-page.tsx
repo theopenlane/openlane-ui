@@ -41,7 +41,7 @@ const IntegrationRunPage = ({ definitionId, runId }: { definitionId: string; run
   const canFindLastSuccess = isFailed && !!run.integrationID && !!run.operationName
 
   const lastSuccessWhere = useMemo<IntegrationRunWhereInput>(
-    () => ({ integrationID: run?.integrationID, operationName: run?.operationName, status: IntegrationRunIntegrationRunStatus.SUCCESS, startedAtLT: run?.startedAt }),
+    () => ({ integrationID: run?.integrationID, operationName: run?.operationName, status: IntegrationRunIntegrationRunStatus.SUCCESS, finishedAtNotNil: true, startedAtLT: run?.startedAt }),
     [run?.integrationID, run?.operationName, run?.startedAt],
   )
   const { runs: lastSuccessRuns } = useIntegrationRunSummaries({ where: lastSuccessWhere, first: 1, enabled: canFindLastSuccess })

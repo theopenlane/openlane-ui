@@ -4,7 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/tooltip'
 import { cn } from '@repo/ui/lib/utils'
-import { integrationRunHref, runDurationMs, runOutcomeMeta, summarizeRunError, type TIntegrationRunSummary } from '@/lib/integrations/run-health'
+import { RUN_STRIP_LENGTH, integrationRunHref, runDurationMs, runOutcomeMeta, summarizeRunError, type TIntegrationRunSummary } from '@/lib/integrations/run-health'
 import { formatDateTime, formatDurationMs } from '@/utils/date'
 import { RunErrorText } from './health-controls'
 
@@ -12,6 +12,7 @@ type TRunStripProps = {
   newestFirstRuns: TIntegrationRunSummary[]
   providerId: string
   className?: string
+  stretch?: boolean
 }
 
 const RunTooltip = ({ run }: { run: TIntegrationRunSummary }) => {
@@ -39,8 +40,13 @@ const RunTooltip = ({ run }: { run: TIntegrationRunSummary }) => {
   )
 }
 
-export const RunStrip = ({ newestFirstRuns, providerId, className }: TRunStripProps) => (
-  <div className={cn('flex h-4 items-stretch gap-0.5', className)}>
+export const RunStrip = ({ newestFirstRuns, providerId, className, stretch = false }: TRunStripProps) => (
+  <div className={cn('flex h-4 items-stretch gap-0.5', stretch && 'w-full', className)}>
+    {stretch
+      ? Array.from({ length: Math.max(RUN_STRIP_LENGTH - newestFirstRuns.length, 0) }, (_, index) => (
+          <span key={`empty-${index}`} aria-hidden="true" className="min-w-0 flex-1 basis-0 rounded-[3px] bg-muted-foreground/20" />
+        ))
+      : null}
     {[...newestFirstRuns].reverse().map((run, index, runs) => {
       const { label, barClassName } = runOutcomeMeta(run)
 
@@ -52,7 +58,10 @@ export const RunStrip = ({ newestFirstRuns, providerId, className }: TRunStripPr
               prefetch={false}
               tabIndex={index === runs.length - 1 ? 0 : -1}
               aria-label={`${run.operationName || 'Run'} ${label.toLowerCase()}, ${formatDateTime(run.startedAt)}`}
-              className="group/bar block w-3 min-w-1 shrink rounded-[3px] outline-offset-2 *:pointer-events-none focus-visible:outline-2 focus-visible:outline-primary"
+              className={cn(
+                'group/bar block rounded-[3px] outline-offset-2 *:pointer-events-none focus-visible:outline-2 focus-visible:outline-primary',
+                stretch ? 'min-w-0 flex-1 basis-0' : 'w-3 min-w-1 shrink',
+              )}
             >
               <span className={cn('block h-full w-full rounded-[3px] group-hover/bar:ring-1 group-hover/bar:ring-foreground/70', barClassName)} />
             </Link>

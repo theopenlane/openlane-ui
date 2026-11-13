@@ -70,7 +70,7 @@ const RunRecordsTable = ({ runId, type }: { runId: string; type: TRunRecordType 
       loading={isLoading}
       pagination={pagination}
       onPaginationChange={setPagination}
-      paginationMeta={{ totalCount: data?.totalCount, pageInfo: data?.pageInfo, isLoading: isFetching }}
+      paginationMeta={{ unknownTotalCount: true, pageInfo: data?.pageInfo, isLoading: isFetching }}
       getRowId={(row) => row.id}
       noResultsText={`No ${type.label.toLowerCase()} are linked to this run.`}
       tableKey={TableKeyEnum.INTEGRATION_RUN_RECORDS}
