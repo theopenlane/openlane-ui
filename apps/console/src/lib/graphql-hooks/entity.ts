@@ -1,7 +1,11 @@
-import { useQuery, useQueries, useMutation, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
-import { useCallback, useMemo } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { getNodes } from '@/lib/graphql-hooks/connection'
+import { createAliasedBatchBuilder } from '@/lib/graphql-aliased-batch'
+import { withPerRootPartialData } from '@/lib/graphql-partial-data'
+import { chunk } from '@/utils/async'
+import type { VendorsByInstallation } from '@/lib/directory-memberships/group-memberships'
 import {
   type Entity,
   type EntitiesWithFilterQuery,
@@ -20,7 +24,6 @@ import {
   type GetVendorInstallationsQuery,
   type GetVendorInstallationsQueryVariables,
   type GetVendorsByInstallationQuery,
-  type GetVendorsByInstallationQueryVariables,
   type EntityQueryVariables,
   type CreateBulkCsvEntityMutation,
   type CreateBulkCsvEntityMutationVariables,
@@ -216,22 +219,32 @@ export const useVendorInstallations = (entityId: string, enabled: boolean) => {
   return { ...queryResult, installations }
 }
 
-export const useVendorsByInstallation = (installationIds: string[]) => {
+const VENDOR_LOOKUP_BATCH_SIZE = 15
+
+const buildVendorsByInstallationsRequest = createAliasedBatchBuilder(GET_VENDORS_BY_INSTALLATION, 'GetVendorsByInstallations')
+
+type TVendorsByInstallationBatch = Record<string, GetVendorsByInstallationQuery['entities']>
+
+export const useVendorsByInstallation = (installationIds: string[]): VendorsByInstallation => {
   const { client } = useGraphQLClient()
   const uniqueIds = useMemo(() => [...new Set(installationIds.filter(Boolean))].sort(), [installationIds])
 
-  const combine = useCallback(
-    (results: UseQueryResult<GetVendorsByInstallationQuery>[]) => new Map(uniqueIds.map((installationId, index) => [installationId, results[index]?.data?.entities] as const)),
-    [uniqueIds],
-  )
-
-  return useQueries({
-    queries: uniqueIds.map((installationId) => ({
-      queryKey: ['entities', 'by-installation', installationId],
-      queryFn: () => client.request<GetVendorsByInstallationQuery, GetVendorsByInstallationQueryVariables>(GET_VENDORS_BY_INSTALLATION, { installationId }),
-    })),
-    combine,
+  const { data } = useQuery({
+    queryKey: ['entities', 'by-installations', uniqueIds],
+    queryFn: async () => {
+      const batches = await Promise.all(
+        chunk(uniqueIds, VENDOR_LOOKUP_BATCH_SIZE).map(async (ids) => {
+          const { document, variables, aliases } = buildVendorsByInstallationsRequest(ids)
+          const result = await withPerRootPartialData(client.request<TVendorsByInstallationBatch>(document, variables))
+          return ids.map((id, index) => [id, result[aliases[index]]] as const)
+        }),
+      )
+      return Object.fromEntries(batches.flat())
+    },
+    enabled: uniqueIds.length > 0,
   })
+
+  return useMemo(() => new Map(uniqueIds.map((id) => [id, data?.[id]] as const)), [uniqueIds, data])
 }
 
 export const useCreateBulkCSVEntity = () => {
