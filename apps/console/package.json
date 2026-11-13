@@ -106,7 +106,7 @@
     "clsx": "^2.1.1",
     "eslint": "^10.12.0",
     "postcss": "^8.5.30",
-    "tailwind-variants": "^3.3.1",
+    "tailwind-variants": "^4.0.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2"
   }

@@ -129,7 +129,7 @@
         "clsx": "^2.1.1",
         "eslint": "^10.12.0",
         "postcss": "^8.5.30",
-        "tailwind-variants": "^3.3.1",
+        "tailwind-variants": "^4.0.0",
         "tailwindcss": "^4.3.3",
         "typescript": "^7.0.2",
       },
@@ -322,7 +322,7 @@
         "clsx": "^2.1.1",
         "eslint": "^10.12.0",
         "postcss": "^8.5.30",
-        "tailwind-variants": "^3.3.1",
+        "tailwind-variants": "^4.0.0",
         "tailwindcss": "^4.3.3",
         "tsup": "^8.5.1",
         "typescript": "^6.0.3",
@@ -3139,7 +3139,7 @@
 
     "tailwind-scrollbar-hide": ["tailwind-scrollbar-hide@4.0.0", "", { "peerDependencies": { "tailwindcss": ">=3.0.0 || >= 4.0.0 || >= 4.0.0-beta.8 || >= 4.0.0-alpha.20" } }, "sha512-gobtvVcThB2Dxhy0EeYSS1RKQJ5baDFkamkhwBvzvevwX6L4XQfpZ3me9s25Ss1ecFVT5jPYJ50n+7xTBJG9WQ=="],
 
-    "tailwind-variants": ["tailwind-variants@3.3.1", "", { "peerDependencies": { "tailwind-merge": ">=3.0.0", "tailwindcss": "*" }, "optionalPeers": ["tailwind-merge", "tailwindcss"] }, "sha512-4pAvwUtM4HKBiRZftncAbpn6V9Hhwoa5Fl7O2u5zbp7Z5Cvu+/o/6+176WY3WCEES209543quG8zFIcXCsc5Jw=="],
+    "tailwind-variants": ["tailwind-variants@4.0.1", "", {}, "sha512-VumzgPklIwpneDWtskGuhEqPlfZZ2DeN1nIb2um9DRhk9XBX580s4N84A533j+oHN+dLz274HkKvSjr+64fggA=="],
 
     "tailwindcss": ["tailwindcss@4.3.3", "", {}, "sha512-gOhV3P7ufE62QDGg1zVaTgCR+EtPv92k2nIhVcVKcLmxT1sUBsQGhnZj175j+MqRt4zLF7ic+sCYjfhxMxj7YQ=="],
 
