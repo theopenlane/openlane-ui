@@ -5,7 +5,8 @@ import { Loader2, Search } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { getSeverityStyle } from '@/utils/severity'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
-import { getSeverityLabel, getVulnerabilityName, type TriageFacet, type TriageGroups, type TriageVuln } from './triage-utils'
+import { getSeverityLabel, type TriageFacet, type TriageGroups, type TriageVuln } from './triage-utils'
+import { getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilities/vulnerability-display'
 
 type Props = {
   groups: TriageGroups
@@ -40,7 +41,7 @@ const VulnRow: React.FC<{ vuln: TriageVuln; isSelected: boolean; onSelect: (id: 
         {typeof vuln.score === 'number' ? vuln.score.toFixed(1) : '—'}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium">{getVulnerabilityName(vuln)}</span>
+        <span className="block truncate text-sm font-medium">{getVulnerabilityTitle(vuln)}</span>
         <span className="block truncate text-xs text-muted-foreground">{getSubline(vuln)}</span>
       </span>
       <PastDueBadge show={vuln.dueInfo.pastDue} />

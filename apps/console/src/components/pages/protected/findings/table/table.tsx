@@ -1,6 +1,7 @@
 'use client'
 
 import { DataTable } from '@repo/ui/data-table'
+import { getObjectDisplayName } from '@/utils/object-display-name'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { type FindingWhereInput, type FindingOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/findings/table/columns.tsx'
@@ -129,7 +130,7 @@ const TableComponent = ({
 
   const createTaskInitialValues = useMemo(() => {
     if (!createTaskRow) return undefined
-    const displayName = createTaskRow.displayName || createTaskRow.displayID || createTaskRow.externalID || 'Finding'
+    const displayName = getObjectDisplayName(createTaskRow) || 'Finding'
     return {
       title: `Finding: ${displayName} Remediation`,
       taskKindName: 'Finding Remediation',

@@ -517,6 +517,7 @@ export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
           node {
             id
             cveID
+            externalID
             displayName
             displayID
           }

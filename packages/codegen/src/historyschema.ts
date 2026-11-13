@@ -839,7 +839,7 @@ export interface GetAssetAssociationsQuery {
     internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayID: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
   }
@@ -1911,7 +1911,7 @@ export interface GetControlAssociationsByIdQuery {
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
     controlMappings: { totalCount: number; edges: Array<{ node: { id: string; findingID: string } | null } | null> | null }
   }
 }
@@ -3462,7 +3462,7 @@ export interface GetEntityAssociationsQuery {
     internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayID: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
   }
@@ -4260,7 +4260,7 @@ export interface GetFindingAssociationsQuery {
     scans: { totalCount: number; edges: Array<{ node: { id: string; target: string } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }
 
@@ -7416,7 +7416,7 @@ export interface GetRemediationAssociationsQuery {
     controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; description: string | null; displayID: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }
 
@@ -7485,6 +7485,7 @@ export interface GetRemediationContextSubjectQuery {
     id: string
     displayID: string
     displayName: string | null
+    externalID: string | null
     description: string | null
     source: string | null
     severity: string | null
@@ -7517,7 +7518,7 @@ export type GetRemediationContextOptionsQueryVariables = Exact<{
 
 export interface GetRemediationContextOptionsQuery {
   vulnerabilities?: { edges: Array<{ node: { id: string; displayID: string; displayName: string | null; cveID: string | null; externalID: string } | null } | null> | null }
-  findings?: { edges: Array<{ node: { id: string; displayID: string; displayName: string | null } | null } | null> | null }
+  findings?: { edges: Array<{ node: { id: string; displayID: string; displayName: string | null; externalID: string | null } | null } | null> | null }
   risks?: { edges: Array<{ node: { id: string; displayID: string; name: string } | null } | null> | null }
 }
 
@@ -7781,7 +7782,7 @@ export interface GetReviewAssociationsQuery {
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string; description: string | null } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; displayName: string | null } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayID: string; displayName: string | null } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayID: string; displayName: string | null } | null } | null> | null }
     entities: { totalCount: number; edges: Array<{ node: { id: string; name: string | null; displayName: string | null } | null } | null> | null }
     tasks: { totalCount: number; edges: Array<{ node: { id: string; title: string; displayID: string } | null } | null> | null }
     assets: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayName: string | null } | null } | null> | null }
@@ -8197,7 +8198,7 @@ export interface GetRiskAssociationsQuery {
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     actionPlans: { totalCount: number; edges: Array<{ node: { id: string; name: string; status: Types.ActionPlanDocumentStatus | null } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }
@@ -8375,7 +8376,7 @@ export interface GetScanAssociationsQuery {
     findings: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
     tasks: { totalCount: number; edges: Array<{ node: { id: string; title: string; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }
 
@@ -8770,7 +8771,7 @@ export interface GetSubcontrolAssociationsByIdQuery {
       totalCount: number
       edges: Array<{ node: { id: string; fullName: string; displayID: string; identityHolderType: Types.IdentityHolderIdentityHolderType; title: string | null } | null } | null> | null
     }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }

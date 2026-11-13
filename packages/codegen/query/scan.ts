@@ -294,6 +294,7 @@ export const GET_SCAN_ASSOCIATIONS = gql`
           node {
             id
             cveID
+            externalID
             displayName
             displayID
           }

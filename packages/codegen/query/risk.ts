@@ -538,6 +538,7 @@ export const GET_RISK_ASSOCIATIONS = gql`
           node {
             id
             cveID
+            externalID
             displayName
             displayID
           }

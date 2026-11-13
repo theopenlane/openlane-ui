@@ -13,6 +13,7 @@ import ObjectAssociation from '@/components/shared/object-association/object-ass
 import { type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { SetAssociationDialog, type SetAssociationDialogConfig } from '@/components/shared/object-association/set-association-dialog'
 import { buildInitialAssociationIds } from '@/components/shared/object-association/utils'
+import { getObjectDisplayName, type TObjectNameSource } from '@/utils/object-display-name'
 
 export type BaseAssociationSectionProps = {
   data?: TBaseAssociatedNode
@@ -21,16 +22,8 @@ export type BaseAssociationSectionProps = {
   isEditAllowed: boolean
 }
 
-export type AssociationNode = {
+export type AssociationNode = TObjectNameSource & {
   id?: string
-  name?: string | null
-  displayName?: string | null
-  displayID?: string
-  cveID?: string | null
-  fullName?: string
-  target?: string
-  title?: string | null
-  refCode?: string
   description?: string | null
   summary?: string | null
   details?: string | null
@@ -51,8 +44,6 @@ export type AssociationsData<TRootField extends string = string, TSectionKey ext
 
 type SectionMapping<TSectionKey extends string = string> = {
   key: TSectionKey
-  nameExtractor: (node: AssociationNode) => string
-  displayIdExtractor: (node: AssociationNode) => string
   extraFields?: (node: AssociationNode) => Partial<TBaseAssociatedNode>
 }
 
@@ -141,8 +132,8 @@ export const AssociationSection = <TConfig extends AssociationEntityConfig>({
             node: e?.node
               ? {
                   id: e.node.id ?? '',
-                  name: mapping.nameExtractor(e.node),
-                  displayID: mapping.displayIdExtractor(e.node),
+                  name: getObjectDisplayName(e.node),
+                  displayID: e.node.displayID,
                   ...mapping.extraFields?.(e.node),
                 }
               : null,
