@@ -44,6 +44,27 @@ import {
   type Scan,
   type Vulnerability,
   type PageInfo,
+  type ActionPlanWhereInput,
+  type ControlWhereInput,
+  type ControlImplementationWhereInput,
+  type SubcontrolWhereInput,
+  type ControlObjectiveWhereInput,
+  type ProgramWhereInput,
+  type TaskWhereInput,
+  type EvidenceWhereInput,
+  type GroupWhereInput,
+  type InternalPolicyWhereInput,
+  type ProcedureWhereInput,
+  type RiskWhereInput,
+  type ScanWhereInput,
+  type CampaignWhereInput,
+  type AssetWhereInput,
+  type EntityWhereInput,
+  type FindingWhereInput,
+  type IdentityHolderWhereInput,
+  type RemediationWhereInput,
+  type ReviewWhereInput,
+  type VulnerabilityWhereInput,
   ControlObjectiveObjectiveStatus,
   OrderDirection,
   AssetOrderField,
@@ -822,6 +843,56 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
   }
 }
 
+type TObjectWhereInput = {
+  [ObjectTypeObjects.ACTION_PLAN]: ActionPlanWhereInput
+  [ObjectTypeObjects.CONTROL]: ControlWhereInput
+  [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: ControlImplementationWhereInput
+  [ObjectTypeObjects.SUB_CONTROL]: SubcontrolWhereInput
+  [ObjectTypeObjects.CONTROL_OBJECTIVE]: ControlObjectiveWhereInput
+  [ObjectTypeObjects.PROGRAM]: ProgramWhereInput
+  [ObjectTypeObjects.TASK]: TaskWhereInput
+  [ObjectTypeObjects.EVIDENCE]: EvidenceWhereInput
+  [ObjectTypeObjects.GROUP]: GroupWhereInput
+  [ObjectTypeObjects.INTERNAL_POLICY]: InternalPolicyWhereInput
+  [ObjectTypeObjects.PROCEDURE]: ProcedureWhereInput
+  [ObjectTypeObjects.RISK]: RiskWhereInput
+  [ObjectTypeObjects.SCAN]: ScanWhereInput
+  [ObjectTypeObjects.CAMPAIGN]: CampaignWhereInput
+  [ObjectTypeObjects.ASSET]: AssetWhereInput
+  [ObjectTypeObjects.ENTITY]: EntityWhereInput
+  [ObjectTypeObjects.FINDING]: FindingWhereInput
+  [ObjectTypeObjects.IDENTITY_HOLDER]: IdentityHolderWhereInput
+  [ObjectTypeObjects.REMEDIATION]: RemediationWhereInput
+  [ObjectTypeObjects.REVIEW]: ReviewWhereInput
+  [ObjectTypeObjects.VULNERABILITY]: VulnerabilityWhereInput
+}
+
+type TSearchPredicate<K extends ObjectTypeObjects> = Extract<keyof TObjectWhereInput[K], `${string}ContainsFold`>
+
+const SEARCH_ATTRIBUTES: { [K in ObjectTypeObjects]: TSearchPredicate<K>[] } = {
+  [ObjectTypeObjects.ACTION_PLAN]: ['nameContainsFold', 'titleContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.CONTROL]: ['refCodeContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: ['detailsContainsFold'],
+  [ObjectTypeObjects.SUB_CONTROL]: ['refCodeContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.CONTROL_OBJECTIVE]: ['nameContainsFold', 'desiredOutcomeContainsFold'],
+  [ObjectTypeObjects.PROGRAM]: ['nameContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.TASK]: ['titleContainsFold', 'detailsContainsFold'],
+  [ObjectTypeObjects.EVIDENCE]: ['nameContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.GROUP]: ['displayNameContainsFold', 'nameContainsFold'],
+  [ObjectTypeObjects.INTERNAL_POLICY]: ['nameContainsFold', 'detailsContainsFold'],
+  [ObjectTypeObjects.PROCEDURE]: ['nameContainsFold'],
+  [ObjectTypeObjects.RISK]: ['nameContainsFold', 'detailsContainsFold'],
+  [ObjectTypeObjects.SCAN]: ['targetContainsFold'],
+  [ObjectTypeObjects.CAMPAIGN]: ['nameContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.ASSET]: ['displayNameContainsFold', 'nameContainsFold'],
+  [ObjectTypeObjects.ENTITY]: ['displayNameContainsFold', 'nameContainsFold'],
+  [ObjectTypeObjects.FINDING]: ['displayNameContainsFold', 'externalIDContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.IDENTITY_HOLDER]: ['fullNameContainsFold', 'emailContainsFold'],
+  [ObjectTypeObjects.REMEDIATION]: ['titleContainsFold', 'summaryContainsFold'],
+  [ObjectTypeObjects.REVIEW]: ['titleContainsFold', 'summaryContainsFold'],
+  [ObjectTypeObjects.VULNERABILITY]: ['cveIDContainsFold', 'displayNameContainsFold', 'externalIDContainsFold', 'descriptionContainsFold'],
+}
+
 export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchValue: string, ownerID: string) => {
   if (!selectedObject) return {}
 
@@ -849,30 +920,6 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.VULNERABILITY]: {},
   }
 
-  const searchAttributesMap: Record<ObjectTypeObjects, string[]> = {
-    [ObjectTypeObjects.ACTION_PLAN]: ['nameContainsFold', 'titleContainsFold', 'descriptionContainsFold'],
-    [ObjectTypeObjects.CONTROL]: ['refCodeContainsFold', 'descriptionContainsFold'],
-    [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: ['detailsContainsFold', 'statusContainsFold'],
-    [ObjectTypeObjects.SUB_CONTROL]: ['refCodeContainsFold', 'descriptionContainsFold'],
-    [ObjectTypeObjects.CONTROL_OBJECTIVE]: ['nameContainsFold', 'desiredOutcomeContainsFold'],
-    [ObjectTypeObjects.PROGRAM]: ['nameContainsFold', 'descriptionContainsFold'],
-    [ObjectTypeObjects.TASK]: ['titleContainsFold', 'detailsContainsFold'],
-    [ObjectTypeObjects.EVIDENCE]: ['nameContainsFold', 'descriptionContainsFold'],
-    [ObjectTypeObjects.GROUP]: ['displayNameContainsFold', 'nameContainsFold'],
-    [ObjectTypeObjects.INTERNAL_POLICY]: ['nameContainsFold', 'detailsContainsFold'],
-    [ObjectTypeObjects.PROCEDURE]: ['nameContainsFold'],
-    [ObjectTypeObjects.RISK]: ['nameContainsFold', 'detailsContainsFold'],
-    [ObjectTypeObjects.SCAN]: ['targetContainsFold', 'descriptionContainsFold'],
-    [ObjectTypeObjects.CAMPAIGN]: ['nameContainsFold', 'descriptionContainsFold'],
-    [ObjectTypeObjects.ASSET]: ['displayNameContainsFold', 'nameContainsFold'],
-    [ObjectTypeObjects.ENTITY]: ['displayNameContainsFold', 'nameContainsFold'],
-    [ObjectTypeObjects.FINDING]: ['displayNameContainsFold', 'externalIDContainsFold', 'descriptionContainsFold'],
-    [ObjectTypeObjects.IDENTITY_HOLDER]: ['fullNameContainsFold', 'emailContainsFold'],
-    [ObjectTypeObjects.REMEDIATION]: ['titleContainsFold', 'summaryContainsFold'],
-    [ObjectTypeObjects.REVIEW]: ['titleContainsFold', 'summaryContainsFold'],
-    [ObjectTypeObjects.VULNERABILITY]: ['cveIDContainsFold', 'displayNameContainsFold', 'externalIDContainsFold', 'descriptionContainsFold'],
-  }
-
   const defaultWhereMap: Partial<Record<ObjectTypeObjects, Record<string, unknown>>> = {
     [ObjectTypeObjects.CONTROL_OBJECTIVE]: {
       statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED,
@@ -888,7 +935,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
   return {
     ...mandatoryWhere,
     ...defaultWhere,
-    or: searchAttributesMap[selectedObject].map((attribute) => ({ [attribute]: searchValue })),
+    or: SEARCH_ATTRIBUTES[selectedObject].map((attribute) => ({ [attribute]: searchValue })),
   }
 }
 

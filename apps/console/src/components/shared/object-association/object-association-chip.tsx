@@ -60,7 +60,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
                 <span className="font-medium">Name</span>
               </div>
               <div className="w-full border-b pb-2">
-                <span className="text-blue-500 pl-3 cursor-pointer hover:underline inline-flex items-center gap-1" {...activatable(handleNavigate)}>
+                <span className="text-brand pl-3 cursor-pointer hover:underline inline-flex items-center gap-1" {...activatable(handleNavigate)}>
                   {display.name}
                   <ExternalLink size={12} />
                 </span>

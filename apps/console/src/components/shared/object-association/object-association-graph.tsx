@@ -72,7 +72,7 @@ const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode
           <span className="font-medium">Name</span>
         </div>
         {interactive ? (
-          <span className="cursor-pointer wrap-break-word text-blue-500 hover:underline inline-flex items-center gap-1" {...activatable(() => window.open(node.link, '_blank'))}>
+          <span className="cursor-pointer wrap-break-word text-brand hover:underline inline-flex items-center gap-1" {...activatable(() => window.open(node.link, '_blank'))}>
             {display.name}
             <ExternalLink size={12} />
           </span>

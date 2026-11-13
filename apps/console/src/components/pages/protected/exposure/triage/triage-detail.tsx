@@ -62,7 +62,7 @@ const TriageDetail: React.FC<Props> = ({ vuln }) => {
     <div className="min-h-0 flex-1 overflow-y-auto p-6">
       <div className="mb-6 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">{identifiers}</p>
+          {identifiers && <p className="text-xs uppercase tracking-wide text-muted-foreground">{identifiers}</p>}
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <h2 className="text-xl font-semibold">{title}</h2>
             <SeverityChip severity={severityLabel} />
