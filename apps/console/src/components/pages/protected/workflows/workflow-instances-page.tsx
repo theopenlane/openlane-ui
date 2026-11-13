@@ -11,7 +11,7 @@ import { WorkflowStatusBadge } from '@/components/workflows/workflow-status-badg
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const WorkflowInstancesPage = () => {
-  const { data: instances, isLoading } = useWorkflowInstancesWithFilter({})
+  const { workflowInstancesNodes: instances, isLoading } = useWorkflowInstancesWithFilter({})
   const { setCrumbs } = React.use(BreadcrumbContext)
 
   useEffect(() => {
@@ -48,16 +48,14 @@ const WorkflowInstancesPage = () => {
                   Loading workflow instances...
                 </TableCell>
               </TableRow>
-            ) : instances?.workflowInstances?.edges?.length === 0 ? (
+            ) : instances.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="px-4 py-6 text-center text-muted-foreground">
                   No workflow instances yet.
                 </TableCell>
               </TableRow>
             ) : (
-              instances?.workflowInstances?.edges?.map((edge) => {
-                const instance = edge?.node
-                if (!instance) return null
+              instances.map((instance) => {
                 const assignments = instance.workflowAssignments?.edges?.map((edge) => edge?.node).filter(Boolean) ?? []
                 const pending = assignments.filter((assignment) => assignment?.status === 'PENDING').length
                 const approved = assignments.filter((assignment) => assignment?.status === 'APPROVED').length
@@ -99,7 +97,7 @@ const WorkflowInstancesPage = () => {
         </Table>
       </div>
 
-      {(instances?.workflowInstances?.edges?.length ?? 0) > 0 && (
+      {instances.length > 0 && (
         <Card className="mt-6 border border-border/60 bg-muted/10 p-4 text-xs text-muted-foreground">
           Instances represent active workflow runs. Approval counts reflect assignments attached to each instance.
         </Card>

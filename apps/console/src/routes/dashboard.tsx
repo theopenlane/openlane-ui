@@ -372,7 +372,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           anchor: 'workflow-definitions',
           href: '/automation/workflows',
           icon: BookTextIcon,
-          plan: PlanEnum.COMPLIANCE_MODULE,
+          objectType: ObjectTypes.WORKFLOW_DEFINITION,
           hidden: true,
         },
         {
@@ -380,7 +380,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           anchor: 'workflow-inbox',
           href: '/automation/workflows/inbox',
           icon: ArchiveIcon,
-          plan: PlanEnum.COMPLIANCE_MODULE,
+          objectType: ObjectTypes.WORKFLOW_DEFINITION,
           hidden: true,
         },
         {
@@ -388,7 +388,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           anchor: 'workflow-instances',
           href: '/automation/workflows/instances',
           icon: ActivityIcon,
-          plan: PlanEnum.COMPLIANCE_MODULE,
+          objectType: ObjectTypes.WORKFLOW_DEFINITION,
           hidden: true,
         },
         {
@@ -396,7 +396,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           anchor: 'workflow-templates',
           href: '/automation/workflows/templates',
           icon: WorkflowIcon,
-          plan: PlanEnum.COMPLIANCE_MODULE,
+          objectType: ObjectTypes.WORKFLOW_DEFINITION,
           hidden: true,
         },
         {
@@ -404,7 +404,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           anchor: 'workflow-wizard',
           href: '/automation/workflows/wizard',
           icon: SparklesIcon,
-          plan: PlanEnum.COMPLIANCE_MODULE,
+          objectType: ObjectTypes.WORKFLOW_DEFINITION,
           hidden: true,
         },
       ],
