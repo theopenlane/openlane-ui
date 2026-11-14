@@ -21,7 +21,7 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
-import Link from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import { getTrustCenterUrlState } from '../shared/trust-center-urls'
 import { TrustCenterPreviewStatusNote, TrustCenterUrlsCard } from '../shared/trust-center-urls-setup'
 import { useCreateTrustCenterUrls } from '../shared/use-create-trust-center-urls'
@@ -350,9 +350,8 @@ const DomainSettingsPage = () => {
               {isDefaultDomainDisabled && (
                 <p className="text-sm text-muted-foreground">
                   Your default URL goes live the first time you publish from{' '}
-                  <Link href="/trust-center/branding" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 align-middle text-blue-500 hover:underline">
+                  <Link href="/trust-center/branding" newTab>
                     Branding
-                    <ExternalLink className="size-3.5 shrink-0" />
                   </Link>
                   .
                 </p>

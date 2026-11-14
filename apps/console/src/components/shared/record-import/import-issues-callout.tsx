@@ -18,7 +18,7 @@ export const ImportIssuesCallout: React.FC<TImportIssuesCalloutProps> = ({ issue
         <li key={id} className="flex items-center gap-2">
           <span>• {message}</span>
           {onFix && columnIndex !== undefined && (
-            <Button variant="link" className="text-blue-500" onClick={() => onFix(columnIndex)}>
+            <Button variant="link" onClick={() => onFix(columnIndex)}>
               Fix
             </Button>
           )}

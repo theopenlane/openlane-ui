@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { Check, Copy } from 'lucide-react'
 import { Callout } from '@/components/shared/callout/callout'
+import { Link } from '@/components/shared/link/link'
 import { type IntegrationProvider } from './types'
 import { normalizeIntegrationToken } from './utils'
 
@@ -18,15 +19,6 @@ export type ProviderSetupGuide = {
 // Marks a step as unnumbered, full-width supplementary content (e.g. a code block or callout) that follows
 function GuideNote({ children, indent }: { children: React.ReactNode; indent?: boolean }) {
   return <div className={`pt-2 ${indent ? 'ml-7' : ''}`}>{children}</div>
-}
-
-// An external link styled consistently inside guide steps — opens in a new tab
-function GuideLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="font-medium text-brand hover:underline">
-      {children}
-    </a>
-  )
 }
 
 function StepList({ steps }: { steps: React.ReactNode[] }) {
@@ -495,7 +487,11 @@ const PROVIDER_SETUP_GUIDES: Record<string, ProviderSetupGuideConfig> = {
           systemName: 'Slack',
           externalSteps: [
             <>
-              Go to <GuideLink href="https://api.slack.com/apps">api.slack.com/apps</GuideLink> and create or select an app
+              Go to{' '}
+              <Link newTab href="https://api.slack.com/apps">
+                api.slack.com/apps
+              </Link>{' '}
+              and create or select an app
             </>,
             live.requiredPermissions?.length ? (
               <>

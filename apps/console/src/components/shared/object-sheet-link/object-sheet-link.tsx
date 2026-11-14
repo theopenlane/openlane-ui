@@ -1,7 +1,8 @@
 'use client'
 
 import React from 'react'
-import Link from 'next/link'
+import { Link, LINK_CLASS_NAME } from '@/components/shared/link/link'
+import { cn } from '@repo/ui/lib/utils'
 import { type ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 
@@ -12,14 +13,12 @@ type TObjectSheetLinkProps = {
   onOpenSheet: (id: string, kind: ObjectAssociationNodeEnum) => void
 }
 
-const linkStyles = 'text-blue-500 hover:underline cursor-pointer'
-
 const ObjectSheetLink: React.FC<TObjectSheetLinkProps> = ({ id, kind, label, onOpenSheet }) => {
   const href = getHrefForObjectType(kind, { id })
 
   if (!href) {
     return (
-      <button type="button" onClick={() => onOpenSheet(id, kind)} className={`${linkStyles} bg-transparent border-0 p-0`}>
+      <button type="button" onClick={() => onOpenSheet(id, kind)} className={cn(LINK_CLASS_NAME, 'cursor-pointer border-0 bg-transparent p-0')}>
         {label}
       </button>
     )
@@ -35,7 +34,7 @@ const ObjectSheetLink: React.FC<TObjectSheetLinkProps> = ({ id, kind, label, onO
   }
 
   return (
-    <Link href={href} prefetch={false} onClick={handleClick} className={linkStyles}>
+    <Link href={href} prefetch={false} onClick={handleClick}>
       {label}
     </Link>
   )

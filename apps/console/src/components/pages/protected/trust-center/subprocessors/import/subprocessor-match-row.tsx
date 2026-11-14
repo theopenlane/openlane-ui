@@ -73,7 +73,7 @@ const MatchRow: React.FC<TSubprocessorMatchRowProps> = ({ row, targetOptions, ca
             <Badge variant={badge.variant}>{badge.label}</Badge>
             {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
             {row.status === 'suggested' && (
-              <Button variant="link" className="text-blue-500" icon={<Check size={14} />} iconPosition="left" onClick={() => update({ confirmed: true })}>
+              <Button variant="link" icon={<Check size={14} />} iconPosition="left" onClick={() => update({ confirmed: true })}>
                 Confirm
               </Button>
             )}

@@ -24,6 +24,7 @@ import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evi
 import { type EvidenceEditableField } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import EvidenceDetailSection from './evidence-detail-section'
 import EvidenceDetailFieldRow from './evidence-detail-field-row'
+import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 
 const frequencyOptions = enumToOptions(EvidenceFrequency)
 
@@ -222,9 +223,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <NextLink href={evidence.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                    {evidence.url}
-                  </NextLink>
+                  <ExternalLinkValue value={evidence.url} />
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

@@ -1,5 +1,5 @@
 import { type UseFormReturn } from 'react-hook-form'
-import { GripVertical, Pencil, Trash2, ExternalLink } from 'lucide-react'
+import { GripVertical, Pencil, Trash2 } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { Card, CardContent } from '@repo/ui/cardpanel'
@@ -14,6 +14,7 @@ import { type TrustCenterFaqsNodeNonNull } from '@/lib/graphql-hooks/trust-cente
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { FaqFormValues } from './hooks/use-form-schema'
+import { Link } from '@/components/shared/link/link'
 
 interface SortableFaqCardProps {
   faq: TrustCenterFaqsNodeNonNull
@@ -72,10 +73,9 @@ export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDele
                 <p className="text-sm font-medium leading-relaxed">{faq.note.title}</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">{faq.note.text}</p>
                 {faq.referenceLink && (
-                  <a href={faq.referenceLink} target="_blank" rel="noopener noreferrer" className="text-sm text-primary inline-flex items-center gap-1 mt-1 hover:underline w-fit">
-                    <ExternalLink size={14} />
+                  <Link href={faq.referenceLink} newTab className="mt-1 w-fit max-w-full text-sm break-all">
                     {faq.referenceLink}
-                  </a>
+                  </Link>
                 )}
                 <div className="flex justify-end mt-1">
                   <div className="flex gap-3">

@@ -39,6 +39,7 @@ import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { deleteMenuAction, copyLinkMenuAction, SlideoutHeader, type SlideoutMenuAction } from '@/components/shared/crud-base/slideout-header'
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { Link } from '@/components/shared/link/link'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -267,9 +268,9 @@ const GroupDetailsSheet = () => {
                       <p className="font-semibold">Did you know?</p>
                       <p className="text-sm">
                         Groups can be used to assign specific access to objects within the system. Please refer to our{' '}
-                        <a href={`${GROUP_PERMISSIONS_DOCS_URL}`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
+                        <Link href={GROUP_PERMISSIONS_DOCS_URL} newTab>
                           documentation
-                        </a>
+                        </Link>
                         .
                       </p>
                     </div>

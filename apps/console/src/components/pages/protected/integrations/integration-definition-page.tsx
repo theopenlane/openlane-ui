@@ -2,7 +2,7 @@
 
 import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft, ExternalLink } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
 import { PageHeading } from '@repo/ui/page-heading'
@@ -36,6 +36,7 @@ import { useIntegrationConnect } from './use-integration-connect'
 import { useSession } from 'next-auth/react'
 import { useSetDocsHelpTopic } from '@/components/shared/docs-help/docs-help-context'
 import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
+import { Link } from '@/components/shared/link/link'
 
 type IntegrationDefinitionPageProps = {
   definitionId: string
@@ -232,9 +233,9 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
             </div>
             {provider.description ? <p className="mt-2 text-sm text-muted-foreground">{provider.description}</p> : null}
             {provider.docsUrl ? (
-              <a href={provider.docsUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1 text-xs text-brand hover:underline">
-                Documentation <ExternalLink className="h-3 w-3" />
-              </a>
+              <Link href={provider.docsUrl} newTab className="mt-3 text-xs">
+                Documentation
+              </Link>
             ) : null}
           </div>
           {provider.tags?.length ? (
