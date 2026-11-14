@@ -1,10 +1,8 @@
 import { type FindingDetailNode } from '@/lib/graphql-hooks/finding'
-import { hasExposureSourceDetails, type TSourceDetailRow } from '../../exposure/detail/source/use-exposure-source'
+import { type TSourceDetailRow } from '../../exposure/detail/source/use-exposure-source'
 
 export const getFindingSourceRows = (finding: FindingDetailNode): TSourceDetailRow[] => [
   { label: 'Resource', value: finding.resourceName, copyable: true },
   { label: 'Source state', value: finding.state },
   { label: 'Assessment ID', value: finding.assessmentID, copyable: true },
 ]
-
-export const hasFindingSourceDetails = (finding: FindingDetailNode) => hasExposureSourceDetails(finding, getFindingSourceRows(finding))

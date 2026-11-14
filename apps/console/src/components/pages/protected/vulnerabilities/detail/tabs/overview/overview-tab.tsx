@@ -29,7 +29,7 @@ const OverviewTab: React.FC<TOverviewTabProps> = ({ vulnerability, isEditing, ca
           <VulnerabilityDetailsEditCard vulnerability={vulnerability} />
         </>
       ) : (
-        vulnerability.description && <ReadOnlyRichText value={vulnerability.description} label="Description" />
+        <ReadOnlyRichText value={vulnerability.description} label="Description" />
       )}
 
       <ExposureScoreCard

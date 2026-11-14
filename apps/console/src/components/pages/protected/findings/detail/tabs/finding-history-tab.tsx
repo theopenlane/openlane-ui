@@ -17,7 +17,7 @@ const FindingHistoryTab: React.FC<{ finding: FindingDetailNode }> = ({ finding }
       title={getFindingTitle(finding)}
       objectType={ObjectTypes.FINDING}
       updateOperation={FindingHistoryOpType.UPDATE}
-      edges={{ ...edgesQuery, data: edgesQuery.data?.finding }}
+      edges={{ data: edgesQuery.data?.finding, isPending: edgesQuery.isPending, isError: edgesQuery.isError, error: edgesQuery.error }}
       history={history}
     />
   )

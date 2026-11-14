@@ -340,6 +340,12 @@ export function GenericTablePage<
     return undefined
   }, [resolvedViewMode, viewEditMode])
 
+  const fullPageRoute = viewEditMode?.type === 'full-page' ? viewEditMode.route : null
+
+  useEffect(() => {
+    if (id && !isCreate && fullPageRoute) router.replace(`${fullPageRoute}/${encodeURIComponent(id)}`)
+  }, [id, isCreate, fullPageRoute, router])
+
   const renderDetailView = () => {
     if (renderCustomDetailView) {
       return renderCustomDetailView({ id, isCreate, onClose: handleCloseSheet })

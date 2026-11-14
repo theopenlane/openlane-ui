@@ -13,8 +13,9 @@ import { RemediationSla } from '../../exposure/detail/remediation-sla'
 import { RemediationSlaField } from '../../exposure/detail/remediation-sla-field'
 import { ScoreMeta } from '../../exposure/detail/score/score-meta'
 import { getFindingSeverity, getFindingTitle } from '../finding-display'
-import { hasFindingSourceDetails } from './finding-source'
-import { FindingSourcePopover } from './finding-source-popover'
+import { hasExposureSourceDetails } from '../../exposure/detail/source/use-exposure-source'
+import { ExposureSourcePopover } from '../../exposure/detail/source/exposure-source-popover'
+import { getFindingSourceRows } from './finding-source'
 import { FindingStatusField } from './finding-status-field'
 
 type TFindingDetailHeaderProps = {
@@ -31,6 +32,8 @@ type TFindingDetailHeaderProps = {
 }
 
 const FindingDetailHeader: React.FC<TFindingDetailHeaderProps> = ({ finding, isEditing, isSaving, canEdit, canDelete, onEdit, onCancel, onDeleteClick, onAskAI, handleUpdateField }) => {
+  const sourceRows = getFindingSourceRows(finding)
+
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -58,9 +61,9 @@ const FindingDetailHeader: React.FC<TFindingDetailHeaderProps> = ({ finding, isE
           <ScoreMeta score={finding.score} vector={finding.vector} />
         </MetaItem>
         <MetaItem label="Remediation SLA">{isEditing ? <RemediationSlaField /> : <RemediationSla item={finding} />}</MetaItem>
-        {hasFindingSourceDetails(finding) && (
+        {hasExposureSourceDetails(finding, sourceRows) && (
           <MetaItem label="Source">
-            <FindingSourcePopover finding={finding} />
+            <ExposureSourcePopover fields={finding} extraRows={sourceRows} />
           </MetaItem>
         )}
       </div>

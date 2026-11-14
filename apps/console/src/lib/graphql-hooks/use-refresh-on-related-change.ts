@@ -3,13 +3,21 @@ import { useQueryClient } from '@tanstack/react-query'
 
 const RELATED_RECORD_SECTION = 'record'
 
+export const EXPOSURE_QUERY_SECTION = {
+  associations: 'associations',
+  remediationWork: 'remediation-work',
+  historyEdges: 'history-edges',
+} as const
+
+const { associations, remediationWork, historyEdges } = EXPOSURE_QUERY_SECTION
+
 export const exposureRelatedSections = (commentsKey: string): Readonly<Record<string, readonly string[]>> => ({
-  tasks: ['associations', 'remediation-work', 'history-edges'],
-  remediations: [RELATED_RECORD_SECTION, 'associations', 'remediation-work', 'history-edges'],
-  actionPlans: ['associations', 'remediation-work'],
-  assets: ['associations', 'history-edges'],
-  reviews: ['associations', 'history-edges'],
-  [commentsKey]: ['history-edges'],
+  tasks: [associations, remediationWork, historyEdges],
+  remediations: [RELATED_RECORD_SECTION, associations, remediationWork, historyEdges],
+  actionPlans: [associations, remediationWork],
+  assets: [associations, historyEdges],
+  reviews: [associations, historyEdges],
+  [commentsKey]: [historyEdges],
 })
 
 export const useRefreshOnRelatedChange = (rootKey: string, entityId: string | undefined, relatedSections: Readonly<Record<string, readonly string[]>>) => {

@@ -2,6 +2,7 @@
 
 import React, { useId, useRef, useState } from 'react'
 import { Clock } from 'lucide-react'
+import { type QueryStatus } from '@tanstack/react-query'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
@@ -17,7 +18,7 @@ import { formatDate } from '@/utils/date'
 import { getVulnerabilityDueDate, type TVulnerabilityDueDateSource } from '@/utils/vulnerability-due-date'
 import { CUSTOM_SNOOZE, DEFAULT_SNOOZE_OPTION, SNOOZE_OPTIONS, earliestCustomSnoozeDate, getSnoozedRemediationSla, isSnoozeOption, resolveSnoozeUntil, type TSnoozeOption } from './snooze-options'
 
-type TSlaDefinitionsStatus = 'pending' | 'error' | 'success'
+type TSlaDefinitionsStatus = QueryStatus
 
 type TSnoozePreview = { until: Date | null; currentDueDate: Date | null; extendsDueDate: boolean }
 

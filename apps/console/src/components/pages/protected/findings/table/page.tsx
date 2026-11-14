@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { useBulkEditFinding, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFilterFields, visibilityFields } from './table-config'
 import { type FindingTablePageConfig, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
@@ -11,9 +11,8 @@ import { getColumns } from './columns'
 import TableComponent from './table'
 import { type UpdateFindingInput } from '@repo/codegen/src/schema'
 import { FINDING_INTERNAL_OWNER } from '../finding-responsibility'
-import { useFindingSheetConfig } from '../hooks/use-finding-sheet-config'
+import { useFindingCreateSheetConfig } from '../hooks/use-finding-sheet-config'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
-import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { FindingSeverityChart } from '@/components/shared/severity-chart/severity-chart'
 import { useSlaQuickFilters } from '@/hooks/useSla'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
@@ -24,19 +23,13 @@ const DEFAULT_FILTER_VALUES = { open: true }
 const BULK_EDIT_ASSOCIATIONS: TBulkEditAssociations<UpdateFindingInput> = { addAssetIDs: ObjectTypeObjects.ASSET }
 
 const FindingPage: React.FC = () => {
-  const router = useRouter()
   const searchParams = useSearchParams()
-  const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
   const scanId = searchParams.get('scanId')
 
-  const { enumOpts, form, ...sheetConfig } = useFindingSheetConfig(null, isCreate)
+  const { enumOpts, form, ...sheetConfig } = useFindingCreateSheetConfig(isCreate)
 
   const quickFilters = useSlaQuickFilters('reportedAt')
-
-  useEffect(() => {
-    if (id && !isCreate) router.replace(getHrefForObjectType('findings', { id }))
-  }, [id, isCreate, router])
 
   const baseBulkDeleteMutation = useBulkDeleteFinding()
   const baseBulkEditMutation = useBulkEditFinding()

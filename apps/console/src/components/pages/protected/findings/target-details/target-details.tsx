@@ -1,15 +1,12 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
-import { Button } from '@repo/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/cardpanel'
+import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 import { formatDateTime } from '@/utils/date'
-import { normalizeUrl } from '@/utils/normalizeUrl'
 import { toUpperSnakeCase } from '@/utils/strings'
-import { isRecord } from '@/utils/type-guards'
-
-export const isPopulatedObject = (val: unknown): val is Record<string, unknown> => isRecord(val) && Object.keys(val).length > 0
+import { isOneOf, isRecord } from '@/utils/type-guards'
 
 export const CardSectionHeader: React.FC<{ title: string; description: string; action?: React.ReactNode }> = ({ title, description, action }) => (
   <div className="flex items-start justify-between gap-3">
@@ -21,21 +18,21 @@ export const CardSectionHeader: React.FC<{ title: string; description: string; a
   </div>
 )
 
-type TTargetDetailsView = 'fields' | 'json'
+const TARGET_DETAILS_VIEWS = ['fields', 'json'] as const
+type TTargetDetailsView = (typeof TARGET_DETAILS_VIEWS)[number]
+const isTargetDetailsView = isOneOf(TARGET_DETAILS_VIEWS)
 
 const TargetDetailsHeader: React.FC<{ view: TTargetDetailsView; onViewChange: (view: TTargetDetailsView) => void }> = ({ view, onViewChange }) => (
   <CardSectionHeader
     title="Target Details"
     description="Resource context from the source system"
     action={
-      <div className="flex items-center gap-1 rounded-md border p-0.5">
-        <Button type="button" variant={view === 'fields' ? 'secondary' : 'transparent'} onClick={() => onViewChange('fields')}>
-          Fields
-        </Button>
-        <Button type="button" variant={view === 'json' ? 'secondary' : 'transparent'} onClick={() => onViewChange('json')}>
-          JSON
-        </Button>
-      </div>
+      <Tabs variant="solid" value={view} onValueChange={(value) => isTargetDetailsView(value) && onViewChange(value)}>
+        <TabsList className="w-fit">
+          <TabsTrigger value="fields">Fields</TabsTrigger>
+          <TabsTrigger value="json">JSON</TabsTrigger>
+        </TabsList>
+      </Tabs>
     }
   />
 )
@@ -74,7 +71,7 @@ const isEmpty = (val: unknown): boolean => {
   if (val === null || val === undefined) return true
   if (typeof val === 'string' && val.trim() === '') return true
   if (Array.isArray(val)) return val.length === 0 || val.every(isEmpty)
-  if (typeof val === 'object') return Object.values(val as Record<string, unknown>).every(isEmpty)
+  if (isRecord(val)) return Object.values(val).every(isEmpty)
   return false
 }
 
@@ -83,14 +80,7 @@ const formatPrimitive = (val: unknown): React.ReactNode => {
   if (typeof val === 'number') return String(val)
   if (typeof val === 'string') {
     if (ISO_DATE_RE.test(val)) return formatDateTime(val)
-    if (URL_RE.test(val)) {
-      return (
-        <a href={normalizeUrl(val)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline break-all" onClick={(e) => e.stopPropagation()}>
-          <span className="break-all">{val}</span>
-          <ExternalLinkIcon className="w-3.5 h-3.5 shrink-0" />
-        </a>
-      )
-    }
+    if (URL_RE.test(val)) return <ExternalLinkValue value={val} fallback={val} />
     return val
   }
   return String(val)
@@ -119,7 +109,14 @@ const TargetNode: React.FC<{ value: unknown }> = ({ value }) => {
   if (Array.isArray(value)) {
     const allPrimitive = value.every((v) => typeof v !== 'object' || v === null)
     if (allPrimitive) {
-      return <div className="text-sm">{value.map((v) => String(v)).join(', ')}</div>
+      return (
+        <div className="text-sm">
+          {value
+            .filter((v) => !isEmpty(v))
+            .map(String)
+            .join(', ')}
+        </div>
+      )
     }
     return (
       <div className="space-y-2">
@@ -132,8 +129,8 @@ const TargetNode: React.FC<{ value: unknown }> = ({ value }) => {
     )
   }
 
-  if (value !== null && typeof value === 'object') {
-    const entries = Object.entries(value as Record<string, unknown>).filter(([, v]) => !isEmpty(v))
+  if (isRecord(value)) {
+    const entries = Object.entries(value).filter(([, v]) => !isEmpty(v))
     return (
       <dl className="grid grid-cols-[minmax(120px,max-content)_1fr] gap-x-3 gap-y-1 text-sm">
         {entries.map(([k, v]) => (
