@@ -31,7 +31,7 @@ const shortRunId = (runId: string): string => (runId.length > 12 ? `${runId.slic
 
 const IntegrationRunPage = ({ definitionId, runId }: { definitionId: string; runId: string }) => {
   const { setCrumbs } = use(BreadcrumbContext)
-  const { provider, installations, canManage, isLoading, isError: installationsError } = useProviderInstallations(definitionId)
+  const { provider, installations, canEdit, isLoading, isError: installationsError } = useProviderInstallations(definitionId)
   const { run, isPending: runPending, error: runError } = useIntegrationRun(runId)
   const { mutate: runHealthCheck, isPending: isChecking } = useIntegrationHealthCheck()
 
@@ -109,7 +109,7 @@ const IntegrationRunPage = ({ definitionId, runId }: { definitionId: string; run
                 <CopyableText value={run.id} variant="inline" aria-label="Copy run ID" className="font-mono" />
               </div>
             </div>
-            {canManage ? <HealthCheckButton onClick={() => runHealthCheck(installation.id)} isChecking={isChecking} /> : null}
+            {canEdit ? <HealthCheckButton onClick={() => runHealthCheck(installation.id)} isChecking={isChecking} /> : null}
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <StatTile label="Queued" value={formatDateTime(run.createdAt)} valueClassName="text-base" />

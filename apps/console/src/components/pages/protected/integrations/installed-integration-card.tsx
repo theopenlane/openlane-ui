@@ -41,13 +41,14 @@ import InstalledRunSummary from './health/installed-run-summary'
 type InstalledIntegrationCardProps = {
   integration: IntegrationNode
   providers: IntegrationProvider[]
-  canManage: boolean
+  canEdit: boolean
+  canRunOperations: boolean
   // Shows a "Manage Connections" button linking to the provider detail page
   // on provider detail page it shows configure instead
   linkToDetail?: boolean
 }
 
-const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDetail }: InstalledIntegrationCardProps) => {
+const InstalledIntegrationCard = ({ integration, providers, canEdit, canRunOperations, linkToDetail }: InstalledIntegrationCardProps) => {
   const router = useRouter()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
@@ -170,7 +171,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
         {supportsResourcePicker ? (
           <SelectedResourcesSection
             resources={readSelectedResources(integration)}
-            canRemove={canManage}
+            canRemove={canEdit}
             isBusy={resourcePicker.isBusy}
             onRemove={(resourceId) => resourcePicker.removeResource(integration, resourceId)}
           />
@@ -190,26 +191,26 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
               <Link href={healthHref}>View Health</Link>
             </Button>
           ) : null}
-          {canManage ? (
+          {canEdit ? (
             <Button variant="secondary" icon={<Activity className="size-4" />} iconPosition="left" onClick={() => healthCheck.mutate(integration.id)} disabled={healthCheck.isPending}>
               {healthCheck.isPending ? 'Checking...' : 'Health Check'}
             </Button>
           ) : null}
-          {canManage && supportsTestMessage ? (
+          {canRunOperations && supportsTestMessage ? (
             <DisabledReasonTooltip reason={testMessageDisabledReason}>
               <Button variant="secondary" full icon={<Send className="size-4" />} iconPosition="left" onClick={() => setTestMessageOpen(true)} disabled={!!testMessageDisabledReason}>
                 Send Test Message
               </Button>
             </DisabledReasonTooltip>
           ) : null}
-          {canManage && supportsDefaultChannel ? (
+          {canEdit && supportsDefaultChannel ? (
             <DisabledReasonTooltip reason={defaultChannelDisabledReason}>
               <Button variant="secondary" full icon={<Hash className="size-4" />} iconPosition="left" onClick={() => setDefaultChannelOpen(true)} disabled={!!defaultChannelDisabledReason}>
                 {defaultChannel ? 'Change Default Channel' : 'Set Default Channel'}
               </Button>
             </DisabledReasonTooltip>
           ) : null}
-          {canManage && supportsResourcePicker ? (
+          {canEdit && supportsResourcePicker ? (
             <DisabledReasonTooltip reason={chooseDocumentsDisabledReason}>
               <Button
                 variant="secondary"
@@ -223,7 +224,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
               </Button>
             </DisabledReasonTooltip>
           ) : null}
-          {!linkToDetail && canManage && hasSettings ? (
+          {!linkToDetail && canEdit && hasSettings ? (
             <Button variant="secondary" icon={<Settings className="size-4" />} iconPosition="left" onClick={() => setConfigOpen(true)}>
               Configure
             </Button>
@@ -233,7 +234,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
               Manage Installation
             </Button>
           ) : null}
-          {canManage ? (
+          {canEdit ? (
             <Button variant="secondary" onClick={() => setConfirmOpen(true)} disabled={disconnectMutation.isPending}>
               {disconnectMutation.isPending ? 'Disconnecting...' : 'Disconnect'}
             </Button>
@@ -253,7 +254,15 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
       />
 
       {supportsTestMessage ? (
-        <SendTestMessageDialog open={testMessageOpen} onOpenChange={setTestMessageOpen} integrationId={integration.id} providerName={displayName} defaultChannel={defaultChannel} provider={provider} />
+        <SendTestMessageDialog
+          open={testMessageOpen}
+          onOpenChange={setTestMessageOpen}
+          integrationId={integration.id}
+          providerName={displayName}
+          defaultChannel={defaultChannel}
+          provider={provider}
+          canSaveDefaultChannel={canEdit}
+        />
       ) : null}
 
       {supportsDefaultChannel ? (

@@ -32,7 +32,7 @@ const statsWindowStart = (): string => hourStartIso(Date.now() - RUN_STATS_WINDO
 
 const IntegrationHealthPage = ({ definitionId }: { definitionId: string }) => {
   const { setCrumbs } = use(BreadcrumbContext)
-  const { provider, installations, instances, overall, canManage, isLoading, isError, isLoadingRuns, runsError } = useIntegrationHealth(definitionId)
+  const { provider, installations, instances, overall, canEdit, isLoading, isError, isLoadingRuns, runsError } = useIntegrationHealth(definitionId)
 
   useQueryErrorNotification({ error: runsError, description: 'Failed to load recent runs' })
   const integrationIds = useMemo(() => installations.map((integration) => integration.id), [installations])
@@ -108,7 +108,7 @@ const IntegrationHealthPage = ({ definitionId }: { definitionId: string }) => {
 
   const isMultiInstance = instances.length > 1
   const primary = instances[0]
-  const canConfigure = canManage && providerHasInstallationSettings(provider)
+  const canConfigure = canEdit && providerHasInstallationSettings(provider)
   const configureIntegration = installations.find((integration) => integration.id === configureIntegrationId)
   const checkingIntegrationId = isChecking ? checkingVariables : undefined
 
@@ -129,7 +129,7 @@ const IntegrationHealthPage = ({ definitionId }: { definitionId: string }) => {
                 {isMultiInstance ? pluralizeWithCount(instances.length, 'instance') : [primary.label, primary.secondaryId].filter(Boolean).join(' · ')}
               </p>
             </div>
-            {canManage ? (
+            {canEdit ? (
               <div className="flex flex-wrap items-center gap-2">
                 {isMultiInstance ? (
                   <HealthCheckButton onClick={handleCheckAll} isChecking={isCheckingAll || isChecking} label="Check All Instances" />
@@ -172,7 +172,7 @@ const IntegrationHealthPage = ({ definitionId }: { definitionId: string }) => {
                 instance={instance}
                 providerId={provider.id}
                 isLoading={isLoadingRuns}
-                canManage={canManage}
+                canEdit={canEdit}
                 canConfigure={canConfigure}
                 checkingIntegrationId={checkingIntegrationId}
                 isCheckDisabled={isCheckingAll || isChecking}
@@ -189,7 +189,7 @@ const IntegrationHealthPage = ({ definitionId }: { definitionId: string }) => {
         </section>
       )}
 
-      <RunHistoryTable providerId={provider.id} integrationIds={integrationIds} instanceLabels={instanceLabels} operationNames={operationNames} canManage={canManage} onHealthCheck={runHealthCheck} />
+      <RunHistoryTable providerId={provider.id} integrationIds={integrationIds} instanceLabels={instanceLabels} operationNames={operationNames} canEdit={canEdit} onHealthCheck={runHealthCheck} />
 
       {canConfigure && configureIntegration ? (
         <IntegrationConfigurationDialog

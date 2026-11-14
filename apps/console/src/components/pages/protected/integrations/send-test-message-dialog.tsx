@@ -24,6 +24,7 @@ type SendTestMessageDialogProps = {
   variant?: TSendTestMessageVariant
   defaultChannel?: IntegrationChannelTarget
   provider?: IntegrationProvider
+  canSaveDefaultChannel: boolean
 }
 
 const DIALOG_COPY: Record<TSendTestMessageVariant, { title: string; dismissLabel: string }> = {
@@ -37,11 +38,22 @@ type SendTestMessageBodyProps = Omit<SendTestMessageDialogProps, 'open'> & {
   saveDefaultChannel: ReturnType<typeof useSaveIntegrationDefaultChannel>
 }
 
-const SendTestMessageBody = ({ onOpenChange, integrationId, providerName, dismissLabel, variant, defaultChannel, provider, sendTestMessage, saveDefaultChannel }: SendTestMessageBodyProps) => {
+const SendTestMessageBody = ({
+  onOpenChange,
+  integrationId,
+  providerName,
+  dismissLabel,
+  variant,
+  defaultChannel,
+  provider,
+  canSaveDefaultChannel,
+  sendTestMessage,
+  saveDefaultChannel,
+}: SendTestMessageBodyProps) => {
   const makeDefaultId = useId()
   const channels = useChannelItems(integrationId)
   const { selectedId, selectedChannel, setSelectedId } = useChannelSelection(channels, defaultChannel)
-  const [canMakeDefault] = useState(() => providerSupportsDefaultChannel(provider) && !defaultChannel)
+  const [canMakeDefault] = useState(() => canSaveDefaultChannel && providerSupportsDefaultChannel(provider) && !defaultChannel)
   const [makeDefault, setMakeDefault] = useState(variant === 'post-install')
   const { successNotification } = useNotification()
   const isSendingRef = useRef(false)

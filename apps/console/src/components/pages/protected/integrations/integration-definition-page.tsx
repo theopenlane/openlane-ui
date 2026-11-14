@@ -41,7 +41,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
   const router = useRouter()
   const searchParams = useSearchParams()
   const vendorId = searchParams.get('vendorId') ?? undefined
-  const { providers, provider, installations: installedInstances, canManage, isLoading } = useProviderInstallations(definitionId)
+  const { providers, provider, installations: installedInstances, canEdit, canRunOperations, isLoading } = useProviderInstallations(definitionId)
   const { setCrumbs } = use(BreadcrumbContext)
   const { mutateAsync: updateEntity } = useUpdateEntity()
   const { successNotification, errorNotification } = useNotification()
@@ -63,7 +63,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
 
   const { promptKind, promptIntegration, hasPostConnectStep, queueAfterRedirect, queueAfterInlineConnect, dismissPrompt } = useIntegrationPostConnectPrompt({
     provider,
-    canManage,
+    canEdit,
     installedInstances,
   })
 
@@ -227,13 +227,13 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             {installedInstances.map((inst) => (
-              <InstalledIntegrationCard key={inst.id} integration={inst} providers={providers} canManage={canManage} />
+              <InstalledIntegrationCard key={inst.id} integration={inst} providers={providers} canEdit={canEdit} canRunOperations={canRunOperations} />
             ))}
           </div>
         </section>
       ) : null}
 
-      {canManage ? (
+      {canEdit ? (
         <CredentialConnectionSection
           provider={provider}
           installedCount={installedInstances.length}
@@ -274,6 +274,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
           variant="post-install"
           defaultChannel={readProviderDefaultChannel(provider, promptIntegration)}
           provider={provider}
+          canSaveDefaultChannel={canEdit}
         />
       ) : null}
     </div>

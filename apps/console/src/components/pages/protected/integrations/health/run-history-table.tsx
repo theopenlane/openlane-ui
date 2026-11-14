@@ -37,13 +37,13 @@ type TRunHistoryTableProps = {
   integrationIds: string[]
   instanceLabels: Map<string, string>
   operationNames: string[]
-  canManage: boolean
+  canEdit: boolean
   onHealthCheck: (integrationId: string) => void
 }
 
 const DEFAULT_SORT = [NEWEST_RUNS_FIRST]
 
-const RunHistoryTable = ({ providerId, integrationIds, instanceLabels, operationNames, canManage, onHealthCheck }: TRunHistoryTableProps) => {
+const RunHistoryTable = ({ providerId, integrationIds, instanceLabels, operationNames, canEdit, onHealthCheck }: TRunHistoryTableProps) => {
   const router = useRouter()
   const copyToClipboard = useCopyWithNotification()
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.INTEGRATION_RUNS)
@@ -104,11 +104,11 @@ const RunHistoryTable = ({ providerId, integrationIds, instanceLabels, operation
           { label: 'View run details', onClick: (run) => router.push(integrationRunHref(providerId, run.id)) },
           { label: 'Copy error', onClick: (run) => copyToClipboard(run.error ?? '', 'Error'), hidden: (run) => !run.error },
           { label: 'Copy run ID', onClick: (run) => copyToClipboard(run.id, 'Run ID') },
-          { label: 'Health check this instance', onClick: (run) => run.integrationID && onHealthCheck(run.integrationID), hidden: (run) => !canManage || !run.integrationID },
+          { label: 'Health check this instance', onClick: (run) => run.integrationID && onHealthCheck(run.integrationID), hidden: (run) => !canEdit || !run.integrationID },
         ],
       }),
     ],
-    [showInstance, router, providerId, copyToClipboard, canManage, onHealthCheck],
+    [showInstance, router, providerId, copyToClipboard, canEdit, onHealthCheck],
   )
 
   const mappedColumns = useMemo(() => getMappedColumns(columns), [columns])

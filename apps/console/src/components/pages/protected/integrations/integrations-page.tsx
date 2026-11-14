@@ -14,13 +14,11 @@ import { readPendingVendorIntegrationLink, clearPendingVendorIntegrationLink } f
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { canEdit } from '@/lib/authz/utils'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useIntegrationPermissions } from '@/lib/authz/use-integration-permissions'
 import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
 import { useQueryClient } from '@tanstack/react-query'
-import { useSession } from 'next-auth/react'
 
 const TAB_QUERY_PARAM = 'tab'
 const TAGS_QUERY_PARAM = 'tags'
@@ -44,9 +42,7 @@ const IntegrationsPage = () => {
   const { data: providersData, isLoading: providersLoading } = useIntegrationProviders()
   const { setCrumbs } = use(BreadcrumbContext)
 
-  const { data: orgPermission, isLoading } = useOrganizationRoles()
-  const { data: session } = useSession()
-  const canManage = canEdit(orgPermission?.roles, session)
+  const { canEdit, canRunOperations, isLoading } = useIntegrationPermissions()
 
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
@@ -230,7 +226,7 @@ const IntegrationsPage = () => {
             allTags={allTags}
             selectedTags={selectedTags}
             setSelectedTags={setSelectedTags}
-            canManage={canManage}
+            canEdit={canEdit}
           />
         </TabsContent>
         <TabsContent value={INTEGRATIONS_TABS.installed}>
@@ -240,7 +236,8 @@ const IntegrationsPage = () => {
             setHealthFilter={setHealthFilter}
             providers={providers}
             searchQuery={searchQuery}
-            canManage={canManage}
+            canEdit={canEdit}
+            canRunOperations={canRunOperations}
           />
         </TabsContent>
       </Tabs>

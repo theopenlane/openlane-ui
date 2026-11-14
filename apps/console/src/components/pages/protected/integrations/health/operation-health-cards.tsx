@@ -84,7 +84,7 @@ type TInstanceHealthCardProps = {
   instance: TInstanceHealth
   providerId: string
   isLoading: boolean
-  canManage: boolean
+  canEdit: boolean
   canConfigure: boolean
   checkingIntegrationId?: string
   isCheckDisabled: boolean
@@ -92,7 +92,7 @@ type TInstanceHealthCardProps = {
   onConfigure: (integrationId: string) => void
 }
 
-export const InstanceHealthCard = ({ instance, providerId, isLoading, canManage, canConfigure, checkingIntegrationId, isCheckDisabled, onHealthCheck, onConfigure }: TInstanceHealthCardProps) => {
+export const InstanceHealthCard = ({ instance, providerId, isLoading, canEdit, canConfigure, checkingIntegrationId, isCheckDisabled, onHealthCheck, onConfigure }: TInstanceHealthCardProps) => {
   const lastHealthCheck = instance.health?.lastSuccessfulHealthCheck
   const integrationId = instance.integration.id
 
@@ -132,7 +132,7 @@ export const InstanceHealthCard = ({ instance, providerId, isLoading, canManage,
           })}
         </ul>
       )}
-      {canManage ? (
+      {canEdit ? (
         <div className="flex flex-wrap items-center gap-2">
           <HealthCheckButton variant="secondary" onClick={() => onHealthCheck(integrationId)} isChecking={checkingIntegrationId === integrationId} disabled={isCheckDisabled} />
           {canConfigure ? <ConfigureButton onClick={() => onConfigure(integrationId)} /> : null}

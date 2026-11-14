@@ -2,10 +2,9 @@
 
 import { useMemo } from 'react'
 import { useOperationRunStrips, type TOperationRunsKey } from '@/lib/graphql-hooks/integration-run'
-import { monitoredOperationKeys } from '@/lib/integrations/run-health'
 import { integrationHealthBadge, type TIntegrationHealthBadge } from '@/lib/integrations/health'
 import { type IntegrationHealth, type IntegrationMetadata, type IntegrationNode } from '@/lib/integrations/types'
-import { attentionOperations, buildOperationHealth, type TOperationHealth } from '@/lib/integrations/run-health'
+import { monitoredOperationKeys, attentionOperations, buildOperationHealth, type TOperationHealth } from '@/lib/integrations/run-health'
 import { integrationInstanceLabel, useProviderInstallations } from '../use-provider-installations'
 
 export type TInstanceHealth = {
@@ -19,7 +18,7 @@ export type TInstanceHealth = {
 }
 
 export const useIntegrationHealth = (definitionId: string) => {
-  const { provider, installations, canManage, isLoading, isError } = useProviderInstallations(definitionId)
+  const { provider, installations, canEdit, isLoading, isError } = useProviderInstallations(definitionId)
 
   const operationKeys = useMemo<TOperationRunsKey[]>(() => installations.flatMap((integration) => monitoredOperationKeys(provider, integration)), [provider, installations])
 
@@ -58,7 +57,7 @@ export const useIntegrationHealth = (definitionId: string) => {
     installations,
     instances,
     overall,
-    canManage,
+    canEdit,
     isLoading,
     isError,
     runsError,
