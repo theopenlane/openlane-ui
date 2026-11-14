@@ -105,7 +105,7 @@ export const UpdatePreviewPanel: React.FC<TUpdatePreviewPanelProps> = ({ state, 
           no single matching {entityLower} you can access, so {skipped.length === 1 ? 'it is' : 'they are'} skipped:{' '}
           {showAllSkipped ? skippedKeys.join(', ') : formatTruncatedList(skippedKeys, skippedKeys.length, SKIPPED_KEYS_SHOWN)}. {lookupField?.description}
           {skippedKeys.length > SKIPPED_KEYS_SHOWN && (
-            <Button variant="link" className="ml-1 text-blue-500" onClick={() => setShowAllSkipped((current) => !current)}>
+            <Button variant="link" className="ml-1" onClick={() => setShowAllSkipped((current) => !current)}>
               {showAllSkipped ? 'Show fewer' : `Show all ${skippedKeys.length.toLocaleString()}`}
             </Button>
           )}
@@ -151,7 +151,7 @@ export const UpdatePreviewPanel: React.FC<TUpdatePreviewPanelProps> = ({ state, 
         )}
         {changed.length > CHANGED_ROWS_SHOWN && (
           <div className="border-t p-3 text-center">
-            <Button variant="link" className="text-blue-500" onClick={() => setShowAll((current) => !current)}>
+            <Button variant="link" onClick={() => setShowAll((current) => !current)}>
               {showAll ? `Show the first ${CHANGED_ROWS_SHOWN} rows` : `Show all ${changed.length.toLocaleString()} changed rows`}
             </Button>
           </div>
