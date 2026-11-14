@@ -2,7 +2,7 @@ import { openlaneAPIUrl } from '@repo/dally/auth'
 import Credentials from 'next-auth/providers/credentials'
 import { setSessionCookie } from '../utils/set-session-cookie'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
-import { secureFetch } from '../utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 
 type PasskeyCredentials = {
   email: string
@@ -36,7 +36,7 @@ export const passKeyProvider = Credentials({
         refreshToken,
       }
 
-      const uData = await secureFetch(`${openlaneAPIUrl}/oauth/userinfo`, {
+      const uData = await serverSecureFetch(`${openlaneAPIUrl}/oauth/userinfo`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${credentials.accessToken}`,

@@ -3,6 +3,7 @@ import { forwardTfaPendingCookie } from '@/lib/auth/utils/tfa-pending-cookie'
 import { csrfHeader } from '@repo/dally/auth'
 
 import { NextResponse } from 'next/server'
+import { coreFetch } from '@/lib/server/core-fetch'
 
 export async function POST(request: Request) {
   const bodyData = await request.json()
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
     }
   }
 
-  const fData = await fetch(`${process.env.API_REST_URL}/authentication/verification`, {
+  const fData = await coreFetch(`${process.env.API_REST_URL}/authentication/verification`, {
     method: 'POST',
     headers,
     body: JSON.stringify(bodyData),

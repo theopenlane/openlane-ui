@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth/auth'
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 
 export async function POST(request: Request) {
   try {
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       Authorization: `Bearer ${token}`,
     }
 
-    const fData = await secureFetch(`${process.env.API_REST_URL}/example/csv`, {
+    const fData = await serverSecureFetch(`${process.env.API_REST_URL}/example/csv`, {
       method: 'POST',
       headers,
       body: JSON.stringify(bodyData),

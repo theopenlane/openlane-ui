@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { parseAndSetResponseCookies, supportOnlyCookies } from '@/lib/auth/utils/parse-response-cookies'
 
 interface SupportLoginRequest {
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'email, password, target_organization_id, and reason are required' }, { status: 400 })
     }
 
-    const loginData = await secureFetch(`${process.env.API_REST_URL}/v1/login`, {
+    const loginData = await serverSecureFetch(`${process.env.API_REST_URL}/v1/login`, {
       method: 'POST',
       body: JSON.stringify({
         username: body.email,
