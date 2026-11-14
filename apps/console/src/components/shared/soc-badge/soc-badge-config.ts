@@ -1,5 +1,6 @@
 import { isAfter, startOfDay, subMonths } from 'date-fns'
-import { siteUrl } from '@repo/dally/auth'
+import { soc1BadgeImageUrl, soc2BadgeImageUrl, soc3BadgeImageUrl } from '@repo/dally/auth'
+import { isOneOf } from '@/utils/type-guards'
 
 export const AICPA_LOGO_GUIDELINES_URL = 'https://www.aicpa-cima.com/resources/download/soc-for-service-organizations-logo-guidelines-for-service-organization'
 const AICPA_SOC_LINK_URL = 'https://www.aicpa.org/soc4so'
@@ -8,76 +9,54 @@ export const SOC_BADGE_EMBED_WIDTH = 120
 export const SOC_BADGE_TITLE = 'AICPA SOC Badge'
 export const SOC_BADGE_DESCRIPTION = 'Show the official AICPA SOC logo on your website once you have a current SOC report.'
 
-export enum SocReportType {
-  SOC_1_TYPE_1 = 'SOC_1_TYPE_1',
-  SOC_1_TYPE_2 = 'SOC_1_TYPE_2',
-  SOC_2_TYPE_1 = 'SOC_2_TYPE_1',
-  SOC_2_TYPE_2 = 'SOC_2_TYPE_2',
-  SOC_3 = 'SOC_3',
-}
-
-export enum SocBadgeLogo {
-  SOC_2 = 'SOC_2',
-  SERVICE_ORGANIZATIONS = 'SERVICE_ORGANIZATIONS',
-}
-
-export const DEFAULT_SOC_REPORT_TYPE = SocReportType.SOC_2_TYPE_2
-
-export const SOC_REPORT_TYPE_LABELS: Record<SocReportType, string> = {
-  [SocReportType.SOC_1_TYPE_1]: 'SOC 1 Type 1',
-  [SocReportType.SOC_1_TYPE_2]: 'SOC 1 Type 2',
-  [SocReportType.SOC_2_TYPE_1]: 'SOC 2 Type 1',
-  [SocReportType.SOC_2_TYPE_2]: 'SOC 2 Type 2',
-  [SocReportType.SOC_3]: 'SOC 3',
-}
-
-type TSocBadgeLogoMeta = {
+export type TSocBadge = {
   label: string
-  path: string
+  imageUrl: string
   fileName: string
   alt: string
-  width: number
-  height: number
 }
 
-export const SOC_BADGE_LOGOS: Record<SocBadgeLogo, TSocBadgeLogoMeta> = {
-  [SocBadgeLogo.SOC_2]: {
-    label: 'SOC 2',
-    path: '/images/badges/aicpa-soc-2.png',
-    fileName: 'aicpa-soc-2.png',
-    alt: 'AICPA SOC 2 for Service Organizations',
-    width: 329,
-    height: 338,
-  },
-  [SocBadgeLogo.SERVICE_ORGANIZATIONS]: {
-    label: 'SOC for Service Organizations',
-    path: '/images/badges/aicpa-soc-for-service-organizations.png',
-    fileName: 'aicpa-soc-for-service-organizations.png',
-    alt: 'AICPA SOC for Service Organizations',
-    width: 224,
-    height: 223,
-  },
+const httpsUrlOrNull = (raw: string | undefined): string | null => {
+  const trimmed = raw?.trim()
+  if (!trimmed || !URL.canParse(trimmed)) return null
+  const url = new URL(trimmed)
+  return url.protocol === 'https:' ? url.href : null
 }
 
-const SOC_2_REPORT_TYPES = new Set([SocReportType.SOC_2_TYPE_1, SocReportType.SOC_2_TYPE_2])
+const socBadge = (socNumber: 1 | 2 | 3, rawImageUrl: string | undefined): TSocBadge | null => {
+  const imageUrl = httpsUrlOrNull(rawImageUrl)
+  return imageUrl ? { label: `SOC ${socNumber}`, imageUrl, fileName: `aicpa-soc-${socNumber}.png`, alt: `AICPA SOC ${socNumber} for Service Organizations` } : null
+}
 
-export const logosForReportType = (reportType: SocReportType): SocBadgeLogo[] =>
-  SOC_2_REPORT_TYPES.has(reportType) ? [SocBadgeLogo.SOC_2, SocBadgeLogo.SERVICE_ORGANIZATIONS] : [SocBadgeLogo.SERVICE_ORGANIZATIONS]
+const SOC_1_BADGE = socBadge(1, soc1BadgeImageUrl)
+const SOC_2_BADGE = socBadge(2, soc2BadgeImageUrl)
+const SOC_3_BADGE = socBadge(3, soc3BadgeImageUrl)
+
+const SOC_REPORT_TYPES = [
+  { value: 'SOC_1_TYPE_1', label: 'SOC 1 Type 1', badge: SOC_1_BADGE },
+  { value: 'SOC_1_TYPE_2', label: 'SOC 1 Type 2', badge: SOC_1_BADGE },
+  { value: 'SOC_2_TYPE_1', label: 'SOC 2 Type 1', badge: SOC_2_BADGE },
+  { value: 'SOC_2_TYPE_2', label: 'SOC 2 Type 2', badge: SOC_2_BADGE },
+  { value: 'SOC_3', label: 'SOC 3', badge: SOC_3_BADGE },
+] as const
+
+export type SocReportType = (typeof SOC_REPORT_TYPES)[number]['value']
+
+type TAvailableSocReportType = { value: SocReportType; label: string; badge: TSocBadge }
+
+export const AVAILABLE_SOC_REPORT_TYPES: TAvailableSocReportType[] = SOC_REPORT_TYPES.flatMap(({ value, label, badge }) => (badge ? [{ value, label, badge }] : []))
+
+export const isAvailableSocReportType = isOneOf(AVAILABLE_SOC_REPORT_TYPES.map(({ value }) => value))
+
+export const isSocBadgeConfigured = AVAILABLE_SOC_REPORT_TYPES.length > 0
+
+export const DEFAULT_SOC_REPORT_TYPE: SocReportType = isAvailableSocReportType('SOC_2_TYPE_2') ? 'SOC_2_TYPE_2' : (AVAILABLE_SOC_REPORT_TYPES[0]?.value ?? 'SOC_2_TYPE_2')
+
+export const socBadgeForReportType = (reportType: SocReportType): TSocBadge | null => AVAILABLE_SOC_REPORT_TYPES.find(({ value }) => value === reportType)?.badge ?? null
 
 export const oldestEligibleReportDate = (): Date => startOfDay(subMonths(new Date(), SOC_REPORT_MAX_AGE_MONTHS))
 
 export const isReportDateEligible = (reportDate: Date): boolean => !isAfter(oldestEligibleReportDate(), startOfDay(reportDate))
 
-export const socBadgeEmbedHeight = (logo: SocBadgeLogo): number => {
-  const { width, height } = SOC_BADGE_LOGOS[logo]
-  return Math.round((SOC_BADGE_EMBED_WIDTH * height) / width)
-}
-
-export const buildSocBadgeEmbedCode = (logo: SocBadgeLogo): string => {
-  const { path, alt } = SOC_BADGE_LOGOS[logo]
-  const src = new URL(path, siteUrl).toString()
-
-  return [`<a href="${AICPA_SOC_LINK_URL}" target="_blank" rel="noopener">`, `  <img src="${src}" alt="${alt}" width="${SOC_BADGE_EMBED_WIDTH}" height="${socBadgeEmbedHeight(logo)}">`, `</a>`].join(
-    '\n',
-  )
-}
+export const buildSocBadgeEmbedCode = ({ imageUrl, alt }: TSocBadge): string =>
+  [`<a href="${AICPA_SOC_LINK_URL}" target="_blank" rel="noopener">`, `  <img src="${imageUrl}" alt="${alt}" width="${SOC_BADGE_EMBED_WIDTH}">`, `</a>`].join('\n')

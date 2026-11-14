@@ -10,17 +10,16 @@ import { Callout } from '@/components/shared/callout/callout'
 import { StepBadge } from '@/components/shared/step-badge/step-badge'
 import { formatDate } from '@/utils/date'
 import { cn } from '@repo/ui/lib/utils'
-import { isEnumValue } from '@/utils/type-guards'
-import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import {
   AICPA_LOGO_GUIDELINES_URL,
+  AVAILABLE_SOC_REPORT_TYPES,
   DEFAULT_SOC_REPORT_TYPE,
   SOC_REPORT_MAX_AGE_MONTHS,
-  SOC_REPORT_TYPE_LABELS,
-  SocReportType,
+  type SocReportType,
+  isAvailableSocReportType,
   isReportDateEligible,
-  logosForReportType,
   oldestEligibleReportDate,
+  socBadgeForReportType,
 } from './soc-badge-config'
 import { SocBadgeAssets } from './soc-badge-assets'
 
@@ -60,6 +59,7 @@ export const SocBadgePanel: React.FC<TSocBadgePanelProps> = ({ className }) => {
   const reportTooOld = !!reportDate && !isReportDateEligible(reportDate)
   const isEligible = !!reportDate && !reportTooOld && opinionUnmodified
   const isReady = isEligible && guidelinesRead
+  const badge = socBadgeForReportType(reportType)
 
   const handleReportDateChange = (date: Date | null) => {
     setReportDate(date)
@@ -77,14 +77,14 @@ export const SocBadgePanel: React.FC<TSocBadgePanelProps> = ({ className }) => {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex min-w-0 flex-col gap-2">
             <Label id={reportTypeId}>Report type</Label>
-            <Select value={reportType} onValueChange={(value) => isEnumValue(SocReportType, value) && setReportType(value)}>
+            <Select value={reportType} onValueChange={(value) => isAvailableSocReportType(value) && setReportType(value)}>
               <SelectTrigger aria-labelledby={reportTypeId}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {enumToOptions(SocReportType, SOC_REPORT_TYPE_LABELS).map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                {AVAILABLE_SOC_REPORT_TYPES.map(({ value, label }) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -130,11 +130,7 @@ export const SocBadgePanel: React.FC<TSocBadgePanelProps> = ({ className }) => {
       </SocBadgeStep>
 
       <SocBadgeStep stepNumber={3} title="Add the badge to your site" done={false} active={isReady}>
-        {isReady ? (
-          <SocBadgeAssets key={reportType} logos={logosForReportType(reportType)} />
-        ) : (
-          <p className="text-sm text-muted-foreground">Complete the steps above to download the logo or copy the embed code.</p>
-        )}
+        {isReady && badge ? <SocBadgeAssets badge={badge} /> : <p className="text-sm text-muted-foreground">Complete the steps above to download the logo or copy the embed code.</p>}
       </SocBadgeStep>
     </div>
   )

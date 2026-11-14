@@ -36,3 +36,7 @@ export const announcementBannerLinkLabel = process.env.NEXT_PUBLIC_ANNOUNCEMENT_
 export const cname = process.env.NEXT_PUBLIC_CUSTOMDOMAIN_CNAME
 
 export const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+
+export const soc1BadgeImageUrl = process.env.NEXT_PUBLIC_SOC_1_BADGE_IMAGE_URL
+export const soc2BadgeImageUrl = process.env.NEXT_PUBLIC_SOC_2_BADGE_IMAGE_URL
+export const soc3BadgeImageUrl = process.env.NEXT_PUBLIC_SOC_3_BADGE_IMAGE_URL

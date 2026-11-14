@@ -15,6 +15,7 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
 import { ORG_MANAGED_CONTROLS_WHERE } from '@/constants/standards'
 import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-category-names'
+import { isSocBadgeConfigured } from '@/components/shared/soc-badge/soc-badge-config'
 
 const IMPLEMENTED_SOC_2_CONTROLS_WHERE: ControlWhereInput = {
   and: [ORG_MANAGED_CONTROLS_WHERE, { referenceFrameworkEqualFold: SOC_2_FRAMEWORK_NAME }, { statusNEQ: ControlControlStatus.NOT_IMPLEMENTED }],
@@ -27,8 +28,8 @@ const SOC_2_TRUST_CENTER_COMPLIANCE_WHERE: TrustCenterComplianceWhereInput = {
 export const useSocBadgeAvailability = () => {
   const { client } = useGraphQLClient()
   const { hasObjectType, isLoading: isLoadingModules } = useModuleAccess()
-  const includeControls = !isLoadingModules && hasObjectType(ObjectTypes.CONTROL)
-  const includeTrustCenter = !isLoadingModules && hasObjectType(ObjectTypes.TRUST_CENTER_COMPLIANCE)
+  const includeControls = isSocBadgeConfigured && !isLoadingModules && hasObjectType(ObjectTypes.CONTROL)
+  const includeTrustCenter = isSocBadgeConfigured && !isLoadingModules && hasObjectType(ObjectTypes.TRUST_CENTER_COMPLIANCE)
 
   const controls = useQuery<GetControlCountQuery>({
     queryKey: ['controls', 'count', IMPLEMENTED_SOC_2_CONTROLS_WHERE],
@@ -51,7 +52,7 @@ export const useSocBadgeAvailability = () => {
 
   return {
     isAvailable,
-    isPending: !isAvailable && (isLoadingModules || isControlsLoading || isCompliancesLoading),
+    isPending: isSocBadgeConfigured && !isAvailable && (isLoadingModules || isControlsLoading || isCompliancesLoading),
     isError: !isAvailable && !!error,
     error: isAvailable ? null : error,
   }
