@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { cn } from '@repo/ui/lib/utils'
 import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
-import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { useAsyncCommandSearch } from '@repo/ui/use-async-command-search'
 import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 import { toBase64DataUri } from '@/lib/image-utils'
 

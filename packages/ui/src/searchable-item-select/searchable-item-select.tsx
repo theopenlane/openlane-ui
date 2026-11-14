@@ -35,6 +35,7 @@ interface SearchableItemSelectProps<TItem extends SearchableItem> extends TSearc
   knownItems?: TItem[]
   disabledReason?: (item: TItem) => string | undefined
   renderItemEnd?: (item: TItem) => React.ReactNode
+  listFooter?: React.ReactNode
 }
 
 export const SearchableItemSelect = <TItem extends SearchableItem>({
@@ -53,6 +54,7 @@ export const SearchableItemSelect = <TItem extends SearchableItem>({
   knownItems,
   disabledReason,
   renderItemEnd,
+  listFooter,
   id,
   'aria-labelledby': ariaLabelledBy,
   'aria-describedby': ariaDescribedBy,
@@ -182,6 +184,7 @@ export const SearchableItemSelect = <TItem extends SearchableItem>({
                 })}
               </CommandGroup>
             )}
+            {listFooter}
           </CommandList>
         </Command>
       </PopoverContent>

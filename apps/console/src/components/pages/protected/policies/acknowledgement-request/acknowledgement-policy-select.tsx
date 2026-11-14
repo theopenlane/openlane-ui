@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { SearchableItemSelect, type TSearchableItemSelectAriaProps } from '@/components/shared/searchable-item-select/searchable-item-select'
+import { SearchableItemSelect, type TSearchableItemSelectAriaProps } from '@repo/ui/searchable-item-select'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum'
-import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { useAsyncCommandSearch } from '@repo/ui/use-async-command-search'
 import { type TInternalPolicyDocument, useSearchInternalPolicyDocuments } from '@/lib/graphql-hooks/internal-policy'
 import { MAX_ACKNOWLEDGEMENT_POLICIES, MAX_ACKNOWLEDGEMENT_POLICIES_MESSAGE } from './use-acknowledgement-request-form-schema'
 

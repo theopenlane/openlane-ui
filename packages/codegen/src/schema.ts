@@ -3394,10 +3394,11 @@ export interface GetVendorsByInstallationQuery {
 export type CreateEvidenceMutationVariables = Exact<{
   input: Types.CreateEvidenceInput
   evidenceFiles?: Array<any> | any | null | undefined
+  evidenceFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
 }>
 
 export interface CreateEvidenceMutation {
-  createEvidence: { evidence: { id: string } }
+  createEvidence: { evidence: { id: string; displayID: string; name: string } }
 }
 
 export type GetAllEvidencesQueryVariables = Exact<{
@@ -9550,7 +9551,7 @@ export type CreateApiTokenMutationVariables = Exact<{
 }>
 
 export interface CreateApiTokenMutation {
-  createAPIToken: { apiToken: { id: string; token: string } }
+  createAPIToken: { apiToken: { id: string; token: string; owner: { id: string; displayName: string } | null } }
 }
 
 export type GetApiTokensQueryVariables = Exact<{
@@ -9561,7 +9562,19 @@ export type GetApiTokensQueryVariables = Exact<{
 export interface GetApiTokensQuery {
   apiTokens: {
     totalCount: number
-    edges: Array<{ node: { id: string; name: string; description: string | null; scopes: Array<string> | null; expiresAt: any; lastUsedAt: any; ssoAuthorizations: any } | null } | null> | null
+    edges: Array<{
+      node: {
+        id: string
+        name: string
+        description: string | null
+        scopes: Array<string> | null
+        expiresAt: any
+        lastUsedAt: any
+        ssoAuthorizations: any
+        createdAt: any
+        createdBy: string | null
+      } | null
+    } | null> | null
     pageInfo: { startCursor: any; endCursor: any }
   }
 }
