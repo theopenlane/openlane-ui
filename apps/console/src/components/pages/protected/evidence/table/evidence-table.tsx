@@ -3,7 +3,7 @@
 import { useSearchParams } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
-import React, { useState, useMemo, useEffect, useCallback, use } from 'react'
+import React, { useState, useMemo, useEffect, use } from 'react'
 import { type Evidence, EvidenceEvidenceStatus, type EvidenceOrder, EvidenceOrderField, type EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -33,7 +33,6 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
-  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.EVIDENCE)
   const [filters, setFilters] = useState<EvidenceWhereInput | null>(null)
   const { setCrumbs } = use(BreadcrumbContext)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.EVIDENCE)
@@ -82,6 +81,10 @@ export const EvidenceTable = () => {
     if (!orderBy || orderBy.length === 0) return undefined
     return orderBy
   }, [orderBy])
+
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.EVIDENCE, {
+    restorePage: { where, orderBy: orderByFilter, ready: filters !== null },
+  })
 
   const { evidences, error: queryError, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: filters !== null })
   const defaultVisibility: VisibilityState = {
@@ -189,14 +192,6 @@ export const EvidenceTable = () => {
 
   useQueryErrorNotification({ error: queryError, description: 'Failed to load evidence' })
 
-  const handleFilterChange = useCallback(
-    (nextFilters: EvidenceWhereInput) => {
-      setFilters(nextFilters)
-      resetPagination()
-    },
-    [resetPagination],
-  )
-
   const handleRowClick = (rowData: Evidence) => {
     replace({ id: rowData.id })
   }
@@ -205,12 +200,9 @@ export const EvidenceTable = () => {
     <>
       <EvidenceTableToolbar
         searching={fetching}
-        setFilters={handleFilterChange}
+        setFilters={setFilters}
         searchTerm={searchTerm}
-        setSearchTerm={(inputVal) => {
-          setSearchTerm(inputVal)
-          resetPagination()
-        }}
+        setSearchTerm={setSearchTerm}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
