@@ -1,11 +1,12 @@
 import 'server-only'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { type OpenlaneProductsResponse } from '@/types/stripe'
+import { coreFetch } from '@/lib/server/core-fetch'
 
 export type TCatalogPrices = ReadonlyMap<string, string>
 
 export const fetchCatalogPrices = async (): Promise<TCatalogPrices> => {
-  const res = await fetch(`${openlaneAPIUrl}/v1/products?include_beta=true`, { cache: 'no-store' })
+  const res = await coreFetch(`${openlaneAPIUrl}/v1/products?include_beta=true`, { cache: 'no-store' })
 
   if (!res.ok) {
     throw new Error(`Failed to load the product catalog (${res.status})`)

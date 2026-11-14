@@ -1,4 +1,4 @@
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { clearTfaPendingCookie } from '@/lib/auth/utils/tfa-pending-cookie'
 import { NextResponse } from 'next/server'
 
@@ -6,7 +6,7 @@ export async function POST(request: Request) {
   try {
     const bodyData = await request.json()
 
-    const fData = await secureFetch(`${process.env.API_REST_URL}/v1/login/2fa/validate`, {
+    const fData = await serverSecureFetch(`${process.env.API_REST_URL}/v1/login/2fa/validate`, {
       method: 'POST',
       // we need to pass the cookies
       headers: { cookie: request.headers.get('cookie') ?? '' },

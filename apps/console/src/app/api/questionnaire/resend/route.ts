@@ -1,4 +1,4 @@
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { type NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'Missing assessment_id or email' }, { status: 400 })
     }
 
-    const response = await secureFetch(`${process.env.API_REST_URL}/questionnaire/resend`, {
+    const response = await serverSecureFetch(`${process.env.API_REST_URL}/questionnaire/resend`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

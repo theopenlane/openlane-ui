@@ -3,7 +3,7 @@ import { SUPPORT_EMAIL_ADDRESS } from '@/constants'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import Credentials from 'next-auth/providers/credentials'
 import { cookies } from 'next/headers'
-import { secureFetch } from '../utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { setSessionCookie } from '../utils/set-session-cookie'
 import { forwardTfaPendingCookie } from '../utils/tfa-pending-cookie'
 
@@ -47,7 +47,7 @@ export const credentialsProvider = Credentials({
         session = credentials.session
       } else {
         // handle login from login form
-        const fData = await secureFetch(`${openlaneAPIUrl}/v1/login`, {
+        const fData = await serverSecureFetch(`${openlaneAPIUrl}/v1/login`, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
@@ -76,7 +76,7 @@ export const credentialsProvider = Credentials({
         }
       }
 
-      const uData = await secureFetch(`${openlaneAPIUrl}/oauth/userinfo`, {
+      const uData = await serverSecureFetch(`${openlaneAPIUrl}/oauth/userinfo`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${accessToken}` },
       })

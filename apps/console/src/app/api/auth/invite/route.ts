@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth/auth'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 
 export async function GET(request: NextRequest) {
   const cookies = request.headers.get('cookie')
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     headers['cookie'] = cookies
   }
 
-  const fData = await secureFetch(`${process.env.API_REST_URL}/v1/invite?token=${encodeURIComponent(token)}`, {
+  const fData = await serverSecureFetch(`${process.env.API_REST_URL}/v1/invite?token=${encodeURIComponent(token)}`, {
     method: 'GET',
     headers,
   })
