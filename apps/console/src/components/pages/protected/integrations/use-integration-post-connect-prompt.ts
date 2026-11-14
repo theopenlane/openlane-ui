@@ -19,7 +19,7 @@ export type IntegrationPromptKind = 'directory' | 'document' | 'test-message'
 
 type UseIntegrationPostConnectPromptOptions = {
   provider: IntegrationProvider | undefined
-  canManage: boolean
+  canEdit: boolean
   installedInstances: IntegrationNode[]
 }
 
@@ -41,7 +41,7 @@ const resolvePromptKind = (provider: IntegrationProvider | undefined): Integrati
   return null
 }
 
-export function useIntegrationPostConnectPrompt({ provider, canManage, installedInstances }: UseIntegrationPostConnectPromptOptions) {
+export function useIntegrationPostConnectPrompt({ provider, canEdit, installedInstances }: UseIntegrationPostConnectPromptOptions) {
   const [promptIntegration, setPromptIntegration] = useState<IntegrationNode | null>(null)
   const [pickerIntegration, setPickerIntegration] = useState<IntegrationNode | null>(null)
 
@@ -59,7 +59,7 @@ export function useIntegrationPostConnectPrompt({ provider, canManage, installed
   )
 
   useEffect(() => {
-    if (!provider || !canManage || !hasPostConnectStep) {
+    if (!provider || !canEdit || !hasPostConnectStep) {
       return
     }
 
@@ -86,7 +86,7 @@ export function useIntegrationPostConnectPrompt({ provider, canManage, installed
     }
 
     showPromptIfNeeded(target)
-  }, [provider, canManage, hasPostConnectStep, supportsResourcePicker, showPromptIfNeeded, installedInstances])
+  }, [provider, canEdit, hasPostConnectStep, supportsResourcePicker, showPromptIfNeeded, installedInstances])
 
   const { chooseResources } = useResourcePicker(provider)
 

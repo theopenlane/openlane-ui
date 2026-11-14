@@ -9,10 +9,10 @@ import IntegrationCardShell from './integration-card-shell'
 
 type AvailableIntegrationCardProps = {
   integration: AvailableIntegrationNode
-  canManage: boolean
+  canEdit: boolean
 }
 
-const AvailableIntegrationCard = ({ integration, canManage }: AvailableIntegrationCardProps) => {
+const AvailableIntegrationCard = ({ integration, canEdit }: AvailableIntegrationCardProps) => {
   const router = useRouter()
   const provider = integration.provider
   const isComingSoon = !provider.active
@@ -49,7 +49,7 @@ const AvailableIntegrationCard = ({ integration, canManage }: AvailableIntegrati
       }
       footer={
         <Button className="w-full text-brand" variant="secondary" onClick={handleClick} disabled={isComingSoon}>
-          {isComingSoon ? 'Coming Soon' : canManage && integration.installedCount > 0 ? 'Manage' : 'View'}
+          {isComingSoon ? 'Coming Soon' : canEdit && integration.installedCount > 0 ? 'Manage' : 'View'}
         </Button>
       }
     />

@@ -13,10 +13,11 @@ type InstalledIntegrationsGridProps = {
   setHealthFilter: (health: IntegrationHealthFilter) => void
   providers: IntegrationProvider[]
   searchQuery: string
-  canManage: boolean
+  canEdit: boolean
+  canRunOperations: boolean
 }
 
-export const InstalledIntegrationsGrid = ({ installedIntegrations, healthFilter, setHealthFilter, providers, searchQuery, canManage }: InstalledIntegrationsGridProps) => {
+export const InstalledIntegrationsGrid = ({ installedIntegrations, healthFilter, setHealthFilter, providers, searchQuery, canEdit, canRunOperations }: InstalledIntegrationsGridProps) => {
   const normalizedQuery = searchQuery.trim().toLowerCase()
 
   const searchMatches = useMemo(
@@ -53,7 +54,7 @@ export const InstalledIntegrationsGrid = ({ installedIntegrations, healthFilter,
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
           {filteredInstalledIntegrations.map((integration) => (
-            <InstalledIntegrationCard key={integration.id} integration={integration} providers={providers} canManage={canManage} linkToDetail />
+            <InstalledIntegrationCard key={integration.id} integration={integration} providers={providers} canEdit={canEdit} canRunOperations={canRunOperations} linkToDetail />
           ))}
         </div>
       )}

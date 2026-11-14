@@ -360,6 +360,21 @@ export const operationSchemaEntries = (provider?: IntegrationProvider, storedSch
     return [{ name: op.name, title: toHumanLabel(op.name), description: op.description, schema }]
   })
 
+export type TOperationAvailability = 'enabled' | 'disabled' | 'unavailable'
+
+export const operationAvailability = (provider: IntegrationProvider | undefined, integration: Pick<IntegrationNode, 'operationConfig'>, operationName: string): TOperationAvailability => {
+  if (provider?.operations?.find((operation) => operation.name === operationName)?.disabledForAll) {
+    return 'unavailable'
+  }
+
+  const storedSchemas: Record<string, IntegrationSchemaNode> | undefined = integration.operationConfig ?? undefined
+
+  return resolveSchemaRoot(storedSchemas?.[operationName])?.properties?.disable?.default === true ? 'disabled' : 'enabled'
+}
+
+export const recurringOperationNames = (provider: IntegrationProvider | undefined): string[] =>
+  (provider?.operations ?? []).filter((operation) => operation.policy?.reconcile).map((operation) => operation.name)
+
 export function resolveManageUrl(provider: IntegrationProvider | undefined, connectionEntry: ReturnType<typeof resolveConnectionEntry>, externalId: string, externalName: string): string | null {
   if (!connectionEntry?.auth || !externalId) return null
 

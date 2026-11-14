@@ -92,6 +92,8 @@ export enum AdditionalTableKeyEnum {
   PROGRAM_WORK = 'program-work',
   CONTROL_EVIDENCE = 'control-evidence',
   AUDITOR_DASHBOARD_CONTROLS = 'auditor-dashboard-controls',
+  INTEGRATION_RUNS = 'integration-runs',
+  INTEGRATION_RUN_RECORDS = 'integration-run-records',
 }
 
 export const TableKey = Object.freeze({
