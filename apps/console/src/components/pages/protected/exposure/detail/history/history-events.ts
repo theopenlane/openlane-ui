@@ -1,8 +1,7 @@
 import { normalizeResponsibilityField, type ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { EXPOSURE_RESPONSIBILITY_FIELDS, type TExposureResponsibilityKey } from '../responsibility-fields'
 
-type TResponsibilityKey = 'internalOwner' | 'assignedTo' | 'reviewedBy'
-
-type TResponsibilityColumn = TResponsibilityKey | `${TResponsibilityKey}UserID` | `${TResponsibilityKey}GroupID` | `${TResponsibilityKey}IdentityHolderID`
+type TResponsibilityColumn = TExposureResponsibilityKey | `${TExposureResponsibilityKey}UserID` | `${TExposureResponsibilityKey}GroupID` | `${TExposureResponsibilityKey}IdentityHolderID`
 
 export type TOwnershipHistoryNode = Partial<Record<TResponsibilityColumn, string | null>> & {
   id: string
@@ -23,13 +22,7 @@ export type TOwnershipChange = {
   at: string
 }
 
-const RESPONSIBILITY_FIELDS: { key: TResponsibilityKey; label: string }[] = [
-  { key: 'internalOwner', label: 'Owner' },
-  { key: 'assignedTo', label: 'Assigned to' },
-  { key: 'reviewedBy', label: 'Reviewed by' },
-]
-
-const responsibilityRef = (node: TOwnershipHistoryNode, key: TResponsibilityKey): ResponsibilitySelection =>
+const responsibilityRef = (node: TOwnershipHistoryNode, key: TExposureResponsibilityKey): ResponsibilitySelection =>
   normalizeResponsibilityField({
     userID: node[`${key}UserID`],
     groupID: node[`${key}GroupID`],
@@ -46,7 +39,7 @@ export const historyReferencedIds = (nodes: TOwnershipHistoryNode[]): { userIds:
   nodes.forEach((node) => {
     if (node.updatedBy) ids.user.add(node.updatedBy)
     if (node.createdBy) ids.user.add(node.createdBy)
-    RESPONSIBILITY_FIELDS.forEach(({ key }) => {
+    EXPOSURE_RESPONSIBILITY_FIELDS.forEach(({ key }) => {
       const ref = responsibilityRef(node, key)
       if (ref && ref.type !== 'string') ids[ref.type].add(ref.value)
     })
@@ -59,7 +52,7 @@ export const buildOwnershipChanges = (nodesNewestFirst: TOwnershipHistoryNode[],
     const previous = nodesNewestFirst[index + 1]
     if (node.operation !== updateOperation || !previous) return []
 
-    return RESPONSIBILITY_FIELDS.flatMap(({ key, label }) => {
+    return EXPOSURE_RESPONSIBILITY_FIELDS.flatMap(({ key, label }) => {
       const from = responsibilityRef(previous, key)
       const to = responsibilityRef(node, key)
       if (refKey(from) === refKey(to)) return []

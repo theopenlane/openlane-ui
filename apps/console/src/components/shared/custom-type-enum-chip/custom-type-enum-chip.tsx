@@ -1,4 +1,5 @@
 import { type CustomTypeEnumOption, findCustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Badge } from '@repo/ui/badge'
 import { TruncatedCell } from '@repo/ui/truncated-cell'
 import React from 'react'
@@ -25,18 +26,26 @@ export const CustomTypeEnumOptionChip = ({ option }: { option: CustomTypeEnumOpt
   )
 }
 
+const toUnmatchedOption = (value: string): CustomTypeEnumOption => ({ value, label: value === value.toUpperCase() ? getEnumLabel(value) : value })
+
 interface CustomTypeEnumValueProps {
   value?: string
   options: CustomTypeEnumOption[]
   placeholder?: string
+  showUnmatchedValue?: boolean
 }
 
-export const CustomTypeEnumValue = ({ value, options, placeholder }: CustomTypeEnumValueProps) => {
+export const CustomTypeEnumValue = ({ value, options, placeholder, showUnmatchedValue = false }: CustomTypeEnumValueProps) => {
   const option = findCustomTypeEnumOption(options, value)
+  const trimmedValue = value?.trim()
 
-  if (!option) {
-    return <span className="text-muted-foreground">{placeholder}</span>
+  if (option) {
+    return <CustomTypeEnumOptionChip option={option} />
   }
 
-  return <CustomTypeEnumOptionChip option={option} />
+  if (showUnmatchedValue && trimmedValue) {
+    return <CustomTypeEnumOptionChip option={toUnmatchedOption(trimmedValue)} />
+  }
+
+  return <span className="text-muted-foreground">{placeholder}</span>
 }

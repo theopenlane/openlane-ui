@@ -44,8 +44,7 @@ const FindingOverviewTab: React.FC<TFindingOverviewTabProps> = ({ finding, isEdi
           exploitability={finding.exploitability}
           vector={finding.vector}
           source={finding.source}
-          canEdit={canEdit && !isEditing}
-          onSaveVector={(vector) => persistField('vector', vector, (options) => handleUpdateField({ vector }, options))}
+          onSaveVector={canEdit && !isEditing ? (vector) => persistField('vector', vector, (options) => handleUpdateField({ vector }, options)) : undefined}
         />
       )}
 
