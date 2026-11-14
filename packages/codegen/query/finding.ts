@@ -153,13 +153,11 @@ export const FINDING = gql`
       id
       impact
       sourceDefinitionID
-      metadata
       numericSeverity
       open
       priority
       production
       public
-      rawPayload
       recommendation
       recommendedActions
       references
@@ -178,6 +176,7 @@ export const FINDING = gql`
       findingStatusName
       systemOwned
       targetDetails
+      targets
       updatedAt
       updatedBy
       validated
@@ -255,6 +254,7 @@ export const BULK_DELETE_FINDING = gql`
 export const GET_FINDING_ASSOCIATIONS = gql`
   query GetFindingAssociations($findingId: ID!) {
     finding(id: $findingId) {
+      id
       controls {
         edges {
           node {
@@ -361,6 +361,15 @@ export const GET_FINDING_ASSOCIATIONS = gql`
             externalID
             displayName
             displayID
+          }
+        }
+        totalCount
+      }
+      actionPlans {
+        edges {
+          node {
+            id
+            name
           }
         }
         totalCount
@@ -500,6 +509,135 @@ export const UPDATE_FINDING_COMMENT = gql`
     updateFindingComment(id: $updateFindingCommentId, input: $input) {
       finding {
         id
+      }
+    }
+  }
+`
+
+export const GET_FINDING_REMEDIATION_WORK = gql`
+  query GetFindingRemediationWork($findingId: ID!, $first: Int) {
+    finding(id: $findingId) {
+      id
+      remediations(first: $first, orderBy: [{ field: created_at, direction: DESC }]) {
+        totalCount
+        edges {
+          node {
+            id
+            displayID
+            title
+            status
+            ownerReference
+            dueAt
+          }
+        }
+      }
+      tasks(first: $first, orderBy: [{ field: created_at, direction: DESC }]) {
+        totalCount
+        edges {
+          node {
+            id
+            displayID
+            title
+            status
+            due
+            assignee {
+              id
+              displayName
+            }
+          }
+        }
+      }
+      actionPlans(first: $first, orderBy: [{ field: created_at, direction: DESC }]) {
+        totalCount
+        edges {
+          node {
+            id
+            name
+            title
+            status
+            dueDate
+            internalOwner
+            internalOwnerUser {
+              id
+              displayName
+            }
+            internalOwnerGroup {
+              id
+              displayName
+            }
+            internalOwnerIdentityHolder {
+              id
+              fullName
+              email
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_FINDING_HISTORY_EDGES = gql`
+  query GetFindingHistoryEdges($findingId: ID!, $first: Int) {
+    finding(id: $findingId) {
+      id
+      tasks(first: $first, orderBy: [{ field: created_at, direction: DESC }]) {
+        totalCount
+        edges {
+          node {
+            id
+            displayID
+            title
+            createdAt
+            createdBy
+          }
+        }
+      }
+      comments(first: $first, orderBy: [{ field: created_at, direction: DESC }]) {
+        totalCount
+        edges {
+          node {
+            id
+            text
+            createdAt
+            createdBy
+          }
+        }
+      }
+      assets(first: $first, orderBy: [{ field: created_at, direction: DESC }]) {
+        totalCount
+        edges {
+          node {
+            id
+            name
+            displayName
+            createdAt
+            createdBy
+          }
+        }
+      }
+      remediations(first: $first, orderBy: [{ field: created_at, direction: DESC }]) {
+        totalCount
+        edges {
+          node {
+            id
+            displayID
+            title
+            createdAt
+            createdBy
+          }
+        }
+      }
+      reviews(first: $first, orderBy: [{ field: created_at, direction: DESC }]) {
+        totalCount
+        edges {
+          node {
+            id
+            title
+            createdAt
+            createdBy
+          }
+        }
       }
     }
   }

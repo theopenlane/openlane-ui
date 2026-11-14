@@ -4,26 +4,19 @@ import React from 'react'
 import { CircleAlert, CircleDashed } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
-import { getVulnerabilityDueDate } from '@/utils/vulnerability-due-date'
+import { getVulnerabilityDueDate, type TVulnerabilityDueDateSource } from '@/utils/vulnerability-due-date'
 import { formatDate } from '@/utils/date'
 import { pluralizeWithCount } from '@/utils/strings'
 
-export type TVulnerabilitySlaSource = {
-  open?: boolean | null
-  severity?: string | null
-  securityLevel?: string | null
-  createdAt?: string | null
-  discoveredAt?: string | null
-  remediationSLA?: number | null
-}
+type TRemediationSlaSource = TVulnerabilityDueDateSource & { open?: boolean | null }
 
-type TVulnerabilitySlaStatus = { kind: 'closed' } | { kind: 'unset' } | { kind: 'overdue'; days: number; dueDate: Date } | { kind: 'on-track'; days: number; dueDate: Date }
+type TRemediationSlaStatus = { kind: 'closed' } | { kind: 'unset' } | { kind: 'overdue'; days: number; dueDate: Date } | { kind: 'on-track'; days: number; dueDate: Date }
 
-const useVulnerabilitySlaStatus = (vulnerability: TVulnerabilitySlaSource): TVulnerabilitySlaStatus & { slaDays: number | null; isSlaOverride: boolean } => {
+const useRemediationSlaStatus = (item: TRemediationSlaSource): TRemediationSlaStatus & { slaDays: number | null; isSlaOverride: boolean } => {
   const { slaDefinitionsNodes } = useSlaDefinitionsWithFilter({})
-  const { dueDate, slaDays, isSlaOverride, pastDue, daysOverdue, daysUntilDue } = getVulnerabilityDueDate(vulnerability, slaDefinitionsNodes)
+  const { dueDate, slaDays, isSlaOverride, pastDue, daysOverdue, daysUntilDue } = getVulnerabilityDueDate(item, slaDefinitionsNodes)
 
-  if (vulnerability.open === false) return { kind: 'closed', slaDays, isSlaOverride }
+  if (item.open === false) return { kind: 'closed', slaDays, isSlaOverride }
   if (!dueDate || Number.isNaN(dueDate.getTime())) return { kind: 'unset', slaDays, isSlaOverride }
   if (pastDue) return { kind: 'overdue', days: daysOverdue ?? 0, dueDate, slaDays, isSlaOverride }
   return { kind: 'on-track', days: daysUntilDue ?? 0, dueDate, slaDays, isSlaOverride }
@@ -35,8 +28,8 @@ const slaTooltip = (slaDays: number | null, isSlaOverride: boolean, dueDate: Dat
   return `${pluralizeWithCount(slaDays, 'day')} SLA${isSlaOverride ? '' : ' (severity default)'} · ${due}`
 }
 
-export const VulnerabilitySla: React.FC<{ vulnerability: TVulnerabilitySlaSource }> = ({ vulnerability }) => {
-  const status = useVulnerabilitySlaStatus(vulnerability)
+export const RemediationSla: React.FC<{ item: TRemediationSlaSource }> = ({ item }) => {
+  const status = useRemediationSlaStatus(item)
 
   if (status.kind === 'closed') return <span className="text-sm text-muted-foreground">Closed</span>
   if (status.kind === 'unset') return <span className="text-sm text-muted-foreground">Not set</span>

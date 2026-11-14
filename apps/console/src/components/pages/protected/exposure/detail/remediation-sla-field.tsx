@@ -4,10 +4,9 @@ import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
-import { type VulnerabilityFormData } from '../hooks/use-form-schema'
 
-export const VulnerabilitySlaField: React.FC = () => {
-  const { control } = useFormContext<VulnerabilityFormData>()
+export const RemediationSlaField: React.FC = () => {
+  const { control } = useFormContext<{ remediationSLA?: number }>()
 
   return (
     <FormField

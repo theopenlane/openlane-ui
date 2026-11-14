@@ -86,6 +86,7 @@ export type ConditionValue =
   | { [operator: string]: string | number }
   | ConditionValue[] // recursively allow arrays
   | { [field: string]: ConditionValue[] }
+  | Condition
 
 export type Condition = {
   [field: string]: ConditionValue

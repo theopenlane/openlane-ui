@@ -130,7 +130,7 @@ export const visibilityFields = {
   updatedBy: false,
 }
 
-export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers, riskScoresAction?: React.ReactNode) => {
+export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers) => {
   const findingData = props.data as FindingQuery['finding']
   const showPastDue =
     !props.isCreate && !props.isEditing && (findingData?.findingStatusName === 'Open' || findingData?.findingStatusName === 'Triaged' || findingData?.findingStatusName === 'In Progress')
@@ -140,7 +140,9 @@ export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOpt
         {findingData.source}
       </Badge>
     ) : null
-  const pastDueBadge = showPastDue ? <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.createdAt} remediationSLA={findingData?.remediationSLA} /> : null
+  const pastDueBadge = showPastDue ? (
+    <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.reportedAt || findingData?.createdAt} remediationSLA={findingData?.remediationSLA} />
+  ) : null
   const headerBadges =
     sourceBadge || pastDueBadge ? (
       <>
@@ -176,7 +178,6 @@ export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOpt
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
         enumCreateHandlers={enumCreateHandlers}
-        riskScoresAction={riskScoresAction}
       />
       <FindingAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>

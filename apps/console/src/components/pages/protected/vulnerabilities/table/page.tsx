@@ -40,7 +40,7 @@ const VulnerabilityPage: React.FC = () => {
 
   const plateEditorHelper = usePlateEditor()
 
-  const slaQuickFilters = useSlaQuickFilters()
+  const slaQuickFilters = useSlaQuickFilters('discoveredAt')
   const quickFilters = React.useMemo(() => [...slaQuickFilters, DISMISSED_QUICK_FILTER], [slaQuickFilters])
 
   const baseCreateMutation = useCreateVulnerability()

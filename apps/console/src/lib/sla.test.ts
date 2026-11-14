@@ -1,7 +1,8 @@
 import { addDays, startOfDay, subDays } from 'date-fns'
 import { type Condition, type ConditionValue } from '@/types'
 import { type SlaDefinitionsNodeNonNull } from '@/lib/graphql-hooks/sla-definition'
-import { buildDueSoonCondition, buildPastDueCondition, buildSlaDaysByLevel, DUE_SOON_WINDOW_DAYS, getSlaDueDate, isSlaPastDue } from './sla'
+import { buildDueSoonCondition, buildPastDueCondition, buildSlaDaysByLevel, DUE_SOON_WINDOW_DAYS, isSlaPastDue } from './sla'
+import { getSlaDueDate } from '@/utils/vulnerability-due-date'
 
 /**
  * The past-due calculation was duplicated across the attention table, the vulnerability/finding tables and
@@ -48,26 +49,26 @@ describe('getSlaDueDate', () => {
   const levels = { CRITICAL: 7 }
 
   test('adds the level slaDays to the created date', () => {
-    const due = getSlaDueDate('2026-07-01T00:00:00.000Z', 'CRITICAL', levels)
+    const due = getSlaDueDate({ createdAt: '2026-07-01T00:00:00.000Z', securityLevel: 'CRITICAL' }, levels)
     expect(due?.toISOString()).toBe(addDays(new Date('2026-07-01T00:00:00.000Z'), 7).toISOString())
   })
 
   test('matches the security level case-insensitively', () => {
-    expect(getSlaDueDate('2026-07-01T00:00:00.000Z', 'critical', levels)).not.toBeNull()
+    expect(getSlaDueDate({ createdAt: '2026-07-01T00:00:00.000Z', securityLevel: 'critical' }, levels)).not.toBeNull()
   })
 
   test('returns null when the level has no SLA', () => {
-    expect(getSlaDueDate('2026-07-01T00:00:00.000Z', 'LOW', levels)).toBeNull()
+    expect(getSlaDueDate({ createdAt: '2026-07-01T00:00:00.000Z', securityLevel: 'LOW' }, levels)).toBeNull()
   })
 
   test('returns null for missing createdAt or securityLevel', () => {
-    expect(getSlaDueDate(null, 'CRITICAL', levels)).toBeNull()
-    expect(getSlaDueDate('2026-07-01T00:00:00.000Z', null, levels)).toBeNull()
-    expect(getSlaDueDate('', 'CRITICAL', levels)).toBeNull()
+    expect(getSlaDueDate({ createdAt: null, securityLevel: 'CRITICAL' }, levels)).toBeNull()
+    expect(getSlaDueDate({ createdAt: '2026-07-01T00:00:00.000Z', securityLevel: null }, levels)).toBeNull()
+    expect(getSlaDueDate({ createdAt: '', securityLevel: 'CRITICAL' }, levels)).toBeNull()
   })
 
   test('returns null for an unparseable createdAt', () => {
-    expect(getSlaDueDate('not-a-date', 'CRITICAL', levels)).toBeNull()
+    expect(getSlaDueDate({ createdAt: 'not-a-date', securityLevel: 'CRITICAL' }, levels)).toBeNull()
   })
 })
 

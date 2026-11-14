@@ -238,6 +238,7 @@ const findingAllowedObjectTypes = [
   ObjectTypeObjects.REMEDIATION,
   ObjectTypeObjects.REVIEW,
   ObjectTypeObjects.VULNERABILITY,
+  ObjectTypeObjects.ACTION_PLAN,
 ]
 const findingInitialDataKeys = {
   controlIDs: 'controls',
@@ -250,6 +251,7 @@ const findingInitialDataKeys = {
   remediationIDs: 'remediations',
   reviewIDs: 'reviews',
   vulnerabilityIDs: 'vulnerabilities',
+  actionPlanIDs: 'actionPlans',
 }
 const findingAssociationKeys = [
   'controlIDs',
@@ -262,6 +264,7 @@ const findingAssociationKeys = [
   'remediationIDs',
   'reviewIDs',
   'vulnerabilityIDs',
+  'actionPlanIDs',
 ] as const satisfies readonly (keyof typeof findingInitialDataKeys)[]
 
 export const FINDING_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
@@ -282,6 +285,7 @@ export const FINDING_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     SECTION_MAPPINGS.remediations,
     SECTION_MAPPINGS.reviews,
     SECTION_MAPPINGS.vulnerabilities,
+    SECTION_MAPPINGS.actionPlans,
   ],
   dialogConfig: {
     dataRootField: 'finding',
