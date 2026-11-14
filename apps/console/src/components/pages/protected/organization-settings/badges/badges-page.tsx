@@ -34,7 +34,7 @@ const BadgesPage: React.FC = () => {
 
     if (isPending) {
       return (
-        <div role="status" aria-live="polite" aria-label="Loading badges" className="flex flex-col gap-3">
+        <div role="status" aria-live="polite" aria-label="Loading badges" className="flex max-w-3xl flex-col gap-3">
           <Skeleton height={20} className="w-full max-w-[240px] rounded-md" />
           <Skeleton height={14} className="w-full max-w-[420px] rounded-md" />
           <Skeleton height={160} className="w-full rounded-lg" />
@@ -56,7 +56,7 @@ const BadgesPage: React.FC = () => {
     }
 
     return (
-      <Panel>
+      <Panel className="max-w-3xl">
         <PanelHeader heading={SOC_BADGE_TITLE} subheading={SOC_BADGE_DESCRIPTION} noBorder />
         <SocBadgePanel />
       </Panel>
@@ -66,7 +66,7 @@ const BadgesPage: React.FC = () => {
   return (
     <>
       <PageHeading eyebrow="Organization Settings" heading="Badges" />
-      <div className="max-w-3xl">{renderContent()}</div>
+      {renderContent()}
     </>
   )
 }
