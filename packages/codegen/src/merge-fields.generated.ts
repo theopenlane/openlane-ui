@@ -1206,6 +1206,8 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'assignedToIdentityHolderID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'assignedToUserID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'discoveredVulnerabilityIds', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
+    { name: 'documentKindID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'documentKindName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'environmentID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'environmentName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'externalID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },

@@ -160,3 +160,13 @@ export const DELETE_MAPPED_CONTROL = gql`
     }
   }
 `
+
+export const CREATE_BULK_MAPPED_CONTROL = gql`
+  mutation CreateBulkMappedControl($input: [CreateMappedControlInput!]) {
+    createBulkMappedControl(input: $input) {
+      mappedControls {
+        id
+      }
+    }
+  }
+`

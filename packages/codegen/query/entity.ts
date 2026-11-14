@@ -282,6 +282,7 @@ export const GET_ENTITY_FILES_PAGINATED = gql`
             providedFileName
             providedFileSize
             providedFileExtension
+            detectedMimeType
             id
             uri
             presignedURL

@@ -268,3 +268,13 @@ export const GET_GROUPS_EXPORT = gql`
     }
   }
 `
+
+export const CREATE_BULK_GROUP = gql`
+  mutation CreateBulkGroup($input: [CreateGroupInput!]) {
+    createBulkGroup(input: $input) {
+      groups {
+        id
+      }
+    }
+  }
+`
