@@ -3,7 +3,7 @@
 import React from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type FindingDetailNode, invalidateFindingCommentQueries, invalidateFindingQueries, useUpdateFinding } from '@/lib/graphql-hooks/finding'
+import { type FindingDetailNode, invalidateFindingCommentQueries, useUpdateFinding } from '@/lib/graphql-hooks/finding'
 import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
 import { useNotification } from '@/hooks/useNotification'
 import { formatDate } from '@/utils/date'
@@ -37,8 +37,7 @@ const SnoozeFindingDialog: React.FC<TSnoozeFindingDialogProps> = ({ isOpen, find
       }
       return remediationSLA !== null
     },
-    onSettled: (_result, _error, { comment }) => {
-      invalidateFindingQueries(queryClient)
+    onSuccess: (_result, { comment }) => {
       if (comment.trim()) invalidateFindingCommentQueries(queryClient)
     },
   })

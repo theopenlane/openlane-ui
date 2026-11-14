@@ -4,10 +4,10 @@ type TResponsibilityKey = 'internalOwner' | 'assignedTo' | 'reviewedBy'
 
 type TResponsibilityColumn = TResponsibilityKey | `${TResponsibilityKey}UserID` | `${TResponsibilityKey}GroupID` | `${TResponsibilityKey}IdentityHolderID`
 
-export type TOwnershipHistoryNode = Partial<Record<TResponsibilityColumn, string | null>> & {
+export type TOwnershipHistoryNode<TOp extends string = string> = Partial<Record<TResponsibilityColumn, string | null>> & {
   id: string
   historyTime: string
-  operation: string
+  operation: TOp
   createdBy?: string | null
   updatedBy?: string | null
 }
@@ -54,7 +54,7 @@ export const historyReferencedIds = (nodes: TOwnershipHistoryNode[]): { userIds:
   return { userIds: [...ids.user], groupIds: [...ids.group], personnelIds: [...ids.personnel] }
 }
 
-export const buildOwnershipChanges = (nodesNewestFirst: TOwnershipHistoryNode[], updateOperation: string, resolveName: TResolveName): TOwnershipChange[] =>
+export const buildOwnershipChanges = <TOp extends string>(nodesNewestFirst: TOwnershipHistoryNode<TOp>[], updateOperation: TOp, resolveName: TResolveName): TOwnershipChange[] =>
   nodesNewestFirst.flatMap((node, index) => {
     const previous = nodesNewestFirst[index + 1]
     if (node.operation !== updateOperation || !previous) return []

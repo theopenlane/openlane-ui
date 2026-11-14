@@ -7,13 +7,14 @@ import { HtmlOrText } from '@/components/shared/sanitized-html/sanitized-html'
 import { type FindingDetailNode } from '@/lib/graphql-hooks/finding'
 import ExposureReferences from '../../../exposure/detail/exposure-references'
 import { ReadOnlyRichText } from '../../../exposure/detail/read-only-rich-text'
+import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils'
 import ExposureScoreCard from '../../../exposure/detail/score/exposure-score-card'
 import { hasCvssDetails } from '../../../exposure/detail/score/score-meta'
 import DescriptionField from '../../create/form/fields/description-field'
 import { type FindingFormData } from '../../hooks/use-form-schema'
 import FindingDetailsEditCard from './finding-details-edit-card'
 import { FindingTargetsCard } from './finding-targets-card'
-import { OverviewSection } from './overview-section'
+import { OverviewSection } from '../../../exposure/detail/overview-section'
 
 type TFindingOverviewTabProps = {
   finding: FindingDetailNode
@@ -34,7 +35,7 @@ const FindingOverviewTab: React.FC<TFindingOverviewTabProps> = ({ finding, isEdi
           <FindingDetailsEditCard finding={finding} />
         </>
       ) : (
-        finding.description && <ReadOnlyRichText value={finding.description} label="Description" />
+        <ReadOnlyRichText value={finding.description} label="Description" />
       )}
 
       {hasCvssDetails(finding) && (
@@ -51,7 +52,7 @@ const FindingOverviewTab: React.FC<TFindingOverviewTabProps> = ({ finding, isEdi
 
       {!isEditing && (
         <>
-          {finding.recommendedActions && (
+          {!isPlateValueEmpty(finding.recommendedActions) && (
             <OverviewSection title="Recommended actions">
               <ReadOnlyRichText value={finding.recommendedActions} label="Recommended actions" />
             </OverviewSection>

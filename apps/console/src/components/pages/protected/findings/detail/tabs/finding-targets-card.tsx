@@ -6,9 +6,10 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
 import CopyableText from '@/components/shared/copyable-text/copyable-text'
 import { pluralizeWithCount } from '@/utils/strings'
-import { OverviewSection } from './overview-section'
+import { OverviewSection } from '../../../exposure/detail/overview-section'
 import { type FindingDetailNode } from '@/lib/graphql-hooks/finding'
-import { CardSectionHeader, isPopulatedObject, TargetDetailsSection } from '../../target-details/target-details'
+import { CardSectionHeader, TargetDetailsSection } from '../../target-details/target-details'
+import { isPopulatedObject } from '@/utils/type-guards'
 
 type TFindingTargetsCardProps = Pick<FindingDetailNode, 'targets' | 'targetDetails'>
 

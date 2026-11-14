@@ -14,11 +14,11 @@ import { formatList, pluralizeWithCount, toHumanLabel } from '@/utils/strings'
 import { buildOwnershipChanges, historyReferencedIds, type TOwnershipHistoryNode } from './history-events'
 import { buildExposureTimeline, hiddenEdgeCounts, historyEdgeAuthorIds, type TExposureHistoryEdges, type TExposureHistoryEntity } from './timeline-model'
 
-type TExposureHistoryTabProps = {
+type TExposureHistoryTabProps<TOp extends string> = {
   entity: TExposureHistoryEntity
   title: string
   objectType: ObjectTypes
-  updateOperation: string
+  updateOperation: TOp
   edges: {
     data: TExposureHistoryEdges | undefined
     isPending: boolean
@@ -26,7 +26,7 @@ type TExposureHistoryTabProps = {
     error: unknown
   }
   history: {
-    histories: TOwnershipHistoryNode[]
+    histories: TOwnershipHistoryNode<TOp>[]
     isPending: boolean
     isError: boolean
     error: unknown
@@ -36,7 +36,7 @@ type TExposureHistoryTabProps = {
   }
 }
 
-const ExposureHistoryTab: React.FC<TExposureHistoryTabProps> = ({ entity, title, objectType, updateOperation, edges, history }) => {
+const ExposureHistoryTab = <TOp extends string>({ entity, title, objectType, updateOperation, edges, history }: TExposureHistoryTabProps<TOp>) => {
   const entityName = toHumanLabel(objectType).toLowerCase()
   const { histories, hasNextPage, isFetchingNextPage, fetchNextPage } = history
   useQueryErrorNotification({ error: edges.error ?? history.error, description: `Failed to load ${entityName} history` })

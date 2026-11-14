@@ -3,6 +3,7 @@ import { ExternalLink } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 import { isValidUrl } from '@/utils/normalizeUrl'
+import { OverviewSection } from './overview-section'
 
 const CWE_ID = /^CWE-(\d+)$/i
 
@@ -25,8 +26,7 @@ const ExposureReferences: React.FC<TExposureReferencesProps> = ({ references, cw
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {links.length > 0 && (
-        <section className="min-w-0 space-y-2">
-          <h2 className="text-lg font-semibold">References</h2>
+        <OverviewSection title="References">
           <ul className="space-y-1.5">
             {links.map((reference) => (
               <li key={reference} className="min-w-0 text-sm">
@@ -34,11 +34,10 @@ const ExposureReferences: React.FC<TExposureReferencesProps> = ({ references, cw
               </li>
             ))}
           </ul>
-        </section>
+        </OverviewSection>
       )}
       {weaknesses.length > 0 && (
-        <section className="min-w-0 space-y-2">
-          <h2 className="text-lg font-semibold">Weakness type (CWE)</h2>
+        <OverviewSection title="Weakness type (CWE)">
           <div className="flex flex-wrap gap-2">
             {weaknesses.map((cwe) => {
               const href = cweHref(cwe)
@@ -56,7 +55,7 @@ const ExposureReferences: React.FC<TExposureReferencesProps> = ({ references, cw
               )
             })}
           </div>
-        </section>
+        </OverviewSection>
       )}
     </div>
   )

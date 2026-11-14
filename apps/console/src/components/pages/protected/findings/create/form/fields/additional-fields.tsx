@@ -11,6 +11,7 @@ import { HtmlOrText } from '@/components/shared/sanitized-html/sanitized-html'
 import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import { formatDateTime } from '@/utils/date'
 import { normalizeUrl } from '@/utils/normalizeUrl'
+import { isPopulatedObject } from '@/utils/type-guards'
 import { type UpdateFindingInput } from '@repo/codegen/src/schema'
 import { Badge } from '@repo/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/cardpanel'
@@ -20,13 +21,13 @@ import { activatable } from '@repo/ui/lib/a11y'
 import { cn } from '@repo/ui/lib/utils'
 import { Textarea } from '@repo/ui/textarea'
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useFormContext, type FieldValues } from 'react-hook-form'
 import { FINDING_ASSIGNEE, FINDING_INTERNAL_OWNER, FINDING_REVIEWER } from '../../../finding-responsibility'
 import { type EnumCreateHandlers, type EnumOptions } from '../../../table/types'
 import { EXTERNAL_REF_LOCKED_TOOLTIP } from '../../../../exposure/detail/external-ref-lock'
 import { getFindingSeverity } from '../../../finding-display'
-import { isPopulatedObject, TargetDetailsCard } from '../../../target-details/target-details'
+import { TargetDetailsCard } from '../../../target-details/target-details'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -283,8 +284,20 @@ const ReadOnlyField: React.FC<{ label: string; value: React.ReactNode }> = ({ la
   )
 }
 
+const renderArrayList = (arr: string[]) => (
+  <ul className="space-y-1">
+    {arr.map((value, index) => (
+      <li key={`${index}-${value}`} className="break-words">
+        <HtmlOrText value={value} />
+      </li>
+    ))}
+  </ul>
+)
+
+type TArrayTextFieldName = 'stepsToReproduce' | 'references'
+
 interface ArrayTextFieldProps {
-  name: string
+  name: TArrayTextFieldName
   label: string
   isEditing: boolean
   isEditAllowed: boolean
@@ -310,10 +323,10 @@ export const ArrayTextField: React.FC<ArrayTextFieldProps> = ({ name, label, isE
 
   const [localValue, setLocalValue] = useState<string>(currentArray.join('\n'))
 
+  const wasFieldEditingRef = useRef(false)
   useEffect(() => {
-    if (isFieldEditing) {
-      setLocalValue(currentArray.join('\n'))
-    }
+    if (isFieldEditing && !wasFieldEditingRef.current) setLocalValue(currentArray.join('\n'))
+    wasFieldEditingRef.current = isFieldEditing
   }, [isFieldEditing, currentArray])
 
   const parseToArray = (text: string) =>
@@ -335,7 +348,7 @@ export const ArrayTextField: React.FC<ArrayTextFieldProps> = ({ name, label, isE
     setInternalEditing(null)
     const same = newArr.length === currentArray.length && newArr.every((v, i) => v === currentArray[i])
     if (!same && handleUpdate) {
-      await handleUpdate({ [name]: newArr } as unknown as UpdateFindingInput)
+      await handleUpdate(name === 'stepsToReproduce' ? { stepsToReproduce: newArr } : { references: newArr })
     }
   }
 
@@ -354,7 +367,7 @@ export const ArrayTextField: React.FC<ArrayTextFieldProps> = ({ name, label, isE
         <Textarea value={localValue} onChange={handleChange} onBlur={handleBlur} autoFocus={internalEditing === name} rows={4} placeholder="One entry per line" />
       ) : (
         <div className={cn('text-sm py-2 px-1 w-full rounded-md', isEditAllowed && 'cursor-pointer hover:bg-accent')} {...activatable(isEditAllowed ? handleClick : undefined)}>
-          {currentArray.length === 0 ? notSet : renderView?.(currentArray)}
+          {currentArray.length === 0 ? notSet : (renderView ?? renderArrayList)(currentArray)}
         </div>
       )}
     </FormItem>

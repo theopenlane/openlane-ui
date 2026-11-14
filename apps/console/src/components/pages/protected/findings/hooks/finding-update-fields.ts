@@ -1,5 +1,5 @@
 import { responsibilityInput } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { associationsInput, omit, orClear, richTextOrClear, type TFieldMappers } from '@/hooks/useDirtyInput'
+import { omit, orClear, richTextOrClear, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { type UpdateFindingInput } from '@repo/codegen/src/schema'
 import { FINDING_ASSIGNEE, FINDING_INTERNAL_OWNER, FINDING_REVIEWER } from '../finding-responsibility'
 import { type FindingFormData } from './use-form-schema'
@@ -36,14 +36,14 @@ export const FINDING_UPDATE_FIELDS = {
   assignedTo: responsibilityInput(FINDING_ASSIGNEE),
   reviewedBy: responsibilityInput(FINDING_REVIEWER),
   controlIDs: omit,
-  subcontrolIDs: associationsInput('subcontrolIDs'),
-  riskIDs: associationsInput('riskIDs'),
-  programIDs: associationsInput('programIDs'),
-  taskIDs: associationsInput('taskIDs'),
-  assetIDs: associationsInput('assetIDs'),
-  scanIDs: associationsInput('scanIDs'),
-  remediationIDs: associationsInput('remediationIDs'),
-  reviewIDs: associationsInput('reviewIDs'),
-  vulnerabilityIDs: associationsInput('vulnerabilityIDs'),
-  actionPlanIDs: associationsInput('actionPlanIDs'),
+  subcontrolIDs: omit,
+  riskIDs: omit,
+  programIDs: omit,
+  taskIDs: omit,
+  assetIDs: omit,
+  scanIDs: omit,
+  remediationIDs: omit,
+  reviewIDs: omit,
+  vulnerabilityIDs: omit,
+  actionPlanIDs: omit,
 } satisfies TFieldMappers<FindingFormData, UpdateFindingInput>

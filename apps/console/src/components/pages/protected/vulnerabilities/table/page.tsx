@@ -2,11 +2,11 @@
 
 import { getVulnerabilityTitle } from '../vulnerability-display'
 import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import React, { useEffect } from 'react'
+import React from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { useCreateVulnerability, useBulkEditVulnerability, useBulkDeleteVulnerability } from '@/lib/graphql-hooks/vulnerability'
 import VulnerabilitySeverityChart from '@/components/shared/severity-chart/severity-chart'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, DISMISSED_QUICK_FILTER, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import { type VulnerabilitySheetConfig, type VulnerabilityTablePageConfig, type VulnerabilityFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
@@ -20,7 +20,6 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { VULNERABILITY_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
-import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { useSlaQuickFilters } from '@/hooks/useSla'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { type TBulkEditAssociations } from '@/components/shared/crud-base/dialog/bulk-edit'
@@ -32,10 +31,7 @@ const BULK_EDIT_ASSOCIATIONS: TBulkEditAssociations<UpdateVulnerabilityInput> = 
 const VulnerabilityPage: React.FC = () => {
   const { form } = useFormSchema()
 
-  const router = useRouter()
   const searchParams = useSearchParams()
-  const id = searchParams.get('id')
-  const isCreate = searchParams.get('create') === 'true'
   const scanId = searchParams.get('scanId')
 
   const plateEditorHelper = usePlateEditor()
@@ -90,10 +86,6 @@ const VulnerabilityPage: React.FC = () => {
     scopeName: createScope,
     vulnerabilityStatusName: createVulnStatus,
   }
-
-  useEffect(() => {
-    if (id && !isCreate) router.replace(getHrefForObjectType('vulnerabilities', { id }))
-  }, [id, isCreate, router])
 
   const sheetConfig: VulnerabilitySheetConfig = {
     objectType: objectType,

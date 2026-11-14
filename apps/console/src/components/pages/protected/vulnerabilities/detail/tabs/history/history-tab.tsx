@@ -17,7 +17,7 @@ const HistoryTab: React.FC<{ vulnerability: TVulnerabilityDetail }> = ({ vulnera
       title={getVulnerabilityTitle(vulnerability)}
       objectType={ObjectTypes.VULNERABILITY}
       updateOperation={VulnerabilityHistoryOpType.UPDATE}
-      edges={{ ...edgesQuery, data: edgesQuery.data?.vulnerability }}
+      edges={{ data: edgesQuery.data?.vulnerability, isPending: edgesQuery.isPending, isError: edgesQuery.isError, error: edgesQuery.error }}
       history={history}
     />
   )

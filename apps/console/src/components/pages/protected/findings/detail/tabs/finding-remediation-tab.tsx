@@ -1,15 +1,11 @@
 'use client'
 
-import React, { useMemo } from 'react'
-import { useSession } from 'next-auth/react'
-import { useQueryClient } from '@tanstack/react-query'
-import { type FindingDetailNode, invalidateFindingQueries, useFindingRemediationWork } from '@/lib/graphql-hooks/finding'
-import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
-import { type TRemediationContextRef } from '@/components/pages/protected/remediations/sheet/remediation-context'
+import React from 'react'
+import { type FindingDetailNode, useFindingRemediationWork } from '@/lib/graphql-hooks/finding'
 import RemediationWorkTab from '../../../exposure/detail/remediation/remediation-work-tab'
 import { LINK_ACTION_PLAN_DIALOG_PROPS } from '../../../exposure/detail/remediation/remediation-links'
-import { buildFindingTaskDefaults, getFindingTitle } from '../../finding-display'
+import { useExposureRemediationContext } from '../../../exposure/detail/remediation/use-exposure-remediation-context'
+import { getFindingTitle } from '../../finding-display'
 import { SetFindingAssociationDialog } from '../../set-finding-association-dialog'
 
 type TFindingRemediationTabProps = {
@@ -19,24 +15,15 @@ type TFindingRemediationTabProps = {
 }
 
 const FindingRemediationTab: React.FC<TFindingRemediationTabProps> = ({ finding, canEdit, canCreateRemediation }) => {
-  const { data: session } = useSession()
-  const queryClient = useQueryClient()
   const workQuery = useFindingRemediationWork(finding.id)
-  const title = getFindingTitle(finding)
-  const taskInitialValues = useMemo(() => buildFindingTaskDefaults(title, session?.user?.userId), [title, session?.user?.userId])
-  const linkedTo = useMemo(() => ({ findingIDs: [finding.id] }), [finding.id])
-  const remediationContext = useMemo<TRemediationContextRef>(() => ({ type: ObjectAssociationNodeEnum.FINDING, id: finding.id }), [finding.id])
+  const context = useExposureRemediationContext('finding', finding.id, getFindingTitle(finding), finding.recommendedActions)
 
   return (
     <RemediationWorkTab
       entityName="finding"
-      workQuery={{ ...workQuery, data: workQuery.data?.finding }}
+      workQuery={{ data: workQuery.data?.finding, isPending: workQuery.isPending, isError: workQuery.isError, error: workQuery.error }}
       canCreateRemediation={canCreateRemediation}
-      taskInitialValues={taskInitialValues}
-      linkedTo={linkedTo}
-      remediationContext={remediationContext}
-      onWorkCreated={() => invalidateFindingQueries(queryClient)}
-      defaultSelectedObject={ObjectTypeObjects.FINDING}
+      context={context}
       renderLinkActionPlan={canEdit ? (props) => <SetFindingAssociationDialog findingId={finding.id} {...LINK_ACTION_PLAN_DIALOG_PROPS} {...props} /> : undefined}
     />
   )

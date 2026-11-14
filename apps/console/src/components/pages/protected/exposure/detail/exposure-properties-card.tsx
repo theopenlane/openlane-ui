@@ -2,28 +2,32 @@
 
 import React, { useState } from 'react'
 import { BadgeCheck, CircleUser, Flag, Layers, Radio, ShieldOff, UserRoundCheck, UserRoundSearch } from 'lucide-react'
+import { type FieldValues } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
-import { type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
+import { type UpdateFindingInput, type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
+import { type ResponsibilityTarget } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
-import { VULNERABILITY_ASSIGNEE, VULNERABILITY_INTERNAL_OWNER, VULNERABILITY_REVIEWER } from '../vulnerability-responsibilities'
-import { type TVulnerabilityDetail } from '../vulnerability-display'
-import { ReadOnlyRow } from '../../exposure/detail/read-only-row'
+import { ReadOnlyRow } from './read-only-row'
 
 const iconClass = 'h-4 w-4 text-muted-foreground'
 
-type TVulnerabilityPropertiesSidebarProps = {
-  vulnerability: TVulnerabilityDetail
+type TExposureUpdateInput = UpdateFindingInput | UpdateVulnerabilityInput
+
+type TExposurePropertiesCardProps<TInput extends TExposureUpdateInput> = {
+  data: FieldValues & { priority?: string | null; validated?: boolean | null }
+  responsibilities: Record<'owner' | 'assignee' | 'reviewer', ResponsibilityTarget<TInput>>
+  blocking: { name: Extract<keyof TInput, 'blocking' | 'blocksProduction'>; value?: boolean | null }
   isEditing: boolean
   canEdit: boolean
-  handleUpdate: (input: UpdateVulnerabilityInput, options?: TPersistOptions) => Promise<void>
+  handleUpdate: (input: UpdateFindingInput & UpdateVulnerabilityInput, options?: TPersistOptions) => Promise<void>
 }
 
-const VulnerabilityPropertiesSidebar: React.FC<TVulnerabilityPropertiesSidebarProps> = ({ vulnerability, isEditing, canEdit, handleUpdate }) => {
+export const ExposurePropertiesCard = <TInput extends TExposureUpdateInput>({ data, responsibilities, blocking, isEditing, canEdit, handleUpdate }: TExposurePropertiesCardProps<TInput>) => {
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
@@ -32,7 +36,7 @@ const VulnerabilityPropertiesSidebar: React.FC<TVulnerabilityPropertiesSidebarPr
     isEditing,
     isEditAllowed: canEdit,
     isCreate: false,
-    data: vulnerability,
+    data,
     internalEditing,
     setInternalEditing,
     handleUpdate,
@@ -40,7 +44,7 @@ const VulnerabilityPropertiesSidebar: React.FC<TVulnerabilityPropertiesSidebarPr
     labelClassName: 'text-muted-foreground w-30',
   }
 
-  const showPriority = isEditing || internalEditing === 'priority' || !!vulnerability.priority?.trim()
+  const showPriority = isEditing || internalEditing === 'priority' || !!data.priority?.trim()
 
   return (
     <Card className="rounded-xl bg-card p-4 shadow-xs">
@@ -48,24 +52,27 @@ const VulnerabilityPropertiesSidebar: React.FC<TVulnerabilityPropertiesSidebarPr
       <div className="flex flex-col gap-3">
         <ResponsibilityField
           name="internalOwner"
-          fieldBaseName={VULNERABILITY_INTERNAL_OWNER.fieldBaseName}
-          stringFieldName={VULNERABILITY_INTERNAL_OWNER.stringFieldName}
+          fieldBaseName={responsibilities.owner.fieldBaseName}
+          stringFieldName={responsibilities.owner.stringFieldName}
+          allowPersonnel={responsibilities.owner.allowPersonnel}
           label="Owner"
           icon={<CircleUser className={iconClass} />}
           {...sharedFieldProps}
         />
         <ResponsibilityField
           name="assignedTo"
-          fieldBaseName={VULNERABILITY_ASSIGNEE.fieldBaseName}
-          stringFieldName={VULNERABILITY_ASSIGNEE.stringFieldName}
+          fieldBaseName={responsibilities.assignee.fieldBaseName}
+          stringFieldName={responsibilities.assignee.stringFieldName}
+          allowPersonnel={responsibilities.assignee.allowPersonnel}
           label="Assigned to"
           icon={<UserRoundCheck className={iconClass} />}
           {...sharedFieldProps}
         />
         <ResponsibilityField
           name="reviewedBy"
-          fieldBaseName={VULNERABILITY_REVIEWER.fieldBaseName}
-          stringFieldName={VULNERABILITY_REVIEWER.stringFieldName}
+          fieldBaseName={responsibilities.reviewer.fieldBaseName}
+          stringFieldName={responsibilities.reviewer.stringFieldName}
+          allowPersonnel={responsibilities.reviewer.allowPersonnel}
           label="Reviewed by"
           icon={<UserRoundSearch className={iconClass} />}
           {...sharedFieldProps}
@@ -76,15 +83,15 @@ const VulnerabilityPropertiesSidebar: React.FC<TVulnerabilityPropertiesSidebarPr
         {isEditing ? (
           <div className="flex flex-col gap-3 pt-1">
             <CheckboxField name="validated" label="Validated" {...sharedFieldProps} />
-            <CheckboxField name="blocking" label="Blocks production" {...sharedFieldProps} />
+            <CheckboxField name={blocking.name} label="Blocks production" {...sharedFieldProps} />
           </div>
         ) : (
           <>
             <ReadOnlyRow icon={<BadgeCheck className={iconClass} />} label="Validated">
-              {vulnerability.validated ? 'Yes' : 'No'}
+              {data.validated ? 'Yes' : 'No'}
             </ReadOnlyRow>
             <ReadOnlyRow icon={<ShieldOff className={iconClass} />} label="Blocks production">
-              {vulnerability.blocking ? 'Yes' : 'No'}
+              {blocking.value ? 'Yes' : 'No'}
             </ReadOnlyRow>
           </>
         )}
@@ -92,5 +99,3 @@ const VulnerabilityPropertiesSidebar: React.FC<TVulnerabilityPropertiesSidebarPr
     </Card>
   )
 }
-
-export default VulnerabilityPropertiesSidebar

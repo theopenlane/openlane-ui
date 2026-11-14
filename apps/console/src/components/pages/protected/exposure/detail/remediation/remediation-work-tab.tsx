@@ -9,7 +9,6 @@ import { type Connection, getNodes } from '@/lib/graphql-hooks/connection'
 import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
-import { type ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
@@ -20,8 +19,8 @@ import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
-import { type TRemediationContextRef } from '@/components/pages/protected/remediations/sheet/remediation-context'
-import { type TExposureLinkedTo, type TLinkActionPlanDialogProps } from './remediation-links'
+import { type TLinkActionPlanDialogProps } from './remediation-links'
+import { type TExposureRemediationContext } from './use-exposure-remediation-context'
 
 const EMPTY_USER_MAP = {}
 const REMEDIATION_SKELETON_SECTIONS = ['remediations', 'tasks', 'action-plans']
@@ -47,12 +46,8 @@ type TRemediationWorkTabProps = {
     error: unknown
   }
   canCreateRemediation: boolean
-  taskInitialValues: React.ComponentProps<typeof CreateTaskDialog>['initialValues']
-  linkedTo: TExposureLinkedTo
-  remediationContext: TRemediationContextRef
-  defaultSelectedObject: ObjectTypeObjects
+  context: TExposureRemediationContext
   renderLinkActionPlan?: (props: TLinkActionPlanDialogProps) => React.ReactNode
-  onWorkCreated?: () => void
 }
 
 type TWorkSectionProps = {
@@ -91,17 +86,7 @@ const WorkSection: React.FC<TWorkSectionProps> = ({ title, action, columns, tota
     </section>
   )
 
-const RemediationWorkTab: React.FC<TRemediationWorkTabProps> = ({
-  entityName,
-  workQuery,
-  canCreateRemediation,
-  taskInitialValues,
-  linkedTo,
-  remediationContext,
-  defaultSelectedObject,
-  renderLinkActionPlan,
-  onWorkCreated,
-}) => {
+const RemediationWorkTab: React.FC<TRemediationWorkTabProps> = ({ entityName, workQuery, canCreateRemediation, context, renderLinkActionPlan }) => {
   const [isCreateRemediationOpen, setIsCreateRemediationOpen] = useState(false)
   const openObjectSheet = useOpenObjectSheet()
   const { data: work, isPending, isError, error } = workQuery
@@ -170,11 +155,10 @@ const RemediationWorkTab: React.FC<TRemediationWorkTabProps> = ({
                 Task
               </Button>
             }
-            initialValues={taskInitialValues}
-            initialData={linkedTo}
-            defaultSelectedObject={defaultSelectedObject}
+            initialValues={context.taskInitialValues}
+            initialData={context.linkedTo}
+            defaultSelectedObject={context.defaultSelectedObject}
             hideObjectAssociation
-            onSuccessWithId={onWorkCreated}
           />
         }
       >
@@ -233,11 +217,9 @@ const RemediationWorkTab: React.FC<TRemediationWorkTabProps> = ({
       <CreateRemediationSheet
         isOpen={isCreateRemediationOpen}
         onClose={() => setIsCreateRemediationOpen(false)}
-        context={remediationContext}
-        onSuccess={() => {
-          setIsCreateRemediationOpen(false)
-          onWorkCreated?.()
-        }}
+        context={context.remediationContext}
+        initialInstructions={context.initialInstructions}
+        onSuccess={() => setIsCreateRemediationOpen(false)}
       />
     </div>
   )

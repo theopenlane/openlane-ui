@@ -54,7 +54,7 @@ import {
 import { GET_FINDING_HISTORIES } from '@repo/codegen/query-history/finding'
 import { useEntityComments } from '@/lib/graphql-hooks/entity-comments'
 import { getNodes } from '@/lib/graphql-hooks/connection'
-import { exposureRelatedSections, useRefreshOnRelatedChange } from '@/lib/graphql-hooks/use-refresh-on-related-change'
+import { EXPOSURE_QUERY_SECTION, exposureRelatedSections, useRefreshOnRelatedChange } from '@/lib/graphql-hooks/use-refresh-on-related-change'
 import { invalidateEdgeUpdateTargets } from '@/components/shared/object-association/object-association-config'
 
 type GetAllFindingsArgs = {
@@ -199,7 +199,7 @@ export const useGetFindingAssociations = (findingId?: string) => {
   const { client } = useGraphQLClient()
   useRefreshOnRelatedChange('findings', findingId, RELATED_SECTIONS)
   return useQuery<GetFindingAssociationsQuery, unknown>({
-    queryKey: ['findings', findingId, 'associations'],
+    queryKey: ['findings', findingId, EXPOSURE_QUERY_SECTION.associations],
     queryFn: async () => client.request<GetFindingAssociationsQuery>(GET_FINDING_ASSOCIATIONS, { findingId: findingId as string }),
     enabled: !!findingId,
   })
@@ -257,7 +257,7 @@ export const useFindingRemediationWork = (findingId?: string) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetFindingRemediationWorkQuery, unknown>({
-    queryKey: ['findings', findingId, 'remediation-work'],
+    queryKey: ['findings', findingId, EXPOSURE_QUERY_SECTION.remediationWork],
     queryFn: async () =>
       client.request<GetFindingRemediationWorkQuery, GetFindingRemediationWorkQueryVariables>(GET_FINDING_REMEDIATION_WORK, {
         findingId: findingId as string,
@@ -274,7 +274,7 @@ export const useFindingHistoryEdges = (findingId?: string) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetFindingHistoryEdgesQuery, unknown>({
-    queryKey: ['findings', findingId, 'history-edges'],
+    queryKey: ['findings', findingId, EXPOSURE_QUERY_SECTION.historyEdges],
     queryFn: async () =>
       client.request<GetFindingHistoryEdgesQuery, GetFindingHistoryEdgesQueryVariables>(GET_FINDING_HISTORY_EDGES, {
         findingId: findingId as string,

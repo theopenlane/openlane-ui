@@ -5,26 +5,21 @@ import { CheckCircle2, Link2, Wrench } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
-import { type TRemediationContextRef } from '@/components/pages/protected/remediations/sheet/remediation-context'
 import QuickActionsBar, { type QuickActionItem } from '@/components/shared/crud-base/quick-actions/quick-actions-bar'
 import MenuItem from '@/components/shared/menu/menu-item'
-import { type ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 import { type Connection } from '@/lib/graphql-hooks/connection'
 import { getNodes } from '@/lib/graphql-hooks/connection'
-import { type TExposureLinkedTo, type TLinkActionPlanDialogProps } from './remediation/remediation-links'
+import { type TLinkActionPlanDialogProps } from './remediation/remediation-links'
+import { type TExposureRemediationContext } from './remediation/use-exposure-remediation-context'
 
 type TDetailQuickActionsProps = {
   remediations: Connection<{ id: string }> | null | undefined
   canCreateRemediation: boolean
-  taskInitialValues: React.ComponentProps<typeof CreateTaskDialog>['initialValues']
-  linkedTo: TExposureLinkedTo
-  remediationContext: TRemediationContextRef
-  defaultSelectedObject: ObjectTypeObjects
+  context: TExposureRemediationContext
   onShowRemediationTab: () => void
   renderLinkActionPlan?: (props: TLinkActionPlanDialogProps) => React.ReactNode
-  onTaskCreated?: () => void
   onRemediationCreated?: () => void
   extraActions?: QuickActionItem[]
   children?: React.ReactNode
@@ -33,13 +28,9 @@ type TDetailQuickActionsProps = {
 const DetailQuickActions: React.FC<TDetailQuickActionsProps> = ({
   remediations,
   canCreateRemediation,
-  taskInitialValues,
-  linkedTo,
-  remediationContext,
-  defaultSelectedObject,
+  context,
   onShowRemediationTab,
   renderLinkActionPlan,
-  onTaskCreated,
   onRemediationCreated,
   extraActions = [],
   children,
@@ -90,16 +81,16 @@ const DetailQuickActions: React.FC<TDetailQuickActionsProps> = ({
       <CreateTaskDialog
         open={isTaskOpen}
         onOpenChange={setIsTaskOpen}
-        initialValues={taskInitialValues}
-        initialData={linkedTo}
-        defaultSelectedObject={defaultSelectedObject}
+        initialValues={context.taskInitialValues}
+        initialData={context.linkedTo}
+        defaultSelectedObject={context.defaultSelectedObject}
         hideObjectAssociation
-        onSuccessWithId={onTaskCreated}
       />
       <CreateRemediationSheet
         isOpen={isRemediationOpen}
         onClose={() => setIsRemediationOpen(false)}
-        context={remediationContext}
+        context={context.remediationContext}
+        initialInstructions={context.initialInstructions}
         onSuccess={() => {
           setIsRemediationOpen(false)
           onRemediationCreated?.()
