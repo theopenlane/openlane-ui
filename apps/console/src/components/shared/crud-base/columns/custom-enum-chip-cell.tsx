@@ -10,7 +10,7 @@ interface CustomEnumChipCellProps {
 }
 
 export const CustomEnumChipCell = ({ value, objectType, field }: CustomEnumChipCellProps) => {
-  const { enumOptions } = useCreatableEnumOptions({ objectType, field })
+  const { enumOptions, isPending } = useCreatableEnumOptions({ objectType, field })
   if (!value) return null
-  return <CustomTypeEnumValue value={value} options={enumOptions} />
+  return <CustomTypeEnumValue value={value} options={enumOptions} showUnmatchedValue={!isPending} />
 }

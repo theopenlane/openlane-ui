@@ -11053,13 +11053,13 @@ export interface VulnerabilityQuery {
     dependencyScope: string | null
     fixAvailable: boolean | null
     fixedAt: string | null
-    assignedToUser: { id: string; displayName: string } | null
+    assignedToUser: { id: string; displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
     assignedToGroup: { id: string; displayName: string } | null
     assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
-    reviewedByUser: { id: string; displayName: string } | null
+    reviewedByUser: { id: string; displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
     reviewedByGroup: { id: string; displayName: string } | null
     reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
-    internalOwnerUser: { id: string; displayName: string } | null
+    internalOwnerUser: { id: string; displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
