@@ -4,11 +4,12 @@ import { useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { formatDate } from '@/utils/date'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { Box, ExternalLink, InfoIcon } from 'lucide-react'
+import { Box, InfoIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Card } from '@repo/ui/cardpanel'
+import { Link } from '@/components/shared/link/link'
 
 type Product = {
   product_id: string
@@ -139,10 +140,9 @@ export function ProductCard({
             {(product.marketing_description ?? product.description) && <p className="text-sm text-text-informational mt-1">{product.marketing_description || product.description}</p>}
 
             <div className="mt-1">
-              <a href={`${OPENLANE_WEBSITE_URL}/pricing`} target="_blank" rel="noopener noreferrer" className="text-brand text-sm font-medium flex gap-1 items-center">
-                <ExternalLink size={16} />
-                <span>Learn more</span>
-              </a>
+              <Link href={`${OPENLANE_WEBSITE_URL}/pricing`} newTab className="text-sm">
+                Learn more
+              </Link>
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import { type TemplateWhereInput, TemplateDocumentType, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectTrigger, SelectValue, SelectItem } from '@repo/ui/select'
 import { Form, FormControl, FormField, FormItem } from '@repo/ui/form'
@@ -156,15 +156,11 @@ export const TemplateList = ({ initialTemplateId, onCreateSuccess }: TemplateLis
             />
           </Form>
           <div className="mt-2 text-sm text-muted-foreground flex gap-2">
-            <Link href="/automation/questionnaires/templates" className="text-primary hover:underline">
-              View all templates
-            </Link>
+            <Link href="/automation/questionnaires/templates">View all templates</Link>
             {!hasTemplates && (
               <>
                 <span>•</span>
-                <Link href="/automation/questionnaires/templates/template-editor" className="text-primary hover:underline">
-                  Create a new template
-                </Link>
+                <Link href="/automation/questionnaires/templates/template-editor">Create a new template</Link>
               </>
             )}
           </div>

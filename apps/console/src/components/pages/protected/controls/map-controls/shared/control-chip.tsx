@@ -4,7 +4,8 @@ import Drag from '@/assets/Drag'
 import { PencilLine, Plus, XIcon } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { SlidersHorizontal, FileText, Folder, FolderPlus, ExternalLink } from 'lucide-react'
-import Link from 'next/link'
+import NextLink from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import { useGetControlMinifiedById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolMinifiedById } from '@/lib/graphql-hooks/subcontrol'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -120,7 +121,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger asChild>{href && !disableHref && clickable ? <Link href={href}>{renderedBadge()}</Link> : <div>{renderedBadge()}</div>}</TooltipTrigger>
+        <TooltipTrigger asChild>{href && !disableHref && clickable ? <NextLink href={href}>{renderedBadge()}</NextLink> : <div>{renderedBadge()}</div>}</TooltipTrigger>
         {tooltipOpen && (
           <TooltipContent side="top" collisionPadding={64} portal>
             <ControlTooltipContent control={control} disableHref={disableHref} forceHref={forceHref} />
@@ -160,9 +161,8 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
           {disableHref ? (
             <span className="pl-3">{details.title ? `${details.refCode} ${details.title}` : details.refCode}</span>
           ) : (
-            <Link href={nameHref} className="size-fit pl-3 hover:underline flex items-center gap-1" target="_blank" rel="noopener">
-              <span className="text-brand">{details.title ? `${details.refCode} ${details.title}` : details.refCode}</span>
-              <ExternalLink size={12} />
+            <Link href={nameHref} newTab className="size-fit pl-3">
+              {details.title ? `${details.refCode} ${details.title}` : details.refCode}
             </Link>
           )}
         </div>
@@ -172,10 +172,10 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
           <span className="font-medium">Standard</span>
         </div>
         <div className="flex items-center gap-1 border-b pb-2">
-          <Link href={standardHref} className=" size-fit hover:underline flex items-center gap-1" target="_blank" rel="noopener">
+          <NextLink href={standardHref} className=" size-fit hover:underline flex items-center gap-1" target="_blank" rel="noopener">
             <StandardChip referenceFramework={details.referenceFramework ?? ''} />
             {details.referenceFramework && <ExternalLink size={12} />}
-          </Link>
+          </NextLink>
         </div>
 
         <div className="flex items-center gap-1 border-b pb-2">

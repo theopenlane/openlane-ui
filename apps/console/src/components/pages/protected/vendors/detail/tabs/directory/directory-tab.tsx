@@ -92,7 +92,7 @@ const DirectoryTab: React.FC<DirectoryTabProps> = ({ vendor }) => {
       <div ref={sentinelRef}>
         {isFetchingNextPage && <StatusLine>Loading more groups…</StatusLine>}
         {isFetchNextPageError && !isFetchingNextPage && (
-          <Button type="button" variant="link" className="text-blue-500" onClick={() => fetchNextPage()}>
+          <Button type="button" variant="link" onClick={() => fetchNextPage()}>
             Retry loading more groups
           </Button>
         )}

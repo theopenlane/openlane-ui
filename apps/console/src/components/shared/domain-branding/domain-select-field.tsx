@@ -1,7 +1,6 @@
 'use client'
 
-import Link from 'next/link'
-import { ExternalLink } from 'lucide-react'
+import { Link } from '@/components/shared/link/link'
 import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
@@ -45,9 +44,8 @@ export const DomainSelectField = ({ id, domains, value, onValueChange, disabled 
           side="top"
           portal
           icon={
-            <Link href={ORGANIZATION_SETTINGS_HREF} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary text-xs font-medium underline">
+            <Link href={ORGANIZATION_SETTINGS_HREF} newTab className="text-xs">
               Manage Domains
-              <ExternalLink size={12} />
             </Link>
           }
         />

@@ -1,7 +1,7 @@
 'use client'
 
 import { type ReactNode } from 'react'
-import { ExternalLink } from 'lucide-react'
+import { Link } from '@/components/shared/link/link'
 import { cn } from '@repo/ui/lib/utils'
 import { formatUrlForDisplay, normalizeHref } from '@/utils/normalizeUrl'
 
@@ -19,17 +19,8 @@ export const ExternalLinkValue = ({ value, className, fallback = null }: Externa
   }
 
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      title={href}
-      className={cn('inline-flex max-w-full items-center gap-1.5 align-middle text-blue-600 dark:text-blue-400 hover:underline', className)}
-      onClick={(e) => e.stopPropagation()}
-      onAuxClick={(e) => e.stopPropagation()}
-    >
+    <Link href={href} newTab title={href} className={cn('max-w-full', className)} onClick={(e) => e.stopPropagation()} onAuxClick={(e) => e.stopPropagation()}>
       <span className="truncate">{formatUrlForDisplay(href) || href}</span>
-      <ExternalLink className="size-3.5 shrink-0" />
-    </a>
+    </Link>
   )
 }

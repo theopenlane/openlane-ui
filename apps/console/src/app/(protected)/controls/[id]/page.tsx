@@ -15,7 +15,7 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { canEdit } from '@/lib/authz/utils.ts'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
 import ControlHeaderActions from '@/components/pages/protected/controls/control-header-actions'
-import Link from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
@@ -323,13 +323,9 @@ const ControlDetailsPage: React.FC = () => {
         <Callout variant="warning">
           <p>
             This control was created from a published framework and some details such as the description and category are <b>not</b> editable. If you need to edit it, consider{' '}
-            <Link className="text-blue-500" href={`/controls/${id}/create-subcontrol`}>
-              creating a subcontrol
-            </Link>
+            <Link href={`/controls/${id}/create-subcontrol`}>creating a subcontrol</Link>
             &nbsp;or&nbsp;
-            <Link className="text-blue-500" href={`/controls/create-control?mapControlId=${id}`}>
-              creating a new organization control
-            </Link>
+            <Link href={`/controls/create-control?mapControlId=${id}`}>creating a new organization control</Link>
             &nbsp;and linking it.
           </p>
         </Callout>

@@ -129,7 +129,7 @@ export const SubprocessorMatchStep: React.FC<TSubprocessorMatchStepProps> = ({ s
             </TabsList>
           </Tabs>
           {isSnapshotStale && (
-            <Button variant="link" className="text-blue-500" onClick={() => setSnapshot(snapshotRows(filter, rows))}>
+            <Button variant="link" onClick={() => setSnapshot(snapshotRows(filter, rows))}>
               Refresh list
             </Button>
           )}

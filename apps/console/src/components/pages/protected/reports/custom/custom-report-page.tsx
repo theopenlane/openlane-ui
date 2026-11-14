@@ -250,7 +250,7 @@ const CustomReportPage: React.FC = () => {
         <Callout variant="warning">
           <div className="flex items-center gap-2 flex-wrap">
             <span>{loadError}</span>
-            <Button type="button" variant="link" className="text-blue-500" onClick={detachReport}>
+            <Button type="button" variant="link" onClick={detachReport}>
               Start a new report
             </Button>
           </div>

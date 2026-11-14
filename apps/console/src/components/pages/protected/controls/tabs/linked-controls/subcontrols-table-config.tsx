@@ -1,6 +1,6 @@
 import { defineFilterFields } from '@/types'
 import React from 'react'
-import Link from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import type { ColumnDef } from '@repo/ui/table-types'
 import { CircleDot, Folder, FolderTree, Layers, Tag } from 'lucide-react'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -29,7 +29,7 @@ export const getSubcontrolsColumns = ({ controlId, convertToReadOnly }: GetSubco
     accessorKey: 'refCode',
     header: () => <span className="whitespace-nowrap">Ref Code</span>,
     cell: ({ row }) => (
-      <Link href={`/controls/${controlId}/${row.original.id}`} className="block truncate text-blue-500 hover:underline">
+      <Link href={`/controls/${controlId}/${row.original.id}`} className="block truncate">
         {row.original.refCode}
       </Link>
     ),

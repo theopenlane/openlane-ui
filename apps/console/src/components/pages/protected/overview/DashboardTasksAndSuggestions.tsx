@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react'
-import Link from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import { CardContent } from '@repo/ui/cardpanel'
 import { TriangleAlert } from 'lucide-react'
 import { PartyPopperIcon, type AnimatedIconHandle } from '@theopenlane/animated-icons'
@@ -85,10 +85,7 @@ const DashboardTasksAndSuggestions = () => {
               )}
 
               <p className="mt-auto text-xs text-muted-foreground">
-                Showing tasks due in the next {TASK_DUE_WINDOW_DAYS} days or with no due date.{' '}
-                <Link href={ALL_TASKS_HREF} className="text-blue-500 hover:underline">
-                  View all tasks
-                </Link>
+                Showing tasks due in the next {TASK_DUE_WINDOW_DAYS} days or with no due date. <Link href={ALL_TASKS_HREF}>View all tasks</Link>
               </p>
             </>
           )}

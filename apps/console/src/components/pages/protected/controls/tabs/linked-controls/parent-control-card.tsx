@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
 import { ChevronDown } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
@@ -49,7 +49,7 @@ const ParentControlCard: React.FC<Props> = ({ controlId }) => {
                 <span>Status</span>
               </div>
               <div className="grid grid-cols-[120px_1fr_160px] gap-4 px-3 py-3 items-center">
-                <Link href={href} className="text-sm text-blue-500 hover:underline truncate">
+                <Link href={href} className="text-sm truncate">
                   {control.refCode}
                 </Link>
                 <div className="text-sm line-clamp-2">{control.description ? convertToReadOnly(control.description, 0) : <span className="text-muted-foreground">-</span>}</div>

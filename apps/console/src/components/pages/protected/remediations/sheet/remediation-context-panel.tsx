@@ -52,7 +52,7 @@ const ContextSummary: React.FC<{ context: TRemediationContext }> = ({ context })
 
       {hasDescription && (
         <div className="flex flex-col gap-2">
-          <Button type="button" variant="link" className="w-fit text-blue-500" aria-expanded={showDescription} onClick={() => setShowDescription((open) => !open)}>
+          <Button type="button" variant="link" className="w-fit" aria-expanded={showDescription} onClick={() => setShowDescription((open) => !open)}>
             {showDescription ? 'Hide full description' : 'See full description'}
             <ChevronDown size={14} className={cn('transition-transform', showDescription && 'rotate-180')} />
           </Button>
