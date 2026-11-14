@@ -36,6 +36,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
 import { entityActionAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { SocBadgeDialog } from '@/components/shared/soc-badge/soc-badge-dialog'
+import { isSoc2Framework } from '@/constants/trust-services-categories'
 
 export default function FrameworksPage() {
   const { successNotification, errorNotification } = useNotification()
@@ -265,6 +267,7 @@ export default function FrameworksPage() {
               )}
             </div>
           </div>
+          {defaultIsAssociated && isSoc2Framework(standard.shortName) && <SocBadgeDialog surface="trust-center-frameworks" className="mb-2 ml-auto" />}
         </div>
 
         <CardContent className="flex p-0 gap-6 justify-between h-16">

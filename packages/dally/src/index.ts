@@ -22,7 +22,8 @@ export const isVercelDev = process.env.VERCEL_ENV === 'development' || process.e
 
 export const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
 
-export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3001')
+const vercelHost = process.env.NEXT_PUBLIC_VERCEL_BRANCH_URL || process.env.NEXT_PUBLIC_VERCEL_URL || process.env.VERCEL_URL
+export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (vercelHost ? `https://${vercelHost}` : 'http://localhost:3001')
 
 export const chatAppId = process.env.NEXT_PUBLIC_CHAT_APP_ID
 
@@ -36,3 +37,7 @@ export const announcementBannerLinkLabel = process.env.NEXT_PUBLIC_ANNOUNCEMENT_
 export const cname = process.env.NEXT_PUBLIC_CUSTOMDOMAIN_CNAME
 
 export const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+
+export const soc1BadgeImageUrl = process.env.NEXT_PUBLIC_SOC_1_BADGE_IMAGE_URL
+export const soc2BadgeImageUrl = process.env.NEXT_PUBLIC_SOC_2_BADGE_IMAGE_URL
+export const soc3BadgeImageUrl = process.env.NEXT_PUBLIC_SOC_3_BADGE_IMAGE_URL

@@ -48,3 +48,11 @@ export const UPDATE_TRUST_CENTER_COMPLIANCE = gql`
     }
   }
 `
+
+export const GET_TRUST_CENTER_COMPLIANCE_COUNT = gql`
+  query GetTrustCenterComplianceCount($where: TrustCenterComplianceWhereInput!) {
+    trustCenterCompliances(where: $where, first: 1) {
+      totalCount
+    }
+  }
+`

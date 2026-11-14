@@ -17,10 +17,7 @@ export const useModuleAccess = () => {
 
   const hasObjectType = useCallback((objectType: ObjectTypes) => featureUtil.hasObjectType(modules, objectType, session), [modules, session])
 
-  return useMemo(
-    () => ({ modules, hasModule, hasAnyModule, hasObjectType, isLoading: status === 'loading' }),
-    [modules, hasModule, hasAnyModule, hasObjectType, status],
-  )
+  return useMemo(() => ({ modules, hasModule, hasAnyModule, hasObjectType, isLoading: status === 'loading' && !session }), [modules, hasModule, hasAnyModule, hasObjectType, status, session])
 }
 
 export const useHasObjectType = (objectType: ObjectTypes) => {
