@@ -36,6 +36,7 @@ export type TDestinationFieldSet = {
   requiredGroups: TDestinationField[][]
   uniqueFields: TDestinationField[]
   primaryField?: string
+  lookupField?: TDestinationField
 }
 
 export type TSourceColumn = {
@@ -86,3 +87,5 @@ export type TImportDestination = {
 export type TImportAutomaticValue = { label: string; value: string }
 
 export type TImportMode = 'create' | 'update'
+
+export type TUpdateLookupField = { field: string; description: string }

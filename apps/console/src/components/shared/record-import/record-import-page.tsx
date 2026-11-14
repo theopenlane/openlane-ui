@@ -9,6 +9,7 @@ import { RecordImportFlow } from './record-import-flow'
 import { ImportPageGate, type TImportRoles } from './import-page-gate'
 import { IMPORT_ROUTES, type TImportableObjectType, type TImportRoute } from './lib/import-routes'
 import type { TDestinationField, TImportAutomaticValue, TImportDestination, TMappedImport } from './lib/types'
+import type { TUpdateRecordSource } from './lib/update-preview'
 
 export type TRecordImportPageProps = {
   entityType: TImportableObjectType
@@ -17,6 +18,7 @@ export type TRecordImportPageProps = {
   destination?: TImportDestination
   fixedFields?: readonly TDestinationField[]
   automaticValues?: readonly TImportAutomaticValue[]
+  updateSource?: TUpdateRecordSource
   onImport: (mapped: TMappedImport) => Promise<unknown>
 }
 
@@ -35,12 +37,12 @@ export const RecordImportUnavailable: React.FC<{ message: React.ReactNode; backH
   )
 }
 
-export const RecordImportPage: React.FC<TRecordImportPageProps> = ({ entityType, route: routeOverride, roles, destination, fixedFields, automaticValues, onImport }) => {
+export const RecordImportPage: React.FC<TRecordImportPageProps> = ({ entityType, route: routeOverride, roles, destination, fixedFields, automaticValues, updateSource, onImport }) => {
   const route = routeOverride ?? IMPORT_ROUTES[entityType]
 
   return (
     <ImportPageGate route={route} roles={roles}>
-      <RecordImportFlow entityType={entityType} route={route} destination={destination} fixedFields={fixedFields} automaticValues={automaticValues} onImport={onImport} />
+      <RecordImportFlow entityType={entityType} route={route} destination={destination} fixedFields={fixedFields} automaticValues={automaticValues} updateSource={updateSource} onImport={onImport} />
     </ImportPageGate>
   )
 }
