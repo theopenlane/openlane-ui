@@ -160,6 +160,16 @@ const IMPORT_ROUTE_DETAILS = {
     permission: AccessEnum.CanCreateTrustCenterSubprocessor,
     gate: ObjectTypes.TRUST_CENTER,
   },
+  [ObjectTypes.VENDOR_RISK_SCORE]: {
+    listHref: '/registry/vendors',
+    listLabel: 'Vendors',
+    section: IMPORT_SECTIONS.registry,
+    displayName: 'Risk Answer',
+    permission: 'edit',
+    gate: ObjectTypes.ENTITY,
+    subheading: "Upload the questions CSV with the vendor's answers filled in. Rows without an answer are skipped.",
+    importNotice: "Answers in your file replace this vendor's current answers to those questions.",
+  },
   [ObjectTypes.VULNERABILITY]: {
     listHref: '/exposure/vulnerabilities',
     listLabel: 'Vulnerabilities',
@@ -210,6 +220,13 @@ export const vendorContactsImportRoute = (vendorId: string, vendorName: string):
   displayName: 'Contact',
   permission: 'edit',
   gate: ObjectTypes.ENTITY,
+})
+
+export const vendorRiskAnswersImportRoute = (vendorId: string, vendorName: string): TImportRoute => ({
+  ...IMPORT_ROUTE_DETAILS[ObjectTypes.VENDOR_RISK_SCORE],
+  href: importHref(ObjectTypes.VENDOR_RISK_SCORE, { [IMPORT_VENDOR_PARAM]: vendorId }),
+  listHref: `/registry/vendors/${encodeURIComponent(vendorId)}?tab=risk-review`,
+  listLabel: vendorName,
 })
 
 export const trustCenterSubscribersImportRoute = (trustCenterId: string): TImportRoute => ({
@@ -263,6 +280,7 @@ type TImportScopeDefinition = {
 
 const IMPORT_SCOPES = {
   vendorContacts: { entityType: ObjectTypes.CONTACT, param: IMPORT_VENDOR_PARAM, route: (vendorId: string) => vendorContactsImportRoute(vendorId, '') },
+  vendorRiskAnswers: { entityType: ObjectTypes.VENDOR_RISK_SCORE, param: IMPORT_VENDOR_PARAM, route: (vendorId: string) => vendorRiskAnswersImportRoute(vendorId, '') },
   trustCenterSubscribers: { entityType: ObjectTypes.SUBSCRIBER, param: IMPORT_TRUST_CENTER_PARAM, route: trustCenterSubscribersImportRoute },
   controlsFromStandards: {
     entityType: ObjectTypes.CONTROL,

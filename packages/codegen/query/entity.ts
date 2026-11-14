@@ -135,18 +135,6 @@ export const ENTITY = gql`
       environmentName
       hasSoc2
       id
-      integrations {
-        edges {
-          node {
-            id
-            definitionID
-            name
-            directoryGroups(first: 1) {
-              totalCount
-            }
-          }
-        }
-      }
       internalOwner
       internalOwnerIdentityHolder {
         id
@@ -391,20 +379,6 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
         }
         totalCount
       }
-      integrations {
-        edges {
-          node {
-            id
-            name
-            kind
-            description
-            environmentName
-            integrationType
-            updatedAt
-          }
-        }
-        totalCount
-      }
       controls {
         edges {
           node {
@@ -450,6 +424,8 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
         edges {
           node {
             id
+            cveID
+            externalID
             displayName
             displayID
           }
@@ -474,6 +450,64 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
           }
         }
         totalCount
+      }
+    }
+  }
+`
+
+export const GET_VENDOR_RISK_RATING_COUNTS = gql`
+  query VendorRiskRatingCounts($where: EntityWhereInput!) {
+    total: entities(where: $where) {
+      totalCount
+    }
+    critical: entities(where: { and: [$where, { riskRating: "CRITICAL" }] }) {
+      totalCount
+    }
+    high: entities(where: { and: [$where, { riskRating: "HIGH" }] }) {
+      totalCount
+    }
+    medium: entities(where: { and: [$where, { riskRating: "MEDIUM" }] }) {
+      totalCount
+    }
+    low: entities(where: { and: [$where, { riskRating: "LOW" }] }) {
+      totalCount
+    }
+    veryLow: entities(where: { and: [$where, { riskRating: "VERY_LOW" }] }) {
+      totalCount
+    }
+    none: entities(where: { and: [$where, { riskRating: "NONE" }] }) {
+      totalCount
+    }
+    notScored: entities(where: { and: [$where, { riskRatingIsNil: true }] }) {
+      totalCount
+    }
+  }
+`
+
+export const GET_VENDOR_INSTALLATIONS = gql`
+  query GetVendorInstallations($entityId: ID!) {
+    entity(id: $entityId) {
+      id
+      integrations {
+        edges {
+          node {
+            id
+            definitionID
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_VENDORS_BY_INSTALLATION = gql`
+  query GetVendorsByInstallation($installationId: ID!) {
+    entities(where: { hasIntegrationsWith: [{ id: $installationId }] }, first: 2) {
+      edges {
+        node {
+          id
+          name
+        }
       }
     }
   }

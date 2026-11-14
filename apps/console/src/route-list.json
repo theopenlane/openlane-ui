@@ -290,6 +290,11 @@
     "keywords": ["reports", "report builder", "query", "export", "csv"]
   },
   {
+    "route": "/reports/saved",
+    "name": "Saved Reports",
+    "keywords": ["reports", "saved", "shared reports"]
+  },
+  {
     "route": "/standards",
     "name": "Standards",
     "keywords": ["frameworks", "regulations", "compliance"]

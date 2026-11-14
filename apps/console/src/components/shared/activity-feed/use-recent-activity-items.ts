@@ -9,6 +9,8 @@ import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { getNotificationHref } from '@/components/shared/SystemNotification/notification-redirect'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import { getObjectDisplayName } from '@/utils/object-display-name'
+import { getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilities/vulnerability-display'
 import {
   OrderDirection,
   VulnerabilityOrderField,
@@ -98,11 +100,11 @@ const pushRemainingActivity = (items: ActivityItem[], { records, totalCount, typ
   })
 }
 
-type VulnNode = { id: string; displayName?: string | null; displayID?: string | null; createdAt?: string | null; source?: string | null }
+type VulnNode = { id: string; cveID?: string | null; displayName?: string | null; externalID?: string | null; displayID?: string | null; createdAt?: string | null; source?: string | null }
 
 const vulnActivityItem = (v: VulnNode): ActivityItem => ({
   id: v.id,
-  label: v.displayName ?? v.displayID ?? ObjectTypes.VULNERABILITY,
+  label: getVulnerabilityTitle(v),
   type: ObjectTypes.VULNERABILITY,
   createdAt: v.createdAt ?? null,
   href: getHrefForObjectType('vulnerabilities', { id: v.id }),
@@ -243,11 +245,18 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
     const items: ActivityItem[] = []
 
     recentFindings?.forEach((f) =>
-      items.push({ id: f.id, label: f.displayName ?? ObjectTypes.FINDING, type: ObjectTypes.FINDING, createdAt: f.createdAt, href: `/exposure/findings?id=${f.id}`, source: f.source ?? null }),
+      items.push({
+        id: f.id,
+        label: getObjectDisplayName(f) || ObjectTypes.FINDING,
+        type: ObjectTypes.FINDING,
+        createdAt: f.createdAt,
+        href: `/exposure/findings?id=${f.id}`,
+        source: f.source ?? null,
+      }),
     )
-    recentRisks?.forEach((r) => items.push({ id: r.id, label: r.name ?? ObjectTypes.RISK, type: ObjectTypes.RISK, createdAt: r.createdAt }))
-    recentScans?.forEach((s) => items.push({ id: s.id, label: s.target ?? ObjectTypes.SCAN, type: ObjectTypes.SCAN, createdAt: s.createdAt }))
-    recentReviews?.forEach((r) => items.push({ id: r.id, label: r.title ?? ObjectTypes.REVIEW, type: ObjectTypes.REVIEW, createdAt: r.createdAt }))
+    recentRisks?.forEach((r) => items.push({ id: r.id, label: getObjectDisplayName(r) || ObjectTypes.RISK, type: ObjectTypes.RISK, createdAt: r.createdAt }))
+    recentScans?.forEach((s) => items.push({ id: s.id, label: getObjectDisplayName(s) || ObjectTypes.SCAN, type: ObjectTypes.SCAN, createdAt: s.createdAt }))
+    recentReviews?.forEach((r) => items.push({ id: r.id, label: getObjectDisplayName(r) || ObjectTypes.REVIEW, type: ObjectTypes.REVIEW, createdAt: r.createdAt }))
     recentMentions.forEach((notification) =>
       items.push({
         id: notification.id,
@@ -267,7 +276,7 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
   const activityItems = useMemo(() => {
     const items = [...baseItems]
     pushVulnerabilityActivity(items, recentVulns, includeNonExposureActivity, recentVulnsCount > (recentVulns?.length ?? 0))
-    pushCreatedActivity(items, nonExposurePolicies, recentPoliciesCount, ObjectTypes.INTERNAL_POLICY, '/policies', (p) => p.name ?? ObjectTypes.INTERNAL_POLICY, policyHref)
+    pushCreatedActivity(items, nonExposurePolicies, recentPoliciesCount, ObjectTypes.INTERNAL_POLICY, '/policies', (p) => getObjectDisplayName(p) || ObjectTypes.INTERNAL_POLICY, policyHref)
     pushCreatedActivity(items, nonExposureControls, recentControlsCount, ObjectTypes.CONTROL, '/controls', controlLabel, controlHref)
     return items.sort(byNewestFirst)
   }, [baseItems, recentVulns, recentVulnsCount, nonExposurePolicies, nonExposureControls, recentPoliciesCount, recentControlsCount, includeNonExposureActivity])
@@ -275,7 +284,9 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
   const allActivityItems = useMemo(() => {
     const items = [...baseItems]
     pushVulnerabilityActivity(items, recentVulns, false, false)
-    nonExposurePolicies?.forEach((p) => items.push({ id: p.id, label: p.name ?? ObjectTypes.INTERNAL_POLICY, type: ObjectTypes.INTERNAL_POLICY, createdAt: p.createdAt ?? null, href: policyHref(p) }))
+    nonExposurePolicies?.forEach((p) =>
+      items.push({ id: p.id, label: getObjectDisplayName(p) || ObjectTypes.INTERNAL_POLICY, type: ObjectTypes.INTERNAL_POLICY, createdAt: p.createdAt ?? null, href: policyHref(p) }),
+    )
     nonExposureControls?.forEach((c) => items.push({ id: c.id, label: controlLabel(c), type: ObjectTypes.CONTROL, createdAt: c.createdAt ?? null, href: controlHref(c) }))
     const remainingSources: RemainingActivitySource[] = [
       { records: recentVulns, totalCount: recentVulnsCount, type: ObjectTypes.VULNERABILITY, listHref: '/exposure/vulnerabilities' },

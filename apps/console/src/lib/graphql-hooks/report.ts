@@ -1,91 +1,124 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { useMemo } from 'react'
+import { type InfiniteData, type QueryClient, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { CREATE_REPORT, DELETE_REPORT, GET_ALL_REPORTS, GET_REPORT, UPDATE_REPORT } from '@repo/codegen/query/report'
 import {
-  type ReportsWithFilterQuery,
-  type ReportsWithFilterQueryVariables,
   type CreateReportMutation,
   type CreateReportMutationVariables,
-  type UpdateReportMutation,
-  type UpdateReportMutationVariables,
   type DeleteReportMutation,
   type DeleteReportMutationVariables,
-  type ReportQuery,
-  type ReportQueryVariables,
+  type GetAllReportsQuery,
+  type GetAllReportsQueryVariables,
+  type GetReportQuery,
+  type GetReportQueryVariables,
+  type GetReportViewerGroupsQuery,
+  OrderDirection,
+  ReportOrderField,
+  ReportReportStatus,
+  type ReportWhereInput,
+  type UpdateReportMutation,
+  type UpdateReportMutationVariables,
 } from '@repo/codegen/src/schema'
-
+import { type SortCondition } from '@repo/ui/data-table'
 import { type TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_REPORTS, CREATE_REPORT, UPDATE_REPORT, DELETE_REPORT, REPORT } from '@repo/codegen/query/report'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { getNodes } from './connection'
 
-type GetAllReportsArgs = {
-  where?: ReportsWithFilterQueryVariables['where']
-  orderBy?: ReportsWithFilterQueryVariables['orderBy']
-  pagination?: TPagination
-  enabled?: boolean
+export type TSavedReportNode = NonNullable<NonNullable<NonNullable<NonNullable<GetAllReportsQuery['reports']>['edges']>[number]>['node']>
+
+export type TSavedReportRef = Pick<TSavedReportNode, 'id' | 'name' | 'visibility' | 'variables'>
+
+export type TReportViewerGroup = NonNullable<NonNullable<NonNullable<GetReportViewerGroupsQuery['report']['viewers']['edges']>[number]>['node']>
+
+const SAVED_REPORTS_SHEET_PAGE_SIZE = 25
+
+export const SAVED_REPORTS_DEFAULT_ORDER: SortCondition<ReportOrderField>[] = [{ field: ReportOrderField.name, direction: OrderDirection.ASC }]
+
+const savedReportsWhere = (search: string): NonNullable<GetAllReportsQueryVariables['where']> => ({ status: ReportReportStatus.SAVED, ...(search ? { nameContainsFold: search } : {}) })
+
+export const invalidateReportQueries = (queryClient: QueryClient) => queryClient.invalidateQueries({ queryKey: ['reports'] })
+
+type TUseGetSavedReportsArgs = {
+  search: string
+  filters: ReportWhereInput | null
+  orderBy: GetAllReportsQueryVariables['orderBy']
+  pagination: TPagination
 }
 
-export type ReportsNode = NonNullable<NonNullable<NonNullable<ReportsWithFilterQuery['reports']>['edges']>[number]>['node']
-
-export type ReportsNodeNonNull = NonNullable<ReportsNode>
-
-export const useReportsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllReportsArgs) => {
+export const useGetSavedReports = ({ search, filters, orderBy, pagination }: TUseGetSavedReportsArgs) => {
   const { client } = useGraphQLClient()
-  const queryResult = useQuery<ReportsWithFilterQuery, unknown>({
-    queryKey: ['reports', where, orderBy, pagination?.page, pagination?.pageSize],
-    queryFn: async (): Promise<ReportsWithFilterQuery> => {
-      const result = await client.request<ReportsWithFilterQuery>(GET_ALL_REPORTS, { where, orderBy, ...pagination?.query })
-      return result
-    },
-    enabled,
+  const where = { ...filters, ...savedReportsWhere(search) }
+
+  const queryResult = useQuery<GetAllReportsQuery>({
+    queryKey: ['reports', 'list', where, orderBy, pagination.page, pagination.pageSize],
+    queryFn: () => client.request<GetAllReportsQuery, GetAllReportsQueryVariables>(GET_ALL_REPORTS, { where, orderBy, ...pagination.query }),
+    enabled: filters !== null,
   })
 
-  const edges = queryResult.data?.reports?.edges ?? []
+  const reports = useMemo(() => getNodes(queryResult.data?.reports), [queryResult.data])
+  const paginationMeta = { totalCount: queryResult.data?.reports?.totalCount ?? 0, pageInfo: queryResult.data?.reports?.pageInfo, isLoading: queryResult.isFetching }
 
-  const reportsNodes: ReportsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as ReportsNodeNonNull)
+  return { ...queryResult, reports, paginationMeta }
+}
 
-  return { ...queryResult, reportsNodes }
+export const useGetSavedReportsInfinite = (search: string) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useInfiniteQuery<GetAllReportsQuery, Error, InfiniteData<GetAllReportsQuery>, readonly unknown[], string | undefined>({
+    queryKey: ['reports', 'infinite', search],
+    initialPageParam: undefined,
+    queryFn: ({ pageParam }) =>
+      client.request<GetAllReportsQuery, GetAllReportsQueryVariables>(GET_ALL_REPORTS, {
+        where: savedReportsWhere(search),
+        orderBy: SAVED_REPORTS_DEFAULT_ORDER,
+        first: SAVED_REPORTS_SHEET_PAGE_SIZE,
+        after: pageParam,
+      }),
+    getNextPageParam: (lastPage) => (lastPage.reports.pageInfo.hasNextPage ? (lastPage.reports.pageInfo.endCursor ?? undefined) : undefined),
+  })
+
+  const reports = useMemo(() => queryResult.data?.pages.flatMap((page) => getNodes(page.reports)) ?? [], [queryResult.data])
+  const totalCount = queryResult.data?.pages.at(-1)?.reports.totalCount ?? 0
+
+  return { ...queryResult, reports, totalCount }
+}
+
+export const useGetReport = (reportId: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetReportQuery>({
+    queryKey: ['reports', 'detail', reportId],
+    queryFn: () => client.request<GetReportQuery, GetReportQueryVariables>(GET_REPORT, { reportId: reportId ?? '' }),
+    enabled: !!reportId,
+    retry: false,
+    placeholderData: undefined,
+  })
 }
 
 export const useCreateReport = () => {
   const { client } = useGraphQLClient()
-  const queryClient = useQueryClient()
+
   return useMutation<CreateReportMutation, unknown, CreateReportMutationVariables>({
-    mutationFn: async (variables) => client.request(CREATE_REPORT, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reports'] })
-    },
+    mutationFn: (variables) => client.request(CREATE_REPORT, variables),
   })
 }
 
 export const useUpdateReport = () => {
   const { client } = useGraphQLClient()
-  const queryClient = useQueryClient()
+
   return useMutation<UpdateReportMutation, unknown, UpdateReportMutationVariables>({
-    mutationFn: async (variables) => client.request(UPDATE_REPORT, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reports'] })
-    },
+    mutationFn: (variables) => client.request(UPDATE_REPORT, variables),
   })
 }
 
 export const useDeleteReport = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-  return useMutation<DeleteReportMutation, unknown, DeleteReportMutationVariables>({
-    mutationFn: async (variables) => client.request(DELETE_REPORT, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reports'] })
-    },
-  })
-}
 
-export const useReport = (reportId?: ReportQueryVariables['reportId']) => {
-  const { client } = useGraphQLClient()
-  return useQuery<ReportQuery, unknown>({
-    queryKey: ['reports', reportId],
-    queryFn: async (): Promise<ReportQuery> => {
-      const result = await client.request(REPORT, { reportId })
-      return result as ReportQuery
+  return useMutation<DeleteReportMutation, unknown, DeleteReportMutationVariables>({
+    mutationFn: (variables) => client.request(DELETE_REPORT, variables),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['reports', 'list'] })
+      void queryClient.invalidateQueries({ queryKey: ['reports', 'infinite'] })
     },
-    enabled: !!reportId,
   })
 }

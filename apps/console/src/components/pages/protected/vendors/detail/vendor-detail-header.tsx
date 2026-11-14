@@ -14,10 +14,12 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { VendorLogoDialog } from '../vendor-logo-dialog'
-import { useUpdateEntityLogo } from '@/lib/graphql-hooks/entity'
+import { useUpdateEntityLogo, useVendorInstallations, vendorDisplayName } from '@/lib/graphql-hooks/entity'
+import { useCanManageIntegrations } from '@/lib/authz/use-can-manage-integrations'
 import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
 import { matchProviderByVendorName } from '@/lib/integrations/utils'
 import { useNotification } from '@/hooks/useNotification'
+import { isEmptyInputValue } from '@/hooks/useDirtyInput'
 import type { TAccessRole } from '@/types/authz'
 import type { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 import { getVendorLogoUrl } from '@/lib/vendor-logo'
@@ -57,8 +59,10 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   const [logoDialogOpen, setLogoDialogOpen] = useState(false)
   const { mutateAsync: updateLogo, isPending: isLogoUploading } = useUpdateEntityLogo()
   const { successNotification, errorNotification } = useNotification()
-  const hasIntegration = (vendor.integrations.edges?.length || 0) > 0 && vendor?.integrations?.edges?.[0]?.node != null
-  const integrationDefId = hasIntegration ? vendor?.integrations?.edges?.[0]?.node?.definitionID : ''
+  const { canManageIntegrations } = useCanManageIntegrations()
+  const { installations, isSuccess: installationsResolved } = useVendorInstallations(vendor.id, canManageIntegrations)
+  const hasIntegration = installations.length > 0
+  const integrationDefId = installations[0]?.definitionID ?? ''
 
   const { data: providersData } = useIntegrationProviders()
   const matchedProvider = useMemo(
@@ -67,6 +71,8 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   )
 
   const logoUrl = getVendorLogoUrl(vendor.logoFile)
+  const headingField = vendor.displayName ? 'displayName' : 'name'
+  const headingLabel = vendorDisplayName(vendor)
 
   const handleLogoSelect = async (file: File) => {
     try {
@@ -81,7 +87,8 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   const handleBlur = async (field: 'name' | 'displayName') => {
     if (localValue !== originalValue) {
       register(field)
-      await persistField(field, localValue, (options) => handleUpdateField({ [field]: localValue }, options))
+      const input = field === 'displayName' && isEmptyInputValue(localValue) ? { clearDisplayName: true } : { [field]: localValue }
+      await persistField(field, localValue, (options) => handleUpdateField(input, options))
     }
     setInlineEditing(null)
   }
@@ -105,7 +112,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
         autoFocus
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
-        className={field === 'name' ? 'text-2xl font-semibold h-auto py-1' : 'text-sm h-auto py-0.5'}
+        className={field === headingField ? 'text-2xl font-semibold h-auto py-1' : 'text-sm h-auto py-0.5'}
         onBlur={() => handleBlur(field)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') e.currentTarget.blur()
@@ -128,7 +135,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
           >
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt={vendor.name ?? 'Vendor logo'} className="h-full w-full object-contain p-1" />
+              <img src={logoUrl} alt={headingLabel} className="h-full w-full object-contain p-1" />
             ) : (
               <Building2 size={24} className="text-muted-foreground" />
             )}
@@ -140,14 +147,14 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
           </button>
           <div className="flex flex-col gap-1 min-w-0 flex-1">
             {isEditing ? (
-              <Input {...register('name')} className="text-2xl font-semibold h-auto py-1" />
-            ) : inlineEditing === 'name' ? (
-              renderInlineField('name')
+              <Input {...register('displayName')} className="text-2xl font-semibold h-auto py-1" placeholder="Display name" />
+            ) : inlineEditing === headingField ? (
+              renderInlineField(headingField)
             ) : (
               <div className="flex items-center gap-2 min-w-0">
-                <HoverPencilWrapper showPencil={canEditVendor} onPencilClick={() => startEditing('name')} className="min-w-0">
-                  <h1 className="text-2xl font-semibold truncate" onDoubleClick={() => startEditing('name')}>
-                    {vendor.name}
+                <HoverPencilWrapper showPencil={canEditVendor} onPencilClick={() => startEditing(headingField)} className="min-w-0">
+                  <h1 className="text-2xl font-semibold truncate" onDoubleClick={() => startEditing(headingField)}>
+                    {headingLabel}
                   </h1>
                 </HoverPencilWrapper>
                 {vendor.approvedForUse && (
@@ -164,16 +171,19 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
               </div>
             )}
             {isEditing ? (
-              <Input {...register('displayName')} className="text-sm h-auto py-0.5" placeholder="Display name" />
-            ) : inlineEditing === 'displayName' ? (
-              renderInlineField('displayName')
-            ) : vendor.displayName ? (
-              <HoverPencilWrapper showPencil={canEditVendor} onPencilClick={() => startEditing('displayName')}>
-                <p className="text-sm text-muted-foreground" onDoubleClick={() => startEditing('displayName')}>
-                  {vendor.displayName}
-                </p>
-              </HoverPencilWrapper>
-            ) : null}
+              <Input {...register('name')} className="text-sm h-auto py-0.5" placeholder="Name" />
+            ) : (
+              headingField === 'displayName' &&
+              (inlineEditing === 'name' ? (
+                renderInlineField('name')
+              ) : (
+                <HoverPencilWrapper showPencil={canEditVendor} onPencilClick={() => startEditing('name')} className="min-w-0">
+                  <p className="text-sm text-muted-foreground truncate" onDoubleClick={() => startEditing('name')}>
+                    {vendor.name}
+                  </p>
+                </HoverPencilWrapper>
+              ))
+            )}
           </div>
         </div>
 
@@ -185,6 +195,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
           menuAnchor={elementAnchor('vendor-actions-menu')}
           menuActions={[
             canEditVendor &&
+              installationsResolved &&
               !hasIntegration &&
               matchedProvider && {
                 key: 'add-integration',
@@ -193,6 +204,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
                 href: `/automation/integrations/${matchedProvider.id}?vendorId=${vendor.id}`,
               },
             canEditVendor &&
+              canManageIntegrations &&
               hasIntegration &&
               integrationDefId !== '' && {
                 key: 'configure-integration',

@@ -112,8 +112,7 @@ const EntityDocumentsSection: React.FC<EntityDocumentsSectionProps> = ({ entityI
       onPaginationChange={setPagination}
       defaultSorting={orderBy}
       onSortChange={setOrderBy}
-      onUpload={handleUpload}
-      isUploading={isUploading}
+      upload={{ onUpload: handleUpload, isUploading }}
       onRemoveFile={handleRemoveFile}
     />
   )

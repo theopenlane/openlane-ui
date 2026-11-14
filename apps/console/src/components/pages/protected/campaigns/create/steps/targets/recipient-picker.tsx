@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useId, useMemo } from 'react'
 import { SearchIcon } from 'lucide-react'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
@@ -13,11 +13,15 @@ import { normalizeEmail } from '@/lib/validators'
 import { EMPTY_EMAIL_KEYS, getRecipientDisplayName, type CampaignTargetEntry } from './target-entry'
 import { type RecipientOption } from './recipient-option'
 
+interface RecipientPickerFilter {
+  label: string
+  value: string
+  options: Array<{ label: string; value: string; icon?: React.ReactNode }>
+  onChange: (value: string) => void
+}
+
 interface RecipientPickerProps {
-  scopeLabel: string
-  scopeValue: string
-  scopeOptions: Array<{ label: string; value: string }>
-  onScopeChange: (value: string) => void
+  filters: RecipientPickerFilter[]
   searchText: string
   onSearchChange: (value: string) => void
   searchPlaceholder: string
@@ -35,10 +39,7 @@ interface RecipientPickerProps {
 }
 
 export const RecipientPicker: React.FC<RecipientPickerProps> = ({
-  scopeLabel,
-  scopeValue,
-  scopeOptions,
-  onScopeChange,
+  filters,
   searchText,
   onSearchChange,
   searchPlaceholder,
@@ -54,6 +55,7 @@ export const RecipientPicker: React.FC<RecipientPickerProps> = ({
   emptyLabel,
   note,
 }) => {
+  const baseId = useId()
   const selectedEmails = useMemo(() => new Set(targets.map((target) => normalizeEmail(target.email))), [targets])
   const selectableOptions = useMemo(() => options.filter((option) => !lockedEmails.has(normalizeEmail(option.email))), [options, lockedEmails])
   const allOnPageSelected = selectableOptions.length > 0 && selectableOptions.every((option) => selectedEmails.has(normalizeEmail(option.email)))
@@ -107,21 +109,31 @@ export const RecipientPicker: React.FC<RecipientPickerProps> = ({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end gap-3">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium">{scopeLabel}</label>
-          <Select value={scopeValue} onValueChange={onScopeChange}>
-            <SelectTrigger className="w-56">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {scopeOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {filters.map((filter, index) => {
+          const filterId = `${baseId}-${index}`
+          return (
+            <div key={filter.label} className="flex min-w-40 flex-1 flex-col gap-1.5">
+              <label htmlFor={filterId} className="text-sm font-medium">
+                {filter.label}
+              </label>
+              <Select value={filter.value} onValueChange={filter.onChange}>
+                <SelectTrigger id={filterId} className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {filter.options.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      <span className="flex min-w-0 items-center gap-2">
+                        {option.icon}
+                        <span className="truncate">{option.label}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )
+        })}
         <Input className="w-64" icon={<SearchIcon size={16} />} iconPosition="left" placeholder={searchPlaceholder} value={searchText} onChange={(e) => onSearchChange(e.currentTarget.value)} />
       </div>
 

@@ -5,6 +5,7 @@ export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' |
 /* eslint-disable */
 import type * as Types from './schema-types'
 
+import type { TVendorRiskThresholdsConfig, TVendorScoringQuestionsConfig } from './vendor-scoring-defaults.generated'
 export * from './schema-types'
 export type ActionPlansWithFilterQueryVariables = Exact<{
   where?: Types.ActionPlanWhereInput | null | undefined
@@ -737,7 +738,7 @@ export interface GetAssetAssociationsQuery {
     internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayID: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
   }
@@ -1809,7 +1810,7 @@ export interface GetControlAssociationsByIdQuery {
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
     controlMappings: { totalCount: number; edges: Array<{ node: { id: string; findingID: string } | null } | null> | null }
   }
 }
@@ -2521,6 +2522,38 @@ export interface DeleteCustomTypeEnumMutation {
   deleteCustomTypeEnum: { deletedID: string }
 }
 
+export type SeedDemoDataMutationVariables = Exact<{
+  input: Types.SeedDemoDataInput
+}>
+
+export interface SeedDemoDataMutation {
+  seedDemoData: { accepted: boolean }
+}
+
+export type DeleteDemoDataMutationVariables = Exact<{
+  input: Types.DeleteDemoDataInput
+}>
+
+export interface DeleteDemoDataMutation {
+  deleteDemoData: { accepted: boolean }
+}
+
+export type GetDemoDataPresenceQueryVariables = Exact<{
+  sourceKey: string
+}>
+
+export interface GetDemoDataPresenceQuery {
+  programs: { totalCount: number }
+  controls: { totalCount: number }
+  internalPolicies: { totalCount: number }
+  procedures: { totalCount: number }
+  risks: { totalCount: number }
+  entities: { totalCount: number }
+  assets: { totalCount: number }
+  evidences: { totalCount: number }
+  tasks: { totalCount: number }
+}
+
 export type DirectoryAccountsWithFilterQueryVariables = Exact<{
   where?: Types.DirectoryAccountWhereInput | null | undefined
   orderBy?: Array<Types.DirectoryAccountOrder> | Types.DirectoryAccountOrder | null | undefined
@@ -3211,7 +3244,6 @@ export interface EntityQuery {
     updatedAt: any
     updatedBy: string | null
     vendorMetadata: any
-    integrations: { edges: Array<{ node: { id: string; definitionID: string | null; name: string; directoryGroups: { totalCount: number } } | null } | null> | null }
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
@@ -3362,20 +3394,45 @@ export interface GetEntityAssociationsQuery {
       totalCount: number
       edges: Array<{ node: { id: string; fullName: string; displayID: string; identityHolderType: Types.IdentityHolderIdentityHolderType; title: string | null } | null } | null> | null
     }
-    integrations: {
-      totalCount: number
-      edges: Array<{
-        node: { id: string; name: string; kind: string | null; description: string | null; environmentName: string | null; integrationType: string | null; updatedAt: any } | null
-      } | null> | null
-    }
     controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; title: string | null; description: string | null } | null } | null> | null }
     internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayID: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
   }
+}
+
+export type VendorRiskRatingCountsQueryVariables = Exact<{
+  where: Types.EntityWhereInput
+}>
+
+export interface VendorRiskRatingCountsQuery {
+  total: { totalCount: number }
+  critical: { totalCount: number }
+  high: { totalCount: number }
+  medium: { totalCount: number }
+  low: { totalCount: number }
+  veryLow: { totalCount: number }
+  none: { totalCount: number }
+  notScored: { totalCount: number }
+}
+
+export type GetVendorInstallationsQueryVariables = Exact<{
+  entityId: string
+}>
+
+export interface GetVendorInstallationsQuery {
+  entity: { id: string; integrations: { edges: Array<{ node: { id: string; definitionID: string | null } | null } | null> | null } }
+}
+
+export type GetVendorsByInstallationQueryVariables = Exact<{
+  installationId: string
+}>
+
+export interface GetVendorsByInstallationQuery {
+  entities: { edges: Array<{ node: { id: string; name: string | null } | null } | null> | null }
 }
 
 export type CreateEvidenceMutationVariables = Exact<{
@@ -4047,6 +4104,7 @@ export interface FindingQuery {
     findingClass: string | null
     id: string
     impact: number | null
+    sourceDefinitionID: string | null
     metadata: any
     numericSeverity: number | null
     open: boolean | null
@@ -4085,7 +4143,6 @@ export interface FindingQuery {
     internalOwnerUser: { id: string; displayName: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
-    integrations: { totalCount: number }
     remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
   }
 }
@@ -4155,7 +4212,7 @@ export interface GetFindingAssociationsQuery {
     scans: { totalCount: number; edges: Array<{ node: { id: string; target: string } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }
 
@@ -4494,7 +4551,7 @@ export type DirectoryMembershipConnectionFieldsFragment = {
       addedAt: any
       removedAt: any
       createdAt: any
-      directoryGroup: { id: string; displayName: string | null; integration: { id: string; entities: { edges: Array<{ node: { id: string; name: string | null } | null } | null> | null } } }
+      directoryGroup: { id: string; displayName: string | null; managedBy: string | null }
     } | null
   } | null> | null
 }
@@ -4735,7 +4792,8 @@ export interface GetIdentityHolderDirectoryAccountsQuery {
           primarySource: boolean
           mfaState: Types.DirectoryAccountDirectoryAccountMfaState
           directoryName: string | null
-          integration: { id: string; definitionID: string | null; entities: { edges: Array<{ node: { id: string; name: string | null } | null } | null> | null } } | null
+          sourceDefinitionID: string | null
+          managedBy: string | null
           memberships: {
             totalCount: number
             edges: Array<{
@@ -4745,7 +4803,7 @@ export interface GetIdentityHolderDirectoryAccountsQuery {
                 addedAt: any
                 removedAt: any
                 createdAt: any
-                directoryGroup: { id: string; displayName: string | null; integration: { id: string; entities: { edges: Array<{ node: { id: string; name: string | null } | null } | null> | null } } }
+                directoryGroup: { id: string; displayName: string | null; managedBy: string | null }
               } | null
             } | null> | null
           }
@@ -4786,7 +4844,7 @@ export interface GetIdentityHolderAssociationsTimelineQuery {
           directoryName: string | null
           displayName: string | null
           canonicalEmail: string | null
-          integration: { definitionID: string | null } | null
+          sourceDefinitionID: string | null
           memberships: {
             totalCount: number
             edges: Array<{
@@ -4796,7 +4854,7 @@ export interface GetIdentityHolderAssociationsTimelineQuery {
                 addedAt: any
                 removedAt: any
                 createdAt: any
-                directoryGroup: { id: string; displayName: string | null; integration: { id: string; entities: { edges: Array<{ node: { id: string; name: string | null } | null } | null> | null } } }
+                directoryGroup: { id: string; displayName: string | null; managedBy: string | null }
               } | null
             } | null> | null
           }
@@ -4991,40 +5049,7 @@ export type InternalPolicyByIdFragment = {
   liveExternalContents: string | null
   url: string | null
   externalFileID: string | null
-  integrations: {
-    edges: Array<{
-      node: {
-        id: string
-        name: string
-        kind: string | null
-        integrationType: string | null
-        description: string | null
-        definitionID: string | null
-        definitionSlug: string | null
-        definitionVersion: string | null
-        family: string | null
-        environmentID: string | null
-        environmentName: string | null
-        scopeID: string | null
-        scopeName: string | null
-        platformID: string | null
-        status: Types.IntegrationIntegrationStatus
-        primaryDirectory: boolean
-        campaignEmail: boolean
-        systemOwned: boolean | null
-        tags: Array<string> | null
-        config: any
-        metadata: any
-        providerMetadataSnapshot: any
-        webhookURLs: any
-        ownerID: string | null
-        createdAt: any
-        createdBy: string | null
-        updatedAt: any
-        updatedBy: string | null
-      } | null
-    } | null> | null
-  }
+  sourceDefinitionID: string | null
   file: { id: string; presignedURL: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType: string | null } | null
   approver: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
   delegate: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
@@ -5065,40 +5090,7 @@ export interface GetInternalPolicyDetailsByIdQuery {
     liveExternalContents: string | null
     url: string | null
     externalFileID: string | null
-    integrations: {
-      edges: Array<{
-        node: {
-          id: string
-          name: string
-          kind: string | null
-          integrationType: string | null
-          description: string | null
-          definitionID: string | null
-          definitionSlug: string | null
-          definitionVersion: string | null
-          family: string | null
-          environmentID: string | null
-          environmentName: string | null
-          scopeID: string | null
-          scopeName: string | null
-          platformID: string | null
-          status: Types.IntegrationIntegrationStatus
-          primaryDirectory: boolean
-          campaignEmail: boolean
-          systemOwned: boolean | null
-          tags: Array<string> | null
-          config: any
-          metadata: any
-          providerMetadataSnapshot: any
-          webhookURLs: any
-          ownerID: string | null
-          createdAt: any
-          createdBy: string | null
-          updatedAt: any
-          updatedBy: string | null
-        } | null
-      } | null> | null
-    }
+    sourceDefinitionID: string | null
     file: { id: string; presignedURL: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType: string | null } | null
     approver: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
     delegate: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
@@ -7201,6 +7193,7 @@ export interface RemediationsWithFilterQuery {
         scopeName: string | null
         source: string | null
         state: string | null
+        status: Types.RemediationRemediationStatus | null
         summary: string | null
         systemOwned: boolean | null
         ticketReference: string | null
@@ -7243,17 +7236,23 @@ export interface RemediationQuery {
     scopeName: string | null
     source: string | null
     state: string | null
+    status: Types.RemediationRemediationStatus | null
     summary: string | null
     systemOwned: boolean | null
     ticketReference: string | null
     title: string | null
     updatedAt: any
     updatedBy: string | null
+    vulnerabilities: { edges: Array<{ node: { id: string } | null } | null> | null }
+    findings: { edges: Array<{ node: { id: string } | null } | null> | null }
+    risks: { edges: Array<{ node: { id: string } | null } | null> | null }
   }
 }
 
 export type CreateRemediationMutationVariables = Exact<{
   input: Types.CreateRemediationInput
+  remediationFiles?: Array<any> | any | null | undefined
+  remediationFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
 }>
 
 export interface CreateRemediationMutation {
@@ -7263,6 +7262,8 @@ export interface CreateRemediationMutation {
 export type UpdateRemediationMutationVariables = Exact<{
   updateRemediationId: string
   input: Types.UpdateRemediationInput
+  remediationFiles?: Array<any> | any | null | undefined
+  remediationFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
 }>
 
 export interface UpdateRemediationMutation {
@@ -7302,7 +7303,7 @@ export interface GetRemediationAssociationsQuery {
     controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; description: string | null; displayID: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }
 
@@ -7315,48 +7316,131 @@ export interface UpdateBulkRemediationMutation {
   updateBulkRemediation: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
-export type ReportMembershipsWithFilterQueryVariables = Exact<{
-  where?: Types.ReportMembershipWhereInput | null | undefined
-  orderBy?: Array<Types.ReportMembershipOrder> | Types.ReportMembershipOrder | null | undefined
-  first?: number | null | undefined
+export type GetRemediationFilesPaginatedQueryVariables = Exact<{
+  remediationId: string
   after?: any
-  last?: number | null | undefined
+  first?: number | null | undefined
   before?: any
+  last?: number | null | undefined
+  orderBy?: Array<Types.FileOrder> | Types.FileOrder | null | undefined
 }>
 
-export interface ReportMembershipsWithFilterQuery {
-  reportMemberships: {
-    totalCount: number
-    edges: Array<{
-      node: { createdAt: any; createdBy: string | null; id: string; reportID: string; updatedAt: any; updatedBy: string | null; updatedByImpersonator: string | null; userID: string } | null
-    } | null> | null
-    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+export interface GetRemediationFilesPaginatedQuery {
+  remediation: {
+    files: {
+      totalCount: number
+      pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
+      edges: Array<{
+        node: {
+          name: string | null
+          providedFileName: string
+          providedFileSize: number | null
+          providedFileExtension: string
+          categoryName: string | null
+          id: string
+          uri: string | null
+          presignedURL: string | null
+        } | null
+      } | null> | null
+    }
   }
 }
 
-export type ReportMembershipQueryVariables = Exact<{
-  reportMembershipId: string
+export type GetRemediationContextSubjectQueryVariables = Exact<{
+  id: string
+  withVulnerability: boolean
+  withFinding: boolean
+  withRisk: boolean
 }>
 
-export interface ReportMembershipQuery {
-  reportMembership: { createdAt: any; createdBy: string | null; id: string; reportID: string; updatedAt: any; updatedBy: string | null; updatedByImpersonator: string | null; userID: string }
+export interface GetRemediationContextSubjectQuery {
+  vulnerability?: {
+    id: string
+    displayID: string
+    displayName: string | null
+    cveID: string | null
+    externalID: string
+    description: string | null
+    source: string | null
+    severity: string | null
+    securityLevel: Types.VulnerabilitySecurityLevel | null
+    score: number | null
+    environmentName: string | null
+    scopeName: string | null
+  }
+  finding?: {
+    id: string
+    displayID: string
+    displayName: string | null
+    externalID: string | null
+    description: string | null
+    source: string | null
+    severity: string | null
+    securityLevel: Types.FindingSecurityLevel | null
+    score: number | null
+    environmentName: string | null
+    scopeName: string | null
+  }
+  risk?: {
+    id: string
+    displayID: string
+    name: string
+    details: string | null
+    riskCategoryName: string | null
+    impact: Types.RiskRiskImpact | null
+    score: number | null
+    environmentName: string | null
+    scopeName: string | null
+  }
 }
 
-export type CreateReportMembershipMutationVariables = Exact<{
-  input: Types.CreateReportMembershipInput
+export type GetRemediationContextOptionsQueryVariables = Exact<{
+  vulnerabilityWhere?: Types.VulnerabilityWhereInput | null | undefined
+  findingWhere?: Types.FindingWhereInput | null | undefined
+  riskWhere?: Types.RiskWhereInput | null | undefined
+  withVulnerabilities: boolean
+  withFindings: boolean
+  withRisks: boolean
 }>
 
-export interface CreateReportMembershipMutation {
-  createReportMembership: { reportMembership: { id: string } }
+export interface GetRemediationContextOptionsQuery {
+  vulnerabilities?: { edges: Array<{ node: { id: string; displayID: string; displayName: string | null; cveID: string | null; externalID: string } | null } | null> | null }
+  findings?: { edges: Array<{ node: { id: string; displayID: string; displayName: string | null; externalID: string | null } | null } | null> | null }
+  risks?: { edges: Array<{ node: { id: string; displayID: string; name: string } | null } | null> | null }
 }
 
-export type UpdateReportMembershipMutationVariables = Exact<{
-  updateReportMembershipId: string
-  input: Types.UpdateReportMembershipInput
+export type GetRemediationFileIdsQueryVariables = Exact<{
+  remediationId: string
+  first?: number | null | undefined
+  after?: any
 }>
 
-export interface UpdateReportMembershipMutation {
-  updateReportMembership: { reportMembership: { id: string } }
+export interface GetRemediationFileIdsQuery {
+  remediation: { files: { pageInfo: { endCursor: any; hasNextPage: boolean }; edges: Array<{ node: { id: string } | null } | null> | null } }
+}
+
+export type GetReportMembersQueryVariables = Exact<{
+  reportId: string
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetReportMembersQuery {
+  report: {
+    id: string
+    members: {
+      pageInfo: { hasNextPage: boolean; endCursor: any }
+      edges: Array<{ node: { id: string; role: Types.ReportMembershipRole; userID: string; user: { id: string; displayName: string; email: string } } | null } | null> | null
+    }
+  }
+}
+
+export type CreateBulkReportMembershipMutationVariables = Exact<{
+  input?: Array<Types.CreateReportMembershipInput> | Types.CreateReportMembershipInput | null | undefined
+}>
+
+export interface CreateBulkReportMembershipMutation {
+  createBulkReportMembership: { reportMemberships: Array<{ id: string }> | null }
 }
 
 export type DeleteReportMembershipMutationVariables = Exact<{
@@ -7367,78 +7451,41 @@ export interface DeleteReportMembershipMutation {
   deleteReportMembership: { deletedID: string }
 }
 
-export type DeleteBulkReportMembershipMutationVariables = Exact<{
-  ids: Array<string> | string
-}>
-
-export interface DeleteBulkReportMembershipMutation {
-  deleteBulkReportMembership: { deletedIDs: Array<string>; notDeletedIDs: Array<string> | null; error: string | null }
-}
-
-export type UpdateBulkReportMembershipMutationVariables = Exact<{
-  ids: Array<string> | string
-  input: Types.UpdateReportMembershipInput
-}>
-
-export interface UpdateBulkReportMembershipMutation {
-  updateBulkReportMembership: { updatedIDs: Array<string> | null }
-}
-
-export type ReportsWithFilterQueryVariables = Exact<{
+export type GetAllReportsQueryVariables = Exact<{
   where?: Types.ReportWhereInput | null | undefined
-  orderBy?: Array<Types.ReportOrder> | Types.ReportOrder | null | undefined
   first?: number | null | undefined
-  after?: any
   last?: number | null | undefined
+  after?: any
   before?: any
+  orderBy?: Array<Types.ReportOrder> | Types.ReportOrder | null | undefined
 }>
 
-export interface ReportsWithFilterQuery {
+export interface GetAllReportsQuery {
   reports: {
     totalCount: number
+    pageInfo: { hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any; endCursor: any }
     edges: Array<{
-      node: {
-        createdAt: any
-        createdBy: string | null
-        displayID: string
-        id: string
-        name: string
-        query: string
-        reportKindID: string | null
-        reportKindName: string | null
-        reportOwnerID: string | null
-        requestorID: string | null
-        updatedAt: any
-        updatedBy: string | null
-        updatedByImpersonator: string | null
-        variables: any
-      } | null
+      node: { id: string; name: string; visibility: Types.ReportReportVisibility | null; variables: any; updatedAt: any; reportOwnerID: string | null; createdBy: string | null } | null
     } | null> | null
-    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
-export type ReportQueryVariables = Exact<{
+export type GetReportQueryVariables = Exact<{
   reportId: string
 }>
 
-export interface ReportQuery {
-  report: {
-    createdAt: any
-    createdBy: string | null
-    displayID: string
-    id: string
-    name: string
-    query: string
-    reportKindID: string | null
-    reportKindName: string | null
-    reportOwnerID: string | null
-    requestorID: string | null
-    updatedAt: any
-    updatedBy: string | null
-    updatedByImpersonator: string | null
-    variables: any
-  }
+export interface GetReportQuery {
+  report: { id: string; name: string; query: string; variables: any; visibility: Types.ReportReportVisibility | null }
+}
+
+export type GetReportViewerGroupsQueryVariables = Exact<{
+  reportId: string
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetReportViewerGroupsQuery {
+  report: { id: string; viewers: { pageInfo: { hasNextPage: boolean; endCursor: any }; edges: Array<{ node: { id: string; name: string; displayName: string } | null } | null> | null } }
 }
 
 export type CreateReportMutationVariables = Exact<{
@@ -7622,7 +7669,7 @@ export interface GetReviewAssociationsQuery {
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string; description: string | null } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; displayName: string | null } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; displayName: string | null } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayID: string; displayName: string | null } | null } | null> | null }
     entities: { totalCount: number; edges: Array<{ node: { id: string; name: string | null; displayName: string | null } | null } | null> | null }
     tasks: { totalCount: number; edges: Array<{ node: { id: string; title: string; displayID: string } | null } | null> | null }
     assets: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayName: string | null } | null } | null> | null }
@@ -7985,6 +8032,14 @@ export interface InsertRiskCommentMutation {
   }
 }
 
+export type GetRiskCommentsQueryVariables = Exact<{
+  riskId: string
+}>
+
+export interface GetRiskCommentsQuery {
+  risk: { id: string; comments: { totalCount: number; edges: Array<{ node: { id: string; createdAt: any; createdBy: string | null; text: string } | null } | null> | null } }
+}
+
 export type UpdateRiskCommentMutationVariables = Exact<{
   updateRiskCommentId: string
   input: Types.UpdateNoteInput
@@ -8030,7 +8085,7 @@ export interface GetRiskAssociationsQuery {
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     actionPlans: { totalCount: number; edges: Array<{ node: { id: string; name: string; status: Types.ActionPlanDocumentStatus | null } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }
@@ -8208,7 +8263,7 @@ export interface GetScanAssociationsQuery {
     findings: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
     tasks: { totalCount: number; edges: Array<{ node: { id: string; title: string; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }
 
@@ -8603,7 +8658,7 @@ export interface GetSubcontrolAssociationsByIdQuery {
       totalCount: number
       edges: Array<{ node: { id: string; fullName: string; displayID: string; identityHolderType: Types.IdentityHolderIdentityHolderType; title: string | null } | null } | null> | null
     }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
 }
@@ -9476,7 +9531,7 @@ export type GetUserTfaSettingsQueryVariables = Exact<{
 }>
 
 export interface GetUserTfaSettingsQuery {
-  user: { tfaSettings: { edges: Array<{ node: { id: string; totpAllowed: boolean | null; verified: boolean } | null } | null> | null } }
+  user: { setting: { id: string; isTfaEnabled: boolean | null }; tfaSettings: { edges: Array<{ node: { id: string; totpAllowed: boolean | null; verified: boolean } | null } | null> | null } }
 }
 
 export type UpdateTfaSettingMutationVariables = Exact<{
@@ -10076,6 +10131,7 @@ export interface GetTrustCenterQuery {
         subprocessorURL: string | null
         pirschDomainID: string | null
         pirschAccessLink: string | null
+        previewStatus: Types.TrustCenterTrustCenterPreviewStatus | null
         customDomain: {
           id: string
           cnameRecord: string
@@ -10088,6 +10144,7 @@ export interface GetTrustCenterQuery {
           title: string | null
           overview: string | null
           noindexDefaultDomain: boolean | null
+          disableDefaultDomain: boolean | null
           primaryColor: string | null
           themeMode: Types.TrustCenterSettingTrustCenterThemeMode | null
           foregroundColor: string | null
@@ -10152,6 +10209,12 @@ export interface GetTrustCenterQuery {
   }
 }
 
+export type GetTrustCenterPreviewDomainQueryVariables = Exact<{ [key: string]: never }>
+
+export interface GetTrustCenterPreviewDomainQuery {
+  trustCenters: { edges: Array<{ node: { id: string; previewStatus: Types.TrustCenterTrustCenterPreviewStatus | null; previewDomain: { id: string } | null } | null } | null> | null }
+}
+
 export type UpdateTrustCenterSettingMutationVariables = Exact<{
   updateTrustCenterSettingId: string
   input: Types.UpdateTrustCenterSettingInput
@@ -10169,6 +10232,14 @@ export type CreateCustomDomainMutationVariables = Exact<{
 
 export interface CreateCustomDomainMutation {
   createTrustCenterDomain: { customDomain: { id: string } }
+}
+
+export type SetupTrustCenterDomainsMutationVariables = Exact<{
+  trustCenterID: string
+}>
+
+export interface SetupTrustCenterDomainsMutation {
+  setupTrustCenterDomains: { success: boolean }
 }
 
 export type DeleteCustomDomainMutationVariables = Exact<{
@@ -10253,14 +10324,7 @@ export interface GetUserProfileQuery {
     email: string
     avatarRemoteURL: string | null
     avatarFile: { base64: string | null } | null
-    setting: {
-      id: string
-      status: Types.UserSettingUserStatus
-      tags: Array<string> | null
-      isTfaEnabled: boolean | null
-      isWebauthnAllowed: boolean | null
-      defaultOrg: { id: string; displayName: string } | null
-    }
+    setting: { id: string; status: Types.UserSettingUserStatus; tags: Array<string> | null; isWebauthnAllowed: boolean | null; defaultOrg: { id: string; displayName: string } | null }
   }
 }
 
@@ -10292,44 +10356,77 @@ export interface DeleteUserMutation {
 }
 
 export type GetVendorDirectoryQueryVariables = Exact<{
-  integrationIDs: Array<string> | string
+  where: Types.DirectoryGroupWhereInput
   first?: number | null | undefined
   after?: any
 }>
 
 export interface GetVendorDirectoryQuery {
   directoryGroups: {
-    totalCount: number
     pageInfo: { endCursor: any; hasNextPage: boolean }
     edges: Array<{
       node: {
         id: string
         displayName: string | null
         email: string | null
-        integration: { id: string; name: string }
-        members: {
-          totalCount: number
-          edges: Array<{
-            node: {
-              id: string
-              role: Types.DirectoryMembershipDirectoryMembershipRole | null
-              addedAt: any
-              removedAt: any
-              directoryAccount: {
-                id: string
-                canonicalEmail: string | null
-                displayName: string | null
-                givenName: string | null
-                familyName: string | null
-                identityHolderID: string | null
-                identityHolder: { id: string; fullName: string; email: string } | null
-              }
-            } | null
-          } | null> | null
-        }
+        sourceDefinitionID: string | null
+        managedBy: string | null
+        members: { totalCount: number }
+        matchedAccounts: { totalCount: number }
       } | null
     } | null> | null
   }
+}
+
+export type GetVendorDirectoryCoverageQueryVariables = Exact<{
+  vendorId: string
+}>
+
+export interface GetVendorDirectoryCoverageQuery {
+  allGroups: { totalCount: number }
+  emptyGroups: { totalCount: number }
+  groupedAccounts: { totalCount: number }
+  matchedAccounts: { totalCount: number }
+}
+
+export type GetDirectoryGroupMembersQueryVariables = Exact<{
+  groupID: string
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetDirectoryGroupMembersQuery {
+  directoryGroup: {
+    id: string
+    members: {
+      totalCount: number
+      pageInfo: { endCursor: any; hasNextPage: boolean }
+      edges: Array<{
+        node: {
+          id: string
+          role: Types.DirectoryMembershipDirectoryMembershipRole | null
+          addedAt: any
+          removedAt: any
+          directoryAccount: {
+            id: string
+            canonicalEmail: string | null
+            displayName: string | null
+            givenName: string | null
+            familyName: string | null
+            identityHolder: { id: string; fullName: string; email: string } | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type GetVendorDirectoryGroupCountQueryVariables = Exact<{
+  vendorId: string
+}>
+
+export interface GetVendorDirectoryGroupCountQuery {
+  directoryGroups: { totalCount: number }
 }
 
 export type VendorRiskScoresWithFilterQueryVariables = Exact<{
@@ -10422,7 +10519,23 @@ export type CreateVendorRiskScoreMutationVariables = Exact<{
 }>
 
 export interface CreateVendorRiskScoreMutation {
-  createVendorRiskScore: { vendorRiskScore: { id: string } }
+  createVendorRiskScore: {
+    vendorRiskScore: {
+      id: string
+      questionKey: string
+      questionName: string
+      questionCategory: Types.VendorRiskScoreVendorScoringCategory
+      answerType: Types.VendorRiskScoreVendorScoringAnswerType
+      answer: string | null
+      impact: Types.VendorRiskScoreVendorRiskImpact
+      likelihood: Types.VendorRiskScoreVendorRiskLikelihood
+      score: number
+      notes: string | null
+      tags: Array<string> | null
+      updatedAt: any
+      entity: { id: string; riskScore: number | null; riskRating: string | null; updatedAt: any }
+    }
+  }
 }
 
 export type UpdateVendorRiskScoreMutationVariables = Exact<{
@@ -10431,7 +10544,23 @@ export type UpdateVendorRiskScoreMutationVariables = Exact<{
 }>
 
 export interface UpdateVendorRiskScoreMutation {
-  updateVendorRiskScore: { vendorRiskScore: { id: string } }
+  updateVendorRiskScore: {
+    vendorRiskScore: {
+      id: string
+      questionKey: string
+      questionName: string
+      questionCategory: Types.VendorRiskScoreVendorScoringCategory
+      answerType: Types.VendorRiskScoreVendorScoringAnswerType
+      answer: string | null
+      impact: Types.VendorRiskScoreVendorRiskImpact
+      likelihood: Types.VendorRiskScoreVendorRiskLikelihood
+      score: number
+      notes: string | null
+      tags: Array<string> | null
+      updatedAt: any
+      entity: { id: string; riskScore: number | null; riskRating: string | null; updatedAt: any }
+    }
+  }
 }
 
 export type DeleteVendorRiskScoreMutationVariables = Exact<{
@@ -10448,6 +10577,14 @@ export type CreateBulkCsvVendorRiskScoreMutationVariables = Exact<{
 
 export interface CreateBulkCsvVendorRiskScoreMutation {
   createBulkCSVVendorRiskScore: { vendorRiskScores: Array<{ id: string }> | null }
+}
+
+export type UpdateBulkCsvVendorRiskScoreMutationVariables = Exact<{
+  input: any
+}>
+
+export interface UpdateBulkCsvVendorRiskScoreMutation {
+  updateBulkCSVVendorRiskScore: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type DeleteBulkVendorRiskScoreMutationVariables = Exact<{
@@ -10467,6 +10604,14 @@ export interface UpdateBulkVendorRiskScoreMutation {
   updateBulkVendorRiskScore: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
+export type VendorRiskScoreQuestionUsageQueryVariables = Exact<{
+  questionKey: string
+}>
+
+export interface VendorRiskScoreQuestionUsageQuery {
+  vendorRiskScores: { totalCount: number }
+}
+
 export type VendorScoringConfigsWithFilterQueryVariables = Exact<{
   where?: Types.VendorScoringConfigWhereInput | null | undefined
   orderBy?: Array<Types.VendorScoringConfigOrder> | Types.VendorScoringConfigOrder | null | undefined
@@ -10479,8 +10624,29 @@ export type VendorScoringConfigsWithFilterQueryVariables = Exact<{
 export interface VendorScoringConfigsWithFilterQuery {
   vendorScoringConfigs: {
     totalCount: number
-    edges: Array<{ node: { createdAt: any; createdBy: string | null; id: string; questions: any; riskThresholds: any; updatedAt: any; updatedBy: string | null } | null } | null> | null
+    edges: Array<{
+      node: {
+        createdAt: any
+        createdBy: string | null
+        id: string
+        questions: TVendorScoringQuestionsConfig
+        riskThresholds: TVendorRiskThresholdsConfig
+        scoringMode: Types.VendorScoringConfigVendorScoringMode
+        updatedAt: any
+        updatedBy: string | null
+      } | null
+    } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type OrganizationVendorScoringConfigQueryVariables = Exact<{ [key: string]: never }>
+
+export interface OrganizationVendorScoringConfigQuery {
+  vendorScoringConfigs: {
+    edges: Array<{
+      node: { id: string; questions: TVendorScoringQuestionsConfig; riskThresholds: TVendorRiskThresholdsConfig; scoringMode: Types.VendorScoringConfigVendorScoringMode; updatedAt: any } | null
+    } | null> | null
   }
 }
 
@@ -10489,7 +10655,16 @@ export type VendorScoringConfigQueryVariables = Exact<{
 }>
 
 export interface VendorScoringConfigQuery {
-  vendorScoringConfig: { createdAt: any; createdBy: string | null; id: string; questions: any; riskThresholds: any; updatedAt: any; updatedBy: string | null }
+  vendorScoringConfig: {
+    createdAt: any
+    createdBy: string | null
+    id: string
+    questions: TVendorScoringQuestionsConfig
+    riskThresholds: TVendorRiskThresholdsConfig
+    scoringMode: Types.VendorScoringConfigVendorScoringMode
+    updatedAt: any
+    updatedBy: string | null
+  }
 }
 
 export type CreateVendorScoringConfigMutationVariables = Exact<{
@@ -10660,6 +10835,7 @@ export interface VulnerabilityQuery {
     firstPatchedVersion: string | null
     id: string
     impact: number | null
+    sourceDefinitionID: string | null
     open: boolean | null
     packageEcosystem: string | null
     packageName: string | null
@@ -10695,7 +10871,6 @@ export interface VulnerabilityQuery {
     internalOwnerUser: { id: string; displayName: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
-    integrations: { totalCount: number }
     remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
   }
 }
@@ -10911,20 +11086,6 @@ export type UpdateVulnerabilityCommentMutationVariables = Exact<{
 
 export interface UpdateVulnerabilityCommentMutation {
   updateVulnerabilityComment: { vulnerability: { id: string } }
-}
-
-export type GetVulnerabilitySourceIntegrationsQueryVariables = Exact<{
-  vulnerabilityId: string
-}>
-
-export interface GetVulnerabilitySourceIntegrationsQuery {
-  vulnerability: {
-    id: string
-    integrations: {
-      totalCount: number
-      edges: Array<{ node: { id: string; name: string; definitionID: string | null; definitionSlug: string | null; family: string | null; kind: string | null } | null } | null> | null
-    }
-  }
 }
 
 export type GetVulnerabilityHistoryEdgesQueryVariables = Exact<{

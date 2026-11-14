@@ -1,4 +1,5 @@
 'use client'
+import { isIntegrationSourced } from '@/lib/integrations/utils'
 
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
@@ -69,7 +70,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
 
   const hasTargetDetails = isPopulatedObject(data?.targetDetails)
   const hasMetadata = Boolean(data?.source || data?.sourceUpdatedAt || data?.eventTime || data?.reportedAt)
-  const isExternalRefLocked = (data?.integrations?.totalCount ?? 0) > 0
+  const isExternalRefLocked = isIntegrationSourced(data)
   const externalRefLockedTooltip = 'This field is managed by the source integration and cannot be edited.'
   const externalRefLockProps = isExternalRefLocked
     ? {

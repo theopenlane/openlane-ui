@@ -15,6 +15,7 @@ import { GET_ALL_FINDINGS } from '@repo/codegen/query/finding'
 import { GET_ALL_REMEDIATIONS } from '@repo/codegen/query/remediation'
 import { GET_ALL_REVIEWS } from '@repo/codegen/query/review'
 import { GET_ALL_VULNERABILITIES } from '@repo/codegen/query/vulnerability'
+import { getObjectDisplayName } from '@/utils/object-display-name'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
 import { GET_ALL_SCANS } from '@repo/codegen/query/scan'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
@@ -43,6 +44,27 @@ import {
   type Scan,
   type Vulnerability,
   type PageInfo,
+  type ActionPlanWhereInput,
+  type ControlWhereInput,
+  type ControlImplementationWhereInput,
+  type SubcontrolWhereInput,
+  type ControlObjectiveWhereInput,
+  type ProgramWhereInput,
+  type TaskWhereInput,
+  type EvidenceWhereInput,
+  type GroupWhereInput,
+  type InternalPolicyWhereInput,
+  type ProcedureWhereInput,
+  type RiskWhereInput,
+  type ScanWhereInput,
+  type CampaignWhereInput,
+  type AssetWhereInput,
+  type EntityWhereInput,
+  type FindingWhereInput,
+  type IdentityHolderWhereInput,
+  type RemediationWhereInput,
+  type ReviewWhereInput,
+  type VulnerabilityWhereInput,
   ControlObjectiveObjectiveStatus,
   OrderDirection,
   AssetOrderField,
@@ -73,6 +95,9 @@ import { type RequestDocument } from 'graphql-request'
 
 import {
   type CreateTaskInput,
+  type CreateRemediationInput,
+  type CreateRiskInput,
+  type CreateReviewInput,
   type AssetsWithFilterQuery,
   type CampaignsWithFilterQuery,
   type GetAllControlImplementationsQuery,
@@ -469,8 +494,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
   },
 }
 
-export const invalidateTaskAssociations = (payload: CreateTaskInput, queryClient: ReturnType<typeof useQueryClient>) => {
-  queryClient.invalidateQueries({ queryKey: ['tasks'] })
+export const invalidateCreateEdgeTargets = (payload: CreateTaskInput | CreateRemediationInput | CreateRiskInput | CreateReviewInput, queryClient: ReturnType<typeof useQueryClient>) => {
   const fields = new Map(Object.entries(payload))
 
   Object.values(OBJECT_QUERY_CONFIG).forEach((config) => {
@@ -479,6 +503,11 @@ export const invalidateTaskAssociations = (payload: CreateTaskInput, queryClient
       queryClient.invalidateQueries({ queryKey: [config.responseObjectKey] })
     }
   })
+}
+
+export const invalidateTaskAssociations = (payload: CreateTaskInput, queryClient: ReturnType<typeof useQueryClient>) => {
+  queryClient.invalidateQueries({ queryKey: ['tasks'] })
+  invalidateCreateEdgeTargets(payload, queryClient)
 }
 
 export const invalidateEdgeUpdateTargets = (input: object, queryClient: ReturnType<typeof useQueryClient>) => {
@@ -602,7 +631,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as ActionPlansWithFilterQuery).actionPlans?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.title ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
       }))
     }
@@ -611,7 +640,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as GetAllControlsQuery).controls?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.refCode,
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.refCode ?? '',
         referenceFramework: item?.node?.referenceFramework ?? null,
@@ -632,7 +661,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as GetAllSubcontrolsQuery).subcontrols?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.refCode,
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.refCode ?? '',
         referenceFramework: item?.node?.referenceFramework ?? null,
@@ -643,7 +672,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as GetAllControlObjectivesQuery).controlObjectives?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.name ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: '',
       }))
@@ -653,7 +682,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as GetAllProgramsQuery).programs?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.name ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
       }))
@@ -663,7 +692,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as TasksWithFilterQuery).tasks?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.title ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
       }))
@@ -673,7 +702,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as GetAllEvidencesQuery).evidences?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.name ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
       }))
@@ -683,7 +712,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as GetAllGroupsQuery).groups?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.name ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.name ?? '',
       }))
@@ -693,7 +722,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as GetAllInternalPoliciesQuery).internalPolicies?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.name ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.name ?? '',
       }))
@@ -703,7 +732,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as GetAllProceduresWithDetailsQuery).procedures?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.name ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: '',
       }))
@@ -713,7 +742,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as GetAllRisksQuery).risks?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.name ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
       }))
@@ -723,7 +752,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as ScansWithFilterQuery).scans?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.target ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: '',
       }))
@@ -733,7 +762,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as CampaignsWithFilterQuery).campaigns?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.name ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
       }))
@@ -743,7 +772,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as AssetsWithFilterQuery).assets?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.name ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.displayName ?? '',
       }))
@@ -753,7 +782,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as EntitiesWithFilterQuery).entities?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.name ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.displayName ?? '',
       }))
@@ -763,7 +792,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as FindingsWithFilterQuery).findings?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.displayName ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
       }))
@@ -773,7 +802,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as IdentityHoldersWithFilterQuery).identityHolders?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.fullName ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
       }))
@@ -783,7 +812,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as RemediationsWithFilterQuery).remediations?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.title ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
       }))
@@ -793,7 +822,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as ReviewsWithFilterQuery).reviews?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.title ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: '',
       }))
@@ -803,7 +832,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as VulnerabilitiesWithFilterQuery).vulnerabilities?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.displayName ?? '',
+        name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
       }))
@@ -812,6 +841,56 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
     default:
       return []
   }
+}
+
+type TObjectWhereInput = {
+  [ObjectTypeObjects.ACTION_PLAN]: ActionPlanWhereInput
+  [ObjectTypeObjects.CONTROL]: ControlWhereInput
+  [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: ControlImplementationWhereInput
+  [ObjectTypeObjects.SUB_CONTROL]: SubcontrolWhereInput
+  [ObjectTypeObjects.CONTROL_OBJECTIVE]: ControlObjectiveWhereInput
+  [ObjectTypeObjects.PROGRAM]: ProgramWhereInput
+  [ObjectTypeObjects.TASK]: TaskWhereInput
+  [ObjectTypeObjects.EVIDENCE]: EvidenceWhereInput
+  [ObjectTypeObjects.GROUP]: GroupWhereInput
+  [ObjectTypeObjects.INTERNAL_POLICY]: InternalPolicyWhereInput
+  [ObjectTypeObjects.PROCEDURE]: ProcedureWhereInput
+  [ObjectTypeObjects.RISK]: RiskWhereInput
+  [ObjectTypeObjects.SCAN]: ScanWhereInput
+  [ObjectTypeObjects.CAMPAIGN]: CampaignWhereInput
+  [ObjectTypeObjects.ASSET]: AssetWhereInput
+  [ObjectTypeObjects.ENTITY]: EntityWhereInput
+  [ObjectTypeObjects.FINDING]: FindingWhereInput
+  [ObjectTypeObjects.IDENTITY_HOLDER]: IdentityHolderWhereInput
+  [ObjectTypeObjects.REMEDIATION]: RemediationWhereInput
+  [ObjectTypeObjects.REVIEW]: ReviewWhereInput
+  [ObjectTypeObjects.VULNERABILITY]: VulnerabilityWhereInput
+}
+
+type TSearchPredicate<K extends ObjectTypeObjects> = Extract<keyof TObjectWhereInput[K], `${string}ContainsFold`>
+
+const SEARCH_ATTRIBUTES: { [K in ObjectTypeObjects]: TSearchPredicate<K>[] } = {
+  [ObjectTypeObjects.ACTION_PLAN]: ['nameContainsFold', 'titleContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.CONTROL]: ['refCodeContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: ['detailsContainsFold'],
+  [ObjectTypeObjects.SUB_CONTROL]: ['refCodeContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.CONTROL_OBJECTIVE]: ['nameContainsFold', 'desiredOutcomeContainsFold'],
+  [ObjectTypeObjects.PROGRAM]: ['nameContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.TASK]: ['titleContainsFold', 'detailsContainsFold'],
+  [ObjectTypeObjects.EVIDENCE]: ['nameContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.GROUP]: ['displayNameContainsFold', 'nameContainsFold'],
+  [ObjectTypeObjects.INTERNAL_POLICY]: ['nameContainsFold', 'detailsContainsFold'],
+  [ObjectTypeObjects.PROCEDURE]: ['nameContainsFold'],
+  [ObjectTypeObjects.RISK]: ['nameContainsFold', 'detailsContainsFold'],
+  [ObjectTypeObjects.SCAN]: ['targetContainsFold'],
+  [ObjectTypeObjects.CAMPAIGN]: ['nameContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.ASSET]: ['displayNameContainsFold', 'nameContainsFold'],
+  [ObjectTypeObjects.ENTITY]: ['displayNameContainsFold', 'nameContainsFold'],
+  [ObjectTypeObjects.FINDING]: ['displayNameContainsFold', 'externalIDContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.IDENTITY_HOLDER]: ['fullNameContainsFold', 'emailContainsFold'],
+  [ObjectTypeObjects.REMEDIATION]: ['titleContainsFold', 'summaryContainsFold'],
+  [ObjectTypeObjects.REVIEW]: ['titleContainsFold', 'summaryContainsFold'],
+  [ObjectTypeObjects.VULNERABILITY]: ['cveIDContainsFold', 'displayNameContainsFold', 'externalIDContainsFold', 'descriptionContainsFold'],
 }
 
 export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchValue: string, ownerID: string) => {
@@ -841,51 +920,6 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.VULNERABILITY]: {},
   }
 
-  const searchAttributeMap: Partial<Record<ObjectTypeObjects, string>> = {
-    [ObjectTypeObjects.ACTION_PLAN]: 'titleContainsFold',
-    [ObjectTypeObjects.CONTROL]: 'refCodeContainsFold',
-    [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: 'detailsContainsFold',
-    [ObjectTypeObjects.SUB_CONTROL]: 'refCodeContainsFold',
-    [ObjectTypeObjects.CONTROL_OBJECTIVE]: 'nameContainsFold',
-    [ObjectTypeObjects.PROGRAM]: 'nameContainsFold',
-    [ObjectTypeObjects.TASK]: 'titleContainsFold',
-    [ObjectTypeObjects.EVIDENCE]: 'nameContainsFold',
-    [ObjectTypeObjects.GROUP]: 'nameContainsFold',
-    [ObjectTypeObjects.INTERNAL_POLICY]: 'nameContainsFold',
-    [ObjectTypeObjects.PROCEDURE]: 'nameContainsFold',
-    [ObjectTypeObjects.RISK]: 'nameContainsFold',
-    [ObjectTypeObjects.SCAN]: 'targetContainsFold',
-    [ObjectTypeObjects.CAMPAIGN]: 'nameContainsFold',
-    [ObjectTypeObjects.ASSET]: 'nameContainsFold',
-    [ObjectTypeObjects.ENTITY]: 'nameContainsFold',
-    [ObjectTypeObjects.FINDING]: 'displayNameContainsFold',
-    [ObjectTypeObjects.IDENTITY_HOLDER]: 'fullNameContainsFold',
-    [ObjectTypeObjects.REMEDIATION]: 'titleContainsFold',
-    [ObjectTypeObjects.REVIEW]: 'titleContainsFold',
-    [ObjectTypeObjects.VULNERABILITY]: 'displayNameContainsFold',
-  }
-
-  const secondarySearchMap: Partial<Record<ObjectTypeObjects, string>> = {
-    [ObjectTypeObjects.ACTION_PLAN]: 'descriptionContainsFold',
-    [ObjectTypeObjects.CONTROL]: 'descriptionContainsFold',
-    [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: 'statusContainsFold',
-    [ObjectTypeObjects.SUB_CONTROL]: 'descriptionContainsFold',
-    [ObjectTypeObjects.CONTROL_OBJECTIVE]: 'desiredOutcomeContainsFold',
-    [ObjectTypeObjects.PROGRAM]: 'descriptionContainsFold',
-    [ObjectTypeObjects.TASK]: 'detailsContainsFold',
-    [ObjectTypeObjects.EVIDENCE]: 'descriptionContainsFold',
-    [ObjectTypeObjects.INTERNAL_POLICY]: 'detailsContainsFold',
-    [ObjectTypeObjects.RISK]: 'detailsContainsFold',
-    [ObjectTypeObjects.SCAN]: 'descriptionContainsFold',
-    [ObjectTypeObjects.CAMPAIGN]: 'descriptionContainsFold',
-    [ObjectTypeObjects.ENTITY]: 'displayNameContainsFold',
-    [ObjectTypeObjects.FINDING]: 'descriptionContainsFold',
-    [ObjectTypeObjects.IDENTITY_HOLDER]: 'emailContainsFold',
-    [ObjectTypeObjects.REMEDIATION]: 'summaryContainsFold',
-    [ObjectTypeObjects.REVIEW]: 'summaryContainsFold',
-    [ObjectTypeObjects.VULNERABILITY]: 'descriptionContainsFold',
-  }
-
   const defaultWhereMap: Partial<Record<ObjectTypeObjects, Record<string, unknown>>> = {
     [ObjectTypeObjects.CONTROL_OBJECTIVE]: {
       statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED,
@@ -894,19 +928,14 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
 
   const mandatoryWhere = mandatoryFilterMap[selectedObject] ?? {}
   const defaultWhere = defaultWhereMap[selectedObject] ?? {}
-  const searchAttribute = searchAttributeMap[selectedObject]
-  const secondaryAttribute = secondarySearchMap[selectedObject]
-
   if (!searchValue) {
     return { ...mandatoryWhere, ...defaultWhere }
   }
 
-  const orFilters = secondaryAttribute ? [{ [searchAttribute ?? '']: searchValue }, { [secondaryAttribute]: searchValue }] : [{ [searchAttribute ?? '']: searchValue }]
-
   return {
     ...mandatoryWhere,
     ...defaultWhere,
-    or: orFilters,
+    or: SEARCH_ATTRIBUTES[selectedObject].map((attribute) => ({ [attribute]: searchValue })),
   }
 }
 

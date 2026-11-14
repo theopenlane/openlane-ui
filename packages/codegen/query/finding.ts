@@ -152,9 +152,7 @@ export const FINDING = gql`
       findingClass
       id
       impact
-      integrations {
-        totalCount
-      }
+      sourceDefinitionID
       metadata
       numericSeverity
       open
@@ -359,6 +357,8 @@ export const GET_FINDING_ASSOCIATIONS = gql`
         edges {
           node {
             id
+            cveID
+            externalID
             displayName
             displayID
           }

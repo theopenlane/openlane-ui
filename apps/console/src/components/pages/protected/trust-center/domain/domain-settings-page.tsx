@@ -21,6 +21,20 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
+import Link from 'next/link'
+import { getTrustCenterUrlState } from '../shared/trust-center-urls'
+import { TrustCenterPreviewStatusNote, TrustCenterUrlsCard } from '../shared/trust-center-urls-setup'
+import { useCreateTrustCenterUrls } from '../shared/use-create-trust-center-urls'
+import { buildPreviewUrl } from '../branding/helpers/preview-url'
+
+const DomainPageShell = ({ children }: { children: React.ReactNode }) => (
+  <div className="w-full flex justify-center py-4">
+    <div className="w-full max-w-300 grid gap-6">
+      <PageHeading heading="Domain settings" />
+      {children}
+    </div>
+  </div>
+)
 
 const DomainSettingsPage = () => {
   const { data, isLoading, error, refetch } = useGetTrustCenter()
@@ -33,6 +47,7 @@ const DomainSettingsPage = () => {
   const { mutateAsync: deleteCustomDomain } = useDeleteCustomDomain()
   const { mutateAsync: createCustomDomain } = useCreateCustomDomain()
   const { mutateAsync: validateCustomDomain, isPending: isValidating } = useValidateCustomDomain()
+  const urls = useCreateTrustCenterUrls()
 
   useEffect(() => {
     setCrumbs([
@@ -224,8 +239,16 @@ const DomainSettingsPage = () => {
       })
   }
 
-  const trustCenterDefaultDomain = trustCenter?.slug ? `https://trust.theopenlane.net/${trustCenter?.slug}` : ''
-  const defaultDomain = trustCenterDefaultDomain
+  const { liveDefaultUrl, isDefaultDomainDisabled, needsSetup } = getTrustCenterUrlState(trustCenter)
+  const previewUrl = buildPreviewUrl(trustCenter?.previewDomain?.cnameRecord)
+
+  if (needsSetup) {
+    return (
+      <DomainPageShell>
+        <TrustCenterUrlsCard urls={urls} description="Your Trust Center URLs haven't been created yet. Create them to configure your domain and prepare your Trust Center for publishing." />
+      </DomainPageShell>
+    )
+  }
 
   const renderContent = () => {
     if (!trustCenter?.customDomain) {
@@ -306,85 +329,101 @@ const DomainSettingsPage = () => {
   }
 
   return (
-    <div className="w-full flex justify-center py-4">
-      <div className="w-full max-w-300 grid gap-6">
-        <PageHeading heading="Domain settings" />
-        <Card>
-          <CardContent>
-            <div className="flex flex-col gap-6">
+    <DomainPageShell>
+      <Card>
+        <CardContent>
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-1">
+              <p className="text-base font-medium leading-6">Configure URL</p>
+              <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
+                This is the link you&apos;ll send to customers so they can verify your security and compliance in real time
+              </p>
+            </div>
+            {previewUrl && (
+              <div className="flex flex-col gap-2">
+                <UrlDisplay label="Preview:" url={previewUrl} className="w-full" />
+                <TrustCenterPreviewStatusNote status={trustCenter?.previewStatus} />
+              </div>
+            )}
+            <div className="flex flex-col gap-2">
+              {trustCenter?.slug && <UrlDisplay label="Default:" url={liveDefaultUrl} emptyText="Available after you publish" className="w-full" />}
+              {isDefaultDomainDisabled && (
+                <p className="text-sm text-muted-foreground">
+                  Your default URL goes live the first time you publish from{' '}
+                  <Link href="/trust-center/branding" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 align-middle text-blue-500 hover:underline">
+                    Branding
+                    <ExternalLink className="size-3.5 shrink-0" />
+                  </Link>
+                  .
+                </p>
+              )}
+            </div>
+            <div className="flex items-start justify-between gap-4">
               <div className="flex flex-col gap-1">
-                <p className="text-base font-medium leading-6">Configure URL</p>
-                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
-                  This is the link you&apos;ll send to customers so they can verify your security and compliance in real time
+                <span className="flex items-center gap-1.5">
+                  <Label htmlFor="hide-from-search-engines" className="text-base font-medium leading-6">
+                    Hide from search engines
+                  </Label>
+                  <SystemTooltip
+                    icon={<InfoIcon size={14} className="text-inverted-muted-foreground shrink-0" />}
+                    content="When on, your default Trust Center URL tells search engines not to index it. Your vanity domain is unaffected."
+                  />
+                </span>
+                <p id="hide-from-search-engines-description" className="text-sm text-inverted-muted-foreground font-medium leading-6">
+                  Prevent search engines like Google from showing this default Trust Center URL in search results.
                 </p>
               </div>
-              <div>{trustCenter?.slug && <UrlDisplay label="Default:" url={defaultDomain} className="w-full" />}</div>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex flex-col gap-1">
-                  <span className="flex items-center gap-1.5">
-                    <Label htmlFor="hide-from-search-engines" className="text-base font-medium leading-6">
-                      Hide from search engines
-                    </Label>
-                    <SystemTooltip
-                      icon={<InfoIcon size={14} className="text-inverted-muted-foreground shrink-0" />}
-                      content="When on, your default Trust Center URL tells search engines not to index it. Your vanity domain is unaffected."
-                    />
-                  </span>
-                  <p id="hide-from-search-engines-description" className="text-sm text-inverted-muted-foreground font-medium leading-6">
-                    Prevent search engines like Google from showing this default Trust Center URL in search results.
+              <Switch
+                id="hide-from-search-engines"
+                aria-describedby="hide-from-search-engines-description hide-from-search-engines-hint"
+                checked={setting.noindexDefaultDomain ?? false}
+                onCheckedChange={handleToggleNoIndex}
+                disabled={!canEditTc || isUpdatingTrustCenter}
+                className="shrink-0"
+              />
+            </div>
+            <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-3">
+              <div className="flex items-start gap-2">
+                <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />
+                <div>
+                  <p className="text-sm">
+                    {!isDefaultDomainDisabled && 'Even if you set up a vanity domain, your default domain will remain accessible. '}Vanity domains let you host your Trust Center on your company&apos;s
+                    root domain—for example,
+                    <span className="mx-1 font-medium text-text-header">trust.yourcompany.com</span>
+                    instead of trust.theopenlane.net/yourcompany. When a vanity domain is added, the default domain is hidden from search engines by default.
                   </p>
                 </div>
-                <Switch
-                  id="hide-from-search-engines"
-                  aria-describedby="hide-from-search-engines-description hide-from-search-engines-hint"
-                  checked={setting.noindexDefaultDomain ?? false}
-                  onCheckedChange={handleToggleNoIndex}
-                  disabled={!canEditTc || isUpdatingTrustCenter}
-                  className="shrink-0"
-                />
               </div>
-              <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-3">
+            </div>
+            {dnsVerification?.dnsVerificationStatus === DnsVerificationDnsVerificationStatus.PENDING && hasReason && (
+              <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-1">
                 <div className="flex items-start gap-2">
                   <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />
                   <div>
-                    <p className="text-sm">
-                      Even if you set up a vanity domain, your default domain will remain accessible. Vanity domains let you host your Trust Center on your company&apos;s root domain—for example,
-                      <span className="mx-1 font-medium text-text-header">trust.yourcompany.com</span>
-                      instead of trust.theopenlane.net/yourcompany. When a vanity domain is added, the default domain is hidden from search engines by default.
-                    </p>
+                    <p className="text-sm">{dnsVerification.dnsVerificationStatusReason}</p>
                   </div>
                 </div>
               </div>
-              {dnsVerification?.dnsVerificationStatus === DnsVerificationDnsVerificationStatus.PENDING && hasReason && (
-                <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-1">
-                  <div className="flex items-start gap-2">
-                    <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />
-                    <div>
-                      <p className="text-sm">{dnsVerification.dnsVerificationStatusReason}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div className="flex flex-col gap-3">
-                <p className="text-base font-medium leading-6">Vanity Domain</p>
-                {renderContent()}
-                <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
-                  Enter a domain you own (e.g. trust.yourcompany.com). Once set, you&apos;ll need to configure DNS records with your domain provider to complete the setup.
-                </p>
-              </div>
+            )}
+            <div className="flex flex-col gap-3">
+              <p className="text-base font-medium leading-6">Vanity Domain</p>
+              {renderContent()}
+              <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
+                Enter a domain you own (e.g. trust.yourcompany.com). Once set, you&apos;ll need to configure DNS records with your domain provider to complete the setup.
+              </p>
             </div>
-          </CardContent>
-        </Card>
-        {trustCenter.customDomain?.cnameRecord && <DnsRecords onVerify={verify} cnameName={cnameName} dnsVerification={dnsVerification} isVerifying={isValidating} countdown={verificationCountDown} />}
-        <div className="grid gap-10 text-sm text-text-informational mt-6">
-          <ul className="list-disc list-inside space-y-1">
-            <li>DNS changes can take 2&ndash;72 minutes to propagate depending on your provider</li>
-            <li>You can click Verify to manually trigger a check (this button becomes available every 60 seconds)</li>
-            <li>We&apos;ll continue checking in the background and update the verification status automatically</li>
-          </ul>
-        </div>
+          </div>
+        </CardContent>
+      </Card>
+      {trustCenter.customDomain?.cnameRecord && <DnsRecords onVerify={verify} cnameName={cnameName} dnsVerification={dnsVerification} isVerifying={isValidating} countdown={verificationCountDown} />}
+      <div className="grid gap-10 text-sm text-text-informational mt-6">
+        <ul className="list-disc list-inside space-y-1">
+          <li>DNS changes can take 2&ndash;72 minutes to propagate depending on your provider</li>
+          <li>You can click Verify to manually trigger a check (this button becomes available every 60 seconds)</li>
+          <li>We&apos;ll continue checking in the background and update the verification status automatically</li>
+        </ul>
       </div>
-    </div>
+    </DomainPageShell>
   )
 }
 

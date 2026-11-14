@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { useFindingSheetConfig } from './hooks/use-finding-sheet-config'
 import { useFindingComments, useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
 import CommentsSection from '@/components/shared/comments/comments-section'
 import { Button } from '@repo/ui/button'
 import { ShieldCheck, ExternalLink } from 'lucide-react'
-import { TrackRemediationForm, TrackRemediationHeader } from '../remediations/track-remediation-inline'
+import RemediationSheetBody, { type TRemediationCloseGuard } from '../remediations/sheet/remediation-sheet-body'
 import { useSheetNavigation } from '@/providers/sheet-navigation-provider'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { useRouter } from 'next/navigation'
@@ -67,37 +67,28 @@ const FindingRemediationButton: React.FC<RemediationButtonProps> = ({ entityId, 
 
 const ViewFindingSheet: React.FC<Props> = ({ entityId, onClose }) => {
   const [isTrackingRemediation, setIsTrackingRemediation] = useState(false)
-  const [isRemediationPending, setIsRemediationPending] = useState(false)
-  const [trackingDefaultTitle, setTrackingDefaultTitle] = useState<string | undefined>(undefined)
-  const [trackingDefaultInstructions, setTrackingDefaultInstructions] = useState<string | undefined>(undefined)
+  const remediationCloseGuardRef = useRef<TRemediationCloseGuard | null>(null)
 
-  const riskScoresAction = entityId && !isTrackingRemediation ? <FindingRemediationButton entityId={entityId} onTrack={handleStartTracking} /> : undefined
+  const riskScoresAction = entityId && !isTrackingRemediation ? <FindingRemediationButton entityId={entityId} onTrack={() => setIsTrackingRemediation(true)} /> : undefined
 
   const sheetConfig = useFindingSheetConfig(entityId, false, riskScoresAction)
   const comments = useFindingComments(entityId)
 
-  function handleStartTracking() {
-    setTrackingDefaultTitle(`${sheetConfig.data?.displayName ?? sheetConfig.data?.displayID ?? ''} Remediation`.trim() || undefined)
-    setTrackingDefaultInstructions(sheetConfig.data?.recommendedActions ?? undefined)
-    setIsTrackingRemediation(true)
-  }
-  const handleStopTracking = () => {
-    setIsTrackingRemediation(false)
-    setTrackingDefaultTitle(undefined)
-    setTrackingDefaultInstructions(undefined)
-  }
-  const handleCloseAfterCreate = () => {
-    setIsTrackingRemediation(false)
-  }
-  const handleClose = () => {
+  const handleStopTracking = () => setIsTrackingRemediation(false)
+  const handleCloseSheet = () => {
     handleStopTracking()
     onClose()
+  }
+  const handleClose = () => {
+    if (isTrackingRemediation && remediationCloseGuardRef.current) {
+      remediationCloseGuardRef.current(handleCloseSheet)
+      return
+    }
+    handleCloseSheet()
   }
 
   useEffect(() => {
     setIsTrackingRemediation(false)
-    setTrackingDefaultTitle(undefined)
-    setTrackingDefaultInstructions(undefined)
   }, [entityId])
 
   return (
@@ -108,17 +99,16 @@ const ViewFindingSheet: React.FC<Props> = ({ entityId, onClose }) => {
       extraContent={entityId ? <CommentsSection key={entityId} {...comments} /> : undefined}
       overrideContent={
         isTrackingRemediation && entityId ? (
-          <TrackRemediationForm
-            entityId={entityId}
-            entityType="finding"
-            onClose={handleCloseAfterCreate}
-            onPendingChange={setIsRemediationPending}
-            defaultTitle={trackingDefaultTitle}
-            defaultInstructions={trackingDefaultInstructions}
+          <RemediationSheetBody
+            initialContext={{ type: ObjectAssociationNodeEnum.FINDING, id: entityId }}
+            initialInstructions={sheetConfig.data?.recommendedActions ?? undefined}
+            onClose={handleCloseSheet}
+            onBack={handleStopTracking}
+            closeGuardRef={remediationCloseGuardRef}
           />
         ) : undefined
       }
-      overrideHeader={isTrackingRemediation && entityId ? <TrackRemediationHeader onBack={handleStopTracking} onClose={handleClose} isPending={isRemediationPending} /> : undefined}
+      overrideHeader={isTrackingRemediation && entityId ? <></> : undefined}
     />
   )
 }

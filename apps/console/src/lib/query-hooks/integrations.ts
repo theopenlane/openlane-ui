@@ -1,5 +1,5 @@
 import { useNotification } from '@/hooks/useNotification'
-import { normalizeDefinition, parseIntegrationErrorMessage } from '@/lib/integrations/utils'
+import { normalizeDefinition, parseIntegrationErrorMessage, providerForDefinitionID } from '@/lib/integrations/utils'
 import {
   type IntegrationChannelsList,
   type IntegrationMessageTeam,
@@ -14,7 +14,7 @@ import { CHANNELS_LIST_OPERATION, PICKER_SESSION_OPERATION, RESOURCE_SELECTION_O
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'
 import { isRecord } from '@/utils/type-guards'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { reportSSORequirementFromResponse } from '@/lib/auth/utils/session-status'
 
 export type IntegrationConnectionHealth = {
@@ -77,6 +77,12 @@ export const useIntegrationProviders = () => {
   }, [resp.isError, errorNotification])
 
   return resp
+}
+
+export const useSourceIntegrationProvider = (definitionID: string | null | undefined): IntegrationProvider | undefined => {
+  const { data } = useIntegrationProviders()
+
+  return useMemo(() => providerForDefinitionID(definitionID, data?.providers ?? []), [definitionID, data?.providers])
 }
 
 const describeUnhealthyOperations = (operations: IntegrationOperationHealth[]): string => operations.map((operation) => `${operation.name}: ${operation.reason ?? 'unhealthy'}`).join('\n')

@@ -12,7 +12,7 @@ import { IMPORT_STEPS, useRecordImport } from './lib/use-record-import'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { importDisplayNamePlural, type TImportRoute } from './lib/import-routes'
 import { useImportExit } from './lib/use-import-exit'
-import type { TDestinationField, TImportAutomaticValue, TImportDestination, TImportMode, TMappedImport } from './lib/types'
+import { isImportOutcome, type TDestinationField, type TImportAutomaticValue, type TImportDestination, type TImportMode, type TMappedImport } from './lib/types'
 import { IncompleteImportError } from './lib/incomplete-import-error'
 import { ImportFlowLayout } from './import-flow-layout'
 import { ImportSourceStep } from './import-source-step'
@@ -61,10 +61,10 @@ export const RecordImportFlow: React.FC<TRecordImportFlowProps> = ({ entityType,
       const mapped = toMappedImport()
       if (!mapped) return
 
-      await onImport(mapped)
+      const outcome = await onImport(mapped)
       successNotification({
         title: `${entityLabelPlural} ${copy.done}`,
-        description: `${recordCount(rowCount)} ${copy.done} from ${parsed?.fileName}.`,
+        description: `${recordCount(isImportOutcome(outcome) ? outcome.importedCount : rowCount)} ${copy.done} from ${parsed?.fileName}.`,
       })
       exit.finish()
     } catch (error) {

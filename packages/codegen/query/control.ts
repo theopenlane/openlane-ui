@@ -516,6 +516,8 @@ export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
         edges {
           node {
             id
+            cveID
+            externalID
             displayName
             displayID
           }

@@ -15,6 +15,10 @@ export const GET_TFA_SETTINGS = gql`
 export const GET_USER_TFA_SETTINGS = gql`
   query GetUserTFASettings($userId: ID!) {
     user(id: $userId) {
+      setting {
+        id
+        isTfaEnabled
+      }
       tfaSettings {
         edges {
           node {

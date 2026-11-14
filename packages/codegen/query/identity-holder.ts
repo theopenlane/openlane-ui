@@ -13,17 +13,7 @@ const DIRECTORY_MEMBERSHIP_CONNECTION_FIELDS = gql`
         directoryGroup {
           id
           displayName
-          integration {
-            id
-            entities {
-              edges {
-                node {
-                  id
-                  name
-                }
-              }
-            }
-          }
+          managedBy
         }
       }
     }
@@ -294,18 +284,8 @@ export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
             primarySource
             mfaState
             directoryName
-            integration {
-              id
-              definitionID
-              entities {
-                edges {
-                  node {
-                    id
-                    name
-                  }
-                }
-              }
-            }
+            sourceDefinitionID
+            managedBy
             memberships(first: 100, where: $membershipWhere, orderBy: [{ field: created_at, direction: DESC }]) {
               ...DirectoryMembershipConnectionFields
             }
@@ -420,9 +400,7 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
             directoryName
             displayName
             canonicalEmail
-            integration {
-              definitionID
-            }
+            sourceDefinitionID
             memberships(first: 75, orderBy: [{ field: created_at, direction: DESC }]) {
               ...DirectoryMembershipConnectionFields
             }

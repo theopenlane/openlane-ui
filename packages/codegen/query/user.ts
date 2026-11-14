@@ -22,7 +22,6 @@ export const GET_USER_PROFILE = gql`
         id
         status
         tags
-        isTfaEnabled
         isWebauthnAllowed
         defaultOrg {
           id

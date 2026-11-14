@@ -6,6 +6,7 @@ import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { TruncatedCell } from '@repo/ui/data-table'
+import { RemediationStatusIconLabel } from '@/components/shared/enum-mapper/remediation-enum'
 
 export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<RemediationsNodeNonNull>[] => {
   return [
@@ -14,6 +15,7 @@ export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems 
     { accessorKey: 'displayID', header: 'Display ID', size: 140, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'title', header: 'Title', size: 200, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'summary', header: 'Summary', size: 200, cell: ({ row }) => <TruncatedCell>{row.original.summary || '-'}</TruncatedCell> },
+    { accessorKey: 'status', header: 'Status', size: 140, cell: ({ row }) => <RemediationStatusIconLabel status={row.original.status} /> },
     { accessorKey: 'state', header: 'State', size: 110 },
     { accessorKey: 'source', header: 'Source', size: 120 },
     { accessorKey: 'externalID', header: 'External ID', size: 150 },

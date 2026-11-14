@@ -14,7 +14,8 @@ import { useSheetNavigation, isSheetKind, FULL_PAGE_KINDS } from '@/providers/sh
 import { useRouter } from 'next/navigation'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { getAssociationDescription, getAssociationDisplayModel, getAssociationDisplayName } from '@/components/shared/object-association/utils'
+import { getAssociationDescription, getAssociationDisplayModel } from '@/components/shared/object-association/utils'
+import { getObjectDisplayName } from '@/utils/object-display-name'
 
 interface IGraphNode {
   id: string
@@ -208,7 +209,6 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
           count: nodes.length,
           items: nodes.map((node) => ({
             ...node,
-            displayName: node.displayName || node.fullName,
             description: getAssociationDescription(node),
             displayID: node.displayID || node.id,
             link:
@@ -224,10 +224,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
           count: 1,
           items: [
             {
-              id: singleNode.id,
+              ...singleNode,
               displayID: singleNode.id,
-              name: singleNode.name || singleNode.refCode || '',
-              refCode: singleNode.refCode || singleNode.name || '',
               link: getHrefForObjectType(sectionType, singleNode as NormalizedObject),
               __typename: getType(sectionType),
             },
@@ -240,14 +238,13 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
   }, [sections, controlId])
 
   const { graphData, colorMap, centerNodeMeta } = useMemo(() => {
-    const displayText = getAssociationDisplayName(centerNode.node, centerNode.type)
+    const displayText = getObjectDisplayName(centerNode.node)
     const nodes: IGraphNode[] = [{ id: centerNode.node.id, name: displayText, type: centerNode.type, isCenter: true }]
     const links: TGraphLink[] = []
     const colorMap: Record<string, string> = {}
 
     const centerMeta: TBaseAssociatedNode & { link: string } = {
       ...centerNode.node,
-      refCode: displayText,
       description: getAssociationDescription(centerNode.node),
       displayID: centerNode.node.displayID || centerNode.node.id,
       link: getHrefForObjectType(centerNode.type, centerNode.node as NormalizedObject),
@@ -418,7 +415,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
                       style={{ border: `1px solid ${typeColor}` }}
                       className="inline-flex items-center gap-1 text-left px-2 py-1 rounded-full text-sm cursor-pointer mb-3 w-fit"
                     >
-                      {item.refCode || item.displayName || item.name || item.title || item.displayID}
+                      {getObjectDisplayName(item)}
                       {removable && onRemove && (
                         <XIcon
                           size={12}
@@ -658,7 +655,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
             }}
           >
             {groupedSections[hoverNode.type].items.map((item) => (
-              <div key={item.id}>{item.refCode || item.displayName || item.name || item.title || item.displayID}</div>
+              <div key={item.id}>{getObjectDisplayName(item)}</div>
             ))}
           </div>,
           document.body,

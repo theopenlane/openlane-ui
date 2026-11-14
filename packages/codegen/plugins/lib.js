@@ -80,6 +80,8 @@ export const EXCLUDED_TYPES = [
   'DocumentData',
   'ControlReport',
   'PolicySummary',
+  'Report',
+  'ReportMembership',
 ]
 
 // Fields to exclude from all queries

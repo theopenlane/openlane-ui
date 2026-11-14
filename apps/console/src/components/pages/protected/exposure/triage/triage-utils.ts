@@ -46,10 +46,6 @@ export const getSeverityLabel = (vuln: Pick<VulnerabilitiesNodeNonNull, 'securit
   return vuln.securityLevel || vuln.severity || 'None'
 }
 
-export const getVulnerabilityName = (vuln: Pick<VulnerabilitiesNodeNonNull, 'displayName' | 'cveID' | 'externalID' | 'displayID'>): string => {
-  return vuln.displayName || vuln.cveID || vuln.externalID || vuln.displayID || ''
-}
-
 export type TriageGroups = {
   pastDue: TriageVuln[]
   open: TriageVuln[]

@@ -8,39 +8,33 @@ const buildAssociationEntityConfig = <const TConfig extends AssociationEntityCon
 type ExtraFieldsExtractor = (node: AssociationNode) => Partial<TBaseAssociatedNode>
 
 const SECTION_MAPPINGS = {
-  actionPlans: { key: 'actionPlans', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: () => '' },
-  assets: { key: 'assets', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayName ?? '' },
-  campaigns: { key: 'campaigns', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
-  controlObjectives: { key: 'controlObjectives', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  actionPlans: { key: 'actionPlans' },
+  assets: { key: 'assets' },
+  campaigns: { key: 'campaigns' },
+  controlObjectives: { key: 'controlObjectives' },
   controls: {
     key: 'controls',
-    nameExtractor: (n: AssociationNode) => n.refCode ?? '',
-    displayIdExtractor: (n: AssociationNode) => n.displayID ?? '',
     extraFields: (n: AssociationNode) => ({ description: n.description }),
   },
-  entities: { key: 'entities', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayName ?? '' },
-  findings: { key: 'findings', nameExtractor: (n: AssociationNode) => n.displayName ?? n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
-  identityHolders: { key: 'identityHolders', nameExtractor: (n: AssociationNode) => n.fullName ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
-  internalPolicies: { key: 'internalPolicies', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
-  procedures: { key: 'procedures', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
-  programs: { key: 'programs', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
-  remediations: { key: 'remediations', nameExtractor: (n: AssociationNode) => n.title ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
-  reviews: { key: 'reviews', nameExtractor: (n: AssociationNode) => n.title ?? '', displayIdExtractor: () => '' },
-  risks: { key: 'risks', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
-  scans: { key: 'scans', nameExtractor: (n: AssociationNode) => n.target ?? '', displayIdExtractor: () => '' },
+  entities: { key: 'entities' },
+  findings: { key: 'findings' },
+  identityHolders: { key: 'identityHolders' },
+  internalPolicies: { key: 'internalPolicies' },
+  procedures: { key: 'procedures' },
+  programs: { key: 'programs' },
+  remediations: { key: 'remediations' },
+  reviews: { key: 'reviews' },
+  risks: { key: 'risks' },
+  scans: { key: 'scans' },
   subcontrols: {
     key: 'subcontrols',
-    nameExtractor: (n: AssociationNode) => n.refCode ?? '',
-    displayIdExtractor: (n: AssociationNode) => n.displayID ?? '',
     extraFields: (n: AssociationNode) => ({ description: n.description }),
   },
   tasks: {
     key: 'tasks',
-    nameExtractor: (n: AssociationNode) => n.title ?? '',
-    displayIdExtractor: (n: AssociationNode) => n.displayID ?? '',
     extraFields: (n: AssociationNode) => ({ title: n.title }),
   },
-  vulnerabilities: { key: 'vulnerabilities', nameExtractor: (n: AssociationNode) => n.displayName ?? n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  vulnerabilities: { key: 'vulnerabilities' },
 } as const
 
 const withExtras = <TMapping extends { key: string; extraFields?: ExtraFieldsExtractor }>(mapping: TMapping, extraFields: ExtraFieldsExtractor) => ({
@@ -708,6 +702,7 @@ const riskAllowedObjectTypes = [
   ObjectTypeObjects.TASK,
   ObjectTypeObjects.VULNERABILITY,
   ObjectTypeObjects.FINDING,
+  ObjectTypeObjects.REVIEW,
 ]
 const riskInitialDataKeys = {
   controlIDs: 'controls',
@@ -722,6 +717,7 @@ const riskInitialDataKeys = {
   actionPlanIDs: 'actionPlans',
   vulnerabilityIDs: 'vulnerabilities',
   findingIDs: 'findings',
+  reviewIDs: 'reviews',
 }
 const riskAssociationKeys = [
   'controlIDs',
@@ -736,6 +732,7 @@ const riskAssociationKeys = [
   'actionPlanIDs',
   'vulnerabilityIDs',
   'findingIDs',
+  'reviewIDs',
 ] as const satisfies readonly (keyof typeof riskInitialDataKeys)[]
 
 export const RISK_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
@@ -758,6 +755,7 @@ export const RISK_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     SECTION_MAPPINGS.actionPlans,
     SECTION_MAPPINGS.vulnerabilities,
     SECTION_MAPPINGS.findings,
+    SECTION_MAPPINGS.reviews,
   ],
   dialogConfig: {
     dataRootField: 'risk',

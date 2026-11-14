@@ -71,6 +71,7 @@ const CreateMenu: React.FC<{ expanded: boolean }> = ({ expanded }) => {
                 key={item.label}
                 size="sm"
                 variant="transparent"
+                data-animated-icon-trigger
                 className={entryClassName}
                 {...elementAnchor('nav', 'create', item.anchor)}
                 onClick={() => {
@@ -81,7 +82,7 @@ const CreateMenu: React.FC<{ expanded: boolean }> = ({ expanded }) => {
                 <CreateMenuEntryContent item={item} />
               </Button>
             ) : (
-              <Button key={item.label} asChild size="sm" variant="transparent" className={entryClassName} {...elementAnchor('nav', 'create', item.anchor)}>
+              <Button key={item.label} asChild size="sm" variant="transparent" data-animated-icon-trigger className={entryClassName} {...elementAnchor('nav', 'create', item.anchor)}>
                 <Link href={item.href} onClick={close}>
                   <CreateMenuEntryContent item={item} />
                 </Link>

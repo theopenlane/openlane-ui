@@ -11,6 +11,7 @@ export const GET_ALL_VENDOR_SCORING_CONFIGS = gql`
           id
           questions
           riskThresholds
+          scoringMode
           updatedAt
           updatedBy
         }
@@ -25,6 +26,22 @@ export const GET_ALL_VENDOR_SCORING_CONFIGS = gql`
   }
 `
 
+export const GET_ORGANIZATION_VENDOR_SCORING_CONFIG = gql`
+  query OrganizationVendorScoringConfig {
+    vendorScoringConfigs(first: 1, orderBy: [{ field: created_at, direction: ASC }]) {
+      edges {
+        node {
+          id
+          questions
+          riskThresholds
+          scoringMode
+          updatedAt
+        }
+      }
+    }
+  }
+`
+
 export const VENDOR_SCORING_CONFIG = gql`
   query VendorScoringConfig($vendorScoringConfigId: ID!) {
     vendorScoringConfig(id: $vendorScoringConfigId) {
@@ -33,6 +50,7 @@ export const VENDOR_SCORING_CONFIG = gql`
       id
       questions
       riskThresholds
+      scoringMode
       updatedAt
       updatedBy
     }

@@ -12,6 +12,7 @@ import DirectoryTab from './directory/directory-tab'
 import ActivityTab from './activity/activity-tab'
 import type { EntityQuery, GetEntityAssociationsQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
+import { useVendorDirectoryGroupCount } from '@/lib/graphql-hooks/vendor-directory'
 
 type VendorTabValue = 'overview' | 'documents' | 'contacts' | 'risk-review' | 'directory' | 'activity'
 
@@ -36,8 +37,9 @@ interface VendorDetailTabsProps {
 }
 
 const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, associations, isEditing, canEdit: canEditVendor, handleUpdateField }) => {
-  const hasDirectoryGroups = (vendor.integrations?.edges ?? []).some((edge) => (edge?.node?.directoryGroups?.totalCount ?? 0) > 0)
-  const tabs = useDetailTabs({ page: 'vendor', tabs: VENDOR_TABS, defaultTab: 'overview', unavailableTabs: hasDirectoryGroups ? NO_TABS : DIRECTORY_TAB_ONLY })
+  const { data: directoryGroupCount, isPending: isResolvingDirectory } = useVendorDirectoryGroupCount(vendor.id)
+  const hasDirectoryGroups = (directoryGroupCount ?? 0) > 0
+  const tabs = useDetailTabs({ page: 'vendor', tabs: VENDOR_TABS, defaultTab: 'overview', unavailableTabs: hasDirectoryGroups ? NO_TABS : DIRECTORY_TAB_ONLY, isResolving: isResolvingDirectory })
 
   return (
     <DetailTabs state={tabs}>

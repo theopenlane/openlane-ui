@@ -250,6 +250,8 @@ export const GET_REVIEW_ASSOCIATIONS = gql`
         edges {
           node {
             id
+            cveID
+            externalID
             displayID
             displayName
           }

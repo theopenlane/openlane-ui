@@ -4,8 +4,7 @@ import React, { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { CardContent } from '@repo/ui/cardpanel'
 import { TriangleAlert } from 'lucide-react'
-import { PartyPopperIcon } from '@/components/shared/icons/animated'
-import type { PartyPopperIconHandle } from '@/components/shared/icons/animated/party-popper'
+import { PartyPopperIcon, type AnimatedIconHandle } from '@theopenlane/animated-icons'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import SuggestedTaskDetailsSheet from '@/components/pages/protected/overview/suggested-task-details-sheet'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -20,7 +19,7 @@ import { WorkItemsCard, WorkItemsCardSkeletonContent } from './work-items/work-i
 const DashboardTasksAndSuggestions = () => {
   const workItems = useWorkItems()
   const showSectionHeaders = workItems.activeFilter === ALL_FILTER_KEY
-  const tadaRef = useRef<PartyPopperIconHandle>(null)
+  const tadaRef = useRef<AnimatedIconHandle>(null)
 
   // play the celebration once when the caught-up state appears
   useEffect(() => {
@@ -46,9 +45,9 @@ const DashboardTasksAndSuggestions = () => {
           />
         )}
 
-        <CardContent className="px-6 pb-6 pt-4 space-y-5">
+        <CardContent className="px-6 pb-6 pt-4 flex flex-1 flex-col gap-5">
           {workItems.error ? (
-            <div className="flex flex-col items-center gap-2 py-6 text-center">
+            <div className="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-center">
               <TriangleAlert className="text-destructive" size={20} />
               <p className="text-sm text-muted-foreground">{parseErrorMessage(workItems.error)}</p>
             </div>
@@ -79,13 +78,13 @@ const DashboardTasksAndSuggestions = () => {
               )}
 
               {workItems.isEmpty && (
-                <div className="flex flex-col items-center gap-2 py-6 text-center">
+                <div className="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-center">
                   <PartyPopperIcon ref={tadaRef} className="text-homepage-action-icon" size={20} />
                   <p className="text-sm text-muted-foreground">All caught up!</p>
                 </div>
               )}
 
-              <p className="text-xs text-muted-foreground">
+              <p className="mt-auto text-xs text-muted-foreground">
                 Showing tasks due in the next {TASK_DUE_WINDOW_DAYS} days or with no due date.{' '}
                 <Link href={ALL_TASKS_HREF} className="text-blue-500 hover:underline">
                   View all tasks

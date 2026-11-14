@@ -1,5 +1,4 @@
 import { type GenericTablePageConfig, type EnumOptionsGeneric } from '@/components/shared/crud-base/page'
-import { type GenericDetailsSheetConfig, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 
 import {
   RemediationOrderField,
@@ -32,11 +31,7 @@ export const exportType = ExportExportType.REMEDIATION
 export const orderFieldEnum = RemediationOrderField
 export const defaultSorting = [{ field: RemediationOrderField.updated_at, direction: OrderDirection.DESC }]
 
-type RemediationEnumKeys = 'environmentOptions' | 'scopeOptions'
+type RemediationEnumKeys = 'environmentOptions' | 'scopeOptions' | 'statusOptions'
 export type EnumOptions = EnumOptionsGeneric<RemediationEnumKeys>
 
 export type RemediationTablePageConfig = GenericTablePageConfig<TData, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField>
-export type RemediationSheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
-export type RemediationFieldProps = RenderFieldsProps<TData, TUpdateInput>
-
-export type { EnumCreateHandlers } from '@/components/shared/crud-base/page'

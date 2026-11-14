@@ -52,8 +52,11 @@ export const useUpdateUserSetting = () => {
 
   return useMutation<UpdateUserSettingMutation, unknown, UpdateUserSettingMutationVariables>({
     mutationFn: async ({ updateUserSettingId, input }) => client.request(UPDATE_USER_SETTING, { updateUserSettingId, input }),
-    onSuccess: () => {
+    onSuccess: (_data, { input }) => {
       queryClient.invalidateQueries({ queryKey: ['user'] })
+      if (input.isTfaEnabled !== undefined) {
+        queryClient.invalidateQueries({ queryKey: ['userTFASettings'] })
+      }
     },
   })
 }

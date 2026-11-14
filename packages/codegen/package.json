@@ -2,8 +2,8 @@
   "name": "@repo/codegen",
   "version": "0.0.0",
   "dependencies": {
-    "@graphql-tools/schema": "10.1.5",
-    "graphql": "17.0.2",
+    "@graphql-tools/schema": "11.0.8",
+    "graphql": "17.1.0",
     "graphql-request": "7.4.0",
     "typescript": "^6.0.3"
   },
@@ -13,7 +13,7 @@
     "@graphql-codegen/introspection": "6.1.0",
     "@graphql-codegen/schema-ast": "6.1.1",
     "@graphql-codegen/typescript": "6.1.2",
-    "@graphql-codegen/typescript-operations": "6.1.10"
+    "@graphql-codegen/typescript-operations": "6.2.0"
   },
   "scripts": {
     "codegen": "graphql-codegen --config graphql-codegen.yml"

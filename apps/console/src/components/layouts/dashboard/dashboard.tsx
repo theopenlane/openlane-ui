@@ -2,7 +2,6 @@
 
 import Header from '@/components/shared/header/header'
 import { dashboardStyles } from './dashboard.styles'
-import ChatBot from '@/components/shared/chat/chat'
 import { CommandMenu } from '@/components/shared/search/command'
 import { useEffect, useRef, useState } from 'react'
 import { useElementHeight } from '@/hooks/useElementHeight'
@@ -49,7 +48,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const isOrganizationSelected = !activeOrg?.personalOrg
 
   const isOfficial = useIsOfficialDeployment()
-  const navItems = !isOrganizationSelected ? [] : topNavigationItems(sessionData, currentUserRole, isOfficial)
+  const navItems = !isOrganizationSelected ? [] : topNavigationItems(sessionData, currentUserRole, isOfficial, orgPermission)
   const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(sessionData, orgPermission, currentUserRole)
 
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
@@ -184,7 +183,6 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
                 <main ref={mainRef} className={main()} data-scroll-container="main">
                   <DashboardContentOffsetProvider value={{ marginLeft: contentMarginLeft, marginRight: 8 }}>{error ?? children}</DashboardContentOffsetProvider>
                 </main>
-                <ChatBot />
                 <CommandMenu items={navItems} />
               </div>
             </div>

@@ -57,17 +57,17 @@ import {
   UsersRoundIcon,
   WorkflowIcon,
   WrenchIcon,
-} from '@/components/shared/icons/animated'
+} from '@theopenlane/animated-icons'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
-import { canEdit, canManageBilling } from '@/lib/authz/utils'
+import { canEdit, canManageBilling, canManageIntegrations } from '@/lib/authz/utils'
 import { type TPermissionData } from '@/types/authz'
 import type { Session } from 'next-auth'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
 import { arePlanChecksDisabled, featureUtil } from '@/lib/subscription-plan/plans'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
-export const topNavigationItems = (session: Session | null, currentUserRole?: OrgMembershipRole, isOfficial = true): (NavItem | Separator | NavHeading)[] => {
+export const topNavigationItems = (session: Session | null, currentUserRole?: OrgMembershipRole, isOfficial = true, orgPermission?: TPermissionData): (NavItem | Separator | NavHeading)[] => {
   const billingExpired = featureUtil.hasNoModules(session)
   const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
   return [
@@ -366,13 +366,14 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           anchor: 'integrations',
           href: '/automation/integrations',
           icon: ConnectIcon,
+          hidden: !canManageIntegrations(orgPermission?.roles, session),
         },
         {
           title: 'Workflow Definitions',
           anchor: 'workflow-definitions',
           href: '/automation/workflows',
           icon: BookTextIcon,
-          plan: PlanEnum.COMPLIANCE_MODULE,
+          objectType: ObjectTypes.WORKFLOW_DEFINITION,
           hidden: true,
         },
         {
@@ -380,7 +381,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           anchor: 'workflow-inbox',
           href: '/automation/workflows/inbox',
           icon: ArchiveIcon,
-          plan: PlanEnum.COMPLIANCE_MODULE,
+          objectType: ObjectTypes.WORKFLOW_DEFINITION,
           hidden: true,
         },
         {
@@ -388,7 +389,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           anchor: 'workflow-instances',
           href: '/automation/workflows/instances',
           icon: ActivityIcon,
-          plan: PlanEnum.COMPLIANCE_MODULE,
+          objectType: ObjectTypes.WORKFLOW_DEFINITION,
           hidden: true,
         },
         {
@@ -396,7 +397,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           anchor: 'workflow-templates',
           href: '/automation/workflows/templates',
           icon: WorkflowIcon,
-          plan: PlanEnum.COMPLIANCE_MODULE,
+          objectType: ObjectTypes.WORKFLOW_DEFINITION,
           hidden: true,
         },
         {
@@ -404,13 +405,13 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           anchor: 'workflow-wizard',
           href: '/automation/workflows/wizard',
           icon: SparklesIcon,
-          plan: PlanEnum.COMPLIANCE_MODULE,
+          objectType: ObjectTypes.WORKFLOW_DEFINITION,
           hidden: true,
         },
       ],
     },
     {
-      title: 'Custom Report',
+      title: 'Reports',
       anchor: 'custom-report',
       href: '/reports/custom',
       icon: ChartLineIcon,
@@ -421,6 +422,12 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           anchor: 'builder',
           href: '/reports/custom',
           icon: ChartLineIcon,
+        },
+        {
+          title: 'Saved Reports',
+          anchor: 'saved-reports',
+          href: '/reports/saved',
+          icon: BookmarkIcon,
         },
       ],
     },
@@ -443,7 +450,6 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
           title: 'General Settings',
           anchor: 'general-settings',
           href: '/organization-settings/general-settings',
-          hidden: !canEdit(orgPermission?.roles, session),
           icon: SettingsIcon,
         },
         {

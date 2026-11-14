@@ -1,6 +1,7 @@
 'use client'
 
 import { DataTable } from '@repo/ui/data-table'
+import { getObjectDisplayName } from '@/utils/object-display-name'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { type FindingWhereInput, type FindingOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/findings/table/columns.tsx'
@@ -19,7 +20,6 @@ import { ObjectTypeObjects } from '@/components/shared/object-association/object
 import { useSheetNavigation } from '@/providers/sheet-navigation-provider'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
-import { useQueryClient } from '@tanstack/react-query'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -40,7 +40,6 @@ const TableComponent = ({
 }: TTableProps<FindingWhereInput>) => {
   const { replace } = useSmartRouter()
   const sheetNav = useSheetNavigation()
-  const queryClient = useQueryClient()
   const { data: session } = useSession()
   const { convertToReadOnly } = usePlateEditor()
   const slaDaysByLevel = useSlaDaysByLevel()
@@ -131,7 +130,7 @@ const TableComponent = ({
 
   const createTaskInitialValues = useMemo(() => {
     if (!createTaskRow) return undefined
-    const displayName = createTaskRow.displayName || createTaskRow.displayID || createTaskRow.externalID || 'Finding'
+    const displayName = getObjectDisplayName(createTaskRow) || 'Finding'
     return {
       title: `Finding: ${displayName} Remediation`,
       taskKindName: 'Finding Remediation',
@@ -185,9 +184,7 @@ const TableComponent = ({
       <CreateRemediationSheet
         isOpen={!!trackRemediationRow}
         onClose={() => setTrackRemediationRow(null)}
-        initialData={trackRemediationRow ? { findingIDs: [trackRemediationRow.id] } : undefined}
-        defaultTitle={trackRemediationRow ? `${trackRemediationRow.displayName ?? trackRemediationRow.displayID ?? ''} Remediation`.trim() : undefined}
-        onSuccess={() => queryClient.invalidateQueries({ queryKey: ['findings'] })}
+        context={trackRemediationRow ? { type: ObjectAssociationNodeEnum.FINDING, id: trackRemediationRow.id } : undefined}
       />
     </>
   )
