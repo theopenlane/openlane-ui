@@ -7,7 +7,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { SocBadgePanel } from '@/components/shared/soc-badge/soc-badge-panel'
-import { SOC_BADGE_DESCRIPTION, SOC_BADGE_TITLE } from '@/components/shared/soc-badge/soc-badge-config'
+import { SOC_BADGE_DESCRIPTION, SOC_BADGE_TITLE, isSocBadgeConfigured } from '@/components/shared/soc-badge/soc-badge-config'
 import { useSocBadgeAvailability } from '@/lib/graphql-hooks/soc-badge'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 
@@ -28,6 +28,10 @@ const BadgesPage: React.FC = () => {
   }, [setCrumbs])
 
   const renderContent = () => {
+    if (!isSocBadgeConfigured) {
+      return <EmptyTabState title="Badges aren't set up" description="The AICPA SOC logo images haven't been configured for this environment." />
+    }
+
     if (isPending) {
       return (
         <div role="status" aria-live="polite" aria-label="Loading badges" className="flex flex-col gap-3">
