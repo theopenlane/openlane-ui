@@ -2,12 +2,13 @@
 
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useWatch } from 'react-hook-form'
 import { SheetHeader } from '@repo/ui/sheet'
 import { Form } from '@repo/ui/form'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { type CreateRemediationInput, type UpdateRemediationInput } from '@repo/codegen/src/schema'
+import { type CreateRemediationInput, type RemediationRemediationStatus, type UpdateRemediationInput } from '@repo/codegen/src/schema'
 import { useBulkDeleteRemediation, useCreateRemediation, useFilterUnlinkedRemediationFiles, useRemediationContextSubject, useUpdateRemediation } from '@/lib/graphql-hooks/remediation'
 import { useObjectPermissionRoles } from '@/components/shared/crud-base/use-object-permission'
 import { copyLinkMenuAction, deleteMenuAction, SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
@@ -52,6 +53,7 @@ const RemediationSheetBody: React.FC<TRemediationSheetBodyProps> = ({ remediatio
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
   const plateEditorHelper = usePlateEditor()
+  const queryClient = useQueryClient()
 
   const [isEditing, setIsEditing] = useState(isCreate)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -175,6 +177,19 @@ const RemediationSheetBody: React.FC<TRemediationSheetBodyProps> = ({ remediatio
     }
   }
 
+  const updateStatus = async (status: RemediationRemediationStatus) => {
+    if (!remediation) {
+      return
+    }
+    try {
+      await updateRemediation({ updateRemediationId: remediation.id, input: { status } })
+      await queryClient.invalidateQueries({ queryKey: ['remediations', remediation.id], exact: true }, { cancelRefetch: false })
+      successNotification({ title: 'Remediation updated', description: 'Your changes have been saved.' })
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    }
+  }
+
   const handleDelete = async () => {
     if (!remediation) {
       return
@@ -207,17 +222,23 @@ const RemediationSheetBody: React.FC<TRemediationSheetBodyProps> = ({ remediatio
 
   const headerTitle = isCreate ? 'Create Remediation' : isEditing ? 'Edit Remediation' : remediation.title || remediation.displayID
   const showViewActions = !isCreate && !isEditing
+  const canEditInView = showViewActions && editAllowed
 
   return (
     <>
       <SheetHeader className="sticky top-0 z-10 bg-secondary pb-4">
         <SlideoutHeader
           title={headerTitle}
-          belowTitle={remediation ? <RemediationMeta remediation={remediation} /> : undefined}
+          belowTitle={remediation ? <RemediationMeta remediation={remediation} onStatusChange={canEditInView ? updateStatus : undefined} /> : undefined}
           onBack={onBack ? () => guardLeave(onBack) : undefined}
           onClose={() => guardLeave(onClose)}
-          onEdit={remediation && showViewActions && editAllowed ? () => startEditing(remediation) : undefined}
+          onEdit={remediation && canEditInView ? () => startEditing(remediation) : undefined}
           menuActions={showViewActions ? [copyLinkMenuAction(handleCopyLink), ...(deleteAllowed ? [deleteMenuAction(() => setIsDeleteDialogOpen(true))] : [])] : []}
+          formActions={
+            isEditing ? (
+              <SlideoutFormActions formId={formId} onCancel={cancelEditing} isPending={isSubmitting} saveLabel={isCreate ? 'Create' : 'Save'} savingLabel={isCreate ? 'Creating...' : 'Saving...'} />
+            ) : undefined
+          }
         />
       </SheetHeader>
 
@@ -250,11 +271,6 @@ const RemediationSheetBody: React.FC<TRemediationSheetBodyProps> = ({ remediatio
         <div className="mt-4 flex flex-col gap-4 pr-2 pb-4">
           <RemediationDocumentsSection form={form} isEditing={isEditing} remediationId={remediation?.id} />
           {remediation && !isEditing && <RemediationAssociationSection data={remediation} isEditing={false} isCreate={false} isEditAllowed={editAllowed} />}
-          {isEditing && (
-            <div className="sticky bottom-0 z-10 flex justify-end gap-2 bg-secondary py-3 pr-10">
-              <SlideoutFormActions formId={formId} onCancel={cancelEditing} isPending={isSubmitting} saveLabel={isCreate ? 'Create' : 'Save'} savingLabel={isCreate ? 'Creating...' : 'Saving...'} />
-            </div>
-          )}
         </div>
       </Form>
 

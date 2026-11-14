@@ -201,10 +201,10 @@ describe('generateWhere', () => {
     })
   })
 
-  it('returns single or entry for object type with no secondary search', () => {
-    const result = generateWhere(ObjectTypeObjects.GROUP, 'test', ownerID)
+  it('returns single or entry for object type with one search field', () => {
+    const result = generateWhere(ObjectTypeObjects.PROCEDURE, 'test', ownerID)
     expect(result).toEqual({
-      ownerID: 'org-123',
+      systemOwned: false,
       or: [{ nameContainsFold: 'test' }],
     })
   })

@@ -1,6 +1,6 @@
 'use client'
 
-import { type ReactNode, useEffect, useMemo, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { defineStepper } from '@stepperize/react'
@@ -27,7 +27,7 @@ type OnboardingGuidedFormProps = {
 }
 
 const OnboardingGuidedForm = ({ startStep, guidedSteps, initialStepKey, submitStage, stageCard, onBackToStart, onSubmit, onExit, onIncompleteExit }: OnboardingGuidedFormProps) => {
-  const { useStepper } = useMemo(() => defineStepper(guidedSteps.map((step) => ({ id: step.key, label: step.title }))), [guidedSteps])
+  const [{ useStepper }] = useState(() => defineStepper(guidedSteps.map((step) => ({ id: step.key, label: step.title }))))
   const stepper = useStepper({ defaultStep: initialStepKey })
   const methods = useFormContext()
   const values = useWatch({ control: methods.control }) as Record<string, unknown>

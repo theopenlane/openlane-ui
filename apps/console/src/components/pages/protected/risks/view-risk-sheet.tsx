@@ -3,7 +3,8 @@
 import React, { useCallback } from 'react'
 import useFormSchema, { type EditRisksFormData } from './view/hooks/use-form-schema'
 import { type RiskFieldsFragment, type UpdateRiskInput, type CreateRiskInput, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
-import { useGetRiskById } from '@/lib/graphql-hooks/risk'
+import { useGetRiskById, useRiskComments } from '@/lib/graphql-hooks/risk'
+import CommentsSection from '@/components/shared/comments/comments-section'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import TitleField from './view/fields/title-field'
@@ -23,6 +24,7 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
   const { form } = useFormSchema()
   const { data, isLoading } = useGetRiskById(entityId)
   const plateEditorHelper = usePlateEditor()
+  const comments = useRiskComments(entityId)
 
   const getName = useCallback((d: RiskFieldsFragment) => d?.name, [])
 
@@ -107,7 +109,7 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
     renderHeader,
   }
 
-  return <GenericDetailsSheet onClose={onClose} {...sheetConfig} />
+  return <GenericDetailsSheet onClose={onClose} {...sheetConfig} extraContent={entityId ? <CommentsSection key={entityId} {...comments} /> : undefined} />
 }
 
 export default ViewRiskSheet

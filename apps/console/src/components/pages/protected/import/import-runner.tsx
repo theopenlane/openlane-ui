@@ -32,10 +32,12 @@ const IMPORT_RUNNERS: Record<TImportableObjectType, ComponentType> = {
   [ObjectTypes.TRUST_CENTER_FAQ]: dynamic(() => import('@/components/pages/protected/trust-center/faqs/import/faq-import-page'), { loading }),
   [ObjectTypes.TRUST_CENTER_NDA_REQUEST]: dynamic(() => import('@/components/pages/protected/trust-center/NDAs/import/nda-import-page'), { loading }),
   [ObjectTypes.TRUST_CENTER_SUBPROCESSOR]: dynamic(() => import('@/components/pages/protected/trust-center/subprocessors/import/subprocessor-import-page'), { loading }),
+  [ObjectTypes.VENDOR_RISK_SCORE]: dynamic(() => import('@/components/pages/protected/vendors/detail/tabs/risk-review/risk-scoring/answers/vendor-risk-answers-import-unscoped'), { loading }),
   [ObjectTypes.VULNERABILITY]: dynamic(() => import('@/components/pages/protected/vulnerabilities/import/vulnerability-import-page'), { loading }),
 }
 
 const VendorContactsImportPage = dynamic(() => import('@/components/pages/protected/vendors/detail/tabs/contacts/vendor-contacts-import-page'), { loading })
+const VendorRiskAnswersImportPage = dynamic(() => import('@/components/pages/protected/vendors/detail/tabs/risk-review/risk-scoring/answers/vendor-risk-answers-import-page'), { loading })
 const TrustCenterSubscribersImportPage = dynamic(() => import('@/components/pages/protected/trust-center/subscribers/import/trust-center-subscribers-import-page'), { loading })
 
 const ControlsFromStandardsImportPage = dynamic(() => import('@/components/pages/protected/controls/import/control-standards-import-page'), { loading })
@@ -43,6 +45,7 @@ const ControlUpdateImportPage = dynamic(() => import('@/components/pages/protect
 const StandardControlsImportPage = dynamic(() => import('@/components/pages/protected/standards/custom-framework/import/standard-controls-import-page'), { loading })
 
 const VendorContactsRunner: React.FC<{ value: string }> = ({ value }) => <VendorContactsImportPage vendorId={value} />
+const VendorRiskAnswersRunner: React.FC<{ value: string }> = ({ value }) => <VendorRiskAnswersImportPage vendorId={value} />
 const TrustCenterSubscribersRunner: React.FC<{ value: string }> = ({ value }) => <TrustCenterSubscribersImportPage trustCenterId={value} />
 const ControlsFromStandardsRunner: React.FC = () => <ControlsFromStandardsImportPage />
 const ControlsUpdateRunner: React.FC = () => <ControlUpdateImportPage />
@@ -50,6 +53,7 @@ const StandardControlsRunner: React.FC<{ value: string }> = ({ value }) => <Stan
 
 const SCOPED_IMPORT_RUNNERS: Record<TImportScopeKey, ComponentType<{ value: string }>> = {
   vendorContacts: VendorContactsRunner,
+  vendorRiskAnswers: VendorRiskAnswersRunner,
   trustCenterSubscribers: TrustCenterSubscribersRunner,
   controlsFromStandards: ControlsFromStandardsRunner,
   controlsUpdate: ControlsUpdateRunner,

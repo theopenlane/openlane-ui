@@ -16,7 +16,7 @@ import { CUSTOM_ENUMS_SORT_FIELDS, useGetCustomEnumColumns } from './custom-enum
 import { CreateEnumSheet } from './create-enum-sheet'
 import { ENUM_GROUP_MAP, ENUM_GROUPS, getEnumFilter } from './custom-enums-config'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useCustomTypeEnumsPaginated, useDeleteCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCustomTypeEnumsPaginated, useDeleteCustomTypeEnum, useShadowedSystemEnumIds } from '@/lib/graphql-hooks/custom-type-enum'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
@@ -63,12 +63,20 @@ const CustomEnumsTab: FC = () => {
 
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.CUSTOM_ENUMS)
 
-  const whereFilter = useMemo(() => getEnumFilter(filter, debouncedSearch), [debouncedSearch, filter])
+  const { shadowedIds, isResolved: isShadowingResolved } = useShadowedSystemEnumIds()
 
-  const { enums, isLoading, paginationMeta, refetch } = useCustomTypeEnumsPaginated({
+  const whereFilter = useMemo(() => {
+    const where = getEnumFilter(filter, debouncedSearch)
+    return shadowedIds.length ? { ...where, idNotIn: shadowedIds } : where
+  }, [debouncedSearch, filter, shadowedIds])
+
+  const shadowedIdsKey = shadowedIds.join(',')
+
+  const { enums, isLoading, paginationMeta } = useCustomTypeEnumsPaginated({
     pagination,
     where: whereFilter,
     orderBy,
+    enabled: isShadowingResolved,
   })
 
   const { mutateAsync: deleteEnum, isPending: isDeleting } = useDeleteCustomTypeEnum()
@@ -86,7 +94,7 @@ const CustomEnumsTab: FC = () => {
 
   useEffect(() => {
     resetPagination()
-  }, [debouncedSearch, filter, resetPagination])
+  }, [debouncedSearch, filter, shadowedIdsKey, resetPagination])
 
   const handleDeleteConfirm = async () => {
     if (!enumToDelete) return
@@ -94,7 +102,6 @@ const CustomEnumsTab: FC = () => {
       await deleteEnum(enumToDelete.id)
       successNotification({ title: 'Enum Deleted' })
       setEnumToDelete(null)
-      refetch()
     } catch (err) {
       errorNotification({ title: 'Error deleting', description: parseErrorMessage(err) })
     }
@@ -180,7 +187,7 @@ const CustomEnumsTab: FC = () => {
         <DataTable
           columns={columns}
           data={enums}
-          loading={isLoading}
+          loading={isLoading || !isShadowingResolved}
           pagination={pagination}
           onPaginationChange={setPagination}
           paginationMeta={paginationMeta}

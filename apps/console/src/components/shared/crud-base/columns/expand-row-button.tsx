@@ -2,6 +2,8 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { type CoreTable, type Row, type RowData } from '@repo/ui/table-types'
 
+export const EXPAND_ROW_COLUMN_SIZE = 64
+
 type TExpandRowButtonProps<TData extends RowData> = {
   row: Row<TData>
   label: string

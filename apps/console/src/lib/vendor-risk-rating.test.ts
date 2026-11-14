@@ -1,3 +1,4 @@
+import { DEFAULT_VENDOR_RISK_THRESHOLDS } from '@repo/codegen/src/vendor-scoring-defaults.generated'
 import { isVendorRiskRating, riskRatingFromScore, VendorRiskRating, VENDOR_RISK_RATING_OPTIONS } from './vendor-risk-rating'
 
 /**
@@ -19,15 +20,15 @@ describe('riskRatingFromScore — band boundaries', () => {
     [16, VendorRiskRating.CRITICAL],
     [100, VendorRiskRating.CRITICAL],
   ])('scores %i as %s', (score, expected) => {
-    expect(riskRatingFromScore(score)).toBe(expected)
+    expect(riskRatingFromScore(score, DEFAULT_VENDOR_RISK_THRESHOLDS)).toBe(expected)
   })
 
   test('treats a negative score as NONE rather than falling through', () => {
-    expect(riskRatingFromScore(-1)).toBe(VendorRiskRating.NONE)
+    expect(riskRatingFromScore(-1, DEFAULT_VENDOR_RISK_THRESHOLDS)).toBe(VendorRiskRating.NONE)
   })
 
   test('accepts a numeric string', () => {
-    expect(riskRatingFromScore('12')).toBe(VendorRiskRating.HIGH)
+    expect(riskRatingFromScore('12', DEFAULT_VENDOR_RISK_THRESHOLDS)).toBe(VendorRiskRating.HIGH)
   })
 })
 
@@ -39,12 +40,12 @@ describe('riskRatingFromScore — absent or invalid input', () => {
     ['a non-numeric string', 'high'],
   ])('returns undefined for %s', (_label, value) => {
     // Deliberately NOT NONE — an unscored vendor must not read as assessed.
-    expect(riskRatingFromScore(value)).toBeUndefined()
+    expect(riskRatingFromScore(value, DEFAULT_VENDOR_RISK_THRESHOLDS)).toBeUndefined()
   })
 
   test('distinguishes an unscored vendor from one scored zero', () => {
-    expect(riskRatingFromScore(null)).toBeUndefined()
-    expect(riskRatingFromScore(0)).toBe(VendorRiskRating.NONE)
+    expect(riskRatingFromScore(null, DEFAULT_VENDOR_RISK_THRESHOLDS)).toBeUndefined()
+    expect(riskRatingFromScore(0, DEFAULT_VENDOR_RISK_THRESHOLDS)).toBe(VendorRiskRating.NONE)
   })
 })
 

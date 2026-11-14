@@ -5,7 +5,7 @@ import { formatDate } from '@/utils/date'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Brush, Globe, Megaphone, Server, Upload } from 'lucide-react'
-import { LivePreview, type LivePreviewTrustCenter } from './live-preview'
+import { LivePreview, OVERVIEW_URL_CARD_WIDTH, type LivePreviewTrustCenter } from './live-preview'
 import { useGetTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { useRouter } from 'next/navigation'
 import { SuggestedActionCard } from './suggested-action-card'
@@ -13,6 +13,9 @@ import { use, useEffect } from 'react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import AnalyticsCards from './analytics-cards'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
+import { getTrustCenterUrlState } from '../shared/trust-center-urls'
+import { TrustCenterPublishCard, TrustCenterUrlsCard } from '../shared/trust-center-urls-setup'
+import { useCreateTrustCenterUrls } from '../shared/use-create-trust-center-urls'
 
 const OverviewPage: React.FC = () => {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -38,10 +41,13 @@ const OverviewPage: React.FC = () => {
 
   const mostRecentUpdatedAt = updatedAtValues.length > 0 ? new Date(Math.max(...updatedAtValues.map((d) => new Date(d).getTime()))).toISOString() : null
 
-  const trustCenterLivePreview: LivePreviewTrustCenter | undefined = trustCenter
+  const urls = useCreateTrustCenterUrls()
+  const { publicUrl, needsSetup, isDefaultDomainDisabled } = getTrustCenterUrlState(trustCenter)
+
+  const trustCenterLivePreview: LivePreviewTrustCenter | undefined = publicUrl
     ? {
         customDomain: {
-          cnameRecord: trustCenter.customDomain?.cnameRecord ?? `https://trust.theopenlane.net/${trustCenter?.slug}`,
+          cnameRecord: publicUrl,
         },
         updatedAt: mostRecentUpdatedAt ?? new Date(0).toISOString(),
       }
@@ -149,9 +155,16 @@ const OverviewPage: React.FC = () => {
             </Card>
           </div>
 
-          {trustCenterLivePreview && (
+          {trustCenter && (
             <div className="basis-[35%]">
-              <LivePreview trustCenter={trustCenterLivePreview} />
+              {trustCenterLivePreview ? (
+                <LivePreview trustCenter={trustCenterLivePreview} />
+              ) : (
+                <div className={OVERVIEW_URL_CARD_WIDTH}>
+                  {needsSetup && <TrustCenterUrlsCard urls={urls} description="Create your Trust Center URLs to preview your changes and publish when you're ready." />}
+                  {!needsSetup && isDefaultDomainDisabled && <TrustCenterPublishCard previewStatus={trustCenter.previewStatus} />}
+                </div>
+              )}
             </div>
           )}
         </div>

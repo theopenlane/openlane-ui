@@ -6,10 +6,11 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 type TSeverityChipProps = {
   severity?: string | null
   level?: TSeverityLevel | 'none'
+  suffix?: string
   className?: string
 }
 
-export const SeverityChip: React.FC<TSeverityChipProps> = ({ severity, level, className }) => {
+export const SeverityChip: React.FC<TSeverityChipProps> = ({ severity, level, suffix, className }) => {
   if (!severity) {
     return null
   }
@@ -19,7 +20,7 @@ export const SeverityChip: React.FC<TSeverityChipProps> = ({ severity, level, cl
       className={cn('text-xs px-2 py-0.5 rounded-full font-medium', level === 'none' && 'bg-border text-muted-foreground', className)}
       style={level === 'none' ? undefined : getSeverityStyle(level ?? severity)}
     >
-      {getEnumLabel(severity)}
+      {suffix ? `${getEnumLabel(severity)} ${suffix}` : getEnumLabel(severity)}
     </span>
   )
 }

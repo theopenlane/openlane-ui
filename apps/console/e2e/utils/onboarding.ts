@@ -20,6 +20,11 @@ export const nextButton = (page: Page) => page.locator('button:has(.lucide-arrow
 export const backButton = (page: Page) => page.locator('button:has(.lucide-arrow-left)').last()
 export const companyNameInput = (page: Page) => page.locator('#company_name')
 
+export const chooseEmptyOrganization = async (page: Page): Promise<void> => {
+  const startEmpty = page.locator('#seed_demo_data-false')
+  if (await startEmpty.isVisible().catch(() => false)) await startEmpty.click()
+}
+
 /** Walk the whole wizard with the minimum-required answers and land on the dashboard. */
 export const completeOnboarding = async (page: Page, opts: OnboardingOptions = {}): Promise<void> => {
   await ensureOnboardingRoute(page)
@@ -29,6 +34,7 @@ export const completeOnboarding = async (page: Page, opts: OnboardingOptions = {
   if (opts.companyName) {
     await name.fill(opts.companyName)
   }
+  await chooseEmptyOrganization(page)
 
   const submit = page.getByRole('button', { name: /^Submit$/ })
 

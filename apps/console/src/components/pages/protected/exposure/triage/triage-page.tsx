@@ -16,7 +16,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { buildPastDueVulnerabilityFilter } from '@/utils/vulnerability-due-date'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
-import { buildTriageGroups, buildVulnerabilitySearchFilter, combineVulnerabilityWhere, getVulnerabilityName, type TriageFacet, type TriageGroups, type TriageVuln } from './triage-utils'
+import { buildTriageGroups, buildVulnerabilitySearchFilter, combineVulnerabilityWhere, type TriageFacet, type TriageGroups, type TriageVuln } from './triage-utils'
+import { getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilities/vulnerability-display'
 import TriageListRail from './triage-list-rail'
 import TriageDetail from './triage-detail'
 import TriageQuickActions from './triage-quick-actions'
@@ -142,7 +143,7 @@ const TriagePage: React.FC = () => {
 
   const handleRemediate = () => {
     if (!selectedVuln) return
-    setRemediateVuln({ id: selectedVuln.id, name: getVulnerabilityName(selectedVuln), reviewedByUserID: selectedVuln.reviewedByUser?.id })
+    setRemediateVuln({ id: selectedVuln.id, name: getVulnerabilityTitle(selectedVuln), reviewedByUserID: selectedVuln.reviewedByUser?.id })
   }
 
   return (
@@ -195,14 +196,14 @@ const TriagePage: React.FC = () => {
       {selectedVuln && (
         <AcceptRiskDialog
           isOpen={acceptRiskOpen}
-          vulnerabilityName={getVulnerabilityName(selectedVuln)}
+          vulnerabilityName={getVulnerabilityTitle(selectedVuln)}
           isSubmitting={isUpdating}
           onClose={() => setAcceptRiskOpen(false)}
           onConfirm={handleAcceptRisk}
         />
       )}
 
-      {snoozeTarget && <SnoozeVulnerabilityDialog isOpen={snoozeOpen} vulnerability={snoozeTarget} vulnerabilityName={getVulnerabilityName(snoozeTarget)} onClose={() => setSnoozeOpen(false)} />}
+      {snoozeTarget && <SnoozeVulnerabilityDialog isOpen={snoozeOpen} vulnerability={snoozeTarget} vulnerabilityName={getVulnerabilityTitle(snoozeTarget)} onClose={() => setSnoozeOpen(false)} />}
 
       <CreateRemediationSheet
         isOpen={Boolean(remediateVuln)}

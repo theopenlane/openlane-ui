@@ -7,6 +7,7 @@ import { Badge } from '@repo/ui/badge'
 import { Callout } from '@/components/shared/callout/callout'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import FileUpload from '@/components/shared/file-upload/file-upload'
+import { csvAcceptedFileTypes, csvAcceptedFileTypesShort } from '@/components/shared/file-upload/file-upload-config'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'
 import { useNotification } from '@/hooks/useNotification'
 import { formatFileSize, formatList, pluralizeWithCount, toLowerLabel } from '@/utils/strings'
@@ -100,8 +101,8 @@ export const UploadStep: React.FC<TUploadStepProps> = ({ entityLabel, parsed, on
           </div>
         ) : (
           <FileUpload
-            acceptedFileTypes={['text/csv', 'application/vnd.ms-excel']}
-            acceptedFileTypesShort={['CSV']}
+            acceptedFileTypes={csvAcceptedFileTypes}
+            acceptedFileTypesShort={csvAcceptedFileTypesShort}
             maxFileSizeInMb={MAX_IMPORT_FILE_SIZE_MB}
             onFileUpload={handleUploadedFile}
             multipleFiles={false}

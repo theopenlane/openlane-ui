@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
+import { getObjectDisplayName } from '@/utils/object-display-name'
 import { type UseFormReturn, useWatch } from 'react-hook-form'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -32,11 +33,11 @@ const RemediationContextSelector: React.FC<TRemediationContextSelectorProps> = (
     }
     switch (contextType) {
       case ObjectAssociationNodeEnum.VULNERABILITY:
-        return getNodes(data?.vulnerabilities).map((node) => ({ id: node.id, name: node.displayName || getVulnerabilityTitle(node) }))
+        return getNodes(data?.vulnerabilities).map((node) => ({ id: node.id, name: getVulnerabilityTitle(node) }))
       case ObjectAssociationNodeEnum.FINDING:
-        return getNodes(data?.findings).map((node) => ({ id: node.id, name: node.displayName || node.displayID }))
+        return getNodes(data?.findings).map((node) => ({ id: node.id, name: getObjectDisplayName(node) }))
       case ObjectAssociationNodeEnum.RISKS:
-        return getNodes(data?.risks).map((node) => ({ id: node.id, name: node.name || node.displayID }))
+        return getNodes(data?.risks).map((node) => ({ id: node.id, name: getObjectDisplayName(node) }))
       default:
         return []
     }

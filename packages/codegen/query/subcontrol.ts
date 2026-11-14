@@ -233,6 +233,7 @@ export const GET_SUBCONTROL_ASSOCIATIONS_BY_ID = gql`
           node {
             id
             cveID
+            externalID
             displayName
             displayID
           }

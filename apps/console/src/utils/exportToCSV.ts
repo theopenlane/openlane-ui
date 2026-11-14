@@ -5,14 +5,15 @@ export type TExportColumn<T> = {
   accessor: (item: T) => string | number | null | undefined
 }
 
-const FORMULA_TRIGGER = /^[=+\-@\t\r]/
+export const FORMULA_TRIGGER = /^[=+\-@\t\r]/
 const UTF8_BOM = '\uFEFF'
+
+export const guardCsvFormula = (text: string) => (FORMULA_TRIGGER.test(text) ? `'${text}` : text)
 
 const escapeCsvValue = (value: string | number | null | undefined): string => {
   if (value === null || value === undefined) return '""'
 
-  const text = String(value)
-  const guarded = FORMULA_TRIGGER.test(text) ? `'${text}` : text
+  const guarded = guardCsvFormula(String(value))
 
   return `"${guarded.replace(/"/g, '""')}"`
 }

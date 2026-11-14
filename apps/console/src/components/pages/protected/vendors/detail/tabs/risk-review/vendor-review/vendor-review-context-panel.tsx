@@ -12,6 +12,7 @@ import { type EntityQuery } from '@repo/codegen/src/schema'
 import { TIER_OPTIONS, TierBadge } from '@/components/pages/protected/reviews/common/risk-review-config'
 import { ReadOnlyField } from '@/components/shared/read-only-field/read-only-field'
 import { riskRatingFromScore } from '@/lib/vendor-risk-rating'
+import { useVendorRiskThresholds } from '@/lib/graphql-hooks/vendor-scoring-config'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { getVendorLogoUrl } from '@/lib/vendor-logo'
@@ -28,7 +29,8 @@ const VendorReviewContextPanel: React.FC<TVendorReviewContextPanelProps> = ({ ve
   const logoUrl = getVendorLogoUrl(vendor.logoFile)
   const description = useMemo(() => (vendor.description ? convertToReadOnly(vendor.description) : null), [vendor.description, convertToReadOnly])
   const draftRiskScore = form.watch('riskScore')
-  const draftRiskRating = riskRatingFromScore(draftRiskScore)
+  const riskThresholds = useVendorRiskThresholds()
+  const draftRiskRating = riskRatingFromScore(draftRiskScore, riskThresholds)
 
   return (
     <Panel className="p-4 flex flex-col gap-4">

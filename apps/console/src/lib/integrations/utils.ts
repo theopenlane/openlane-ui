@@ -203,6 +203,13 @@ export function installedIntegrationDisplayName(integration: IntegrationProvider
   return providerName
 }
 
+export const providerForDefinitionID = (definitionID: string | null | undefined, providers: IntegrationProvider[]): IntegrationProvider | undefined => {
+  const id = definitionID?.trim()
+  return id ? providers.find((provider) => provider.id === id) : undefined
+}
+
+export const isIntegrationSourced = (record: { sourceDefinitionID?: string | null } | null | undefined): boolean => !!record?.sourceDefinitionID?.trim()
+
 export function matchIntegrationProvider(integration: IntegrationProviderMatchFields, providers: IntegrationProvider[]): IntegrationProvider | undefined {
   const definitionID = integration.definitionID?.trim()
   if (definitionID) {

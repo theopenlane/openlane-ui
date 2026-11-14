@@ -1,6 +1,7 @@
 'use client'
 
 import { buildResponsibilityCreatePayload, normalizeEntityData, responsibilityInput } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { getObjectDisplayName } from '@/utils/object-display-name'
 import { useControlLinksForFinding } from '@/components/shared/object-association/finding-control-links'
 import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import { getEdgeNodes } from '@/components/shared/object-association/utils'
@@ -103,7 +104,7 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
   const enumOpts = { environmentOptions, scopeOptions, findingStatusOptions }
   const enumCreateHandlers = { environmentName: createEnvironment, scopeName: createScope, findingStatusName: createFindingStatus }
 
-  const getName = (d: FindingDetailNode) => d?.displayName || d?.displayID || d?.externalID
+  const getName = (d: FindingDetailNode) => getObjectDisplayName(d)
 
   return {
     enumOpts,
