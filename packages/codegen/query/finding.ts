@@ -152,9 +152,7 @@ export const FINDING = gql`
       findingClass
       id
       impact
-      integrations {
-        totalCount
-      }
+      sourceDefinitionID
       metadata
       numericSeverity
       open

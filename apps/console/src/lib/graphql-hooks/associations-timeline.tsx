@@ -175,7 +175,7 @@ export const useIdentityHolderTimeline = (identityHolderId?: string) => {
   })
 }
 
-export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssociationsTimelineQuery | undefined): TimelineNode[] => {
+export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssociationsTimelineQuery | undefined, { linkIntegrations }: { linkIntegrations: boolean }): TimelineNode[] => {
   const ih = data?.identityHolder
   if (!ih) return []
 
@@ -197,7 +197,7 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
     const n = edge?.node
     if (!n) continue
     const integrationName = n.directoryName ?? null
-    const integrationDefinitionId = n.integration?.definitionID ?? null
+    const integrationDefinitionId = linkIntegrations ? n.sourceDefinitionID || null : null
     const integrationEl: React.ReactNode = integrationName ? (
       integrationDefinitionId ? (
         <Link href={`/automation/integrations/${integrationDefinitionId}`} className="hover:underline">

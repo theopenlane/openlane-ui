@@ -1,4 +1,4 @@
-export enum IntegrationFamily {
-  MICROSOFT = 'Microsoft',
-  GOOGLE_DRIVE = 'Google Drive',
+export enum IntegrationDefinitionID {
+  GOOGLE_DRIVE = 'def_01K0GDRIVE00000000000000001',
+  ONE_DRIVE = 'def_01K0ONEDRIVE00000000000001',
 }

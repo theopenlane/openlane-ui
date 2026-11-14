@@ -3301,7 +3301,6 @@ export interface EntityQuery {
     updatedAt: any
     updatedBy: string | null
     vendorMetadata: any
-    integrations: { edges: Array<{ node: { id: string; definitionID: string | null; name: string; directoryGroups: { totalCount: number } } | null } | null> | null }
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
@@ -3452,12 +3451,6 @@ export interface GetEntityAssociationsQuery {
       totalCount: number
       edges: Array<{ node: { id: string; fullName: string; displayID: string; identityHolderType: Types.IdentityHolderIdentityHolderType; title: string | null } | null } | null> | null
     }
-    integrations: {
-      totalCount: number
-      edges: Array<{
-        node: { id: string; name: string; kind: string | null; description: string | null; environmentName: string | null; integrationType: string | null; updatedAt: any } | null
-      } | null> | null
-    }
     controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; title: string | null; description: string | null } | null } | null> | null }
     internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayID: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
@@ -3481,6 +3474,22 @@ export interface VendorRiskRatingCountsQuery {
   veryLow: { totalCount: number }
   none: { totalCount: number }
   notScored: { totalCount: number }
+}
+
+export type GetVendorInstallationsQueryVariables = Exact<{
+  entityId: string
+}>
+
+export interface GetVendorInstallationsQuery {
+  entity: { id: string; integrations: { edges: Array<{ node: { id: string; definitionID: string | null } | null } | null> | null } }
+}
+
+export type GetVendorsByInstallationQueryVariables = Exact<{
+  installationId: string
+}>
+
+export interface GetVendorsByInstallationQuery {
+  entities: { edges: Array<{ node: { id: string; name: string | null } | null } | null> | null }
 }
 
 export type CreateEvidenceMutationVariables = Exact<{
@@ -4152,6 +4161,7 @@ export interface FindingQuery {
     findingClass: string | null
     id: string
     impact: number | null
+    sourceDefinitionID: string | null
     metadata: any
     numericSeverity: number | null
     open: boolean | null
@@ -4190,7 +4200,6 @@ export interface FindingQuery {
     internalOwnerUser: { id: string; displayName: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
-    integrations: { totalCount: number }
     remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
   }
 }
@@ -4599,7 +4608,7 @@ export type DirectoryMembershipConnectionFieldsFragment = {
       addedAt: any
       removedAt: any
       createdAt: any
-      directoryGroup: { id: string; displayName: string | null; integration: { id: string; entities: { edges: Array<{ node: { id: string; name: string | null } | null } | null> | null } } }
+      directoryGroup: { id: string; displayName: string | null; managedBy: string | null }
     } | null
   } | null> | null
 }
@@ -4840,7 +4849,8 @@ export interface GetIdentityHolderDirectoryAccountsQuery {
           primarySource: boolean
           mfaState: Types.DirectoryAccountDirectoryAccountMfaState
           directoryName: string | null
-          integration: { id: string; definitionID: string | null; entities: { edges: Array<{ node: { id: string; name: string | null } | null } | null> | null } } | null
+          sourceDefinitionID: string | null
+          managedBy: string | null
           memberships: {
             totalCount: number
             edges: Array<{
@@ -4850,7 +4860,7 @@ export interface GetIdentityHolderDirectoryAccountsQuery {
                 addedAt: any
                 removedAt: any
                 createdAt: any
-                directoryGroup: { id: string; displayName: string | null; integration: { id: string; entities: { edges: Array<{ node: { id: string; name: string | null } | null } | null> | null } } }
+                directoryGroup: { id: string; displayName: string | null; managedBy: string | null }
               } | null
             } | null> | null
           }
@@ -4891,7 +4901,7 @@ export interface GetIdentityHolderAssociationsTimelineQuery {
           directoryName: string | null
           displayName: string | null
           canonicalEmail: string | null
-          integration: { definitionID: string | null } | null
+          sourceDefinitionID: string | null
           memberships: {
             totalCount: number
             edges: Array<{
@@ -4901,7 +4911,7 @@ export interface GetIdentityHolderAssociationsTimelineQuery {
                 addedAt: any
                 removedAt: any
                 createdAt: any
-                directoryGroup: { id: string; displayName: string | null; integration: { id: string; entities: { edges: Array<{ node: { id: string; name: string | null } | null } | null> | null } } }
+                directoryGroup: { id: string; displayName: string | null; managedBy: string | null }
               } | null
             } | null> | null
           }
@@ -5096,40 +5106,7 @@ export type InternalPolicyByIdFragment = {
   liveExternalContents: string | null
   url: string | null
   externalFileID: string | null
-  integrations: {
-    edges: Array<{
-      node: {
-        id: string
-        name: string
-        kind: string | null
-        integrationType: string | null
-        description: string | null
-        definitionID: string | null
-        definitionSlug: string | null
-        definitionVersion: string | null
-        family: string | null
-        environmentID: string | null
-        environmentName: string | null
-        scopeID: string | null
-        scopeName: string | null
-        platformID: string | null
-        status: Types.IntegrationIntegrationStatus
-        primaryDirectory: boolean
-        campaignEmail: boolean
-        systemOwned: boolean | null
-        tags: Array<string> | null
-        config: any
-        metadata: any
-        providerMetadataSnapshot: any
-        webhookURLs: any
-        ownerID: string | null
-        createdAt: any
-        createdBy: string | null
-        updatedAt: any
-        updatedBy: string | null
-      } | null
-    } | null> | null
-  }
+  sourceDefinitionID: string | null
   file: { id: string; presignedURL: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType: string | null } | null
   approver: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
   delegate: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
@@ -5170,40 +5147,7 @@ export interface GetInternalPolicyDetailsByIdQuery {
     liveExternalContents: string | null
     url: string | null
     externalFileID: string | null
-    integrations: {
-      edges: Array<{
-        node: {
-          id: string
-          name: string
-          kind: string | null
-          integrationType: string | null
-          description: string | null
-          definitionID: string | null
-          definitionSlug: string | null
-          definitionVersion: string | null
-          family: string | null
-          environmentID: string | null
-          environmentName: string | null
-          scopeID: string | null
-          scopeName: string | null
-          platformID: string | null
-          status: Types.IntegrationIntegrationStatus
-          primaryDirectory: boolean
-          campaignEmail: boolean
-          systemOwned: boolean | null
-          tags: Array<string> | null
-          config: any
-          metadata: any
-          providerMetadataSnapshot: any
-          webhookURLs: any
-          ownerID: string | null
-          createdAt: any
-          createdBy: string | null
-          updatedAt: any
-          updatedBy: string | null
-        } | null
-      } | null> | null
-    }
+    sourceDefinitionID: string | null
     file: { id: string; presignedURL: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType: string | null } | null
     approver: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
     delegate: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
@@ -10478,13 +10422,21 @@ export interface GetVendorDirectoryQuery {
   directoryGroups: {
     pageInfo: { endCursor: any; hasNextPage: boolean }
     edges: Array<{
-      node: { id: string; displayName: string | null; email: string | null; integration: { id: string; name: string }; members: { totalCount: number }; matchedAccounts: { totalCount: number } } | null
+      node: {
+        id: string
+        displayName: string | null
+        email: string | null
+        sourceDefinitionID: string | null
+        managedBy: string | null
+        members: { totalCount: number }
+        matchedAccounts: { totalCount: number }
+      } | null
     } | null> | null
   }
 }
 
 export type GetVendorDirectoryCoverageQueryVariables = Exact<{
-  integrationIDs: Array<string> | string
+  vendorId: string
 }>
 
 export interface GetVendorDirectoryCoverageQuery {
@@ -10524,6 +10476,14 @@ export interface GetDirectoryGroupMembersQuery {
       } | null> | null
     }
   }
+}
+
+export type GetVendorDirectoryGroupCountQueryVariables = Exact<{
+  vendorId: string
+}>
+
+export interface GetVendorDirectoryGroupCountQuery {
+  directoryGroups: { totalCount: number }
 }
 
 export type VendorRiskScoresWithFilterQueryVariables = Exact<{
@@ -10932,6 +10892,7 @@ export interface VulnerabilityQuery {
     firstPatchedVersion: string | null
     id: string
     impact: number | null
+    sourceDefinitionID: string | null
     open: boolean | null
     packageEcosystem: string | null
     packageName: string | null
@@ -10967,7 +10928,6 @@ export interface VulnerabilityQuery {
     internalOwnerUser: { id: string; displayName: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
-    integrations: { totalCount: number }
     remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
   }
 }
@@ -11183,20 +11143,6 @@ export type UpdateVulnerabilityCommentMutationVariables = Exact<{
 
 export interface UpdateVulnerabilityCommentMutation {
   updateVulnerabilityComment: { vulnerability: { id: string } }
-}
-
-export type GetVulnerabilitySourceIntegrationsQueryVariables = Exact<{
-  vulnerabilityId: string
-}>
-
-export interface GetVulnerabilitySourceIntegrationsQuery {
-  vulnerability: {
-    id: string
-    integrations: {
-      totalCount: number
-      edges: Array<{ node: { id: string; name: string; definitionID: string | null; definitionSlug: string | null; family: string | null; kind: string | null } | null } | null> | null
-    }
-  }
 }
 
 export type GetVulnerabilityHistoryEdgesQueryVariables = Exact<{

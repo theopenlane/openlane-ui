@@ -11,7 +11,7 @@ import DirectoryGroupMembers from './directory-group-members'
 
 type DirectoryGroupCardProps = {
   group: VendorDirectoryGroup
-  showIntegrationBadge: boolean
+  sourceLabel?: string
   isTarget?: boolean
 }
 
@@ -22,7 +22,7 @@ const getCoverageColor = (total: number, matched: number): string => {
   return 'text-warning'
 }
 
-const DirectoryGroupCard: React.FC<DirectoryGroupCardProps> = ({ group, showIntegrationBadge, isTarget = false }) => {
+const DirectoryGroupCard: React.FC<DirectoryGroupCardProps> = ({ group, sourceLabel, isTarget = false }) => {
   const [open, setOpen] = useState(isTarget)
   const rootRef = useRef<HTMLDivElement>(null)
 
@@ -38,9 +38,9 @@ const DirectoryGroupCard: React.FC<DirectoryGroupCardProps> = ({ group, showInte
       <CollapsibleTrigger className="flex w-full items-center gap-3 px-4 py-3 text-left">
         <ChevronDown size={16} className={cn('transition-transform text-muted-foreground', open ? '' : '-rotate-90')} />
         <span className="font-medium truncate">{group.displayName || group.email || group.id}</span>
-        {showIntegrationBadge && group.integration?.name && (
+        {sourceLabel && (
           <Badge variant="outline" className="ml-1">
-            {group.integration.name}
+            {sourceLabel}
           </Badge>
         )}
         <div className="ml-auto flex items-center gap-4 text-sm tabular-nums">

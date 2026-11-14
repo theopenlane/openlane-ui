@@ -48,7 +48,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const isOrganizationSelected = !activeOrg?.personalOrg
 
   const isOfficial = useIsOfficialDeployment()
-  const navItems = !isOrganizationSelected ? [] : topNavigationItems(sessionData, currentUserRole, isOfficial)
+  const navItems = !isOrganizationSelected ? [] : topNavigationItems(sessionData, currentUserRole, isOfficial, orgPermission)
   const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(sessionData, orgPermission, currentUserRole)
 
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)

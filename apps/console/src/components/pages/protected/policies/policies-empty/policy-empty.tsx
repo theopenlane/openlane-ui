@@ -10,6 +10,7 @@ import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import CreatePolicyUploadDialog from '../create/form/create-policy-upload-dialog'
 import { INTEGRATIONS_DOCUMENT_FILTER_URL } from '@/constants'
+import { useCanManageIntegrations } from '@/lib/authz/use-can-manage-integrations'
 import { PolicyTemplateBrowser } from '@/components/shared/github-selector/policy-selector'
 import { type TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import { useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
@@ -21,6 +22,7 @@ export const PolicyEmptyActions = () => {
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createUploadPolicy } = useCreateUploadInternalPolicy()
   const [showTemplateBrowser, setShowTemplateBrowser] = useState(false)
+  const { canManageIntegrations } = useCanManageIntegrations()
   const [isCreatingFromTemplate, setIsCreatingFromTemplate] = useState(false)
 
   const handleTemplateFileSelect = async (file: TUploadedFile) => {
@@ -73,25 +75,29 @@ export const PolicyEmptyActions = () => {
         </Button>
       ),
     },
-    {
-      id: 'managed-via-integration',
-      title: 'Managed via Integration',
-      badge: (
-        <Badge variant="outline" className="ml-2 border-purple-500/40 bg-purple-500/15 text-purple-300">
-          New
-        </Badge>
-      ),
-      desc: 'Manage your policy in an integrated platform like Google Drive. Changes stay in the source system and are automatically reflected in Openlane.',
-      Icon: LinkIcon,
-      iconClassName: 'text-purple-400',
-      cardClassName: 'border-purple-500/30 bg-purple-500/5',
-      action: {
-        label: 'Manage',
-        href: INTEGRATIONS_DOCUMENT_FILTER_URL,
-      },
-      buttonVariant: 'primary' as const,
-      buttonClassName: '!bg-purple-600 hover:!bg-purple-500 !text-white',
-    },
+    ...(canManageIntegrations
+      ? [
+          {
+            id: 'managed-via-integration',
+            title: 'Managed via Integration',
+            badge: (
+              <Badge variant="outline" className="ml-2 border-purple-500/40 bg-purple-500/15 text-purple-300">
+                New
+              </Badge>
+            ),
+            desc: 'Manage your policy in an integrated platform like Google Drive. Changes stay in the source system and are automatically reflected in Openlane.',
+            Icon: LinkIcon,
+            iconClassName: 'text-purple-400',
+            cardClassName: 'border-purple-500/30 bg-purple-500/5',
+            action: {
+              label: 'Manage',
+              href: INTEGRATIONS_DOCUMENT_FILTER_URL,
+            },
+            buttonVariant: 'primary' as const,
+            buttonClassName: '!bg-purple-600 hover:!bg-purple-500 !text-white',
+          },
+        ]
+      : []),
     {
       id: 'import-custom',
       title: 'Import Existing Documents',

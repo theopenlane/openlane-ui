@@ -12,10 +12,8 @@ export const GET_VENDOR_DIRECTORY = gql`
           id
           displayName
           email
-          integration {
-            id
-            name
-          }
+          sourceDefinitionID
+          managedBy
           members {
             totalCount
           }
@@ -29,17 +27,17 @@ export const GET_VENDOR_DIRECTORY = gql`
 `
 
 export const GET_VENDOR_DIRECTORY_COVERAGE = gql`
-  query GetVendorDirectoryCoverage($integrationIDs: [ID!]!) {
-    allGroups: directoryGroups(where: { integrationIDIn: $integrationIDs }) {
+  query GetVendorDirectoryCoverage($vendorId: ID!) {
+    allGroups: directoryGroups(where: { hasIntegrationWith: [{ hasEntitiesWith: [{ id: $vendorId }] }] }) {
       totalCount
     }
-    emptyGroups: directoryGroups(where: { integrationIDIn: $integrationIDs, hasMembers: false }) {
+    emptyGroups: directoryGroups(where: { hasIntegrationWith: [{ hasEntitiesWith: [{ id: $vendorId }] }], hasMembers: false }) {
       totalCount
     }
-    groupedAccounts: directoryAccounts(where: { integrationIDIn: $integrationIDs, hasGroups: true }) {
+    groupedAccounts: directoryAccounts(where: { hasIntegrationWith: [{ hasEntitiesWith: [{ id: $vendorId }] }], hasGroups: true }) {
       totalCount
     }
-    matchedAccounts: directoryAccounts(where: { integrationIDIn: $integrationIDs, hasGroups: true, identityHolderIDNotNil: true }) {
+    matchedAccounts: directoryAccounts(where: { hasIntegrationWith: [{ hasEntitiesWith: [{ id: $vendorId }] }], hasGroups: true, identityHolderIDNotNil: true }) {
       totalCount
     }
   }
@@ -76,6 +74,14 @@ export const GET_DIRECTORY_GROUP_MEMBERS = gql`
           }
         }
       }
+    }
+  }
+`
+
+export const GET_VENDOR_DIRECTORY_GROUP_COUNT = gql`
+  query GetVendorDirectoryGroupCount($vendorId: ID!) {
+    directoryGroups(where: { hasIntegrationWith: [{ hasEntitiesWith: [{ id: $vendorId }] }] }) {
+      totalCount
     }
   }
 `

@@ -18,8 +18,10 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { Badge } from '@repo/ui/badge'
 import { Check, X } from 'lucide-react'
-import { ExpandRowButton } from '@/components/shared/crud-base/columns/expand-row-button'
-import { buildMembershipList, resolveSingleEntityVendor, type MembershipList, type MembershipVendor } from '@/lib/directory-memberships/group-memberships'
+import { EXPAND_ROW_COLUMN_SIZE, ExpandRowButton } from '@/components/shared/crud-base/columns/expand-row-button'
+import { buildMembershipList, membershipInstallationIds, resolveInstallationVendor, type MembershipList, type MembershipVendor } from '@/lib/directory-memberships/group-memberships'
+import { useVendorsByInstallation } from '@/lib/graphql-hooks/entity'
+import { useCanManageIntegrations } from '@/lib/authz/use-can-manage-integrations'
 import { MembershipList as MembershipListTable } from '@/components/shared/directory-memberships/membership-list'
 import { DirectoryMembershipDirectoryMembershipRole, type DirectoryMembershipWhereInput } from '@repo/codegen/src/schema'
 import type { WhereCondition } from '@/types'
@@ -103,9 +105,9 @@ const DATA_COLUMNS: ColumnDef<DirectoryAccountRow>[] = [
   {
     id: 'expander',
     header: () => null,
-    size: 50,
-    minSize: 50,
-    maxSize: 50,
+    size: EXPAND_ROW_COLUMN_SIZE,
+    minSize: EXPAND_ROW_COLUMN_SIZE,
+    maxSize: EXPAND_ROW_COLUMN_SIZE,
     enableHiding: false,
     cell: ({ row }) => <ExpandRowButton row={row} label="access details" />,
   },
@@ -197,28 +199,38 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
 
   const { directoryAccounts, isLoading } = useGetIdentityHolderDirectoryAccounts(personnelId, where, membershipWhere, membershipFilter !== null)
 
+  const { canManageIntegrations } = useCanManageIntegrations()
   const columns = useMemo<ColumnDef<DirectoryAccountRow>[]>(
-    () => [
-      ...DATA_COLUMNS,
-      createRowActionsColumn<DirectoryAccountRow>({
-        actions: [
-          {
-            label: 'Configure integration',
-            icon: <Settings size={16} />,
-            onClick: (row) => {
-              if (row.integrationDefinitionId) {
-                router.push(`/automation/integrations/${row.integrationDefinitionId}`)
-              }
-            },
-            disabled: (row) => !row.integrationDefinitionId,
-          },
-        ],
-      }),
-    ],
-    [router],
+    () =>
+      canManageIntegrations
+        ? [
+            ...DATA_COLUMNS,
+            createRowActionsColumn<DirectoryAccountRow>({
+              actions: [
+                {
+                  label: 'Configure integration',
+                  icon: <Settings size={16} />,
+                  onClick: (row) => {
+                    if (row.integrationDefinitionId) {
+                      router.push(`/automation/integrations/${row.integrationDefinitionId}`)
+                    }
+                  },
+                  disabled: (row) => !row.integrationDefinitionId,
+                },
+              ],
+            }),
+          ]
+        : DATA_COLUMNS,
+    [router, canManageIntegrations],
   )
 
   const mappedColumns = useMemo(() => getMappedColumns(columns), [columns])
+
+  const installationIds = useMemo(
+    () => directoryAccounts.flatMap((account) => [...(account.managedBy ? [account.managedBy] : []), ...membershipInstallationIds(account.memberships)]),
+    [directoryAccounts],
+  )
+  const vendorsByInstallation = useVendorsByInstallation(installationIds)
 
   const rows: DirectoryAccountRow[] = useMemo(
     () =>
@@ -229,11 +241,11 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
         status: account.status,
         mfaState: account.mfaState,
         primarySource: account.primarySource,
-        integrationDefinitionId: account.integration?.definitionID ?? null,
-        vendor: resolveSingleEntityVendor(account.integration?.entities),
-        memberships: buildMembershipList(account.memberships),
+        integrationDefinitionId: account.sourceDefinitionID || null,
+        vendor: resolveInstallationVendor(account.managedBy, vendorsByInstallation),
+        memberships: buildMembershipList(account.memberships, vendorsByInstallation),
       })),
-    [directoryAccounts],
+    [directoryAccounts, vendorsByInstallation],
   )
 
   return (
