@@ -38,11 +38,11 @@ import useFormSchema, { type FindingFormData } from '../hooks/use-form-schema'
 import { FINDING_UPDATE_FIELDS } from '../hooks/finding-update-fields'
 import { useFindingAssociationUpdate } from '../hooks/use-finding-association-update'
 import { getFindingSeverity, getFindingTitle } from '../finding-display'
-import { normalizeFindingData } from '../finding-responsibility'
+import { FINDING_RESPONSIBILITIES, normalizeFindingData } from '../finding-responsibility'
+import { ExposurePropertiesCard } from '../../exposure/detail/exposure-properties-card'
 import { breadcrumbs as FINDING_BREADCRUMBS } from '../table/table-config'
 import FindingDetailHeader from './finding-detail-header'
 import FindingQuickActions from './finding-quick-actions'
-import FindingPropertiesSidebar from './finding-properties-sidebar'
 import FindingAdditionalDetailsCard from './finding-additional-details-card'
 import FindingDetailTabs from './tabs/finding-detail-tabs'
 import { FINDING_TABS, type TFindingTabValue } from './tabs/finding-tab-values'
@@ -155,7 +155,7 @@ const FindingDetailPage: React.FC<TFindingDetailPageProps> = ({ findingId }) => 
       await updateFinding({ updateFindingId: findingId, input })
       successNotification({ title: 'Finding updated', description: 'The finding was successfully updated.' })
       setIsEditing(false)
-      form.reset(values)
+      form.reset({ ...values, vector })
     } catch (error) {
       errorNotification({ title: 'Failed to update finding', description: parseErrorMessage(error) })
     }
@@ -202,7 +202,14 @@ const FindingDetailPage: React.FC<TFindingDetailPageProps> = ({ findingId }) => 
   const sidebarContent = (
     <>
       {centerNode && <ObjectAssociationSwitch sections={sections} centerNode={centerNode} canEdit={canEditFinding} onRemoveAssociation={handleRemoveAssociation} />}
-      <FindingPropertiesSidebar finding={finding} isEditing={isEditing} canEdit={canEditFinding} handleUpdate={handleUpdateField} />
+      <ExposurePropertiesCard
+        data={finding}
+        responsibilities={FINDING_RESPONSIBILITIES}
+        blocking={{ name: 'blocksProduction', value: finding.blocksProduction }}
+        isEditing={isEditing}
+        canEdit={canEditFinding}
+        handleUpdate={handleUpdateField}
+      />
       <FindingAdditionalDetailsCard finding={finding} isEditing={isEditing} canEdit={canEditFinding} handleUpdate={handleUpdateField} />
     </>
   )

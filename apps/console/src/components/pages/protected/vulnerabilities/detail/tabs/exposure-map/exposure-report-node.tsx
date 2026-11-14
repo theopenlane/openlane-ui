@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { type VulnerabilityExposureNode } from '@/lib/graphql-hooks/vulnerability'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
-import { VulnerabilitySourceDetails } from '../../source/vulnerability-source-details'
+import { ExposureSourceDetails } from '../../../../exposure/detail/source/exposure-source-details'
 
 type TExposureSelectionContext = {
   selectedIds: ReadonlySet<string>
@@ -67,7 +67,7 @@ export const ExposureReportCard: React.FC<TExposureReportCardProps> = ({ report,
           </Button>
         </PopoverTrigger>
         <PopoverContent side="right" align="start" className="w-[380px] max-w-[calc(100vw-2rem)]">
-          <VulnerabilitySourceDetails
+          <ExposureSourceDetails
             fields={report}
             header={
               <div className="flex items-center justify-between gap-2">

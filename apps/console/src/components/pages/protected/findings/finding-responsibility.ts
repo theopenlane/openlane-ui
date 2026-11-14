@@ -8,6 +8,8 @@ export const FINDING_INTERNAL_OWNER = findingResponsibilityTarget('internalOwner
 export const FINDING_ASSIGNEE = findingResponsibilityTarget('assignedTo')
 export const FINDING_REVIEWER = findingResponsibilityTarget('reviewedBy')
 
+export const FINDING_RESPONSIBILITIES = { owner: FINDING_INTERNAL_OWNER, assignee: FINDING_ASSIGNEE, reviewer: FINDING_REVIEWER }
+
 export const normalizeFindingData = (data: FindingDetailNode) =>
   normalizeEntityData(data, {
     internalOwner: { personnel: data.internalOwnerIdentityHolder, user: data.internalOwnerUser, group: data.internalOwnerGroup, stringValue: data.internalOwner },

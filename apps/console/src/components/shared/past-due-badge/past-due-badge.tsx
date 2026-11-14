@@ -18,11 +18,12 @@ type Props = {
   severity?: string | null | undefined
   createdAt?: string | null | undefined
   discoveredAt?: string | null | undefined
+  reportedAt?: string | null | undefined
   remediationSLA?: number | null | undefined
   show?: boolean
 }
 
-const PastDueBadge: React.FC<Props> = ({ severity, createdAt, discoveredAt, remediationSLA, show }) => {
+const PastDueBadge: React.FC<Props> = ({ severity, createdAt, discoveredAt, reportedAt, remediationSLA, show }) => {
   const { slaDefinitionsNodes } = useSlaDefinitionsWithFilter({})
 
   if (show) {
@@ -37,9 +38,9 @@ const PastDueBadge: React.FC<Props> = ({ severity, createdAt, discoveredAt, reme
     )
   }
 
-  if (!severity || (!createdAt && !discoveredAt)) return null
+  if (!severity || (!createdAt && !discoveredAt && !reportedAt)) return null
 
-  const { pastDue, slaDays, dueDate } = getVulnerabilityDueDate({ severity, createdAt, discoveredAt, remediationSLA }, slaDefinitionsNodes)
+  const { pastDue, slaDays, dueDate } = getVulnerabilityDueDate({ severity, createdAt, discoveredAt, reportedAt, remediationSLA }, slaDefinitionsNodes)
   if (!pastDue || !dueDate) return null
 
   return (

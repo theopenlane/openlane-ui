@@ -173,6 +173,7 @@ const TableComponent = ({
         isOpen={!!trackRemediationRow}
         onClose={() => setTrackRemediationRow(null)}
         context={trackRemediationRow ? { type: ObjectAssociationNodeEnum.FINDING, id: trackRemediationRow.id } : undefined}
+        initialInstructions={trackRemediationRow?.recommendedActions?.trim() || undefined}
       />
     </>
   )

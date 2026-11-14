@@ -1,8 +1,6 @@
 import { type ReactNode } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 
-export type TExposureLinkedTo = { vulnerabilityIDs: string[] } | { findingIDs: string[] }
-
 export type TLinkActionPlanDialogProps = {
   trigger?: ReactNode
   open?: boolean

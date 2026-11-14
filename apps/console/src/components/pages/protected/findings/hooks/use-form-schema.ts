@@ -1,7 +1,7 @@
 'use client'
 
 import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { toValidHref } from '@/utils/normalizeUrl'
+import { isNavigableUrl } from '@/utils/normalizeUrl'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type Value } from 'platejs'
 import { useForm, type Resolver } from 'react-hook-form'
@@ -41,7 +41,7 @@ const formSchema = z.object({
   externalURI: z
     .string()
     .trim()
-    .refine((url) => !url || (!/\s/.test(url) && !!toValidHref(url)), 'Please enter a valid URL')
+    .refine((url) => !url || (!/\s/.test(url) && isNavigableUrl(url)), 'Please enter a valid URL')
     .optional(),
   source: z.string().optional(),
   findingClass: z.string().optional(),
