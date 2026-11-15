@@ -12,7 +12,7 @@ import { type Option } from '@repo/ui/multiple-selector'
 import { CircleUser } from 'lucide-react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import useEditableFieldFormSchema, { UNASSIGNED, type EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
-import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 
 type EditableGroupCellProps = {
   label: string
@@ -33,15 +33,9 @@ const EditableGroupCell: React.FC<EditableGroupCellProps> = ({ label, entity, on
   const [isEditing, setIsEditing] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
-  const { data: groupsData } = useGetAllGroups({ where: {}, enabled: isEditing })
+  const { groupOptions } = useGroupSelect({ enabled: isEditing })
 
-  const options: Option[] = useMemo(
-    () => [
-      { label: placeholder, value: UNASSIGNED },
-      ...(groupsData?.groups?.edges?.flatMap((edge) => (edge?.node?.id ? [{ label: edge.node.displayName || edge.node.name, value: edge.node.id }] : [])) ?? []),
-    ],
-    [groupsData, placeholder],
-  )
+  const options: Option[] = useMemo(() => [{ label: placeholder, value: UNASSIGNED }, ...groupOptions], [groupOptions, placeholder])
 
   const entityName = entity?.displayName
 

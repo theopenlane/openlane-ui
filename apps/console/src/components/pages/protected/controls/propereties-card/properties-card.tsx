@@ -7,7 +7,7 @@ import { ControlControlSource, type UpdateControlInput, type UpdateSubcontrolInp
 
 import { type Entity, type Group } from '@repo/codegen/src/schema'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
-import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { GLOBAL_ENUM_FIELD, useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { usePathname } from 'next/navigation'
@@ -86,8 +86,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
   const [editingField, setEditingField] = useState<string | null>(null)
   const isGroupEditing = editingField === 'owner' || editingField === 'delegate'
   const isResponsiblePartyEditing = editingField === 'responsibleParty'
-  const { data: groupsData } = useGetAllGroups({ where: {}, enabled: isEditing || isGroupEditing })
-  const groups = groupsData?.groups?.edges?.map((edge) => edge?.node) || []
+  const { groupOptions: options } = useGroupSelect({ enabled: isEditing || isGroupEditing })
 
   const { vendorNodes: vendors } = useVendorsWithFilter({
     enabled: isEditing || isResponsiblePartyEditing,
@@ -150,11 +149,6 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
     }
     prevIsEditingRef.current = isEditing
   }, [isEditing, data?.tags, handleUpdateAdapter, selectedTags])
-
-  const options: Option[] = groups.map((g) => ({
-    label: g?.displayName || g?.name || '',
-    value: g?.id || '',
-  }))
 
   const vendorOptions: Option[] = vendors.map((v) => ({
     label: v.displayName || v.name || '',

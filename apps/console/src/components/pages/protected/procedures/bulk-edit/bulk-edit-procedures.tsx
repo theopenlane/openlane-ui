@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, Dialo
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import { useGetGroupNames } from '@/lib/graphql-hooks/group'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
@@ -50,11 +50,7 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
     resolver: zodResolver(bulkEditFieldsSchema),
     defaultValues: defaultObject,
   })
-  const { data } = useGetAllGroups({ where: {} })
-  const groups = useMemo(() => {
-    if (!data) return
-    return data?.groups?.edges?.map((edge) => edge?.node) || []
-  }, [data])
+  const { groups, isSuccess: isGroupsSuccess } = useGetGroupNames()
   const {
     enumOptions,
     onCreateOption: createProcedureType,
@@ -65,9 +61,9 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
   })
 
   const unfilteredOptionSelects = useMemo(() => {
-    if (!groups || !isTypesSuccess) return []
-    return getAllSelectOptionsForBulkEditProcedures(groups?.filter((g): g is NonNullable<typeof g> => Boolean(g)) ?? [], enumOptions)
-  }, [groups, isTypesSuccess, enumOptions])
+    if (!isGroupsSuccess || !isTypesSuccess) return []
+    return getAllSelectOptionsForBulkEditProcedures(groups, enumOptions)
+  }, [groups, isTypesSuccess, enumOptions, isGroupsSuccess])
   const allOptionSelects = useModuleFilteredSelectOptions(unfilteredOptionSelects)
 
   const { control, handleSubmit } = form

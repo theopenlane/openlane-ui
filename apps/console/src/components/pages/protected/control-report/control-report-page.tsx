@@ -11,7 +11,7 @@ import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import { useGetGroupNames } from '@/lib/graphql-hooks/group'
 import ReportToolbar from './report-toolbar'
 import ReportBulkActionBar from './report-bulk-action-bar'
 import ReportVirtualList from './report-virtual-list'
@@ -251,8 +251,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     })
   }, [sortedData, where])
 
-  const { data: groupsData } = useGetAllGroups({ where: {}, enabled: true })
-  const groups = useMemo(() => (groupsData?.groups?.edges ?? []).map((e) => e?.node).filter((g): g is NonNullable<typeof g> => !!g), [groupsData])
+  const { groups } = useGetGroupNames({ enabled: isSelectionMode })
 
   const { selectedControlIds, selectedSubcontrolIds, toggleControlSelection, toggleSubcontrolSelection, batchSelectSubcontrols, setSelectionForCategory, clearSelection, handleBulkAction } =
     useReportSelection({ mappedControlIdsByControl })
