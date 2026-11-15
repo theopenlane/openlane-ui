@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { withPartialData } from '@/lib/graphql-partial-data'
 import { GET_FINDING_ASSOCIATIONS_TIMELINE } from '@repo/codegen/query/finding'
 import { GET_RISK_ASSOCIATIONS_TIMELINE } from '@repo/codegen/query/risk'
 import { GET_VULNERABILITY_ASSOCIATIONS_TIMELINE } from '@repo/codegen/query/vulnerability'
@@ -86,16 +87,18 @@ export const useFindingTimeline = (findingId?: string) => {
     queryKey: ['findingTimeline', findingId],
     enabled: !!findingId,
     staleTime: 0,
-    queryFn: async () =>
-      client.request<GetFindingAssociationsTimelineQuery, GetFindingAssociationsTimelineQueryVariables>(GET_FINDING_ASSOCIATIONS_TIMELINE, {
-        findingId: findingId as string,
-      }),
+    queryFn: () =>
+      withPartialData(
+        client.request<GetFindingAssociationsTimelineQuery, GetFindingAssociationsTimelineQueryVariables>(GET_FINDING_ASSOCIATIONS_TIMELINE, {
+          findingId: findingId as string,
+        }),
+      ),
   })
 }
 
 export const extractFindingTimelineNodes = (data: GetFindingAssociationsTimelineQuery | undefined): TimelineNode[] => {
-  if (!data) return []
-  const f = data.finding
+  const f = data?.finding
+  if (!f) return []
   return [
     ...extractNodes(f.controls as Connection, 'Control'),
     ...extractNodes(f.subcontrols as Connection, 'Subcontrol'),
@@ -115,16 +118,18 @@ export const useRiskTimeline = (riskId?: string) => {
     queryKey: ['riskTimeline', riskId],
     enabled: !!riskId,
     staleTime: 0,
-    queryFn: async () =>
-      client.request<GetRiskAssociationsTimelineQuery, GetRiskAssociationsTimelineQueryVariables>(GET_RISK_ASSOCIATIONS_TIMELINE, {
-        riskId: riskId as string,
-      }),
+    queryFn: () =>
+      withPartialData(
+        client.request<GetRiskAssociationsTimelineQuery, GetRiskAssociationsTimelineQueryVariables>(GET_RISK_ASSOCIATIONS_TIMELINE, {
+          riskId: riskId as string,
+        }),
+      ),
   })
 }
 
 export const extractRiskTimelineNodes = (data: GetRiskAssociationsTimelineQuery | undefined): TimelineNode[] => {
-  if (!data) return []
-  const r = data.risk
+  const r = data?.risk
+  if (!r) return []
   return [
     ...extractNodes(r.procedures as Connection, 'Procedure'),
     ...extractNodes(r.controls as Connection, 'Control'),
@@ -142,16 +147,18 @@ export const useVulnerabilityTimeline = (vulnerabilityId?: string) => {
     queryKey: ['vulnerabilityTimeline', vulnerabilityId],
     enabled: !!vulnerabilityId,
     staleTime: 0,
-    queryFn: async () =>
-      client.request<GetVulnerabilityAssociationsTimelineQuery, GetVulnerabilityAssociationsTimelineQueryVariables>(GET_VULNERABILITY_ASSOCIATIONS_TIMELINE, {
-        vulnerabilityId: vulnerabilityId as string,
-      }),
+    queryFn: () =>
+      withPartialData(
+        client.request<GetVulnerabilityAssociationsTimelineQuery, GetVulnerabilityAssociationsTimelineQueryVariables>(GET_VULNERABILITY_ASSOCIATIONS_TIMELINE, {
+          vulnerabilityId: vulnerabilityId as string,
+        }),
+      ),
   })
 }
 
 export const extractVulnerabilityTimelineNodes = (data: GetVulnerabilityAssociationsTimelineQuery | undefined): TimelineNode[] => {
-  if (!data) return []
-  const v = data.vulnerability
+  const v = data?.vulnerability
+  if (!v) return []
   return [
     ...extractNodes(v.controls as Connection, 'Control'),
     ...extractNodes(v.risks as Connection, 'Risk'),
@@ -168,10 +175,12 @@ export const useIdentityHolderTimeline = (identityHolderId?: string) => {
     queryKey: ['identityHolderTimeline', identityHolderId],
     enabled: !!identityHolderId,
     staleTime: 0,
-    queryFn: async () =>
-      client.request<GetIdentityHolderAssociationsTimelineQuery, GetIdentityHolderAssociationsTimelineQueryVariables>(GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE, {
-        identityHolderId: identityHolderId as string,
-      }),
+    queryFn: () =>
+      withPartialData(
+        client.request<GetIdentityHolderAssociationsTimelineQuery, GetIdentityHolderAssociationsTimelineQueryVariables>(GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE, {
+          identityHolderId: identityHolderId as string,
+        }),
+      ),
   })
 }
 
