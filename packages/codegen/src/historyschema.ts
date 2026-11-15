@@ -4984,7 +4984,10 @@ export interface GetIdentityHolderDirectoryAccountsQuery {
           mfaState: Types.DirectoryAccountDirectoryAccountMfaState
           directoryName: string | null
           sourceDefinitionID: string | null
+          sourceInstanceID: string | null
+          externalID: string
           managedBy: string | null
+          integration: { id: string } | null
           memberships: {
             totalCount: number
             edges: Array<{
