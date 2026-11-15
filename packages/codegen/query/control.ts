@@ -12,7 +12,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
     referenceID @include(if: $includeReferenceID)
     auditorReferenceID @include(if: $includeAuditorReferenceID)
     source @include(if: $includeSource)
-    sourceName @include(if: $includeSourceName)
+    controlOriginName @include(if: $includeControlOriginName)
     controlKindName @include(if: $includeControlKindName)
     title @include(if: $includeTitle)
     updatedAt @include(if: $includeUpdatedAt)
@@ -176,7 +176,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     references
     displayID
     source
-    sourceName
+    controlOriginName
     controlKindName
     publicRepresentation
     auditorReferenceID
@@ -298,7 +298,7 @@ export const GET_ALL_CONTROLS = gql`
     $includeReferenceID: Boolean = false
     $includeAuditorReferenceID: Boolean = false
     $includeSource: Boolean = false
-    $includeSourceName: Boolean = false
+    $includeControlOriginName: Boolean = false
     $includeControlKindName: Boolean = false
     $includeTitle: Boolean = false
     $includeCreatedAt: Boolean = false
@@ -954,7 +954,7 @@ export const GET_CONTROLS_FOR_IMPORT_PREVIEW = gql`
           implementationDescription
           publicRepresentation
           source
-          sourceName
+          controlOriginName
           category
           categoryID
           subcategory

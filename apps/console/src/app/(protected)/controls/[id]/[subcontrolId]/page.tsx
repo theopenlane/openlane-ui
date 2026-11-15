@@ -76,7 +76,6 @@ const initialDataObj = {
   status: SubcontrolControlStatus.NOT_IMPLEMENTED,
   mappedCategories: [],
   title: '',
-  sourceName: '',
   publicRepresentation: '',
 }
 
@@ -254,7 +253,7 @@ const ControlDetailsPage: React.FC = () => {
         auditorReferenceID: data.subcontrol.auditorReferenceID || undefined,
         title: data.subcontrol.title || '',
         publicRepresentation: data.subcontrol.publicRepresentation || '',
-        sourceName: data.subcontrol.sourceName || '',
+        controlOriginName: data.subcontrol.controlOriginName || undefined,
       }
 
       form.reset(newValues, { keepDirtyValues: true })

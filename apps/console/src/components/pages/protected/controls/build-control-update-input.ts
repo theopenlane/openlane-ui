@@ -17,7 +17,7 @@ export type TControlFormValues = {
   mappedCategories: string[]
   referenceID?: string
   auditorReferenceID?: string
-  sourceName?: string
+  controlOriginName?: string
 }
 
 type TSharedControlInput = UpdateControlInput & UpdateSubcontrolInput
@@ -46,5 +46,5 @@ export const buildControlUpdateFields = (isSourceFramework: boolean) =>
     mappedCategories: orClear('clearMappedCategories'),
     referenceID: orClear('clearReferenceID'),
     auditorReferenceID: orClear('clearAuditorReferenceID'),
-    sourceName: orClear('clearSourceName'),
+    controlOriginName: orClear('clearControlOriginName'),
   }) satisfies TFieldMappers<TControlFormValues, TSharedControlInput>

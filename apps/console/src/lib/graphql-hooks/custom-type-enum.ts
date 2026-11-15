@@ -36,6 +36,7 @@ export const GLOBAL_ENUM_FIELD = {
   encryptionStatus: 'encryption_status',
   securityTier: 'security_tier',
   criticality: 'criticality',
+  controlOrigin: 'control_origin',
 } as const
 
 export const FILE_CATEGORY_ENUM = { objectType: GLOBAL_ENUM_OBJECT_TYPE, field: 'category' } as const
