@@ -244,7 +244,7 @@ export default function CreateControlForm() {
       linkedFindingIdsRef.current.clear()
 
       if (createMultiple) {
-        resetAllExcept(['controlOwnerID', 'delegateID', 'category', 'subcategory', 'controlKindName', 'source', 'subcontrolKindName'])
+        resetAllExcept(['controlOwnerID', 'delegateID', 'category', 'subcategory', 'controlKindName', 'source', 'subcontrolKindName', 'controlOriginName'])
         successNotification({ title: 'Control created successfully' })
       } else if (newId && isCreateSubcontrol) {
         successNotification({ title: 'Control created successfully, redirecting...' })
@@ -322,6 +322,7 @@ export default function CreateControlForm() {
         controlOwnerID: controlData?.control.controlOwner?.id ?? undefined,
         delegateID: controlData?.control.delegate?.id ?? undefined,
         controlKindName: controlData?.control.controlKindName ?? undefined,
+        controlOriginName: controlData?.control.controlOriginName ?? undefined,
       })
       return setDataInitialized(true)
     }

@@ -77,7 +77,6 @@ const initialDataObj = {
   status: ControlControlStatus.NOT_IMPLEMENTED,
   mappedCategories: [],
   title: '',
-  sourceName: '',
   externalUUID: '',
   publicRepresentation: '',
 }
@@ -271,7 +270,7 @@ const ControlDetailsPage: React.FC = () => {
         title: data.control.title || '',
         controlKindName: data.control?.controlKindName || undefined,
         publicRepresentation: data.control.publicRepresentation || '',
-        sourceName: data.control.sourceName || '',
+        controlOriginName: data.control.controlOriginName || undefined,
         externalUUID: data.control.externalUUID || '',
       }
       form.reset(newValues, { keepDirtyValues: true })

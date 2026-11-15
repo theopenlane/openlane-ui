@@ -1495,7 +1495,7 @@ export type ControlListFieldsFragment = {
   referenceID?: string | null
   auditorReferenceID?: string | null
   source?: Types.ControlControlSource | null
-  sourceName?: string | null
+  controlOriginName?: string | null
   controlKindName?: string | null
   title?: string | null
   updatedAt?: any
@@ -1555,7 +1555,7 @@ export type ControlDetailsFieldsFragment = {
   references: Array<any> | null
   displayID: string
   source: Types.ControlControlSource | null
-  sourceName: string | null
+  controlOriginName: string | null
   controlKindName: string | null
   publicRepresentation: string | null
   auditorReferenceID: string | null
@@ -1617,7 +1617,7 @@ export type GetAllControlsQueryVariables = Exact<{
   includeReferenceID?: boolean | null | undefined
   includeAuditorReferenceID?: boolean | null | undefined
   includeSource?: boolean | null | undefined
-  includeSourceName?: boolean | null | undefined
+  includeControlOriginName?: boolean | null | undefined
   includeControlKindName?: boolean | null | undefined
   includeTitle?: boolean | null | undefined
   includeCreatedAt?: boolean | null | undefined
@@ -1655,7 +1655,7 @@ export interface GetAllControlsQuery {
         referenceID?: string | null
         auditorReferenceID?: string | null
         source?: Types.ControlControlSource | null
-        sourceName?: string | null
+        controlOriginName?: string | null
         controlKindName?: string | null
         title?: string | null
         updatedAt?: any
@@ -1706,7 +1706,7 @@ export interface GetControlByIdQuery {
     references: Array<any> | null
     displayID: string
     source: Types.ControlControlSource | null
-    sourceName: string | null
+    controlOriginName: string | null
     controlKindName: string | null
     publicRepresentation: string | null
     auditorReferenceID: string | null
@@ -2211,7 +2211,7 @@ export interface GetControlsForImportPreviewQuery {
         implementationDescription: string | null
         publicRepresentation: string | null
         source: Types.ControlControlSource | null
-        sourceName: string | null
+        controlOriginName: string | null
         category: string | null
         categoryID: string | null
         subcategory: string | null
@@ -9094,7 +9094,7 @@ export interface GetSubcontrolByIdQuery {
     references: Array<any> | null
     displayID: string
     source: Types.SubcontrolControlSource | null
-    sourceName: string | null
+    controlOriginName: string | null
     subcontrolKindName: string | null
     publicRepresentation: string | null
     auditorReferenceID: string | null
@@ -9228,7 +9228,7 @@ export interface GetSubcontrolsPaginatedQuery {
         status: Types.SubcontrolControlStatus | null
         subcontrolKindName: string | null
         source: Types.SubcontrolControlSource | null
-        sourceName: string | null
+        controlOriginName: string | null
         publicRepresentation: string | null
         category: string | null
         subcategory: string | null
@@ -9271,7 +9271,7 @@ export interface GetSubcontrolsByRefCodeQuery {
         status: Types.SubcontrolControlStatus | null
         subcontrolKindName: string | null
         source: Types.SubcontrolControlSource | null
-        sourceName: string | null
+        controlOriginName: string | null
         publicRepresentation: string | null
         category: string | null
         subcategory: string | null

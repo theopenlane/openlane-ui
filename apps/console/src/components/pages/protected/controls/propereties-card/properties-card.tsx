@@ -9,7 +9,7 @@ import { type Entity, type Group } from '@repo/codegen/src/schema'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
-import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { GLOBAL_ENUM_FIELD, useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { usePathname } from 'next/navigation'
 import { Property } from './fields/property'
 import { EditableSelect } from './fields/editable-select'
@@ -97,6 +97,11 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
     objectType: objectToSnakeCase(ObjectTypes.CONTROL),
     field: 'kind',
     isEditAllowed,
+  })
+
+  const { enumOptions: originOptions, onCreateOption: onCreateOriginOption } = useCreatableEnumOptions({
+    field: GLOBAL_ENUM_FIELD.controlOrigin,
+    isEditAllowed: canEdit,
   })
 
   const { tagOptions } = useGetTags()
@@ -252,19 +257,19 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           setActiveField={setEditingField}
           fieldId="source"
         />
-        {isEditing || (data?.sourceName && data.source !== 'FRAMEWORK') ? (
-          <ReferenceProperty
-            isEditAllowed={canEdit}
-            handleUpdate={handleUpdateAdapter}
-            name="sourceName"
-            label="Source Name"
-            tooltip="Source of the control if not from a framework, such as the name of the system it is imported from or if it is user defined"
-            value={data?.sourceName}
+        {isEditing || (data?.controlOriginName && !isSourceFramework) ? (
+          <EditableSelect
+            label="Origin"
+            name="controlOriginName"
             isEditing={isEditing}
+            isEditAllowed={canEdit}
+            options={originOptions}
+            onCreateOption={onCreateOriginOption}
+            clearKey="clearControlOriginName"
+            handleUpdate={handleUpdateAdapter}
             activeField={editingField}
             setActiveField={setEditingField}
-            fieldId="sourceName"
-            icon={controlIconsMap.Reference}
+            fieldId="controlOriginName"
           />
         ) : null}
         <EditableSelect

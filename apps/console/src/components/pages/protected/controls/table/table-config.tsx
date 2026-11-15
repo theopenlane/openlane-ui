@@ -27,14 +27,19 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 import { buildCustomStandardFilterWhere, CUSTOM_STANDARD_FILTER_OPTION, isCustomStandardFilter } from '@/components/shared/table-filter/custom-standard-filter'
 
-export const getControlsFilterFields = (
-  standardOptions: { value: string; label: string }[],
-  groups: { value: string; label: string }[],
-  programOptions: { value: string; label: string }[],
-  typeOptions: { value: string; label: string }[],
-  tagOptions: { value: string; label: string }[],
-  hasProgramAccess: boolean,
-) =>
+type TFilterOption = { value: string; label: string }
+
+type TControlsFilterFieldOptions = {
+  standardOptions: TFilterOption[]
+  groups: TFilterOption[]
+  programOptions: TFilterOption[]
+  typeOptions: TFilterOption[]
+  originOptions: TFilterOption[]
+  tagOptions: TFilterOption[]
+  hasProgramAccess: boolean
+}
+
+export const getControlsFilterFields = ({ standardOptions, groups, programOptions, typeOptions, originOptions, tagOptions, hasProgramAccess }: TControlsFilterFieldOptions) =>
   defineFilterFields<ControlWhereInput>()([
     { key: 'refCodeContainsFold', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
     { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
@@ -98,7 +103,13 @@ export const getControlsFilterFields = (
       icon: FilterIcons.Tag,
       options: tagOptions,
     },
-    { key: 'sourceNameContainsFold', label: 'Source Name', type: 'text', icon: FilterIcons.Source },
+    {
+      key: 'controlOriginNameIn',
+      label: 'Origin',
+      type: 'multiselect',
+      options: originOptions,
+      icon: FilterIcons.Source,
+    },
   ])
 
 export const CONTROLS_SORT_FIELDS = [
@@ -122,7 +133,7 @@ export type ControlIncludeVar =
   | 'includeReferenceID'
   | 'includeAuditorReferenceID'
   | 'includeSource'
-  | 'includeSourceName'
+  | 'includeControlOriginName'
   | 'includeControlKindName'
   | 'includeTitle'
   | 'includeCreatedAt'
@@ -149,9 +160,10 @@ type Params = {
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
   enumOptions: CustomTypeEnumOption[]
+  originOptions: CustomTypeEnumOption[]
 }
 
-export const getControlColumns = ({ convertToReadOnly, userMap, tokenMap, selectedControls, setSelectedControls, enumOptions }: Params): ColumnDef<ControlListFieldsFragment>[] => {
+export const getControlColumns = ({ convertToReadOnly, userMap, tokenMap, selectedControls, setSelectedControls, enumOptions, originOptions }: Params): ColumnDef<ControlListFieldsFragment>[] => {
   const toggleSelection = (control: { id: string; refCode: string }) => {
     setSelectedControls((prev) => {
       const exists = prev.some((c) => c.id === control.id)
@@ -328,13 +340,17 @@ export const getControlColumns = ({ convertToReadOnly, userMap, tokenMap, select
       cell: ({ row }) => <div>{row.getValue('source') || '-'}</div>,
     },
     {
-      header: 'Source Name',
-      accessorKey: 'sourceName',
+      header: 'Origin',
+      accessorKey: 'controlOriginName',
       size: 120,
       meta: {
-        gqlInclude: ['includeSourceName'] satisfies ControlIncludeVar[],
+        gqlInclude: ['includeControlOriginName'] satisfies ControlIncludeVar[],
       },
-      cell: ({ row }) => <div>{row.getValue('sourceName') || '-'}</div>,
+      cell: ({ row }) => (
+        <div>
+          <CustomTypeEnumValue value={row.original.controlOriginName ?? ''} options={originOptions} placeholder="-" />
+        </div>
+      ),
     },
     {
       header: 'Control Type',

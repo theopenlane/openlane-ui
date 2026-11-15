@@ -19,6 +19,7 @@ import {
   Shapes,
   Stamp,
   ThumbsUp,
+  MapPin,
 } from 'lucide-react'
 import { type ControlControlSource, ControlControlStatus, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
 import { getEnumLabel } from './common-enum'
@@ -137,4 +138,5 @@ export const controlIconsMap: Record<string, React.ReactNode> = {
   ID: <IdCard size={16} className="text-brand" />,
   Reference: <BookMarked size={16} className="text-brand" />,
   Alias: <CaseSensitive size={16} className="text-brand" />,
+  Origin: <MapPin size={16} />,
 }

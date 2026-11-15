@@ -11,7 +11,6 @@ import { Controller, useFormContext } from 'react-hook-form'
 const REFERENCE_CLEAR_KEYS = {
   referenceID: 'clearReferenceID',
   auditorReferenceID: 'clearAuditorReferenceID',
-  sourceName: 'clearSourceName',
   externalUUID: 'clearExternalUUID',
 } as const
 

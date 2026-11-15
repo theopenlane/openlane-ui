@@ -24,7 +24,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeleteControls } from '@/lib/graphql-hooks/control'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { GLOBAL_ENUM_FIELD, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useOrganization } from '@/hooks/useOrganization'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -119,15 +119,32 @@ const ControlsTableToolbar: React.FC<TProps> = ({
       field: 'kind',
     },
   })
+  const { enumOptions: originOptions, isSuccess: isOriginsSuccess } = useGetCustomTypeEnums({
+    where: { field: GLOBAL_ENUM_FIELD.controlOrigin },
+  })
   const { tagOptions: rawTagOptions } = useGetTags()
   const tagOptions = useMemo(() => rawTagOptions ?? [], [rawTagOptions])
   useEffect(() => {
-    if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess || !isTypesSuccess) {
+    if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess || !isTypesSuccess || !isOriginsSuccess) {
       return
     }
-    const fields = getControlsFilterFields(standardOptions, groups, programOptions, enumOptions, tagOptions, hasProgramAccess)
+    const fields = getControlsFilterFields({ standardOptions, groups, programOptions, typeOptions: enumOptions, originOptions, tagOptions, hasProgramAccess })
     setFilterFields(fields)
-  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, hasProgramAccess, standardOptions, isStandardSuccess, enumOptions, isTypesSuccess, tagOptions])
+  }, [
+    groups,
+    programOptions,
+    filterFields,
+    isGroupSuccess,
+    isProgramSuccess,
+    hasProgramAccess,
+    standardOptions,
+    isStandardSuccess,
+    enumOptions,
+    isTypesSuccess,
+    originOptions,
+    isOriginsSuccess,
+    tagOptions,
+  ])
 
   const handleBulkDelete = async () => {
     if (!selectedControls) {

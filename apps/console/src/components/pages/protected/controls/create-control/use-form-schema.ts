@@ -18,6 +18,7 @@ export const controlFormSchema = z.object({
   source: z.enum(ControlControlSource).optional(),
   controlKindName: z.string().optional(),
   subcontrolKindName: z.string().optional(),
+  controlOriginName: z.string().optional(),
   referenceID: z.string().optional(),
   auditorReferenceID: z.string().optional(),
   desiredOutcome: z.custom<Value>().optional(),
