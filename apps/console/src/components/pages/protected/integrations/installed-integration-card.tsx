@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Activity, ExternalLink, FileSearch, Hash, Send, Settings, SlidersHorizontal } from 'lucide-react'
+import Link from 'next/link'
+import { Activity, ChartLine, ExternalLink, FileSearch, Hash, Send, Settings, SlidersHorizontal } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
@@ -21,6 +22,8 @@ import {
 } from '@/lib/integrations/flow'
 import { useDisconnectIntegration, useIntegrationHealthCheck } from '@/lib/query-hooks/integrations'
 import { integrationHealthBadge, isOperableIntegration } from '@/lib/integrations/health'
+import { RUN_STRIP_LENGTH, attentionOperations, buildOperationHealth, integrationHealthHref, monitoredOperationKeys, newestRunsAcross } from '@/lib/integrations/run-health'
+import { useOperationRunStrips } from '@/lib/graphql-hooks/integration-run'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
@@ -33,17 +36,19 @@ import SelectedResourcesSection from './selected-resources-section'
 import DefaultChannelDialog from './default-channel-dialog'
 import DefaultChannelSection from './default-channel-section'
 import { useResourcePicker } from './use-resource-picker'
+import InstalledRunSummary from './health/installed-run-summary'
 
 type InstalledIntegrationCardProps = {
   integration: IntegrationNode
   providers: IntegrationProvider[]
-  canManage: boolean
+  canEdit: boolean
+  canRunOperations: boolean
   // Shows a "Manage Connections" button linking to the provider detail page
   // on provider detail page it shows configure instead
   linkToDetail?: boolean
 }
 
-const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDetail }: InstalledIntegrationCardProps) => {
+const InstalledIntegrationCard = ({ integration, providers, canEdit, canRunOperations, linkToDetail }: InstalledIntegrationCardProps) => {
   const router = useRouter()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
@@ -79,7 +84,20 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
 
   const disconnectMutation = useDisconnectIntegration()
   const healthCheck = useIntegrationHealthCheck()
-  const healthStatus = integrationHealthBadge(integration.status, health, healthCheck.isPending)
+  const operationKeys = useMemo(() => (provider ? monitoredOperationKeys(provider, integration) : []), [provider, integration])
+  const { runsByKey, isPending: recentRunsPending } = useOperationRunStrips(operationKeys)
+  const recentRuns = useMemo(() => newestRunsAcross(runsByKey, RUN_STRIP_LENGTH), [runsByKey])
+  const failingOperations = useMemo(() => attentionOperations(buildOperationHealth(provider, integration, runsByKey)).map((operation) => operation.name), [provider, integration, runsByKey])
+  const healthStatus = integrationHealthBadge(integration.status, health, { failingOperations, isChecking: healthCheck.isPending })
+  const healthHref = provider ? integrationHealthHref(provider.id) : undefined
+  const healthBadge = <Badge variant={healthStatus.variant}>{healthStatus.label}</Badge>
+  const healthBadgeTrigger = healthHref ? (
+    <Link href={healthHref} aria-label={`${healthStatus.label}. View ${displayName} health`} className="inline-flex *:pointer-events-none">
+      {healthBadge}
+    </Link>
+  ) : (
+    <span className="inline-flex">{healthBadge}</span>
+  )
 
   const { userMap, tokenMap } = useAuthorMaps([integration.createdBy])
 
@@ -111,19 +129,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
             ) : null}
             {integration.primaryDirectory ? <Badge variant="blue">Primary Directory</Badge> : null}
             {isPrimaryDocument ? <Badge variant="blue">Primary Document</Badge> : null}
-            {healthStatus.summary ? (
-              <SystemTooltip
-                portal
-                icon={
-                  <span className="inline-flex">
-                    <Badge variant={healthStatus.variant}>{healthStatus.label}</Badge>
-                  </span>
-                }
-                content={<span className="whitespace-pre-line">{healthStatus.summary}</span>}
-              />
-            ) : (
-              <Badge variant={healthStatus.variant}>{healthStatus.label}</Badge>
-            )}
+            {healthStatus.summary ? <SystemTooltip portal icon={healthBadgeTrigger} content={<span className="whitespace-pre-line">{healthStatus.summary}</span>} /> : healthBadgeTrigger}
           </div>
         </div>
 
@@ -137,6 +143,10 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
           ) : null}
           {lastHealthCheck ? <p className="text-xs text-muted-foreground">Last health check: {formatTimeSince(lastHealthCheck)}</p> : null}
         </div>
+
+        {provider ? (
+          <InstalledRunSummary newestFirstRuns={recentRuns} failingOperations={failingOperations} isLoading={operationKeys.length > 0 && recentRunsPending} providerId={provider.id} />
+        ) : null}
 
         {/* Metrics row */}
         <div className="flex items-center">
@@ -161,7 +171,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
         {supportsResourcePicker ? (
           <SelectedResourcesSection
             resources={readSelectedResources(integration)}
-            canRemove={canManage}
+            canRemove={canEdit}
             isBusy={resourcePicker.isBusy}
             onRemove={(resourceId) => resourcePicker.removeResource(integration, resourceId)}
           />
@@ -176,26 +186,31 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
               Manage Connections
             </Button>
           ) : null}
-          {canManage ? (
+          {healthHref ? (
+            <Button asChild variant="secondary" icon={<ChartLine className="size-4" />} iconPosition="left">
+              <Link href={healthHref}>View Health</Link>
+            </Button>
+          ) : null}
+          {canEdit ? (
             <Button variant="secondary" icon={<Activity className="size-4" />} iconPosition="left" onClick={() => healthCheck.mutate(integration.id)} disabled={healthCheck.isPending}>
               {healthCheck.isPending ? 'Checking...' : 'Health Check'}
             </Button>
           ) : null}
-          {canManage && supportsTestMessage ? (
+          {canRunOperations && supportsTestMessage ? (
             <DisabledReasonTooltip reason={testMessageDisabledReason}>
               <Button variant="secondary" full icon={<Send className="size-4" />} iconPosition="left" onClick={() => setTestMessageOpen(true)} disabled={!!testMessageDisabledReason}>
                 Send Test Message
               </Button>
             </DisabledReasonTooltip>
           ) : null}
-          {canManage && supportsDefaultChannel ? (
+          {canEdit && supportsDefaultChannel ? (
             <DisabledReasonTooltip reason={defaultChannelDisabledReason}>
               <Button variant="secondary" full icon={<Hash className="size-4" />} iconPosition="left" onClick={() => setDefaultChannelOpen(true)} disabled={!!defaultChannelDisabledReason}>
                 {defaultChannel ? 'Change Default Channel' : 'Set Default Channel'}
               </Button>
             </DisabledReasonTooltip>
           ) : null}
-          {canManage && supportsResourcePicker ? (
+          {canEdit && supportsResourcePicker ? (
             <DisabledReasonTooltip reason={chooseDocumentsDisabledReason}>
               <Button
                 variant="secondary"
@@ -209,7 +224,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
               </Button>
             </DisabledReasonTooltip>
           ) : null}
-          {!linkToDetail && canManage && hasSettings ? (
+          {!linkToDetail && canEdit && hasSettings ? (
             <Button variant="secondary" icon={<Settings className="size-4" />} iconPosition="left" onClick={() => setConfigOpen(true)}>
               Configure
             </Button>
@@ -219,7 +234,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
               Manage Installation
             </Button>
           ) : null}
-          {canManage ? (
+          {canEdit ? (
             <Button variant="secondary" onClick={() => setConfirmOpen(true)} disabled={disconnectMutation.isPending}>
               {disconnectMutation.isPending ? 'Disconnecting...' : 'Disconnect'}
             </Button>
@@ -239,7 +254,15 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
       />
 
       {supportsTestMessage ? (
-        <SendTestMessageDialog open={testMessageOpen} onOpenChange={setTestMessageOpen} integrationId={integration.id} providerName={displayName} defaultChannel={defaultChannel} provider={provider} />
+        <SendTestMessageDialog
+          open={testMessageOpen}
+          onOpenChange={setTestMessageOpen}
+          integrationId={integration.id}
+          providerName={displayName}
+          defaultChannel={defaultChannel}
+          provider={provider}
+          canSaveDefaultChannel={canEdit}
+        />
       ) : null}
 
       {supportsDefaultChannel ? (
