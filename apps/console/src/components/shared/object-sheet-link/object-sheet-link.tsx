@@ -5,6 +5,7 @@ import { Link, LINK_CLASS_NAME } from '@/components/shared/link/link'
 import { cn } from '@repo/ui/lib/utils'
 import { type ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import { isModifiedClick } from '@/utils/mouse-event'
 
 type TObjectSheetLinkProps = {
   id: string
@@ -25,7 +26,7 @@ const ObjectSheetLink: React.FC<TObjectSheetLinkProps> = ({ id, kind, label, onO
   }
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+    if (isModifiedClick(event)) {
       return
     }
 

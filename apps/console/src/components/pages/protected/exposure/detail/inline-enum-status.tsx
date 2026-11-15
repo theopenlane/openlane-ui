@@ -16,7 +16,7 @@ type TInlineEnumStatusProps = {
 
 export const InlineEnumStatus: React.FC<TInlineEnumStatusProps> = ({ objectType, value, isEditing, canEdit, onSave }) => {
   const [isInlineEditing, setIsInlineEditing] = useState(false)
-  const { enumOptions, onCreateOption } = useCreatableEnumOptions({ objectType, field: 'status' })
+  const { enumOptions, onCreateOption, isPending } = useCreatableEnumOptions({ objectType, field: 'status' })
   const startInlineEdit = () => {
     if (canEdit && !isEditing) setIsInlineEditing(true)
   }
@@ -43,7 +43,7 @@ export const InlineEnumStatus: React.FC<TInlineEnumStatusProps> = ({ objectType,
   return (
     <HoverPencilWrapper showPencil={canEdit && !isEditing} onPencilClick={startInlineEdit} pencilAriaLabel="Edit status">
       <div onDoubleClick={startInlineEdit} className="flex min-h-6 items-center">
-        <CustomTypeEnumValue value={value ?? undefined} options={enumOptions} placeholder={value?.trim() || 'Unknown'} />
+        <CustomTypeEnumValue value={value ?? undefined} options={enumOptions} placeholder={isPending ? undefined : 'Unknown'} showUnmatchedValue={!isPending} />
       </div>
     </HoverPencilWrapper>
   )
