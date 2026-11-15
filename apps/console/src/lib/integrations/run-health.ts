@@ -195,7 +195,7 @@ export const summarizeRunError = (error?: string | null): TRunErrorSummary | und
   }
 }
 
-export type TOperationHealthState = 'healthy' | 'partial' | 'failing' | 'stopped' | 'no-runs' | 'unknown' | 'disabled' | 'unavailable'
+export type TOperationHealthState = 'healthy' | 'partial' | 'failing' | 'stopped' | 'no-runs' | 'unknown' | 'disabled'
 
 type TOperationHealthMeta = {
   label: string
@@ -203,17 +203,17 @@ type TOperationHealthMeta = {
   dotClassName: string
   needsAttention: boolean
   isEnabled: boolean
+  rank: number
 }
 
 export const OPERATION_HEALTH_META: Record<TOperationHealthState, TOperationHealthMeta> = {
-  healthy: { label: 'Healthy', variant: 'green', dotClassName: 'bg-success', needsAttention: false, isEnabled: true },
-  partial: { label: 'Partial', variant: 'warning', dotClassName: 'bg-warning', needsAttention: false, isEnabled: true },
-  failing: { label: 'Failing', variant: 'red', dotClassName: 'bg-destructive', needsAttention: true, isEnabled: true },
-  stopped: { label: 'Stopped', variant: 'red', dotClassName: 'bg-destructive', needsAttention: true, isEnabled: true },
-  'no-runs': { label: 'No runs yet', variant: 'outline', dotClassName: NEUTRAL_OUTCOME_STYLE.barClassName, needsAttention: false, isEnabled: true },
-  unknown: { label: 'Runs unavailable', variant: 'outline', dotClassName: NEUTRAL_OUTCOME_STYLE.barClassName, needsAttention: false, isEnabled: true },
-  disabled: { label: 'Not enabled', variant: 'secondary', dotClassName: NEUTRAL_OUTCOME_STYLE.barClassName, needsAttention: false, isEnabled: false },
-  unavailable: { label: 'Coming soon', variant: 'secondary', dotClassName: NEUTRAL_OUTCOME_STYLE.barClassName, needsAttention: false, isEnabled: false },
+  healthy: { label: 'Healthy', variant: 'green', dotClassName: 'bg-success', needsAttention: false, isEnabled: true, rank: 5 },
+  partial: { label: 'Partial', variant: 'warning', dotClassName: 'bg-warning', needsAttention: false, isEnabled: true, rank: 2 },
+  failing: { label: 'Failing', variant: 'red', dotClassName: 'bg-destructive', needsAttention: true, isEnabled: true, rank: 1 },
+  stopped: { label: 'Stopped', variant: 'red', dotClassName: 'bg-destructive', needsAttention: true, isEnabled: true, rank: 0 },
+  'no-runs': { label: 'No runs yet', variant: 'outline', dotClassName: NEUTRAL_OUTCOME_STYLE.barClassName, needsAttention: false, isEnabled: true, rank: 4 },
+  unknown: { label: 'Runs unavailable', variant: 'outline', dotClassName: NEUTRAL_OUTCOME_STYLE.barClassName, needsAttention: false, isEnabled: true, rank: 3 },
+  disabled: { label: 'Not enabled', variant: 'secondary', dotClassName: NEUTRAL_OUTCOME_STYLE.barClassName, needsAttention: false, isEnabled: false, rank: 6 },
 }
 
 export type TOperationHealth = {
@@ -232,8 +232,10 @@ export type TOperationHealth = {
 
 const OUTCOME_STATE: Partial<Record<TRunOutcome, TOperationHealthState>> = { failed: 'failing', partial: 'partial' }
 
-const operationState = (availability: TOperationAvailability, stoppedReason: string | undefined, finishedRuns: TIntegrationRunSummary[] | undefined): TOperationHealthState => {
-  if (availability !== 'enabled') return availability
+type TAvailableOperation = { name: string; availability: Exclude<TOperationAvailability, 'unavailable'> }
+
+const operationState = (availability: TAvailableOperation['availability'], stoppedReason: string | undefined, finishedRuns: TIntegrationRunSummary[] | undefined): TOperationHealthState => {
+  if (availability === 'disabled') return 'disabled'
   if (stoppedReason) return 'stopped'
   if (!finishedRuns) return 'unknown'
 
@@ -250,40 +252,47 @@ export const operationRunsKey = (integrationId: string, operationName: string): 
 
 type TOperationHealthSource = Pick<IntegrationNode, 'id' | 'operationConfig' | 'health'>
 
+const availableRecurringOperations = (provider: IntegrationProvider | undefined, integration: TOperationHealthSource): TAvailableOperation[] =>
+  recurringOperationNames(provider).flatMap((name) => {
+    const availability = operationAvailability(provider, integration, name)
+
+    return availability === 'unavailable' ? [] : [{ name, availability }]
+  })
+
 export type TRunsByOperation = Record<string, TIntegrationRunSummary[] | undefined>
 
 export const buildOperationHealth = (provider: IntegrationProvider | undefined, integration: TOperationHealthSource, runsByKey: TRunsByOperation): TOperationHealth[] => {
   const health: IntegrationHealth | undefined = integration.health ?? undefined
 
-  return recurringOperationNames(provider).map((name) => {
-    const key = operationRunsKey(integration.id, name)
-    const loadedRuns = runsByKey[key]
-    const newestFirstRuns = loadedRuns ?? []
-    const finishedRuns = newestFirstRuns.filter((run) => runOutcomeMeta(run).isFinished)
-    const firstNonFailure = finishedRuns.findIndex((run) => runOutcome(run) !== 'failed')
-    const failureStreak = firstNonFailure === -1 ? finishedRuns.length : firstNonFailure
-    const stoppedReason = health?.unhealthyOperations?.[name]
+  return availableRecurringOperations(provider, integration)
+    .map(({ name, availability }) => {
+      const key = operationRunsKey(integration.id, name)
+      const loadedRuns = runsByKey[key]
+      const newestFirstRuns = loadedRuns ?? []
+      const finishedRuns = newestFirstRuns.filter((run) => runOutcomeMeta(run).isFinished)
+      const firstNonFailure = finishedRuns.findIndex((run) => runOutcome(run) !== 'failed')
+      const failureStreak = firstNonFailure === -1 ? finishedRuns.length : firstNonFailure
+      const stoppedReason = health?.unhealthyOperations?.[name]
 
-    return {
-      key,
-      integrationId: integration.id,
-      name,
-      description: provider?.operations?.find((operation) => operation.name === name)?.description,
-      state: operationState(operationAvailability(provider, integration, name), stoppedReason, loadedRuns ? finishedRuns : undefined),
-      newestFirstRuns,
-      latestFinishedRun: finishedRuns[0],
-      lastSuccess: finishedRuns.find((run) => run.status === IntegrationRunIntegrationRunStatus.SUCCESS),
-      failureStreak,
-      isStreakCapped: failureStreak > 0 && failureStreak === finishedRuns.length && newestFirstRuns.length >= RUN_STRIP_LENGTH,
-      stoppedReason,
-    }
-  })
+      return {
+        key,
+        integrationId: integration.id,
+        name,
+        description: provider?.operations?.find((operation) => operation.name === name)?.description,
+        state: operationState(availability, stoppedReason, loadedRuns ? finishedRuns : undefined),
+        newestFirstRuns,
+        latestFinishedRun: finishedRuns[0],
+        lastSuccess: finishedRuns.find((run) => run.status === IntegrationRunIntegrationRunStatus.SUCCESS),
+        failureStreak,
+        isStreakCapped: failureStreak > 0 && failureStreak === finishedRuns.length && newestFirstRuns.length >= RUN_STRIP_LENGTH,
+        stoppedReason,
+      }
+    })
+    .sort((a, b) => OPERATION_HEALTH_META[a.state].rank - OPERATION_HEALTH_META[b.state].rank)
 }
 
 export const monitoredOperationKeys = (provider: IntegrationProvider | undefined, integration: TOperationHealthSource): Array<{ integrationId: string; operationName: string }> =>
-  recurringOperationNames(provider)
-    .filter((operationName) => operationAvailability(provider, integration, operationName) !== 'unavailable')
-    .map((operationName) => ({ integrationId: integration.id, operationName }))
+  availableRecurringOperations(provider, integration).map(({ name }) => ({ integrationId: integration.id, operationName: name }))
 
 export const newestRunsAcross = (runsByKey: TRunsByOperation, limit: number): TIntegrationRunSummary[] =>
   Object.values(runsByKey)
