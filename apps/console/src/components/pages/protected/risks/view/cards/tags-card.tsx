@@ -81,7 +81,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
         {/* Label */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
-            <Tag size={16} className="text-brand" />
+            <Tag size={16} />
             <span className="text-sm">Tags</span>
           </div>
         </div>

@@ -55,7 +55,7 @@ export const useGetCustomEnumColumns = ({ onEdit, onDelete, userMap, tokenMap, c
 
         const trigger = (
           <Button className="-mr-2" variant="secondary" disabled={isSystem} aria-label={`Enum actions for ${row.original.name}`}>
-            <MoreHorizontal className="h-4 w-4 text-brand" />
+            <MoreHorizontal className="h-4 w-4" />
           </Button>
         )
 

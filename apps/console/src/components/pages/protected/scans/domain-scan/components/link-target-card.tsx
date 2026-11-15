@@ -43,7 +43,7 @@ export const LinkTargetCard = ({ target, kind, vendors, assets, defaultVendorIds
           : 'Nothing is linked by default, check the vendors and assets that belong here.'
       }
       collapsible
-      className={kind === 'platform' ? 'border-l-4 border-l-brand' : 'border-l-4 border-l-border'}
+      className={kind === 'platform' ? 'border-l-4' : 'border-l-4 border-l-border'}
     >
       {vendors.length > 0 ? (
         <div className="px-6 py-3">

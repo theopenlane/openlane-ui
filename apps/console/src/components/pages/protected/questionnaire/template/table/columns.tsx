@@ -151,7 +151,7 @@ export const getTemplateColumns = (params?: Params) => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" aria-label="Row actions">
-                  <MoreHorizontal className="h-4 w-4 text-brand" />
+                  <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-40">

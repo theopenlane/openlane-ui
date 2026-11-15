@@ -234,7 +234,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary">
-                  <MoreHorizontal className="h-4 w-4 text-brand" />
+                  <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-40">

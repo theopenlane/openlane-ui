@@ -162,7 +162,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
         <AuthorityField
           label="Owner"
           fieldKey="controlOwnerID"
-          icon={<CircleUser size={16} className="text-brand" />}
+          icon={<CircleUser size={16} />}
           value={data?.controlOwner as Group}
           editingKey="owner"
           isEditing={isEditing}
@@ -176,7 +176,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
         <AuthorityField
           label="Delegate"
           fieldKey="delegateID"
-          icon={<CircleArrowRight size={16} className="text-brand" />}
+          icon={<CircleArrowRight size={16} />}
           value={data?.delegate as Group}
           editingKey="delegate"
           isEditing={isEditing}
@@ -192,7 +192,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           <AuthorityField
             label="Responsible Party"
             fieldKey="responsiblePartyID"
-            icon={<Building2 size={16} className="text-brand" />}
+            icon={<Building2 size={16} />}
             value={data?.responsibleParty as Entity}
             editingKey="responsibleParty"
             isEditing={isEditing}
@@ -329,7 +329,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           <div className="min-w-40">
             <div className="grid grid-cols-[1fr_auto] items-center gap-2">
               <div className="flex gap-2 items-center">
-                <Tag size={16} className="text-brand" />
+                <Tag size={16} />
                 <span className="text-sm">Tags</span>
               </div>
             </div>

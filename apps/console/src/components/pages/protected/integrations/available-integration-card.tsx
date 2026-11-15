@@ -48,7 +48,7 @@ const AvailableIntegrationCard = ({ integration, canEdit }: AvailableIntegration
         ) : null
       }
       footer={
-        <Button className="w-full text-brand" variant="secondary" onClick={handleClick} disabled={isComingSoon}>
+        <Button className="w-full" variant="secondary" onClick={handleClick} disabled={isComingSoon}>
           {isComingSoon ? 'Coming Soon' : canEdit && integration.installedCount > 0 ? 'Manage' : 'View'}
         </Button>
       }

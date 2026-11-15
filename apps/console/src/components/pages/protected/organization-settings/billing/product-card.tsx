@@ -80,7 +80,7 @@ export function ProductCard({
           <span>
             Annual: {'$'}
             {yearly.unit_amount / 100}
-            {savingPct > 0 && <span className="text-brand"> (save {savingPct}%)</span>}
+            {savingPct > 0 && <span> (save {savingPct}%)</span>}
           </span>
         )}
       </div>
@@ -96,10 +96,7 @@ export function ProductCard({
             <div className="flex justify-between w-full">
               <div className="flex gap-1 items-center">
                 <p className="text-xl font-medium ">{product.display_name}</p>
-                <SystemTooltip
-                  icon={<InfoIcon size={14} className="text-brand-100" />}
-                  content={<div className="flex flex-col gap-1 text-sm text-text-informational">{renderPriceOptions(product.billing.prices)}</div>}
-                />
+                <SystemTooltip icon={<InfoIcon size={14} />} content={<div className="flex flex-col gap-1 text-sm text-text-informational">{renderPriceOptions(product.billing.prices)}</div>} />
               </div>
               <div className="flex gap-5 items-center">
                 <p>

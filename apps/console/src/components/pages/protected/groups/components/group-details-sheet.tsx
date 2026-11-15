@@ -277,17 +277,11 @@ const GroupDetailsSheet = () => {
                   </Card>
 
                   <div className="mt-9 flex">
-                    <p
-                      className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer ${activeTab === 'Members' ? 'border-brand text-brand' : ''}`}
-                      {...activatable(() => setActiveTab('Members'))}
-                    >
+                    <p className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer`} {...activatable(() => setActiveTab('Members'))}>
                       Members
                     </p>
 
-                    <p
-                      className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer ${activeTab === 'RolesAndPermissions' ? 'border-brand text-brand' : ''}`}
-                      {...activatable(() => setActiveTab('RolesAndPermissions'))}
-                    >
+                    <p className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer`} {...activatable(() => setActiveTab('RolesAndPermissions'))}>
                       Roles and Permissions
                     </p>
                   </div>
@@ -299,7 +293,7 @@ const GroupDetailsSheet = () => {
                         <GroupRolesTable />
                         <div className="flex flex-col gap-3">
                           <div className="flex items-center gap-2">
-                            <ShieldHalf width={16} height={16} className="text-brand" />
+                            <ShieldHalf width={16} height={16} />
                             <div>
                               <p className="font-semibold">Permissions</p>
                               <p className="text-xs text-text-light">Specific access permissions this group has.</p>

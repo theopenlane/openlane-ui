@@ -152,7 +152,7 @@ const GroupsMembersTable = () => {
             disabled={!!isManaged || !canEdit(permission?.roles, session) || isDeleting}
             type="button"
             onClick={() => handleDelete(user.id)}
-            className={`text-brand flex justify-end mt-2.5 ${isManaged || !canEdit(permission?.roles, session) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            className={`flex justify-end mt-2.5 ${isManaged || !canEdit(permission?.roles, session) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <Trash2 className="h-5 w-5" />
           </button>

@@ -35,7 +35,7 @@ const VulnRow: React.FC<{ vuln: TriageVuln; isSelected: boolean; onSelect: (id: 
     <button
       type="button"
       onClick={() => onSelect(vuln.id)}
-      className={`flex w-full items-center gap-3 border-l-2 px-3 py-2.5 text-left transition-colors ${isSelected ? 'border-brand bg-muted' : 'border-transparent hover:bg-muted/60'}`}
+      className={`flex w-full items-center gap-3 border-l-2 px-3 py-2.5 text-left transition-colors ${isSelected ? 'bg-muted' : 'border-transparent hover:bg-muted/60'}`}
     >
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-sm font-semibold" style={getSeverityStyle(severityLabel)}>
         {typeof vuln.score === 'number' ? vuln.score.toFixed(1) : '—'}
@@ -81,9 +81,7 @@ const TriageListRail: React.FC<Props> = ({ groups, counts, search, onSearchChang
               key={chip.key}
               type="button"
               onClick={() => onFacetChange(chip.key)}
-              className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-                facet === chip.key ? 'border-brand bg-brand/10 text-brand' : 'border-border text-muted-foreground hover:bg-muted'
-              }`}
+              className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${facet === chip.key ? '' : 'border-border text-muted-foreground hover:bg-muted'}`}
             >
               {chip.label}
             </button>

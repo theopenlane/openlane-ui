@@ -71,7 +71,7 @@ const StatCard: React.FC<StatCardProps> = ({ stat, count, total, programId }) =>
           </Tooltip>
           {total === 0 ? (
             <div className="flex items-center gap-2 justify-start mt-5 ">
-              <Hourglass size={24} strokeWidth={1} className="text-brand" />
+              <Hourglass size={24} strokeWidth={1} />
               <span>No data...</span>
             </div>
           ) : (

@@ -50,7 +50,7 @@ const Section: React.FC<TSectionProps> = ({ value, icon, title, description, chi
           <span className="text-accent-secondary">{icon}</span>
           <span className="text-sm font-medium">{title}</span>
         </div>
-        <ChevronDown size={18} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
+        <ChevronDown size={18} className="transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
       </div>
     </AccordionTrigger>
     <AccordionContent>

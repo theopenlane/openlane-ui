@@ -69,7 +69,7 @@ const ReportCategoryHeader: React.FC<ReportCategoryHeaderProps> = ({ category, c
       <div className="px-4 py-3 space-y-3">
         <div className="flex justify-between items-center">
           <button type="button" className="size-fit group flex items-center gap-2 min-w-0" onClick={onToggleOpen}>
-            <ChevronDown size={22} className={`text-brand transition-transform shrink-0 ${isOpen ? '' : '-rotate-90'}`} />
+            <ChevronDown size={22} className={`transition-transform shrink-0 ${isOpen ? '' : '-rotate-90'}`} />
             <span className="text-xl">{category || 'General'}</span>
           </button>
           <div className="flex items-center gap-4">

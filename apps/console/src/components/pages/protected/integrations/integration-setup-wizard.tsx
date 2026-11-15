@@ -125,7 +125,7 @@ const IntegrationSetupWizard = ({
             </DialogHeader>
 
             <div className="h-1 w-full rounded-full bg-muted overflow-hidden mt-4">
-              <div className="h-full bg-brand transition-all duration-300" style={{ width: `${((clampedIndex + 1) / steps.length) * 100}%` }} />
+              <div className="h-full transition-all duration-300" style={{ width: `${((clampedIndex + 1) / steps.length) * 100}%` }} />
             </div>
 
             {stepTitle ? (

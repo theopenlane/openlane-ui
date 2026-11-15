@@ -106,7 +106,7 @@ export const EditableSelect = ({
   return (
     <div className="grid grid-cols-[160px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
-        <div className="pt-0.5">{controlIconsMap[label] ?? <FolderIcon size={16} className="text-brand" />}</div>
+        <div className="pt-0.5">{controlIconsMap[label] ?? <FolderIcon size={16} />}</div>
         <div className="text-sm">{label}</div>
       </div>
       <div ref={triggerRef} className="text-sm">

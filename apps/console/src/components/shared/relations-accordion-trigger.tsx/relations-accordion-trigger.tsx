@@ -7,7 +7,7 @@ const RelationsAccordionTrigger = ({ label, count }: { label: string; count: num
   <AccordionTrigger asChild className="bg-unset">
     <button className="group flex items-center text-left gap-3 w-full">
       <div className="flex items-center gap-2">
-        <ChevronDown size={22} className=" text-primary transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0 text-brand" />
+        <ChevronDown size={22} className="text-primary transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
         <span className="text-base font-medium">{label}</span>
       </div>
       <CountBadge count={count} />

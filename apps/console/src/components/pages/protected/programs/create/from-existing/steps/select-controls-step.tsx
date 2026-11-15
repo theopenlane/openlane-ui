@@ -156,9 +156,7 @@ const SelectControlsStep = ({ sourceProgramName }: SelectControlsStepProps) => {
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="font-semibold">{framework}</p>
-                            <Badge variant="outline" className="border-brand/30 bg-brand/15 text-brand">
-                              {controls.length} controls
-                            </Badge>
+                            <Badge variant="outline">{controls.length} controls</Badge>
                           </div>
                           <p className="mt-1 text-sm text-muted-foreground">
                             {frameworkStatus === 'all'

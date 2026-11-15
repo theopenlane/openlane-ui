@@ -137,16 +137,16 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
   if (!isCreate) {
     return (
       <div className="flex flex-col gap-4 pb-4">
-        {renderField('approverID', 'Approver', <Stamp size={16} className="text-brand" />, approver as Group, 'approver')}
-        {renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}
+        {renderField('approverID', 'Approver', <Stamp size={16} />, approver as Group, 'approver')}
+        {renderField('delegateID', 'Delegate', <CircleArrowRight size={16} />, delegate as Group, 'delegate')}
       </div>
     )
   }
 
   return (
     <Card className="p-4">
-      <div className="m-1">{renderField('approverID', 'Approver', <Stamp size={16} className="text-brand" />, approver as Group, 'approver')}</div>
-      <div className="m-1">{renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}</div>
+      <div className="m-1">{renderField('approverID', 'Approver', <Stamp size={16} />, approver as Group, 'approver')}</div>
+      <div className="m-1">{renderField('delegateID', 'Delegate', <CircleArrowRight size={16} />, delegate as Group, 'delegate')}</div>
     </Card>
   )
 }

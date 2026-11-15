@@ -383,7 +383,7 @@ const DomainSettingsPage = () => {
             </div>
             <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-3">
               <div className="flex items-start gap-2">
-                <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />
+                <InfoIcon className="shrink-0 mt-0.5" size={16} />
                 <div>
                   <p className="text-sm">
                     {!isDefaultDomainDisabled && 'Even if you set up a vanity domain, your default domain will remain accessible. '}Vanity domains let you host your Trust Center on your company&apos;s
@@ -397,7 +397,7 @@ const DomainSettingsPage = () => {
             {dnsVerification?.dnsVerificationStatus === DnsVerificationDnsVerificationStatus.PENDING && hasReason && (
               <div className="border border-document-draft-border bg-infobox rounded-md p-4 my-1">
                 <div className="flex items-start gap-2">
-                  <InfoIcon className="text-brand-100 shrink-0 mt-0.5" size={16} />
+                  <InfoIcon className="shrink-0 mt-0.5" size={16} />
                   <div>
                     <p className="text-sm">{dnsVerification.dnsVerificationStatusReason}</p>
                   </div>
