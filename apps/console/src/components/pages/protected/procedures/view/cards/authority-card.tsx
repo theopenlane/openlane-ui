@@ -4,9 +4,8 @@ import React, { useState } from 'react'
 import { type Group, type ProcedureByIdFragment, type UpdateProcedureInput } from '@repo/codegen/src/schema'
 import { Stamp, CircleArrowRight, HelpCircle } from 'lucide-react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
-import { type Option } from '@repo/ui/multiple-selector'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { type EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
@@ -34,13 +33,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
   const editingField = isControlled ? activeField : internalEditingField
   const setEditingField = isControlled ? setActiveField : setInternalEditingField
 
-  const { data } = useGetAllGroups({ where: {}, enabled: isEditing || !!editingField })
-  const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
-
-  const options: Option[] = groups.map((g) => ({
-    label: g?.displayName || g?.name || '',
-    value: g?.id || '',
-  }))
+  const { groupOptions: options } = useGroupSelect({ enabled: isEditing || !!editingField })
   const toAuthorityInput = (field: 'approverID' | 'delegateID', value: string): UpdateProcedureInput => {
     if (field === 'approverID') {
       return value ? { approverID: value } : { clearApprover: true }

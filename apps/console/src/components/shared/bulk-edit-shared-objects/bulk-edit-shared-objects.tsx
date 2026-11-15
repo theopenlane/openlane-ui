@@ -1,7 +1,7 @@
 import { responsibilityFieldSchema, buildResponsibilityPayload, type ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { RISK_STAKEHOLDER, RISK_DELEGATE } from '@/components/pages/protected/risks/risk-responsibility'
 import { z } from 'zod'
-import { EvidenceFrequency, type Group } from '@repo/codegen/src/schema'
+import { EvidenceFrequency } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type Option } from '@repo/ui/multiple-selector'
 import { InternalPolicyStatusOptions, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
@@ -9,6 +9,7 @@ import { ControlStatusOptions } from '@/components/shared/enum-mapper/control-en
 import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-enum'
 import { TaskStatusOptions } from '../enum-mapper/task-enum'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
+import { toGroupOption, type GroupNameNode } from '@/lib/graphql-hooks/group'
 import { EvidenceStatusOptions } from '../enum-mapper/evidence-enum'
 import { OBJECT_QUERY_CONFIG, ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
@@ -299,7 +300,7 @@ export const getAssociationSelectedCount = (selectedAssociations?: Record<string
   return Object.values(selectedAssociations).reduce((sum, ids) => sum + (ids?.length ?? 0), 0)
 }
 
-export type BulkEditGroup = Pick<Group, 'id' | 'name' | 'displayName'>
+export type BulkEditGroup = GroupNameNode
 
 export const getAllSelectOptionsForBulkEditRisks = (typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject[] => {
   return [
@@ -372,7 +373,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: BulkEditGroup[]
       inputType: InputType.Select,
       clearable: true,
       placeholder: 'Select delegate',
-      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
+      options: groups.map(toGroupOption),
     },
     {
       selectOptionEnum: SelectOptionBulkEditProcedures.Status,
@@ -394,7 +395,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: BulkEditGroup[]
       inputType: InputType.Select,
       clearable: true,
       placeholder: 'Select approver',
-      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
+      options: groups.map(toGroupOption),
     },
     {
       selectOptionEnum: SelectOptionBulkEditProcedures.Tags,
@@ -414,7 +415,7 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: BulkEditGroup[], 
       inputType: InputType.Select,
       clearable: true,
       placeholder: 'Select delegate',
-      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
+      options: groups.map(toGroupOption),
     },
     {
       selectOptionEnum: SelectOptionBulkEditPolicies.Status,
@@ -436,7 +437,7 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: BulkEditGroup[], 
       inputType: InputType.Select,
       clearable: true,
       placeholder: 'Select approver',
-      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
+      options: groups.map(toGroupOption),
     },
     {
       selectOptionEnum: SelectOptionBulkEditPolicies.Tags,
@@ -458,7 +459,7 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: BulkEditGroup[
       placeholder: 'Select owner',
       inputType: InputType.Select,
       clearable: true,
-      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
+      options: groups.map(toGroupOption),
     },
     {
       selectOptionEnum: SelectOptionBulkEditControls.Status,
