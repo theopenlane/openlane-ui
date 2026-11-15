@@ -16,8 +16,6 @@ const operationFootnote = (operation: TOperationHealth, length: 'full' | 'short'
   const meta = OPERATION_HEALTH_META[operation.state]
   const isShort = length === 'short'
 
-  if (operation.state === 'disabled' && !isShort) return 'Turn on in Configure'
-  if (operation.state === 'unavailable' && !isShort) return 'Not available yet'
   if (!meta.isEnabled) return meta.label
 
   const latest = operation.latestFinishedRun
@@ -42,7 +40,14 @@ const NoOperations = ({ subject }: { subject: string }) => (
   <p className="rounded-md border px-3 py-4 text-center text-sm text-muted-foreground">No recurring operations are set up for this {subject}.</p>
 )
 
-export const OperationHealthGrid = ({ operations, providerId, isLoading }: { operations: TOperationHealth[]; providerId: string; isLoading: boolean }) => {
+type TOperationHealthGridProps = {
+  operations: TOperationHealth[]
+  providerId: string
+  isLoading: boolean
+  onConfigure?: () => void
+}
+
+export const OperationHealthGrid = ({ operations, providerId, isLoading, onConfigure }: TOperationHealthGridProps) => {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4" role="status" aria-live="polite" aria-label="Loading operations">
@@ -72,7 +77,12 @@ export const OperationHealthGrid = ({ operations, providerId, isLoading }: { ope
             </div>
             {operation.description ? <p className="line-clamp-2 text-sm text-muted-foreground">{operation.description}</p> : null}
             {meta.isEnabled && operation.newestFirstRuns.length > 0 ? <RunStrip newestFirstRuns={operation.newestFirstRuns} providerId={providerId} /> : null}
-            <p className="mt-auto line-clamp-2 text-xs text-muted-foreground">{operationFootnote(operation, 'full')}</p>
+            {meta.isEnabled ? <p className="mt-auto line-clamp-2 text-xs text-muted-foreground">{operationFootnote(operation, 'full')}</p> : null}
+            {!meta.isEnabled && onConfigure ? (
+              <div className="mt-auto">
+                <ConfigureButton onClick={onConfigure} />
+              </div>
+            ) : null}
           </Card>
         )
       })}

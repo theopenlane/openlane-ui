@@ -185,7 +185,12 @@ const IntegrationHealthPage = ({ definitionId }: { definitionId: string }) => {
       ) : (
         <section>
           <h3 className="mb-3 text-base uppercase tracking-widest">Operations</h3>
-          <OperationHealthGrid operations={primary.operations} providerId={provider.id} isLoading={isLoadingRuns} />
+          <OperationHealthGrid
+            operations={primary.operations}
+            providerId={provider.id}
+            isLoading={isLoadingRuns}
+            onConfigure={canConfigure ? () => openConfigure(primary.integration.id) : undefined}
+          />
         </section>
       )}
 
