@@ -38,7 +38,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
         {/* Status */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
-            <Binoculars size={16} className="text-brand" />
+            <Binoculars size={16} />
             <span>Status</span>
           </div>
 
@@ -75,7 +75,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
         {/* Approval Required */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
-            <ScanEye size={16} className="text-brand" />
+            <ScanEye size={16} />
             <span>Approval Required</span>
           </div>
 
@@ -104,7 +104,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
         {/* Review Frequency */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
-            <ClockArrowUp size={16} className="text-brand" />
+            <ClockArrowUp size={16} />
             <span>Reviewing Frequency</span>
           </div>
 
@@ -141,7 +141,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
         {/* Policy type */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
-            <ScrollText size={16} className="text-brand" />
+            <ScrollText size={16} />
             <span>Policy Type</span>
           </div>
 
@@ -173,7 +173,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
         {/* Due date */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
-            <Calendar size={16} className="text-brand" />
+            <Calendar size={16} />
             <span>Set review date</span>
           </div>
 

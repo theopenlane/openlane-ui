@@ -130,12 +130,11 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
               </div>
               <ChevronDown
                 size={22}
-                className="
-                  transform
+                className="transform
                   -rotate-90
                   transition-transform
                   group-data-[state=open]:rotate-0
-                  text-brand shrink-0
+                  shrink-0
                 "
               />
             </div>

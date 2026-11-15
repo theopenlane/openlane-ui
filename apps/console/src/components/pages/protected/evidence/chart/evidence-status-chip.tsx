@@ -95,11 +95,11 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
           <span className="font-medium">Evidence</span>
         </div>
 
-        {evidences.length === 0 && <span className="pl-3 text-brand text-xs">No evidence available.</span>}
+        {evidences.length === 0 && <span className="pl-3 text-xs">No evidence available.</span>}
         {evidences.length > 0 && (
           <div className={`grid gap-2 pl-3 ${columnClass}`}>
             {evidences.map((item, index) => (
-              <span key={index} className="pr-1 text-brand text-xs hover:underline cursor-pointer" {...activatable(() => replace({ id: item?.node?.id || '' }))}>
+              <span key={index} className="pr-1 text-xs hover:underline cursor-pointer" {...activatable(() => replace({ id: item?.node?.id || '' }))}>
                 {item?.node?.displayID}
               </span>
             ))}

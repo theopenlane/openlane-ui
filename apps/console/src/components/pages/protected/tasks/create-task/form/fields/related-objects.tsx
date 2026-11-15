@@ -1,6 +1,5 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
 import React from 'react'
 import { Info, PencilLine, SlidersHorizontal } from 'lucide-react'
 import { type TaskQuery } from '@repo/codegen/src/schema'
@@ -8,7 +7,7 @@ import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import ObjectsChip from '@/components/shared/objects-chip/objects-chip'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { useRouter } from 'next/navigation'
+import { Link } from '@/components/shared/link/link'
 import { useTaskAssociations } from '@/lib/graphql-hooks/task'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -18,7 +17,6 @@ type RelatedObjectsProps = {
 
 const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
   const plateEditorHelper = usePlateEditor()
-  const router = useRouter()
   const { data: associationData } = useTaskAssociations(taskData?.id)
 
   const handleRelatedObjects = () => {
@@ -138,10 +136,6 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
       ),
     }
 
-    const handleNavigate = (href: string) => {
-      router.push(href)
-    }
-
     return (
       <div className="flex flex-wrap gap-2">
         {Object.entries(itemsDictionary).map(([key, { id, value, controlId, details, kind }]) => {
@@ -150,7 +144,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
             control: controlId ? { id: controlId } : undefined,
           })
 
-          const linkClass = !href || (value === 'Subcontrol' && !controlId) || (value === 'Control objective' && !controlId) ? 'pointer-events-none' : ''
+          const isLinkable = !!href && !((value === 'Subcontrol' || value === 'Control objective') && !controlId)
           return (
             <TooltipProvider key={key}>
               <Tooltip>
@@ -164,9 +158,13 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
                         <SlidersHorizontal size={12} />
                         <span className="font-medium">Name</span>
                       </div>
-                      <span className={`text-brand pl-3 cursor-pointer text-primary ${linkClass}`} {...activatable(() => handleNavigate(href))}>
-                        {key}
-                      </span>
+                      {isLinkable ? (
+                        <Link href={href} prefetch={false} className="pl-3">
+                          {key}
+                        </Link>
+                      ) : (
+                        <span className="pl-3">{key}</span>
+                      )}
                     </div>
                     <div className="flex flex-row gap-4 items-center border-b pb-2 pt-2">
                       <div className="flex items-center gap-1">

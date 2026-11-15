@@ -27,7 +27,6 @@ const Input = ({ className, type, icon, prefix, suffix, variant, onIconClick, ma
   const hasPrefix = Boolean(prefix)
   const prefixRef = useRef<HTMLDivElement>(null)
   const [prefixWidth, setPrefixWidth] = useState(0)
-  const [isFocused, setIsFocused] = useState<boolean>(false)
 
   useEffect(() => {
     if (prefixRef.current) {
@@ -42,21 +41,7 @@ const Input = ({ className, type, icon, prefix, suffix, variant, onIconClick, ma
           {prefix}
         </div>
       )}
-      <input
-        type={type}
-        ref={ref}
-        {...props}
-        onFocus={(e) => {
-          setIsFocused(true)
-          props.onFocus?.(e)
-        }}
-        onBlur={(e) => {
-          setIsFocused(false)
-          props.onBlur?.(e)
-        }}
-        className={cn(input({ hasIcon, hasPrefix, iconPosition }), className, isFocused && 'border-brand!')}
-        style={{ paddingLeft: hasPrefix ? prefixWidth + 12 : undefined }}
-      />
+      <input type={type} ref={ref} {...props} className={cn(input({ hasIcon, hasPrefix, iconPosition }), className)} style={{ paddingLeft: hasPrefix ? prefixWidth + 12 : undefined }} />
       {icon &&
         (onIconClick ? (
           <button type="button" className={cn(iconWrapper({ iconPosition }), 'cursor-pointer bg-transparent')} onClick={onIconClick}>

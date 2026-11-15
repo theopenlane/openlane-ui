@@ -57,7 +57,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
 
   const baseClasses = 'bg-secondary flex gap-1 items-center'
   const dragClass = draggable ? 'cursor-grab' : ''
-  const borderClass = selected ? 'border-brand ring-1 ring-brand' : 'border-border'
+  const borderClass = selected ? 'ring-1' : 'border-border'
   const subcontrolHref = control.controlID ? `/controls/${control.controlID}/${control.id}` : null
   const href = forceHref || (control.__typename === ObjectTypes.SUBCONTROL ? subcontrolHref : `/controls/${control.id}`)
 
@@ -172,7 +172,7 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
           <span className="font-medium">Standard</span>
         </div>
         <div className="flex items-center gap-1 border-b pb-2">
-          <NextLink href={standardHref} className=" size-fit hover:underline flex items-center gap-1" target="_blank" rel="noopener">
+          <NextLink href={standardHref} className="size-fit hover:underline flex items-center gap-1" target="_blank" rel="noopener">
             <StandardChip referenceFramework={details.referenceFramework ?? ''} />
             {details.referenceFramework && <ExternalLink size={12} />}
           </NextLink>

@@ -164,21 +164,21 @@ const FieldRow = ({
     switch (label.toLowerCase()) {
       case 'type':
       case 'category':
-        return <Folder size={16} className="text-brand" />
+        return <Folder size={16} />
       case 'score':
-        return <Gauge size={16} className="text-brand" />
+        return <Gauge size={16} />
       case 'residual score':
-        return <Gauge size={16} className="text-brand" />
+        return <Gauge size={16} />
       case 'impact':
-        return <CircleAlert size={16} className="text-brand" />
+        return <CircleAlert size={16} />
       case 'likelihood':
-        return <CircleHelp size={16} className="text-brand" />
+        return <CircleHelp size={16} />
       case 'status':
-        return <Binoculars size={16} className="text-brand" />
+        return <Binoculars size={16} />
       case 'tags':
-        return <Tag size={16} className="text-brand" />
+        return <Tag size={16} />
       default:
-        return <Circle size={16} className="text-brand" />
+        return <Circle size={16} />
     }
   }
 

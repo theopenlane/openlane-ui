@@ -26,7 +26,7 @@ const Slider = ({ value, onChange, range, min = 0, max = 100 }: SliderProps) => 
             max={max}
             value={minVal}
             onChange={handleMinChange}
-            className="accent-brand absolute inset-0 w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-moz-range-thumb]:pointer-events-auto"
+            className="absolute inset-0 w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-moz-range-thumb]:pointer-events-auto"
           />
           <input
             type="range"
@@ -34,7 +34,7 @@ const Slider = ({ value, onChange, range, min = 0, max = 100 }: SliderProps) => 
             max={max}
             value={maxVal}
             onChange={handleMaxChange}
-            className="accent-brand absolute inset-0 w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-moz-range-thumb]:pointer-events-auto"
+            className="absolute inset-0 w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-moz-range-thumb]:pointer-events-auto"
           />
         </div>
       </div>
@@ -48,7 +48,7 @@ const Slider = ({ value, onChange, range, min = 0, max = 100 }: SliderProps) => 
 
   return (
     <div className="w-full flex items-center gap-4">
-      <input type="range" min={min} max={max} value={value as number} onChange={handleChange} className="accent-brand w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer" />
+      <input type="range" min={min} max={max} value={value as number} onChange={handleChange} className="w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer" />
       <span className="text-sm w-8 text-right">{value as number}</span>
     </div>
   )

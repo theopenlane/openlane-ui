@@ -36,7 +36,7 @@ export function LinkedControlsCell({ row }: Props) {
       })}
 
       {hasMore && (
-        <button onClick={handleShowMore} className="text-xs text-brand bg-transparent px-1 hover:underline">
+        <button onClick={handleShowMore} className="text-xs bg-transparent px-1 hover:underline">
           Show more
         </button>
       )}
