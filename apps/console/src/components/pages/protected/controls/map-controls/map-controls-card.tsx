@@ -143,43 +143,45 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
         </AccordionTrigger>
         <AccordionContent>
           {expandedCard === title && (
-            <CardContent className="grid grid-cols-[2fr_325px] gap-x-8 p-0 mt-5">
-              <div>
-                <MapControlsFormFilters enableSubcontrols={enableSubcontrols} setEnableSubcontrols={setEnableSubcontrols} onFilterChange={setWhere} oppositeControls={oppositeControls} />
-                <MatchedControls
-                  isLoading={queriesLoading}
-                  where={where}
-                  controlData={allControls?.allControls}
-                  subcontrolData={subcontrolEnabled ? allSubcontrols.allSubcontrols : undefined}
-                  droppedControls={droppedControls}
-                  title={title}
-                  setDroppedControls={setDroppedControls}
-                />
-              </div>
-              <div className="border-2 border-dashed rounded-lg flex items-center justify-center flex-col gap-2" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
-                {!droppedControls.length ? (
-                  <>
-                    <Expand size={42} strokeWidth={1} />
-                    <p>Drag controls here</p>
-                  </>
-                ) : (
-                  <div className="flex gap-2 flex-wrap justify-center">
-                    {droppedControls.map((control) => (
-                      <ControlChip
-                        key={control.id}
-                        control={control}
-                        draggable
-                        onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify(control))}
-                        onDragEnd={(e) => {
-                          if (e.dataTransfer.dropEffect === 'none') handleRemove(control)
-                        }}
-                        removable
-                        onRemove={handleRemove}
-                        clickable={false}
-                      />
-                    ))}
-                  </div>
-                )}
+            <CardContent className="@container p-0 mt-5">
+              <div className="grid grid-cols-1 gap-8 @3xl:grid-cols-[2fr_325px]">
+                <div className="min-w-0">
+                  <MapControlsFormFilters enableSubcontrols={enableSubcontrols} setEnableSubcontrols={setEnableSubcontrols} onFilterChange={setWhere} oppositeControls={oppositeControls} />
+                  <MatchedControls
+                    isLoading={queriesLoading}
+                    where={where}
+                    controlData={allControls?.allControls}
+                    subcontrolData={subcontrolEnabled ? allSubcontrols.allSubcontrols : undefined}
+                    droppedControls={droppedControls}
+                    title={title}
+                    setDroppedControls={setDroppedControls}
+                  />
+                </div>
+                <div className="border-2 border-dashed rounded-lg flex items-center justify-center flex-col gap-2 min-h-40 p-4" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
+                  {!droppedControls.length ? (
+                    <>
+                      <Expand size={42} strokeWidth={1} />
+                      <p>Drag controls here</p>
+                    </>
+                  ) : (
+                    <div className="flex gap-2 flex-wrap justify-center">
+                      {droppedControls.map((control) => (
+                        <ControlChip
+                          key={control.id}
+                          control={control}
+                          draggable
+                          onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify(control))}
+                          onDragEnd={(e) => {
+                            if (e.dataTransfer.dropEffect === 'none') handleRemove(control)
+                          }}
+                          removable
+                          onRemove={handleRemove}
+                          clickable={false}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           )}
