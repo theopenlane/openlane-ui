@@ -4,7 +4,7 @@ import { CONTROL_ASSOCIATED_OBJECTS_EXPORT_FIELDS } from '@/components/pages/pro
 
 import { test, expect } from '../fixtures/auth'
 import { createControl, deleteControl, getOwnerApi, type ApiSession } from '../utils/api'
-import { findUnknownFieldPaths } from '../utils/graphql-schema'
+import { classifyFieldPaths } from '../utils/graphql-schema'
 import { waitForMutation } from '../utils/mutations'
 import { uniqueRef } from '../utils/unique'
 
@@ -64,6 +64,10 @@ test.describe('controls — export', () => {
     const { input } = ((await exportResponse).request().postDataJSON() as CreateExportRequestBody).variables
     expect(input.exportType).toBe('CONTROL')
     expect(input.fields).toEqual(expect.arrayContaining(CONTROL_ASSOCIATED_OBJECTS_EXPORT_FIELDS))
-    expect(await findUnknownFieldPaths(ownerApi, 'Control', input.fields), 'export fields that do not resolve on the Control GraphQL type').toEqual([])
+    const { unknown, deprecated } = await classifyFieldPaths(ownerApi, 'Control', input.fields)
+    if (deprecated.length) {
+      test.info().annotations.push({ type: 'deprecated-export-fields', description: deprecated.map(({ path, reason }) => `${path} (${reason})`).join(', ') })
+    }
+    expect(unknown, 'export fields that do not resolve on the Control GraphQL type').toEqual([])
   })
 })
