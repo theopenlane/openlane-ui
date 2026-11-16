@@ -407,7 +407,7 @@ export const GET_PROGRAM_SUBMITTED_EVIDENCE = gql`
 `
 
 export const GET_PROGRAM_DASHBOARD = gql`
-  query GetProgramDashboard($where: ProgramWhereInput) {
+  query GetProgramDashboard($where: ProgramWhereInput, $openTaskStatuses: [TaskTaskStatus!]!) {
     programs(where: $where) {
       edges {
         node {
@@ -422,13 +422,8 @@ export const GET_PROGRAM_DASHBOARD = gql`
             id
             displayName
           }
-          tasks(where: { isTemplate: false }) {
-            edges {
-              node {
-                id
-                status
-              }
-            }
+          openTasks: tasks(where: { isTemplate: false, statusIn: $openTaskStatuses }) {
+            totalCount
           }
           controls {
             totalCount

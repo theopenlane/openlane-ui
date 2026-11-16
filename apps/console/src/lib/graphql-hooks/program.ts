@@ -53,6 +53,7 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
 import { getNodes } from '@/lib/graphql-hooks/connection'
+import { TASK_DEFAULT_STATUSES } from '@/components/pages/protected/tasks/util/task'
 
 const EMPTY_PROGRAM_OPTIONS: { label: string; value: string }[] = []
 
@@ -264,7 +265,7 @@ export const useGetProgramDashboard = ({ where }: { where?: ProgramWhereInput })
   return useQuery<GetProgramDashboardQuery, GetProgramDashboardQueryVariables>({
     queryKey: ['programs', 'dashboard', where],
     queryFn: async () => {
-      return client.request(GET_PROGRAM_DASHBOARD, { where })
+      return client.request(GET_PROGRAM_DASHBOARD, { where, openTaskStatuses: TASK_DEFAULT_STATUSES })
     },
   })
 }
