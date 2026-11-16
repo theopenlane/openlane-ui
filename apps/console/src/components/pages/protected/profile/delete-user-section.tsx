@@ -24,7 +24,7 @@ const DeleteUserSection: React.FC<DeleteUserSectionProps> = ({ userId }) => {
   const signOut = useSignOut()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteUser } = useDeleteUser()
-  const { isOwner, isLoading, isError } = useIsOwnerInAnyOrg(userId)
+  const { isOwner, isLoading, isError } = useIsOwnerInAnyOrg()
   const isDeleteDisabled = isOwner || isLoading || isError
 
   const handleUserDelete = async () => {

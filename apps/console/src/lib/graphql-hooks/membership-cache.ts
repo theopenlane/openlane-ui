@@ -1,6 +1,8 @@
 import { type QueryClient } from '@tanstack/react-query'
 
-const MEMBERSHIP_QUERY_ROOTS = ['memberships', 'organizationsWithMembers', 'groups', 'accountRoles', 'accountRolesMany', 'organizationRole', 'scopes']
+export const CURRENT_USER_ORGANIZATIONS_QUERY_ROOT = 'currentUserOrganizations'
+
+const MEMBERSHIP_QUERY_ROOTS = ['memberships', 'organizationsWithMembers', CURRENT_USER_ORGANIZATIONS_QUERY_ROOT, 'groups', 'accountRoles', 'accountRolesMany', 'organizationRole', 'scopes']
 
 export const invalidateMembershipQueries = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({
@@ -10,3 +12,5 @@ export const invalidateMembershipQueries = (queryClient: QueryClient) => {
     },
   })
 }
+
+export const invalidateCurrentUserOrganizations = (queryClient: QueryClient) => queryClient.invalidateQueries({ queryKey: [CURRENT_USER_ORGANIZATIONS_QUERY_ROOT] })

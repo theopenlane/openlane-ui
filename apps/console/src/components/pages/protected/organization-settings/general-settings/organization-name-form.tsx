@@ -12,7 +12,6 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useUpdateOrganization, useUpdateOrgAvatar } from '@/lib/graphql-hooks/organization'
 import { toBase64DataUri } from '@/lib/image-utils'
-import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -28,7 +27,6 @@ const OrganizationNameForm = ({ canEdit }: OrganizationNameFormProps) => {
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const { mutateAsync: uploadAvatar } = useUpdateOrgAvatar()
 
-  const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const { currentOrgId, allOrgs } = useOrganization()
   const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
@@ -48,13 +46,15 @@ const OrganizationNameForm = ({ canEdit }: OrganizationNameFormProps) => {
   })
   const { dirtyFields } = form.formState
 
+  const currentDisplayName = currentOrganization?.displayName
+
   useEffect(() => {
-    if (currentOrganization) {
+    if (currentDisplayName !== undefined) {
       form.reset({
-        displayName: currentOrganization.displayName,
+        displayName: currentDisplayName,
       })
     }
-  }, [currentOrganization, form])
+  }, [currentDisplayName, form])
 
   const updateOrganization = async ({ displayName }: { displayName: string }) => {
     if (!currentOrgId) {
@@ -71,12 +71,6 @@ const OrganizationNameForm = ({ canEdit }: OrganizationNameFormProps) => {
       successNotification({
         title: 'Organization updated',
         description: 'Organization was successfully updated.',
-      })
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const [firstKey] = query.queryKey
-          return firstKey === 'organizationsWithMembers' || firstKey === 'organizations'
-        },
       })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
