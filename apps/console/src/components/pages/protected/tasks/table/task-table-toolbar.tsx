@@ -4,7 +4,7 @@ import { getTaskQuickFilters, getTasksFilterFields } from '@/components/pages/pr
 import { taskDefaultFilterValues } from '@/components/pages/protected/tasks/util/task'
 import CreateTaskDropdown from '@/components/pages/protected/tasks/create-task/dialog/create-task-dropdown'
 import { type FilterField } from '@/types'
-import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
+import { useOrganizationMemberOptions } from '@/lib/graphql-hooks/organization'
 import { LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import Menu from '@/components/shared/menu/menu'
@@ -60,7 +60,7 @@ type TTaskTableToolbarProps = {
 
 const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToolbarProps) => {
   const { data: session } = useSession()
-  const { orgMembers } = useTaskStore()
+  const { orgMembers } = useOrganizationMemberOptions()
   const { programOptions, isSuccess, hasProgramAccess } = useProgramSelect()
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)

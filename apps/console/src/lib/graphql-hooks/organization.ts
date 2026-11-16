@@ -74,14 +74,31 @@ export const useGetOrganizationNameById = (organizationId: string | undefined) =
   })
 }
 
-export const useGetSingleOrganizationMembers = ({ organizationId, pagination }: { organizationId?: string; pagination?: TPagination }) => {
+export const useGetSingleOrganizationMembers = ({ organizationId, pagination, enabled = true }: { organizationId?: string; pagination?: TPagination; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables>({
     queryKey: ['organizationsWithMembers', organizationId, pagination?.pageSize, pagination?.page],
     queryFn: async () => client.request(GET_SINGLE_ORGANIZATION_MEMBERS, { organizationId, ...pagination?.query }),
-    enabled: !!organizationId,
+    enabled: !!organizationId && enabled,
   })
+}
+
+export type TOrgMemberOption = {
+  value: string
+  label: string
+}
+
+export const useOrganizationMemberOptions = ({ enabled = true }: { enabled?: boolean } = {}) => {
+  const { data: session } = useSession()
+  const { data, isPending, error } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId, enabled })
+
+  const orgMembers = useMemo<TOrgMemberOption[] | undefined>(
+    () => (data ? getNodes(data.organization?.members).map((member) => ({ value: member.user.id, label: member.user.displayName })) : undefined),
+    [data],
+  )
+
+  return { orgMembers, isPending, error }
 }
 
 export const useGetOrganizationsForCurrentUser = () => {

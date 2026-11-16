@@ -7,7 +7,6 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, Dialo
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useSession } from 'next-auth/react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
@@ -27,7 +26,7 @@ import {
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import { useOrganizationMemberOptions } from '@/lib/graphql-hooks/organization'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -53,16 +52,7 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
     defaultValues: defaultObject,
   })
 
-  const { data: session } = useSession()
-  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
-
-  const membersOptions = useMemo(() => {
-    if (!membersData) return []
-    return membersData?.organization?.members?.edges?.map((member) => ({
-      value: member?.node?.user?.id,
-      label: `${member?.node?.user?.displayName}`,
-    }))
-  }, [membersData])
+  const { orgMembers: membersOptions } = useOrganizationMemberOptions({ enabled: open })
   const { enumOptions: taskKindOptions, onCreateOption: createTaskType } = useCreatableEnumOptions({
     objectType: 'task',
     field: 'kind',

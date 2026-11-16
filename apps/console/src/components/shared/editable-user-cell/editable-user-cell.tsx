@@ -6,7 +6,9 @@ import { useNotification } from '@/hooks/useNotification.tsx'
 import { type QueryClient, useQueryClient } from '@tanstack/react-query'
 import { type AvatarEntityLike } from '@/components/shared/avatar/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore.ts'
+import { useOrganizationMemberOptions } from '@/lib/graphql-hooks/organization'
+import { StatusLine } from '@/components/shared/status-line/status-line'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { Form } from '@repo/ui/form'
 import { CircleUser } from 'lucide-react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -32,7 +34,8 @@ const EditableUserCell: React.FC<EditableUserCellProps> = ({ label, entity, onSu
   const [isEditing, setIsEditing] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
-  const orgMembers = useTaskStore((state) => state.orgMembers)
+  const { orgMembers, isPending: isMembersPending, error: membersError } = useOrganizationMemberOptions({ enabled: isEditing })
+  useQueryErrorNotification({ error: isEditing ? membersError : null, description: 'Failed to load members' })
   const fullName = entity?.displayName
 
   const options: Option[] = useMemo(
@@ -119,8 +122,13 @@ const EditableUserCell: React.FC<EditableUserCellProps> = ({ label, entity, onSu
                         await onSubmit({ ...form.getValues(), id: newValue })
                       }}
                     >
-                      <SelectTrigger className="w-full">{options.find((member) => member.value === selectedValue)?.label || 'Select'}</SelectTrigger>
+                      <SelectTrigger className="w-full">{options.find((member) => member.value === selectedValue)?.label || fullName || 'Select'}</SelectTrigger>
                       <SelectContent>
+                        {isMembersPending && !membersError && (
+                          <div className="px-2 py-1.5">
+                            <StatusLine>Loading members...</StatusLine>
+                          </div>
+                        )}
                         {options.map((option) => (
                           <SelectItem key={option.value} value={option.value} className="w-full">
                             {option.label}

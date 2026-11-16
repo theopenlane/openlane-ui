@@ -3,7 +3,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { DataTable } from '@repo/ui/data-table'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import { useOrganizationMemberOptions } from '@/lib/graphql-hooks/organization'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useDocumentationTasks } from '@/lib/graphql-hooks/documentation'
 import type { TaskOrder, TaskWhereInput } from '@repo/codegen/src/schema'
@@ -12,8 +12,6 @@ import { whereGenerator, whereContainsKey } from '@/components/shared/table-filt
 import { mergeWhere, SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import type { TPagination } from '@repo/ui/pagination-types'
 import type { FilterField, WhereCondition } from '@/types'
-import type { TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { useSession } from 'next-auth/react'
 import { getActivityTaskColumns, getActivityTaskFilterFields, type ActivityTaskRow } from '../../../../../../../shared/crud-base/tabs/activity-tasks-config'
 import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
@@ -26,7 +24,6 @@ const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ riskId }) =
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { data: session } = useSession()
   const associationFilter = useMemo(() => {
     return riskId ? { hasRisksWith: [{ id: riskId }] } : {}
   }, [riskId])
@@ -35,29 +32,15 @@ const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ riskId }) =
   const debouncedSearch = useDebounce(search, 300)
   const [filters, setFilters] = useState<WhereCondition>({})
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  const [orgMembers, setOrgMembers] = useState<TOrgMembers[]>([])
   const [filterFields, setFilterFields] = useState<FilterField[] | null>(null)
 
-  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
+  const { orgMembers } = useOrganizationMemberOptions()
   const { enumOptions: taskKindOptions, isSuccess: taskKindsReady } = useGetCustomTypeEnums({
     where: {
       objectType: 'task',
       field: 'kind',
     },
   })
-
-  useEffect(() => {
-    const members =
-      membersData?.organization?.members?.edges?.map(
-        (member) =>
-          ({
-            value: member?.node?.user?.id,
-            label: `${member?.node?.user?.displayName}`,
-            membershipId: member?.node?.user?.id,
-          }) as TOrgMembers,
-      ) ?? []
-    setOrgMembers(members)
-  }, [membersData])
 
   useEffect(() => {
     if (!taskKindsReady) return
