@@ -4,30 +4,24 @@ import React from 'react'
 import { Button } from '@repo/ui/button'
 import { Archive, Link2Off, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
-import { canEdit } from '@/lib/authz/utils'
 import { ControlObjectiveCard } from './control-objective-card'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import Menu from '@/components/shared/menu/menu'
 import { LinkControlsModal } from './link-controls-modal'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { useSession } from 'next-auth/react'
 
 type Props = {
   node: ControlObjectiveFieldsFragment
+  canEdit: boolean
   onEdit: (node: ControlObjectiveFieldsFragment) => void
   onUnarchive: (node: ControlObjectiveFieldsFragment) => void
   onDelete: (node: ControlObjectiveFieldsFragment) => void
 }
 
-export const ObjectiveItem: React.FC<Props> = ({ node, onEdit, onUnarchive, onDelete }) => {
-  const { data: permission, isLoading: permLoading } = useAccountRoles(ObjectTypes.CONTROL_OBJECTIVE, node.id)
-  const { data: session } = useSession()
-  const isEditAllowed = canEdit(permission?.roles, session)
+export const ObjectiveItem: React.FC<Props> = ({ node, canEdit, onEdit, onUnarchive, onDelete }) => {
   const totalLinks = (node.controls?.edges?.length ?? 0) + (node.subcontrols?.edges?.length ?? 0)
   const willUnlink = totalLinks > 1
   return (
     <div className="space-y-4">
-      {isEditAllowed && !permLoading && (
+      {canEdit && (
         <div className="flex items-center justify-end">
           <Menu
             closeOnSelect
@@ -80,7 +74,7 @@ export const ObjectiveItem: React.FC<Props> = ({ node, onEdit, onUnarchive, onDe
           />
         </div>
       )}
-      <ControlObjectiveCard obj={node} actions={isEditAllowed && !permLoading ? <LinkControlsModal controlObjectiveData={node} aria-label="Set associations" /> : undefined} />
+      <ControlObjectiveCard obj={node} actions={canEdit ? <LinkControlsModal controlObjectiveData={node} aria-label="Set associations" /> : undefined} />
     </div>
   )
 }

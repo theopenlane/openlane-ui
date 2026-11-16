@@ -11,7 +11,8 @@ import { useTasksWithFilterInfinite } from '@/lib/graphql-hooks/task'
 import { TaskStatusDotMapper } from '@/components/shared/enum-mapper/task-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
-import { useCanEditTasks } from '@/lib/authz/use-can-edit-tasks'
+import { useCanEditObjects } from '@/lib/authz/use-can-edit-objects'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import DraggableTaskBoardCard from '@/components/pages/protected/tasks/board/draggable-task-board-card'
 import { TASK_COLUMN_DROP_TYPE, type TaskColumnDropData, canMoveTaskTo, readDraggedTask } from '@/components/pages/protected/tasks/board/task-drag-data'
 import { getColumnQueryArgs, type TaskBoardOrderBy } from '@/components/pages/protected/tasks/board/task-board-column-query'
@@ -33,8 +34,10 @@ const TaskBoardColumn = ({ status, whereFilter, orderByFilter, onHasTasksChange 
 
   const { tasks, isError, isLoading, paginationMeta, fetchNextPage } = useTasksWithFilterInfinite(columnArgs)
 
-  const taskIds = useMemo(() => tasks.map((task) => task.id), [tasks])
-  const canEditTask = useCanEditTasks(taskIds)
+  const canEditTask = useCanEditObjects(
+    ObjectTypes.TASK,
+    tasks.map((task) => task.id),
+  )
 
   const handleLoadMore = useCallback(() => {
     fetchNextPage({ cancelRefetch: false })

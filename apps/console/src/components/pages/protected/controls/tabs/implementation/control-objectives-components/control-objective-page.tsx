@@ -18,6 +18,8 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ObjectiveItem } from './objective-item'
+import { useCanEditObjects } from '@/lib/authz/use-can-edit-objects'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { controlAssociationFilter } from '@/lib/graphql-hooks/control-association'
@@ -53,6 +55,7 @@ const ControlObjectivePage = () => {
   })
 
   const edges = data?.controlObjectives?.edges?.filter((edge): edge is { node: ControlObjectiveFieldsFragment } => !!edge?.node)
+  const canEditObjective = useCanEditObjects(ObjectTypes.CONTROL_OBJECTIVE, edges?.map(({ node }) => node.id) ?? [])
 
   const { mutateAsync: updateObjective } = useUpdateControlObjective()
   const { mutateAsync: deleteObjective } = useDeleteControlObjective()
@@ -248,6 +251,7 @@ const ControlObjectivePage = () => {
             <ObjectiveItem
               key={node.id}
               node={node}
+              canEdit={canEditObjective(node.id)}
               onEdit={(n) => {
                 setEditData(n)
                 setShowCreateSheet(true)
