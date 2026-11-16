@@ -13,7 +13,7 @@ import { useAccountRolesMany, useOrganizationRoles } from '@/lib/query-hooks/per
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { hasPermission, canEdit } from '@/lib/authz/utils'
 import Link from 'next/link'
-import { ProgramProgramStatus, type ProgramWhereInput, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { ProgramProgramStatus, type ProgramWhereInput } from '@repo/codegen/src/schema'
 import { Switch } from '@repo/ui/switch'
 import { Card } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
@@ -217,7 +217,6 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
   const { data: submittedEvidenceCount } = useProgramSubmittedEvidenceCount(program.id)
   const evidencePct = formatEvidencePct(submittedEvidenceCount, program.controls.totalCount)
 
-  const openTasks = program?.tasks?.edges?.filter((t) => t?.node?.status && [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW].includes(t.node.status)).length ?? 0
   const status = program.status === ProgramProgramStatus.READY_FOR_AUDITOR ? ProgramProgramStatus.IN_PROGRESS : program.status
   const isArchived = status === ProgramProgramStatus.ARCHIVED
   const showArchiveSuggestion = editAllowed && !isArchived && program.status === ProgramProgramStatus.COMPLETED && isPastDate(program.endDate)
@@ -331,7 +330,7 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
       <div className="flex items-center">
         <Metric label="EVIDENCE" value={evidencePct} valueLabel="submitted" status={status} />
         <Separator vertical className="mx-4 w-fit" separatorClass="h-10" />
-        <Metric label="TASKS" value={openTasks || 0} valueLabel="open" status={status} />
+        <Metric label="TASKS" value={program.openTasks.totalCount} valueLabel="open" status={status} />
         <Separator vertical className="mx-4 w-fit" separatorClass="h-10" />
         <Metric label="CONTROLS" value={program.controls.totalCount} valueLabel="total" status={status} />
       </div>

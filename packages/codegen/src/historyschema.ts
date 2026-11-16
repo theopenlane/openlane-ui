@@ -7780,6 +7780,7 @@ export interface GetProgramSubmittedEvidenceQuery {
 
 export type GetProgramDashboardQueryVariables = Exact<{
   where?: Types.ProgramWhereInput | null | undefined
+  openTaskStatuses: Array<Types.TaskTaskStatus> | Types.TaskTaskStatus
 }>
 
 export interface GetProgramDashboardQuery {
@@ -7794,7 +7795,7 @@ export interface GetProgramDashboardQuery {
         endDate: any
         startDate: any
         programOwner: { id: string; displayName: string } | null
-        tasks: { edges: Array<{ node: { id: string; status: Types.TaskTaskStatus } | null } | null> | null }
+        openTasks: { totalCount: number }
         controls: { totalCount: number }
       } | null
     } | null> | null
