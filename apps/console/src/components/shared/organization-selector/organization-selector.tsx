@@ -13,7 +13,7 @@ import { useSession } from 'next-auth/react'
 import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useGetOrganizationsForCurrentUser } from '@/lib/graphql-hooks/organization'
+import { getCurrentUserOrgRole } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { type Organization } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
@@ -29,10 +29,9 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
     currentOrgName: '',
   })
 
-  const { currentOrgId } = useOrganization()
-  const { data } = useGetOrganizationsForCurrentUser()
-  const orgs = data?.organizations?.edges ?? []
-  const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
+  const { currentOrgId, allOrgs: orgs, getOrganizationByID } = useOrganization()
+  const currentOrg = getOrganizationByID(currentOrgId)?.node
+  const fallbackRole = sessionData?.user.isImpersonation ? 'Support' : 'Unknown'
   const { allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
   const filteredOrgs = orgs
     .filter((org) => {
@@ -116,9 +115,7 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
                   <Avatar entity={currentOrg as Organization} className="shrink-0" />
                   <div className="flex flex-col justify-start min-w-0">
                     <span className="text-sm  text-start font-medium text-foreground truncate">{currentOrg?.displayName}</span>
-                    <span className="text-xs text-left text-muted-foreground uppercase self-start">
-                      {(currentOrg?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role.toLowerCase() ?? ''}
-                    </span>
+                    <span className="text-xs text-left text-muted-foreground uppercase self-start">{getCurrentUserOrgRole(currentOrg)?.toLowerCase() ?? ''}</span>
                   </div>
                 </div>
                 <ChevronsUpDown className="ml-2 shrink-0 text-muted-foreground" size={16} />
@@ -146,14 +143,7 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
             </div>
             <div className="border-t border-boder my-2.5"></div>
             {currentOrg?.name.includes(orgData.organizationSearch) && (
-              <OrganizationItem
-                org={currentOrg as Organization}
-                isCurrent={true}
-                role={
-                  (currentOrg?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? (sessionData?.user.isImpersonation ? 'Support' : 'Unknown')
-                }
-                onClick={() => handleOrganizationSwitch(currentOrg?.id)}
-              />
+              <OrganizationItem org={currentOrg as Organization} isCurrent={true} role={getCurrentUserOrgRole(currentOrg) ?? fallbackRole} onClick={() => handleOrganizationSwitch(currentOrg?.id)} />
             )}
 
             {filteredOrgs.map((org) => (
@@ -161,9 +151,7 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
                 key={org?.node?.id}
                 org={org?.node as Organization}
                 isCurrent={false}
-                role={
-                  (org?.node?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? (sessionData?.user.isImpersonation ? 'Support' : 'Unknown')
-                }
+                role={getCurrentUserOrgRole(org?.node) ?? fallbackRole}
                 onClick={() => handleOrganizationSwitch(org?.node?.id)}
               />
             ))}

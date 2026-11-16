@@ -1,11 +1,11 @@
 import { useSession } from 'next-auth/react'
-import { useGetAllOrganizations } from '../lib/graphql-hooks/organization'
+import { useGetOrganizationsForCurrentUser } from '@/lib/graphql-hooks/organization'
 
 export const useOrganization = () => {
   const { data: sessionData } = useSession()
   const currentOrgId: string | undefined = sessionData?.user?.activeOrganizationId
 
-  const { data } = useGetAllOrganizations()
+  const { data } = useGetOrganizationsForCurrentUser()
   const organizations = data?.organizations.edges || []
 
   const getOrganizationByID = (organizationID: string | undefined) => {

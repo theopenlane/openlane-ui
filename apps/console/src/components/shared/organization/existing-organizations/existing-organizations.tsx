@@ -6,7 +6,8 @@ import { Tag } from '@repo/ui/tag'
 import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useGetOrganizationsForCurrentUser, useLeaveOrganization } from '@/lib/graphql-hooks/organization'
+import { getCurrentUserOrgRole, useGetOrganizationsForCurrentUser, useLeaveOrganization } from '@/lib/graphql-hooks/organization'
+import { invalidateMembershipQueries } from '@/lib/graphql-hooks/membership-cache'
 import { type Organization, OrgMembershipRole } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -80,8 +81,10 @@ export const ExistingOrganizations = () => {
   }
 
   const handleLeaveOrganization = async (orgId: string) => {
+    let left = false
     try {
       await leaveOrganization({ organizationID: orgId })
+      left = true
 
       successNotification({
         title: 'Successfully left organization',
@@ -116,10 +119,6 @@ export const ExistingOrganizations = () => {
           })
         }
       }
-
-      queryClient.invalidateQueries({
-        predicate: (query) => ['memberships', 'organizationsWithMembers', 'groups'].includes(query.queryKey[0] as string),
-      })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -127,6 +126,9 @@ export const ExistingOrganizations = () => {
         description: errorMessage,
       })
     } finally {
+      if (left) {
+        invalidateMembershipQueries(queryClient)
+      }
       setShowLeaveConfirmation(null)
     }
   }
@@ -136,7 +138,7 @@ export const ExistingOrganizations = () => {
       <Panel>
         <PanelHeader heading="Existing organizations" />
         {orgs.map((org) => {
-          const role = org?.node?.members?.edges?.[0]?.node?.role ?? 'Owner'
+          const role = getCurrentUserOrgRole(org?.node) ?? 'Owner'
 
           return (
             <div key={org?.node?.id} className={`${orgWrapper()} group`}>

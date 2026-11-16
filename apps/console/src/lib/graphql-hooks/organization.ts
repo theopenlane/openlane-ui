@@ -5,7 +5,6 @@ import {
   GET_ALL_ORGANIZATIONS,
   GET_ORGANIZATION_NAME_BY_ID,
   GET_SINGLE_ORGANIZATION_MEMBERS,
-  GET_ALL_ORGANIZATIONS_WITH_MEMBERS,
   GET_INVITES,
   GET_ORGANIZATION_BILLING,
   GET_ORGANIZATION_SETTING,
@@ -23,9 +22,9 @@ import {
 } from '@repo/codegen/query/organization'
 import {
   type GetAllOrganizationsQuery,
+  type GetAllOrganizationsQueryVariables,
   type GetSingleOrganizationMembersQuery,
   type GetSingleOrganizationMembersQueryVariables,
-  type GetAllOrganizationsWithMembersQuery,
   type GetInvitesQuery,
   type GetOrganizationBillingQuery,
   type GetOrganizationBillingQueryVariables,
@@ -50,7 +49,6 @@ import {
   type GetInvitesQueryVariables,
   type GetOrganizationBillingBannerQuery,
   type GetOrganizationBillingBannerQueryVariables,
-  type OrgMembershipWhereInput,
   type UpdateOrganizationSettingMutationVariables,
   type UpdateOrganizationSettingMutation,
   type TransferOrganizationOwnershipMutationVariables,
@@ -58,20 +56,13 @@ import {
   type MutationLeaveOrganizationArgs,
   OrgMembershipRole,
 } from '@repo/codegen/src/schema'
-import { useMutation, useQuery, type QueryClient } from '@tanstack/react-query'
+import { skipToken, useMutation, useQuery, type QueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { useMemo } from 'react'
-
-export const useGetAllOrganizations = () => {
-  const { client } = useGraphQLClient()
-
-  return useQuery<GetAllOrganizationsQuery>({
-    queryKey: ['organizations'],
-    queryFn: async () => client.request(GET_ALL_ORGANIZATIONS),
-  })
-}
+import { getNodes } from './connection'
+import { CURRENT_USER_ORGANIZATIONS_QUERY_ROOT, invalidateCurrentUserOrganizations, invalidateMembershipQueries } from './membership-cache'
 
 export const useGetOrganizationNameById = (organizationId: string | undefined) => {
   const { client } = useGraphQLClient()
@@ -93,37 +84,27 @@ export const useGetSingleOrganizationMembers = ({ organizationId, pagination }: 
   })
 }
 
-type TUseGetAllOrganizationsWithMembers = {
-  membersWhere: OrgMembershipWhereInput
-  enabled: boolean
-}
-
-const useGetAllOrganizationsWithMembers = ({ membersWhere, enabled }: TUseGetAllOrganizationsWithMembers) => {
-  const { client } = useGraphQLClient()
-
-  return useQuery<GetAllOrganizationsWithMembersQuery>({
-    queryKey: ['organizationsWithMembers', membersWhere],
-    queryFn: async () => client.request(GET_ALL_ORGANIZATIONS_WITH_MEMBERS, { membersWhere }),
-    enabled,
-  })
-}
-
 export const useGetOrganizationsForCurrentUser = () => {
+  const { client } = useGraphQLClient()
   const { data: sessionData } = useSession()
   const userId = sessionData?.user?.userId
 
-  const query = useGetAllOrganizationsWithMembers({ membersWhere: { userID: userId }, enabled: !!userId })
+  const query = useQuery<GetAllOrganizationsQuery>({
+    queryKey: [CURRENT_USER_ORGANIZATIONS_QUERY_ROOT, userId],
+    queryFn: userId ? () => client.request<GetAllOrganizationsQuery, GetAllOrganizationsQueryVariables>(GET_ALL_ORGANIZATIONS, { userId }) : skipToken,
+  })
 
   return { ...query, isLoadingOrganizations: !!userId && query.isPending }
 }
 
-export const useIsOwnerInAnyOrg = (userId?: string) => {
-  const { data, isPending, isError } = useGetAllOrganizationsWithMembers({ membersWhere: { hasUserWith: [{ id: userId }] }, enabled: !!userId })
+type TCurrentUserOrganization = NonNullable<NonNullable<NonNullable<GetAllOrganizationsQuery['organizations']['edges']>[number]>['node']>
 
-  const isOwner = useMemo(
-    () => (data?.organizations?.edges ?? []).some((edge) => !edge?.node?.personalOrg && (edge?.node?.members?.edges ?? []).some((member) => member?.node?.role === OrgMembershipRole.OWNER)),
-    [data],
-  )
+export const getCurrentUserOrgRole = (org: TCurrentUserOrganization | null | undefined) => getNodes(org?.members)[0]?.role
+
+export const useIsOwnerInAnyOrg = () => {
+  const { data, isPending, isError } = useGetOrganizationsForCurrentUser()
+
+  const isOwner = useMemo(() => (data?.organizations?.edges ?? []).some((edge) => !edge?.node?.personalOrg && getCurrentUserOrgRole(edge?.node) === OrgMembershipRole.OWNER), [data])
 
   return {
     isOwner,
@@ -233,16 +214,20 @@ export const useCreateOrganization = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['organizationsWithMembers'] })
+      invalidateCurrentUserOrganizations(queryClient)
     },
   })
 }
 
 export const useUpdateOrganization = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<UpdateOrganizationMutation, unknown, UpdateOrganizationMutationVariables>({
     mutationFn: async (payload) => client.request(UPDATE_ORGANIZATION, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organizations'] })
+      invalidateCurrentUserOrganizations(queryClient)
+    },
   })
 }
 
@@ -310,22 +295,29 @@ export const useUpdateOrgAvatar = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] })
+      invalidateCurrentUserOrganizations(queryClient)
     },
   })
 }
 
 export const useUpdateOrganizationSetting = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation({
     mutationFn: (payload: UpdateOrganizationSettingMutationVariables) => client.request<UpdateOrganizationSettingMutation>(UPDATE_ORG_SETTING, payload),
+    onSuccess: (_data, { input }) => {
+      if (input.identityProviderLoginEnforced !== undefined) {
+        invalidateCurrentUserOrganizations(queryClient)
+      }
+    },
   })
 }
 
 export const useTransferOrganizationOwnership = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation({
     mutationFn: (payload: TransferOrganizationOwnershipMutationVariables) => client.request<TransferOrganizationOwnershipMutation>(TRANSFER_ORGANIZATION_OWNERSHIP, payload),
+    onSuccess: () => invalidateMembershipQueries(queryClient),
   })
 }

@@ -6425,7 +6425,9 @@ export interface UpdateBulkOrganizationBrandingSettingMutation {
   updateBulkOrganizationBrandingSetting: { updatedIDs: Array<string> | null }
 }
 
-export type GetAllOrganizationsQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllOrganizationsQueryVariables = Exact<{
+  userId: string
+}>
 
 export interface GetAllOrganizationsQuery {
   organizations: {
@@ -6438,6 +6440,7 @@ export interface GetAllOrganizationsQuery {
         personalOrg: boolean | null
         avatarFile: { id: string; base64: string | null } | null
         setting: { identityProviderLoginEnforced: boolean } | null
+        members: { edges: Array<{ node: { id: string; role: Types.OrgMembershipRole } | null } | null> | null }
       } | null
     } | null> | null
   }
@@ -6482,26 +6485,6 @@ export interface GetSingleOrganizationMembersQuery {
       } | null> | null
       pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
     }
-  }
-}
-
-export type GetAllOrganizationsWithMembersQueryVariables = Exact<{
-  membersWhere?: Types.OrgMembershipWhereInput | null | undefined
-}>
-
-export interface GetAllOrganizationsWithMembersQuery {
-  organizations: {
-    edges: Array<{
-      node: {
-        id: string
-        personalOrg: boolean | null
-        displayName: string
-        name: string
-        avatarRemoteURL: string | null
-        avatarFile: { id: string; base64: string | null } | null
-        members: { edges: Array<{ node: { id: string; role: Types.OrgMembershipRole; user: { id: string } } | null } | null> | null }
-      } | null
-    } | null> | null
   }
 }
 
