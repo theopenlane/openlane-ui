@@ -31,8 +31,8 @@ export const secureFetch = async (url: string | URL | globalThis.Request, option
     'Content-Type': jsonContentType,
   }
 
-  const send = async (csrfToken: string) => {
-    const headers = appendCookie({ ...baseHeaders, [csrfHeader]: csrfToken }, csrfCookieName, csrfToken)
+  const send = async (csrfToken: string | undefined) => {
+    const headers = csrfToken ? appendCookie({ ...baseHeaders, [csrfHeader]: csrfToken }, csrfCookieName, csrfToken) : baseHeaders
 
     const res = await fetch(url, {
       ...options,
@@ -52,15 +52,17 @@ export const secureFetch = async (url: string | URL | globalThis.Request, option
     return res
   }
 
+  const requiresCSRF = !CSRF_EXEMPT_METHODS.has(resolveMethod(url, options))
+
   let csrfToken = token ?? getCookie(csrfCookieName)
-  if (!csrfToken) {
+  if (!csrfToken && requiresCSRF) {
     csrfToken = await fetchCSRFToken(forwardedHeaders)
   }
 
   try {
     const response = await send(csrfToken)
 
-    if (!token && !CSRF_EXEMPT_METHODS.has(resolveMethod(url, options)) && (await isCSRFRejection(response))) {
+    if (!token && requiresCSRF && (await isCSRFRejection(response))) {
       console.warn('[secureFetch] ⚠️ CSRF token rejected — refetching and retrying once')
       invalidateCSRFToken()
 

@@ -1,7 +1,7 @@
 'use server'
 
 import type { Metadata } from 'next'
-import { fetchGraphqlServer } from './fetch-graphql'
+import { queryGraphqlServer } from './fetch-graphql'
 import { getServerCredentials } from './server-credentials'
 import { getOrgDisplayNameForRequest } from './dashboard-data-cache'
 
@@ -28,7 +28,7 @@ export const buildDetailMetadata = async <TVariables extends Record<string, unkn
 
   const { session, accessToken, sessionCookie } = credentials
   const [data, orgName] = await Promise.all([
-    fetchGraphqlServer<TData>(query, variables, accessToken, sessionCookie),
+    queryGraphqlServer<TData>(query, variables, accessToken, sessionCookie),
     getOrgDisplayNameForRequest(accessToken, sessionCookie, session.user?.activeOrganizationId),
   ])
 
