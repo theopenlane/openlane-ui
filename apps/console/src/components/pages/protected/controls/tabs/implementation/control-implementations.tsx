@@ -8,6 +8,8 @@ import CreateControlImplementationSheet from '@/components/pages/protected/contr
 import { useNotification } from '@/hooks/useNotification'
 import { ImplementationItem } from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/implementation-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useCanEditObjects } from '@/lib/authz/use-can-edit-objects'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type ControlImplementationsProps = {
   edges: { node: ControlImplementationFieldsFragment }[] | undefined
@@ -22,6 +24,7 @@ const ControlImplementations: React.FC<ControlImplementationsProps> = ({ edges }
 
   const { mutateAsync: updateImplementation, isPending } = useUpdateControlImplementation()
   const { mutateAsync: deleteImplementation } = useDeleteControlImplementation()
+  const canEditImplementation = useCanEditObjects(ObjectTypes.CONTROL_IMPLEMENTATION, edges?.map(({ node }) => node.id) ?? [])
 
   const handleMarkVerified = async (implementationId: string, verified: boolean) => {
     try {
@@ -82,6 +85,7 @@ const ControlImplementations: React.FC<ControlImplementationsProps> = ({ edges }
             <ImplementationItem
               key={edge.node.id}
               node={edge.node}
+              canEdit={canEditImplementation(edge.node.id)}
               onEdit={(node) => {
                 setEditData(node)
                 setShowCreateSheet(true)

@@ -17,6 +17,8 @@ import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ImplementationItem } from './implementation-item'
+import { useCanEditObjects } from '@/lib/authz/use-can-edit-objects'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { controlAssociationFilter } from '@/lib/graphql-hooks/control-association'
@@ -45,6 +47,7 @@ const ControlImplementationPage = () => {
   const { mutateAsync: updateImplementation, isPending } = useUpdateControlImplementation()
   const { mutateAsync: deleteImplementation } = useDeleteControlImplementation()
   const edges = data?.controlImplementations?.edges?.filter((edge): edge is { node: ControlImplementationFieldsFragment } => !!edge?.node)
+  const canEditImplementation = useCanEditObjects(ObjectTypes.CONTROL_IMPLEMENTATION, edges?.map(({ node }) => node.id) ?? [])
 
   const { data: orgPermission } = useOrganizationRoles()
   const { data: session } = useSession()
@@ -161,6 +164,7 @@ const ControlImplementationPage = () => {
           <ImplementationItem
             key={edge.node.id}
             node={edge.node}
+            canEdit={canEditImplementation(edge.node.id)}
             onEdit={(n) => {
               setEditData(n)
               setShowCreateSheet(true)
