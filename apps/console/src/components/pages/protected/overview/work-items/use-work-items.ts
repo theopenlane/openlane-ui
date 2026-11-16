@@ -9,7 +9,7 @@ import { EvidenceEvidenceStatus, NotificationNotificationTopic, OrderDirection, 
 import type { Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { useTasksWithFilter, useUpdateTask } from '@/lib/graphql-hooks/task'
 import { useGetEvidenceListLightInfinite } from '@/lib/graphql-hooks/evidence'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { findCustomTypeEnumOption, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { controlOwnedByUserWhere } from '@/lib/control-where'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrgPersistedState } from '@/lib/storage/org-persisted-store'
@@ -145,7 +145,7 @@ export const useWorkItems = () => {
       tasks.map((task) => ({
         key: `task-${task.id}`,
         kind: task.taskKindName || UNCATEGORIZED_KIND,
-        kindColor: taskKindOptions.find((option) => option.value === task.taskKindName)?.color,
+        kindColor: findCustomTypeEnumOption(taskKindOptions, task.taskKindName)?.color,
         title: task.title,
         dueLabel: dueLabelFor(task.due),
         onClick: () => setSelectedTaskId(task.id),

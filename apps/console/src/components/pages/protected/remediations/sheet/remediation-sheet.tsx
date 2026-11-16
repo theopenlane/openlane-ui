@@ -12,6 +12,7 @@ type TRemediationSheetProps = {
   open: boolean
   remediationId?: string | null
   initialContext?: TRemediationContextRef
+  initialInstructions?: string
   onClose: () => void
   onCreated?: (remediationId: string) => void
 }
@@ -42,10 +43,11 @@ const RemediationDetail: React.FC<{ remediationId: string; onClose: () => void; 
   )
 }
 
-const RemediationSheet: React.FC<TRemediationSheetProps> = ({ open, remediationId, initialContext, onClose, onCreated }) => {
+const RemediationSheet: React.FC<TRemediationSheetProps> = ({ open, remediationId, initialContext, initialInstructions, onClose, onCreated }) => {
   const closeGuardRef = useRef<TRemediationCloseGuard | null>(null)
   const shownRemediationId = useRetainedWhileOpen(open, remediationId)
   const shownContext = useRetainedWhileOpen(open, initialContext)
+  const shownInstructions = useRetainedWhileOpen(open, initialInstructions)
 
   return (
     <Sheet open={open} onOpenChange={(next) => (next ? undefined : closeGuardRef.current ? closeGuardRef.current(onClose) : onClose())}>
@@ -56,6 +58,7 @@ const RemediationSheet: React.FC<TRemediationSheetProps> = ({ open, remediationI
           <RemediationSheetBody
             key={shownContext ? `${shownContext.type}-${shownContext.id}` : 'create'}
             initialContext={shownContext ?? undefined}
+            initialInstructions={shownInstructions ?? undefined}
             onClose={onClose}
             onCreated={onCreated}
             closeGuardRef={closeGuardRef}

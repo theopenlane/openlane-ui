@@ -5,7 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@r
 import { ChevronDown } from 'lucide-react'
 import { getHrefForObjectType, type NormalizedObject } from '@/utils/getHrefForObjectType'
 import ObjectAssociationChip from '@/components/shared/object-association/object-association-chip.tsx'
-import { type Section } from '@/components/shared/object-association/types/object-association-types.ts'
+import { type Section, type TBaseAssociatedNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import { getSectionDisplayName } from '@/components/shared/object-association/object-association-config'
 
 type AssociatedObjectsAccordionProps = {
@@ -48,23 +48,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
     return (edges ?? []).map((edge) => edge?.node).filter((node): node is T => !!node)
   }
 
-  const renderTable = (
-    kind: string,
-    rows: {
-      id: string
-      displayID?: string | null
-      displayName?: string | null
-      refCode?: string | null
-      name?: string | null
-      fullName?: string | null
-      title?: string | null
-      details?: string | null
-      description?: string | null
-      desiredOutcome?: string | null
-      summary?: string | null
-      identityHolderType?: string | null
-    }[],
-  ) => (
+  const renderTable = (kind: string, rows: TBaseAssociatedNode[]) => (
     <div className="flex gap-2 flex-wrap">
       {rows.length > 0 ? (
         rows.map((row) => {
@@ -72,20 +56,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
             <ObjectAssociationChip
               kind={kind}
               key={row?.id}
-              object={{
-                id: row.id,
-                refCode: row?.refCode,
-                displayName: row?.displayName || row?.fullName,
-                name: row?.name,
-                fullName: row?.fullName,
-                title: row?.title,
-                details: row?.details,
-                summary: row?.summary,
-                description: row?.description,
-                desiredOutcome: row?.desiredOutcome,
-                identityHolderType: row?.identityHolderType,
-                link: getHrefForObjectType(kind, row as NormalizedObject),
-              }}
+              object={{ ...row, link: getHrefForObjectType(kind, row as NormalizedObject) }}
               removable={removable}
               onRemove={onRemove ? () => onRemove(row.id, kind) : undefined}
               onItemClick={onItemClick}

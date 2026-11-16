@@ -12,7 +12,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
     referenceID @include(if: $includeReferenceID)
     auditorReferenceID @include(if: $includeAuditorReferenceID)
     source @include(if: $includeSource)
-    sourceName @include(if: $includeSourceName)
+    controlOriginName @include(if: $includeControlOriginName)
     controlKindName @include(if: $includeControlKindName)
     title @include(if: $includeTitle)
     updatedAt @include(if: $includeUpdatedAt)
@@ -176,7 +176,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     references
     displayID
     source
-    sourceName
+    controlOriginName
     controlKindName
     publicRepresentation
     auditorReferenceID
@@ -298,7 +298,7 @@ export const GET_ALL_CONTROLS = gql`
     $includeReferenceID: Boolean = false
     $includeAuditorReferenceID: Boolean = false
     $includeSource: Boolean = false
-    $includeSourceName: Boolean = false
+    $includeControlOriginName: Boolean = false
     $includeControlKindName: Boolean = false
     $includeTitle: Boolean = false
     $includeCreatedAt: Boolean = false
@@ -517,6 +517,7 @@ export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
           node {
             id
             cveID
+            externalID
             displayName
             displayID
           }
@@ -927,6 +928,49 @@ export const GET_CONTROLS_BY_REFCODE = gql`
               }
             }
           }
+        }
+      }
+    }
+  }
+`
+
+export const GET_CONTROLS_FOR_IMPORT_PREVIEW = gql`
+  query GetControlsForImportPreview($where: ControlWhereInput, $first: Int, $after: Cursor) {
+    controls(where: $where, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          refCode
+          referenceFramework
+          referenceFrameworkRevision
+          title
+          description
+          status
+          implementationStatus
+          implementationDescription
+          publicRepresentation
+          source
+          controlOriginName
+          category
+          categoryID
+          subcategory
+          mappedCategories
+          controlQuestions
+          aliases
+          tags
+          referenceID
+          auditorReferenceID
+          externalID
+          externalUUID
+          controlKindName
+          environmentName
+          scopeName
+          workflowEligibleMarker
+          trustCenterVisibility
         }
       }
     }

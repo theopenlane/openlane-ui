@@ -17,7 +17,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ inputClassName }) => {
       <div className="grid grid-cols-[min-content_250px] gap-y-4 gap-x-6 items-center">
         {/* Stakeholder */}
         <div className={`flex gap-2 items-center w-32 shrink-0 ${inputClassName ?? ''}`}>
-          <Stamp size={16} className="text-brand" />
+          <Stamp size={16} />
           <span className="text-sm">Stakeholder</span>
         </div>
         <div className="w-50 min-w-0">
@@ -36,7 +36,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ inputClassName }) => {
 
         {/* Delegate */}
         <div className={`flex gap-2 items-center w-32 shrink-0 ${inputClassName ?? ''}`}>
-          <CircleArrowRight size={16} className="text-brand" />
+          <CircleArrowRight size={16} />
           <span className="text-sm">Delegate</span>
         </div>
         <div className="w-50 min-w-0">

@@ -39,6 +39,7 @@ import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { deleteMenuAction, copyLinkMenuAction, SlideoutHeader, type SlideoutMenuAction } from '@/components/shared/crud-base/slideout-header'
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { Link } from '@/components/shared/link/link'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -267,26 +268,20 @@ const GroupDetailsSheet = () => {
                       <p className="font-semibold">Did you know?</p>
                       <p className="text-sm">
                         Groups can be used to assign specific access to objects within the system. Please refer to our{' '}
-                        <a href={`${GROUP_PERMISSIONS_DOCS_URL}`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
+                        <Link href={GROUP_PERMISSIONS_DOCS_URL} newTab>
                           documentation
-                        </a>
+                        </Link>
                         .
                       </p>
                     </div>
                   </Card>
 
                   <div className="mt-9 flex">
-                    <p
-                      className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer ${activeTab === 'Members' ? 'border-brand text-brand' : ''}`}
-                      {...activatable(() => setActiveTab('Members'))}
-                    >
+                    <p className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer`} {...activatable(() => setActiveTab('Members'))}>
                       Members
                     </p>
 
-                    <p
-                      className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer ${activeTab === 'RolesAndPermissions' ? 'border-brand text-brand' : ''}`}
-                      {...activatable(() => setActiveTab('RolesAndPermissions'))}
-                    >
+                    <p className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer`} {...activatable(() => setActiveTab('RolesAndPermissions'))}>
                       Roles and Permissions
                     </p>
                   </div>
@@ -298,7 +293,7 @@ const GroupDetailsSheet = () => {
                         <GroupRolesTable />
                         <div className="flex flex-col gap-3">
                           <div className="flex items-center gap-2">
-                            <ShieldHalf width={16} height={16} className="text-brand" />
+                            <ShieldHalf width={16} height={16} />
                             <div>
                               <p className="font-semibold">Permissions</p>
                               <p className="text-xs text-text-light">Specific access permissions this group has.</p>

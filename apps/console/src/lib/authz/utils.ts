@@ -31,6 +31,8 @@ export const canEdit = (accessRole: TAccessRole[] | undefined, session?: Session
   return accessRole ? accessRole.includes(AccessEnum.CanEdit) : false
 }
 
+export const canManageIntegrations = (accessRole: TAccessRole[] | undefined, session?: Session | null) => hasPermission(accessRole, AccessEnum.CanManageIntegrations, session)
+
 export const isOwnerOrSuperAdmin = (role?: OrgMembershipRole | null) => {
   return role === OrgMembershipRole.OWNER || role === OrgMembershipRole.SUPER_ADMIN
 }

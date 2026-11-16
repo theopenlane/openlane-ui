@@ -14,7 +14,7 @@ const GroupRolesTable = () => {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ShieldCheck width={16} height={16} className="text-brand" />
+          <ShieldCheck width={16} height={16} />
           <div>
             <p className="font-semibold">Roles</p>
             <p className="text-xs text-text-light">Functional roles the members of this group are assigned</p>

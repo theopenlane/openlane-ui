@@ -4,11 +4,12 @@ import { useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { formatDate } from '@/utils/date'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { Box, ExternalLink, InfoIcon } from 'lucide-react'
+import { Box, InfoIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Card } from '@repo/ui/cardpanel'
+import { Link } from '@/components/shared/link/link'
 
 type Product = {
   product_id: string
@@ -79,7 +80,7 @@ export function ProductCard({
           <span>
             Annual: {'$'}
             {yearly.unit_amount / 100}
-            {savingPct > 0 && <span className="text-brand"> (save {savingPct}%)</span>}
+            {savingPct > 0 && <span> (save {savingPct}%)</span>}
           </span>
         )}
       </div>
@@ -95,10 +96,7 @@ export function ProductCard({
             <div className="flex justify-between w-full">
               <div className="flex gap-1 items-center">
                 <p className="text-xl font-medium ">{product.display_name}</p>
-                <SystemTooltip
-                  icon={<InfoIcon size={14} className="text-brand-100" />}
-                  content={<div className="flex flex-col gap-1 text-sm text-text-informational">{renderPriceOptions(product.billing.prices)}</div>}
-                />
+                <SystemTooltip icon={<InfoIcon size={14} />} content={<div className="flex flex-col gap-1 text-sm text-text-informational">{renderPriceOptions(product.billing.prices)}</div>} />
               </div>
               <div className="flex gap-5 items-center">
                 <p>
@@ -139,10 +137,9 @@ export function ProductCard({
             {(product.marketing_description ?? product.description) && <p className="text-sm text-text-informational mt-1">{product.marketing_description || product.description}</p>}
 
             <div className="mt-1">
-              <a href={`${OPENLANE_WEBSITE_URL}/pricing`} target="_blank" rel="noopener noreferrer" className="text-brand text-sm font-medium flex gap-1 items-center">
-                <ExternalLink size={16} />
-                <span>Learn more</span>
-              </a>
+              <Link href={`${OPENLANE_WEBSITE_URL}/pricing`} newTab className="text-sm">
+                Learn more
+              </Link>
             </div>
           </div>
         </div>

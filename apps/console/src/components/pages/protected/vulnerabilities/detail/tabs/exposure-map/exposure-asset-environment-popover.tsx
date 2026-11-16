@@ -16,7 +16,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { pluralizeWithCount } from '@/utils/strings'
 import { type TSelectedReport } from './exposure-bulk-actions'
-import { exposureAssetLabel } from './exposure-model'
+import { exposureAssetLabel } from '../../../../exposure/detail/exposure-asset-label'
 import { useExposureAssetEnvironment } from './use-exposure-asset-environment'
 
 const ENVIRONMENT_FROM_ASSET = '__asset__'

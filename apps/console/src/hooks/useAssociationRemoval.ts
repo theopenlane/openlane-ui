@@ -112,13 +112,13 @@ export function useAssociationRemoval<TInput extends object, TSectionKey extends
 
       if (invalidateQueryKeys?.length) {
         for (const queryKey of invalidateQueryKeys) {
-          queryClient.invalidateQueries({ queryKey })
+          queryClient.invalidateQueries({ queryKey }, { cancelRefetch: false })
         }
       }
 
       const relatedQueryKey = sectionKeyToInvalidateQueryKey?.[kind]
       if (relatedQueryKey) {
-        queryClient.invalidateQueries({ queryKey: relatedQueryKey })
+        queryClient.invalidateQueries({ queryKey: relatedQueryKey }, { cancelRefetch: false })
       }
 
       onRemoved?.()

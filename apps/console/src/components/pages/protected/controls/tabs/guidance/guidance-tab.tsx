@@ -11,6 +11,7 @@ import { useNotification } from '@/hooks/useNotification'
 import ActivityAccordionTrigger from '@/components/shared/crud-base/tabs/activity-accordion-trigger'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { SanitizedHtml } from '@/components/shared/sanitized-html/sanitized-html'
+import { Link } from '@/components/shared/link/link'
 
 interface ImplementationGuidance {
   referenceId: string
@@ -221,9 +222,9 @@ const GuidanceTab: React.FC<GuidanceTabProps> = ({
             <Card key={`ref-${index}`} className="p-4">
               <p className="font-semibold">{item.name}</p>
               {item.url ? (
-                <a href={item.url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-sm text-btn-primary hover:underline">
+                <Link href={item.url} newTab className="mt-2 text-sm break-all">
                   {item.url}
-                </a>
+                </Link>
               ) : (
                 <p className="text-sm text-muted-foreground mt-2">No link provided.</p>
               )}

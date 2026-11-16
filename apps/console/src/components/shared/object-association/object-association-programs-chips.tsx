@@ -47,7 +47,7 @@ const ObjectAssociationProgramsChips: React.FC<TObjectAssociationProgramsChipsPr
                         <SlidersHorizontal size={12} />
                         <span className="font-medium">Name</span>
                       </div>
-                      <span className={`text-brand pl-3 cursor-pointer`} {...activatable(() => handleNavigate(href))}>
+                      <span className="pl-3 cursor-pointer" {...activatable(() => handleNavigate(href))}>
                         {name}
                       </span>
                     </div>

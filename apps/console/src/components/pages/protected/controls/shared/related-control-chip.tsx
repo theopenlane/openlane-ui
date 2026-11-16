@@ -31,7 +31,7 @@ export const RelatedControlChip: React.FC<Props> = ({ refCode, href, mappingType
     <div
       className={`
       flex gap-1 border rounded-full px-2.5 py-0.5
-      ${href ? 'cursor-pointer hover:text-brand' : ''}
+      ${href ? 'cursor-pointer' : ''}
     `}
     >
       {hidePencil ? null : config?.icon || null}

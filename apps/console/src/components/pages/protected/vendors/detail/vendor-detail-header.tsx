@@ -14,7 +14,8 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { VendorLogoDialog } from '../vendor-logo-dialog'
-import { useUpdateEntityLogo, vendorDisplayName } from '@/lib/graphql-hooks/entity'
+import { useUpdateEntityLogo, useVendorInstallations, vendorDisplayName } from '@/lib/graphql-hooks/entity'
+import { useCanManageIntegrations } from '@/lib/authz/use-can-manage-integrations'
 import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
 import { matchProviderByVendorName } from '@/lib/integrations/utils'
 import { useNotification } from '@/hooks/useNotification'
@@ -58,8 +59,10 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   const [logoDialogOpen, setLogoDialogOpen] = useState(false)
   const { mutateAsync: updateLogo, isPending: isLogoUploading } = useUpdateEntityLogo()
   const { successNotification, errorNotification } = useNotification()
-  const hasIntegration = (vendor.integrations.edges?.length || 0) > 0 && vendor?.integrations?.edges?.[0]?.node != null
-  const integrationDefId = hasIntegration ? vendor?.integrations?.edges?.[0]?.node?.definitionID : ''
+  const { canManageIntegrations } = useCanManageIntegrations()
+  const { installations, isSuccess: installationsResolved } = useVendorInstallations(vendor.id, canManageIntegrations)
+  const hasIntegration = installations.length > 0
+  const integrationDefId = installations[0]?.definitionID ?? ''
 
   const { data: providersData } = useIntegrationProviders()
   const matchedProvider = useMemo(
@@ -192,6 +195,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
           menuAnchor={elementAnchor('vendor-actions-menu')}
           menuActions={[
             canEditVendor &&
+              installationsResolved &&
               !hasIntegration &&
               matchedProvider && {
                 key: 'add-integration',
@@ -200,6 +204,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
                 href: `/automation/integrations/${matchedProvider.id}?vendorId=${vendor.id}`,
               },
             canEditVendor &&
+              canManageIntegrations &&
               hasIntegration &&
               integrationDefId !== '' && {
                 key: 'configure-integration',

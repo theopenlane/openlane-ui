@@ -8,4 +8,4 @@ export type Connection<T> = {
   pageInfo?: PageInfo | null
 }
 
-export const getNodes = <T>(connection?: Connection<T> | null): T[] => (connection?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
+export const getNodes = <T>(connection?: Pick<Connection<T>, 'edges'> | null): T[] => (connection?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))

@@ -1,6 +1,7 @@
-import { ExternalLink, InfoIcon } from 'lucide-react'
+import { InfoIcon } from 'lucide-react'
 import React from 'react'
 import { cn } from '@repo/ui/lib/utils'
+import { Link } from '@/components/shared/link/link'
 
 interface SectionWarningProps {
   message: React.ReactNode
@@ -28,10 +29,9 @@ export const UnpublishedChangesWarning = ({ previewUrl }: { previewUrl: string }
           <>
             {' '}
             See{' '}
-            <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 align-middle text-blue-500 hover:underline">
+            <Link href={previewUrl} newTab>
               Preview
-              <ExternalLink className="size-3.5 shrink-0" />
-            </a>
+            </Link>
             .
           </>
         )}

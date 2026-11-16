@@ -20,6 +20,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { ObjectNames, ObjectTypes } from '@repo/codegen/src/type-names'
 import { formatDate } from '@/utils/date'
+import { getObjectDisplayName } from '@/utils/object-display-name'
 import { type ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 
 export type TimelineNode = {
@@ -50,10 +51,7 @@ type EdgeNode = {
 type ConnectionEdge = { node?: EdgeNode | null }
 type Connection = { edges?: (ConnectionEdge | null)[] | null }
 
-const nodeName = (node: EdgeNode, type: string): string => {
-  if (type === ObjectTypes.CONTROL || type === ObjectTypes.SUBCONTROL) return node.refCode ?? node.displayID ?? node.id
-  return node.displayName ?? node.name ?? node.title ?? node.target ?? node.displayID ?? node.id
-}
+const nodeName = (node: EdgeNode): string => getObjectDisplayName(node) || node.id
 
 type ExtractOptions = {
   scansAreSource?: boolean
@@ -71,7 +69,7 @@ const extractNodes = (connection: Connection | null | undefined, type: string, o
 
     result.push({
       id: node.id,
-      name: nodeName(node, type),
+      name: nodeName(node),
       type,
       createdAt: node.createdAt,
       source: isRisk ? (node.createdBy ?? null) : (node.source ?? (isScan ? (node.createdBy ?? null) : null)),
@@ -177,7 +175,7 @@ export const useIdentityHolderTimeline = (identityHolderId?: string) => {
   })
 }
 
-export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssociationsTimelineQuery | undefined): TimelineNode[] => {
+export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssociationsTimelineQuery | undefined, { linkIntegrations }: { linkIntegrations: boolean }): TimelineNode[] => {
   const ih = data?.identityHolder
   if (!ih) return []
 
@@ -199,7 +197,7 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
     const n = edge?.node
     if (!n) continue
     const integrationName = n.directoryName ?? null
-    const integrationDefinitionId = n.integration?.definitionID ?? null
+    const integrationDefinitionId = linkIntegrations ? n.sourceDefinitionID || null : null
     const integrationEl: React.ReactNode = integrationName ? (
       integrationDefinitionId ? (
         <Link href={`/automation/integrations/${integrationDefinitionId}`} className="hover:underline">

@@ -1,6 +1,7 @@
 import { ASSOCIATION_SECTION_CONFIG, type AssociationSectionKey, type TAssociationRoot } from '@/components/shared/object-association/object-association-config'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
-import { getAssociationDisplayName, getEdgeIds, getEdgeNodes } from '@/components/shared/object-association/utils'
+import { getEdgeIds, getEdgeNodes } from '@/components/shared/object-association/utils'
+import { getObjectDisplayName } from '@/utils/object-display-name'
 
 export type TAssociationItem = {
   id: string
@@ -11,7 +12,7 @@ export type TAssociationItem = {
 const getSectionEdges = (root: TAssociationRoot | undefined, kind: AssociationSectionKey) => root?.[ASSOCIATION_SECTION_CONFIG[kind].dataField]?.edges
 
 export const buildAssociationItems = (sectionKeys: readonly AssociationSectionKey[], root: TAssociationRoot | undefined): TAssociationItem[] =>
-  sectionKeys.flatMap((kind) => getEdgeNodes(getSectionEdges(root, kind)).map((node) => ({ id: node.id, name: getAssociationDisplayName(node, kind), kind })))
+  sectionKeys.flatMap((kind) => getEdgeNodes(getSectionEdges(root, kind)).map((node) => ({ id: node.id, name: getObjectDisplayName(node), kind })))
 
 export const buildAssociationIds = (sectionKeys: readonly AssociationSectionKey[], root: TAssociationRoot | undefined): TObjectAssociationMap =>
   Object.fromEntries(sectionKeys.map((kind) => [ASSOCIATION_SECTION_CONFIG[kind].inputName, getEdgeIds(getSectionEdges(root, kind))]))

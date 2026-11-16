@@ -177,7 +177,7 @@ test.describe('reports — custom report builder', () => {
     await runReport(page)
     await expect(resultRow(page, title)).toBeVisible({ timeout: 30_000 })
 
-    await page.getByRole('button', { name: 'Export' }).click()
+    await page.getByRole('button', { name: 'Export', exact: true }).click()
 
     const downloading = page.waitForEvent('download', { timeout: 60_000 })
     await page.getByRole('menuitem', { name: 'CSV', exact: true }).click()

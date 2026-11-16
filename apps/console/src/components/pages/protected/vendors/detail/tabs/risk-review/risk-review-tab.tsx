@@ -12,7 +12,8 @@ import { Clock, ClipboardCheck, CalendarClock, SearchIcon } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
 import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
-import { riskRatingFromScore, vendorRiskRatingLevel, vendorRiskScoreInput } from '@/lib/vendor-risk-rating'
+import { riskRatingFromScore, vendorRiskRatingLevel, vendorRiskScoreInput, withRiskRating } from '@/lib/vendor-risk-rating'
+import { useVendorRiskThresholds } from '@/lib/graphql-hooks/vendor-scoring-config'
 import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import { ReadOnlyField } from '@/components/shared/read-only-field/read-only-field'
 import { useReviewsWithFilter, type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
@@ -26,6 +27,8 @@ import VendorReviewSheet from './vendor-review/vendor-review-sheet'
 import { useHasRecentReview } from '@/components/pages/protected/reviews/hooks/use-has-recent-review'
 import { Callout } from '@/components/shared/callout/callout'
 import { RiskScoringPanel } from './risk-scoring/risk-scoring-panel'
+import { vendorDisplayName } from '@/lib/graphql-hooks/entity'
+import { getVendorLogoUrl } from '@/lib/vendor-logo'
 
 interface RiskReviewTabProps {
   vendor: EntityQuery['entity']
@@ -73,17 +76,19 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
     handleUpdate: handleUpdateField,
   }
 
+  const riskThresholds = useVendorRiskThresholds()
+
   const riskScoreFieldProps = {
     ...sharedFieldProps,
     handleUpdate: async (input: UpdateEntityInput) => {
       if ('riskScore' in input && input.riskScore !== undefined) {
-        return handleUpdateField(vendorRiskScoreInput(input.riskScore))
+        return handleUpdateField(withRiskRating(vendorRiskScoreInput(input.riskScore), riskThresholds))
       }
       return handleUpdateField(input)
     },
   }
 
-  const riskRating = riskRatingFromScore(vendor.riskScore) ?? vendor.riskRating ?? null
+  const riskRating = vendor.riskRating || riskRatingFromScore(vendor.riskScore, riskThresholds) || null
 
   return (
     <div className="space-y-6">
@@ -150,7 +155,15 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
         </div>
       </div>
 
-      <RiskScoringPanel vendorId={vendor.id} vendorRiskScore={vendor.riskScore} onViewReview={setSelectedRow} />
+      <RiskScoringPanel
+        vendorId={vendor.id}
+        vendorName={vendorDisplayName(vendor)}
+        vendorLogoUrl={getVendorLogoUrl(vendor.logoFile)}
+        vendorRiskScore={vendor.riskScore}
+        vendorRiskRating={vendor.riskRating}
+        canEdit={canEdit}
+        onViewReview={setSelectedRow}
+      />
 
       <div>
         <h3 className="text-lg font-semibold mb-4">Review History</h3>

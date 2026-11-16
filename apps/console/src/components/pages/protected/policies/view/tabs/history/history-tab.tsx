@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useGetInternalPolicyHistories, useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
@@ -11,6 +11,7 @@ import VersionSlideout from './version-slideout'
 import RestoreDialog from './restore-dialog'
 import { stringToPlateValue } from '@/components/shared/plate/plate-utils'
 import { resolveAuthor } from '@/lib/authors'
+import { useFetchNextPageOnVisible } from '@/hooks/useFetchNextPageOnVisible'
 
 const hasStr = (s: string | null | undefined): s is string => typeof s === 'string' && s.length > 0
 const hasArr = (a: ReadonlyArray<unknown> | null | undefined): a is ReadonlyArray<unknown> => Array.isArray(a) && a.length > 0
@@ -21,7 +22,7 @@ type HistoryTabProps = {
 }
 
 const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
-  const { historyNodes: rawHistoryNodes, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useGetInternalPolicyHistories(policyId)
+  const { historyNodes: rawHistoryNodes, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage, isFetchNextPageError } = useGetInternalPolicyHistories(policyId)
   const { mutateAsync: updatePolicy, isPending: isRestoring } = useUpdateInternalPolicy()
   const { successNotification, errorNotification } = useNotification()
 
@@ -30,21 +31,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
 
   const historyNodes = useMemo(() => rawHistoryNodes.filter((n) => n.revision !== policy.revision), [rawHistoryNodes, policy.revision])
 
-  const sentinelRef = useRef<HTMLDivElement | null>(null)
-  useEffect(() => {
-    const el = sentinelRef.current
-    if (!el || !hasNextPage) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage()
-        }
-      },
-      { rootMargin: '200px' },
-    )
-    observer.observe(el)
-    return () => observer.unobserve(el)
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+  const sentinelRef = useFetchNextPageOnVisible({ hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage })
 
   const authorIds = useMemo(() => {
     const ids: Array<string | null | undefined> = [policy.updatedBy, policy.createdBy]

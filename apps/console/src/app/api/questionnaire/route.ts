@@ -1,4 +1,4 @@
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { type NextRequest, NextResponse } from 'next/server'
 import { isRecord } from '@/utils/type-guards'
 import { buildSignatureMetadata, withSignatureMetadata } from '@/lib/server/signature-metadata'
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 
     const token = authHeader.substring(7)
 
-    const response = await secureFetch(`${process.env.API_REST_URL}/questionnaire`, {
+    const response = await serverSecureFetch(`${process.env.API_REST_URL}/questionnaire`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     const isDraft = body.isDraft === true
     const answers = withSignatureMetadata(body.data, isDraft ? null : buildSignatureMetadata(req, token))
 
-    const response = await secureFetch(`${process.env.API_REST_URL}/questionnaire`, {
+    const response = await serverSecureFetch(`${process.env.API_REST_URL}/questionnaire`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

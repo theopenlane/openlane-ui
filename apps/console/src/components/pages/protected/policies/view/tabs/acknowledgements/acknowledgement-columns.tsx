@@ -1,9 +1,9 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
-import { ExpandRowButton } from '@/components/shared/crud-base/columns/expand-row-button'
+import { EXPAND_ROW_COLUMN_SIZE, ExpandRowButton } from '@/components/shared/crud-base/columns/expand-row-button'
 import { CampaignStatusLabel } from '@/components/shared/enum-mapper/campaign-enum'
 import ProgressBar from '@/components/shared/progress-bar/progress-bar'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
@@ -16,8 +16,9 @@ export const ACKNOWLEDGEMENT_COLUMNS: ColumnDef<TAcknowledgementRow>[] = [
   {
     id: 'expand',
     header: '',
-    size: 40,
-    maxSize: 40,
+    size: EXPAND_ROW_COLUMN_SIZE,
+    minSize: EXPAND_ROW_COLUMN_SIZE,
+    maxSize: EXPAND_ROW_COLUMN_SIZE,
     cell: ({ row }) => <ExpandRowButton row={row} label={`recipients of ${row.original.name}`} />,
   },
   {
@@ -25,11 +26,7 @@ export const ACKNOWLEDGEMENT_COLUMNS: ColumnDef<TAcknowledgementRow>[] = [
     header: 'Assessment',
     size: 170,
     minSize: 140,
-    cell: ({ row }) => (
-      <Link href={getHrefForObjectType('assessments', { id: row.original.id })} className="text-blue-500 hover:underline">
-        {row.original.name}
-      </Link>
-    ),
+    cell: ({ row }) => <Link href={getHrefForObjectType('assessments', { id: row.original.id })}>{row.original.name}</Link>,
   },
   {
     accessorKey: 'revision',

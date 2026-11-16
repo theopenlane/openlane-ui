@@ -2,6 +2,8 @@ import { ArrowRight, Box, Server, ShieldAlert, Users } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import OnboardingCardProgress from '@/components/pages/protected/onboarding/onboarding-card-progress'
+import DemoDataSeedStatusRow from '@/components/pages/protected/onboarding/demo-data-seed-status-row'
+import { type TDemoDataSeedStatus } from '@/components/pages/protected/onboarding/hooks/use-demo-data-seed-status'
 import { isRecord } from '@/utils/type-guards'
 
 const countArray = (value: unknown): number => (Array.isArray(value) ? value.length : 0)
@@ -26,12 +28,18 @@ type OnboardingReadyCardProps = {
   scanData: unknown
   hasScanReport: boolean
   primaryDomain?: string
+  demoDataSeedStatus?: TDemoDataSeedStatus
   onReview: () => void
   onLeave: () => void
 }
 
-const OnboardingReadyCard = ({ stepLabel, scanData, hasScanReport, primaryDomain, onReview, onLeave }: OnboardingReadyCardProps) => {
+const OnboardingReadyCard = ({ stepLabel, scanData, hasScanReport, primaryDomain, demoDataSeedStatus, onReview, onLeave }: OnboardingReadyCardProps) => {
   const stats = domainScanStats(scanData)
+  const description = hasScanReport
+    ? `We found systems, vendors, assets, and security findings for ${primaryDomain || 'your domain'}. Review and edit each section before adding it to Openlane.`
+    : demoDataSeedStatus === 'pending'
+      ? "We're adding demo data to your organization and continuing your scans in the background. We'll notify you when your results are ready."
+      : "We'll keep scanning in the background and notify you when your results are ready."
 
   return (
     <Card className="w-full min-h-96 p-5 sm:p-8 shadow-lg rounded-xl">
@@ -39,12 +47,10 @@ const OnboardingReadyCard = ({ stepLabel, scanData, hasScanReport, primaryDomain
 
       <div className="space-y-2 mb-6">
         <h2 className="text-xl font-semibold">Your setup is ready</h2>
-        <p className="text-sm text-text-light">
-          {hasScanReport
-            ? `We found systems, vendors, assets, and security findings for ${primaryDomain || 'your domain'}. Review and edit each section before adding it to Openlane.`
-            : "We'll keep scanning in the background and notify you when your results are ready."}
-        </p>
+        <p className="text-sm text-text-light">{description}</p>
       </div>
+
+      {demoDataSeedStatus && <DemoDataSeedStatusRow status={demoDataSeedStatus} />}
 
       {hasScanReport && (
         <div className="mb-6">

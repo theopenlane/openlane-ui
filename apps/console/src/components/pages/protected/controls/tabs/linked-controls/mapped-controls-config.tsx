@@ -1,5 +1,6 @@
 import React from 'react'
-import Link from 'next/link'
+import NextLink from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import type { ColumnDef } from '@repo/ui/table-types'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
 import { CircleDot, FileBadge2, Folder, FolderTree, Layers, Lock, MoreHorizontal, Pencil, Tag } from 'lucide-react'
@@ -29,7 +30,7 @@ const getRefCodeColumn = (controlLinkMap: LinkMap, subcontrolLinkMap: LinkMap): 
     return (
       <div className="flex flex-col gap-1">
         {href ? (
-          <Link href={href} className="block truncate text-blue-500 hover:underline">
+          <Link href={href} className="block truncate">
             {row.original.refCode}
           </Link>
         ) : (
@@ -152,10 +153,10 @@ export const getMappedControlsActionsColumn = (basePath: string, canEdit: boolea
           <DropdownMenuContent align="end" className="min-w-48">
             {ids.map((id, index) => (
               <DropdownMenuItem asChild key={id}>
-                <Link href={`${basePath}/edit-map-control?mappedControlId=${id}`}>
+                <NextLink href={`${basePath}/edit-map-control?mappedControlId=${id}`}>
                   <Pencil className="h-4 w-4" />
                   {ids.length > 1 ? `Edit mapping ${index + 1}` : 'Edit mapping'}
-                </Link>
+                </NextLink>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>

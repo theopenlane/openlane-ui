@@ -85,6 +85,23 @@ export const CREATE_VENDOR_RISK_SCORE = gql`
     createVendorRiskScore(input: $input) {
       vendorRiskScore {
         id
+        questionKey
+        questionName
+        questionCategory
+        answerType
+        answer
+        impact
+        likelihood
+        score
+        notes
+        tags
+        updatedAt
+        entity {
+          id
+          riskScore
+          riskRating
+          updatedAt
+        }
       }
     }
   }
@@ -95,6 +112,23 @@ export const UPDATE_VENDOR_RISK_SCORE = gql`
     updateVendorRiskScore(id: $updateVendorRiskScoreId, input: $input) {
       vendorRiskScore {
         id
+        questionKey
+        questionName
+        questionCategory
+        answerType
+        answer
+        impact
+        likelihood
+        score
+        notes
+        tags
+        updatedAt
+        entity {
+          id
+          riskScore
+          riskRating
+          updatedAt
+        }
       }
     }
   }
@@ -118,6 +152,16 @@ export const CREATE_CSV_BULK_VENDOR_RISK_SCORE = gql`
   }
 `
 
+export const UPDATE_CSV_BULK_VENDOR_RISK_SCORE = gql`
+  mutation UpdateBulkCSVVendorRiskScore($input: Upload!) {
+    updateBulkCSVVendorRiskScore(input: $input) {
+      updatedIDs
+      notUpdatedIDs
+      error
+    }
+  }
+`
+
 export const BULK_DELETE_VENDOR_RISK_SCORE = gql`
   mutation DeleteBulkVendorRiskScore($ids: [ID!]!) {
     deleteBulkVendorRiskScore(ids: $ids) {
@@ -134,6 +178,14 @@ export const BULK_EDIT_VENDOR_RISK_SCORE = gql`
       updatedIDs
       notUpdatedIDs
       error
+    }
+  }
+`
+
+export const GET_VENDOR_RISK_SCORE_QUESTION_USAGE = gql`
+  query VendorRiskScoreQuestionUsage($questionKey: String!) {
+    vendorRiskScores(where: { questionKey: $questionKey }) {
+      totalCount
     }
   }
 `

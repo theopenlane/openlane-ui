@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
-import { getSSORedirect } from '@/lib/auth/utils/get-openlane-token'
+import { getSSORedirect } from '@/lib/auth/utils/get-sso-redirect'
 import { getCookie } from '@/lib/auth/utils/getCookie'
 import { Loading } from '@/components/shared/loading/loading'
 import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
@@ -74,7 +74,7 @@ const SSOEnforcePage: React.FC = () => {
     <div className="flex h-full w-full min-h-screen justify-center items-center">
       <div className="text-center max-w-md">
         <div className="mb-6">
-          <ShieldCheck className="w-16 h-16 mx-auto text-brand mb-4" />
+          <ShieldCheck className="w-16 h-16 mx-auto mb-4" />
           <h1 className="text-2xl font-medium mb-2">Your organization requires SSO</h1>
           <p className="text-sm text-gray-600">To access your account, you need to sign in through your organization&apos;s single sign-on provider.</p>
           {email && (

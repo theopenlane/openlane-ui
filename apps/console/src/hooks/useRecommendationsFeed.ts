@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react'
 import { OrderDirection, TaskOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { useTasksWithFilter, useUpdateTask } from '@/lib/graphql-hooks/task'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { findCustomTypeEnumOption, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { SuggestedTaskSource, TASK_TERMINAL_STATUSES, type SuggestedTask, type SuggestedTaskMetadata, type SuggestedTaskSourceValue } from '@/lib/suggested-tasks/types'
 
 const TASK_KIND_ENUM_WHERE = { objectType: 'task', field: 'kind' }
@@ -41,7 +41,7 @@ export const useRecommendationsFeed = ({ source, excludeTerminal }: Recommendati
         status: task.status,
         taskKind: {
           name: task.taskKindName ?? '',
-          color: taskKindOptions.find((option) => option.value === task.taskKindName)?.color ?? '',
+          color: findCustomTypeEnumOption(taskKindOptions, task.taskKindName)?.color ?? '',
         },
         source: (task.source ?? SuggestedTaskSource.RECOMMENDATIONS) as SuggestedTaskSourceValue,
         sourceKey: task.sourceKey ?? null,

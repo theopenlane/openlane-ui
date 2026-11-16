@@ -24,7 +24,7 @@ const OnboardingStartCard = ({ step, totalSteps, canContinue, isDisabled, onCont
       if (!isDisabled) (canContinue ? onContinue : onCreate)()
     }}
   >
-    <Card className="w-full p-5 sm:p-8 shadow-lg rounded-xl">
+    <Card className="w-full p-5 sm:px-8 sm:py-6 shadow-lg rounded-xl">
       <OnboardingCardProgress
         label={
           <>
@@ -37,7 +37,7 @@ const OnboardingStartCard = ({ step, totalSteps, canContinue, isDisabled, onCont
 
       <DynamicStep step={step} />
 
-      <div className="mt-8 flex flex-col gap-3 border-t pt-6 sm:flex-row sm:justify-end">
+      <div className="mt-6 flex flex-col gap-3 border-t pt-6 sm:flex-row sm:justify-end">
         {canContinue && (
           <Button type="submit" icon={<ArrowRight />} disabled={isDisabled}>
             Continue setup

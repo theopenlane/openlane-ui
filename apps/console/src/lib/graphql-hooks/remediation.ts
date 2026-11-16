@@ -230,7 +230,7 @@ export const useRemediationContextOptions = ({ type, searchTerm, enabled }: Reme
     withFindings: type === ObjectAssociationNodeEnum.FINDING,
     withRisks: type === ObjectAssociationNodeEnum.RISKS,
     vulnerabilityWhere: term ? { or: [{ displayNameContainsFold: term }, { cveIDContainsFold: term }, { externalIDContainsFold: term }, { displayIDContainsFold: term }] } : undefined,
-    findingWhere: term ? { or: [{ displayNameContainsFold: term }, { displayIDContainsFold: term }] } : undefined,
+    findingWhere: term ? { or: [{ displayNameContainsFold: term }, { externalIDContainsFold: term }, { displayIDContainsFold: term }] } : undefined,
     riskWhere: term ? { or: [{ nameContainsFold: term }, { displayIDContainsFold: term }] } : undefined,
   }
 

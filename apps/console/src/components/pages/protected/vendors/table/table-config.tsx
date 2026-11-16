@@ -11,6 +11,7 @@ import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { EntityAssociationSection } from '../create/form/fields/association-section'
 import { EntityDocumentsSection } from '../create/form/fields/documents-section'
 import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
+import { VENDOR_RISK_RATING_OPTIONS } from '@/lib/vendor-risk-rating'
 
 export const formId = 'edit' + ObjectNames.ENTITY
 
@@ -34,6 +35,14 @@ export const getFilterFields = (enumOptions: EnumOptions) =>
       type: 'dropdownSearchSingleSelect',
       icon: FilterIcons.Tag,
       options: enumOptions.tagOptions,
+    },
+    {
+      key: 'riskRatingIn',
+      label: 'Risk Rating',
+      type: 'multiselect',
+      icon: FilterIcons.Criticality,
+      options: VENDOR_RISK_RATING_OPTIONS,
+      nullableKey: 'riskRating',
     },
     getScopeFilterField(enumOptions.scopeOptions),
     getEnvironmentFilterField(enumOptions.environmentOptions),

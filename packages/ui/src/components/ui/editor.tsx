@@ -11,9 +11,9 @@ import { PlateContainer, PlateContent, PlateView } from 'platejs/react'
 import { cn } from '@repo/ui/lib/utils'
 
 const editorContainerVariants = cva(
-  'w-full isolate cursor-text flow-root overflow-clip caret-primary select-text bg-input selection:bg-brand/25 ' +
+  'w-full isolate cursor-text flow-root overflow-clip caret-primary select-text bg-input ' +
     'focus-visible:outline-hidden [&_.slate-selection-area]:z-50 ' +
-    '[&_.slate-selection-area]:border [&_.slate-selection-area]:border/25 [&_.slate-selection-area]:bg-brand/15',
+    '[&_.slate-selection-area]:border [&_.slate-selection-area]:border/25',
   {
     defaultVariants: {
       variant: 'default',

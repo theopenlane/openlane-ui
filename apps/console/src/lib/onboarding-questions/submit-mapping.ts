@@ -1,5 +1,5 @@
 import { type CreateOnboardingInput } from '@repo/codegen/src/schema'
-import { COMPANY_DOMAINS_KEY, COMPANY_NAME_KEY } from './question-keys'
+import { COMPANY_DOMAINS_KEY, COMPANY_NAME_KEY, SEED_DEMO_DATA_KEY } from './question-keys'
 import { type OnboardingQuestion } from './types'
 
 const OTHER_OPTION_VALUE = 'other'
@@ -25,6 +25,7 @@ export const MAPPED_QUESTION_KEYS = new Set([
   'auditor_email',
   'vciso_preference',
   'demo_requested',
+  SEED_DEMO_DATA_KEY,
 ])
 
 const readString = (values: Record<string, unknown>, key: string): string => {
@@ -107,5 +108,6 @@ export const buildOnboardingInput = (questions: OnboardingQuestion[], values: Re
       ...(Object.keys(additionalAnswers).length > 0 ? { additional_answers: additionalAnswers } : {}),
     },
     demoRequested: readBoolean(values, 'demo_requested') ?? false,
+    seedDemoData: readBoolean(values, SEED_DEMO_DATA_KEY),
   }
 }

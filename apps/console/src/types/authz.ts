@@ -1,6 +1,8 @@
 import { type AccessEnum } from '@/lib/authz/enums/access-enum'
 
-export type TAccessRole = `${AccessEnum}` | 'member' | 'owner' | 'access'
+export const NON_ENUM_ACCESS_ROLES = ['member', 'owner', 'access'] as const
+
+export type TAccessRole = `${AccessEnum}` | (typeof NON_ENUM_ACCESS_ROLES)[number]
 
 export type TPermissionData = {
   success?: boolean

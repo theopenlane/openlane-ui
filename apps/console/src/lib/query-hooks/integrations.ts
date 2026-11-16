@@ -1,5 +1,5 @@
 import { useNotification } from '@/hooks/useNotification'
-import { normalizeDefinition, parseIntegrationErrorMessage } from '@/lib/integrations/utils'
+import { normalizeDefinition, parseIntegrationErrorMessage, providerForDefinitionID } from '@/lib/integrations/utils'
 import {
   type IntegrationChannelsList,
   type IntegrationMessageTeam,
@@ -13,9 +13,12 @@ import {
 import { CHANNELS_LIST_OPERATION, PICKER_SESSION_OPERATION, RESOURCE_SELECTION_OPERATION, TEST_MESSAGE_SEND_OPERATION, runIntegrationOperation, toChannelSelection } from '@/lib/integrations/flow'
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'
 import { isRecord } from '@/utils/type-guards'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
+import { useEffect, useMemo } from 'react'
 import { reportSSORequirementFromResponse } from '@/lib/auth/utils/session-status'
+
+const invalidateIntegrationQueries = (queryClient: QueryClient) =>
+  Promise.all([queryClient.invalidateQueries({ queryKey: ['integrations'] }), queryClient.invalidateQueries({ queryKey: ['integrationRuns'] })])
 
 export type IntegrationConnectionHealth = {
   healthy: boolean
@@ -79,6 +82,12 @@ export const useIntegrationProviders = () => {
   return resp
 }
 
+export const useSourceIntegrationProvider = (definitionID: string | null | undefined): IntegrationProvider | undefined => {
+  const { data } = useIntegrationProviders()
+
+  return useMemo(() => providerForDefinitionID(definitionID, data?.providers ?? []), [definitionID, data?.providers])
+}
+
 const describeUnhealthyOperations = (operations: IntegrationOperationHealth[]): string => operations.map((operation) => `${operation.name}: ${operation.reason ?? 'unhealthy'}`).join('\n')
 
 export const useIntegrationHealthCheck = () => {
@@ -129,7 +138,7 @@ export const useIntegrationHealthCheck = () => {
         description: error instanceof Error ? error.message : 'Unexpected error while checking integration health.',
       })
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['integrations'] }),
+    onSettled: () => invalidateIntegrationQueries(queryClient),
   })
 }
 
@@ -152,7 +161,7 @@ export const useDisconnectIntegration = () => {
       return (await response.json()) as DisconnectResponse
     },
     onSuccess: (result, _integrationId) => {
-      queryClient.invalidateQueries({ queryKey: ['integrations'] })
+      invalidateIntegrationQueries(queryClient)
       successNotification({
         title: 'Integration Disconnected',
         description: result.message ?? 'Integration has been disconnected.',
@@ -231,7 +240,7 @@ export const useSaveIntegrationResourceSelection = () => {
 
   return useMutation<unknown, Error, SaveResourceSelectionVariables>({
     mutationFn: saveResourceSelection,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['integrations'] }),
+    onSuccess: () => invalidateIntegrationQueries(queryClient),
   })
 }
 
@@ -248,7 +257,7 @@ export const useSaveIntegrationDefaultChannel = () => {
   return useMutation<unknown, Error, SaveDefaultChannelVariables>({
     mutationFn: ({ integrationId, provider, channel }) => saveResourceSelection({ integrationId, resources: toChannelSelection(provider, channel) }),
     onSuccess: (_, { channel }) => {
-      queryClient.invalidateQueries({ queryKey: ['integrations'] })
+      invalidateIntegrationQueries(queryClient)
       successNotification(
         channel
           ? { title: 'Default channel set', description: `Messages without a channel will post to ${channel.name}.` }

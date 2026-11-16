@@ -71,8 +71,8 @@ const DocumentSyncPromptDialog = ({ open, onOpenChange, provider, integration }:
 
           <div className="flex items-start justify-between gap-4 rounded-lg border p-4">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand/10">
-                <Star className="size-5 text-brand" />
+              <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg">
+                <Star className="size-5" />
               </span>
               <div>
                 <p className="text-sm font-medium">Make this my primary document integration</p>

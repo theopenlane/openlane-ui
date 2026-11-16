@@ -139,7 +139,7 @@ const ProgramDetailsPage: React.FC = () => {
                 closeOnSelect
                 content={(close) => (
                   <>
-                    <Link href={PROGRAMS_LIST_HREF} onClick={close} className="flex w-full items-start gap-2 px-1 py-1 text-sm hover:text-brand">
+                    <Link href={PROGRAMS_LIST_HREF} onClick={close} className="flex w-full items-start gap-2 px-1 py-1 text-sm">
                       <FolderOpen size={16} strokeWidth={2} className="mt-0.5 shrink-0" />
                       <span className="flex flex-col">
                         <span>View All Programs</span>
@@ -147,13 +147,13 @@ const ProgramDetailsPage: React.FC = () => {
                       </span>
                     </Link>
                     {canCreateProgram && (
-                      <Link href="/programs/create" onClick={close} className="flex w-full items-center gap-2 px-1 py-1 text-sm hover:text-brand">
+                      <Link href="/programs/create" onClick={close} className="flex w-full items-center gap-2 px-1 py-1 text-sm">
                         <CirclePlus size={16} strokeWidth={2} className="shrink-0" />
                         <span>Create Program</span>
                       </Link>
                     )}
                     {canCreateProgram && (
-                      <Link href={`/programs/create/from-existing?from=${id}`} onClick={close} className="flex w-full items-center gap-2 px-1 py-1 text-sm hover:text-brand">
+                      <Link href={`/programs/create/from-existing?from=${id}`} onClick={close} className="flex w-full items-center gap-2 px-1 py-1 text-sm">
                         <CopyPlus size={16} strokeWidth={2} className="shrink-0" />
                         <span>Duplicate Program</span>
                       </Link>
@@ -161,7 +161,7 @@ const ProgramDetailsPage: React.FC = () => {
                     {editAllowed && (
                       <button
                         type="button"
-                        className="flex w-full items-center gap-2 px-1 py-1 text-sm hover:text-brand"
+                        className="flex w-full items-center gap-2 px-1 py-1 text-sm"
                         onClick={() => {
                           close()
                           setStatusDialogOpen(true)

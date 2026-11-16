@@ -26,7 +26,7 @@ const TypedSignaturePreview = ({ typedPreview, signerName, canChange, regenerate
         <div className="flex flex-col items-center gap-1 px-6 text-center text-sm text-gray-500">
           <p>{TYPED_SIGNATURE_MESSAGES.failed}</p>
           {canChange && (
-            <Button type="button" variant="link" className="text-blue-500" onClick={regenerate}>
+            <Button type="button" variant="link" onClick={regenerate}>
               Try again
             </Button>
           )}
@@ -60,7 +60,7 @@ const TypedSignature = (view: TSignatureFieldView) => (
           <span className="truncate">Generated from full name “{view.signerName}”</span>
         </span>
         {view.canChange && (
-          <Button type="button" variant="link" className="text-xs text-blue-500" icon={<RefreshCw />} iconPosition="left" onClick={view.regenerate}>
+          <Button type="button" variant="link" className="text-xs" icon={<RefreshCw />} iconPosition="left" onClick={view.regenerate}>
             Regenerate signature
           </Button>
         )}

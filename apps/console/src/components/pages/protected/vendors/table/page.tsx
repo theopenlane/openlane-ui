@@ -18,6 +18,7 @@ import { type EntitySheetConfig, type EntityTablePageConfig, objectType, objectN
 import { createVendorSteps } from '../create/steps/vendor-create-steps'
 import { getColumns } from './columns'
 import TableComponent from './table'
+import { VendorScoringSummary } from '../scoring/vendor-scoring-summary'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { ENTITY_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
@@ -195,6 +196,7 @@ const VendorPage: React.FC = () => {
       internalOwner: { fieldBaseName: 'internalOwner' },
       reviewedBy: { fieldBaseName: 'reviewedBy' },
     },
+    beforeTable: <VendorScoringSummary />,
   }
 
   return <GenericTablePage {...tableConfig} />

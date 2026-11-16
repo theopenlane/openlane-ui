@@ -7,6 +7,7 @@ import { useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/internal-poli
 import { Button } from '@repo/ui/button'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { INTEGRATIONS_DOCUMENT_FILTER_URL } from '@/constants'
+import { useCanManageIntegrations } from '@/lib/authz/use-can-manage-integrations'
 import Link from 'next/link'
 import { BookOpenIcon, ChevronDown, FileTextIcon, InfoIcon, LinkIcon, LoaderCircle, Sparkles } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -42,6 +43,7 @@ const HelperText = ({ form, editorRef, initialAIPolicyName }: THelperProps) => {
   const currentOrganization = getOrganizationByID(currentOrgId)
   const router = useRouter()
   const [isHelperOpen, setIsHelperOpen] = useState(true)
+  const { canManageIntegrations } = useCanManageIntegrations()
 
   const [generateDialogPolicyName, setGenerateDialogPolicyName] = useState<string | null>(null)
   const [pendingFrameworkNames, setPendingFrameworkNames] = useState<string[]>([])
@@ -185,16 +187,18 @@ const HelperText = ({ form, editorRef, initialAIPolicyName }: THelperProps) => {
                 Browse Templates
               </Button>
 
-              <SystemTooltip
-                content="Manage this policy in a connected document platform. Changes remain in the source system and are automatically reflected in Openlane."
-                icon={
-                  <Link href={INTEGRATIONS_DOCUMENT_FILTER_URL} aria-label="Manage via Integration">
-                    <Button type="button" variant="secondary" className="h-8 px-2! pl-3!" icon={<LinkIcon />} iconPosition="left">
-                      Manage via Integration
-                    </Button>
-                  </Link>
-                }
-              />
+              {canManageIntegrations && (
+                <SystemTooltip
+                  content="Manage this policy in a connected document platform. Changes remain in the source system and are automatically reflected in Openlane."
+                  icon={
+                    <Link href={INTEGRATIONS_DOCUMENT_FILTER_URL} aria-label="Manage via Integration">
+                      <Button type="button" variant="secondary" className="h-8 px-2! pl-3!" icon={<LinkIcon />} iconPosition="left">
+                        Manage via Integration
+                      </Button>
+                    </Link>
+                  }
+                />
+              )}
 
               <a href={`${POLICY_MANAGEMENT_DOCS_URL}/policies`} target="_blank" rel="noreferrer" aria-label="View Compliance Management Documentation">
                 <Button type="button" variant="secondary" className="h-8 px-2! pl-3!" icon={<BookOpenIcon />} iconPosition="left">

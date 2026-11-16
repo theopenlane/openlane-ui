@@ -70,7 +70,7 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
               <p className="font-semibold">Selected controls ({selectedControls.length})</p>
               <div className="flex flex-wrap gap-2 mt-1 max-h-40 overflow-auto">
                 {selectedControls.map(({ id, refCode }) => (
-                  <div key={id} className="inline-flex px-2.5 py-0.5 border text-xs hover:text-brand hover:border-brand rounded-full items-center justify-center">
+                  <div key={id} className="inline-flex px-2.5 py-0.5 border text-xs rounded-full items-center justify-center">
                     {refCode}
                   </div>
                 ))}

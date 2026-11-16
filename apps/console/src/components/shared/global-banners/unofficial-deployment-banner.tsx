@@ -35,7 +35,7 @@ const UnofficialDeploymentBanner = () => {
       className="fixed bottom-0 right-0 z-30 flex items-center justify-center truncate bg-background px-4 text-xs text-muted-foreground transition-[left] duration-200"
     >
       <span className="truncate">
-        <span className="font-medium text-brand">Unofficial Openlane deployment.</span> This instance is not operated by or affiliated with{' '}
+        <span className="font-medium">Unofficial Openlane deployment.</span> This instance is not operated by or affiliated with{' '}
         <a href={OPENLANE_WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-foreground">
           Openlane
         </a>

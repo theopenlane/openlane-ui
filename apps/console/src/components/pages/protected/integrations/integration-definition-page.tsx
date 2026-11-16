@@ -2,21 +2,16 @@
 
 import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft, ExternalLink } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
 import { PageHeading } from '@repo/ui/page-heading'
-import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
-import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import IntegrationDefinitionSkeleton from './integration-definition-skeleton'
 import { Callout } from '@/components/shared/callout/callout'
-import { Button } from '@repo/ui/button'
-import { filterFinalizedIntegrationsForProvider, operationSchemaEntries, resolveSchemaRoot, setupCredentialEntries } from '@/lib/integrations/utils'
+import { operationSchemaEntries, resolveSchemaRoot, setupCredentialEntries } from '@/lib/integrations/utils'
 import { readProviderDefaultChannel } from '@/lib/integrations/flow'
 import { writePendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -33,9 +28,11 @@ import WebhookDetailsSection from './webhook-details-section'
 import CredentialConnectionSection from './credential-connection-section'
 import { useInstallationPolling } from './use-installation-polling'
 import { useIntegrationConnect } from './use-integration-connect'
-import { useSession } from 'next-auth/react'
+import IntegrationNotFound from './integration-not-found'
+import { useProviderInstallations } from './use-provider-installations'
 import { useSetDocsHelpTopic } from '@/components/shared/docs-help/docs-help-context'
 import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
+import { Link } from '@/components/shared/link/link'
 
 type IntegrationDefinitionPageProps = {
   definitionId: string
@@ -45,20 +42,12 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
   const router = useRouter()
   const searchParams = useSearchParams()
   const vendorId = searchParams.get('vendorId') ?? undefined
-  const { data, isLoading: integrationsLoading } = useGetIntegrations({ where: {} })
-  const { data: providersData, isLoading: providersLoading } = useIntegrationProviders()
+  const { providers, provider, installations: installedInstances, canEdit, canRunOperations, isLoading } = useProviderInstallations(definitionId)
   const { setCrumbs } = use(BreadcrumbContext)
   const { mutateAsync: updateEntity } = useUpdateEntity()
   const { successNotification, errorNotification } = useNotification()
-  const { data: orgPermission, isLoading: permissionsLoading } = useOrganizationRoles()
-  const { data: session } = useSession()
-  const canManage = canEdit(orgPermission?.roles, session)
 
   const { startPolling } = useInstallationPolling()
-
-  const providers = useMemo(() => providersData?.providers ?? [], [providersData?.providers])
-
-  const provider = useMemo(() => providers.find((p) => p.id === definitionId), [providers, definitionId])
 
   // point the global docs tab at this integration's docs instead of the id route
   useSetDocsHelpTopic(
@@ -71,21 +60,11 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
       : null,
   )
 
-  const installedInstances = useMemo(() => {
-    if (!provider) {
-      return []
-    }
-
-    const integrations = (data?.integrations?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
-
-    return filterFinalizedIntegrationsForProvider(integrations, provider, providers)
-  }, [data?.integrations?.edges, provider, providers])
-
   const visibleOperations = provider?.operations ?? []
 
   const { promptKind, promptIntegration, hasPostConnectStep, queueAfterRedirect, queueAfterInlineConnect, dismissPrompt } = useIntegrationPostConnectPrompt({
     provider,
-    canManage,
+    canEdit,
     installedInstances,
   })
 
@@ -199,19 +178,12 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     ])
   }, [provider, definitionId, setCrumbs])
 
-  if (integrationsLoading || providersLoading || permissionsLoading) {
+  if (isLoading) {
     return <IntegrationDefinitionSkeleton />
   }
 
   if (!provider) {
-    return (
-      <div className="py-16 text-center text-muted-foreground">
-        <p>Integration not found.</p>
-        <Button variant="secondary" className="mt-4" onClick={() => router.push('/automation/integrations')}>
-          Back to Integrations
-        </Button>
-      </div>
-    )
+    return <IntegrationNotFound message="Integration not found." />
   }
 
   return (
@@ -232,9 +204,9 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
             </div>
             {provider.description ? <p className="mt-2 text-sm text-muted-foreground">{provider.description}</p> : null}
             {provider.docsUrl ? (
-              <a href={provider.docsUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1 text-xs text-brand hover:underline">
-                Documentation <ExternalLink className="h-3 w-3" />
-              </a>
+              <Link href={provider.docsUrl} newTab className="mt-3 text-xs">
+                Documentation
+              </Link>
             ) : null}
           </div>
           {provider.tags?.length ? (
@@ -256,13 +228,13 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             {installedInstances.map((inst) => (
-              <InstalledIntegrationCard key={inst.id} integration={inst} providers={providers} canManage={canManage} />
+              <InstalledIntegrationCard key={inst.id} integration={inst} providers={providers} canEdit={canEdit} canRunOperations={canRunOperations} />
             ))}
           </div>
         </section>
       ) : null}
 
-      {canManage ? (
+      {canEdit ? (
         <CredentialConnectionSection
           provider={provider}
           installedCount={installedInstances.length}
@@ -303,6 +275,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
           variant="post-install"
           defaultChannel={readProviderDefaultChannel(provider, promptIntegration)}
           provider={provider}
+          canSaveDefaultChannel={canEdit}
         />
       ) : null}
     </div>

@@ -5,7 +5,7 @@ import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { type Crumb } from '@/providers/BreadcrumbContext'
 import { type TAccessRole } from '@/types/authz'
 import { pluralizeTypeName, toHumanLabel, toLowerLabel } from '@/utils/strings'
-import { type TImportMode } from './types'
+import { type TImportMode, type TUpdateLookupField } from './types'
 
 export type TImportPermission = AccessEnum | 'edit' | null
 
@@ -26,6 +26,7 @@ type TImportRouteDetails = {
   displayNamePlural?: string
   permission: TImportPermission
   mode?: TImportMode
+  updateLookup?: TUpdateLookupField
   gate?: ObjectTypes
   reorderable?: boolean
   importNotice?: string
@@ -159,6 +160,16 @@ const IMPORT_ROUTE_DETAILS = {
     permission: AccessEnum.CanCreateTrustCenterSubprocessor,
     gate: ObjectTypes.TRUST_CENTER,
   },
+  [ObjectTypes.VENDOR_RISK_SCORE]: {
+    listHref: '/registry/vendors',
+    listLabel: 'Vendors',
+    section: IMPORT_SECTIONS.registry,
+    displayName: 'Risk Answer',
+    permission: 'edit',
+    gate: ObjectTypes.ENTITY,
+    subheading: "Upload the questions CSV with the vendor's answers filled in. Rows without an answer are skipped.",
+    importNotice: "Answers in your file replace this vendor's current answers to those questions.",
+  },
   [ObjectTypes.VULNERABILITY]: {
     listHref: '/exposure/vulnerabilities',
     listLabel: 'Vulnerabilities',
@@ -211,6 +222,13 @@ export const vendorContactsImportRoute = (vendorId: string, vendorName: string):
   gate: ObjectTypes.ENTITY,
 })
 
+export const vendorRiskAnswersImportRoute = (vendorId: string, vendorName: string): TImportRoute => ({
+  ...IMPORT_ROUTE_DETAILS[ObjectTypes.VENDOR_RISK_SCORE],
+  href: importHref(ObjectTypes.VENDOR_RISK_SCORE, { [IMPORT_VENDOR_PARAM]: vendorId }),
+  listHref: `/registry/vendors/${encodeURIComponent(vendorId)}?tab=risk-review`,
+  listLabel: vendorName,
+})
+
 export const trustCenterSubscribersImportRoute = (trustCenterId: string): TImportRoute => ({
   ...IMPORT_ROUTE_DETAILS[ObjectTypes.SUBSCRIBER],
   href: importHref(ObjectTypes.SUBSCRIBER, { [IMPORT_TRUST_CENTER_PARAM]: trustCenterId }),
@@ -235,7 +253,9 @@ export const controlsUpdateImportRoute: TImportRoute = {
   mode: UPDATE_MODE,
   title: 'Update Existing Controls',
   heading: 'Update existing controls',
-  subheading: 'Upload a file of controls that already exist in Openlane. Each row is matched to a control by its ID, and only the columns you map are changed.',
+  updateLookup: { field: 'RefCode', description: 'A row with a blank ID is matched by the RefCode of a custom control (one with no reference framework).' },
+  subheading:
+    'Upload a file of controls that already exist in Openlane. Each row is matched to a control by its ID, or by its RefCode when the ID is blank. Only the columns you map are changed, and you can review every change before it is saved.',
   importNotice:
     'Every mapped column overwrites the current value of the control, and a blank cell in a mapped text column clears it. Map only the columns you want to change; a column that is blank in every row is only mapped if you pick its field.',
 }
@@ -260,6 +280,7 @@ type TImportScopeDefinition = {
 
 const IMPORT_SCOPES = {
   vendorContacts: { entityType: ObjectTypes.CONTACT, param: IMPORT_VENDOR_PARAM, route: (vendorId: string) => vendorContactsImportRoute(vendorId, '') },
+  vendorRiskAnswers: { entityType: ObjectTypes.VENDOR_RISK_SCORE, param: IMPORT_VENDOR_PARAM, route: (vendorId: string) => vendorRiskAnswersImportRoute(vendorId, '') },
   trustCenterSubscribers: { entityType: ObjectTypes.SUBSCRIBER, param: IMPORT_TRUST_CENTER_PARAM, route: trustCenterSubscribersImportRoute },
   controlsFromStandards: {
     entityType: ObjectTypes.CONTROL,

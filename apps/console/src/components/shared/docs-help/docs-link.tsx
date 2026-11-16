@@ -3,6 +3,7 @@
 import type { MouseEvent, ReactNode } from 'react'
 import { docsHelpAvailable } from '@repo/dally/ai'
 import { useDocsHelpNavigate, type DocsHelpTopic } from './docs-help-context'
+import { isModifiedClick } from '@/utils/mouse-event'
 
 type TDocsLinkProps = {
   topic: DocsHelpTopic
@@ -15,7 +16,7 @@ export const DocsLink = ({ topic, href, className, children }: TDocsLinkProps) =
   const navigateDocs = useDocsHelpNavigate()
 
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (!docsHelpAvailable || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+    if (!docsHelpAvailable || isModifiedClick(event)) {
       return
     }
     event.preventDefault()

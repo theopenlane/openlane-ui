@@ -2,7 +2,8 @@
 
 import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { LoaderCircle, Play, Plus, Search as SearchIcon } from 'lucide-react'
-import Link from 'next/link'
+import NextLink from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import { useRouter } from 'next/navigation'
 import { ReportOrderField, type ReportWhereInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -88,11 +89,7 @@ const SavedReportsPage: React.FC = () => {
         header: 'Name',
         size: 340,
         minSize: 240,
-        cell: ({ row }) => (
-          <Link href={savedReportHref(row.original.id)} className="text-blue-500 hover:underline">
-            {row.original.name}
-          </Link>
-        ),
+        cell: ({ row }) => <Link href={savedReportHref(row.original.id)}>{row.original.name}</Link>,
       },
       { id: 'reportOn', accessorKey: 'variables', header: 'Report on', enableSorting: false, size: 130, minSize: 110, cell: ({ row }) => savedReportDataLabel(row.original.variables) },
       { accessorKey: 'reportOwnerID', header: 'Owner', size: 190, minSize: 140, cell: ({ row }) => <SavedReportOwner report={row.original} authorMaps={authorMaps} /> },
@@ -107,7 +104,7 @@ const SavedReportsPage: React.FC = () => {
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-2">
             <Button asChild variant="secondary" icon={<Play size={14} />} iconPosition="left">
-              <Link href={savedReportHref(row.original.id)}>Run</Link>
+              <NextLink href={savedReportHref(row.original.id)}>Run</NextLink>
             </Button>
             <SavedReportMenu reportName={row.original.name} actions={menuActionsFor(row.original)} />
           </div>
@@ -136,7 +133,7 @@ const SavedReportsPage: React.FC = () => {
           <TableFilter filterFields={filterFields} onFilterChange={handleFilterChange} pageKey={TableKeyEnum.SAVED_REPORTS} quickFilters={quickFilters} />
         </div>
         <Button asChild icon={<Plus size={16} />} iconPosition="left" {...tableActionAnchor(ObjectTypes.REPORT, 'create')}>
-          <Link href={CUSTOM_REPORT_HREF}>New report</Link>
+          <NextLink href={CUSTOM_REPORT_HREF}>New report</NextLink>
         </Button>
       </div>
 

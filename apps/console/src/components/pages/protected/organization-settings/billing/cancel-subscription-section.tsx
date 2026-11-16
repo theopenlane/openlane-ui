@@ -12,6 +12,7 @@ import { useOpenBillingPortal } from '@/hooks/useBillingPortal'
 import { findManageableSchedule, useCancelSubscriptionMutation, useRenewSubscriptionMutation, useSchedulesQuery } from '@/lib/query-hooks/stripe'
 import { formatDate } from '@/utils/date'
 import { billingSettingsStyles } from './billing-settings.styles'
+import { Link } from '@/components/shared/link/link'
 
 type CancelSubscriptionSectionProps = {
   stripeCustomerId: string | null | undefined
@@ -101,9 +102,9 @@ const CancelSubscriptionSection = ({ stripeCustomerId, hasSubscription }: Cancel
             </Button>
           ) : (
             <OfficialOnly>
-              <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500">
+              <Link href={SUPPORT_URL} newTab className="text-sm">
                 Reach out to support
-              </a>
+              </Link>
             </OfficialOnly>
           )}
         </div>

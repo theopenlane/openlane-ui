@@ -1,6 +1,8 @@
 'use client'
 
 import React, { use, useEffect, useMemo, useState } from 'react'
+import { getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilities/vulnerability-display'
+import { getObjectDisplayName } from '@/utils/object-display-name'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { PageHeading } from '@repo/ui/page-heading'
 import { useVulnerabilitiesWithFilter } from '@/lib/graphql-hooks/vulnerability'
@@ -107,22 +109,22 @@ const ExposureOverviewPage = () => {
   const severityItems = useMemo(
     () => ({
       vulns: {
-        critical: vulnCritNodes?.map((v) => v.displayName ?? v.cveID ?? v.displayID ?? v.id) ?? [],
-        high: vulnHighNodes?.map((v) => v.displayName ?? v.cveID ?? v.displayID ?? v.id) ?? [],
-        medium: vulnMedNodes?.map((v) => v.displayName ?? v.cveID ?? v.displayID ?? v.id) ?? [],
-        low: vulnLowNodes?.map((v) => v.displayName ?? v.cveID ?? v.displayID ?? v.id) ?? [],
+        critical: vulnCritNodes?.map(getVulnerabilityTitle) ?? [],
+        high: vulnHighNodes?.map(getVulnerabilityTitle) ?? [],
+        medium: vulnMedNodes?.map(getVulnerabilityTitle) ?? [],
+        low: vulnLowNodes?.map(getVulnerabilityTitle) ?? [],
       },
       findings: {
-        critical: findCritNodes?.map((f) => f.displayName ?? f.displayID ?? f.id) ?? [],
-        high: findHighNodes?.map((f) => f.displayName ?? f.displayID ?? f.id) ?? [],
-        medium: findMedNodes?.map((f) => f.displayName ?? f.displayID ?? f.id) ?? [],
-        low: findLowNodes?.map((f) => f.displayName ?? f.displayID ?? f.id) ?? [],
+        critical: findCritNodes?.map((f) => getObjectDisplayName(f) || 'Finding') ?? [],
+        high: findHighNodes?.map((f) => getObjectDisplayName(f) || 'Finding') ?? [],
+        medium: findMedNodes?.map((f) => getObjectDisplayName(f) || 'Finding') ?? [],
+        low: findLowNodes?.map((f) => getObjectDisplayName(f) || 'Finding') ?? [],
       },
       risks: {
-        critical: riskCritNodes?.map((r) => r.name ?? r.displayID ?? r.id) ?? [],
-        high: riskHighNodes?.map((r) => r.name ?? r.displayID ?? r.id) ?? [],
-        medium: riskMedNodes?.map((r) => r.name ?? r.displayID ?? r.id) ?? [],
-        low: riskLowNodes?.map((r) => r.name ?? r.displayID ?? r.id) ?? [],
+        critical: riskCritNodes?.map((r) => getObjectDisplayName(r) || 'Risk') ?? [],
+        high: riskHighNodes?.map((r) => getObjectDisplayName(r) || 'Risk') ?? [],
+        medium: riskMedNodes?.map((r) => getObjectDisplayName(r) || 'Risk') ?? [],
+        low: riskLowNodes?.map((r) => getObjectDisplayName(r) || 'Risk') ?? [],
       },
     }),
     [vulnCritNodes, vulnHighNodes, vulnMedNodes, vulnLowNodes, findCritNodes, findHighNodes, findMedNodes, findLowNodes, riskCritNodes, riskHighNodes, riskMedNodes, riskLowNodes],
@@ -171,7 +173,7 @@ const ExposureOverviewPage = () => {
       .forEach((v) => {
         items.push({
           id: v.id,
-          name: v.displayName ?? v.displayID ?? 'Vulnerability',
+          name: getVulnerabilityTitle(v),
           type: ObjectTypes.VULNERABILITY,
           severity: v.severity ?? '',
           status: v.vulnerabilityStatusName ?? '',
@@ -181,12 +183,12 @@ const ExposureOverviewPage = () => {
     critFindings
       ?.filter((f) => isCritOrHigh(f.severity ?? ''))
       .forEach((f) => {
-        items.push({ id: f.id, name: f.displayName ?? 'Finding', type: ObjectTypes.FINDING, severity: f.severity ?? '', status: f.findingStatusName ?? '', createdAt: f.createdAt })
+        items.push({ id: f.id, name: getObjectDisplayName(f) || 'Finding', type: ObjectTypes.FINDING, severity: f.severity ?? '', status: f.findingStatusName ?? '', createdAt: f.createdAt })
       })
     critRisks
       ?.filter((r) => isCritOrHigh(r.impact ?? ''))
       .forEach((r) => {
-        items.push({ id: r.id, name: r.name ?? 'Risk', type: ObjectTypes.RISK, severity: r.impact ?? '', status: r.status ?? '', createdAt: r.createdAt })
+        items.push({ id: r.id, name: getObjectDisplayName(r) || 'Risk', type: ObjectTypes.RISK, severity: r.impact ?? '', status: r.status ?? '', createdAt: r.createdAt })
       })
 
     return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 10)

@@ -2,8 +2,7 @@
 
 import React from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
-import { useFindingSheetConfig } from '@/components/pages/protected/findings/hooks/use-finding-sheet-config'
+import ViewFindingSheet from '@/components/pages/protected/findings/view-finding-sheet'
 
 type FindingDetailsSheetProps = {
   queryParamKey: string
@@ -14,16 +13,13 @@ const FindingDetailsSheet: React.FC<FindingDetailsSheetProps> = ({ queryParamKey
   const searchParams = useSearchParams()
   const entityId = searchParams.get(queryParamKey)
 
-  const sheetConfig = useFindingSheetConfig(entityId)
-
   const handleClose = () => {
-    sheetConfig.form.reset()
     const params = new URLSearchParams(searchParams.toString())
     params.delete(queryParamKey)
     router.replace(`${window.location.pathname}?${params.toString()}`)
   }
 
-  return <GenericDetailsSheet onClose={handleClose} {...sheetConfig} />
+  return <ViewFindingSheet entityId={entityId} onClose={handleClose} />
 }
 
 export default FindingDetailsSheet

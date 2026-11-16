@@ -1,3 +1,4 @@
+import { isRecord } from '@/utils/type-guards'
 import type { ImportFieldMeta } from '@repo/codegen/src/import-fields.generated'
 import type { TDateOrder } from '@/utils/loose-date'
 
@@ -35,6 +36,7 @@ export type TDestinationFieldSet = {
   requiredGroups: TDestinationField[][]
   uniqueFields: TDestinationField[]
   primaryField?: string
+  lookupField?: TDestinationField
 }
 
 export type TSourceColumn = {
@@ -67,6 +69,10 @@ export type TImportIssue = {
 
 export type TImportRecord = Readonly<Partial<Record<string, string>>>
 
+export type TImportOutcome = { importedCount: number }
+
+export const isImportOutcome = (value: unknown): value is TImportOutcome => isRecord(value) && typeof value.importedCount === 'number'
+
 export type TMappedImport = {
   toFile: () => File
   toRecords: () => TImportRecord[]
@@ -81,3 +87,5 @@ export type TImportDestination = {
 export type TImportAutomaticValue = { label: string; value: string }
 
 export type TImportMode = 'create' | 'update'
+
+export type TUpdateLookupField = { field: string; description: string }

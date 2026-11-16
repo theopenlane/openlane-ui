@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { TRUST_CENTER_QUERY_KEY } from '@/lib/graphql-hooks/trust-center'
 import { useNotification } from '@/hooks/useNotification'
@@ -23,9 +23,7 @@ export const usePullBrandingFromDomain = (onPulled: () => void) => {
         description: (
           <span>
             {`We finished reading ${domain}. `}
-            <Link href={BRANDING_THEME_HREF} className="text-primary font-medium underline">
-              Review your preview settings
-            </Link>
+            <Link href={BRANDING_THEME_HREF}>Review your preview settings</Link>
             {', then publish when you are happy with them.'}
           </span>
         ),

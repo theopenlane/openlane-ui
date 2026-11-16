@@ -306,7 +306,7 @@ export function Comment(props: {
                     void onSave()
                   }}
                 >
-                  <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-brand">
+                  <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%]">
                     <CheckIcon className="size-3 stroke-[3px] text-background" />
                   </div>
                 </Button>

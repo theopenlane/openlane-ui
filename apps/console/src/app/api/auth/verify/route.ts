@@ -1,4 +1,4 @@
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { setPasskeyCookie } from '@/lib/auth/utils/set-passkey-cookie'
 import { type NextRequest, NextResponse } from 'next/server'
 
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Token is required' }, { status: 400 })
   }
 
-  const fData = await secureFetch(`${process.env.API_REST_URL}/v1/verify?token=${encodeURIComponent(token)}`)
+  const fData = await serverSecureFetch(`${process.env.API_REST_URL}/v1/verify?token=${encodeURIComponent(token)}`)
 
   const data = await fData.json()
 

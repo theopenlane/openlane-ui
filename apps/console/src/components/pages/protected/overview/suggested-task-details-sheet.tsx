@@ -9,6 +9,7 @@ import { Check, ArrowUpRight } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type SuggestedTask } from '@/lib/suggested-tasks/types'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { Link } from '@/components/shared/link/link'
 
 type SuggestedTaskDetailsSheetProps = {
   task: SuggestedTask | null
@@ -72,10 +73,9 @@ const SuggestedTaskDetailsSheet: React.FC<SuggestedTaskDetailsSheetProps> = ({ t
                 <p className="text-md font-semibold mb-2">Resources</p>
                 <div className="flex flex-col gap-2">
                   {task.metadata.references.map((reference) => (
-                    <a key={reference.url} href={reference.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-brand hover:underline">
+                    <Link key={reference.url} href={reference.url} newTab className="w-fit text-sm">
                       {reference.name}
-                      <ArrowUpRight className="h-3.5 w-3.5 shrink-0" />
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </Card>

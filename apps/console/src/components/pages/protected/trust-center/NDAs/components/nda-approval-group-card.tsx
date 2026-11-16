@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Label } from '@repo/ui/label'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
-import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import { toGroupOption, useGroupSelect } from '@/lib/graphql-hooks/group'
 import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
 
 type NdaApproverGroup = { id: string; displayName: string; name: string }
@@ -17,15 +17,14 @@ type NdaApprovalGroupCardProps = {
 }
 
 export const NdaApprovalGroupCard = ({ selectedGroup, canEdit, disabled, onSelect }: NdaApprovalGroupCardProps) => {
-  const { groups, isLoading } = useGetAllGroups({})
+  const { groupOptions: fetchedOptions, isLoading } = useGroupSelect()
 
   const groupOptions = useMemo(() => {
-    const opts = groups.map((group) => ({ value: group.id, label: group.displayName || group.name }))
-    if (selectedGroup && !opts.some((opt) => opt.value === selectedGroup.id)) {
-      opts.unshift({ value: selectedGroup.id, label: selectedGroup.displayName || selectedGroup.name })
+    if (selectedGroup && !fetchedOptions.some((opt) => opt.value === selectedGroup.id)) {
+      return [toGroupOption(selectedGroup), ...fetchedOptions]
     }
-    return opts
-  }, [groups, selectedGroup])
+    return fetchedOptions
+  }, [fetchedOptions, selectedGroup])
 
   const handleChange = (value: string) => {
     if (!value) {

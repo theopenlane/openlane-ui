@@ -11,6 +11,7 @@ import { Pencil, Trash2, Check, X } from 'lucide-react'
 import { type Value } from 'platejs'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useHasOrgFullAccess } from '@/lib/query-hooks/permissions'
+import { Button } from '@repo/ui/button'
 
 type CommentListProps = {
   comments: TCommentData[]
@@ -85,33 +86,36 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove, s
                   {canManageComment && !isEditing && (onEdit || onRemove) && (
                     <div className="flex gap-2">
                       {onEdit && (
-                        <button aria-label="Edit comment" onClick={() => handleEditClick(item)} className="hover:text-btn-secondary bg-unset">
-                          <Pencil className="h-4 w-4" />
-                        </button>
+                        <Button type="button" variant="icon" size="icon-xs" aria-label="Edit comment" onClick={() => handleEditClick(item)}>
+                          <Pencil className="size-4" />
+                        </Button>
                       )}
                       {onRemove && (
-                        <button
+                        <Button
+                          type="button"
+                          variant="icon"
+                          size="icon-xs"
                           aria-label="Delete comment"
                           onClick={() => {
                             setCommentToDelete(item)
                             setDeleteDialogOpen(true)
                           }}
-                          className="hover:text-destructive bg-unset"
+                          className="hover:text-destructive"
                         >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                          <Trash2 className="size-4" />
+                        </Button>
                       )}
                     </div>
                   )}
 
                   {canManageComment && isEditing && (
                     <div className="flex gap-2">
-                      <button aria-label="Save comment" onClick={() => handleSaveEdit(item)}>
-                        <Check className="h-4 w-4 text-brand" />
-                      </button>
-                      <button aria-label="Cancel comment edit" onClick={handleCancelEdit}>
-                        <X size={16} />
-                      </button>
+                      <Button type="button" variant="icon" size="icon-xs" aria-label="Save comment" onClick={() => handleSaveEdit(item)}>
+                        <Check className="size-4 text-primary" />
+                      </Button>
+                      <Button type="button" variant="icon" size="icon-xs" aria-label="Cancel comment edit" onClick={handleCancelEdit}>
+                        <X className="size-4" />
+                      </Button>
                     </div>
                   )}
                 </div>

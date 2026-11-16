@@ -1,7 +1,9 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import Link from 'next/link'
+import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 import { useDebounce } from '@uidotdev/usehooks'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -60,6 +62,7 @@ const RisksTable: React.FC<RisksTableProps> = ({ controlId, subcontrolIds }) => 
   const memberIds = useMemo(() => [...new Set(risks.flatMap((r) => [r.createdBy, r.updatedBy]).filter((id): id is string => typeof id === 'string' && id.length > 0))], [risks])
 
   const { userMap, tokenMap } = useAuthorMaps(memberIds)
+  const openObjectSheet = useOpenObjectSheet()
 
   const { columns } = useMemo(() => getRiskColumns({ userMap, tokenMap, convertToReadOnly, selectedRisks: [], setSelectedRisks: () => {} }), [userMap, tokenMap, convertToReadOnly])
 
@@ -72,15 +75,15 @@ const RisksTable: React.FC<RisksTableProps> = ({ controlId, subcontrolIds }) => 
             return {
               ...col,
               cell: ({ row }: { row: { original: RiskTableFieldsFragment } }) => (
-                <Link href={`/exposure/risks/${row.original.id}`} className="block truncate text-blue-500 hover:underline">
-                  {row.original.name || ''}
-                </Link>
+                <div className="truncate">
+                  <ObjectSheetLink id={row.original.id} kind={ObjectAssociationNodeEnum.RISKS} label={row.original.name || ''} onOpenSheet={openObjectSheet} />
+                </div>
               ),
             }
           }
           return col
         }) as ColumnDef<RiskTableFieldsFragment>[],
-    [columns],
+    [columns, openObjectSheet],
   )
 
   return (

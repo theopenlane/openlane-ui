@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import CampaignTableToolbar from '@/components/pages/protected/campaigns/table/campaigns-table-toolbar'
 import { CampaignOrderField, ExportExportFormat, ExportExportType, OrderDirection, type CampaignWhereInput } from '@repo/codegen/src/schema'
 import { getCampaignColumns } from '@/components/pages/protected/campaigns/table/columns'
@@ -35,7 +35,6 @@ const CampaignsPage: React.FC = () => {
   const [summaryScope, setSummaryScope] = useState<TCampaignSummaryScope | null>(null)
   const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.CAMPAIGN)
   const [filters, setFilters] = useState<CampaignWhereInput | null>(null)
-  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.CAMPAIGN)
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
@@ -89,6 +88,10 @@ const CampaignsPage: React.FC = () => {
     return merged
   }, [filters, debouncedSearch, summaryScope, scopeFilters])
 
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.CAMPAIGN, {
+    restorePage: { where: whereFilter, orderBy, ready: filters !== null },
+  })
+
   useQueryErrorNotification({ error: summaryError, description: 'Failed to load campaign summary' })
 
   useEffect(() => {
@@ -131,14 +134,6 @@ const CampaignsPage: React.FC = () => {
     setSelectedCampaigns([])
   }
 
-  const handleScopeChange = useCallback(
-    (scope: TCampaignSummaryScope | null) => {
-      setSummaryScope(scope)
-      resetPagination()
-    },
-    [resetPagination],
-  )
-
   return (
     <>
       <PageHeading
@@ -154,7 +149,7 @@ const CampaignsPage: React.FC = () => {
         (summary.totalCampaignCount === 0 ? (
           <CampaignsEmptyState onCreateCampaign={() => setIsCreateSheetOpen(true)} />
         ) : (
-          <CampaignsSummary summary={summary} activeScope={summaryScope} onScopeChange={handleScopeChange} />
+          <CampaignsSummary summary={summary} activeScope={summaryScope} onScopeChange={setSummaryScope} />
         ))}
       <CampaignTableToolbar
         onFilterChange={setFilters}
@@ -164,10 +159,7 @@ const CampaignsPage: React.FC = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         searchTerm={searchQuery}
-        setSearchTerm={(val) => {
-          setSearchQuery(val)
-          resetPagination()
-        }}
+        setSearchTerm={setSearchQuery}
         searching={searching}
         exportEnabled={hasCampaigns}
         canEdit={canEdit}

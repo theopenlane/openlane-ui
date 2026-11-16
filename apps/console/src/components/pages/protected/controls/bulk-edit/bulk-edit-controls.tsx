@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, useFieldArray, useWatch, type Path } from 'react-hook-form'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import { useGetGroupNames } from '@/lib/graphql-hooks/group'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
@@ -57,16 +57,11 @@ type BulkEditRecordsDialogProps = {
 }
 
 const useBulkEditOptionData = () => {
-  const { data } = useGetAllGroups({ where: {} })
+  const { groups } = useGetGroupNames()
   const { enumOptions, onCreateOption: createControlType } = useCreatableEnumOptions({
     objectType: objectToSnakeCase(ObjectTypes.CONTROL),
     field: 'kind',
   })
-
-  const groups = useMemo(() => {
-    if (!data) return []
-    return data.groups?.edges?.map((edge) => edge?.node).filter((group): group is NonNullable<typeof group> => Boolean(group)) ?? []
-  }, [data])
 
   return { groups, enumOptions, createControlType }
 }

@@ -6,6 +6,7 @@ import { objectToSnakeCase } from '../../utils/strings'
 import { useFetchWithRetry, getIsSessionInvalid } from '@/lib/graphqlClient'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { isImpersonation } from '@/lib/authz/utils'
+import { clearCachedOrganizationRoles, readCachedOrganizationRoles, writeCachedOrganizationRoles } from '@/lib/authz/organization-roles-cache'
 
 const FULL_ACCESS_ROLES: TAccessRole[] = Object.values(AccessEnum)
 
@@ -34,21 +35,35 @@ export const usePermissionQueryErrorLog = <TData>({ isError, error }: Pick<UseQu
 export const useOrganizationRoles = () => {
   const fetchWithRetry = useFetchWithRetry()
   const { data: session } = useSession()
+  const userId = session?.user?.userId
+  const organizationId = session?.user?.activeOrganizationId
+  const isImpersonating = !!isImpersonation(session)
 
   const resp = useQuery<TPermissionData>({
-    queryKey: ['organizationRole', session?.user?.activeOrganizationId],
-    enabled: !isImpersonation(session),
+    queryKey: ['organizationRole', organizationId],
+    enabled: !isImpersonating,
     retry: shouldRetryPermission,
     placeholderData: undefined,
+    initialData: isImpersonating ? undefined : () => readCachedOrganizationRoles(userId, organizationId),
+    initialDataUpdatedAt: 0,
     queryFn: async () => {
-      const res = await fetchWithRetry('/api/permissions/organization-roles', { method: 'GET' })
-      return readPermissionResponse<TPermissionData>(res, 'Failed to fetch organization roles')
+      try {
+        const res = await fetchWithRetry('/api/permissions/organization-roles', { method: 'GET' })
+        const permission = await readPermissionResponse<TPermissionData>(res, 'Failed to fetch organization roles')
+        writeCachedOrganizationRoles(userId, organizationId, permission)
+        return permission
+      } catch (error) {
+        clearCachedOrganizationRoles(userId, organizationId)
+        throw error
+      }
     },
   })
 
   usePermissionQueryErrorLog(resp, 'Failed to fetch organization roles')
 
-  return resp
+  const isUnverifiedCache = resp.isError && resp.dataUpdatedAt === 0
+
+  return isUnverifiedCache ? { ...resp, data: undefined } : resp
 }
 
 const useOrgRolesGrantFullAccess = (): boolean => {

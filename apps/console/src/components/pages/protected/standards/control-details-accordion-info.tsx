@@ -175,7 +175,7 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, t
               <div className="flex items-center gap-2">
                 <span className="text-base font-medium">{item.label}</span>
               </div>
-              <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
+              <ChevronDown size={22} className="transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
             </button>
           </AccordionTrigger>
           <AccordionContent className="pt-2">{item.render()}</AccordionContent>

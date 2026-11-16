@@ -14,7 +14,11 @@ import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { type TEntityComments } from '@/lib/graphql-hooks/entity-comments'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-const CommentsSection: React.FC<TEntityComments> = ({ comments, totalCount, isLoading, error, addComment, editComment, removeComment }) => {
+type TCommentsSectionProps = TEntityComments & {
+  showHeading?: boolean
+}
+
+const CommentsSection: React.FC<TCommentsSectionProps> = ({ comments, totalCount, isLoading, error, addComment, editComment, removeComment, showHeading = true }) => {
   const headingId = useId()
   const plateEditorHelper = usePlateEditor()
   const { errorNotification } = useNotification()
@@ -86,10 +90,12 @@ const CommentsSection: React.FC<TEntityComments> = ({ comments, totalCount, isLo
   }
 
   return (
-    <section className="mt-6 space-y-3 pb-4" aria-labelledby={headingId}>
-      <h3 id={headingId} className="text-lg font-medium">
-        Comments
-      </h3>
+    <section className="space-y-3" aria-labelledby={showHeading ? headingId : undefined}>
+      {showHeading && (
+        <h3 id={headingId} className="text-lg font-semibold">
+          Comments
+        </h3>
+      )}
       {renderList()}
       <AddComment onSuccess={handleAdd} />
     </section>

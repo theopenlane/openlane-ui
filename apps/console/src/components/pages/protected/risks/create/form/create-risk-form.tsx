@@ -19,6 +19,8 @@ import { Switch } from '@repo/ui/switch'
 import { RiskFrequency } from '@repo/codegen/src/schema'
 import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { RISK_STAKEHOLDER, RISK_DELEGATE } from '../../risk-responsibility'
+import { RISK_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
+import { splitAssociationFields } from '@/components/shared/object-association/utils'
 
 const CreateRiskForm: React.FC = () => {
   const { mutateAsync: createRisk, isPending } = useCreateRisk()
@@ -31,7 +33,8 @@ const CreateRiskForm: React.FC = () => {
   const [clearData, setClearData] = useState<boolean>(false)
 
   const onSubmitHandler = async (values: CreateRisksFormData) => {
-    const { stakeholder, delegate, ...rest } = values
+    const { stakeholder, delegate, ...riskValues } = values
+    const { fields: rest, associations } = splitAssociationFields(riskValues, RISK_ASSOCIATION_CONFIG.associationKeys)
 
     const businessCostsField = rest.businessCosts ? await plateEditorHelper.convertToHtml(rest.businessCosts as Value) : undefined
 
@@ -42,6 +45,7 @@ const CreateRiskForm: React.FC = () => {
       const createdRisk = await createRisk({
         input: {
           ...rest,
+          ...associations,
           mitigation: undefined,
           details: details,
           detailsJSON: detailsJSON,

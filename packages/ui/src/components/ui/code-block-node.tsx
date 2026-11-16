@@ -36,7 +36,7 @@ export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
 
           <CodeBlockCombobox />
 
-          <CopyButton size="icon" variant="outline" className="size-6 gap-1 text-muted-foreground text-xs" value={() => NodeApi.string(element)} />
+          <CopyButton size="icon" variant="outline" className="size-6 gap-1 text-muted-foreground text-xs" value={() => element.children.map((line) => NodeApi.string(line)).join('\n')} />
         </div>
       </div>
     </PlateElement>
@@ -96,9 +96,9 @@ function CopyButton({ value, ...props }: { value: (() => string) | string } & Om
   const [hasCopied, setHasCopied] = React.useState(false)
 
   React.useEffect(() => {
-    setTimeout(() => {
-      setHasCopied(false)
-    }, 2000)
+    if (!hasCopied) return
+    const timeout = setTimeout(() => setHasCopied(false), 2000) // 2s
+    return () => clearTimeout(timeout)
   }, [hasCopied])
 
   return (

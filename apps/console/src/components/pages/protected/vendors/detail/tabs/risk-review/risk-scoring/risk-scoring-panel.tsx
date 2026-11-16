@@ -1,5 +1,5 @@
-import React, { useId, useMemo } from 'react'
-import { FileText } from 'lucide-react'
+import React, { useId, useMemo, useState } from 'react'
+import { ClipboardCheck, FileText } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
@@ -14,13 +14,23 @@ import { vendorRiskRatingLevel } from '@/lib/vendor-risk-rating'
 import { formatDate } from '@/utils/date'
 import { pluralize, pluralizeWithCount } from '@/utils/strings'
 import { RiskScoreScale } from './risk-score-scale'
+import { useOrganizationVendorScoringConfig } from '@/lib/graphql-hooks/vendor-scoring-config'
+import { buildRiskQuestions, hasAnswer } from './answers/risk-answers'
+import { RiskScoringActions } from './answers/risk-scoring-actions'
+import { RiskAnswerSheet } from './answers/risk-answer-sheet'
+import { useOpenImport } from '@/components/shared/record-import/lib/use-open-import'
+import { vendorRiskAnswersImportRoute } from '@/components/shared/record-import/lib/import-routes'
 import { RiskScoreSources } from './risk-score-sources'
 import { RiskScoringCategoryTable } from './risk-scoring-category-table'
 import { buildRiskScoring, formatScoreValue, SOC2_REPORT_REVIEW_WHERE, type TRiskScoring } from './risk-scoring-utils'
 
 type TRiskScoringPanelProps = {
   vendorId: string
+  vendorName: string
+  vendorLogoUrl?: string
   vendorRiskScore: number | null | undefined
+  vendorRiskRating: string | null | undefined
+  canEdit: boolean
   onViewReview: (review: ReviewsNodeNonNull) => void
 }
 
@@ -160,10 +170,30 @@ const RiskScoringContent = ({ scoring, vendorRiskScore }: TRiskScoringContentPro
   )
 }
 
-export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, vendorRiskScore, onViewReview }) => {
+const NotScoredState = () => (
+  <Card className="flex flex-wrap items-center gap-4 p-4">
+    <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
+      <ClipboardCheck size={18} aria-hidden />
+    </span>
+    <div className="min-w-0 flex-1">
+      <p className="text-sm font-medium">This vendor has not been scored yet</p>
+      <p className="text-sm text-muted-foreground">Answer risk questions to calculate this vendor&apos;s score and rating</p>
+    </div>
+  </Card>
+)
+
+export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, vendorName, vendorLogoUrl, vendorRiskScore, vendorRiskRating, canEdit, onViewReview }) => {
   const { data: scores, isPending, error } = useVendorRiskScoring(vendorId)
   useQueryErrorNotification({ error, description: 'Failed to load risk scoring' })
-  const scoring = useMemo(() => buildRiskScoring(scores ?? []), [scores])
+  const { riskThresholds, questions, isPending: isConfigPending, isResolved: isConfigResolved, parsedConfig } = useOrganizationVendorScoringConfig()
+  const scoring = useMemo(() => buildRiskScoring(scores ?? [], riskThresholds), [scores, riskThresholds])
+  const riskQuestions = useMemo(() => buildRiskQuestions(questions, scores ?? []), [questions, scores])
+  const hiddenAnswerCount = useMemo(() => {
+    const shownIds = new Set(riskQuestions.flatMap((item) => (item.score ? [item.score.id] : [])))
+    return (scores ?? []).filter((score) => hasAnswer(score) && !shownIds.has(score.id)).length
+  }, [riskQuestions, scores])
+  const [isAnswerSheetOpen, setIsAnswerSheetOpen] = useState(false)
+  const openImport = useOpenImport()
   const isFromReport = scoring.reportSource !== 'none'
   const {
     reviewsNodes: reportReviews,
@@ -183,24 +213,53 @@ export const RiskScoringPanel: React.FC<TRiskScoringPanelProps> = ({ vendorId, v
       </RiskScoringSection>
     )
   }
-  if (isPending || (isFromReport && (isReportReviewPending || isReportReviewPlaceholder)) || scoring.categories.length === 0) {
+  if (isPending || isConfigPending || (isFromReport && (isReportReviewPending || isReportReviewPlaceholder))) {
     return null
   }
 
+  const hasScores = scoring.categories.length > 0
+  const configUnavailable = !isConfigResolved || parsedConfig === null
+  const canAnswer = canEdit && !configUnavailable
+  const answerDisabledReason = !canEdit ? undefined : configUnavailable ? 'Vendor scoring settings could not be loaded, so answers cannot be saved right now.' : undefined
   const reportReview = isFromReport ? reportReviews[0] : undefined
 
   return (
-    <RiskScoringSection
-      meta={<RiskScoringMeta scoring={scoring} review={reportReview} />}
-      action={
-        reportReview && (
-          <Button type="button" variant="secondary" onClick={() => onViewReview(reportReview)}>
-            View Review
-          </Button>
-        )
-      }
-    >
-      <RiskScoringContent scoring={scoring} vendorRiskScore={vendorRiskScore} />
-    </RiskScoringSection>
+    <>
+      <RiskScoringSection
+        meta={hasScores && <RiskScoringMeta scoring={scoring} review={reportReview} />}
+        action={
+          <div className="flex items-center gap-2">
+            {reportReview && (
+              <Button type="button" variant="secondary" onClick={() => onViewReview(reportReview)}>
+                View Review
+              </Button>
+            )}
+            <RiskScoringActions
+              hasScores={hasScores}
+              canEdit={canAnswer}
+              disabledReason={answerDisabledReason}
+              vendorName={vendorName}
+              items={riskQuestions}
+              onAnswer={() => setIsAnswerSheetOpen(true)}
+              onUpload={() => openImport(vendorRiskAnswersImportRoute(vendorId, vendorName))}
+            />
+          </div>
+        }
+      >
+        {hasScores ? <RiskScoringContent scoring={scoring} vendorRiskScore={vendorRiskScore} /> : <NotScoredState />}
+      </RiskScoringSection>
+      <RiskAnswerSheet
+        open={isAnswerSheetOpen}
+        onOpenChange={setIsAnswerSheetOpen}
+        vendorId={vendorId}
+        vendorName={vendorName}
+        vendorLogoUrl={vendorLogoUrl}
+        items={riskQuestions}
+        riskScore={vendorRiskScore}
+        riskRating={vendorRiskRating}
+        hiddenAnswerCount={hiddenAnswerCount}
+        readOnly={!canAnswer}
+      />
+    </>
   )
 }

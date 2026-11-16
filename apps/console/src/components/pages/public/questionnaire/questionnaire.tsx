@@ -208,7 +208,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
         <div className="flex flex-col items-center space-y-4">
           {linkResent ? (
             <>
-              <MailCheck size={37} className="text-brand" strokeWidth={1.5} />
+              <MailCheck size={37} strokeWidth={1.5} />
               <p className="text-sm font-medium text-center">New Link Sent</p>
               <p className="text-sm text-muted-foreground text-center">
                 A new authentication link has been sent to your email. Please check your inbox and use the new link to access the questionnaire.
@@ -253,7 +253,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     return (
       <div className="relative z-20 shadow-2xl bg-white dark:bg-card rounded-lg flex flex-col justify-center mx-auto my-auto py-16 px-12 w-full max-w-lg">
         <div className="flex flex-col items-center space-y-4">
-          <CircleCheckBig size={37} className="text-brand" strokeWidth={1.5} />
+          <CircleCheckBig size={37} strokeWidth={1.5} />
           <p className="text-sm font-medium text-center">Questionnaire Submitted Successfully</p>
           <p className="text-sm text-muted-foreground text-center">Thank you for completing the questionnaire. Your response have been submitted successfully.</p>
         </div>

@@ -18,6 +18,8 @@ import {
 import {
   type GetAllGroupsQuery,
   type GetAllGroupsQueryVariables,
+  type GetGroupNamesQuery,
+  type GetGroupNamesQueryVariables,
   type GetGroupDetailsQuery,
   type GetGroupDetailsQueryVariables,
   type GetGroupPermissionsQuery,
@@ -30,7 +32,6 @@ import {
   type DeleteGroupMutationVariables,
   type UpdateGroupMembershipMutation,
   type UpdateGroupMembershipMutationVariables,
-  type Group,
   type DeleteGroupMembershipMutation,
   type DeleteGroupMembershipMutationVariables,
   type GroupWhereInput,
@@ -49,6 +50,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { EXPORT_PAGE_SIZE, EXPORT_PAGE_SIZE_HEAVY } from '@/constants/pagination'
 import { fetchAllConnectionNodes } from '@/lib/graphql-hooks/fetch-all-connection-nodes'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 
 export type GroupsNode = NonNullable<NonNullable<NonNullable<NonNullable<GetAllGroupsQuery['groups']>['edges']>[number]>['node']>
 
@@ -73,7 +75,7 @@ export const useGetAllGroups = ({ where, orderBy, pagination, enabled = true }: 
     enabled,
   })
 
-  const groups = useMemo(() => queryResult.data?.groups?.edges?.map((edge) => edge?.node).filter((node): node is GroupsNode => !!node) ?? [], [queryResult.data])
+  const groups = useMemo(() => getNodes(queryResult.data?.groups), [queryResult.data])
 
   const paginationMeta = {
     totalCount: queryResult.data?.groups?.totalCount ?? 0,
@@ -88,38 +90,30 @@ export const useGetAllGroups = ({ where, orderBy, pagination, enabled = true }: 
   }
 }
 
-type GroupNameNode = Pick<Group, 'id' | 'name' | 'displayName'>
-type GetGroupNamesResult = { groups?: { edges?: ({ node?: GroupNameNode | null } | null)[] | null } | null }
+export type GroupNameNode = NonNullable<NonNullable<NonNullable<NonNullable<GetGroupNamesQuery['groups']>['edges']>[number]>['node']>
 
-export const useGetGroupNames = ({ where, enabled = true }: { where?: GroupWhereInput; enabled?: boolean }) => {
+export const useGetGroupNames = ({ where, enabled = true }: { where?: GroupWhereInput; enabled?: boolean } = {}) => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useQuery<GetGroupNamesResult>({
+  const queryResult = useQuery<GetGroupNamesQuery>({
     queryKey: ['groups', 'names', where],
-    queryFn: () => client.request(GET_GROUP_NAMES, { where }),
+    queryFn: () => client.request<GetGroupNamesQuery, GetGroupNamesQueryVariables>(GET_GROUP_NAMES, { where }),
     enabled,
   })
 
-  const groups = queryResult.data?.groups?.edges?.map((edge) => edge?.node).filter((node): node is GroupNameNode => !!node) ?? []
+  const groups = useMemo(() => getNodes(queryResult.data?.groups), [queryResult.data])
 
   return { ...queryResult, groups, isLoading: queryResult.isPending }
 }
 
-export const useGroupSelect = ({ enabled = true }: { enabled?: boolean } = {}) => {
-  const { data, ...rest } = useGetAllGroups({ enabled })
+export const toGroupOption = (group: GroupNameNode) => ({ label: group.displayName || group.name, value: group.id })
 
-  const groupOptions = useMemo(
-    () =>
-      data?.groups?.edges
-        ?.filter((edge) => !!edge?.node)
-        ?.map((edge) => ({
-          label: edge?.node?.displayName || '',
-          value: edge?.node?.id || '',
-        })) ?? [],
-    [data],
-  )
+export const useGroupSelect = ({ where, enabled = true }: { where?: GroupWhereInput; enabled?: boolean } = {}) => {
+  const { groups, ...rest } = useGetGroupNames({ where, enabled })
 
-  return { groupOptions, ...rest }
+  const groupOptions = useMemo(() => groups.map(toGroupOption), [groups])
+
+  return { groups, groupOptions, ...rest }
 }
 
 export const useGetAllGroupsInfinite = ({ where, orderBy, pagination, enabled = true }: GroupsArgs) => {

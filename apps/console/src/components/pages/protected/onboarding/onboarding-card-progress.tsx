@@ -8,7 +8,7 @@ type OnboardingCardProgressProps = {
 }
 
 const OnboardingCardProgress = ({ label, progress }: OnboardingCardProgressProps) => (
-  <div className="flex flex-col gap-3 mb-8">
+  <div className="flex flex-col gap-3 mb-6">
     {label && (
       <Badge variant="primary" className="w-fit gap-1.5 uppercase tracking-wide border-primary/24">
         {label}

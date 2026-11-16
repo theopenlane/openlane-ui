@@ -25,8 +25,11 @@ import { getBrandingPreviewDifference } from './helpers/preview-difference'
 import { UnpublishedChangesWarning } from './section-warning'
 import { useFixedToolbarOffset } from '@/hooks/useFixedToolbarOffset'
 import { buildPreviewUrl } from './helpers/preview-url'
+import { getTrustCenterUrlState } from '../shared/trust-center-urls'
+import { TrustCenterPreviewStatusNote } from '../shared/trust-center-urls-setup'
 import { BRANDING_PREVIEW_FIELDS, clearableSettingInput, FAVICON_ASSET, LOGO_ASSET, publishAssetInput, revertAssetInput } from './helpers/branding-setting-input'
 import { useDirtyInput } from '@/hooks/useDirtyInput'
+import { isDeepEqual } from '@/utils/input-diff'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -34,6 +37,34 @@ export enum InputTypeEnum {
 }
 
 const brandColor = (value?: string | null) => normalizeHexColor(value) ?? DEFAULT_BRAND_COLOR
+
+const toBrandFormSeed = (previewSetting: TrustCenterPreviewSetting) => {
+  if (!previewSetting) return null
+
+  const values: BrandFormValues = {
+    title: previewSetting.title ?? '',
+    overview: previewSetting.overview ?? '',
+    securityContact: previewSetting.securityContact ?? '',
+    statusPageURL: previewSetting.statusPageURL ?? '',
+    primaryColor: brandColor(previewSetting.primaryColor),
+    foregroundColor: brandColor(previewSetting.foregroundColor),
+    backgroundColor: brandColor(previewSetting.backgroundColor),
+    secondaryForegroundColor: brandColor(previewSetting.secondaryForegroundColor),
+    secondaryBackgroundColor: brandColor(previewSetting.secondaryBackgroundColor),
+    accentColor: brandColor(previewSetting.accentColor),
+    font: previewSetting.font ?? 'outfit',
+    themeMode: (previewSetting.themeMode as TrustCenterSettingTrustCenterThemeMode) ?? TrustCenterSettingTrustCenterThemeMode.EASY,
+    logoRemoteURL: previewSetting.logoRemoteURL ?? '',
+    faviconRemoteURL: previewSetting.faviconRemoteURL ?? '',
+    logoFile: null,
+    faviconFile: null,
+    companyName: previewSetting.companyName ?? '',
+    companyDescription: previewSetting.companyDescription ?? '',
+    companyDomain: previewSetting.companyDomain ?? '',
+  }
+
+  return { id: previewSetting.id, values, logoFileId: previewSetting.logoFile?.id ?? null, faviconFileId: previewSetting.faviconFile?.id ?? null }
+}
 
 const BrandPage: React.FC = () => {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -47,6 +78,7 @@ const BrandPage: React.FC = () => {
 
   const setting: TrustCenterSetting = trustCenter?.setting
   const previewSetting: TrustCenterPreviewSetting = trustCenter?.previewSetting
+  const { isDefaultDomainDisabled, needsSetup, defaultUrl } = getTrustCenterUrlState(trustCenter)
 
   const { stickyChromeRef, fixedToolbarOffset } = useFixedToolbarOffset()
 
@@ -71,31 +103,14 @@ const BrandPage: React.FC = () => {
 
   const navGuard = useNavigationGuard({ enabled: hasUnsavedChanges })
 
+  const nextFormSeed = useMemo(() => toBrandFormSeed(previewSetting), [previewSetting])
+  const [formSeed, setFormSeed] = useState(nextFormSeed)
+  if (!isDeepEqual(formSeed, nextFormSeed)) setFormSeed(nextFormSeed)
+
   useEffect(() => {
-    if (previewSetting) {
+    if (formSeed) {
       setIsFormSettled(false)
-      const values = {
-        title: previewSetting.title ?? '',
-        overview: previewSetting.overview ?? '',
-        securityContact: previewSetting.securityContact ?? '',
-        statusPageURL: previewSetting.statusPageURL ?? '',
-        primaryColor: brandColor(previewSetting.primaryColor),
-        foregroundColor: brandColor(previewSetting.foregroundColor),
-        backgroundColor: brandColor(previewSetting.backgroundColor),
-        secondaryForegroundColor: brandColor(previewSetting.secondaryForegroundColor),
-        secondaryBackgroundColor: brandColor(previewSetting.secondaryBackgroundColor),
-        accentColor: brandColor(previewSetting.accentColor),
-        font: previewSetting.font ?? 'outfit',
-        themeMode: (previewSetting.themeMode as TrustCenterSettingTrustCenterThemeMode) ?? TrustCenterSettingTrustCenterThemeMode.EASY,
-        logoRemoteURL: previewSetting.logoRemoteURL ?? '',
-        faviconRemoteURL: previewSetting.faviconRemoteURL ?? '',
-        logoFile: null,
-        faviconFile: null,
-        companyName: previewSetting.companyName ?? '',
-        companyDescription: previewSetting.companyDescription ?? '',
-        companyDomain: previewSetting.companyDomain ?? '',
-      }
-      reset(values)
+      reset(formSeed.values)
       const timeoutId = setTimeout(() => {
         const currentValues = methods.getValues()
         reset(currentValues)
@@ -103,7 +118,7 @@ const BrandPage: React.FC = () => {
       }, 0)
       return () => clearTimeout(timeoutId)
     }
-  }, [previewSetting, pulledBrandingCount, reset, methods])
+  }, [formSeed, pulledBrandingCount, reset, methods])
 
   useEffect(() => {
     setCrumbs([
@@ -135,6 +150,8 @@ const BrandPage: React.FC = () => {
     faviconFile: values.faviconFile ?? undefined,
   })
 
+  const rebaseSavedValues = (values: BrandFormValues) => reset({ ...values, logoFile: null, faviconFile: null })
+
   const savePreview = async (values: BrandFormValues) => {
     if (!previewSetting?.id) return
 
@@ -146,14 +163,15 @@ const BrandPage: React.FC = () => {
       return
     }
 
-    await updateTrustCenterSetting({ id: previewSetting.id, input, ...uploads })
+    const saved = await updateTrustCenterSetting({ id: previewSetting.id, input, ...uploads })
+    if (saved) rebaseSavedValues(values)
   }
 
   const publish = async (values: BrandFormValues) => {
     if (!setting?.id) return
 
     const input = await buildPublishInput(values)
-    const published = await updateTrustCenterSetting({ id: setting.id, input, ...stagedUploads(values) })
+    const published = await updateTrustCenterSetting({ id: setting.id, input: { ...input, ...(isDefaultDomainDisabled ? { disableDefaultDomain: false } : {}) }, ...stagedUploads(values) })
     if (!published) return
 
     if (previewSetting?.id) {
@@ -169,6 +187,7 @@ const BrandPage: React.FC = () => {
       })
       if (!mirrored) return
     }
+    rebaseSavedValues(values)
     setIsConfirmationDialogOpen(false)
   }
 
@@ -203,10 +222,13 @@ const BrandPage: React.FC = () => {
             hasUnsavedChanges={hasUnsavedChanges}
             hasPreviewChanges={hasPreviewDifference.any}
             isPreviewAvailable={hasPreviewDifference.comparable}
+            isFirstPublish={isDefaultDomainDisabled}
+            needsUrlSetup={needsSetup}
             onPreview={handleSubmit(savePreview)}
             onRevert={handleRevert}
             onPublish={() => setIsConfirmationDialogOpen(true)}
           />
+          <TrustCenterPreviewStatusNote status={trustCenter?.previewStatus} />
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'preview' | 'published')} className="w-full">
             <TabsList className="grid w-full max-w-[400px] grid-cols-2">
               <TabsTrigger value="preview">Preview</TabsTrigger>
@@ -233,7 +255,11 @@ const BrandPage: React.FC = () => {
           onConfirm={handleSubmit(publish)}
           confirmationText="Publish"
           title="Publish"
-          description="Publishing will apply these changes to your live site..."
+          description={
+            isDefaultDomainDisabled
+              ? `Publishing will apply these changes to your live site and make your Trust Center publicly available at ${defaultUrl}.`
+              : 'Publishing will apply these changes to your live site...'
+          }
         />
         <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={() => navGuard.reject()} />
       </form>

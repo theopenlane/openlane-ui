@@ -1,13 +1,12 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { type ColumnDef, type Row, type VisibilityState } from '@repo/ui/table-types'
+import { type ColumnDef, type VisibilityState } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetIdentityHolderDirectoryAccounts } from '@/lib/graphql-hooks/identity-holder'
-import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { Input } from '@repo/ui/input'
 import { SearchIcon, Settings } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -16,29 +15,17 @@ import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapp
 import { createRowActionsColumn } from '@/components/shared/crud-base/columns/row-actions-column'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
-import { Badge } from '@repo/ui/badge'
-import { Check, X } from 'lucide-react'
-import { ExpandRowButton } from '@/components/shared/crud-base/columns/expand-row-button'
-import { buildMembershipList, resolveSingleEntityVendor, type MembershipList, type MembershipVendor } from '@/lib/directory-memberships/group-memberships'
-import { MembershipList as MembershipListTable } from '@/components/shared/directory-memberships/membership-list'
+import { buildMembershipList, membershipInstallationIds, resolveInstallationVendor } from '@/lib/directory-memberships/group-memberships'
+import { LINKED_ACCOUNT_COLUMNS, renderExpandedRow, type DirectoryAccountRow } from './linked-accounts-columns'
+import { dedupeDirectoryAccounts } from './dedupe-directory-accounts'
+import { useVendorsByInstallation } from '@/lib/graphql-hooks/entity'
+import { useCanManageIntegrations } from '@/lib/authz/use-can-manage-integrations'
 import { DirectoryMembershipDirectoryMembershipRole, type DirectoryMembershipWhereInput } from '@repo/codegen/src/schema'
 import type { WhereCondition } from '@/types'
 import { defineFilterFields } from '@/types'
 
 interface LinkedAccountsTabProps {
   personnelId: string
-}
-
-type DirectoryAccountRow = {
-  id: string
-  directory: string
-  accountType: string
-  status: string
-  mfaState: string
-  primarySource: boolean
-  integrationDefinitionId: string | null
-  vendor: MembershipVendor | null
-  memberships: MembershipList
 }
 
 const roleOptions = enumToOptions(DirectoryMembershipDirectoryMembershipRole)
@@ -53,129 +40,6 @@ const MEMBERSHIP_FILTER_FIELDS = defineFilterFields<DirectoryMembershipWhereInpu
   },
 ])
 
-const getMfaBadge = (mfaState: string) => {
-  switch (mfaState) {
-    case 'ENABLED':
-    case 'ENFORCED':
-      return <Badge variant="green">{getEnumLabel(mfaState)}</Badge>
-    case 'DISABLED':
-      return <Badge variant="outline">{getEnumLabel(mfaState)}</Badge>
-    default:
-      return <Badge variant="outline">{getEnumLabel(mfaState)}</Badge>
-  }
-}
-
-const getStatusBadge = (status: string) => {
-  switch (status) {
-    case 'ACTIVE':
-      return <Badge variant="green">{getEnumLabel(status)}</Badge>
-    case 'INACTIVE':
-    case 'SUSPENDED':
-      return <Badge variant="outline">{getEnumLabel(status)}</Badge>
-    case 'DELETED':
-      return (
-        <Badge variant="destructive" className="shrink-0">
-          {getEnumLabel(status)}
-        </Badge>
-      )
-    default:
-      return <Badge variant="outline">{getEnumLabel(status)}</Badge>
-  }
-}
-
-const renderExpandedRow = (row: Row<DirectoryAccountRow>) => {
-  const total = row.original.memberships.totalCount
-  if (total === 0) {
-    return <div className="border-t border-border px-6 py-5 text-sm italic text-muted-foreground">No group memberships.</div>
-  }
-  return (
-    <div className="border-t border-border px-6 py-5">
-      <div className="mb-4 flex items-baseline gap-2">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Access</h3>
-        <span className="text-xs text-muted-foreground">({total} total)</span>
-      </div>
-      <MembershipListTable memberships={row.original.memberships} />
-    </div>
-  )
-}
-
-const DATA_COLUMNS: ColumnDef<DirectoryAccountRow>[] = [
-  {
-    id: 'expander',
-    header: () => null,
-    size: 50,
-    minSize: 50,
-    maxSize: 50,
-    enableHiding: false,
-    cell: ({ row }) => <ExpandRowButton row={row} label="access details" />,
-  },
-  {
-    accessorKey: 'directory',
-    header: 'Directory',
-    size: 200,
-    cell: ({ row }) => {
-      const { directory, vendor } = row.original
-      const label = directory || '-'
-      if (vendor && directory) {
-        return (
-          <Link href={`/registry/vendors/${vendor.id}`} className="block truncate text-blue-500 hover:underline">
-            {label}
-          </Link>
-        )
-      }
-      return <span className="block truncate">{label}</span>
-    },
-  },
-  {
-    accessorKey: 'accountType',
-    header: 'Account Type',
-    size: 150,
-    cell: ({ row }) => <span>{getEnumLabel(row.original.accountType)}</span>,
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    size: 120,
-    cell: ({ row }) => getStatusBadge(row.original.status),
-  },
-  {
-    accessorKey: 'mfaState',
-    header: 'MFA',
-    size: 120,
-    cell: ({ row }) => getMfaBadge(row.original.mfaState),
-  },
-  {
-    accessorKey: 'primarySource',
-    header: 'Primary Source',
-    size: 140,
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        {row.original.primarySource ? (
-          <>
-            <Check size={16} className="text-success" />
-            <span>Yes</span>
-          </>
-        ) : (
-          <>
-            <X size={16} className="text-destructive" />
-            <span>No</span>
-          </>
-        )}
-      </div>
-    ),
-  },
-  {
-    id: 'access',
-    header: 'Access',
-    size: 100,
-    cell: ({ row }) => {
-      const count = row.original.memberships.totalCount
-      if (count === 0) return <span className="text-muted-foreground">—</span>
-      return <Badge variant="outline">{count}</Badge>
-    },
-  },
-]
-
 const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) => {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
@@ -187,7 +51,12 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
     () =>
       debouncedSearch
         ? {
-            or: [{ directoryNameContainsFold: debouncedSearch }, { displayNameContainsFold: debouncedSearch }, { canonicalEmailContainsFold: debouncedSearch }],
+            or: [
+              { directoryNameContainsFold: debouncedSearch },
+              { sourceInstanceIDContainsFold: debouncedSearch },
+              { displayNameContainsFold: debouncedSearch },
+              { canonicalEmailContainsFold: debouncedSearch },
+            ],
           }
         : undefined,
     [debouncedSearch],
@@ -195,45 +64,57 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
 
   const membershipWhere: DirectoryMembershipWhereInput | undefined = !membershipFilter || Object.keys(membershipFilter).length === 0 ? undefined : (membershipFilter as DirectoryMembershipWhereInput)
 
-  const { directoryAccounts, isLoading } = useGetIdentityHolderDirectoryAccounts(personnelId, where, membershipWhere, membershipFilter !== null)
+  const { directoryAccounts: allDirectoryAccounts, isLoading } = useGetIdentityHolderDirectoryAccounts(personnelId, where, membershipWhere, membershipFilter !== null)
+  const directoryAccounts = useMemo(() => dedupeDirectoryAccounts(allDirectoryAccounts), [allDirectoryAccounts])
 
+  const { canManageIntegrations } = useCanManageIntegrations()
   const columns = useMemo<ColumnDef<DirectoryAccountRow>[]>(
-    () => [
-      ...DATA_COLUMNS,
-      createRowActionsColumn<DirectoryAccountRow>({
-        actions: [
-          {
-            label: 'Configure integration',
-            icon: <Settings size={16} />,
-            onClick: (row) => {
-              if (row.integrationDefinitionId) {
-                router.push(`/automation/integrations/${row.integrationDefinitionId}`)
-              }
-            },
-            disabled: (row) => !row.integrationDefinitionId,
-          },
-        ],
-      }),
-    ],
-    [router],
+    () =>
+      canManageIntegrations
+        ? [
+            ...LINKED_ACCOUNT_COLUMNS,
+            createRowActionsColumn<DirectoryAccountRow>({
+              actions: [
+                {
+                  label: 'Configure integration',
+                  icon: <Settings size={16} />,
+                  onClick: (row) => {
+                    if (row.integrationDefinitionId) {
+                      router.push(`/automation/integrations/${row.integrationDefinitionId}`)
+                    }
+                  },
+                  disabled: (row) => !row.integrationDefinitionId,
+                },
+              ],
+            }),
+          ]
+        : LINKED_ACCOUNT_COLUMNS,
+    [router, canManageIntegrations],
   )
 
   const mappedColumns = useMemo(() => getMappedColumns(columns), [columns])
+
+  const installationIds = useMemo(
+    () => directoryAccounts.flatMap((account) => [...(account.managedBy ? [account.managedBy] : []), ...membershipInstallationIds(account.memberships)]),
+    [directoryAccounts],
+  )
+  const vendorsByInstallation = useVendorsByInstallation(installationIds)
 
   const rows: DirectoryAccountRow[] = useMemo(
     () =>
       directoryAccounts.map((account) => ({
         id: account.id,
-        directory: account.directoryName ?? '-',
+        directory: account.directoryName || null,
+        sourceInstanceId: account.sourceInstanceID || null,
         accountType: account.accountType ?? '',
         status: account.status,
         mfaState: account.mfaState,
         primarySource: account.primarySource,
-        integrationDefinitionId: account.integration?.definitionID ?? null,
-        vendor: resolveSingleEntityVendor(account.integration?.entities),
-        memberships: buildMembershipList(account.memberships),
+        integrationDefinitionId: account.sourceDefinitionID || null,
+        vendor: resolveInstallationVendor(account.managedBy, vendorsByInstallation),
+        memberships: buildMembershipList(account.memberships, vendorsByInstallation),
       })),
-    [directoryAccounts],
+    [directoryAccounts, vendorsByInstallation],
   )
 
   return (

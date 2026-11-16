@@ -34,7 +34,7 @@ function Cursor({ id, caretPosition, data, selection, selectionRects }: CursorOv
         return (
           <div
             key={i}
-            className={cn('pointer-events-none absolute z-10', id === 'selection' && 'bg-brand/25', id === 'selection' && isCursor && 'bg-primary')}
+            className={cn('pointer-events-none absolute z-10', id === 'selection' && isCursor && 'bg-primary')}
             style={{
               ...selectionStyle,
               ...position,
@@ -42,7 +42,7 @@ function Cursor({ id, caretPosition, data, selection, selectionRects }: CursorOv
           />
         )
       })}
-      {caretPosition && <div className={cn('pointer-events-none absolute z-10 w-0.5', id === 'drag' && 'w-px bg-brand')} style={{ ...caretPosition, ...style }} />}
+      {caretPosition && <div className={cn('pointer-events-none absolute z-10 w-0.5', id === 'drag' && 'w-px')} style={{ ...caretPosition, ...style }} />}
     </>
   )
 }

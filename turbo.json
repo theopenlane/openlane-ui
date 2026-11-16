@@ -30,6 +30,8 @@
         "NODE_ENV",
         "API_REST_URL",
         "API_GQL_URL",
+        "API_FORWARDER_SECRET",
+        "CLOUDFLARE_INGRESS_SECRET",
         "NEXT_PUBLIC_OPENLANE_URL",
 
         // Auth Settings
@@ -48,9 +50,6 @@
 
         // reCAPTCHA
         "RECAPTCHA_SECRET_KEY",
-
-        // For bedrock chat integration (unused in production)
-        "AWS_REGION",
 
         // for customer support chat
         "DEVREV_AAT",

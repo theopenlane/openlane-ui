@@ -44,8 +44,9 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const Button = ({ className, variant, size, asChild = false, ref, ...props }: ButtonProps & { ref?: React.Ref<HTMLButtonElement> }) => {
-  const Comp = asChild ? Slot : 'button'
-  return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+  const classes = cn(buttonVariants({ variant, size, className }))
+  if (asChild) return <Slot className={classes} ref={ref} {...props} />
+  return <button className={classes} ref={ref} {...props} type={props.type ?? 'button'} />
 }
 
 export { Button, buttonVariants }

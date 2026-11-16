@@ -251,6 +251,7 @@ export const GET_REVIEW_ASSOCIATIONS = gql`
           node {
             id
             cveID
+            externalID
             displayID
             displayName
           }

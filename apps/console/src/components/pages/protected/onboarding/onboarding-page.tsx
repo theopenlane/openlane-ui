@@ -36,7 +36,8 @@ const OnboardingForm = ({ startStep, guidedSteps, trialCards, trialTitle, trialD
   const [resumeStepKey, setResumeStepKey] = useState<string>()
   const hasSeededFromSessionRef = useRef(false)
 
-  const { submitStage, submitOnboarding, exitOnboarding, notifyIncompleteExit, leaveOnboarding, domainScanNotification, reviewDomainScanFindings } = useOnboardingSubmit(allQuestions)
+  const { submitStage, submitOnboarding, exitOnboarding, notifyIncompleteExit, leaveOnboarding, domainScanNotification, reviewDomainScanFindings, demoDataSeedStatus } =
+    useOnboardingSubmit(allQuestions)
 
   const methods = useForm({
     resolver: zodResolver(onboardingSchema),
@@ -103,6 +104,7 @@ const OnboardingForm = ({ startStep, guidedSteps, trialCards, trialTitle, trialD
           stepLabel={stageStepLabel}
           scanData={domainScanNotification?.data}
           hasScanReport={!!domainScanNotification}
+          demoDataSeedStatus={demoDataSeedStatus}
           primaryDomain={primaryDomain}
           onReview={reviewDomainScanFindings}
           onLeave={leaveOnboarding}
@@ -126,12 +128,12 @@ const OnboardingForm = ({ startStep, guidedSteps, trialCards, trialTitle, trialD
           onIncompleteExit={notifyIncompleteExit}
         />
       ) : (
-        <div className="flex w-full max-w-2xl flex-col items-center gap-8 m-auto px-4 py-8">
+        <div className="flex w-full max-w-4xl flex-col items-center gap-4 m-auto px-4 py-4">
           <Logo width={150} height={24} />
           {submitStage === 'form' ? (
             <OnboardingStartCard step={startStep} totalSteps={totalSteps} canContinue={guidedSteps.length > 0} isDisabled={isStartBlocked} onContinue={handleContinue} onCreate={handleCreate} />
           ) : (
-            stageCard
+            <div className="w-full max-w-2xl">{stageCard}</div>
           )}
         </div>
       )}

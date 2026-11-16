@@ -1,17 +1,18 @@
 'use client'
-import React, { useId } from 'react'
+import React, { useId, useMemo } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
-import { useGroupSelect } from '@/lib/graphql-hooks/group'
+import { toGroupOption, useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { type WizardValues } from '../advanced-setup-wizard-config'
 import { useSession } from 'next-auth/react'
 
 const AdvancedSetupStep4 = () => {
   const { control } = useFormContext<WizardValues>()
   const { data } = useSession()
-  const { groups, groupOptions } = useGroupSelect()
+  const { groups } = useGetAllGroups({})
+  const groupOptions = useMemo(() => groups.map(toGroupOption), [groups])
   const whereNotCurrentUser = { not: { userID: data?.user?.userId } }
   const { members, userOptions } = useUserSelect({ where: whereNotCurrentUser })
   const programAdminsId = useId()

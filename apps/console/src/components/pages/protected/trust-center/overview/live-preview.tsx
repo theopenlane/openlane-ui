@@ -8,6 +8,8 @@ import { ExternalLink, Shield } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSnapshot } from '@/lib/query-hooks/snapshot'
 
+export const OVERVIEW_URL_CARD_WIDTH = 'w-[550px] shrink-0'
+
 export interface LivePreviewTrustCenter {
   customDomain?: {
     cnameRecord: string
@@ -62,7 +64,7 @@ export const LivePreview = ({ trustCenter }: LivePreviewProps) => {
   }, [normalizedUrl])
 
   return (
-    <Card className="w-[550px] shrink-0">
+    <Card className={OVERVIEW_URL_CARD_WIDTH}>
       <CardContent className="flex flex-col gap-2">
         <p className="text-xl font-medium leading-7">Live Preview</p>
         <div className="flex flex-col rounded-md h-[185px] border border-border">

@@ -270,6 +270,7 @@ export const GET_ASSET_ASSOCIATIONS = gql`
           node {
             id
             cveID
+            externalID
             displayName
             displayID
           }

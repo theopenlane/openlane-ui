@@ -4,9 +4,8 @@ import React, { useState } from 'react'
 import { type Group, type InternalPolicyByIdFragment, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
 import { Stamp, CircleArrowRight, HelpCircle } from 'lucide-react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
-import { type Option } from '@repo/ui/multiple-selector'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { type EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
@@ -34,13 +33,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
   const editingField = isControlled ? activeField : internalEditingField
   const setEditingField = isControlled ? setActiveField : setInternalEditingField
 
-  const { data } = useGetAllGroups({ where: {}, enabled: isEditing || !!editingField })
-  const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
-
-  const options: Option[] = groups.map((g) => ({
-    label: g?.displayName || g?.name || '',
-    value: g?.id || '',
-  }))
+  const { groupOptions: options } = useGroupSelect({ enabled: isEditing || !!editingField })
 
   const toAuthorityInput = (field: 'approverID' | 'delegateID', value: string): UpdateInternalPolicyInput => {
     if (field === 'approverID') {
@@ -144,16 +137,16 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
   if (!isCreate) {
     return (
       <div className="flex flex-col gap-4 pb-4">
-        {renderField('approverID', 'Approver', <Stamp size={16} className="text-brand" />, approver as Group, 'approver')}
-        {renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}
+        {renderField('approverID', 'Approver', <Stamp size={16} />, approver as Group, 'approver')}
+        {renderField('delegateID', 'Delegate', <CircleArrowRight size={16} />, delegate as Group, 'delegate')}
       </div>
     )
   }
 
   return (
     <Card className="p-4">
-      <div className="m-1">{renderField('approverID', 'Approver', <Stamp size={16} className="text-brand" />, approver as Group, 'approver')}</div>
-      <div className="m-1">{renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}</div>
+      <div className="m-1">{renderField('approverID', 'Approver', <Stamp size={16} />, approver as Group, 'approver')}</div>
+      <div className="m-1">{renderField('delegateID', 'Delegate', <CircleArrowRight size={16} />, delegate as Group, 'delegate')}</div>
     </Card>
   )
 }

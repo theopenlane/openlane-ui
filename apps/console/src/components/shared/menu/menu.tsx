@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Ellipsis } from 'lucide-react'
 import { Button } from '@repo/ui/button'
-import cn from 'classnames'
+import { cn } from '@repo/ui/lib/utils'
 import { type TElementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 interface MenuProps {

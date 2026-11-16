@@ -3,9 +3,9 @@ import { getCookie } from './getCookie'
 
 export const jsonContentType = 'application/json'
 
-// secureFetch is a utility function to perform authenticated requests with CSRF protection
-export interface SecureFetchCSRFOptions {
+export interface SecureFetchOptions {
   token?: string
+  forwardedHeaders?: Record<string, string>
 }
 
 const CSRF_EXEMPT_METHODS = new Set(['GET', 'HEAD', 'OPTIONS', 'TRACE'])
@@ -24,9 +24,10 @@ export const isCSRFRejection = async (response: Response): Promise<boolean> => {
   }
 }
 
-export const secureFetch = async (url: string | URL | globalThis.Request, options: RequestInit = {}, csrfOptions: SecureFetchCSRFOptions = {}) => {
+export const secureFetch = async (url: string | URL | globalThis.Request, options: RequestInit = {}, { token, forwardedHeaders = {} }: SecureFetchOptions = {}) => {
   const baseHeaders: Record<string, string> = {
     ...((options.headers as Record<string, string>) || {}),
+    ...forwardedHeaders,
     'Content-Type': jsonContentType,
   }
 
@@ -51,19 +52,19 @@ export const secureFetch = async (url: string | URL | globalThis.Request, option
     return res
   }
 
-  let csrfToken = csrfOptions.token ?? getCookie(csrfCookieName)
+  let csrfToken = token ?? getCookie(csrfCookieName)
   if (!csrfToken) {
-    csrfToken = await fetchCSRFToken()
+    csrfToken = await fetchCSRFToken(forwardedHeaders)
   }
 
   try {
     const response = await send(csrfToken)
 
-    if (!csrfOptions.token && !CSRF_EXEMPT_METHODS.has(resolveMethod(url, options)) && (await isCSRFRejection(response))) {
+    if (!token && !CSRF_EXEMPT_METHODS.has(resolveMethod(url, options)) && (await isCSRFRejection(response))) {
       console.warn('[secureFetch] ⚠️ CSRF token rejected — refetching and retrying once')
       invalidateCSRFToken()
 
-      return await send(await fetchCSRFToken())
+      return await send(await fetchCSRFToken(forwardedHeaders))
     }
 
     return response
@@ -91,7 +92,7 @@ export const invalidateCSRFToken = () => {
   cachedCSRFTokenExpiresAt = 0
 }
 
-export const fetchCSRFToken = async (): Promise<string> => {
+export const fetchCSRFToken = async (headers: Record<string, string> = {}): Promise<string> => {
   const canCache = typeof window !== 'undefined'
 
   if (canCache && cachedCSRFToken && Date.now() < cachedCSRFTokenExpiresAt) {
@@ -104,7 +105,7 @@ export const fetchCSRFToken = async (): Promise<string> => {
 
   const request = (async () => {
     try {
-      const res = await fetch(`${openlaneAPIUrl}/csrf`, { credentials: 'include' })
+      const res = await fetch(`${openlaneAPIUrl}/csrf`, { credentials: 'include', redirect: 'manual', headers })
       const contentType = res.headers.get('content-type')
 
       if (contentType?.includes('text/html')) {

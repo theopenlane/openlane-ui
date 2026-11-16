@@ -22,6 +22,8 @@ import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import useVendorReviewFormSchema, { type VendorReviewFormData } from './use-vendor-review-form-schema'
 import { useDirtyInput } from '@/hooks/useDirtyInput'
+import { withRiskRating } from '@/lib/vendor-risk-rating'
+import { useVendorRiskThresholds } from '@/lib/graphql-hooks/vendor-scoring-config'
 import VendorReviewContextPanel from './vendor-review-context-panel'
 import VendorReviewFieldsPanel from './vendor-review-fields-panel'
 import VendorReviewFormActions, { type TVendorReviewAction } from './vendor-review-form-actions'
@@ -61,6 +63,7 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
   const [initialValues] = useState(() => buildVendorReviewDefaults(vendor, review))
   const { form } = useVendorReviewFormSchema(initialValues)
   const buildDirtyInput = useDirtyInput(form)
+  const riskThresholds = useVendorRiskThresholds()
   const savedDescription = review?.details ?? ''
   const reviewId = review?.id ?? createdReview?.id
 
@@ -153,7 +156,7 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
         queryClient.invalidateQueries({ queryKey: ['entities'] })
       }
 
-      const riskInput = canEditVendor ? await buildDirtyInput<UpdateEntityInput>(formData, VENDOR_RISK_UPDATE_FIELDS) : {}
+      const riskInput = canEditVendor ? withRiskRating(await buildDirtyInput<UpdateEntityInput>(formData, VENDOR_RISK_UPDATE_FIELDS), riskThresholds) : {}
       if (Object.keys(riskInput).length > 0) {
         await updateEntity({ updateEntityId: vendor.id, input: riskInput })
         didUpdate = true

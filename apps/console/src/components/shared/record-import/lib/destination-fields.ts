@@ -4,7 +4,7 @@ import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import type { ImportFieldKind, ImportFieldMeta } from '@repo/codegen/src/import-fields.generated'
 import { parseDelimitedText, serializeCsv } from './delimited-file'
 import { getImportEntityConfig } from './import-registry'
-import type { TDestinationField, TDestinationFieldSet, TImportDestination } from './types'
+import type { TDestinationField, TDestinationFieldSet, TImportDestination, TUpdateLookupField } from './types'
 
 export type TImportFieldMetadata = Readonly<Record<string, ImportFieldMeta>>
 
@@ -20,7 +20,7 @@ export const UPDATE_ID_FIELD: TDestinationField = {
   meta: { kind: 'id' },
 }
 
-const byNormalizedName = <T>(entries: [string, T][]): Map<string, T> => new Map(entries.map(([name, value]) => [normalizeFieldName(name), value]))
+export const byNormalizedName = <T>(entries: [string, T][]): Map<string, T> => new Map(entries.map(([name, value]) => [normalizeFieldName(name), value]))
 
 const readSample = (sampleCsv: string) => {
   const sample = parseDelimitedText(sampleCsv, { previewRows: 1 })
@@ -44,7 +44,7 @@ const fieldResolver = (fields: TDestinationField[]) => {
   const resolve = (name: string | undefined) => (name === undefined ? undefined : fieldByName.get(normalizeFieldName(name)))
   const resolveAll = (names: string[]) => names.map(resolve).filter((field): field is TDestinationField => field !== undefined)
   const resolvePrimary = (primaryField: string | undefined) => [primaryField, ...PRIMARY_FIELD_FALLBACKS].map(resolve).find((field) => field !== undefined)?.name
-  return { resolveAll, resolvePrimary }
+  return { resolve, resolveAll, resolvePrimary }
 }
 
 export const buildDestinationFields = (entityType: ObjectTypes, sampleCsv: string, metadata: TImportFieldMetadata = {}): TDestinationFieldSet => {
@@ -89,9 +89,20 @@ type TUpdateDestinationArgs = {
   sampleFilename: string
   createMetadata: TImportFieldMetadata
   updateMetadata: TImportFieldMetadata
+  lookup?: TUpdateLookupField
 }
 
-export const buildUpdateDestination = ({ entityType, sampleCsv, sampleFilename, createMetadata, updateMetadata }: TUpdateDestinationArgs): TImportDestination => {
+const withLookupRequirement = (fields: TDestinationField[], lookup: TUpdateLookupField | undefined) => {
+  const lookupField = lookup && fieldResolver(fields).resolve(lookup.field)
+  if (!lookup || !lookupField) return { fields, idField: UPDATE_ID_FIELD, requiredGroup: [UPDATE_ID_FIELD] }
+
+  const idField: TDestinationField = { ...UPDATE_ID_FIELD, requirement: 'oneOf', description: `${UPDATE_ID_FIELD.description}. Leave it blank to match the row by ${lookupField.label}` }
+  const matchField: TDestinationField = { ...lookupField, requirement: 'oneOf', description: lookup.description }
+  const rest = fields.filter((field) => field !== lookupField && field.name !== UPDATE_ID_FIELD.name)
+  return { fields: [idField, matchField, ...rest], idField, lookupField: matchField, requiredGroup: [idField, matchField] }
+}
+
+export const buildUpdateDestination = ({ entityType, sampleCsv, sampleFilename, createMetadata, updateMetadata, lookup }: TUpdateDestinationArgs): TImportDestination => {
   const { headers, exampleByName } = readSample(sampleCsv)
   const createInputNames = new Set(Object.keys(createMetadata).map(normalizeFieldName))
   const updateMetadataByName = byNormalizedName(Object.entries(updateMetadata))
@@ -114,14 +125,15 @@ export const buildUpdateDestination = ({ entityType, sampleCsv, sampleFilename, 
     .map(([key, meta]) => toDestinationField(capitalizeFirstLetter(key), meta, undefined))
 
   const templateFields = [UPDATE_ID_FIELD, ...sampleFields]
-  const fields = [...templateFields, ...updateOnlyFields]
+  const { fields, idField, lookupField, requiredGroup } = withLookupRequirement([...templateFields, ...updateOnlyFields], lookup)
 
   return {
     fieldSet: {
       fields,
       fixedFields: [],
-      requiredGroups: [[UPDATE_ID_FIELD]],
-      uniqueFields: [UPDATE_ID_FIELD],
+      requiredGroups: [requiredGroup],
+      uniqueFields: [idField],
+      lookupField,
       primaryField: fieldResolver(fields).resolvePrimary(getImportEntityConfig(entityType).primaryField),
     },
     exampleCsv: exampleCsvFor(templateFields),
@@ -156,11 +168,13 @@ export const withFixedFields = (fieldSet: TDestinationFieldSet, fixedFields: rea
   const isMappable = (field: TDestinationField) => !fixedNames.has(normalizeFieldName(field.name))
 
   return {
+    ...fieldSet,
     fields: fieldSet.fields.filter(isMappable),
     fixedFields: [...fieldSet.fixedFields, ...added],
     requiredGroups: fieldSet.requiredGroups.filter((group) => group.every(isMappable)),
     uniqueFields: fieldSet.uniqueFields.filter(isMappable),
     primaryField: fieldSet.primaryField !== undefined && fixedNames.has(normalizeFieldName(fieldSet.primaryField)) ? undefined : fieldSet.primaryField,
+    lookupField: fieldSet.lookupField && isMappable(fieldSet.lookupField) ? fieldSet.lookupField : undefined,
   }
 }
 

@@ -23,6 +23,7 @@ export const GET_ALL_TRUST_CENTERS = gql`
               name
             }
           }
+          previewStatus
           previewDomain {
             cnameRecord
           }
@@ -31,6 +32,7 @@ export const GET_ALL_TRUST_CENTERS = gql`
             title
             overview
             noindexDefaultDomain
+            disableDefaultDomain
             primaryColor
             themeMode
             foregroundColor
@@ -52,8 +54,6 @@ export const GET_ALL_TRUST_CENTERS = gql`
               id
               base64
             }
-            overview
-            title
             logoRemoteURL
             securityContact
             ndaApprovalRequired
@@ -116,6 +116,22 @@ export const GET_ALL_TRUST_CENTERS = gql`
   }
 `
 
+export const GET_TRUST_CENTER_PREVIEW_DOMAIN = gql`
+  query GetTrustCenterPreviewDomain {
+    trustCenters {
+      edges {
+        node {
+          id
+          previewStatus
+          previewDomain {
+            id
+          }
+        }
+      }
+    }
+  }
+`
+
 export const UPDATE_TRUST_CENTER_SETTING = gql`
   mutation UpdateTrustCenterSetting($updateTrustCenterSettingId: ID!, $input: UpdateTrustCenterSettingInput!, $faviconFile: Upload, $logoFile: Upload) {
     updateTrustCenterSetting(id: $updateTrustCenterSettingId, input: $input, faviconFile: $faviconFile, logoFile: $logoFile) {
@@ -139,6 +155,13 @@ export const CREATE_CUSTOM_DOMAIN = gql`
       customDomain {
         id
       }
+    }
+  }
+`
+export const SETUP_TRUST_CENTER_DOMAINS = gql`
+  mutation SetupTrustCenterDomains($trustCenterID: ID!) {
+    setupTrustCenterDomains(trustCenterID: $trustCenterID) {
+      success
     }
   }
 `

@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import { isTfaEnrollmentToken } from '@/lib/auth/utils/token-claims'
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { clearTfaPendingCookie, forwardTfaPendingCookie } from '@/lib/auth/utils/tfa-pending-cookie'
 import { NextResponse } from 'next/server'
 
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     const enrollmentToken = isTfaEnrollmentToken(accessToken) ? accessToken : undefined
     const endpoint = enrollmentToken ? '/v1/2fa/validate' : '/v1/login/2fa/validate'
 
-    const fData = await secureFetch(`${process.env.API_REST_URL}${endpoint}`, {
+    const fData = await serverSecureFetch(`${process.env.API_REST_URL}${endpoint}`, {
       method: 'POST',
       // we need to pass the cookies
       headers: {

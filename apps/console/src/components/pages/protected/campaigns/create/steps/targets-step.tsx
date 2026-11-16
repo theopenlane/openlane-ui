@@ -1,5 +1,6 @@
 'use client'
 
+import { csvAcceptedFileTypes } from '@/components/shared/file-upload/file-upload-config'
 import React, { useId, type Dispatch, type SetStateAction, useCallback, useMemo, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import FileUpload from '@/components/shared/file-upload/file-upload'
@@ -74,13 +75,7 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
                 </Button>
               </div>
             ) : (
-              <FileUpload
-                onFileUpload={handleFileUpload}
-                maxFileSizeInMb={3}
-                acceptedFileTypes={['text/csv', 'application/vnd.ms-excel']}
-                acceptedFileTypesShort={['.csv', '.xls']}
-                multipleFiles={false}
-              />
+              <FileUpload onFileUpload={handleFileUpload} maxFileSizeInMb={3} acceptedFileTypes={csvAcceptedFileTypes} acceptedFileTypesShort={['.csv', '.xls']} multipleFiles={false} />
             )}
           </div>
         </TabsContent>

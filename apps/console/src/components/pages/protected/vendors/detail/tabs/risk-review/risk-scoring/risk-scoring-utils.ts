@@ -1,7 +1,7 @@
 import { type ReviewWhereInput, VendorRiskScoreVendorScoringAnswerType, type VendorRiskScoreVendorScoringCategory } from '@repo/codegen/src/schema'
 import { type TVendorRiskScoringNode } from '@/lib/graphql-hooks/vendor-risk-score'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { riskRatingFromScore, type TVendorRiskRating } from '@/lib/vendor-risk-rating'
+import { riskRatingFromScore, type TVendorRiskRating, type TVendorRiskThreshold } from '@/lib/vendor-risk-rating'
 
 const SOC2_REPORT_REVIEW_TAG = 'soc2-report-review'
 
@@ -52,7 +52,7 @@ const toReportSource = (reportAnswerCount: number, answeredCount: number): TRepo
   return reportAnswerCount === answeredCount ? 'all' : 'some'
 }
 
-export const buildRiskScoring = (scores: TVendorRiskScoringNode[]): TRiskScoring => {
+export const buildRiskScoring = (scores: TVendorRiskScoringNode[], riskThresholds: readonly TVendorRiskThreshold[]): TRiskScoring => {
   const buckets = new Map<VendorRiskScoreVendorScoringCategory, TVendorRiskScoringNode[]>()
   let totalScore = 0
   let answeredCount = 0
@@ -101,7 +101,7 @@ export const buildRiskScoring = (scores: TVendorRiskScoringNode[]): TRiskScoring
 
   return {
     totalScore,
-    rating: riskRatingFromScore(totalScore),
+    rating: riskRatingFromScore(totalScore, riskThresholds),
     answeredCount,
     confirmedCount,
     gapCount,

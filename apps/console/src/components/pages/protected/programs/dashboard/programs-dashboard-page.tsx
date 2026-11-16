@@ -194,7 +194,7 @@ const ProgramsDashboardPage = () => {
                   }}
                   className="group flex items-center bg-transparent"
                 >
-                  <ChevronRight size={20} className="mr-2 text-brand transition-transform group-data-[state=open]:rotate-90" />
+                  <ChevronRight size={20} className="mr-2 transition-transform group-data-[state=open]:rotate-90" />
                   <span className="text-lg">{framework}</span>
                 </AccordionTrigger>
                 <AccordionContent>

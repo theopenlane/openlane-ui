@@ -13,7 +13,8 @@ import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { useSheetNavigation } from '@/providers/sheet-navigation-provider'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
-import { getSeverityLabel, getVulnerabilityName, type TriageVuln } from './triage-utils'
+import { getSeverityLabel, type TriageVuln } from './triage-utils'
+import { getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilities/vulnerability-display'
 
 type Props = {
   vuln: TriageVuln
@@ -40,6 +41,9 @@ const TriageDetail: React.FC<Props> = ({ vuln }) => {
   const sheetNav = useSheetNavigation()
 
   const severityLabel = getSeverityLabel(vuln)
+  const title = getVulnerabilityTitle(vuln)
+  const identifiers = [vuln.externalID, vuln.displayID].filter((id) => id && id !== title).join(' · ')
+  const subtitle = vuln.displayName?.trim() && vuln.displayName.trim() !== title ? vuln.displayName.trim() : null
 
   const assets = (associations?.vulnerability?.assets?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => Boolean(node))
   const remediationCount = associations?.vulnerability?.remediations?.totalCount ?? 0
@@ -58,12 +62,13 @@ const TriageDetail: React.FC<Props> = ({ vuln }) => {
     <div className="min-h-0 flex-1 overflow-y-auto p-6">
       <div className="mb-6 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">{vuln.cveID || vuln.externalID || vuln.displayID}</p>
+          {identifiers && <p className="text-xs uppercase tracking-wide text-muted-foreground">{identifiers}</p>}
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-semibold">{getVulnerabilityName(vuln)}</h2>
+            <h2 className="text-xl font-semibold">{title}</h2>
             <SeverityChip severity={severityLabel} />
             <PastDueBadge show={pastDue} />
           </div>
+          {subtitle && <p className="mt-1 text-sm text-muted-foreground break-words">{subtitle}</p>}
         </div>
         <Button
           variant="outline"

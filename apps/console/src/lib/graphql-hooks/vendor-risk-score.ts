@@ -1,12 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { useHistoryGraphQLClient } from '@/hooks/useHistoryGraphQLClient'
+import { type GetVendorRiskScoreHistoriesQuery, type GetVendorRiskScoreHistoriesQueryVariables } from '@repo/codegen/src/historyschema'
+import { GET_VENDOR_RISK_SCORE_HISTORIES } from '@repo/codegen/query-history/vendor-risk-score'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type MutationCreateBulkCsvVendorRiskScoreArgs,
-  type MutationCreateVendorRiskScoreArgs,
+  type CreateVendorRiskScoreMutation,
+  type CreateVendorRiskScoreMutationVariables,
+  type UpdateVendorRiskScoreMutation,
+  type CreateVendorRiskScoreInput,
+  type UpdateVendorRiskScoreInput,
+  type UpdateBulkCsvVendorRiskScoreMutation,
+  type UpdateBulkCsvVendorRiskScoreMutationVariables,
   type MutationDeleteBulkVendorRiskScoreArgs,
-  type MutationDeleteVendorRiskScoreArgs,
+  type DeleteVendorRiskScoreMutationVariables,
   type MutationUpdateBulkVendorRiskScoreArgs,
-  type MutationUpdateVendorRiskScoreArgs,
+  type UpdateVendorRiskScoreMutationVariables,
   type QueryVendorRiskScoreArgs,
   type QueryVendorRiskScoresArgs,
   type VendorRiskScore,
@@ -14,26 +24,28 @@ import {
   type VendorRiskScoreBulkDeletePayload,
   type VendorRiskScoreBulkUpdatePayload,
   type VendorRiskScoreConnection,
-  type VendorRiskScoreCreatePayload,
   type VendorRiskScoreDeletePayload,
-  type VendorRiskScoreUpdatePayload,
   type VendorRiskScoringQuery,
+  type VendorRiskScoreQuestionUsageQuery,
   type VendorRiskScoringQueryVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_VENDOR_RISK_SCORES,
+  GET_VENDOR_RISK_SCORE_QUESTION_USAGE,
   CREATE_VENDOR_RISK_SCORE,
   UPDATE_VENDOR_RISK_SCORE,
   DELETE_VENDOR_RISK_SCORE,
   VENDOR_RISK_SCORE,
   CREATE_CSV_BULK_VENDOR_RISK_SCORE,
+  UPDATE_CSV_BULK_VENDOR_RISK_SCORE,
   BULK_EDIT_VENDOR_RISK_SCORE,
   BULK_DELETE_VENDOR_RISK_SCORE,
   GET_VENDOR_RISK_SCORING,
 } from '@repo/codegen/query/vendor-risk-score'
 import { fetchAllConnectionNodes } from './fetch-all-connection-nodes'
+import { chunk } from '@/utils/async'
 
 type VendorRiskScoresWithFilterQuery = {
   vendorRiskScores: VendorRiskScoreConnection
@@ -41,23 +53,9 @@ type VendorRiskScoresWithFilterQuery = {
 
 type VendorRiskScoresWithFilterQueryVariables = QueryVendorRiskScoresArgs
 
-type CreateVendorRiskScoreMutation = {
-  createVendorRiskScore: VendorRiskScoreCreatePayload
-}
-
-type CreateVendorRiskScoreMutationVariables = MutationCreateVendorRiskScoreArgs
-
-type UpdateVendorRiskScoreMutation = {
-  updateVendorRiskScore: VendorRiskScoreUpdatePayload
-}
-
-type UpdateVendorRiskScoreMutationVariables = MutationUpdateVendorRiskScoreArgs
-
 type DeleteVendorRiskScoreMutation = {
   deleteVendorRiskScore: VendorRiskScoreDeletePayload
 }
-
-type DeleteVendorRiskScoreMutationVariables = MutationDeleteVendorRiskScoreArgs
 
 type VendorRiskScoreQuery = {
   vendorRiskScore: VendorRiskScore
@@ -123,10 +121,12 @@ export type TVendorRiskScoringNode = NonNullable<NonNullable<NonNullable<VendorR
 
 const VENDOR_RISK_SCORING_PAGE_SIZE = 100
 
+export const vendorRiskScoringQueryKey = (entityId: string) => ['vendorRiskScores', 'scoring', entityId] as const
+
 export const useVendorRiskScoring = (entityId: string) => {
   const { client } = useGraphQLClient()
   return useQuery({
-    queryKey: ['vendorRiskScores', 'scoring', entityId],
+    queryKey: vendorRiskScoringQueryKey(entityId),
     queryFn: () =>
       fetchAllConnectionNodes<TVendorRiskScoringNode>(async (after) => {
         const data = await client.request<VendorRiskScoringQuery, VendorRiskScoringQueryVariables>(GET_VENDOR_RISK_SCORING, {
@@ -213,5 +213,107 @@ export const useBulkDeleteVendorRiskScore = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendorRiskScores'] })
     },
+  })
+}
+
+export const useVendorRiskScoreQuestionUsage = (questionKey: string | undefined) => {
+  const { client } = useGraphQLClient()
+  const query = useQuery({
+    queryKey: ['vendorRiskScores', 'questionUsage', questionKey],
+    queryFn: () => client.request<VendorRiskScoreQuestionUsageQuery>(GET_VENDOR_RISK_SCORE_QUESTION_USAGE, { questionKey }),
+    enabled: !!questionKey,
+    placeholderData: undefined,
+  })
+
+  return { ...query, answerCount: query.data?.vendorRiskScores.totalCount }
+}
+
+export const useLinkUnconfiguredVendorRiskScores = () => {
+  const { client } = useGraphQLClient()
+  return async (vendorScoringConfigID: string) => {
+    const scores = await fetchAllConnectionNodes<{ id: string }>(async (after) => {
+      const data = await client.request<VendorRiskScoresWithFilterQuery>(GET_ALL_VENDOR_RISK_SCORES, {
+        where: { vendorScoringConfigIDIsNil: true },
+        first: VENDOR_RISK_SCORING_PAGE_SIZE,
+        after,
+      })
+      return data.vendorRiskScores
+    })
+    for (const ids of chunk(
+      scores.map((score) => score.id),
+      VENDOR_RISK_SCORING_PAGE_SIZE,
+    )) {
+      await client.request<UpdateBulkVendorRiskScoreMutation, UpdateBulkVendorRiskScoreMutationVariables>(BULK_EDIT_VENDOR_RISK_SCORE, { ids, input: { vendorScoringConfigID } })
+    }
+  }
+}
+
+type TSaveVendorRiskAnswerVariables = { kind: 'create'; input: CreateVendorRiskScoreInput } | { kind: 'update'; id: string; input: UpdateVendorRiskScoreInput }
+
+type TSavedVendorRiskScore = CreateVendorRiskScoreMutation['createVendorRiskScore']['vendorRiskScore'] | UpdateVendorRiskScoreMutation['updateVendorRiskScore']['vendorRiskScore']
+
+export type TVendorRiskAggregate = Pick<NonNullable<TSavedVendorRiskScore['entity']>, 'riskScore' | 'riskRating' | 'updatedAt'>
+
+type TSavedVendorRiskAnswer = { score: TVendorRiskScoringNode; aggregate: TVendorRiskAggregate | undefined }
+
+const toSavedAnswer = ({ entity, ...score }: TSavedVendorRiskScore): TSavedVendorRiskAnswer => ({
+  score,
+  aggregate: entity ? { riskScore: entity.riskScore, riskRating: entity.riskRating, updatedAt: entity.updatedAt } : undefined,
+})
+
+export const useSaveVendorRiskAnswer = (entityId: string) => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<TSavedVendorRiskAnswer, unknown, TSaveVendorRiskAnswerVariables>({
+    mutationFn: async (variables) => {
+      if (variables.kind === 'create') {
+        const data = await client.request<CreateVendorRiskScoreMutation, CreateVendorRiskScoreMutationVariables>(CREATE_VENDOR_RISK_SCORE, { input: variables.input })
+        return toSavedAnswer(data.createVendorRiskScore.vendorRiskScore)
+      }
+      const data = await client.request<UpdateVendorRiskScoreMutation, UpdateVendorRiskScoreMutationVariables>(UPDATE_VENDOR_RISK_SCORE, {
+        updateVendorRiskScoreId: variables.id,
+        input: variables.input,
+      })
+      return toSavedAnswer(data.updateVendorRiskScore.vendorRiskScore)
+    },
+    onSuccess: ({ score: saved }, variables) => {
+      queryClient.setQueryData<TVendorRiskScoringNode[]>(vendorRiskScoringQueryKey(entityId), (current) =>
+        current?.some((score) => score.id === saved.id) ? current.map((score) => (score.id === saved.id ? saved : score)) : [...(current ?? []), saved],
+      )
+      if (variables.kind === 'update') queryClient.invalidateQueries({ queryKey: ['vendorRiskScoreHistories', entityId] })
+    },
+  })
+}
+
+export const useUpdateBulkCSVVendorRiskScore = () => {
+  const { queryClient } = useGraphQLClient()
+  return useMutation<UpdateBulkCsvVendorRiskScoreMutation, unknown, UpdateBulkCsvVendorRiskScoreMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: UPDATE_CSV_BULK_VENDOR_RISK_SCORE, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendorRiskScores'] })
+    },
+  })
+}
+
+export type TVendorRiskScoreHistoryNode = NonNullable<NonNullable<NonNullable<GetVendorRiskScoreHistoriesQuery['vendorRiskScoreHistories']['edges']>[number]>['node']>
+
+const HISTORY_FETCH_LIMIT = 500
+
+export const useVendorRiskScoreHistories = (entityId: string, refs: readonly string[], enabled: boolean) => {
+  const { client } = useHistoryGraphQLClient()
+  const sortedRefs = useMemo(() => [...refs].sort(), [refs])
+  return useQuery({
+    queryKey: ['vendorRiskScoreHistories', entityId, sortedRefs],
+    queryFn: () =>
+      fetchAllConnectionNodes<TVendorRiskScoreHistoryNode>(async (after) => {
+        const data = await client.request<GetVendorRiskScoreHistoriesQuery, GetVendorRiskScoreHistoriesQueryVariables>(GET_VENDOR_RISK_SCORE_HISTORIES, {
+          where: { refIn: sortedRefs },
+          first: VENDOR_RISK_SCORING_PAGE_SIZE,
+          after,
+        })
+        return data.vendorRiskScoreHistories
+      }, HISTORY_FETCH_LIMIT),
+    enabled: enabled && sortedRefs.length > 0,
+    placeholderData: undefined,
   })
 }

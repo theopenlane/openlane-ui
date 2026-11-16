@@ -46,3 +46,6 @@ export const policyImportAcceptedFileTypesShort = [...markdownAcceptedFileTypesS
 
 export const imageAcceptedFileTypes = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp', 'image/gif']
 export const imageAcceptedFileTypesShort = ['PNG', 'JPG', 'SVG', 'WEBP', 'GIF']
+
+export const csvAcceptedFileTypes = ['text/csv', 'application/vnd.ms-excel']
+export const csvAcceptedFileTypesShort = ['CSV']

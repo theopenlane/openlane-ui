@@ -5,8 +5,8 @@ import { type UseFormReturn } from 'react-hook-form'
 import { Panel } from '@repo/ui/panel'
 import { Input } from '@repo/ui/input'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { RemediationRemediationStatus } from '@repo/codegen/src/schema'
+import { Select, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { type RemediationRemediationStatus } from '@repo/codegen/src/schema'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -14,7 +14,7 @@ import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils'
 import { ReadOnlyField } from '@/components/shared/read-only-field/read-only-field'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
-import { RemediationStatusIconLabel } from '@/components/shared/enum-mapper/remediation-enum'
+import { RemediationStatusSelectContent } from '@/components/shared/enum-mapper/remediation-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { type RemediationFormData } from '../hooks/use-form-schema'
 import { type TRemediation } from './remediation-context'
@@ -118,13 +118,7 @@ const RemediationFieldsEdit: React.FC<Omit<TRemediationFieldsPanelProps, 'isEdit
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
-                  {Object.values(RemediationRemediationStatus).map((status) => (
-                    <SelectItem key={status} value={status}>
-                      <RemediationStatusIconLabel status={status} />
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+                <RemediationStatusSelectContent />
               </Select>
               <FormMessage />
             </FormItem>

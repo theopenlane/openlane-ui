@@ -17,7 +17,11 @@ import { isValidDomain } from '@/utils/strings'
 const ADD_SUCCESS_DESCRIPTION = "Domain added. We're scanning it for branding — you'll get a notification when it's ready."
 const FIRST_DOMAIN_WARNING = 'Adding your first domain starts a branding scan and applies the detected theme to your live Trust Center.'
 
-const OrganizationDomains = () => {
+type OrganizationDomainsProps = {
+  canEdit: boolean
+}
+
+const OrganizationDomains = ({ canEdit }: OrganizationDomainsProps) => {
   const { currentOrgId } = useOrganization()
   const { data, isLoading } = useGetOrganizationSetting(currentOrgId)
   const { mutateAsync: update, isPending } = useUpdateOrganizationSetting()
@@ -90,7 +94,7 @@ const OrganizationDomains = () => {
 
       {isLoading ? (
         <Skeleton height={14} className="w-full max-w-[220px] rounded-md" />
-      ) : isEditing ? (
+      ) : canEdit && isEditing ? (
         <div className="flex flex-col items-start gap-3 max-w-xl">
           <DomainListEditor
             domains={domains}
@@ -115,18 +119,20 @@ const OrganizationDomains = () => {
       ) : (
         <div className="flex flex-wrap items-center gap-2">
           <DomainListEditor domains={domains} emptyText="No domains yet." />
-          <DisabledReasonTooltip reason={settingId ? null : 'Organization settings are still loading.'}>
-            <Button
-              type="button"
-              variant="secondary"
-              size="icon-xs"
-              className="size-6.5"
-              icon={<Pencil />}
-              descriptiveTooltipText="Edit domains"
-              onClick={() => setIsEditing(true)}
-              disabled={!settingId}
-            />
-          </DisabledReasonTooltip>
+          {canEdit && (
+            <DisabledReasonTooltip reason={settingId ? null : 'Organization settings are still loading.'}>
+              <Button
+                type="button"
+                variant="secondary"
+                size="icon-xs"
+                className="size-6.5"
+                icon={<Pencil />}
+                descriptiveTooltipText="Edit domains"
+                onClick={() => setIsEditing(true)}
+                disabled={!settingId}
+              />
+            </DisabledReasonTooltip>
+          )}
         </div>
       )}
     </div>

@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import Link from 'next/link'
+import NextLink from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
@@ -57,11 +58,7 @@ const ProgramTasksTable = () => {
         accessorKey: 'title',
         cell: ({ row }) => {
           const task = row.original
-          return (
-            <Link href={`/automation/tasks?id=${task.id}`} className="text-blue-500 hover:underline">
-              {task.title}
-            </Link>
-          )
+          return <Link href={`/automation/tasks?id=${task.id}`}>{task.title}</Link>
         },
       },
       {
@@ -152,11 +149,11 @@ const ProgramTasksTable = () => {
     <div className="p-6 bg-card rounded-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Outstanding tasks</h2>
-        <Link href={`/automation/tasks`} onClick={handleClick}>
+        <NextLink href={`/automation/tasks`} onClick={handleClick}>
           <Button variant="secondary" icon={<Frame size={16} />} iconPosition="left">
             View Tasks
           </Button>
-        </Link>
+        </NextLink>
       </div>
 
       <DataTable

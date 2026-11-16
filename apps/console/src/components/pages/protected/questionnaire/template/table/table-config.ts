@@ -32,23 +32,20 @@ export const getTemplateFilterFields = (environmentOptions: TOption[], scopeOpti
     { key: 'createdAt', label: 'Created At', type: 'dateRange', icon: TemplateFilterIcons.CreatedAt },
   ])
 
-export function useTemplateFilters(): FilterField[] | undefined {
-  const { data: environmentData, isSuccess: isEnvironmentSuccess } = useGetCustomTypeEnums({
+export const useTemplateFilters = (): FilterField[] | undefined => {
+  const { enumOptions: environmentEnumOptions, isSuccess: isEnvironmentSuccess } = useGetCustomTypeEnums({
     where: { objectType: null, field: 'environment' },
   })
 
-  const { data: scopeData, isSuccess: isScopeSuccess } = useGetCustomTypeEnums({
+  const { enumOptions: scopeEnumOptions, isSuccess: isScopeSuccess } = useGetCustomTypeEnums({
     where: { objectType: null, field: 'scope' },
   })
 
   return useMemo(() => {
     if (!isEnvironmentSuccess || !isScopeSuccess) return undefined
 
-    const environmentOptions = environmentData?.customTypeEnums?.edges?.map((edge) => ({ value: edge?.node?.name ?? '', label: edge?.node?.name ?? '' })).filter((o) => o.value) ?? []
-    const scopeOptions = scopeData?.customTypeEnums?.edges?.map((edge) => ({ value: edge?.node?.name ?? '', label: edge?.node?.name ?? '' })).filter((o) => o.value) ?? []
-
-    return getTemplateFilterFields(environmentOptions, scopeOptions)
-  }, [isEnvironmentSuccess, isScopeSuccess, environmentData, scopeData])
+    return getTemplateFilterFields(environmentEnumOptions, scopeEnumOptions)
+  }, [isEnvironmentSuccess, isScopeSuccess, environmentEnumOptions, scopeEnumOptions])
 }
 
 export const TEMPLATE_SORT_FIELDS = [
