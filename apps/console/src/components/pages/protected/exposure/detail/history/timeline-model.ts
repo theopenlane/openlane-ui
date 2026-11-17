@@ -78,9 +78,16 @@ export type TExposureHistoryEntity = {
   source?: string | null
 }
 
+export type TExposureMilestone = {
+  label: string
+  at: string | null | undefined
+  phrase: string
+}
+
 type TBuildArgs = {
   edges: TExposureHistoryEdges | undefined
   ownershipChanges: TOwnershipChange[]
+  milestones: TExposureMilestone[]
   entity: TExposureHistoryEntity
   title: string
   objectType: ObjectTypes
@@ -90,8 +97,9 @@ type TBuildArgs = {
 
 const isBefore = (at: string, reference: string) => new Date(at).getTime() < new Date(reference).getTime()
 
-export const buildExposureTimeline = ({ edges, ownershipChanges, entity, title, objectType, entityName, resolveAuthor }: TBuildArgs): TimelineNode[] => {
+export const buildExposureTimeline = ({ edges, ownershipChanges, milestones, entity, title, objectType, entityName, resolveAuthor }: TBuildArgs): TimelineNode[] => {
   const entityCreatedAt = entity.createdAt
+  const entityType = toHumanLabel(objectType)
   const linked: TimelineNode[] = HISTORY_EDGES.flatMap(({ key, type, verb, sheetKind, name }) =>
     edgeNodes(edges, key).flatMap((node) => {
       if (!node.createdAt) return []
@@ -110,12 +118,16 @@ export const buildExposureTimeline = ({ edges, ownershipChanges, entity, title, 
     subtext: byLine(change.from ? `changed from ${change.from}` : 'set', change.actorId, change.at, resolveAuthor),
   }))
 
+  const milestoneNodes: TimelineNode[] = milestones.flatMap(({ label, at, phrase }) =>
+    at ? [{ id: `${entity.id}:${label}`, name: label, type: entityType, createdAt: at, subtext: `${phrase} on ${formatDate(at)}` }] : [],
+  )
+
   const creation: TimelineNode[] = entityCreatedAt
     ? [
         {
           id: entity.id,
           name: title,
-          type: toHumanLabel(objectType),
+          type: entityType,
           role: 'source',
           createdAt: entityCreatedAt,
           subtext: byLine(entity.source ? `created from ${entity.source}` : 'created', entity.createdBy, entityCreatedAt, resolveAuthor),
@@ -123,7 +135,7 @@ export const buildExposureTimeline = ({ edges, ownershipChanges, entity, title, 
       ]
     : []
 
-  return [...linked, ...ownership, ...creation].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  return [...linked, ...ownership, ...milestoneNodes, ...creation].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 }
 
 export const hiddenEdgeCounts = (edges: TExposureHistoryEdges | undefined) =>
