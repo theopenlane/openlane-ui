@@ -200,7 +200,7 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes, onVerify, onC
               </div>
             )}
 
-            <InputOTP maxLength={6} onChange={handleOtpChange} containerClassName="gap-2">
+            <InputOTP maxLength={6} onChange={handleOtpChange} disabled={isSubmitting} containerClassName="gap-2">
               <InputOTPGroup>
                 {Array.from({ length: 6 }).map((_, index) => (
                   <InputOTPSlot key={index} index={index} />
