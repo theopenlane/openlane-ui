@@ -133,6 +133,7 @@ const ExistingFilesTable: React.FC<TProps> = ({ tableKey, selectedFileIds, onSel
             Category
           </label>
           <CreatableCustomTypeEnumSelect
+            itemLabel="category"
             triggerId={categorySelectId}
             value={category}
             options={categoryOptions}

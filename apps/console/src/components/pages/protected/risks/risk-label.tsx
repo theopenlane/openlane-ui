@@ -140,12 +140,12 @@ export const RiskLabel = ({
     return (
       <div ref={triggerRef}>
         <CreatableCustomTypeEnumSelect
+          itemLabel="risk type"
           value={riskKindName}
           options={riskKindOptions ?? []}
           onValueChange={(val) => onChange?.(val)}
           onCreateOption={createRiskKind}
           placeholder="Select type"
-          searchPlaceholder="Search risk type..."
           triggerClassName={cn('w-40', selectFieldClassname)}
           contentRef={popoverRef}
         />
@@ -157,12 +157,11 @@ export const RiskLabel = ({
     return (
       <div ref={triggerRef}>
         <CreatableCustomTypeEnumSelect
+          itemLabel="category"
           value={riskCategoryName}
           options={riskCategoryOptions ?? []}
           onValueChange={(val) => onChange?.(val)}
           onCreateOption={createRiskCategory}
-          placeholder="Select category"
-          searchPlaceholder="Search category..."
           triggerClassName={cn('w-40', selectFieldClassname)}
           contentRef={popoverRef}
         />

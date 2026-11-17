@@ -173,12 +173,11 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
                       name={`fieldsArray.${index}.selectedValue`}
                       render={({ field }) => (
                         <CreatableCustomTypeEnumSelect
+                          itemLabel="category"
                           value={field.value}
                           options={categoryOptions}
                           allowCreate={canCreateCategory}
                           triggerClassName="w-60"
-                          searchPlaceholder="Search category..."
-                          placeholder="Select category"
                           onValueChange={field.onChange}
                         />
                       )}

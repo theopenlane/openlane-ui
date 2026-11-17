@@ -153,12 +153,12 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
                 <FormItem>
                   <FormControl>
                     <CreatableCustomTypeEnumSelect
+                      itemLabel="policy type"
                       value={field.value || ''}
                       options={enumOptions}
                       onCreateOption={onCreateOption}
                       placeholder={isTypesSuccess ? 'Select type' : 'Loading...'}
                       disabled={!isTypesSuccess}
-                      searchPlaceholder="Search policy type..."
                       onValueChange={field.onChange}
                     />
                   </FormControl>

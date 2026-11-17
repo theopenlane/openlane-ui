@@ -38,13 +38,12 @@ export const SubprocessorListingDefaults: React.FC<TSubprocessorListingDefaultsP
             Category
           </Label>
           <CreatableCustomTypeEnumSelect
+            itemLabel="category"
             triggerId={categoryId}
             value={defaults.category}
             options={categoryOptions}
             allowCreate={canCreateCategory}
             clearable
-            placeholder="Select category"
-            searchPlaceholder="Search category..."
             onValueChange={(category) => onChange((current) => ({ ...current, category }))}
           />
         </div>

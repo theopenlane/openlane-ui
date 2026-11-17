@@ -179,12 +179,12 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
                           <div className="flex flex-col items-center gap-2">
                             {item.selectedObject.name === 'internalPolicyKindName' ? (
                               <CreatableCustomTypeEnumSelect
+                                itemLabel="policy type"
                                 value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
                                 options={item.selectedObject?.options || []}
                                 onCreateOption={createPolicyType}
                                 triggerClassName="w-60"
                                 placeholder={item.selectedObject?.placeholder ?? ''}
-                                searchPlaceholder="Search policy type..."
                                 onValueChange={(value) =>
                                   update(index, {
                                     ...item,

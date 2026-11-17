@@ -40,12 +40,12 @@ export const CategoryField = ({ objectType, isEditing, canCreate, clearable = fa
             name="category"
             render={({ field }) => (
               <CreatableCustomTypeEnumSelect
+                itemLabel="category"
                 value={field.value}
                 options={enumOptions}
                 allowCreate={canCreate}
                 clearable={clearable}
                 placeholder={isInitialLoad ? 'Loading...' : 'Select or create category...'}
-                searchPlaceholder="Search category..."
                 disabled={isInitialLoad}
                 onValueChange={field.onChange}
               />

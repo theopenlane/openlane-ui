@@ -252,11 +252,10 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
               control={form.control}
               render={({ field }) => (
                 <CreatableCustomTypeEnumSelect
+                  itemLabel="scope"
                   value={field.value ?? undefined}
                   options={scopeOptions}
                   onCreateOption={onCreateScope}
-                  placeholder="Select scope"
-                  searchPlaceholder="Search scope..."
                   triggerClassName="w-[250px]"
                   onValueChange={async (val) => {
                     field.onChange(val)
@@ -281,11 +280,10 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
               control={form.control}
               render={({ field }) => (
                 <CreatableCustomTypeEnumSelect
+                  itemLabel="environment"
                   value={field.value ?? undefined}
                   options={environmentOptions}
                   onCreateOption={onCreateEnvironment}
-                  placeholder="Select environment"
-                  searchPlaceholder="Search environment..."
                   triggerClassName="w-[250px]"
                   onValueChange={async (val) => {
                     field.onChange(val)

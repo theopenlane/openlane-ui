@@ -179,12 +179,12 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
                           <div className="flex flex-col items-center gap-2">
                             {item.selectedObject.name === 'procedureKindName' ? (
                               <CreatableCustomTypeEnumSelect
+                                itemLabel="procedure type"
                                 value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
                                 options={item.selectedObject?.options || []}
                                 onCreateOption={createProcedureType}
                                 triggerClassName="w-60"
                                 placeholder={item.selectedObject?.placeholder ?? ''}
-                                searchPlaceholder="Search procedure type..."
                                 onValueChange={(value) =>
                                   update(index, {
                                     ...item,

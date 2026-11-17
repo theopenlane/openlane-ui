@@ -99,13 +99,12 @@ const MatchRow: React.FC<TSubprocessorMatchRowProps> = ({ row, targetOptions, ca
             Category for row {fileRow}
           </label>
           <CreatableCustomTypeEnumSelect
+            itemLabel="category"
             triggerId={categoryId}
             value={row.category}
             options={categoryOptions}
             allowCreate={canCreateCategory}
             disabled={!isActive}
-            placeholder="Select category"
-            searchPlaceholder="Search category..."
             onValueChange={(category) => update({ category })}
           />
           {isActive && row.categoryFromDefault && row.category && <p className="text-xs text-muted-foreground">From defaults</p>}

@@ -118,6 +118,11 @@ export const useShadowedSystemEnumIds = () => {
   return { shadowedIds, isResolved: isComplete }
 }
 
+export const useCustomTypeEnumsStatus = () => {
+  const { data, isPlaceholderData, isError } = useAllCustomTypeEnums()
+  return { isResolved: !!data && !isPlaceholderData, isError }
+}
+
 export const useGetCustomTypeEnums = ({ where }: { where?: CustomTypeEnumWhereInput } = {}) => {
   const { allNodes, ...queryRest } = useAllCustomTypeEnums()
 

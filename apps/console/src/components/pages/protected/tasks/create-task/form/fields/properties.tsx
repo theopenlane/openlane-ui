@@ -290,11 +290,11 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             render={({ field }) => (
               <div className="w-[250px]" ref={triggerRef}>
                 <CreatableCustomTypeEnumSelect
+                  itemLabel="task type"
                   value={field.value}
                   options={taskKindOptions}
                   onCreateOption={createTaskKind}
                   contentRef={popoverRef}
-                  searchPlaceholder="Search task type..."
                   onValueChange={(value) => {
                     setInternalEditing(null)
                     if (isEditing || !handleUpdate) {

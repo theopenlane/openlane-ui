@@ -154,11 +154,11 @@ const RemediationFieldsEdit: React.FC<Omit<TRemediationFieldsPanelProps, 'isEdit
               </FormLabel>
               <FormControl>
                 <CreatableCustomTypeEnumSelect
+                  itemLabel="environment"
                   value={field.value ?? ''}
                   options={environmentOptions}
                   onValueChange={field.onChange}
                   onCreateOption={createEnvironment}
-                  placeholder="Select environment"
                   clearable
                 />
               </FormControl>
@@ -175,7 +175,7 @@ const RemediationFieldsEdit: React.FC<Omit<TRemediationFieldsPanelProps, 'isEdit
                 Scope <AutoFilledHint value={field.value} contextValue={contextValues?.scopeName} />
               </FormLabel>
               <FormControl>
-                <CreatableCustomTypeEnumSelect value={field.value ?? ''} options={scopeOptions} onValueChange={field.onChange} onCreateOption={createScope} placeholder="Select scope" clearable />
+                <CreatableCustomTypeEnumSelect itemLabel="scope" value={field.value ?? ''} options={scopeOptions} onValueChange={field.onChange} onCreateOption={createScope} clearable />
               </FormControl>
               <FormMessage />
             </FormItem>
