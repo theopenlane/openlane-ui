@@ -12,13 +12,14 @@ import AssociationTimeline from '@/components/pages/protected/exposure/overview/
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { formatList, pluralizeWithCount, toHumanLabel } from '@/utils/strings'
 import { buildOwnershipChanges, historyReferencedIds, type TOwnershipHistoryNode } from './history-events'
-import { buildExposureTimeline, hiddenEdgeCounts, historyEdgeAuthorIds, type TExposureHistoryEdges, type TExposureHistoryEntity } from './timeline-model'
+import { buildExposureTimeline, hiddenEdgeCounts, historyEdgeAuthorIds, type TExposureHistoryEdges, type TExposureHistoryEntity, type TExposureMilestone } from './timeline-model'
 
 type TExposureHistoryTabProps<TOp extends string> = {
   entity: TExposureHistoryEntity
   title: string
   objectType: ObjectTypes
   updateOperation: TOp
+  milestones: TExposureMilestone[]
   edges: {
     data: TExposureHistoryEdges | undefined
     isPending: boolean
@@ -36,7 +37,7 @@ type TExposureHistoryTabProps<TOp extends string> = {
   }
 }
 
-const ExposureHistoryTab = <TOp extends string>({ entity, title, objectType, updateOperation, edges, history }: TExposureHistoryTabProps<TOp>) => {
+const ExposureHistoryTab = <TOp extends string>({ entity, title, objectType, updateOperation, milestones, edges, history }: TExposureHistoryTabProps<TOp>) => {
   const entityName = toHumanLabel(objectType).toLowerCase()
   const { histories, hasNextPage, isFetchingNextPage, fetchNextPage } = history
   useQueryErrorNotification({ error: edges.error ?? history.error, description: `Failed to load ${entityName} history` })
@@ -61,8 +62,8 @@ const ExposureHistoryTab = <TOp extends string>({ entity, title, objectType, upd
       if (kind === 'personnel') return personnelNames.get(id) ?? 'a person'
       return authorName(id) ?? 'a user'
     })
-    return buildExposureTimeline({ edges: edges.data, ownershipChanges, entity, title, objectType, entityName, resolveAuthor: authorName })
-  }, [edges.data, histories, updateOperation, entity, title, objectType, entityName, authorMaps, groupNames, personnelNames])
+    return buildExposureTimeline({ edges: edges.data, ownershipChanges, milestones, entity, title, objectType, entityName, resolveAuthor: authorName })
+  }, [edges.data, histories, updateOperation, milestones, entity, title, objectType, entityName, authorMaps, groupNames, personnelNames])
 
   const hidden = hiddenEdgeCounts(edges.data)
 
@@ -80,7 +81,8 @@ const ExposureHistoryTab = <TOp extends string>({ entity, title, objectType, upd
       )}
       <p className="text-xs text-muted-foreground">
         Linked tasks, assets, remediations and reviews are dated by when each record was created. Records that existed before this {entityName} are listed as associated with it right after it was
-        created, because when a record was linked is not recorded.
+        created, because when a record was linked is not recorded. Dates such as published, discovered and reported come from the source system and can be earlier than when this {entityName} was
+        created here.
       </p>
       {hidden.length > 0 && (
         <p className="text-xs text-muted-foreground">
