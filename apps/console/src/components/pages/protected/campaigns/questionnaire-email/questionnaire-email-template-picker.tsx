@@ -15,11 +15,11 @@ const TEMPLATE_SOURCES = ['existing', 'new'] as const
 type TemplateSource = (typeof TEMPLATE_SOURCES)[number]
 const isTemplateSource = isOneOf(TEMPLATE_SOURCES)
 
-export type QuestionnaireEmailPickerState = { customize: boolean; source: TemplateSource; draft: InlineEmailTemplateDraft | null }
+export type QuestionnaireEmailPickerState = { customize: boolean; source: TemplateSource | null; draft: InlineEmailTemplateDraft | null }
 
-export const initialQuestionnaireEmailPickerState = (emailTemplateID?: string | null): QuestionnaireEmailPickerState => ({
-  customize: !!emailTemplateID,
-  source: 'existing',
+export const initialQuestionnaireEmailPickerState = ({ customize = false }: { customize?: boolean } = {}): QuestionnaireEmailPickerState => ({
+  customize,
+  source: null,
   draft: null,
 })
 
@@ -34,10 +34,13 @@ interface QuestionnaireEmailTemplatePickerProps {
 export const QuestionnaireEmailTemplatePicker: React.FC<QuestionnaireEmailTemplatePickerProps> = ({ value, onChange, state, onStateChange, disabled }) => {
   const { customize, source, draft } = state
   const setSource = (next: TemplateSource) => onStateChange((current) => ({ ...current, source: next }))
-  const { emailTemplateOptions, isLoading } = useCampaignEmailTemplateSelect({ type: EmailTemplateType.QUESTIONNAIRE, ensureId: value, enabled: customize })
+  const { emailTemplateOptions, isLoading, isSuccess, isPlaceholderData } = useCampaignEmailTemplateSelect({ type: EmailTemplateType.QUESTIONNAIRE, ensureId: value, enabled: customize })
+  const hasNoTemplates = !value && isSuccess && !isPlaceholderData && emailTemplateOptions.length === 0
+  const isEditingDraft = !!draft?.name.trim()
+  const activeSource = source ?? (isEditingDraft || hasNoTemplates ? 'new' : 'existing')
 
   const selectSystemEmail = () => {
-    onStateChange((current) => ({ ...current, customize: false, source: 'existing' }))
+    onStateChange((current) => ({ ...current, customize: false, source: null }))
     if (value) onChange('')
   }
 
@@ -69,14 +72,14 @@ export const QuestionnaireEmailTemplatePicker: React.FC<QuestionnaireEmailTempla
 
       {customize && (
         <>
-          <Tabs variant="solid" value={source} onValueChange={(next) => isTemplateSource(next) && setSource(next)}>
+          <Tabs variant="solid" value={activeSource} onValueChange={(next) => isTemplateSource(next) && setSource(next)}>
             <TabsList className="w-fit">
               <TabsTrigger value="existing">Choose existing</TabsTrigger>
               <TabsTrigger value="new">Create new</TabsTrigger>
             </TabsList>
           </Tabs>
 
-          {source === 'existing' ? (
+          {activeSource === 'existing' ? (
             <Select key={value || 'empty'} value={value || undefined} onValueChange={onChange} disabled={disabled}>
               <SelectTrigger className="w-full" aria-label="Questionnaire email template">
                 <SelectValue placeholder="Select a questionnaire email template" />
@@ -93,7 +96,7 @@ export const QuestionnaireEmailTemplatePicker: React.FC<QuestionnaireEmailTempla
             />
           )}
 
-          {!value && source === 'existing' && <p className="text-xs text-muted-foreground">Until you pick a template, recipients receive the system email.</p>}
+          {!value && activeSource === 'existing' && <p className="text-xs text-muted-foreground">Until you pick a template, recipients receive the system email.</p>}
         </>
       )}
     </div>

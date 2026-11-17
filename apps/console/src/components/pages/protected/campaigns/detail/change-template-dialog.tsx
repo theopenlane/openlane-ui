@@ -32,7 +32,7 @@ type ChangeTemplateFormProps = Omit<ChangeTemplateDialogProps, 'open' | 'onOpenC
 
 const ChangeTemplateForm: React.FC<ChangeTemplateFormProps> = ({ templateType, options, value, isLoading, onSave, isPending, onCancel }) => {
   const [selected, setSelected] = useState<string>(value ?? '')
-  const [pickerState, setPickerState] = useState<QuestionnaireEmailPickerState>(() => initialQuestionnaireEmailPickerState(value))
+  const [pickerState, setPickerState] = useState<QuestionnaireEmailPickerState>(() => initialQuestionnaireEmailPickerState({ customize: true }))
   const isQuestionnaire = templateType === EmailTemplateType.QUESTIONNAIRE
   const canSave = isQuestionnaire ? selected !== (value ?? '') : !!selected
 
