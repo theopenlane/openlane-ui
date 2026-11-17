@@ -282,3 +282,16 @@ export const GET_ALL_TRUST_CENTER_LAST_UPDATED = gql`
     }
   }
 `
+
+export const GET_TRUST_CENTER_DASHBOARD = gql`
+  query GetTrustCenterDashboard {
+    trustCenters {
+      edges {
+        node {
+          id
+          pirschDomainID
+        }
+      }
+    }
+  }
+`

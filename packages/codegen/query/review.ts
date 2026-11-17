@@ -351,3 +351,19 @@ export const GET_PROGRAM_REVIEW_STATS = gql`
     }
   }
 `
+
+export const GET_REVIEW_ACTIVITY = gql`
+  query ReviewActivity($where: ReviewWhereInput, $orderBy: [ReviewOrder!], $first: Int) {
+    reviews(where: $where, orderBy: $orderBy, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          title
+          externalID
+          createdAt
+        }
+      }
+    }
+  }
+`

@@ -2445,6 +2445,16 @@ export interface GetControlIdsQuery {
   controls: { pageInfo: { hasNextPage: boolean; endCursor: any }; edges: Array<{ node: { id: string } | null } | null> | null }
 }
 
+export type ControlActivityQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+  orderBy?: Array<Types.ControlOrder> | Types.ControlOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface ControlActivityQuery {
+  controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; title: string | null; createdAt: any } | null } | null> | null }
+}
+
 export type CustomTypeEnumFieldsFragment = { id: string; name: string; color: string | null; objectType: string; description: string | null; field: string; systemOwned: boolean | null }
 
 export type GetCustomTypeEnumsQueryVariables = Exact<{
@@ -4316,6 +4326,19 @@ export interface GetFindingHistoryEdgesQuery {
   }
 }
 
+export type FindingActivityQueryVariables = Exact<{
+  where?: Types.FindingWhereInput | null | undefined
+  orderBy?: Array<Types.FindingOrder> | Types.FindingOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface FindingActivityQuery {
+  findings: {
+    totalCount: number
+    edges: Array<{ node: { id: string; displayID: string; displayName: string | null; externalID: string | null; source: string | null; createdAt: any } | null } | null> | null
+  }
+}
+
 export type GroupSettingsWithFilterQueryVariables = Exact<{
   where?: Types.GroupSettingWhereInput | null | undefined
   orderBy?: Array<Types.GroupSettingOrder> | Types.GroupSettingOrder | null | undefined
@@ -5829,6 +5852,16 @@ export type GetPolicyCommentsByIdQueryVariables = Exact<{
 
 export interface GetPolicyCommentsByIdQuery {
   internalPolicy: { id: string; comments: { edges: Array<{ node: { id: string; createdAt: any; createdBy: string | null; text: string } | null } | null> | null } }
+}
+
+export type InternalPolicyActivityQueryVariables = Exact<{
+  where?: Types.InternalPolicyWhereInput | null | undefined
+  orderBy?: Array<Types.InternalPolicyOrder> | Types.InternalPolicyOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface InternalPolicyActivityQuery {
+  internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; createdAt: any } | null } | null> | null }
 }
 
 export type CreateMappedControlMutationVariables = Exact<{
@@ -8215,6 +8248,16 @@ export interface GetProgramReviewStatsQuery {
   inProgress: { totalCount: number }
 }
 
+export type ReviewActivityQueryVariables = Exact<{
+  where?: Types.ReviewWhereInput | null | undefined
+  orderBy?: Array<Types.ReviewOrder> | Types.ReviewOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface ReviewActivityQuery {
+  reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string; externalID: string | null; createdAt: any } | null } | null> | null }
+}
+
 export type RiskFieldsFragment = {
   id: string
   displayID: string
@@ -8588,6 +8631,16 @@ export interface GetRiskAssociationsQuery {
   }
 }
 
+export type RiskActivityQueryVariables = Exact<{
+  where?: Types.RiskWhereInput | null | undefined
+  orderBy?: Array<Types.RiskOrder> | Types.RiskOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface RiskActivityQuery {
+  risks: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; name: string; createdAt: any } | null } | null> | null }
+}
+
 export type ScansWithFilterQueryVariables = Exact<{
   where?: Types.ScanWhereInput | null | undefined
   orderBy?: Array<Types.ScanOrder> | Types.ScanOrder | null | undefined
@@ -8763,6 +8816,16 @@ export interface GetScanAssociationsQuery {
     tasks: { totalCount: number; edges: Array<{ node: { id: string; title: string; displayID: string } | null } | null> | null }
     vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
+}
+
+export type ScanActivityQueryVariables = Exact<{
+  where?: Types.ScanWhereInput | null | undefined
+  orderBy?: Array<Types.ScanOrder> | Types.ScanOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface ScanActivityQuery {
+  scans: { totalCount: number; edges: Array<{ node: { id: string; target: string; createdAt: any } | null } | null> | null }
 }
 
 export type SearchQueryVariables = Exact<{
@@ -10809,6 +10872,12 @@ export interface TrustCenterLastUpdatedQuery {
   }
 }
 
+export type GetTrustCenterDashboardQueryVariables = Exact<{ [key: string]: never }>
+
+export interface GetTrustCenterDashboardQuery {
+  trustCenters: { edges: Array<{ node: { id: string; pirschDomainID: string | null } | null } | null> | null }
+}
+
 export type GetUserProfileQueryVariables = Exact<{
   userId: string
 }>
@@ -11601,6 +11670,19 @@ export interface GetVulnerabilityHistoryEdgesQuery {
     assets: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayName: string | null; createdAt: any; createdBy: string | null } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; title: string | null; createdAt: any; createdBy: string | null } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string; createdAt: any; createdBy: string | null } | null } | null> | null }
+  }
+}
+
+export type VulnerabilityActivityQueryVariables = Exact<{
+  where?: Types.VulnerabilityWhereInput | null | undefined
+  orderBy?: Array<Types.VulnerabilityOrder> | Types.VulnerabilityOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface VulnerabilityActivityQuery {
+  vulnerabilities: {
+    totalCount: number
+    edges: Array<{ node: { id: string; cveID: string | null; displayID: string; displayName: string | null; externalID: string; source: string | null; createdAt: any } | null } | null> | null
   }
 }
 

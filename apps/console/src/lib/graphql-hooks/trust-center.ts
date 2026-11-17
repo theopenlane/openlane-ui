@@ -1,3 +1,5 @@
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useModuleGatedQuery } from '@/lib/graphql-hooks/use-module-gated-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   CREATE_CUSTOM_DOMAIN,
@@ -12,6 +14,7 @@ import {
   UPDATE_TRUST_CENTER_SETTING,
   UPDATE_TRUST_CENTER_WATERMARK_CONFIG,
   VALIDATE_CUSTOM_DOMAIN,
+  GET_TRUST_CENTER_DASHBOARD,
 } from '@repo/codegen/query/trust-center'
 import {
   type CreateCustomDomainMutation,
@@ -33,6 +36,7 @@ import {
   type UpdateTrustCenterSettingMutationVariables,
   type UpdateTrustCenterWatermarkConfigMutation,
   type UpdateTrustCenterWatermarkConfigMutationVariables,
+  type GetTrustCenterDashboardQuery,
 } from '@repo/codegen/src/schema'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useEffect } from 'react'
@@ -52,6 +56,17 @@ export const useGetTrustCenter = () => {
     ...queryResult,
     trustCenter: queryResult.data?.trustCenters?.edges?.[0]?.node,
   }
+}
+
+export const useGetTrustCenterDashboard = () => {
+  const { client } = useGraphQLClient()
+  const { data, isLoading } = useModuleGatedQuery({
+    objectType: ObjectTypes.TRUST_CENTER,
+    queryKey: [...TRUST_CENTER_QUERY_KEY, 'dashboard'],
+    queryFn: () => client.request<GetTrustCenterDashboardQuery>(GET_TRUST_CENTER_DASHBOARD),
+  })
+
+  return { trustCenter: data?.trustCenters?.edges?.[0]?.node, isLoading }
 }
 
 export type TrustCenterEdge = NonNullable<NonNullable<GetTrustCenterQuery['trustCenters']>['edges']>[number]

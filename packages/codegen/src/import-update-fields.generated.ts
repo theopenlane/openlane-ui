@@ -1482,12 +1482,6 @@ export const IMPORT_UPDATE_FIELDS: Readonly<Record<string, Readonly<Record<strin
     tags: { kind: 'string', list: true, description: 'tags associated with the object' },
     updateGroupSettings: { kind: 'object' },
   },
-  GroupMembership: {
-    addEventIDs: { kind: 'id', list: true },
-    clearEvents: { kind: 'boolean' },
-    removeEventIDs: { kind: 'id', list: true },
-    role: { kind: 'enum', enumValues: ['ADMIN', 'MEMBER'] },
-  },
   GroupSetting: {
     clearGroup: { kind: 'boolean' },
     clearSyncToGithub: { kind: 'boolean' },
@@ -2246,9 +2240,6 @@ export const IMPORT_UPDATE_FIELDS: Readonly<Record<string, Readonly<Record<strin
     startDate: { kind: 'date', timestamp: true, description: 'the start date of the period' },
     status: { kind: 'enum', enumValues: ['ACTION_REQUIRED', 'ARCHIVED', 'COMPLETED', 'IN_PROGRESS', 'NOT_STARTED', 'READY_FOR_AUDITOR'], description: 'the status of the program' },
     tags: { kind: 'string', list: true, description: 'tags associated with the object' },
-  },
-  ProgramMembership: {
-    role: { kind: 'enum', enumValues: ['ADMIN', 'AUDITOR', 'MEMBER'] },
   },
   Remediation: {
     addActionPlanIDs: { kind: 'id', list: true },

@@ -37,6 +37,7 @@ import {
   GET_CONTROL_CATEGORIES_BY_FRAMEWORK,
   GET_CONTROL_IDS,
   GET_CONTROLS_FOR_IMPORT_PREVIEW,
+  GET_CONTROL_ACTIVITY,
 } from '@repo/codegen/query/control'
 
 import {
@@ -104,7 +105,12 @@ import {
   OrderDirection,
   type GetControlsForImportPreviewQuery,
   type GetControlsForImportPreviewQueryVariables,
+  type ControlActivityQuery,
+  type ControlActivityQueryVariables,
 } from '@repo/codegen/src/schema'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { getNodes } from '@/lib/graphql-hooks/connection'
+import { useModuleGatedQuery } from '@/lib/graphql-hooks/use-module-gated-query'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { ExportTooLargeError, fetchAllConnectionNodes } from '@/lib/graphql-hooks/fetch-all-connection-nodes'
@@ -835,4 +841,17 @@ export const useControlImportPreviewFetcher = () => {
     },
     [client],
   )
+}
+
+export const useControlActivity = ({ enabled, ...variables }: ControlActivityQueryVariables & { enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+  const { data, isLoading } = useModuleGatedQuery({
+    objectType: ObjectTypes.CONTROL,
+    queryKey: ['controls', 'activity', variables],
+    queryFn: () => client.request<ControlActivityQuery, ControlActivityQueryVariables>(GET_CONTROL_ACTIVITY, variables),
+    enabled,
+  })
+  const controls = useMemo(() => getNodes(data?.controls), [data])
+
+  return { controls, totalCount: data?.controls?.totalCount ?? 0, isLoading }
 }

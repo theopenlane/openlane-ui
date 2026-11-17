@@ -1,3 +1,5 @@
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useModuleGatedQuery } from '@/lib/graphql-hooks/use-module-gated-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useInfiniteQuery, useMutation, useQuery, type InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
@@ -22,6 +24,7 @@ import {
   GET_POLICY_DISCUSSION_BY_ID,
   UPDATE_POLICY_COMMENT,
   GET_POLICY_COMMENTS_BY_ID,
+  GET_INTERNAL_POLICY_ACTIVITY,
 } from '@repo/codegen/query/internal-policy'
 import { GET_INTERNAL_POLICY_HISTORIES } from '@repo/codegen/query-history/internal-policy'
 import { type GetInternalPolicyHistoriesQuery, type GetInternalPolicyHistoriesQueryVariables, InternalPolicyHistoryOrderField, OrderDirection } from '@repo/codegen/src/historyschema'
@@ -56,6 +59,8 @@ import {
   type UpdateInternalPolicyMutationVariables,
   type UpdatePolicyCommentMutation,
   type UpdatePolicyCommentMutationVariables,
+  type InternalPolicyActivityQuery,
+  type InternalPolicyActivityQueryVariables,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -498,4 +503,17 @@ export const useFetchInternalPolicyRevision = () => {
   const fetchPolicyDocument = useFetchInternalPolicyDocument()
 
   return useCallback(async (policyId: string, signal?: AbortSignal) => (await fetchPolicyDocument(policyId, signal))?.revision ?? null, [fetchPolicyDocument])
+}
+
+export const useInternalPolicyActivity = ({ enabled, ...variables }: InternalPolicyActivityQueryVariables & { enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+  const { data, isLoading } = useModuleGatedQuery({
+    objectType: ObjectTypes.INTERNAL_POLICY,
+    queryKey: ['internalPolicies', 'activity', variables],
+    queryFn: () => client.request<InternalPolicyActivityQuery, InternalPolicyActivityQueryVariables>(GET_INTERNAL_POLICY_ACTIVITY, variables),
+    enabled,
+  })
+  const internalPolicies = useMemo(() => getNodes(data?.internalPolicies), [data])
+
+  return { internalPolicies, totalCount: data?.internalPolicies?.totalCount ?? 0, isLoading }
 }

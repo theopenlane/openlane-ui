@@ -642,3 +642,21 @@ export const GET_FINDING_HISTORY_EDGES = gql`
     }
   }
 `
+
+export const GET_FINDING_ACTIVITY = gql`
+  query FindingActivity($where: FindingWhereInput, $orderBy: [FindingOrder!], $first: Int) {
+    findings(where: $where, orderBy: $orderBy, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          displayID
+          displayName
+          externalID
+          source
+          createdAt
+        }
+      }
+    }
+  }
+`

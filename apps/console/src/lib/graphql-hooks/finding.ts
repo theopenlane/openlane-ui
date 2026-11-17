@@ -1,3 +1,5 @@
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useModuleGatedQuery } from '@/lib/graphql-hooks/use-module-gated-query'
 import { useMemo } from 'react'
 import { type InfiniteData, type QueryClient, useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
@@ -31,6 +33,8 @@ import {
   type GetFindingHistoryEdgesQuery,
   type GetFindingHistoryEdgesQueryVariables,
   FindingSecurityLevel,
+  type FindingActivityQuery,
+  type FindingActivityQueryVariables,
 } from '@repo/codegen/src/schema'
 import { FindingHistoryOrderField, OrderDirection, type GetFindingHistoriesQuery, type GetFindingHistoriesQueryVariables } from '@repo/codegen/src/historyschema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
@@ -50,6 +54,7 @@ import {
   UPDATE_FINDING_COMMENT,
   GET_FINDING_REMEDIATION_WORK,
   GET_FINDING_HISTORY_EDGES,
+  GET_FINDING_ACTIVITY,
 } from '@repo/codegen/query/finding'
 import { GET_FINDING_HISTORIES } from '@repo/codegen/query-history/finding'
 import { useEntityComments } from '@/lib/graphql-hooks/entity-comments'
@@ -308,4 +313,17 @@ export const useFindingHistories = (findingId?: string) => {
   const histories = useMemo(() => queryResult.data?.pages.flatMap((page) => getNodes({ edges: page.findingHistories.edges })) ?? [], [queryResult.data])
 
   return { ...queryResult, histories }
+}
+
+export const useFindingActivity = ({ enabled, ...variables }: FindingActivityQueryVariables & { enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+  const { data, isLoading } = useModuleGatedQuery({
+    objectType: ObjectTypes.FINDING,
+    queryKey: ['findings', 'activity', variables],
+    queryFn: () => client.request<FindingActivityQuery, FindingActivityQueryVariables>(GET_FINDING_ACTIVITY, variables),
+    enabled,
+  })
+  const findings = useMemo(() => getNodes(data?.findings), [data])
+
+  return { findings, totalCount: data?.findings?.totalCount ?? 0, isLoading }
 }

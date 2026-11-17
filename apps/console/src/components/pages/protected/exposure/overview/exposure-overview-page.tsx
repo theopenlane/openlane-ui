@@ -5,9 +5,9 @@ import { getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilit
 import { getObjectDisplayName } from '@/utils/object-display-name'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { PageHeading } from '@repo/ui/page-heading'
-import { useVulnerabilitiesWithFilter } from '@/lib/graphql-hooks/vulnerability'
-import { useFindingsWithFilter } from '@/lib/graphql-hooks/finding'
-import { useRisks } from '@/lib/graphql-hooks/risk'
+import { useVulnerabilitiesWithFilter, useVulnerabilityActivity } from '@/lib/graphql-hooks/vulnerability'
+import { useFindingActivity, useFindingsWithFilter } from '@/lib/graphql-hooks/finding'
+import { useRiskActivity, useRisks } from '@/lib/graphql-hooks/risk'
 import { OrderDirection, RiskRiskImpact, RiskRiskStatus, VulnerabilityOrderField, FindingOrderField, RiskOrderField } from '@repo/codegen/src/schema'
 import { useRecentActivityItems } from '@/components/shared/activity-feed/use-recent-activity-items'
 import { Button } from '@repo/ui/button'
@@ -32,6 +32,8 @@ const CRIT_WHERE = { or: [{ severityContainsFold: 'critical' }, { severityIn: ['
 const HIGH_WHERE = { or: [{ severityContainsFold: 'high' }, { severityIn: ['HIGH', 'High'] }] }
 const MED_WHERE = { or: [{ severityContainsFold: 'medium' }, { severityIn: ['MEDIUM', 'Medium'] }] }
 const LOW_WHERE = { or: [{ severityContainsFold: 'low' }, { severityIn: ['LOW', 'Low'] }] }
+const OPEN_RISK_WHERE = { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED] }
+const SEVERITY_SAMPLE_SIZE = 10
 
 const ExposureOverviewPage = () => {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -44,90 +46,100 @@ const ExposureOverviewPage = () => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Exposure', href: '/exposure/overview' }, { label: 'Overview' }])
   }, [setCrumbs])
 
-  const { data: vulnCritData, vulnerabilitiesNodes: vulnCritNodes } = useVulnerabilitiesWithFilter({ where: { open: true, ...CRIT_WHERE }, pagination: DEFAULT_PAGINATION })
-  const { data: vulnHighData, vulnerabilitiesNodes: vulnHighNodes } = useVulnerabilitiesWithFilter({ where: { open: true, ...HIGH_WHERE }, pagination: DEFAULT_PAGINATION })
-  const { data: vulnMedData, vulnerabilitiesNodes: vulnMedNodes } = useVulnerabilitiesWithFilter({ where: { open: true, ...MED_WHERE }, pagination: DEFAULT_PAGINATION })
-  const { data: vulnLowData, vulnerabilitiesNodes: vulnLowNodes } = useVulnerabilitiesWithFilter({ where: { open: true, ...LOW_WHERE }, pagination: DEFAULT_PAGINATION })
+  const vulnCrit = useVulnerabilityActivity({ where: { open: true, ...CRIT_WHERE }, first: SEVERITY_SAMPLE_SIZE })
+  const vulnHigh = useVulnerabilityActivity({ where: { open: true, ...HIGH_WHERE }, first: SEVERITY_SAMPLE_SIZE })
+  const vulnMed = useVulnerabilityActivity({ where: { open: true, ...MED_WHERE }, first: SEVERITY_SAMPLE_SIZE })
+  const vulnLow = useVulnerabilityActivity({ where: { open: true, ...LOW_WHERE }, first: SEVERITY_SAMPLE_SIZE })
 
-  const { data: findCritData, findingsNodes: findCritNodes } = useFindingsWithFilter({ where: { open: true, ...CRIT_WHERE }, pagination: DEFAULT_PAGINATION })
-  const { data: findHighData, findingsNodes: findHighNodes } = useFindingsWithFilter({ where: { open: true, ...HIGH_WHERE }, pagination: DEFAULT_PAGINATION })
-  const { data: findMedData, findingsNodes: findMedNodes } = useFindingsWithFilter({ where: { open: true, ...MED_WHERE }, pagination: DEFAULT_PAGINATION })
-  const { data: findLowData, findingsNodes: findLowNodes } = useFindingsWithFilter({ where: { open: true, ...LOW_WHERE }, pagination: DEFAULT_PAGINATION })
+  const findCrit = useFindingActivity({ where: { open: true, ...CRIT_WHERE }, first: SEVERITY_SAMPLE_SIZE })
+  const findHigh = useFindingActivity({ where: { open: true, ...HIGH_WHERE }, first: SEVERITY_SAMPLE_SIZE })
+  const findMed = useFindingActivity({ where: { open: true, ...MED_WHERE }, first: SEVERITY_SAMPLE_SIZE })
+  const findLow = useFindingActivity({ where: { open: true, ...LOW_WHERE }, first: SEVERITY_SAMPLE_SIZE })
 
   const hasRiskAccess = useHasObjectType(ObjectTypes.RISK)
-  const { data: riskCritData, risks: riskCritNodes } = useRisks({
-    where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.CRITICAL] },
-    pagination: DEFAULT_PAGINATION,
-    enabled: hasRiskAccess,
-  })
-  const { data: riskHighData, risks: riskHighNodes } = useRisks({
-    where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.HIGH] },
-    pagination: DEFAULT_PAGINATION,
-    enabled: hasRiskAccess,
-  })
-  const { data: riskMedData, risks: riskMedNodes } = useRisks({
-    where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.MODERATE] },
-    pagination: DEFAULT_PAGINATION,
-    enabled: hasRiskAccess,
-  })
-  const { data: riskLowData, risks: riskLowNodes } = useRisks({
-    where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.LOW] },
-    pagination: DEFAULT_PAGINATION,
-    enabled: hasRiskAccess,
-  })
+  const riskCrit = useRiskActivity({ where: { ...OPEN_RISK_WHERE, impactIn: [RiskRiskImpact.CRITICAL] }, first: SEVERITY_SAMPLE_SIZE })
+  const riskHigh = useRiskActivity({ where: { ...OPEN_RISK_WHERE, impactIn: [RiskRiskImpact.HIGH] }, first: SEVERITY_SAMPLE_SIZE })
+  const riskMed = useRiskActivity({ where: { ...OPEN_RISK_WHERE, impactIn: [RiskRiskImpact.MODERATE] }, first: SEVERITY_SAMPLE_SIZE })
+  const riskLow = useRiskActivity({ where: { ...OPEN_RISK_WHERE, impactIn: [RiskRiskImpact.LOW] }, first: SEVERITY_SAMPLE_SIZE })
 
   const severityData = useMemo(
     () => ({
       vulns: {
         href: '/exposure/vulnerabilities',
         tableKey: TableKeyEnum.VULNERABILITY,
-        critical: vulnCritData?.vulnerabilities?.totalCount ?? 0,
-        high: vulnHighData?.vulnerabilities?.totalCount ?? 0,
-        medium: vulnMedData?.vulnerabilities?.totalCount ?? 0,
-        low: vulnLowData?.vulnerabilities?.totalCount ?? 0,
+        critical: vulnCrit.totalCount,
+        high: vulnHigh.totalCount,
+        medium: vulnMed.totalCount,
+        low: vulnLow.totalCount,
       },
       findings: {
         href: '/exposure/findings',
         tableKey: TableKeyEnum.FINDING,
-        critical: findCritData?.findings?.totalCount ?? 0,
-        high: findHighData?.findings?.totalCount ?? 0,
-        medium: findMedData?.findings?.totalCount ?? 0,
-        low: findLowData?.findings?.totalCount ?? 0,
+        critical: findCrit.totalCount,
+        high: findHigh.totalCount,
+        medium: findMed.totalCount,
+        low: findLow.totalCount,
       },
       risks: {
         href: '/exposure/risks',
         tableKey: TableKeyEnum.RISK,
-        critical: riskCritData?.risks?.totalCount ?? 0,
-        high: riskHighData?.risks?.totalCount ?? 0,
-        medium: riskMedData?.risks?.totalCount ?? 0,
-        low: riskLowData?.risks?.totalCount ?? 0,
+        critical: riskCrit.totalCount,
+        high: riskHigh.totalCount,
+        medium: riskMed.totalCount,
+        low: riskLow.totalCount,
       },
     }),
-    [vulnCritData, vulnHighData, vulnMedData, vulnLowData, findCritData, findHighData, findMedData, findLowData, riskCritData, riskHighData, riskMedData, riskLowData],
+    [
+      vulnCrit.totalCount,
+      vulnHigh.totalCount,
+      vulnMed.totalCount,
+      vulnLow.totalCount,
+      findCrit.totalCount,
+      findHigh.totalCount,
+      findMed.totalCount,
+      findLow.totalCount,
+      riskCrit.totalCount,
+      riskHigh.totalCount,
+      riskMed.totalCount,
+      riskLow.totalCount,
+    ],
   )
 
   const severityItems = useMemo(
     () => ({
       vulns: {
-        critical: vulnCritNodes?.map(getVulnerabilityTitle) ?? [],
-        high: vulnHighNodes?.map(getVulnerabilityTitle) ?? [],
-        medium: vulnMedNodes?.map(getVulnerabilityTitle) ?? [],
-        low: vulnLowNodes?.map(getVulnerabilityTitle) ?? [],
+        critical: vulnCrit.vulnerabilities.map(getVulnerabilityTitle),
+        high: vulnHigh.vulnerabilities.map(getVulnerabilityTitle),
+        medium: vulnMed.vulnerabilities.map(getVulnerabilityTitle),
+        low: vulnLow.vulnerabilities.map(getVulnerabilityTitle),
       },
       findings: {
-        critical: findCritNodes?.map((f) => getObjectDisplayName(f) || 'Finding') ?? [],
-        high: findHighNodes?.map((f) => getObjectDisplayName(f) || 'Finding') ?? [],
-        medium: findMedNodes?.map((f) => getObjectDisplayName(f) || 'Finding') ?? [],
-        low: findLowNodes?.map((f) => getObjectDisplayName(f) || 'Finding') ?? [],
+        critical: findCrit.findings.map((f) => getObjectDisplayName(f) || 'Finding'),
+        high: findHigh.findings.map((f) => getObjectDisplayName(f) || 'Finding'),
+        medium: findMed.findings.map((f) => getObjectDisplayName(f) || 'Finding'),
+        low: findLow.findings.map((f) => getObjectDisplayName(f) || 'Finding'),
       },
       risks: {
-        critical: riskCritNodes?.map((r) => getObjectDisplayName(r) || 'Risk') ?? [],
-        high: riskHighNodes?.map((r) => getObjectDisplayName(r) || 'Risk') ?? [],
-        medium: riskMedNodes?.map((r) => getObjectDisplayName(r) || 'Risk') ?? [],
-        low: riskLowNodes?.map((r) => getObjectDisplayName(r) || 'Risk') ?? [],
+        critical: riskCrit.risks.map((r) => getObjectDisplayName(r) || 'Risk'),
+        high: riskHigh.risks.map((r) => getObjectDisplayName(r) || 'Risk'),
+        medium: riskMed.risks.map((r) => getObjectDisplayName(r) || 'Risk'),
+        low: riskLow.risks.map((r) => getObjectDisplayName(r) || 'Risk'),
       },
     }),
-    [vulnCritNodes, vulnHighNodes, vulnMedNodes, vulnLowNodes, findCritNodes, findHighNodes, findMedNodes, findLowNodes, riskCritNodes, riskHighNodes, riskMedNodes, riskLowNodes],
+    [
+      vulnCrit.vulnerabilities,
+      vulnHigh.vulnerabilities,
+      vulnMed.vulnerabilities,
+      vulnLow.vulnerabilities,
+      findCrit.findings,
+      findHigh.findings,
+      findMed.findings,
+      findLow.findings,
+      riskCrit.risks,
+      riskHigh.risks,
+      riskMed.risks,
+      riskLow.risks,
+    ],
   )
 
   const criticalCounts = useMemo(
