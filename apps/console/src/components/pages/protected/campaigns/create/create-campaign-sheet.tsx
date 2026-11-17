@@ -7,6 +7,8 @@ import { StepperSheet, type StepperStep } from '@/components/shared/stepper-shee
 import { QuestionnaireStep } from './steps/questionnaire-step'
 import { TargetsStep } from './steps/targets-step'
 import { EmailTemplateStep } from './steps/email-template-step'
+import { QuestionnaireEmailStep } from './steps/questionnaire-email-step'
+import { initialQuestionnaireEmailPickerState, type QuestionnaireEmailPickerState } from '../questionnaire-email/questionnaire-email-template-picker'
 import { toCampaignTargetInputs, type CampaignTargetEntry, type TargetTab } from './steps/targets/target-entry'
 import { useCreateCampaignWithOptionalTargets } from '@/lib/graphql-hooks/campaign'
 import { useNotification } from '@/hooks/useNotification'
@@ -28,6 +30,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
   const [targets, setTargets] = useState<CampaignTargetEntry[]>([])
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [activeTargetTab, setActiveTargetTab] = useState<TargetTab>('personnel')
+  const [emailPickerState, setEmailPickerState] = useState<QuestionnaireEmailPickerState>(() => initialQuestionnaireEmailPickerState())
 
   const { mutateAsync: createCampaign, isPending: isCreating } = useCreateCampaignWithOptionalTargets()
   const { successNotification, errorNotification } = useNotification()
@@ -41,6 +44,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
     setTargets([])
     setUploadedFile(null)
     setActiveTargetTab('personnel')
+    setEmailPickerState(initialQuestionnaireEmailPickerState())
     form.reset()
   }, [form])
 
@@ -59,7 +63,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
             campaignType: data.questionnaireTemplateID ? CampaignCampaignType.QUESTIONNAIRE : CampaignCampaignType.CUSTOM,
             status: CampaignCampaignStatus.DRAFT,
             templateID: data.questionnaireTemplateID || undefined,
-            emailTemplateID: data.questionnaireTemplateID ? undefined : data.emailTemplateID || undefined,
+            emailTemplateID: data.emailTemplateID || undefined,
           },
           targets: toCampaignTargetInputs(targets),
         })
@@ -99,17 +103,15 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
       },
     ]
 
-    if (hasQuestionnaire) return baseSteps
-
     return [
       ...baseSteps,
       {
         title: 'Email Template',
-        description: 'Choose the email template used to contact recipients',
-        content: <EmailTemplateStep form={form} />,
+        description: hasQuestionnaire ? 'Send the system questionnaire email, or customize the email recipients receive' : 'Choose the email template used to contact recipients',
+        content: hasQuestionnaire ? <QuestionnaireEmailStep form={form} pickerState={emailPickerState} onPickerStateChange={setEmailPickerState} /> : <EmailTemplateStep form={form} />,
       },
     ]
-  }, [form, targets, uploadedFile, activeTargetTab, hasQuestionnaire])
+  }, [form, targets, uploadedFile, activeTargetTab, hasQuestionnaire, emailPickerState])
 
   const activeStep = Math.min(currentStep, steps.length - 1)
 
@@ -130,7 +132,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
         completeLabel="Create Campaign"
         isSaving={isCreating}
         isCompleting={isCreating}
-        isDirty={form.formState.isDirty || targets.length > 0 || uploadedFile !== null}
+        isDirty={form.formState.isDirty || targets.length > 0 || uploadedFile !== null || emailPickerState.draft !== null}
         canProceed
       />
     </Form>

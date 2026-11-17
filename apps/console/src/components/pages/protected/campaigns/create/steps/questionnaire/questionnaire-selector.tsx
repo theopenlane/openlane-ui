@@ -25,8 +25,9 @@ export const QuestionnaireSelector: React.FC<QuestionnaireSelectorProps> = ({ fo
   const selected = useMemo(() => templates?.find((template) => template.id === selectedId), [templates, selectedId])
 
   const handleSelect = (template: QuestionnaireTemplate) => {
+    const wasQuestionnaire = !!form.getValues('questionnaireTemplateID')
     form.setValue('questionnaireTemplateID', template.id, { shouldDirty: true })
-    if (form.getValues('emailTemplateID')) {
+    if (!wasQuestionnaire && form.getValues('emailTemplateID')) {
       form.setValue('emailTemplateID', '', { shouldDirty: true })
     }
     if (!form.getValues('name')?.trim()) {
@@ -38,7 +39,10 @@ export const QuestionnaireSelector: React.FC<QuestionnaireSelectorProps> = ({ fo
     setDialogOpen(false)
   }
 
-  const handleClear = () => form.setValue('questionnaireTemplateID', '', { shouldDirty: true })
+  const handleClear = () => {
+    form.setValue('questionnaireTemplateID', '', { shouldDirty: true })
+    form.setValue('emailTemplateID', '', { shouldDirty: true })
+  }
 
   const openPreview = (id: string) => window.open(`${PREVIEW_PATH}?id=${id}`, '_blank', 'noopener,noreferrer')
 
@@ -48,7 +52,7 @@ export const QuestionnaireSelector: React.FC<QuestionnaireSelectorProps> = ({ fo
         Select Questionnaire Template <span className="text-muted-foreground">(Optional)</span>
       </FormLabel>
       <p className="pb-2 text-xs text-muted-foreground">
-        Campaigns use either a questionnaire template or an email template. With a questionnaire template, recipients receive the system email template.
+        Campaigns use either a questionnaire template or an email template. With a questionnaire template, recipients receive the system email unless you customize it.
       </p>
 
       {selected ? (

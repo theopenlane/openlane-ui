@@ -39,6 +39,7 @@ import {
   BULK_DELETE_EMAIL_TEMPLATE,
 } from '@repo/codegen/query/email-template'
 import { GET_EMAIL_TEMPLATE_CATALOG, PREVIEW_EMAIL_TEMPLATE } from '@repo/codegen/query/email-template-catalog'
+import { emailTemplateTypeWhere, type EmailTemplateType } from '@/lib/email-template-type'
 
 type GetAllEmailTemplatesArgs = {
   where?: EmailTemplatesWithFilterQueryVariables['where']
@@ -73,20 +74,28 @@ const selectPagination: TPagination = { page: 1, pageSize: 100, query: { first: 
 
 const campaignRecipientWhere: EmailTemplateWhereInput = { templateContext: EmailTemplateTemplateContext.CAMPAIGN_RECIPIENT, active: true }
 
-export const useCampaignEmailTemplateSelect = ({ ensureId }: { ensureId?: string | null } = {}) => {
-  const { emailTemplatesNodes, ...rest } = useEmailTemplatesWithFilter({ where: campaignRecipientWhere, pagination: selectPagination })
-  const { data: ensured } = useEmailTemplate(emailTemplatesNodes.some((template) => template.id === ensureId) ? undefined : (ensureId ?? undefined))
+type UseCampaignEmailTemplateSelectArgs = {
+  type: EmailTemplateType
+  ensureId?: string | null
+  enabled?: boolean
+}
+
+export const useCampaignEmailTemplateSelect = ({ type, ensureId, enabled = true }: UseCampaignEmailTemplateSelectArgs) => {
+  const where = useMemo<EmailTemplateWhereInput>(() => ({ ...campaignRecipientWhere, ...emailTemplateTypeWhere(type) }), [type])
+  const { emailTemplatesNodes, ...rest } = useEmailTemplatesWithFilter({ where, pagination: selectPagination, enabled })
+  const needsEnsure = enabled && rest.isSuccess && !rest.isPlaceholderData && !!ensureId && !emailTemplatesNodes.some((template) => template.id === ensureId)
+  const { data: ensured, isLoading: isEnsuring } = useEmailTemplate(needsEnsure ? ensureId : undefined)
 
   const emailTemplateOptions = useMemo(() => {
     const options = emailTemplatesNodes.map((template) => ({ label: template.name, value: template.id }))
     const ensuredTemplate = ensured?.emailTemplate
-    if (ensuredTemplate && !options.some((option) => option.value === ensuredTemplate.id)) {
+    if (ensuredTemplate && ensuredTemplate.id === ensureId && !options.some((option) => option.value === ensuredTemplate.id)) {
       options.push({ label: ensuredTemplate.name, value: ensuredTemplate.id })
     }
     return options
-  }, [emailTemplatesNodes, ensured])
+  }, [emailTemplatesNodes, ensured, ensureId])
 
-  return { ...rest, emailTemplateOptions }
+  return { ...rest, isLoading: rest.isLoading || isEnsuring, emailTemplateOptions }
 }
 
 export const useCreateEmailTemplate = () => {

@@ -9,6 +9,7 @@ import { Ban, Calendar, CalendarClock, ExternalLink, FileText, Lock, Mail, Rocke
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { CAMPAIGN_TERMINAL_STATUSES, useCampaign, useUpdateCampaign, useLaunchCampaign, useResendCampaignIncompleteTargets } from '@/lib/graphql-hooks/campaign'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
+import { EmailTemplateType } from '@/lib/email-template-type'
 import { useCampaignTargetStats } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -94,7 +95,13 @@ const CampaignDetailPage: React.FC = () => {
   const campaignId = params.id
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data, isLoading } = useCampaign(campaignId)
-  const { emailTemplateOptions, isLoading: emailTemplatesLoading } = useCampaignEmailTemplateSelect({ ensureId: data?.campaign?.emailTemplateID })
+  const isQuestionnaireCampaign = !!data?.campaign?.templateID
+  const emailTemplateType = isQuestionnaireCampaign ? EmailTemplateType.QUESTIONNAIRE : EmailTemplateType.GENERAL
+  const { emailTemplateOptions, isLoading: emailTemplatesLoading } = useCampaignEmailTemplateSelect({
+    type: emailTemplateType,
+    ensureId: data?.campaign?.emailTemplateID,
+    enabled: !!data?.campaign,
+  })
   const { mutateAsync: updateCampaign, isPending: isUpdating } = useUpdateCampaign()
   const { mutateAsync: deleteCampaign, isPending: isDeleting } = useDeleteCampaign()
   const { mutateAsync: launchCampaign, isPending: isLaunching } = useLaunchCampaign()
@@ -243,19 +250,31 @@ const CampaignDetailPage: React.FC = () => {
 
   const nonQuestionnaireType = campaign?.campaignType && campaign.campaignType !== CampaignCampaignType.QUESTIONNAIRE ? campaign.campaignType : CampaignCampaignType.CUSTOM
 
-  const handleSaveTemplate = async (emailTemplateID: string) => {
-    if (await handleUpdateField({ emailTemplateID, campaignType: nonQuestionnaireType })) setChangeTemplateOpen(false)
+  const buildTemplateInput = (emailTemplateID: string): UpdateCampaignInput => {
+    const templateInput: UpdateCampaignInput = emailTemplateID ? { emailTemplateID } : { clearEmailTemplate: true }
+    return { ...templateInput, campaignType: isQuestionnaireCampaign ? CampaignCampaignType.QUESTIONNAIRE : nonQuestionnaireType }
   }
 
-  const handleRemoveTemplate = () => handleUpdateField({ clearEmailTemplate: true, campaignType: nonQuestionnaireType })
+  const handleSaveTemplate = async (emailTemplateID: string) => {
+    if (await handleUpdateField(buildTemplateInput(emailTemplateID))) setChangeTemplateOpen(false)
+  }
+
+  const handleRemoveTemplate = () => handleUpdateField(buildTemplateInput(''))
 
   const handleSelectQuestionnaire = async (templateId: string) => {
     const replacesExistingTemplate = !!campaign?.templateID && campaign.templateID !== templateId
-    if (await handleUpdateField({ templateID: templateId, campaignType: CampaignCampaignType.QUESTIONNAIRE, clearEmailTemplate: true, clearAssessment: replacesExistingTemplate || undefined }))
+    if (
+      await handleUpdateField({
+        templateID: templateId,
+        campaignType: CampaignCampaignType.QUESTIONNAIRE,
+        clearEmailTemplate: isQuestionnaireCampaign ? undefined : true,
+        clearAssessment: replacesExistingTemplate || undefined,
+      })
+    )
       setQuestionnaireDialogOpen(false)
   }
 
-  const handleRemoveQuestionnaire = () => handleUpdateField({ clearTemplate: true, clearAssessment: true, campaignType: CampaignCampaignType.CUSTOM })
+  const handleRemoveQuestionnaire = () => handleUpdateField({ clearTemplate: true, clearAssessment: true, clearEmailTemplate: true, campaignType: CampaignCampaignType.CUSTOM })
 
   const handleSendReminder = async () => {
     if (!campaignId) return
@@ -290,9 +309,8 @@ const CampaignDetailPage: React.FC = () => {
   const launched = !!campaign.launchedAt
   const isDraft = status === CampaignCampaignStatus.DRAFT
   const isEditable = isDraft
-  const hasQuestionnaire = !!campaign.templateID
   const hasEmailTemplate = !!campaign.emailTemplateID
-  const hasCampaignContent = hasQuestionnaire || hasEmailTemplate
+  const hasCampaignContent = isQuestionnaireCampaign || hasEmailTemplate
   const showProgress = campaign.campaignType !== CampaignCampaignType.CUSTOM || !!campaign.assessmentID
   const campaignTypeLabel = campaign.campaignType ? getEnumLabel(campaign.campaignType) : '—'
   const launchBlockedReason = getLaunchBlockedReason({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount: stats.total })
@@ -317,6 +335,7 @@ const CampaignDetailPage: React.FC = () => {
     }[status ?? CampaignCampaignStatus.ACTIVE]
 
   const emailTemplateName = emailTemplateOptions.find((option) => option.value === campaign.emailTemplateID)?.label
+  const emailTemplateLabel = emailTemplateName ?? (hasEmailTemplate ? (emailTemplatesLoading ? 'Loading...' : 'Unavailable template') : undefined)
   const questionnaireName = campaign.template?.name ?? undefined
   const questionnaireQuestionCount = campaign.template ? getQuestionCount(campaign.template.jsonconfig) : 0
   const questionnaireLabel = questionnaireName ? `${questionnaireName} (${questionnaireQuestionCount} question${questionnaireQuestionCount === 1 ? '' : 's'})` : undefined
@@ -372,10 +391,10 @@ const CampaignDetailPage: React.FC = () => {
             <span className="text-sm text-muted-foreground">Type</span>
             <span className="text-sm">{campaignTypeLabel}</span>
           </div>
-          {hasQuestionnaire ? (
+          {isQuestionnaireCampaign ? (
             <div className="flex items-center justify-between gap-4">
               <span className="text-sm text-muted-foreground">Email Template</span>
-              <span className="text-sm py-2 px-1">System template</span>
+              <span className="text-sm py-2 px-1">{emailTemplateLabel ?? 'System template'}</span>
             </div>
           ) : (
             <SelectField name="emailTemplateID" label="Email Template" options={emailTemplateOptions} useCustomDisplay={false} {...emailTemplateFieldProps} />
@@ -408,7 +427,7 @@ const CampaignDetailPage: React.FC = () => {
       <div className="rounded-md border border-border bg-card p-4">
         <h3 className="text-sm font-semibold mb-3">Schedule</h3>
         <div className="flex flex-col gap-3">
-          {hasQuestionnaire && (
+          {isQuestionnaireCampaign && (
             <div className="rounded-md border border-border px-2.5">
               <DateField name="dueDate" label="Due Date" {...sharedFieldProps} />
             </div>
@@ -526,8 +545,7 @@ const CampaignDetailPage: React.FC = () => {
       {isDraft ? (
         <CampaignSetupView
           hasEmailTemplate={hasEmailTemplate}
-          emailTemplateName={emailTemplateName}
-          isLoadingTemplates={emailTemplatesLoading}
+          emailTemplateLabel={emailTemplateLabel}
           isUpdating={isUpdating}
           questionnaireName={questionnaireName}
           questionnaireQuestionCount={questionnaireQuestionCount}
@@ -628,7 +646,7 @@ const CampaignDetailPage: React.FC = () => {
           onOpenChange={setLaunchDialogOpen}
           onLaunch={handleLaunch}
           isPending={isLaunching || isUpdating}
-          summary={{ recipientCount: stats.total, content: hasQuestionnaire ? { kind: 'questionnaire', label: questionnaireLabel } : { kind: 'email', label: emailTemplateName } }}
+          summary={{ recipientCount: stats.total, content: isQuestionnaireCampaign ? { kind: 'questionnaire', label: questionnaireLabel } : { kind: 'email', label: emailTemplateName } }}
           initialRecurrence={recurrenceValues}
         />
       )}
@@ -652,6 +670,7 @@ const CampaignDetailPage: React.FC = () => {
       <ChangeTemplateDialog
         open={changeTemplateOpen}
         onOpenChange={setChangeTemplateOpen}
+        templateType={emailTemplateType}
         options={emailTemplateOptions}
         value={campaign.emailTemplateID ?? undefined}
         isLoading={emailTemplatesLoading}
