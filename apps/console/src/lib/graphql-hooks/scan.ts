@@ -1,3 +1,7 @@
+import { useMemo } from 'react'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { getNodes } from '@/lib/graphql-hooks/connection'
+import { useModuleGatedQuery } from '@/lib/graphql-hooks/use-module-gated-query'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
@@ -25,6 +29,8 @@ import {
   type GetScanAssociationsQuery,
   type ImportDomainScanReviewMutation,
   type ImportDomainScanReviewMutationVariables,
+  type ScanActivityQuery,
+  type ScanActivityQueryVariables,
 } from '@repo/codegen/src/schema'
 import { type ClientError } from 'graphql-request'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
@@ -42,6 +48,7 @@ import {
   BULK_DELETE_SCAN,
   GET_SCAN_ASSOCIATIONS,
   IMPORT_DOMAIN_SCAN_REVIEW,
+  GET_SCAN_ACTIVITY,
 } from '@repo/codegen/query/scan'
 
 type GetAllScansArgs = {
@@ -212,4 +219,17 @@ export const useGetScanAssociations = (scanId?: string) => {
     },
     enabled: !!scanId,
   })
+}
+
+export const useScanActivity = ({ enabled, ...variables }: ScanActivityQueryVariables & { enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+  const { data, isLoading } = useModuleGatedQuery({
+    objectType: ObjectTypes.SCAN,
+    queryKey: ['scans', 'activity', variables],
+    queryFn: () => client.request<ScanActivityQuery, ScanActivityQueryVariables>(GET_SCAN_ACTIVITY, variables),
+    enabled,
+  })
+  const scans = useMemo(() => getNodes(data?.scans), [data])
+
+  return { scans, totalCount: data?.scans?.totalCount ?? 0, isLoading }
 }

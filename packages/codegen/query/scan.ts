@@ -303,3 +303,18 @@ export const GET_SCAN_ASSOCIATIONS = gql`
     }
   }
 `
+
+export const GET_SCAN_ACTIVITY = gql`
+  query ScanActivity($where: ScanWhereInput, $orderBy: [ScanOrder!], $first: Int) {
+    scans(where: $where, orderBy: $orderBy, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          target
+          createdAt
+        }
+      }
+    }
+  }
+`

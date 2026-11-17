@@ -3,14 +3,14 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { canEdit } from '@/lib/authz/utils'
-import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { useGetTrustCenterDashboard } from '@/lib/graphql-hooks/trust-center'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import DashboardActionsBar, { type TDashboardAction } from './DashboardActionsBar'
 
 const DashboardTrustCenterActions = () => {
   const router = useRouter()
   const { data: session } = useSession()
-  const { trustCenter } = useGetTrustCenter()
+  const { trustCenter } = useGetTrustCenterDashboard()
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenter?.id)
   const canEditTrustCenter = canEdit(tcPermission?.roles, session)
 

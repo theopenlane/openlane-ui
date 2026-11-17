@@ -1,3 +1,7 @@
+import { useMemo } from 'react'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { getNodes } from '@/lib/graphql-hooks/connection'
+import { useModuleGatedQuery } from '@/lib/graphql-hooks/use-module-gated-query'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
@@ -18,6 +22,8 @@ import {
   type GetProgramReviewStatsQuery,
   type FileOrder,
   type InputMaybe,
+  type ReviewActivityQuery,
+  type ReviewActivityQueryVariables,
 } from '@repo/codegen/src/schema'
 
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
@@ -34,6 +40,7 @@ import {
   GET_REVIEW_ASSOCIATIONS,
   GET_REVIEW_FILES_PAGINATED,
   GET_PROGRAM_REVIEW_STATS,
+  GET_REVIEW_ACTIVITY,
 } from '@repo/codegen/query/review'
 
 type GetAllReviewsArgs = {
@@ -203,4 +210,17 @@ export const useGetReviewFilesPaginated = ({ reviewId, orderBy, pagination }: Re
     pageInfo,
     totalCount,
   }
+}
+
+export const useReviewActivity = ({ enabled, ...variables }: ReviewActivityQueryVariables & { enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+  const { data, isLoading } = useModuleGatedQuery({
+    objectType: ObjectTypes.REVIEW,
+    queryKey: ['reviews', 'activity', variables],
+    queryFn: () => client.request<ReviewActivityQuery, ReviewActivityQueryVariables>(GET_REVIEW_ACTIVITY, variables),
+    enabled,
+  })
+  const reviews = useMemo(() => getNodes(data?.reviews), [data])
+
+  return { reviews, totalCount: data?.reviews?.totalCount ?? 0, isLoading }
 }

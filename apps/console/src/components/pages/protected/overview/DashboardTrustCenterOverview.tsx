@@ -2,7 +2,7 @@ import { FileSignature, ListChecks, PenTool, Users } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { STATS_WINDOW_DAYS } from '@/constants/stats'
 import { useGetOverdueTasksCount } from '@/lib/graphql-hooks/task'
-import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { useGetTrustCenterDashboard } from '@/lib/graphql-hooks/trust-center'
 import { ndaRequestsWhere, useGetNdaRequestCount } from '@/lib/graphql-hooks/trust-center-nda-request'
 import { useAnalytics } from '@/lib/query-hooks/analytics'
 import { NDA_REQUEST_TAB_PARAM, NDA_SIGNED_TAB } from '@/components/pages/protected/trust-center/NDAs/table/nda-request-tabs'
@@ -11,7 +11,7 @@ import { useOpenOverdueTasks } from './use-open-overdue-tasks'
 
 const DashboardTrustCenterOverview = () => {
   const router = useRouter()
-  const { trustCenter } = useGetTrustCenter()
+  const { trustCenter, isLoading: isLoadingTrustCenter } = useGetTrustCenterDashboard()
 
   const { totalCount: ndaRequestsNeedingApproval, isLoading: isLoadingNdaRequests } = useGetNdaRequestCount({ where: ndaRequestsWhere.needingApproval() })
   const { totalCount: signedNdaCount, isLoading: isLoadingSignedNdas } = useGetNdaRequestCount({ where: ndaRequestsWhere.signedWithinWindow() })
@@ -47,7 +47,7 @@ const DashboardTrustCenterOverview = () => {
       label: 'Visitors',
       subtitle: `Unique (last ${STATS_WINDOW_DAYS} days)`,
       value: visitorData?.visitors ?? null,
-      isLoading: isLoadingVisitors,
+      isLoading: isLoadingTrustCenter || isLoadingVisitors,
       Icon: Users,
       accent: 'success',
       onClick: () => router.push('/trust-center/analytics'),

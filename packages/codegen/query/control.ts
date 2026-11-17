@@ -1201,3 +1201,19 @@ export const GET_CONTROL_IDS = gql`
     }
   }
 `
+
+export const GET_CONTROL_ACTIVITY = gql`
+  query ControlActivity($where: ControlWhereInput, $orderBy: [ControlOrder!], $first: Int) {
+    controls(where: $where, orderBy: $orderBy, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          refCode
+          title
+          createdAt
+        }
+      }
+    }
+  }
+`

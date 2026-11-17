@@ -66,6 +66,8 @@ import {
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { PROGRAM_SUBMITTED_EVIDENCE_COUNT_KEY } from '@/lib/graphql-hooks/program'
 import { type TPagination } from '@repo/ui/pagination-types'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useObjectTypeAccess } from '@/lib/subscription-plan/hooks/use-module-access'
 
 type TInvalidateClient = { invalidateQueries: (args: { queryKey: unknown[] }) => void }
 
@@ -286,6 +288,7 @@ type TGetEvidenceListLightInfiniteProps = {
 
 export const useGetEvidenceListLightInfinite = ({ orderBy, where, pageSize, enabled = true }: TGetEvidenceListLightInfiniteProps) => {
   const { client } = useGraphQLClient()
+  const { hasAccess, isLoading: isAccessLoading } = useObjectTypeAccess(ObjectTypes.EVIDENCE)
 
   const queryResult = useInfiniteQuery<GetEvidenceListLightQuery, Error, InfiniteData<GetEvidenceListLightQuery>, QueryKey, string | null>({
     initialPageParam: null,
@@ -301,17 +304,24 @@ export const useGetEvidenceListLightInfinite = ({ orderBy, where, pageSize, enab
 
       return nextCursor
     },
-    enabled,
+    enabled: enabled && hasAccess,
   })
 
-  const evidences: EvidenceLight[] = useMemo(
-    () => queryResult.data?.pages.flatMap((page) => (page.evidences?.edges ?? []).map((edge) => edge?.node).filter((node): node is EvidenceLight => !!node)) ?? [],
-    [queryResult.data],
-  )
+  const data = hasAccess ? queryResult.data : undefined
 
-  const totalCount = queryResult.data?.pages[0]?.evidences?.totalCount ?? 0
+  const evidences: EvidenceLight[] = useMemo(() => data?.pages.flatMap((page) => (page.evidences?.edges ?? []).map((edge) => edge?.node).filter((node): node is EvidenceLight => !!node)) ?? [], [data])
 
-  return { ...queryResult, evidences, totalCount }
+  const totalCount = data?.pages[0]?.evidences?.totalCount ?? 0
+
+  return {
+    evidences,
+    totalCount,
+    isPending: hasAccess ? queryResult.isPending : isAccessLoading,
+    error: hasAccess ? queryResult.error : null,
+    hasNextPage: hasAccess && queryResult.hasNextPage,
+    isFetchingNextPage: queryResult.isFetchingNextPage,
+    fetchNextPage: queryResult.fetchNextPage,
+  }
 }
 
 export type TEvidenceCountsByStatus = Pick<GetEvidenceCountsByStatusAllProgramsQuery, keyof GetEvidenceCountsByStatusAllProgramsQuery & keyof GetEvidenceCountsByStatusByProgramIdQuery>

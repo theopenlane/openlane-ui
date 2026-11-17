@@ -558,3 +558,19 @@ export const GET_RISK_ASSOCIATIONS = gql`
     }
   }
 `
+
+export const GET_RISK_ACTIVITY = gql`
+  query RiskActivity($where: RiskWhereInput, $orderBy: [RiskOrder!], $first: Int) {
+    risks(where: $where, orderBy: $orderBy, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          displayID
+          name
+          createdAt
+        }
+      }
+    }
+  }
+`
