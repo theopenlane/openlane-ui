@@ -72,7 +72,7 @@ const SSOCallbackPage: React.FC = () => {
         const data = await response.json()
 
         if (response.ok && data.success) {
-          if (data.tfa_enabled && !data.access_token) {
+          if (data.tfa_required || (data.tfa_enabled && !data.access_token)) {
             const destination = intent ? getRedirectUrl(intent, undefined, true).split('?')[0] : sanitizeLoginRedirect(data.redirect_url)
             router.replace(buildTfaRedirect(destination))
             return

@@ -61,7 +61,7 @@ export const config = {
       const cookieStore = await cookies()
 
       // a pending tfa cookie left behind would send the logged out user straight back to /tfa
-      clearTfaPendingCookie(cookieStore)
+      clearTfaPendingCookie(cookieStore, true)
 
       // revoke the tokens and session on the server so logout is enforced server-side rather
       // than only clearing client state. Without this the access and refresh tokens remain valid
@@ -163,8 +163,8 @@ export const config = {
 
           const apiData = result.data
 
-          if (apiData?.tfa_enabled && !apiData.access_token) {
-            forwardTfaPendingCookie(cookieStore, result.response.headers)
+          if (apiData?.tfa_required || (apiData?.tfa_enabled && !apiData.access_token)) {
+            forwardTfaPendingCookie(cookieStore, result.response.headers, apiData.tfa_required ? apiData.access_token : undefined)
             return '/tfa'
           }
 

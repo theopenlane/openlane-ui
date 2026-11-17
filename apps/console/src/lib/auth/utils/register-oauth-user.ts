@@ -15,6 +15,7 @@ export type TOAuthRegisterReply = {
   message?: string
   error?: string
   tfa_enabled?: boolean
+  tfa_required?: boolean
   access_token?: string
   refresh_token?: string
   session?: string

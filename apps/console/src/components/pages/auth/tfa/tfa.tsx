@@ -1,22 +1,35 @@
 'use client'
 
+import { useStartTfaEnrollment, useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa-setting'
+import { useVerifyTotp, type TfaLoginTokens } from '@/lib/query-hooks/tfa'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { activatable } from '@repo/ui/lib/a11y'
-import React, { useState, useMemo } from 'react'
+import QRCodeDialog from '@/components/pages/protected/profile/user-settings/qrcode-dialog'
+import React, { useState, useMemo, useRef } from 'react'
+import { Button } from '@repo/ui/button'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
 import { useNotification } from '@/hooks/useNotification'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { buildLoginRedirect, sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 
-const TfaPage: React.FC = () => {
+const TfaPage: React.FC<{ enrollment?: boolean }> = ({ enrollment = false }) => {
   const [otpValue, setOtpValue] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isSecret, setIsSecret] = useState(false)
-  const [error, setError] = useState<string>('')
   const { errorNotification } = useNotification()
+  const enrollmentTokensRef = useRef<TfaLoginTokens | null>(null)
+
+  const { mutate: startEnrollment, data: setup, error: enrollmentError, isPending: isStartingEnrollment } = useStartTfaEnrollment()
+
+  const { mutateAsync: verifyTotp, error: verificationError, isPending: isVerifying, reset: resetVerification } = useVerifyTotp()
+
+  const { mutateAsync: updateTfaSetting } = useUpdateTfaSetting(enrollment)
+
+  const error = enrollmentError ? parseErrorMessage(enrollmentError) : verificationError?.message
+  const isPending = isSubmitting || isStartingEnrollment || isVerifying
 
   const otpLength = isSecret ? 8 : 6
 
@@ -31,7 +44,7 @@ const TfaPage: React.FC = () => {
                 {...activatable(() => {
                   setIsSecret(false)
                   setOtpValue('')
-                  setError('')
+                  resetVerification()
                 })}
                 className="text-sm underline cursor-pointer text-primary"
               >
@@ -50,7 +63,7 @@ const TfaPage: React.FC = () => {
                 {...activatable(() => {
                   setIsSecret(true)
                   setOtpValue('')
-                  setError('')
+                  resetVerification()
                 })}
                 className="text-sm underline cursor-pointer text-primary"
               >
@@ -60,9 +73,9 @@ const TfaPage: React.FC = () => {
             </>
           ),
         }
-  }, [isSecret])
+  }, [isSecret, resetVerification])
 
-  const onVerified = async (data: { access_token: string; refresh_token: string; session: string }) => {
+  const onVerified = async (data: TfaLoginTokens) => {
     const result = await signIn('credentials', {
       accessToken: data.access_token,
       refreshToken: data.refresh_token,
@@ -81,33 +94,21 @@ const TfaPage: React.FC = () => {
   const verifyOTP = async (otp: string) => {
     try {
       const payload = isSecret ? { recovery_code: otp } : { totp_code: otp }
-      const response = await secureFetch('/api/auth/verify-totp', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      })
-
-      const data = await response.json()
-      if (response.status === 401) {
-        const login = new URL(buildLoginRedirect(searchParams?.get('redirect')), window.location.origin)
-        login.searchParams.set('error', 'Your login attempt expired. Please sign in again.')
-        router.replace(`${login.pathname}${login.search}`)
-        return
-      }
-
-      if (response.ok && data.access_token && data.refresh_token && data.session) {
+      const data = await verifyTotp(payload)
+      if (data) {
         await onVerified(data)
-      } else {
-        setError('Invalid authentication token entered! Please use the token provided by your authentication app')
       }
-    } catch (error) {
-      console.error('Error during OTP validation:', error)
+    } catch {
       errorNotification({ title: 'An error occurred' })
     }
   }
 
   const handleOtpChange = async (value: string) => {
+    if (isPending) {
+      return
+    }
     setOtpValue(value)
-    setError('')
+    resetVerification()
 
     if (value.length === otpLength) {
       setIsSubmitting(true)
@@ -119,12 +120,78 @@ const TfaPage: React.FC = () => {
     }
   }
 
+  const handleEnrollment = () => {
+    enrollmentTokensRef.current = null
+    resetVerification()
+    startEnrollment()
+  }
+
+  const verifyEnrollment = async (otp: string): Promise<string[] | undefined> => {
+    if (!enrollmentTokensRef.current) {
+      const data = await verifyTotp({ totp_code: otp })
+      if (!data) {
+        return
+      }
+      enrollmentTokensRef.current = data
+    }
+
+    const data = await updateTfaSetting({ input: { verified: true } })
+    const codes = data.updateTFASetting.recoveryCodes
+    if (!codes?.length) {
+      throw new Error('Unable to retrieve recovery codes. Please retry.')
+    }
+
+    return codes
+  }
+
+  const handleEnrollmentCompletion = async () => {
+    if (!enrollmentTokensRef.current || isPending) {
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      await onVerified(enrollmentTokensRef.current)
+    } catch (error) {
+      errorNotification({ title: 'Unable to complete sign in', description: error instanceof Error ? error.message : 'Please try again.' })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleCloseEnrollment = () => {
+    const login = new URL(buildLoginRedirect(searchParams.get('redirect')), window.location.origin)
+    login.searchParams.set('cleartfa', '1')
+    router.push(`${login.pathname}${login.search}`)
+  }
+
+  if (enrollment) {
+    return (
+      <div className="flex flex-col self-center m-auto max-w-lg gap-6 p-6">
+        <h1 className="text-3xl text-center">Set up two-factor authentication</h1>
+        <p>Your organization requires two-factor authentication (2FA). Set it up below to continue working with your team.</p>
+        <Button onClick={handleEnrollment} disabled={isPending}>
+          Set up authenticator
+        </Button>
+        {error && (
+          <p role="alert" className="text-destructive">
+            {error}
+          </p>
+        )}
+        {setup && (
+          <QRCodeDialog qrcode={setup.qrCode} secret={setup.secret} regeneratedCodes={null} onVerify={verifyEnrollment} onComplete={handleEnrollmentCompletion} onClose={handleCloseEnrollment} />
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col self-center m-auto">
       <h1 className="text-3xl mb-20 text-text-light">Two-Factor Authentication</h1>
       <div className="flex flex-col items-center gap-4">
         <p className="text-sm text-text-light">{config.title}</p>
-        <InputOTP key={otpLength} autoFocus value={otpValue} maxLength={otpLength} onChange={handleOtpChange} containerClassName="gap-2">
+        <InputOTP key={otpLength} autoFocus value={otpValue} maxLength={otpLength} onChange={handleOtpChange} disabled={isPending} containerClassName="gap-2">
           <InputOTPGroup className="text-text-light">
             {Array.from({ length: otpLength }).map((_, index) => (
               <InputOTPSlot key={index} index={index} />
@@ -134,7 +201,7 @@ const TfaPage: React.FC = () => {
         </InputOTP>
         {error && <p className="text-sm text-destructive">{error}</p>}
         <div className="flex ">{config.bottomText}</div>
-        {isSubmitting && <p className="text-sm text-text-light">Validating OTP...</p>}
+        {isPending && <p className="text-sm text-text-light">Validating OTP...</p>}
       </div>
     </div>
   )

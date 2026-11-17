@@ -6,7 +6,7 @@ import { getCookie } from './auth/utils/getCookie'
 import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { fetchCSRFToken, invalidateCSRFToken, isCSRFRejection } from './auth/utils/secure-fetch'
+import { fetchCSRFToken, invalidateCSRFToken, isCSRFRejection, secureFetch } from './auth/utils/secure-fetch'
 import { probeSession, resetSessionProbe, SessionUnavailableError } from './auth/utils/session-health'
 import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
 import { ACCESS_EXPIRY_MARGIN_MS, tokenExpiresAt } from './auth/utils/token-claims'
@@ -79,13 +79,20 @@ export const useSessionResync = () => {
   }, [updateRef])
 }
 
-export const useFetchWithRetry = () => {
+export const useFetchWithRetry = (cookieAuth = false) => {
   const { data: session } = useSession()
   const resyncSession = useSessionResync()
   const sessionAccessToken = session?.user?.accessToken
   const accessExpiresAt = useMemo(() => tokenExpiresAt(sessionAccessToken), [sessionAccessToken])
 
   const fetchWithRetry = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    if (cookieAuth) {
+      const headers = new Headers(init?.headers)
+      headers.delete('Authorization')
+      headers.delete('Content-Type')
+      return secureFetch(input as string, { ...init, headers: Object.fromEntries(headers.entries()) })
+    }
+
     if (getIsSessionInvalid()) {
       throw new Error('Session expired')
     }
@@ -185,8 +192,8 @@ export const useFetchWithRetry = () => {
   return fetchWithRetry
 }
 
-export const useGetGraphQLClient = () => {
-  const fetchWithRetry = useFetchWithRetry()
+export const useGetGraphQLClient = (cookieAuth = false) => {
+  const fetchWithRetry = useFetchWithRetry(cookieAuth)
 
   return new GraphQLClient(GRAPHQL_ENDPOINT, {
     fetch: fetchWithRetry,

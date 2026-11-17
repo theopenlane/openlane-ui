@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
           { status: 200 },
         )
 
-        if (callbackResponse.tfa_enabled && !callbackResponse.access_token) {
-          forwardTfaPendingCookie(response.cookies, ssoCallbackData.headers)
+        if (callbackResponse.tfa_required || (callbackResponse.tfa_enabled && !callbackResponse.access_token)) {
+          forwardTfaPendingCookie(response.cookies, ssoCallbackData.headers, callbackResponse.tfa_required ? callbackResponse.access_token : undefined)
         }
 
         return response
