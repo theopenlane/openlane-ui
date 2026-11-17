@@ -3,29 +3,19 @@ import type { AssessmentAssessmentType } from '@repo/codegen/src/schema'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import type { SurveyCreator } from 'survey-creator-react'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { ASSESSMENT_TYPE_OPTIONS, CUSTOM_DUE_DATE_DURATION, DURATION_OPTIONS, type TQuestionnaireEditorAction, type TQuestionnaireEditorState } from './questionnaire-editor-state'
-import { QuestionnaireTitleField } from './questionnaire-title-field'
 
-type TQuestionnaireEditorToolbarProps = {
-  creator: SurveyCreator
-  onTitleChange: (title: string) => void
+type TQuestionnaireSettingsFieldsProps = {
   state: TQuestionnaireEditorState
   onSettingChange: (action: TQuestionnaireEditorAction) => void
-  onSave: () => void
-  isSaving: boolean
-  saveDisabledReason?: string
 }
 
-export const QuestionnaireEditorToolbar = ({ creator, onTitleChange, state, onSettingChange, onSave, isSaving, saveDisabledReason }: TQuestionnaireEditorToolbarProps) => {
+export const QuestionnaireSettingsFields = ({ state, onSettingChange }: TQuestionnaireSettingsFieldsProps) => {
   const { assessmentType, responseDueDuration, isCustomDuration, customDueDate } = state
   const [calendarDisabledFrom] = useState(() => new Date())
 
   return (
-    <div className="flex flex-wrap items-end gap-4 border-b px-4 py-3">
-      <QuestionnaireTitleField creator={creator} onTitleChange={onTitleChange} />
+    <>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="assessment-type">Type</Label>
         <Select value={assessmentType} onValueChange={(value) => onSettingChange({ type: 'set-assessment-type', value: value as AssessmentAssessmentType })}>
@@ -76,11 +66,6 @@ export const QuestionnaireEditorToolbar = ({ creator, onTitleChange, state, onSe
           )}
         </div>
       </div>
-      <div className="ml-auto flex">
-        <DisabledReasonTooltip reason={saveDisabledReason}>
-          <SaveButton type="button" className="h-10 px-3" onClick={onSave} loading={isSaving} isSaving={isSaving} disabled={isSaving || !!saveDisabledReason} />
-        </DisabledReasonTooltip>
-      </div>
-    </div>
+    </>
   )
 }

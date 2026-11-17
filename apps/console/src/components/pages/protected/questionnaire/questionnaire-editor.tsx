@@ -1,7 +1,7 @@
 'use client'
 
 import { use, useEffect, useReducer, useRef, useState } from 'react'
-import { SurveyCreatorComponent, type SurveyCreator } from 'survey-creator-react'
+import { SurveyCreatorComponent } from 'survey-creator-react'
 import { type ICreatorOptions } from 'survey-creator-core'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { createSurveyCreator } from '@/components/shared/survey/survey-creator'
@@ -20,16 +20,14 @@ import {
   type TQuestionnaireEditorState,
   UNTITLED_QUESTIONNAIRE,
 } from './questionnaire-editor-state'
-import { QuestionnaireEditorToolbar } from './questionnaire-editor-toolbar'
+import { QuestionnaireSettingsFields } from './questionnaire-settings-fields'
+import { SurveyEditorToolbar } from './survey-editor-toolbar'
+import { surveyTitleOr } from './survey-title-field'
 import { diffBuiltInput } from '@/utils/input-diff'
 import { type UpdateAssessmentInput } from '@repo/codegen/src/schema'
 
-const JSON_EDITOR_TAB = 'json'
-
 const creatorOptions = {
   showLogicTab: true,
-  isAutoSave: false,
-  showSaveButton: false,
 } satisfies ICreatorOptions
 
 type TAssessmentUpdateValues = Pick<TQuestionnaireEditorState, 'assessmentType' | 'responseDueDuration'> & {
@@ -44,14 +42,6 @@ const buildAssessmentUpdateInput = ({ name, jsonconfig, assessmentType, response
   ...(responseDueDuration === NO_DUE_DATE_DURATION ? { clearResponseDueDuration: true } : { responseDueDuration }),
 })
 
-const surveyName = (creator: SurveyCreator): string => creator.survey.title?.trim() || UNTITLED_QUESTIONNAIRE
-
-const getSaveDisabledReason = ({ activeTab, isModified }: { activeTab: string; isModified: boolean }) => {
-  if (activeTab === JSON_EDITOR_TAB) return 'Leave the JSON Editor to apply your changes before saving'
-  if (!isModified) return 'No changes to save'
-  return undefined
-}
-
 const QuestionnaireEditor = (input: { templateId: string; existingId: string }) => {
   const { setCrumbs } = use(BreadcrumbContext)
   const router = useRouter()
@@ -61,23 +51,8 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
   const { assessmentType, responseDueDuration } = questionnaireEditorState
   const [creator] = useState(() => createSurveyCreator(creatorOptions))
   const creatorRef = useRef(creator)
-  const [isModified, setIsModified] = useState(false)
-  const [activeTab, setActiveTab] = useState(creator.activeTab)
   const [hasSaved, setHasSaved] = useState(false)
   const baselineRef = useRef<TAssessmentUpdateValues | undefined>(undefined)
-
-  useEffect(() => {
-    const syncState = () => setIsModified(creator.state === 'modified')
-    const syncActiveTab = () => setActiveTab(creator.activeTab)
-
-    creator.onStateChanged.add(syncState)
-    creator.onActiveTabChanged.add(syncActiveTab)
-
-    return () => {
-      creator.onStateChanged.remove(syncState)
-      creator.onActiveTabChanged.remove(syncActiveTab)
-    }
-  }, [creator])
 
   useEffect(() => {
     setCrumbs([
@@ -111,7 +86,7 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
     const hydrated = questionnaireEditorReducer(initialQuestionnaireEditorState, hydrateAction)
 
     baselineRef.current = {
-      name: surveyName(creatorRef.current),
+      name: surveyTitleOr(creatorRef.current, UNTITLED_QUESTIONNAIRE),
       jsonconfig: creatorRef.current.JSON,
       assessmentType: hydrated.assessmentType,
       responseDueDuration: hydrated.responseDueDuration,
@@ -122,10 +97,6 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
   const { mutateAsync: createAssessmentData, isPending: isCreating } = useCreateAssessmentWithPolicies()
   const { mutateAsync: updateAssessmentData, isPending: isUpdating } = useUpdateAssessment()
 
-  const handleTitleChange = (nextTitle: string) => {
-    creatorRef.current.survey.title = nextTitle
-  }
-
   const handleSettingChange = (action: TQuestionnaireEditorAction) => {
     dispatchQuestionnaireEditorState(action)
     creator.setModified({ type: 'PROPERTY_CHANGED' })
@@ -133,7 +104,7 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
 
   const saveAssessment = async () => {
     const jsonconfig = creator.JSON
-    const name = surveyName(creator)
+    const name = surveyTitleOr(creator, UNTITLED_QUESTIONNAIRE)
 
     try {
       if (input.existingId) {
@@ -162,15 +133,9 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
 
   return (
     <Panel gap={0} className="flex flex-col h-full bg-card border-oxford-blue-100 dark:border-oxford-blue-900 p-0">
-      <QuestionnaireEditorToolbar
-        creator={creator}
-        onTitleChange={handleTitleChange}
-        state={questionnaireEditorState}
-        onSettingChange={handleSettingChange}
-        onSave={() => void saveAssessment()}
-        isSaving={isCreating || isUpdating || hasSaved}
-        saveDisabledReason={getSaveDisabledReason({ activeTab, isModified })}
-      />
+      <SurveyEditorToolbar creator={creator} titlePlaceholder={UNTITLED_QUESTIONNAIRE} onSave={saveAssessment} isSaving={isCreating || isUpdating || hasSaved}>
+        <QuestionnaireSettingsFields state={questionnaireEditorState} onSettingChange={handleSettingChange} />
+      </SurveyEditorToolbar>
       <div className="flex-1 min-h-0">
         <SurveyCreatorComponent creator={creator} />
       </div>

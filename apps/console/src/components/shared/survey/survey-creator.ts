@@ -15,7 +15,7 @@ if (surveyLicenseKey) slk(surveyLicenseKey)
 const QUESTIONNAIRE_CONTENT_AREAS = new Set(['designer-tab', 'preview-tab'])
 
 export const createSurveyCreator = (options: ICreatorOptions) => {
-  const creator = new SurveyCreator({ ...options, showThemeTab: false })
+  const creator = new SurveyCreator({ ...options, showThemeTab: false, isAutoSave: false, showSaveButton: false })
   creator.toolbox.forceCompact = false
   creator.toolbox.removeItem('html')
   creator.onSurveyInstanceCreated.add((_creator, { area, survey }) => {
