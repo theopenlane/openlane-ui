@@ -3,18 +3,17 @@
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { cn } from '@repo/ui/lib/utils'
-import { Calendar, CircleHelp, FileText, Lock, Mail, Repeat, Rocket, SendHorizontal, Users } from 'lucide-react'
+import { Calendar, CircleHelp, FileText, Mail, Repeat, Rocket, SendHorizontal, Users } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 import { StepBadge } from '@/components/shared/step-badge/step-badge'
-import { ModeOption } from './mode-option'
+import { ModeOption } from '../shared/mode-option'
 import { Callout } from '@/components/shared/callout/callout'
 
 type CampaignContentMode = 'questionnaire' | 'email'
 
 interface CampaignSetupViewProps {
   hasEmailTemplate: boolean
-  emailTemplateName?: string
-  isLoadingTemplates?: boolean
+  emailTemplateLabel?: string
   questionnaireName?: string
   questionnaireQuestionCount?: number
   dueDate?: string | null
@@ -37,8 +36,7 @@ interface CampaignSetupViewProps {
 
 export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
   hasEmailTemplate,
-  emailTemplateName,
-  isLoadingTemplates,
+  emailTemplateLabel,
   questionnaireName,
   questionnaireQuestionCount = 0,
   dueDate,
@@ -73,7 +71,6 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
     if (nextMode === 'questionnaire' && !hasQuestionnaire) onConfigureQuestionnaire()
   }
 
-  const emailTemplateLabel = emailTemplateName ?? (hasEmailTemplate && isLoadingTemplates ? 'Loading...' : undefined)
   const contentStepHint = mode === 'questionnaire' ? (questionnaireName ?? 'Not set') : (emailTemplateLabel ?? 'Not set')
 
   const trackerSteps = [
@@ -118,7 +115,7 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
             <ModeOption
               icon={<CircleHelp size={18} />}
               title="Questionnaire template"
-              description="Recipients complete a questionnaire. Emails use the system template."
+              description="Recipients complete a questionnaire. Emails use the system template unless you customize them."
               selected={mode === 'questionnaire'}
               disabled={isUpdating}
               onSelect={() => handleModeChange('questionnaire')}
@@ -163,16 +160,15 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
                 ) : undefined
               }
             />
-            <div className="flex items-center gap-4 rounded-md border border-border bg-card p-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-secondary">
-                <Mail size={18} />
-              </div>
-              <div className="flex min-w-0 flex-1 flex-col">
-                <span className="text-sm font-semibold">Email template</span>
-                <span className="text-xs text-muted-foreground">System template</span>
-              </div>
-              <Lock size={16} className="shrink-0 text-muted-foreground" />
-            </div>
+            <SetupCard
+              icon={<Mail size={18} />}
+              title="Email template"
+              subtitle={emailTemplateLabel ?? 'System email'}
+              actionLabel={hasEmailTemplate ? 'Change email' : 'Customize email'}
+              onAction={onChangeTemplate}
+              secondaryAction={hasEmailTemplate ? { label: 'Use system email', onAction: onRemoveTemplate } : undefined}
+              done
+            />
           </>
         ) : (
           <SetupCard

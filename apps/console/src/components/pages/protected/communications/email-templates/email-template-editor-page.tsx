@@ -14,8 +14,11 @@ import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { diffBuiltInput } from '@/utils/input-diff'
-import { EmailTemplateNotificationTemplateFormat, EmailTemplateTemplateContext, type UpdateEmailTemplateInput } from '@repo/codegen/src/schema'
+import { type UpdateEmailTemplateInput } from '@repo/codegen/src/schema'
+import { buildCampaignEmailTemplateInput, catalogEntryForType, EmailTemplateType, emailTemplateTypeForKey, emailTemplateTypesInCatalog } from '@/lib/email-template-type'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { EmailTemplateBasicFields } from './email-template-basic-fields'
+import { useEmailTemplateSaveBlockedReason } from './email-template-config-form'
 import { EmailTemplateConfiguration } from './email-template-configuration'
 import { EmailTemplateVariables } from './email-template-variables'
 import { EmailTemplatePreview } from './email-template-preview'
@@ -67,6 +70,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
   const [configData, setConfigData] = useState<Record<string, unknown>>({})
   const initializedIdRef = useRef<string | null>(null)
   const baselineRef = useRef<EmailTemplateEditorValues | undefined>(undefined)
+  const savingRef = useRef(false)
 
   const { entries, isLoading: isCatalogLoading } = useEmailTemplateCatalog()
   const { data: templateData, isLoading: isLoadingTemplate } = useEmailTemplate(isEditMode ? templateId : undefined)
@@ -80,6 +84,8 @@ export const EmailTemplateEditorPage: React.FC = () => {
   const title = isEditMode ? 'Edit Email Template' : 'Create Email Template'
 
   const selectedEntry = useMemo(() => entries.find((e) => e.key === selectedKey), [entries, selectedKey])
+  const selectedType = emailTemplateTypeForKey(selectedKey)
+  const typeOptions = useMemo(() => Array.from(new Set([...emailTemplateTypesInCatalog(entries), selectedType])), [entries, selectedType])
   const debouncedConfigData = useDebounce(configData, 400)
 
   const {
@@ -92,6 +98,8 @@ export const EmailTemplateEditorPage: React.FC = () => {
     fallbackHtml: selectedEntry?.htmlPreview,
     enabled: !!selectedEntry,
   })
+
+  const saveBlockedReason = useEmailTemplateSaveBlockedReason(name, selectedEntry?.configSchema, configData)
 
   const isCatalogDrift = isEditMode && !!selectedKey && entries.length > 0 && !selectedEntry
 
@@ -111,9 +119,9 @@ export const EmailTemplateEditorPage: React.FC = () => {
   useEffect(() => {
     if (isEditMode) return
     if (selectedKey || entries.length === 0) return
-    const first = entries[0]
-    setSelectedKey(first.key)
-    setConfigData(first.exampleValues ?? {})
+    const initial = catalogEntryForType(entries, EmailTemplateType.GENERAL) ?? entries[0]
+    setSelectedKey(initial.key)
+    setConfigData(initial.exampleValues ?? {})
   }, [isEditMode, selectedKey, entries])
 
   useEffect(() => {
@@ -129,6 +137,13 @@ export const EmailTemplateEditorPage: React.FC = () => {
 
   const handleCancel = () => router.push(LIST_PATH)
 
+  const handleTypeChange = (type: EmailTemplateType) => {
+    const entry = catalogEntryForType(entries, type)
+    if (!entry || entry.key === selectedKey) return
+    setSelectedKey(entry.key)
+    setConfigData(entry.exampleValues ?? {})
+  }
+
   const applyBranding = (suggestions: TEmailBrandingSuggestion[]) => setConfigData((current) => applyEmailBranding(current, suggestions))
 
   const copyVariableToken = (variableName: string) => {
@@ -137,8 +152,9 @@ export const EmailTemplateEditorPage: React.FC = () => {
   }
 
   const handleSave = async () => {
-    if (!name.trim() || !selectedKey) return
+    if (saveBlockedReason || !selectedKey || savingRef.current) return
 
+    savingRef.current = true
     try {
       if (templateId) {
         const baseline = baselineRef.current
@@ -148,22 +164,14 @@ export const EmailTemplateEditorPage: React.FC = () => {
           successNotification({ title: 'Email template updated' })
         }
       } else {
-        await createEmailTemplate({
-          input: {
-            key: selectedKey,
-            name: name.trim(),
-            defaults: configData,
-            locale: 'en',
-            format: EmailTemplateNotificationTemplateFormat.HTML,
-            active,
-            templateContext: EmailTemplateTemplateContext.CAMPAIGN_RECIPIENT,
-          },
-        })
+        await createEmailTemplate({ input: buildCampaignEmailTemplateInput({ key: selectedKey, name, defaults: configData, active }) })
         successNotification({ title: 'Email template created' })
       }
       router.push(LIST_PATH)
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    } finally {
+      savingRef.current = false
     }
   }
 
@@ -175,9 +183,11 @@ export const EmailTemplateEditorPage: React.FC = () => {
           <Button variant="secondary" onClick={handleCancel} disabled={isPending}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSave} disabled={isPending || !name.trim() || !selectedKey} icon={<SaveIcon size={16} />} iconPosition="left">
-            {isPending ? 'Saving...' : isEditMode ? 'Save' : 'Save Draft'}
-          </Button>
+          <DisabledReasonTooltip reason={saveBlockedReason}>
+            <Button variant="primary" onClick={handleSave} disabled={isPending || !!saveBlockedReason || !selectedKey} icon={<SaveIcon size={16} />} iconPosition="left">
+              {isPending ? 'Saving...' : isEditMode ? 'Save' : 'Save Draft'}
+            </Button>
+          </DisabledReasonTooltip>
         </div>
       </div>
 
@@ -192,7 +202,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
             </div>
 
             <EditorCard title="Basic">
-              <EmailTemplateBasicFields name={name} onNameChange={setName} />
+              <EmailTemplateBasicFields name={name} onNameChange={setName} type={selectedType} typeOptions={typeOptions} onTypeChange={handleTypeChange} typeLocked={isEditMode} />
             </EditorCard>
 
             <EditorCard title="Configuration" action={selectedEntry && <EmailTemplateBrandingDetect key={currentOrgId} schema={selectedEntry.configSchema} onApply={applyBranding} />}>

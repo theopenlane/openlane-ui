@@ -16,7 +16,10 @@ import { resolveAuthorName } from '@/lib/authors'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { formatDate } from '@/utils/date'
-import { EmailTemplateTemplateContext } from '@repo/codegen/src/schema'
+import { type EmailTemplateWhereInput } from '@repo/codegen/src/schema'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { buildCampaignEmailTemplateInput, EmailTemplateType, emailTemplateTypeForKey, emailTemplateTypeWhere, isEmailTemplateType } from '@/lib/email-template-type'
+import { enumValuesToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { EmailTemplatePreviewSheet } from './email-template-preview-sheet'
 import { LinkedCampaignsSheet } from './linked-campaigns-sheet'
 import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
@@ -26,10 +29,16 @@ const EDITOR_PATH = '/automation/email-templates/editor'
 
 type StatusFilter = 'all' | 'active' | 'inactive'
 
+const ALL_TYPES = 'all'
+type TypeFilter = typeof ALL_TYPES | EmailTemplateType
+
+const typeFilterOptions = enumValuesToOptions(Object.values(EmailTemplateType))
+
 export const EmailTemplatesTab: React.FC = () => {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>(ALL_TYPES)
   const [previewId, setPreviewId] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
@@ -43,18 +52,14 @@ export const EmailTemplatesTab: React.FC = () => {
   const { mutateAsync: updateTemplate } = useUpdateEmailTemplate()
   const { mutateAsync: createTemplate } = useCreateEmailTemplate()
 
-  const where = useMemo(() => {
-    const conditions: Record<string, unknown> = {}
-    if (debouncedSearch) {
-      conditions.nameContainsFold = debouncedSearch
-    }
-    if (statusFilter === 'active') {
-      conditions.active = true
-    } else if (statusFilter === 'inactive') {
-      conditions.active = false
-    }
-    return conditions
-  }, [debouncedSearch, statusFilter])
+  const where = useMemo<EmailTemplateWhereInput>(
+    () => ({
+      ...(debouncedSearch && { nameContainsFold: debouncedSearch }),
+      ...(statusFilter !== 'all' && { active: statusFilter === 'active' }),
+      ...(typeFilter !== ALL_TYPES && emailTemplateTypeWhere(typeFilter)),
+    }),
+    [debouncedSearch, statusFilter, typeFilter],
+  )
 
   const { emailTemplatesNodes, isLoading } = useEmailTemplatesWithFilter({ where })
 
@@ -79,15 +84,14 @@ export const EmailTemplatesTab: React.FC = () => {
   const handleDuplicate = async (template: (typeof emailTemplatesNodes)[number]) => {
     try {
       await createTemplate({
-        input: {
-          name: `${template.name} (Copy)`,
+        input: buildCampaignEmailTemplateInput({
           key: template.key,
+          name: `${template.name} (Copy)`,
           defaults: template.defaults ?? undefined,
-          locale: template.locale ?? 'en',
-          format: template.format,
           active: false,
-          templateContext: EmailTemplateTemplateContext.CAMPAIGN_RECIPIENT,
-        },
+          locale: template.locale ?? undefined,
+          format: template.format,
+        }),
       })
       successNotification({ title: 'Template duplicated' })
     } catch (error) {
@@ -121,6 +125,19 @@ export const EmailTemplatesTab: React.FC = () => {
           iconPosition="left"
         />
         <div className="grow flex flex-row items-center gap-2 justify-end">
+          <Select value={typeFilter} onValueChange={(value) => setTypeFilter(isEmailTemplateType(value) ? value : ALL_TYPES)}>
+            <SelectTrigger className="w-[160px] shrink-0" aria-label="Filter by type">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_TYPES}>All types</SelectItem>
+              {typeFilterOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)} className="shrink-0">
             <TabsList className="flex-nowrap">
               <TabsTrigger value="all">All</TabsTrigger>
@@ -167,6 +184,9 @@ export const EmailTemplatesTab: React.FC = () => {
                         Draft
                       </Badge>
                     )}
+                    <Badge variant="outline" className="shrink-0 text-xs">
+                      {getEnumLabel(emailTemplateTypeForKey(template.key))}
+                    </Badge>
                   </div>
                   <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
                     <span>Created {formatDate(template.createdAt)}</span>

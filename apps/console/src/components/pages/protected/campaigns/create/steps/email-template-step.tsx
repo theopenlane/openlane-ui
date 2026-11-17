@@ -4,9 +4,11 @@ import React from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
 import { SquarePlus, X } from 'lucide-react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { EmailTemplateSelectContent } from '../../shared/email-template-select-content'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
+import { EmailTemplateType } from '@/lib/email-template-type'
 import { type CampaignFormData } from '../hooks/use-campaign-form-schema'
 
 const EDITOR_PATH = '/automation/email-templates/editor'
@@ -16,7 +18,7 @@ interface EmailTemplateStepProps {
 }
 
 export const EmailTemplateStep: React.FC<EmailTemplateStepProps> = ({ form }) => {
-  const { emailTemplateOptions, isLoading } = useCampaignEmailTemplateSelect({ ensureId: form.watch('emailTemplateID') })
+  const { emailTemplateOptions, isLoading } = useCampaignEmailTemplateSelect({ type: EmailTemplateType.GENERAL, ensureId: form.watch('emailTemplateID') })
 
   return (
     <div className="flex flex-col gap-4">
@@ -46,19 +48,7 @@ export const EmailTemplateStep: React.FC<EmailTemplateStepProps> = ({ form }) =>
                   ) : null}
                 </SelectTrigger>
               </FormControl>
-              <SelectContent>
-                {isLoading ? (
-                  <div className="p-2 text-sm text-muted-foreground">Loading email templates...</div>
-                ) : emailTemplateOptions.length === 0 ? (
-                  <div className="p-2 text-sm text-muted-foreground">No email templates available</div>
-                ) : (
-                  emailTemplateOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
+              <EmailTemplateSelectContent options={emailTemplateOptions} isLoading={isLoading} />
             </Select>
           </FormItem>
         )}
