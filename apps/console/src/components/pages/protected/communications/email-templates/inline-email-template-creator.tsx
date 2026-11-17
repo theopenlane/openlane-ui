@@ -11,7 +11,7 @@ import { buildCampaignEmailTemplateInput, catalogEntryForType, EmailTemplateType
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { EmailTemplateConfigForm } from './email-template-config-form'
+import { EmailTemplateConfigForm, useEmailTemplateSaveBlockedReason } from './email-template-config-form'
 import { EmailTemplatePreview } from './email-template-preview'
 import { EmailTemplateNameField } from './email-template-basic-fields'
 
@@ -66,7 +66,8 @@ const InlineEmailTemplateForm: React.FC<InlineEmailTemplateFormProps> = ({ type,
   const debouncedConfigData = useDebounce(configData, 400)
   const { previewHtml, isFetching, errorMessage } = usePreviewEmailTemplateHtml({ key: entry.key, defaults: debouncedConfigData, fallbackHtml: entry.htmlPreview })
 
-  const canSave = !!name.trim() && !isPending
+  const saveBlockedReason = useEmailTemplateSaveBlockedReason(name, entry.configSchema, configData)
+  const canSave = !saveBlockedReason && !isPending
 
   const handleSave = async () => {
     if (!canSave || savingRef.current) return
@@ -106,7 +107,7 @@ const InlineEmailTemplateForm: React.FC<InlineEmailTemplateFormProps> = ({ type,
         <Button variant="secondary" type="button" onClick={onCancel} disabled={isPending}>
           Cancel
         </Button>
-        <DisabledReasonTooltip reason={name.trim() ? undefined : 'Enter a name for the template'}>
+        <DisabledReasonTooltip reason={saveBlockedReason}>
           <SaveButton type="button" title="Save template" onClick={handleSave} disabled={!canSave} isSaving={isPending} loading={isPending} />
         </DisabledReasonTooltip>
       </div>

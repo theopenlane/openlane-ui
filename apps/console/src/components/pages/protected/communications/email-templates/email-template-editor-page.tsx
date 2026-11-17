@@ -16,7 +16,9 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { diffBuiltInput } from '@/utils/input-diff'
 import { type UpdateEmailTemplateInput } from '@repo/codegen/src/schema'
 import { buildCampaignEmailTemplateInput, catalogEntryForType, EmailTemplateType, emailTemplateTypeForKey, emailTemplateTypesInCatalog } from '@/lib/email-template-type'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { EmailTemplateBasicFields } from './email-template-basic-fields'
+import { useEmailTemplateSaveBlockedReason } from './email-template-config-form'
 import { EmailTemplateConfiguration } from './email-template-configuration'
 import { EmailTemplateVariables } from './email-template-variables'
 import { EmailTemplatePreview } from './email-template-preview'
@@ -97,6 +99,8 @@ export const EmailTemplateEditorPage: React.FC = () => {
     enabled: !!selectedEntry,
   })
 
+  const saveBlockedReason = useEmailTemplateSaveBlockedReason(name, selectedEntry?.configSchema, configData)
+
   const isCatalogDrift = isEditMode && !!selectedKey && entries.length > 0 && !selectedEntry
 
   useEffect(() => {
@@ -148,7 +152,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
   }
 
   const handleSave = async () => {
-    if (!name.trim() || !selectedKey || savingRef.current) return
+    if (saveBlockedReason || !selectedKey || savingRef.current) return
 
     savingRef.current = true
     try {
@@ -179,9 +183,11 @@ export const EmailTemplateEditorPage: React.FC = () => {
           <Button variant="secondary" onClick={handleCancel} disabled={isPending}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSave} disabled={isPending || !name.trim() || !selectedKey} icon={<SaveIcon size={16} />} iconPosition="left">
-            {isPending ? 'Saving...' : isEditMode ? 'Save' : 'Save Draft'}
-          </Button>
+          <DisabledReasonTooltip reason={saveBlockedReason}>
+            <Button variant="primary" onClick={handleSave} disabled={isPending || !!saveBlockedReason || !selectedKey} icon={<SaveIcon size={16} />} iconPosition="left">
+              {isPending ? 'Saving...' : isEditMode ? 'Save' : 'Save Draft'}
+            </Button>
+          </DisabledReasonTooltip>
         </div>
       </div>
 

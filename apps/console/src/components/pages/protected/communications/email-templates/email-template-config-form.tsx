@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react'
 import Form from '@rjsf/core'
 import type { IChangeEvent } from '@rjsf/core'
-import type { ArrayFieldItemTemplateProps, ObjectFieldTemplateProps, RJSFSchema, TemplatesType, UiSchema } from '@rjsf/utils'
+import type { ArrayFieldItemTemplateProps, ErrorTransformer, ObjectFieldTemplateProps, RJSFSchema, TemplatesType, UiSchema } from '@rjsf/utils'
 import { customizeValidator } from '@rjsf/validator-ajv8'
 import Ajv2020 from 'ajv/dist/2020'
 import { ChevronDown, ChevronUp, Copy, Plus, Trash2, X } from 'lucide-react'
@@ -23,7 +23,20 @@ interface FormIconButtonProps {
   id?: string
 }
 
-const validator = customizeValidator({ AjvClass: Ajv2020 })
+const TEMPLATE_EXPRESSION = /\{\{[^}]*\}\}/g
+
+const isTemplateAwareUri = (value: string) => URL.canParse(value.replace(TEMPLATE_EXPRESSION, 'x'))
+
+const validator = customizeValidator({ AjvClass: Ajv2020, customFormats: { uri: isTemplateAwareUri } })
+
+const ignoreSystemKeyErrors: ErrorTransformer = (errors) => errors.filter((error) => error.name !== 'additionalProperties')
+
+export const useEmailTemplateSaveBlockedReason = (name: string, schema: RJSFSchema | undefined, formData: Record<string, unknown>): string | undefined => {
+  const hasConfigErrors = useMemo(() => !!schema && validator.validateFormData(formData, schema, undefined, ignoreSystemKeyErrors).errors.length > 0, [schema, formData])
+  if (!name.trim()) return 'Enter a name for the template'
+  if (hasConfigErrors) return 'Fix the highlighted configuration fields'
+  return undefined
+}
 
 const iconButtonBase = 'inline-flex items-center justify-center gap-1 rounded-md border px-2 py-1.5 text-xs font-medium transition-colors disabled:pointer-events-none disabled:opacity-50'
 const neutralIconButton = `${iconButtonBase} border-border bg-card text-foreground hover:bg-accent`
@@ -146,6 +159,7 @@ export const EmailTemplateConfigForm: React.FC<EmailTemplateConfigFormProps> = (
         uiSchema={mergedUiSchema}
         formData={formData}
         validator={validator}
+        transformErrors={ignoreSystemKeyErrors}
         templates={{ ButtonTemplates: buttonTemplates, ArrayFieldItemTemplate, ObjectFieldTemplate: GroupedObjectFieldTemplate }}
         readonly={readOnly}
         disabled={readOnly}
