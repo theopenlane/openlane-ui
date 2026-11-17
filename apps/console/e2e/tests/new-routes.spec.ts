@@ -30,9 +30,11 @@ test.describe('exposure — triage queue', () => {
 
     const critical = page.getByRole('button', { name: /^Critical \d+$/ })
     await expect(critical).toBeVisible({ timeout: 30_000 })
+    await expect(critical).toHaveAttribute('aria-pressed', 'false')
     await critical.click()
 
-    await expect(critical).toHaveClass(/border-brand/, { timeout: 10_000 })
+    await expect(critical).toHaveAttribute('aria-pressed', 'true', { timeout: 10_000 })
+    await expect(page.getByRole('button', { name: /^All \d+$/ })).toHaveAttribute('aria-pressed', 'false')
   })
 })
 
