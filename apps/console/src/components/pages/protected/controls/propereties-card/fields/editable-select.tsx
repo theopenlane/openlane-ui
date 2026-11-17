@@ -117,13 +117,12 @@ export const EditableSelect = ({
             render={({ field }) =>
               onCreateOption ? (
                 <CreatableCustomTypeEnumSelect
+                  itemLabel={label.toLowerCase()}
                   value={field.value}
                   options={options}
                   onCreateOption={onCreateOption}
                   clearable={!!clearKey}
                   contentRef={popoverRef}
-                  placeholder={`Select ${label.toLowerCase()}`}
-                  searchPlaceholder={`Search ${label.toLowerCase()}...`}
                   onValueChange={(val) => handleChange(val, field.onChange)}
                 />
               ) : (

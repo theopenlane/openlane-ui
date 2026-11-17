@@ -311,10 +311,10 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                 <FormItem>
                   <FormControl>
                     <CreatableCustomTypeEnumSelect
+                      itemLabel="policy type"
                       value={field.value || ''}
                       options={enumOptions ?? []}
                       onCreateOption={onCreateOption}
-                      searchPlaceholder="Search policy type..."
                       contentRef={popoverRef}
                       onValueChange={(val) => {
                         if (isEditing) {

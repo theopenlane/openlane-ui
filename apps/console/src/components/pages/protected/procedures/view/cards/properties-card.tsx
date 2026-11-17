@@ -258,10 +258,10 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                 <FormItem>
                   <FormControl>
                     <CreatableCustomTypeEnumSelect
+                      itemLabel="procedure type"
                       value={field.value || ''}
                       options={enumOptions ?? []}
                       onCreateOption={onCreateOption}
-                      searchPlaceholder="Search procedure type..."
                       contentRef={popoverRef}
                       onValueChange={(value) => {
                         if (isEditing) {

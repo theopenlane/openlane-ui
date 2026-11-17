@@ -150,13 +150,12 @@ export const getVendorSubprocessorColumns = ({ categoryOptions, canCreateCategor
             Category for {vendorSubprocessorName(vendor)}
           </label>
           <CreatableCustomTypeEnumSelect
+            itemLabel="category"
             triggerId={triggerId}
             value={category}
             options={categoryOptions}
             allowCreate={canCreateCategory}
             disabled={disabled || !selected}
-            placeholder="Select category"
-            searchPlaceholder="Search category..."
             onValueChange={(next) => onEdit(vendor.id, { category: next })}
           />
           {selected && categoryFromVendor && <p className="text-xs text-muted-foreground">From the vendor&apos;s services</p>}

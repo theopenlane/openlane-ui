@@ -24,6 +24,7 @@ export const InlineEnumStatus: React.FC<TInlineEnumStatusProps> = ({ objectType,
   if (isInlineEditing && !isEditing) {
     return (
       <CreatableCustomTypeEnumSelect
+        itemLabel="status"
         value={value ?? ''}
         options={enumOptions}
         onCreateOption={onCreateOption}

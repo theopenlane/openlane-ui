@@ -25,7 +25,7 @@ const StepAuditScope: React.FC = () => {
             <FormItem>
               <FormLabel>Scope</FormLabel>
               <FormControl>
-                <CreatableCustomTypeEnumSelect value={field.value ?? ''} options={scopeOptions} onValueChange={field.onChange} onCreateOption={createScope} placeholder="Select scope" />
+                <CreatableCustomTypeEnumSelect itemLabel="scope" value={field.value ?? ''} options={scopeOptions} onValueChange={field.onChange} onCreateOption={createScope} />
               </FormControl>
             </FormItem>
           )}
@@ -38,13 +38,7 @@ const StepAuditScope: React.FC = () => {
             <FormItem>
               <FormLabel>Environment</FormLabel>
               <FormControl>
-                <CreatableCustomTypeEnumSelect
-                  value={field.value ?? ''}
-                  options={environmentOptions}
-                  onValueChange={field.onChange}
-                  onCreateOption={createEnvironment}
-                  placeholder="Select environment"
-                />
+                <CreatableCustomTypeEnumSelect itemLabel="environment" value={field.value ?? ''} options={environmentOptions} onValueChange={field.onChange} onCreateOption={createEnvironment} />
               </FormControl>
             </FormItem>
           )}

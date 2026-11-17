@@ -182,12 +182,12 @@ const BulkEditRecordsDialog: React.FC<BulkEditRecordsDialogProps> = ({ selectedI
                         <div className="flex flex-col items-center gap-2">
                           {item.selectedObject.name === 'controlKindName' || item.selectedObject.name === 'subcontrolKindName' || item.selectedObject.name === 'kindName' ? (
                             <CreatableCustomTypeEnumSelect
+                              itemLabel="control type"
                               value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
                               options={item.selectedObject?.options || []}
                               onCreateOption={onCreateType}
                               triggerClassName="w-60"
                               placeholder={item.selectedObject?.placeholder}
-                              searchPlaceholder="Search control type..."
                               onValueChange={(value) =>
                                 update(index, {
                                   ...item,
