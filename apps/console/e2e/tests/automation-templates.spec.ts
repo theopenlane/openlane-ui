@@ -222,8 +222,8 @@ test('the template table Edit row action opens the seeded template in the editor
 
     await page.waitForURL(new RegExp(`/automation/questionnaires/templates/template-editor\\?id=${id}$`), { timeout: 20_000 })
     await expect(page.getByRole('heading', { name: 'Editor' })).toBeVisible({ timeout: 30_000 })
-    await page.getByRole('button', { name: 'Survey settings' }).click()
-    await expect(page.getByLabel(/^Survey title/).first()).toHaveValue(name, { timeout: 30_000 })
+    await expect(page.getByRole('textbox', { name: 'Title', exact: true })).toHaveValue(name, { timeout: 30_000 })
+    await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled()
   } finally {
     await deleteQuestionnaireTemplate(ownerApi, id)
   }

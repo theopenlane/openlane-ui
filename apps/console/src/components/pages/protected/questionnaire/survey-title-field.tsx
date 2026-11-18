@@ -2,14 +2,16 @@ import { useCallback, useId, useSyncExternalStore } from 'react'
 import type { SurveyCreator } from 'survey-creator-react'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
-import { UNTITLED_QUESTIONNAIRE } from './questionnaire-editor-state'
 
-type TQuestionnaireTitleFieldProps = {
+export const surveyTitleOr = (creator: SurveyCreator, fallback: string): string => creator.survey.title?.trim() || fallback
+
+type TSurveyTitleFieldProps = {
   creator: SurveyCreator
-  onTitleChange: (title: string) => void
+  placeholder: string
+  readOnly?: boolean
 }
 
-export const QuestionnaireTitleField = ({ creator, onTitleChange }: TQuestionnaireTitleFieldProps) => {
+export const SurveyTitleField = ({ creator, placeholder, readOnly }: TSurveyTitleFieldProps) => {
   const titleId = useId()
 
   const subscribe = useCallback(
@@ -30,7 +32,7 @@ export const QuestionnaireTitleField = ({ creator, onTitleChange }: TQuestionnai
   return (
     <div className="flex min-w-[220px] flex-1 flex-col gap-1.5">
       <Label htmlFor={titleId}>Title</Label>
-      <Input id={titleId} value={title} placeholder={UNTITLED_QUESTIONNAIRE} onChange={(event) => onTitleChange(event.target.value)} />
+      <Input id={titleId} value={title} placeholder={placeholder} readOnly={readOnly} onChange={(event) => creator.survey.setLocalizableStringText('title', event.target.value)} />
     </div>
   )
 }
