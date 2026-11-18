@@ -28178,30 +28178,6 @@ export interface GroupMembershipBulkCreatePayload {
   groupMemberships?: Maybe<Array<GroupMembership>>
 }
 
-/** Return response for deleteBulkGroupMembership mutation */
-export interface GroupMembershipBulkDeletePayload {
-  __typename?: 'GroupMembershipBulkDeletePayload'
-  /** Deleted groupMembership IDs */
-  deletedIDs: Array<Scalars['ID']['output']>
-  /** Error message when the bulk delete did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not deleted */
-  notDeletedIDs: Array<Scalars['ID']['output']>
-}
-
-/** Return response for updateBulkGroupMembership mutation */
-export interface GroupMembershipBulkUpdatePayload {
-  __typename?: 'GroupMembershipBulkUpdatePayload'
-  /** Error message when the bulk update did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** Updated groupMemberships */
-  groupMemberships?: Maybe<Array<GroupMembership>>
-  /** IDs that were not updated */
-  notUpdatedIDs: Array<Scalars['ID']['output']>
-  /** IDs of the updated groupMemberships */
-  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
-}
-
 /** A connection to a list of items. */
 export interface GroupMembershipConnection {
   __typename?: 'GroupMembershipConnection'
@@ -35649,8 +35625,6 @@ export interface Mutation {
   deleteBulkFindingControl: FindingControlBulkDeletePayload
   /** Delete multiple groups */
   deleteBulkGroup: GroupBulkDeletePayload
-  /** Delete multiple groupMemberships */
-  deleteBulkGroupMembership: GroupMembershipBulkDeletePayload
   /** Delete multiple groupSettings */
   deleteBulkGroupSetting: GroupSettingBulkDeletePayload
   /** Delete multiple hushs */
@@ -35677,12 +35651,8 @@ export interface Mutation {
   deleteBulkProcedure: ProcedureBulkDeletePayload
   /** Delete multiple programs */
   deleteBulkProgram: ProgramBulkDeletePayload
-  /** Delete multiple programMemberships */
-  deleteBulkProgramMembership: ProgramMembershipBulkDeletePayload
   /** Delete multiple remediations */
   deleteBulkRemediation: RemediationBulkDeletePayload
-  /** Delete multiple reportMemberships */
-  deleteBulkReportMembership: ReportMembershipBulkDeletePayload
   /** Delete multiple existing reviews (soft-deletes them and removes FGA tuples) */
   deleteBulkReview: ReviewBulkDeletePayload
   /** Delete multiple risks */
@@ -35973,8 +35943,6 @@ export interface Mutation {
   updateBulkCSVFinding: FindingBulkUpdatePayload
   /** Update multiple existing groups via file upload */
   updateBulkCSVGroup: GroupBulkUpdatePayload
-  /** Update multiple existing groupMemberships via file upload */
-  updateBulkCSVGroupMembership: GroupMembershipBulkUpdatePayload
   /** Update multiple existing groupSettings via file upload */
   updateBulkCSVGroupSetting: GroupSettingBulkUpdatePayload
   /** Update multiple existing identityHolders via file upload */
@@ -35999,8 +35967,6 @@ export interface Mutation {
   updateBulkCSVProcedure: ProcedureBulkUpdatePayload
   /** Update multiple existing programs via file upload */
   updateBulkCSVProgram: ProgramBulkUpdatePayload
-  /** Update multiple existing programMemberships via file upload */
-  updateBulkCSVProgramMembership: ProgramMembershipBulkUpdatePayload
   /** Update multiple existing remediations via file upload */
   updateBulkCSVRemediation: RemediationBulkUpdatePayload
   /** Update multiple existing reviews via file upload */
@@ -36063,8 +36029,6 @@ export interface Mutation {
   updateBulkFinding: FindingBulkUpdatePayload
   /** Update multiple existing groups */
   updateBulkGroup: GroupBulkUpdatePayload
-  /** Update multiple existing groupMemberships */
-  updateBulkGroupMembership: GroupMembershipBulkUpdatePayload
   /** Update multiple existing groupSettings */
   updateBulkGroupSetting: GroupSettingBulkUpdatePayload
   /** Update multiple existing hushs */
@@ -36091,12 +36055,8 @@ export interface Mutation {
   updateBulkProcedure: ProcedureBulkUpdatePayload
   /** Update multiple existing programs */
   updateBulkProgram: ProgramBulkUpdatePayload
-  /** Update multiple existing programMemberships */
-  updateBulkProgramMembership: ProgramMembershipBulkUpdatePayload
   /** Update multiple existing remediations */
   updateBulkRemediation: RemediationBulkUpdatePayload
-  /** Update multiple existing reportMemberships */
-  updateBulkReportMembership: ReportMembershipBulkUpdatePayload
   /** Update multiple existing reviews */
   updateBulkReview: ReviewBulkUpdatePayload
   /** Update multiple existing risks */
@@ -37447,10 +37407,6 @@ export interface MutationDeleteBulkGroupArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
-export interface MutationDeleteBulkGroupMembershipArgs {
-  ids: Array<Scalars['ID']['input']>
-}
-
 export interface MutationDeleteBulkGroupSettingArgs {
   ids: Array<Scalars['ID']['input']>
 }
@@ -37503,15 +37459,7 @@ export interface MutationDeleteBulkProgramArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
-export interface MutationDeleteBulkProgramMembershipArgs {
-  ids: Array<Scalars['ID']['input']>
-}
-
 export interface MutationDeleteBulkRemediationArgs {
-  ids: Array<Scalars['ID']['input']>
-}
-
-export interface MutationDeleteBulkReportMembershipArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
@@ -38089,10 +38037,6 @@ export interface MutationUpdateBulkCsvGroupArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationUpdateBulkCsvGroupMembershipArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationUpdateBulkCsvGroupSettingArgs {
   input: Scalars['Upload']['input']
 }
@@ -38138,10 +38082,6 @@ export interface MutationUpdateBulkCsvProcedureArgs {
 }
 
 export interface MutationUpdateBulkCsvProgramArgs {
-  input: Scalars['Upload']['input']
-}
-
-export interface MutationUpdateBulkCsvProgramMembershipArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -38283,11 +38223,6 @@ export interface MutationUpdateBulkGroupArgs {
   input: UpdateGroupInput
 }
 
-export interface MutationUpdateBulkGroupMembershipArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateGroupMembershipInput
-}
-
 export interface MutationUpdateBulkGroupSettingArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateGroupSettingInput
@@ -38353,19 +38288,9 @@ export interface MutationUpdateBulkProgramArgs {
   input: UpdateProgramInput
 }
 
-export interface MutationUpdateBulkProgramMembershipArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateProgramMembershipInput
-}
-
 export interface MutationUpdateBulkRemediationArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateRemediationInput
-}
-
-export interface MutationUpdateBulkReportMembershipArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateReportMembershipInput
 }
 
 export interface MutationUpdateBulkReviewArgs {
@@ -48956,30 +48881,6 @@ export interface ProgramMembershipBulkCreatePayload {
   programMemberships?: Maybe<Array<ProgramMembership>>
 }
 
-/** Return response for deleteBulkProgramMembership mutation */
-export interface ProgramMembershipBulkDeletePayload {
-  __typename?: 'ProgramMembershipBulkDeletePayload'
-  /** Deleted programMembership IDs */
-  deletedIDs: Array<Scalars['ID']['output']>
-  /** Error message when the bulk delete did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not deleted */
-  notDeletedIDs: Array<Scalars['ID']['output']>
-}
-
-/** Return response for updateBulkProgramMembership mutation */
-export interface ProgramMembershipBulkUpdatePayload {
-  __typename?: 'ProgramMembershipBulkUpdatePayload'
-  /** Error message when the bulk update did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not updated */
-  notUpdatedIDs: Array<Scalars['ID']['output']>
-  /** Updated programMemberships */
-  programMemberships?: Maybe<Array<ProgramMembership>>
-  /** IDs of the updated programMemberships */
-  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
-}
-
 /** A connection to a list of items. */
 export interface ProgramMembershipConnection {
   __typename?: 'ProgramMembershipConnection'
@@ -54023,30 +53924,6 @@ export interface ReportMembershipBulkCreatePayload {
   __typename?: 'ReportMembershipBulkCreatePayload'
   /** Created reportMemberships */
   reportMemberships?: Maybe<Array<ReportMembership>>
-}
-
-/** Return response for deleteBulkReportMembership mutation */
-export interface ReportMembershipBulkDeletePayload {
-  __typename?: 'ReportMembershipBulkDeletePayload'
-  /** Deleted reportMembership IDs */
-  deletedIDs: Array<Scalars['ID']['output']>
-  /** Error returned when the bulk delete is only partially applied */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs of reportMemberships that were not deleted */
-  notDeletedIDs?: Maybe<Array<Scalars['ID']['output']>>
-}
-
-/** Return response for updateBulkReportMembership mutation */
-export interface ReportMembershipBulkUpdatePayload {
-  __typename?: 'ReportMembershipBulkUpdatePayload'
-  /** Error message when the bulk update did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not updated */
-  notUpdatedIDs: Array<Scalars['ID']['output']>
-  /** Updated reportMemberships */
-  reportMemberships?: Maybe<Array<ReportMembership>>
-  /** IDs of the updated reportMemberships */
-  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */

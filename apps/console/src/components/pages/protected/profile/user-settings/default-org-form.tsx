@@ -10,7 +10,7 @@ import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useGetCurrentUser, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
-import { useGetAllOrganizations } from '@/lib/graphql-hooks/organization'
+import { useOrganization } from '@/hooks/useOrganization'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -23,8 +23,7 @@ const DefaultOrgForm = () => {
   const userId = sessionData?.user.userId
 
   const { data: userData } = useGetCurrentUser(userId)
-  const { data: orgsData } = useGetAllOrganizations()
-  const allOrgs = orgsData?.organizations?.edges?.filter((org) => !org?.node?.personalOrg) || []
+  const allOrgs = useOrganization().allOrgs.filter((org) => !org?.node?.personalOrg)
 
   const { isPending: isSubmitting, mutateAsync: updateUserSetting } = useUpdateUserSetting()
 

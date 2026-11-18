@@ -10,7 +10,6 @@ import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { INTEGRATIONS_DOCUMENT_FILTER_URL } from '@/constants'
 import { useCanManageIntegrations } from '@/lib/authz/use-can-manage-integrations'
 import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
@@ -28,6 +27,7 @@ import { PolicyTemplateBrowser } from '@/components/shared/github-selector/polic
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { isExternalReferenceFilename, isPdfFilename } from '@/components/pages/protected/policies/policy-management-utils'
 import { ManagementModeOptions } from '@/components/shared/enum-mapper/policy-enum'
+import { Link } from '@/components/shared/link/link'
 
 type TCreatePolicyUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -241,9 +241,9 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
             </>
           )}
           For more details on supported file types and formatting, please refer to our{' '}
-          <a href={`${POLICY_MANAGEMENT_DOCS_URL}/import`} target="_blank" rel="noreferrer">
+          <Link href={`${POLICY_MANAGEMENT_DOCS_URL}/import`} newTab>
             documentation
-          </a>
+          </Link>
           .
         </Callout>
         <Tabs defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>

@@ -89,8 +89,8 @@ const PrimaryDirectoryPromptDialog = ({ open, onOpenChange, provider, integratio
             <ul className="flex flex-col gap-4">
               {benefits.map(({ icon: Icon, title, description }) => (
                 <li key={title} className="flex items-start gap-3">
-                  <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand/10">
-                    <Icon className="size-5 text-brand" />
+                  <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg">
+                    <Icon className="size-5" />
                   </span>
                   <div>
                     <p className="text-sm font-medium">{title}</p>

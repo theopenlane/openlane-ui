@@ -320,15 +320,13 @@ const SuggestedControlsStep = ({ frameworkName }: { frameworkName?: string }) =>
                         disabled={controls.length === 0}
                       />
                       <div className="flex h-12 w-12 items-center justify-center rounded-md border bg-secondary">
-                        <ShieldCheck size={22} className="text-brand" />
+                        <ShieldCheck size={22} />
                       </div>
                       <AccordionTrigger className="flex flex-1 items-center justify-between bg-transparent text-left">
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="font-semibold">{category}</p>
-                            <Badge variant="outline" className="border-brand/30 bg-brand/15 text-brand">
-                              {controls.length} controls
-                            </Badge>
+                            <Badge variant="outline">{controls.length} controls</Badge>
                           </div>
                           <p className="mt-1 text-sm text-muted-foreground">
                             {domainStatus === 'all'

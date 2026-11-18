@@ -37,6 +37,7 @@ import {
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { withPartialData } from '@/lib/graphql-partial-data'
 import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 import {
   GET_ALL_IDENTITY_HOLDERS,
   GET_IDENTITY_HOLDER_OPTIONS,
@@ -282,8 +283,7 @@ export const useGetIdentityHolderDirectoryAccounts = (identityHolderId?: string,
     enabled: !!identityHolderId && enabled,
   })
 
-  const edges = queryResult.data?.identityHolder?.directoryAccounts?.edges ?? []
-  const directoryAccounts = edges.filter((edge): edge is NonNullable<typeof edge> & { node: NonNullable<NonNullable<typeof edge>['node']> } => edge?.node != null).map((edge) => edge.node)
+  const directoryAccounts = useMemo(() => getNodes(queryResult.data?.identityHolder?.directoryAccounts), [queryResult.data])
 
   return { ...queryResult, directoryAccounts }
 }

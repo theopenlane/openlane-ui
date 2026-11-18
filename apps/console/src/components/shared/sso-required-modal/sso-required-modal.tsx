@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Dialog, DialogContent } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
-import { getSSORedirect } from '@/lib/auth/utils/get-openlane-token'
+import { getSSORedirect } from '@/lib/auth/utils/get-sso-redirect'
 import { type SSORequirement } from '@/lib/auth/utils/sso-required'
 import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
 

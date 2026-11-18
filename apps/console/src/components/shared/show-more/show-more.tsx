@@ -23,7 +23,7 @@ const ShowMore = <T,>({ items, renderItem, limit = 3 }: ShowMoreProps<T>) => {
             e.stopPropagation()
             setExpanded((prev) => !prev)
           }}
-          className="text-xs text-brand hover:underline px-1"
+          className="text-xs hover:underline px-1"
         >
           {expanded ? 'Show less' : `+${hiddenCount} more`}
         </button>

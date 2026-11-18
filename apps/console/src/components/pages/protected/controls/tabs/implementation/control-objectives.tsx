@@ -8,6 +8,8 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import CreateControlObjectiveSheet from './control-objectives-components/create-control-objective-sheet'
 import { ObjectiveItem } from './control-objectives-components/objective-item'
+import { useCanEditObjects } from '@/lib/authz/use-can-edit-objects'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type ControlObjectivesProps = {
   edges: { node: ControlObjectiveFieldsFragment }[] | undefined
@@ -22,6 +24,7 @@ const ControlObjectives: React.FC<ControlObjectivesProps> = ({ edges, emptyState
 
   const { mutateAsync: updateObjective } = useUpdateControlObjective()
   const { mutateAsync: deleteObjective } = useDeleteControlObjective()
+  const canEditObjective = useCanEditObjects(ObjectTypes.CONTROL_OBJECTIVE, edges?.map(({ node }) => node.id) ?? [])
 
   const handleDelete = async (node: ControlObjectiveFieldsFragment) => {
     const totalLinks = (node.controls?.edges?.length ?? 0) + (node.subcontrols?.edges?.length ?? 0)
@@ -87,6 +90,7 @@ const ControlObjectives: React.FC<ControlObjectivesProps> = ({ edges, emptyState
               <ObjectiveItem
                 key={node.id}
                 node={node}
+                canEdit={canEditObjective(node.id)}
                 onEdit={(selected) => {
                   setEditData(selected)
                   setShowCreateSheet(true)

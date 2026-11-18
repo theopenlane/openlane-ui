@@ -17,15 +17,19 @@ export const useModuleAccess = () => {
 
   const hasObjectType = useCallback((objectType: ObjectTypes) => featureUtil.hasObjectType(modules, objectType, session), [modules, session])
 
-  return useMemo(
-    () => ({ modules, hasModule, hasAnyModule, hasObjectType, isLoading: status === 'loading' }),
-    [modules, hasModule, hasAnyModule, hasObjectType, status],
-  )
+  const isLoading = status === 'loading' && !session
+
+  return useMemo(() => ({ modules, hasModule, hasAnyModule, hasObjectType, isLoading }), [modules, hasModule, hasAnyModule, hasObjectType, isLoading])
 }
 
 export const useHasObjectType = (objectType: ObjectTypes) => {
   const { hasObjectType } = useModuleAccess()
   return hasObjectType(objectType)
+}
+
+export const useObjectTypeAccess = (objectType: ObjectTypes) => {
+  const { hasObjectType, isLoading } = useModuleAccess()
+  return { hasAccess: !isLoading && hasObjectType(objectType), isLoading }
 }
 
 export const useHasModule = (module: PlanEnum) => {

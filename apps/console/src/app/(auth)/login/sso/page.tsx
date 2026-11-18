@@ -72,7 +72,7 @@ const SSOCallbackPage: React.FC = () => {
         const data = await response.json()
 
         if (response.ok && data.success) {
-          if (data.tfa_enabled && !data.access_token) {
+          if (data.tfa_required || (data.tfa_enabled && !data.access_token)) {
             const destination = intent ? getRedirectUrl(intent, undefined, true).split('?')[0] : sanitizeLoginRedirect(data.redirect_url)
             router.replace(buildTfaRedirect(destination))
             return
@@ -128,7 +128,7 @@ const SSOCallbackPage: React.FC = () => {
   return (
     <div className="flex h-full w-full min-h-screen justify-center items-center">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand mx-auto mb-4"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
         <p className="text-lg font-medium">Completing SSO authentication...</p>
         <p className="text-sm text-gray-600 mt-2">Please wait while we sign you in.</p>
       </div>

@@ -24,6 +24,7 @@ import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evi
 import { type EvidenceEditableField } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import EvidenceDetailSection from './evidence-detail-section'
 import EvidenceDetailFieldRow from './evidence-detail-field-row'
+import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 
 const frequencyOptions = enumToOptions(EvidenceFrequency)
 
@@ -222,9 +223,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <NextLink href={evidence.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                    {evidence.url}
-                  </NextLink>
+                  <ExternalLinkValue value={evidence.url} />
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -253,11 +252,10 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
               control={form.control}
               render={({ field }) => (
                 <CreatableCustomTypeEnumSelect
+                  itemLabel="scope"
                   value={field.value ?? undefined}
                   options={scopeOptions}
                   onCreateOption={onCreateScope}
-                  placeholder="Select scope"
-                  searchPlaceholder="Search scope..."
                   triggerClassName="w-[250px]"
                   onValueChange={async (val) => {
                     field.onChange(val)
@@ -282,11 +280,10 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
               control={form.control}
               render={({ field }) => (
                 <CreatableCustomTypeEnumSelect
+                  itemLabel="environment"
                   value={field.value ?? undefined}
                   options={environmentOptions}
                   onCreateOption={onCreateEnvironment}
-                  placeholder="Select environment"
-                  searchPlaceholder="Search environment..."
                   triggerClassName="w-[250px]"
                   onValueChange={async (val) => {
                     field.onChange(val)

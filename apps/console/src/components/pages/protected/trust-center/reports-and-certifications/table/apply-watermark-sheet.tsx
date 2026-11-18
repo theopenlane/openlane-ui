@@ -289,7 +289,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
                       <button className="group flex w-full items-center justify-between text-sm font-medium bg-unset">
                         <span>Advanced Settings</span>
 
-                        <ChevronDown size={22} className="text-brand transition-transform duration-200 rotate-0 group-data-[state=open]:rotate-180" />
+                        <ChevronDown size={22} className="transition-transform duration-200 rotate-0 group-data-[state=open]:rotate-180" />
                       </button>
                     </AccordionTrigger>
 

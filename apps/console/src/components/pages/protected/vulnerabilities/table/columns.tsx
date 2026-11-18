@@ -88,7 +88,7 @@ export const getColumns = ({
       id: 'dueDate',
       header: 'Due Date',
       size: 130,
-      cell: ({ row }) => <SlaDueDateCell createdAt={row.original.createdAt} securityLevel={row.original.securityLevel} open={row.original.open} slaDaysByLevel={slaDaysByLevel ?? {}} />,
+      cell: ({ row }) => <SlaDueDateCell item={row.original} slaDaysByLevel={slaDaysByLevel ?? {}} />,
     },
     { accessorKey: 'open', header: 'Open', size: 80, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     {

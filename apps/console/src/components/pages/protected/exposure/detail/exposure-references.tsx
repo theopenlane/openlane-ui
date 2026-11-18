@@ -1,0 +1,64 @@
+import React from 'react'
+import { ExternalLink } from 'lucide-react'
+import { Badge } from '@repo/ui/badge'
+import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
+import { isValidUrl } from '@/utils/normalizeUrl'
+import { OverviewSection } from './overview-section'
+
+const CWE_ID = /^CWE-(\d+)$/i
+
+const cweHref = (cweId: string) => {
+  const match = CWE_ID.exec(cweId.trim())
+  return match ? `https://cwe.mitre.org/data/definitions/${match[1]}.html` : null
+}
+
+type TExposureReferencesProps = {
+  references?: string[] | null
+  cweIds?: string[] | null
+}
+
+const ExposureReferences: React.FC<TExposureReferencesProps> = ({ references, cweIds }) => {
+  const links = [...new Set((references ?? []).map((reference) => reference.trim()).filter(Boolean))]
+  const weaknesses = [...new Set((cweIds ?? []).map((cwe) => cwe.trim()).filter(Boolean))]
+
+  if (!links.length && !weaknesses.length) return null
+
+  return (
+    <div className="grid gap-6 md:grid-cols-2">
+      {links.length > 0 && (
+        <OverviewSection title="References">
+          <ul className="space-y-1.5">
+            {links.map((reference) => (
+              <li key={reference} className="min-w-0 text-sm">
+                {isValidUrl(reference) ? <ExternalLinkValue value={reference} /> : <span className="break-all">{reference}</span>}
+              </li>
+            ))}
+          </ul>
+        </OverviewSection>
+      )}
+      {weaknesses.length > 0 && (
+        <OverviewSection title="Weakness type (CWE)">
+          <div className="flex flex-wrap gap-2">
+            {weaknesses.map((cwe) => {
+              const href = cweHref(cwe)
+              return href ? (
+                <a key={cwe} href={href} target="_blank" rel="noopener noreferrer" className="inline-flex">
+                  <Badge variant="outline" className="gap-1 font-mono">
+                    {cwe}
+                    <ExternalLink className="size-3" />
+                  </Badge>
+                </a>
+              ) : (
+                <Badge key={cwe} variant="outline" className="font-mono">
+                  {cwe}
+                </Badge>
+              )
+            })}
+          </div>
+        </OverviewSection>
+      )}
+    </div>
+  )
+}
+
+export default ExposureReferences

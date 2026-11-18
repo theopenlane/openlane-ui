@@ -43,7 +43,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
         {/* Status */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
-            <Binoculars size={16} className="text-brand" />
+            <Binoculars size={16} />
             <span>Status</span>
           </div>
 
@@ -80,7 +80,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
         {/* Approval Required */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
-            <ScanEye size={16} className="text-brand" />
+            <ScanEye size={16} />
             <span>Approval Required</span>
           </div>
 
@@ -109,7 +109,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
         {/* Review Frequency */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
-            <ClockArrowUp size={16} className="text-brand" />
+            <ClockArrowUp size={16} />
             <span>Reviewing Frequency</span>
           </div>
 
@@ -148,7 +148,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
         {/* Version */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
-            <FileStack size={16} className="text-brand" />
+            <FileStack size={16} />
             <span>Version</span>
           </div>
 
@@ -158,7 +158,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
         {/* Procedure type */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
-            <ScrollText size={16} className="text-brand" />
+            <ScrollText size={16} />
             <span>Procedure Type</span>
           </div>
 
@@ -170,12 +170,12 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                 <FormItem>
                   <FormControl>
                     <CreatableCustomTypeEnumSelect
+                      itemLabel="procedure type"
                       value={field.value || ''}
                       options={enumOptions}
                       onCreateOption={onCreateOption}
                       placeholder={isTypesSuccess ? 'Select type' : 'Loading...'}
                       disabled={!isTypesSuccess}
-                      searchPlaceholder="Search procedure type..."
                       onValueChange={field.onChange}
                     />
                   </FormControl>
@@ -191,7 +191,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
         {metadata && (
           <div className="grid grid-cols-[1fr_auto] items-center gap-2">
             <div className="flex gap-2 items-center">
-              <CalendarCheck2 size={16} className="text-brand" />
+              <CalendarCheck2 size={16} />
               <span>Created At</span>
             </div>
 
@@ -203,7 +203,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
         {metadata && (
           <div className="grid grid-cols-[1fr_auto] items-center gap-2">
             <div className="flex gap-2 items-center">
-              <CalendarClock size={16} className="text-brand" />
+              <CalendarClock size={16} />
               <span>Updated At</span>
             </div>
 
@@ -214,7 +214,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
         {/* Due date */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
-            <Calendar size={16} className="text-brand" />
+            <Calendar size={16} />
             <span>Set review date</span>
           </div>
 

@@ -97,7 +97,7 @@ export const LinkControlsPicker: React.FC<TLinkControlsPickerProps> = ({ value, 
         <div className="flex items-center gap-3 text-sm text-muted-foreground" aria-live="polite">
           <span>{pluralizeWithCount(value.length, 'control')} selected</span>
           {value.length > 0 && (
-            <Button type="button" variant="link" className="text-blue-500" onClick={() => onChange([])}>
+            <Button type="button" variant="link" onClick={() => onChange([])}>
               Clear selection
             </Button>
           )}

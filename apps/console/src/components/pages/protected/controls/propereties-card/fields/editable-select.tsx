@@ -12,6 +12,8 @@ import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shar
 import { type Option } from '@repo/ui/multiple-selector'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
+type TControlClearKey = Extract<keyof UpdateControlInput & keyof UpdateSubcontrolInput, `clear${string}`>
+
 const SelectedDisplay = ({ name, options }: { name: string; options: (Option & { color?: string; description?: string })[] }) => {
   const val = useWatch({ name })
   const option = options.find((o) => o.value === val)
@@ -29,6 +31,7 @@ export const EditableSelect = ({
   setActiveField,
   fieldId,
   onCreateOption,
+  clearKey,
 }: {
   label: string
   name: string
@@ -40,6 +43,7 @@ export const EditableSelect = ({
   setActiveField?: (field: string | null) => void
   fieldId?: string
   onCreateOption?: (value: string) => Promise<void>
+  clearKey?: TControlClearKey
 }) => {
   const { control, getValues } = useFormContext()
   const persistField = usePersistFormField()
@@ -73,7 +77,8 @@ export const EditableSelect = ({
     }
     closeEditing()
     if (!isEditing && handleUpdate) {
-      void persistField(name, value, (options) => handleUpdate({ [name]: value }, options))
+      const input = !value && clearKey ? { [clearKey]: true } : { [name]: value }
+      void persistField(name, value, (options) => handleUpdate(input, options))
       return
     }
     onFieldChange?.(value)
@@ -101,7 +106,7 @@ export const EditableSelect = ({
   return (
     <div className="grid grid-cols-[160px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
-        <div className="pt-0.5">{controlIconsMap[label] ?? <FolderIcon size={16} className="text-brand" />}</div>
+        <div className="pt-0.5">{controlIconsMap[label] ?? <FolderIcon size={16} />}</div>
         <div className="text-sm">{label}</div>
       </div>
       <div ref={triggerRef} className="text-sm">
@@ -112,12 +117,12 @@ export const EditableSelect = ({
             render={({ field }) =>
               onCreateOption ? (
                 <CreatableCustomTypeEnumSelect
+                  itemLabel={label.toLowerCase()}
                   value={field.value}
                   options={options}
                   onCreateOption={onCreateOption}
+                  clearable={!!clearKey}
                   contentRef={popoverRef}
-                  placeholder={`Select ${label.toLowerCase()}`}
-                  searchPlaceholder={`Search ${label.toLowerCase()}...`}
                   onValueChange={(val) => handleChange(val, field.onChange)}
                 />
               ) : (

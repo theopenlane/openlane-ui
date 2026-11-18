@@ -19,6 +19,7 @@ import {
   Shapes,
   Stamp,
   ThumbsUp,
+  MapPin,
 } from 'lucide-react'
 import { type ControlControlSource, ControlControlStatus, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
 import { getEnumLabel } from './common-enum'
@@ -126,15 +127,16 @@ export const sourceLabels: Record<ControlControlSource, string> = {
 }
 
 export const controlIconsMap: Record<string, React.ReactNode> = {
-  Framework: <FileBadge2 size={16} className="text-brand" />,
-  Control: <Settings2 size={16} className="text-brand" />,
-  Category: <FolderIcon size={16} className="text-brand" />,
-  Subcategory: <FolderTree size={16} className="text-brand" />,
-  Status: <BinocularsIcon size={16} className="text-brand" />,
-  'Mapped categories': <FolderSymlink size={16} className="text-brand" />,
-  Source: <ArrowUpFromDot size={16} className="text-brand" />,
-  Type: <Shapes size={16} className="text-brand" />,
-  ID: <IdCard size={16} className="text-brand" />,
-  Reference: <BookMarked size={16} className="text-brand" />,
-  Alias: <CaseSensitive size={16} className="text-brand" />,
+  Framework: <FileBadge2 size={16} />,
+  Control: <Settings2 size={16} />,
+  Category: <FolderIcon size={16} />,
+  Subcategory: <FolderTree size={16} />,
+  Status: <BinocularsIcon size={16} />,
+  'Mapped categories': <FolderSymlink size={16} />,
+  Source: <ArrowUpFromDot size={16} />,
+  Type: <Shapes size={16} />,
+  ID: <IdCard size={16} />,
+  Reference: <BookMarked size={16} />,
+  Alias: <CaseSensitive size={16} />,
+  Origin: <MapPin size={16} />,
 }

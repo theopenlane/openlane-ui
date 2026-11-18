@@ -11,7 +11,6 @@ import { Controller, useFormContext } from 'react-hook-form'
 const REFERENCE_CLEAR_KEYS = {
   referenceID: 'clearReferenceID',
   auditorReferenceID: 'clearAuditorReferenceID',
-  sourceName: 'clearSourceName',
   externalUUID: 'clearExternalUUID',
 } as const
 
@@ -77,7 +76,7 @@ export const ReferenceProperty = ({
   return (
     <div className="grid grid-cols-[160px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0 text-sm">
       <div className="flex items-start gap-2">
-        {icon || <FolderIcon size={14} className="text-brand mt-0.5 shrink-0" />}
+        {icon || <FolderIcon size={14} className="mt-0.5 shrink-0" />}
         <div>
           <div className="flex gap-1 items-start">
             <span className="leading-none">{label}</span>

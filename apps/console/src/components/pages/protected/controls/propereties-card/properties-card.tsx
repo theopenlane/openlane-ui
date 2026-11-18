@@ -7,9 +7,9 @@ import { ControlControlSource, type UpdateControlInput, type UpdateSubcontrolInp
 
 import { type Entity, type Group } from '@repo/codegen/src/schema'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
-import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
-import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { GLOBAL_ENUM_FIELD, useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { usePathname } from 'next/navigation'
 import { Property } from './fields/property'
 import { EditableSelect } from './fields/editable-select'
@@ -86,8 +86,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
   const [editingField, setEditingField] = useState<string | null>(null)
   const isGroupEditing = editingField === 'owner' || editingField === 'delegate'
   const isResponsiblePartyEditing = editingField === 'responsibleParty'
-  const { data: groupsData } = useGetAllGroups({ where: {}, enabled: isEditing || isGroupEditing })
-  const groups = groupsData?.groups?.edges?.map((edge) => edge?.node) || []
+  const { groupOptions: options } = useGroupSelect({ enabled: isEditing || isGroupEditing })
 
   const { vendorNodes: vendors } = useVendorsWithFilter({
     enabled: isEditing || isResponsiblePartyEditing,
@@ -97,6 +96,11 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
     objectType: objectToSnakeCase(ObjectTypes.CONTROL),
     field: 'kind',
     isEditAllowed,
+  })
+
+  const { enumOptions: originOptions, onCreateOption: onCreateOriginOption } = useCreatableEnumOptions({
+    field: GLOBAL_ENUM_FIELD.controlOrigin,
+    isEditAllowed: canEdit,
   })
 
   const { tagOptions } = useGetTags()
@@ -146,11 +150,6 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
     prevIsEditingRef.current = isEditing
   }, [isEditing, data?.tags, handleUpdateAdapter, selectedTags])
 
-  const options: Option[] = groups.map((g) => ({
-    label: g?.displayName || g?.name || '',
-    value: g?.id || '',
-  }))
-
   const vendorOptions: Option[] = vendors.map((v) => ({
     label: v.displayName || v.name || '',
     value: v.id,
@@ -163,7 +162,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
         <AuthorityField
           label="Owner"
           fieldKey="controlOwnerID"
-          icon={<CircleUser size={16} className="text-brand" />}
+          icon={<CircleUser size={16} />}
           value={data?.controlOwner as Group}
           editingKey="owner"
           isEditing={isEditing}
@@ -177,7 +176,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
         <AuthorityField
           label="Delegate"
           fieldKey="delegateID"
-          icon={<CircleArrowRight size={16} className="text-brand" />}
+          icon={<CircleArrowRight size={16} />}
           value={data?.delegate as Group}
           editingKey="delegate"
           isEditing={isEditing}
@@ -193,7 +192,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           <AuthorityField
             label="Responsible Party"
             fieldKey="responsiblePartyID"
-            icon={<Building2 size={16} className="text-brand" />}
+            icon={<Building2 size={16} />}
             value={data?.responsibleParty as Entity}
             editingKey="responsibleParty"
             isEditing={isEditing}
@@ -252,19 +251,19 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           setActiveField={setEditingField}
           fieldId="source"
         />
-        {isEditing || (data?.sourceName && data.source !== 'FRAMEWORK') ? (
-          <ReferenceProperty
-            isEditAllowed={canEdit}
-            handleUpdate={handleUpdateAdapter}
-            name="sourceName"
-            label="Source Name"
-            tooltip="Source of the control if not from a framework, such as the name of the system it is imported from or if it is user defined"
-            value={data?.sourceName}
+        {isEditing || (data?.controlOriginName && !isSourceFramework) ? (
+          <EditableSelect
+            label="Origin"
+            name="controlOriginName"
             isEditing={isEditing}
+            isEditAllowed={canEdit}
+            options={originOptions}
+            onCreateOption={onCreateOriginOption}
+            clearKey="clearControlOriginName"
+            handleUpdate={handleUpdateAdapter}
             activeField={editingField}
             setActiveField={setEditingField}
-            fieldId="sourceName"
-            icon={controlIconsMap.Reference}
+            fieldId="controlOriginName"
           />
         ) : null}
         <EditableSelect
@@ -330,7 +329,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           <div className="min-w-40">
             <div className="grid grid-cols-[1fr_auto] items-center gap-2">
               <div className="flex gap-2 items-center">
-                <Tag size={16} className="text-brand" />
+                <Tag size={16} />
                 <span className="text-sm">Tags</span>
               </div>
             </div>

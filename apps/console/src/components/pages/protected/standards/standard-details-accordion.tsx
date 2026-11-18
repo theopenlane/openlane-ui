@@ -140,7 +140,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ st
       <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
         <div className="flex gap-2.5 items-center justify-between right-0 mt-2">
           <div className="flex col gap-2.5 items-center justify-between">
-            <p className="">Domains</p>
+            <p>Domains</p>
             <Button type="button" aria-label="Expand or collapse all domains" className="h-8 !px-2" variant="secondary" onClick={toggleAllSections}>
               <div className="flex">
                 <List size={16} />
@@ -181,10 +181,10 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ st
             <AccordionItem key={category} value={category}>
               <AccordionTrigger className="flex items-center gap-2 text-lg font-semibold w-full pr-4 pb-4 pt-4 cursor-pointer rounded-lg bg-unset">
                 <span>{category}</span>
-                {isOpen ? <ChevronDown size={22} className="text-brand" /> : <ChevronRight size={22} className="text-brand" />}
+                {isOpen ? <ChevronDown size={22} /> : <ChevronRight size={22} />}
               </AccordionTrigger>
               <AccordionContent>
-                <div className="">
+                <div>
                   <DataTable
                     loading={allControls.isLoading}
                     columns={columns}

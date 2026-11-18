@@ -7,6 +7,40 @@ import type * as Types from './historyschema-types'
 
 import type { TVendorRiskThresholdsConfig, TVendorScoringQuestionsConfig } from './vendor-scoring-defaults.generated'
 export * from './historyschema-types'
+export type GetFindingHistoriesQueryVariables = Exact<{
+  where?: Types.FindingHistoryWhereInput | null | undefined
+  orderBy?: Types.FindingHistoryOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetFindingHistoriesQuery {
+  findingHistories: {
+    edges: Array<{
+      node: {
+        id: string
+        historyTime: any
+        operation: Types.FindingHistoryOpType
+        createdBy: string | null
+        updatedBy: string | null
+        internalOwner: string | null
+        internalOwnerUserID: string | null
+        internalOwnerGroupID: string | null
+        internalOwnerIdentityHolderID: string | null
+        assignedTo: string | null
+        assignedToUserID: string | null
+        assignedToGroupID: string | null
+        assignedToIdentityHolderID: string | null
+        reviewedBy: string | null
+        reviewedByUserID: string | null
+        reviewedByGroupID: string | null
+        reviewedByIdentityHolderID: string | null
+      } | null
+    } | null> | null
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+  }
+}
+
 export type GetInternalPolicyHistoriesQueryVariables = Exact<{
   where?: Types.InternalPolicyHistoryWhereInput | null | undefined
   orderBy?: Types.InternalPolicyHistoryOrder | null | undefined
@@ -675,6 +709,20 @@ export interface DeleteBulkAssessmentMutation {
   deleteBulkAssessment: { deletedIDs: Array<string>; notDeletedIDs: Array<string>; error: string | null }
 }
 
+export type GetAssessmentPickerOptionsQueryVariables = Exact<{
+  where?: Types.AssessmentWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetAssessmentPickerOptionsQuery {
+  assessments: {
+    totalCount: number
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{ node: { id: string; name: string; updatedAt: any; internalPolicies: { totalCount: number } } | null } | null> | null
+  }
+}
+
 export type AssetsWithFilterQueryVariables = Exact<{
   where?: Types.AssetWhereInput | null | undefined
   orderBy?: Array<Types.AssetOrder> | Types.AssetOrder | null | undefined
@@ -1102,6 +1150,7 @@ export interface CampaignQuery {
     templateID: string | null
     updatedAt: any
     updatedBy: string | null
+    assessment: { id: string; name: string; updatedAt: any; internalPolicies: { totalCount: number } } | null
     template: { id: string; name: string; description: string | null; updatedAt: any; jsonconfig: any } | null
   }
 }
@@ -1596,7 +1645,7 @@ export type ControlListFieldsFragment = {
   referenceID?: string | null
   auditorReferenceID?: string | null
   source?: Types.ControlControlSource | null
-  sourceName?: string | null
+  controlOriginName?: string | null
   controlKindName?: string | null
   title?: string | null
   updatedAt?: any
@@ -1656,7 +1705,7 @@ export type ControlDetailsFieldsFragment = {
   references: Array<any> | null
   displayID: string
   source: Types.ControlControlSource | null
-  sourceName: string | null
+  controlOriginName: string | null
   controlKindName: string | null
   publicRepresentation: string | null
   auditorReferenceID: string | null
@@ -1718,7 +1767,7 @@ export type GetAllControlsQueryVariables = Exact<{
   includeReferenceID?: boolean | null | undefined
   includeAuditorReferenceID?: boolean | null | undefined
   includeSource?: boolean | null | undefined
-  includeSourceName?: boolean | null | undefined
+  includeControlOriginName?: boolean | null | undefined
   includeControlKindName?: boolean | null | undefined
   includeTitle?: boolean | null | undefined
   includeCreatedAt?: boolean | null | undefined
@@ -1756,7 +1805,7 @@ export interface GetAllControlsQuery {
         referenceID?: string | null
         auditorReferenceID?: string | null
         source?: Types.ControlControlSource | null
-        sourceName?: string | null
+        controlOriginName?: string | null
         controlKindName?: string | null
         title?: string | null
         updatedAt?: any
@@ -1807,7 +1856,7 @@ export interface GetControlByIdQuery {
     references: Array<any> | null
     displayID: string
     source: Types.ControlControlSource | null
-    sourceName: string | null
+    controlOriginName: string | null
     controlKindName: string | null
     publicRepresentation: string | null
     auditorReferenceID: string | null
@@ -2290,6 +2339,50 @@ export interface GetControlsByRefCodeQuery {
   }
 }
 
+export type GetControlsForImportPreviewQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetControlsForImportPreviewQuery {
+  controls: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        refCode: string
+        referenceFramework: string | null
+        referenceFrameworkRevision: string | null
+        title: string | null
+        description: string | null
+        status: Types.ControlControlStatus | null
+        implementationStatus: Types.ControlControlImplementationStatus | null
+        implementationDescription: string | null
+        publicRepresentation: string | null
+        source: Types.ControlControlSource | null
+        controlOriginName: string | null
+        category: string | null
+        categoryID: string | null
+        subcategory: string | null
+        mappedCategories: Array<string> | null
+        controlQuestions: Array<string> | null
+        aliases: Array<string> | null
+        tags: Array<string> | null
+        referenceID: string | null
+        auditorReferenceID: string | null
+        externalID: string | null
+        externalUUID: string | null
+        controlKindName: string | null
+        environmentName: string | null
+        scopeName: string | null
+        workflowEligibleMarker: boolean | null
+        trustCenterVisibility: Types.ControlTrustCenterControlVisibility | null
+      } | null
+    } | null> | null
+  }
+}
+
 export type GetProgramControlsByRefCodeQueryVariables = Exact<{
   refCodeIn?: Array<string> | string | null | undefined
   programId: string
@@ -2500,6 +2593,16 @@ export type GetControlIdsQueryVariables = Exact<{
 
 export interface GetControlIdsQuery {
   controls: { pageInfo: { hasNextPage: boolean; endCursor: any }; edges: Array<{ node: { id: string } | null } | null> | null }
+}
+
+export type ControlActivityQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+  orderBy?: Array<Types.ControlOrder> | Types.ControlOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface ControlActivityQuery {
+  controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; title: string | null; createdAt: any } | null } | null> | null }
 }
 
 export type CustomTypeEnumFieldsFragment = { id: string; name: string; color: string | null; objectType: string; description: string | null; field: string; systemOwned: boolean | null }
@@ -4163,13 +4266,11 @@ export interface FindingQuery {
     id: string
     impact: number | null
     sourceDefinitionID: string | null
-    metadata: any
     numericSeverity: number | null
     open: boolean | null
     priority: string | null
     production: boolean | null
     public: boolean | null
-    rawPayload: any
     recommendation: string | null
     recommendedActions: string | null
     references: Array<string> | null
@@ -4188,6 +4289,7 @@ export interface FindingQuery {
     findingStatusName: string | null
     systemOwned: boolean | null
     targetDetails: any
+    targets: Array<string> | null
     updatedAt: any
     updatedBy: string | null
     validated: boolean | null
@@ -4260,6 +4362,7 @@ export type GetFindingAssociationsQueryVariables = Exact<{
 
 export interface GetFindingAssociationsQuery {
   finding: {
+    id: string
     controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; description: string | null; displayID: string } | null } | null> | null }
     controlMappings: { totalCount: number; edges: Array<{ node: { id: string; controlID: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
@@ -4271,6 +4374,7 @@ export interface GetFindingAssociationsQuery {
     remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
     vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
+    actionPlans: { totalCount: number; edges: Array<{ node: { id: string; name: string } | null } | null> | null }
   }
 }
 
@@ -4316,6 +4420,74 @@ export type UpdateFindingCommentMutationVariables = Exact<{
 
 export interface UpdateFindingCommentMutation {
   updateFindingComment: { finding: { id: string } }
+}
+
+export type GetFindingRemediationWorkQueryVariables = Exact<{
+  findingId: string
+  first?: number | null | undefined
+}>
+
+export interface GetFindingRemediationWorkQuery {
+  finding: {
+    id: string
+    remediations: {
+      totalCount: number
+      edges: Array<{
+        node: { id: string; displayID: string; title: string | null; status: Types.RemediationRemediationStatus | null; ownerReference: string | null; dueAt: string | null } | null
+      } | null> | null
+    }
+    tasks: {
+      totalCount: number
+      edges: Array<{
+        node: { id: string; displayID: string; title: string; status: Types.TaskTaskStatus; due: string | null; assignee: { id: string; displayName: string } | null } | null
+      } | null> | null
+    }
+    actionPlans: {
+      totalCount: number
+      edges: Array<{
+        node: {
+          id: string
+          name: string
+          title: string
+          status: Types.ActionPlanDocumentStatus | null
+          dueDate: any
+          internalOwner: string | null
+          internalOwnerUser: { id: string; displayName: string } | null
+          internalOwnerGroup: { id: string; displayName: string } | null
+          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type GetFindingHistoryEdgesQueryVariables = Exact<{
+  findingId: string
+  first?: number | null | undefined
+}>
+
+export interface GetFindingHistoryEdgesQuery {
+  finding: {
+    id: string
+    tasks: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; title: string; createdAt: any; createdBy: string | null } | null } | null> | null }
+    comments: { totalCount: number; edges: Array<{ node: { id: string; text: string; createdAt: any; createdBy: string | null } | null } | null> | null }
+    assets: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayName: string | null; createdAt: any; createdBy: string | null } | null } | null> | null }
+    remediations: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; title: string | null; createdAt: any; createdBy: string | null } | null } | null> | null }
+    reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string; createdAt: any; createdBy: string | null } | null } | null> | null }
+  }
+}
+
+export type FindingActivityQueryVariables = Exact<{
+  where?: Types.FindingWhereInput | null | undefined
+  orderBy?: Array<Types.FindingOrder> | Types.FindingOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface FindingActivityQuery {
+  findings: {
+    totalCount: number
+    edges: Array<{ node: { id: string; displayID: string; displayName: string | null; externalID: string | null; source: string | null; createdAt: any } | null } | null> | null
+  }
 }
 
 export type GroupSettingsWithFilterQueryVariables = Exact<{
@@ -4851,7 +5023,10 @@ export interface GetIdentityHolderDirectoryAccountsQuery {
           mfaState: Types.DirectoryAccountDirectoryAccountMfaState
           directoryName: string | null
           sourceDefinitionID: string | null
+          sourceInstanceID: string | null
+          externalID: string
           managedBy: string | null
+          integration: { id: string } | null
           memberships: {
             totalCount: number
             edges: Array<{
@@ -4920,6 +5095,461 @@ export interface GetIdentityHolderAssociationsTimelineQuery {
       } | null> | null
     }
     user: { id: string; createdAt: any; displayName: string; email: string } | null
+  }
+}
+
+export type IntegrationRunSummaryFieldsFragment = {
+  id: string
+  integrationID: string | null
+  operationName: string | null
+  operationKind: Types.IntegrationRunIntegrationOperationKind | null
+  runType: Types.IntegrationRunIntegrationRunType | null
+  status: Types.IntegrationRunIntegrationRunStatus
+  createdAt: any
+  startedAt: any
+  finishedAt: any
+  durationMs: number | null
+  summary: string | null
+  error: string | null
+}
+
+export type IntegrationRunFieldsFragment = {
+  metrics: any
+  id: string
+  integrationID: string | null
+  operationName: string | null
+  operationKind: Types.IntegrationRunIntegrationOperationKind | null
+  runType: Types.IntegrationRunIntegrationRunType | null
+  status: Types.IntegrationRunIntegrationRunStatus
+  createdAt: any
+  startedAt: any
+  finishedAt: any
+  durationMs: number | null
+  summary: string | null
+  error: string | null
+}
+
+export type GetIntegrationRunSummariesQueryVariables = Exact<{
+  where?: Types.IntegrationRunWhereInput | null | undefined
+  orderBy?: Types.IntegrationRunOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface GetIntegrationRunSummariesQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        integrationID: string | null
+        operationName: string | null
+        operationKind: Types.IntegrationRunIntegrationOperationKind | null
+        runType: Types.IntegrationRunIntegrationRunType | null
+        status: Types.IntegrationRunIntegrationRunStatus
+        createdAt: any
+        startedAt: any
+        finishedAt: any
+        durationMs: number | null
+        summary: string | null
+        error: string | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunsQueryVariables = Exact<{
+  where?: Types.IntegrationRunWhereInput | null | undefined
+  orderBy?: Types.IntegrationRunOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunsQuery {
+  integrationRuns: {
+    pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+    edges: Array<{
+      node: {
+        metrics: any
+        id: string
+        integrationID: string | null
+        operationName: string | null
+        operationKind: Types.IntegrationRunIntegrationOperationKind | null
+        runType: Types.IntegrationRunIntegrationRunType | null
+        status: Types.IntegrationRunIntegrationRunStatus
+        createdAt: any
+        startedAt: any
+        finishedAt: any
+        durationMs: number | null
+        summary: string | null
+        error: string | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunStatsQueryVariables = Exact<{
+  totalWhere?: Types.IntegrationRunWhereInput | null | undefined
+  failedWhere?: Types.IntegrationRunWhereInput | null | undefined
+  lastSuccessWhere?: Types.IntegrationRunWhereInput | null | undefined
+}>
+
+export interface GetIntegrationRunStatsQuery {
+  total: { totalCount: number }
+  failed: { totalCount: number }
+  lastSuccess: { edges: Array<{ node: { id: string; integrationID: string | null; operationName: string | null; finishedAt: any } | null } | null> | null }
+}
+
+export type GetIntegrationRunQueryVariables = Exact<{
+  integrationRunId: string
+}>
+
+export interface GetIntegrationRunQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        metrics: any
+        id: string
+        integrationID: string | null
+        operationName: string | null
+        operationKind: Types.IntegrationRunIntegrationOperationKind | null
+        runType: Types.IntegrationRunIntegrationRunType | null
+        status: Types.IntegrationRunIntegrationRunStatus
+        createdAt: any
+        startedAt: any
+        finishedAt: any
+        durationMs: number | null
+        summary: string | null
+        error: string | null
+        actionPlans: { totalCount: number }
+        assets: { totalCount: number }
+        checkResults: { totalCount: number }
+        contacts: { totalCount: number }
+        directoryAccounts: { totalCount: number }
+        directoryGroups: { totalCount: number }
+        directoryMemberships: { totalCount: number }
+        entities: { totalCount: number }
+        findings: { totalCount: number }
+        internalPolicies: { totalCount: number }
+        procedures: { totalCount: number }
+        risks: { totalCount: number }
+        vulnerabilities: { totalCount: number }
+      } | null
+    } | null> | null
+  }
+}
+
+export type IntegrationRunRecordPageInfoFragment = { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+
+export type GetIntegrationRunActionPlansQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunActionPlansQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        actionPlans: {
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; name: string; status: Types.ActionPlanDocumentStatus | null; externalID: string | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunAssetsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunAssetsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        assets: {
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; name: string; displayName: string | null; assetType: Types.AssetAssetType; identifier: string | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunCheckResultsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunCheckResultsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        checkResults: {
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; source: string; status: Types.CheckResultCheckStatus; sourceKey: string | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunContactsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunContactsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        contacts: {
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; fullName: string | null; email: string | null; status: Types.ContactUserStatus; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunDirectoryAccountsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunDirectoryAccountsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        directoryAccounts: {
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{
+            node: { id: string; displayName: string | null; canonicalEmail: string | null; externalID: string; status: Types.DirectoryAccountDirectoryAccountStatus; updatedAt: any } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunDirectoryGroupsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunDirectoryGroupsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        directoryGroups: {
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{
+            node: { id: string; displayName: string | null; email: string | null; externalID: string; status: Types.DirectoryGroupDirectoryGroupStatus; updatedAt: any } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunDirectoryMembershipsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunDirectoryMembershipsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        directoryMemberships: {
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{
+            node: {
+              id: string
+              displayID: string
+              role: Types.DirectoryMembershipDirectoryMembershipRole | null
+              updatedAt: any
+              directoryAccount: { id: string; displayName: string | null; canonicalEmail: string | null }
+              directoryGroup: { id: string; displayName: string | null }
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunEntitiesQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunEntitiesQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        entities: {
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; name: string | null; displayName: string | null; status: Types.EntityEntityStatus | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunFindingsQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunFindingsQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        findings: {
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{
+            node: {
+              id: string
+              displayID: string
+              displayName: string | null
+              externalID: string | null
+              category: string | null
+              severity: string | null
+              resourceName: string | null
+              updatedAt: any
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunInternalPoliciesQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunInternalPoliciesQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        internalPolicies: {
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; displayID: string; name: string; status: Types.InternalPolicyDocumentStatus | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunProceduresQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunProceduresQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        procedures: {
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; displayID: string; name: string; status: Types.ProcedureDocumentStatus | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunRisksQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunRisksQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        risks: {
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{ node: { id: string; displayID: string; name: string; status: Types.RiskRiskStatus | null; updatedAt: any } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetIntegrationRunVulnerabilitiesQueryVariables = Exact<{
+  integrationRunId: string
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetIntegrationRunVulnerabilitiesQuery {
+  integrationRuns: {
+    edges: Array<{
+      node: {
+        id: string
+        vulnerabilities: {
+          pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
+          edges: Array<{
+            node: { id: string; displayID: string; displayName: string | null; cveID: string | null; externalID: string; severity: string | null; category: string | null; updatedAt: any } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
   }
 }
 
@@ -5373,6 +6003,16 @@ export type GetPolicyCommentsByIdQueryVariables = Exact<{
 
 export interface GetPolicyCommentsByIdQuery {
   internalPolicy: { id: string; comments: { edges: Array<{ node: { id: string; createdAt: any; createdBy: string | null; text: string } | null } | null> | null } }
+}
+
+export type InternalPolicyActivityQueryVariables = Exact<{
+  where?: Types.InternalPolicyWhereInput | null | undefined
+  orderBy?: Array<Types.InternalPolicyOrder> | Types.InternalPolicyOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface InternalPolicyActivityQuery {
+  internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; createdAt: any } | null } | null> | null }
 }
 
 export type CreateMappedControlMutationVariables = Exact<{
@@ -5969,7 +6609,9 @@ export interface UpdateBulkOrganizationBrandingSettingMutation {
   updateBulkOrganizationBrandingSetting: { updatedIDs: Array<string> | null }
 }
 
-export type GetAllOrganizationsQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllOrganizationsQueryVariables = Exact<{
+  userId: string
+}>
 
 export interface GetAllOrganizationsQuery {
   organizations: {
@@ -5982,6 +6624,7 @@ export interface GetAllOrganizationsQuery {
         personalOrg: boolean | null
         avatarFile: { id: string; base64: string | null } | null
         setting: { identityProviderLoginEnforced: boolean } | null
+        members: { edges: Array<{ node: { id: string; role: Types.OrgMembershipRole } | null } | null> | null }
       } | null
     } | null> | null
   }
@@ -6026,26 +6669,6 @@ export interface GetSingleOrganizationMembersQuery {
       } | null> | null
       pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
     }
-  }
-}
-
-export type GetAllOrganizationsWithMembersQueryVariables = Exact<{
-  membersWhere?: Types.OrgMembershipWhereInput | null | undefined
-}>
-
-export interface GetAllOrganizationsWithMembersQuery {
-  organizations: {
-    edges: Array<{
-      node: {
-        id: string
-        personalOrg: boolean | null
-        displayName: string
-        name: string
-        avatarRemoteURL: string | null
-        avatarFile: { id: string; base64: string | null } | null
-        members: { edges: Array<{ node: { id: string; role: Types.OrgMembershipRole; user: { id: string } } | null } | null> | null }
-      } | null
-    } | null> | null
   }
 }
 
@@ -7192,6 +7815,7 @@ export interface GetProgramSubmittedEvidenceQuery {
 
 export type GetProgramDashboardQueryVariables = Exact<{
   where?: Types.ProgramWhereInput | null | undefined
+  openTaskStatuses: Array<Types.TaskTaskStatus> | Types.TaskTaskStatus
 }>
 
 export interface GetProgramDashboardQuery {
@@ -7206,7 +7830,7 @@ export interface GetProgramDashboardQuery {
         endDate: any
         startDate: any
         programOwner: { id: string; displayName: string } | null
-        tasks: { edges: Array<{ node: { id: string; status: Types.TaskTaskStatus } | null } | null> | null }
+        openTasks: { totalCount: number }
         controls: { totalCount: number }
       } | null
     } | null> | null
@@ -7775,6 +8399,16 @@ export interface GetProgramReviewStatsQuery {
   inProgress: { totalCount: number }
 }
 
+export type ReviewActivityQueryVariables = Exact<{
+  where?: Types.ReviewWhereInput | null | undefined
+  orderBy?: Array<Types.ReviewOrder> | Types.ReviewOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface ReviewActivityQuery {
+  reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string; externalID: string | null; createdAt: any } | null } | null> | null }
+}
+
 export type RiskFieldsFragment = {
   id: string
   displayID: string
@@ -8148,6 +8782,16 @@ export interface GetRiskAssociationsQuery {
   }
 }
 
+export type RiskActivityQueryVariables = Exact<{
+  where?: Types.RiskWhereInput | null | undefined
+  orderBy?: Array<Types.RiskOrder> | Types.RiskOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface RiskActivityQuery {
+  risks: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; name: string; createdAt: any } | null } | null> | null }
+}
+
 export type ScansWithFilterQueryVariables = Exact<{
   where?: Types.ScanWhereInput | null | undefined
   orderBy?: Array<Types.ScanOrder> | Types.ScanOrder | null | undefined
@@ -8323,6 +8967,16 @@ export interface GetScanAssociationsQuery {
     tasks: { totalCount: number; edges: Array<{ node: { id: string; title: string; displayID: string } | null } | null> | null }
     vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
   }
+}
+
+export type ScanActivityQueryVariables = Exact<{
+  where?: Types.ScanWhereInput | null | undefined
+  orderBy?: Array<Types.ScanOrder> | Types.ScanOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface ScanActivityQuery {
+  scans: { totalCount: number; edges: Array<{ node: { id: string; target: string; createdAt: any } | null } | null> | null }
 }
 
 export type SearchQueryVariables = Exact<{
@@ -8641,7 +9295,7 @@ export interface GetSubcontrolByIdQuery {
     references: Array<any> | null
     displayID: string
     source: Types.SubcontrolControlSource | null
-    sourceName: string | null
+    controlOriginName: string | null
     subcontrolKindName: string | null
     publicRepresentation: string | null
     auditorReferenceID: string | null
@@ -8775,7 +9429,7 @@ export interface GetSubcontrolsPaginatedQuery {
         status: Types.SubcontrolControlStatus | null
         subcontrolKindName: string | null
         source: Types.SubcontrolControlSource | null
-        sourceName: string | null
+        controlOriginName: string | null
         publicRepresentation: string | null
         category: string | null
         subcategory: string | null
@@ -8818,7 +9472,7 @@ export interface GetSubcontrolsByRefCodeQuery {
         status: Types.SubcontrolControlStatus | null
         subcontrolKindName: string | null
         source: Types.SubcontrolControlSource | null
-        sourceName: string | null
+        controlOriginName: string | null
         publicRepresentation: string | null
         category: string | null
         subcategory: string | null
@@ -10381,6 +11035,12 @@ export interface TrustCenterLastUpdatedQuery {
   }
 }
 
+export type GetTrustCenterDashboardQueryVariables = Exact<{ [key: string]: never }>
+
+export interface GetTrustCenterDashboardQuery {
+  trustCenters: { edges: Array<{ node: { id: string; pirschDomainID: string | null } | null } | null> | null }
+}
+
 export type GetUserProfileQueryVariables = Exact<{
   userId: string
 }>
@@ -10932,13 +11592,15 @@ export interface VulnerabilityQuery {
     dependencyScope: string | null
     fixAvailable: boolean | null
     fixedAt: string | null
-    assignedToUser: { id: string; displayName: string } | null
+    autoDismissedAt: string | null
+    publishedAt: string | null
+    assignedToUser: { id: string; displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
     assignedToGroup: { id: string; displayName: string } | null
     assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
-    reviewedByUser: { id: string; displayName: string } | null
+    reviewedByUser: { id: string; displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
     reviewedByGroup: { id: string; displayName: string } | null
     reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
-    internalOwnerUser: { id: string; displayName: string } | null
+    internalOwnerUser: { id: string; displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
@@ -11171,6 +11833,19 @@ export interface GetVulnerabilityHistoryEdgesQuery {
     assets: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayName: string | null; createdAt: any; createdBy: string | null } | null } | null> | null }
     remediations: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; title: string | null; createdAt: any; createdBy: string | null } | null } | null> | null }
     reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string; createdAt: any; createdBy: string | null } | null } | null> | null }
+  }
+}
+
+export type VulnerabilityActivityQueryVariables = Exact<{
+  where?: Types.VulnerabilityWhereInput | null | undefined
+  orderBy?: Array<Types.VulnerabilityOrder> | Types.VulnerabilityOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface VulnerabilityActivityQuery {
+  vulnerabilities: {
+    totalCount: number
+    edges: Array<{ node: { id: string; cveID: string | null; displayID: string; displayName: string | null; externalID: string; source: string | null; createdAt: any } | null } | null> | null
   }
 }
 

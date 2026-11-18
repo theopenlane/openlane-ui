@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { GET_ORGANIZATION_BILLING_ACCESS } from '@repo/codegen/query/organization'
 import { type GetOrganizationBillingAccessQuery, type GetOrganizationBillingAccessQueryVariables } from '@repo/codegen/src/schema'
 import { canManageBilling } from '@/lib/authz/utils'
-import { fetchGraphqlServer } from './fetch-graphql'
+import { queryGraphqlServer } from './fetch-graphql'
 import { getServerCredentials } from './server-credentials'
 
 type TBillingHandler = (customerId: string, req: Request) => Promise<Response>
@@ -22,7 +22,7 @@ const resolveBillingCustomer = async (): Promise<string | NextResponse> => {
   }
 
   const variables: GetOrganizationBillingAccessQueryVariables = { organizationId, userId }
-  const data = await fetchGraphqlServer<GetOrganizationBillingAccessQuery>(GET_ORGANIZATION_BILLING_ACCESS, variables, credentials.accessToken, credentials.sessionCookie)
+  const data = await queryGraphqlServer<GetOrganizationBillingAccessQuery>(GET_ORGANIZATION_BILLING_ACCESS, variables, credentials.accessToken, credentials.sessionCookie)
 
   if (!data) {
     return errorResponse('Unable to verify billing access', 502)

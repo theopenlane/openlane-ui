@@ -40,7 +40,7 @@ export const createRowActionsColumn = <T extends RowData>({ actions, label = 'Ro
     if (visibleActions.length === 0) return null
 
     return (
-      <div role="presentation" onClick={(e) => e.stopPropagation()} className="flex justify-end">
+      <div role="presentation" onClick={(e) => e.stopPropagation()} onAuxClick={(e) => e.stopPropagation()} className="flex justify-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" aria-label={label} className="h-8 w-8 p-0">

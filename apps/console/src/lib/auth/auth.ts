@@ -6,12 +6,12 @@ import { csrfCookieName, isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { type JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
-import { getTokenFromOpenlaneAPI, type OAuthUserRequest } from './utils/get-openlane-token'
+import { registerOAuthUser, type OAuthUserRequest } from './utils/register-oauth-user'
 import { checkWebfinger } from './utils/webfinger'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { clearTfaPendingCookie, forwardTfaPendingCookie } from './utils/tfa-pending-cookie'
 import { refreshSessionToken } from './utils/refresh-session-token'
-import { secureFetch } from './utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { withSameOriginGuard } from './utils/same-origin'
 import { cookies } from 'next/headers'
 import { allowedLoginDomains } from '@repo/dally/auth'
@@ -61,7 +61,7 @@ export const config = {
       const cookieStore = await cookies()
 
       // a pending tfa cookie left behind would send the logged out user straight back to /tfa
-      clearTfaPendingCookie(cookieStore)
+      clearTfaPendingCookie(cookieStore, true)
 
       // revoke the tokens and session on the server so logout is enforced server-side rather
       // than only clearing client state. Without this the access and refresh tokens remain valid
@@ -75,7 +75,7 @@ export const config = {
           const csrfToken = cookieStore.get(csrfCookieName)?.value
           const cookieHeader = cookieStore.toString()
 
-          const response = await secureFetch(
+          const response = await serverSecureFetch(
             `${openlaneAPIUrl}/v1/logout`,
             {
               method: 'POST',
@@ -148,7 +148,7 @@ export const config = {
             return `/login/sso/enforce?email=${email}&organization_id=${checkSSO.organization_id}`
           }
 
-          const result = await getTokenFromOpenlaneAPI(oauthUser as OAuthUserRequest)
+          const result = await registerOAuthUser(oauthUser as OAuthUserRequest)
 
           if (!result.success) {
             console.error('login failed: ', result.message)
@@ -163,14 +163,14 @@ export const config = {
 
           const apiData = result.data
 
-          if (apiData?.tfa_enabled && !apiData.access_token) {
-            forwardTfaPendingCookie(cookieStore, result.response.headers)
+          if (apiData?.tfa_required || (apiData?.tfa_enabled && !apiData.access_token)) {
+            forwardTfaPendingCookie(cookieStore, result.response.headers, apiData.tfa_required ? apiData.access_token : undefined)
             return '/tfa'
           }
 
-          const dashboardData = await getDashboardData(apiData.access_token, apiData.session)
+          if (!apiData.access_token || !apiData.session) throw new Error(' ❌ Failed to fetch Openlane token')
 
-          if (!apiData) throw new Error(' ❌ Failed to fetch Openlane token')
+          const dashboardData = await getDashboardData(apiData.access_token, apiData.session)
 
           Object.assign(user, {
             accessToken: apiData.access_token,

@@ -33,12 +33,12 @@ const StagedUploadList: React.FC<StagedUploadListProps> = ({ uploads, onChange, 
           <div className="flex flex-col gap-1.5 sm:w-56">
             <Label htmlFor={`${staged.id}-category`}>Category</Label>
             <CreatableCustomTypeEnumSelect
+              itemLabel="category"
               triggerId={`${staged.id}-category`}
               value={staged.category}
               options={categoryOptions}
               onValueChange={(value) => onChange(staged.id, { category: value })}
               onCreateOption={createCategory}
-              placeholder="Select category"
               searchPlaceholder="Search or create..."
             />
           </div>

@@ -309,7 +309,7 @@ export default function ControlsPage() {
     return (
       <div className="p-4">
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <ShieldCheck size={48} className="text-brand mb-4" />
+          <ShieldCheck size={48} className="mb-4" />
           <h2 className="text-2xl font-semibold mb-2">Set up your trust center controls</h2>
           <p className="text-muted-foreground max-w-md mb-6">Add the recommended controls to your workspace. These won&apos;t be published to your trust center until you choose to include them.</p>
           <Button variant="primary" onClick={handleAddControls} disabled={!otsStandardID || isCloning}>
@@ -375,7 +375,7 @@ export default function ControlsPage() {
             <AccordionItem key={category} value={category}>
               <div className="flex items-center justify-between pt-4 pb-4">
                 <AccordionTrigger className="flex items-center gap-2 text-lg font-semibold cursor-pointer bg-unset">
-                  {isOpen ? <ChevronDown size={22} className="text-brand shrink-0" /> : <ChevronRight size={22} className="text-brand shrink-0" />}
+                  {isOpen ? <ChevronDown size={22} className="shrink-0" /> : <ChevronRight size={22} className="shrink-0" />}
                   <ControlCategoryIcon category={category} size={20} className="text-primary" />
                   <span>{category}</span>
                   <span className="text-sm font-normal text-muted-foreground">({controls.length})</span>
@@ -460,7 +460,7 @@ export default function ControlsPage() {
                 <AccordionItem key={category} value={category} className="border rounded-lg px-3 mb-2">
                   <AccordionTrigger className="flex items-center justify-between w-full py-3 cursor-pointer bg-unset">
                     <div className="flex items-center gap-2">
-                      <ChevronDown size={16} className="text-brand shrink-0" />
+                      <ChevronDown size={16} className="shrink-0" />
                       <ControlCategoryIcon category={category} size={16} className="text-primary" />
                       <span className="font-medium">{category}</span>
                     </div>

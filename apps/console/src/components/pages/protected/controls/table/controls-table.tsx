@@ -31,7 +31,7 @@ import { getIncludeVars } from '@/components/shared/crud-base/columns/get-includ
 import { getExportFields } from '@/components/shared/crud-base/columns/get-export-fields'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { GLOBAL_ENUM_FIELD, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 import { useSelectColumnVisibility } from '@/components/shared/column-visibility-menu/use-select-column-visibility'
@@ -64,7 +64,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     category: false,
     subcategory: false,
     source: false,
-    sourceName: false,
+    controlOriginName: false,
     referenceFramework: false,
     delegate: false,
     responsibleParty: false,
@@ -84,7 +84,6 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CONTROL, defaultVisibility))
 
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.CONTROL)
-  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.CONTROL)
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
 
@@ -93,6 +92,10 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       objectType: objectToSnakeCase(ObjectTypes.CONTROL),
       field: 'kind',
     },
+  })
+
+  const { enumOptions: originOptions } = useGetCustomTypeEnums({
+    where: { field: GLOBAL_ENUM_FIELD.controlOrigin },
   })
 
   const whereFilter = useMemo(() => {
@@ -123,6 +126,10 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
 
   const effectiveColumnVisibility = useSelectColumnVisibility(columnVisibility, canEdit(permission?.roles, session))
 
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.CONTROL, {
+    restorePage: { where: whereWithSearch, orderBy, ready: filters !== null },
+  })
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -132,8 +139,8 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   }, [setCrumbs])
 
   const includeVars = useMemo(
-    () => getIncludeVars(getControlColumns({ convertToReadOnly, userMap: {}, selectedControls: [], setSelectedControls, enumOptions }), columnVisibility),
-    [convertToReadOnly, setSelectedControls, enumOptions, columnVisibility],
+    () => getIncludeVars(getControlColumns({ convertToReadOnly, userMap: {}, selectedControls: [], setSelectedControls, enumOptions, originOptions }), columnVisibility),
+    [convertToReadOnly, setSelectedControls, enumOptions, originOptions, columnVisibility],
   )
 
   const { controls, error, paginationMeta, isLoading, isFetching } = useGetAllControls({
@@ -159,8 +166,8 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const { userMap, tokenMap, isLoading: isLoadingAuthors } = useAuthorMaps(userIds)
 
   const columns = useMemo(
-    () => getControlColumns({ convertToReadOnly, userMap, tokenMap, selectedControls, setSelectedControls, enumOptions }),
-    [convertToReadOnly, userMap, tokenMap, selectedControls, enumOptions],
+    () => getControlColumns({ convertToReadOnly, userMap, tokenMap, selectedControls, setSelectedControls, enumOptions, originOptions }),
+    [convertToReadOnly, userMap, tokenMap, selectedControls, enumOptions, originOptions],
   )
 
   const mappedColumns: { accessorKey: string; header: string }[] = columns
@@ -200,10 +207,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
         handleClearSelectedControls={handleClearSelectedControls}
         onFilterChange={setFilters}
         searchTerm={searchTerm}
-        setSearchTerm={(inputVal) => {
-          setSearchTerm(inputVal)
-          resetPagination()
-        }}
+        setSearchTerm={setSearchTerm}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         mappedColumns={mappedColumns}

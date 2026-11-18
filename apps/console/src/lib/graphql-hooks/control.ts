@@ -36,6 +36,8 @@ import {
   GET_AUDITOR_DASHBOARD_CONTROLS,
   GET_CONTROL_CATEGORIES_BY_FRAMEWORK,
   GET_CONTROL_IDS,
+  GET_CONTROLS_FOR_IMPORT_PREVIEW,
+  GET_CONTROL_ACTIVITY,
 } from '@repo/codegen/query/control'
 
 import {
@@ -101,11 +103,19 @@ import {
   type GetControlIdsQueryVariables,
   ControlReportOrderField,
   OrderDirection,
+  type GetControlsForImportPreviewQuery,
+  type GetControlsForImportPreviewQueryVariables,
+  type ControlActivityQuery,
+  type ControlActivityQueryVariables,
 } from '@repo/codegen/src/schema'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { getNodes } from '@/lib/graphql-hooks/connection'
+import { useModuleGatedQuery } from '@/lib/graphql-hooks/use-module-gated-query'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { ExportTooLargeError, fetchAllConnectionNodes } from '@/lib/graphql-hooks/fetch-all-connection-nodes'
 import { useCallback, useEffect, useMemo } from 'react'
+import { chunk, mapWithConcurrency } from '@/utils/async'
 
 export type ControlByIdNode = GetControlByIdQuery['control']
 export type ControlEvidenceItem = NonNullable<NonNullable<NonNullable<NonNullable<NonNullable<ControlByIdNode>['evidence']>['edges']>[number]>['node']>
@@ -801,4 +811,47 @@ export const useControlIdFetcher = () => {
     },
     [client],
   )
+}
+
+const IMPORT_PREVIEW_KEY_CHUNK = 100
+const IMPORT_PREVIEW_CONCURRENCY = 4
+
+export type ControlImportPreviewNode = NonNullable<NonNullable<NonNullable<GetControlsForImportPreviewQuery['controls']['edges']>[number]>['node']>
+
+export const CONTROL_IMPORT_PREVIEW_QUERY_KEY = ['controls', 'import-preview'] as const
+
+export const useControlImportPreviewFetcher = () => {
+  const { client } = useGraphQLClient()
+
+  return useCallback(
+    async (keys: string[], toWhere: (keys: string[]) => ControlWhereInput): Promise<ControlImportPreviewNode[]> => {
+      const pages = await mapWithConcurrency(chunk(keys, IMPORT_PREVIEW_KEY_CHUNK), IMPORT_PREVIEW_CONCURRENCY, (batch) =>
+        fetchAllConnectionNodes<ControlImportPreviewNode>(async (after) => {
+          const response = await client.request<GetControlsForImportPreviewQuery, GetControlsForImportPreviewQueryVariables>(GET_CONTROLS_FOR_IMPORT_PREVIEW, {
+            where: toWhere(batch),
+            first: IMPORT_PREVIEW_KEY_CHUNK,
+            after,
+          })
+
+          return response.controls
+        }),
+      )
+
+      return pages.flat()
+    },
+    [client],
+  )
+}
+
+export const useControlActivity = ({ enabled, ...variables }: ControlActivityQueryVariables & { enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+  const { data, isLoading } = useModuleGatedQuery({
+    objectType: ObjectTypes.CONTROL,
+    queryKey: ['controls', 'activity', variables],
+    queryFn: () => client.request<ControlActivityQuery, ControlActivityQueryVariables>(GET_CONTROL_ACTIVITY, variables),
+    enabled,
+  })
+  const controls = useMemo(() => getNodes(data?.controls), [data])
+
+  return { controls, totalCount: data?.controls?.totalCount ?? 0, isLoading }
 }

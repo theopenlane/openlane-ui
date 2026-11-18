@@ -92,7 +92,7 @@ const SelectSourceProgramStep = ({
 
       {isLoading && (
         <div className="flex items-center gap-2">
-          <Hourglass size={20} strokeWidth={1} className="text-brand" />
+          <Hourglass size={20} strokeWidth={1} />
           <span className="text-sm text-muted-foreground">Loading program...</span>
         </div>
       )}

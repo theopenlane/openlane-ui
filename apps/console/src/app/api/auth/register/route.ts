@@ -1,11 +1,11 @@
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { setPasskeyCookie } from '@/lib/auth/utils/set-passkey-cookie'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   const bodyData = await request.json()
 
-  const fData = await secureFetch(`${process.env.API_REST_URL}/v1/register`, {
+  const fData = await serverSecureFetch(`${process.env.API_REST_URL}/v1/register`, {
     method: 'POST',
     body: JSON.stringify(bodyData),
   })

@@ -69,7 +69,6 @@ export const SuggestionLineBreak: RenderNodeWrapper<SuggestionConfig> = ({ api, 
 function SuggestionLineBreakContent({ suggestionData }: { suggestionData: TSuggestionData }) {
   const { type } = suggestionData
   const isRemove = type === 'remove'
-  const isInsert = type === 'insert'
 
   const activeSuggestionId = usePluginOption(suggestionPlugin, 'activeId')
   const hoverSuggestionId = usePluginOption(suggestionPlugin, 'hoverId')
@@ -83,8 +82,7 @@ function SuggestionLineBreakContent({ suggestionData }: { suggestionData: TSugge
     <span
       ref={spanRef}
       className={cn(
-        'absolute border-b-2 border-b-brand/[.24] bg-brand/[.08] text-brand/80 no-underline transition-colors duration-200',
-        isInsert && (isActive || isHover) && 'border-b-brand/[.60] bg-brand/[.13]',
+        'absolute border-b-2 no-underline transition-colors duration-200',
         isRemove && 'border-b-gray-300 bg-gray-300/25 text-gray-400 line-through',
         isRemove && (isActive || isHover) && 'border-b-gray-500 bg-gray-400/25 text-gray-500 no-underline',
       )}

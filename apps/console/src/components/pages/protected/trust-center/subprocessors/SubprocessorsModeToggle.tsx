@@ -62,10 +62,10 @@ const SubprocessorsModeToggle: React.FC<TProps> = ({ value, onChange }) => {
                   onChange(option.mode)
                 }
               }}
-              className={cn('cursor-pointer p-4 flex flex-col gap-2 transition-colors', selected ? 'border-brand ring-1 ring-brand' : 'border-border hover:border-brand')}
+              className={cn('cursor-pointer p-4 flex flex-col gap-2 transition-colors', selected ? 'ring-1' : 'border-border')}
             >
               <div className="flex items-center gap-2">
-                <span className="text-brand">{option.icon}</span>
+                <span>{option.icon}</span>
                 <span className="font-medium">{selected ? option.selectedTitle : option.unselectedTitle}</span>
               </div>
               <p className="text-sm text-muted-foreground">{option.description}</p>

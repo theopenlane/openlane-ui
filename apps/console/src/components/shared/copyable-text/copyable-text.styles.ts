@@ -15,6 +15,10 @@ export const copyableTextStyles = tv({
       chip: {
         trigger: 'rounded-md border border-border bg-muted px-2.5 py-1.5 font-mono text-sm text-foreground',
       },
+      row: {
+        trigger: 'w-full justify-between gap-3 rounded-md border border-border bg-muted px-4 py-3 text-sm text-foreground',
+        icon: 'size-4 group-hover:text-foreground group-focus-visible:text-foreground',
+      },
     },
   },
   defaultVariants: {

@@ -1,13 +1,18 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { EmailTemplateSelectContent } from '../shared/email-template-select-content'
 import { Button } from '@repo/ui/button'
+import { cn } from '@repo/ui/lib/utils'
+import { EmailTemplateType } from '@/lib/email-template-type'
+import { initialQuestionnaireEmailPickerState, QuestionnaireEmailTemplatePicker, type QuestionnaireEmailPickerState } from '../questionnaire-email/questionnaire-email-template-picker'
 
 interface ChangeTemplateDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  templateType: EmailTemplateType
   options: Array<{ label: string; value: string }>
   value?: string
   isLoading?: boolean
@@ -15,49 +20,50 @@ interface ChangeTemplateDialogProps {
   isPending?: boolean
 }
 
-export const ChangeTemplateDialog: React.FC<ChangeTemplateDialogProps> = ({ open, onOpenChange, options, value, isLoading, onSave, isPending }) => {
-  const [selected, setSelected] = useState<string | undefined>(value)
+export const ChangeTemplateDialog: React.FC<ChangeTemplateDialogProps> = ({ open, onOpenChange, ...formProps }) => (
+  <Dialog open={open} onOpenChange={onOpenChange}>
+    <DialogContent className={cn('flex min-w-0 flex-col', formProps.templateType === EmailTemplateType.QUESTIONNAIRE ? 'max-h-[90vh] max-w-3xl overflow-y-auto' : 'max-w-md')}>
+      <ChangeTemplateForm {...formProps} onCancel={() => onOpenChange(false)} />
+    </DialogContent>
+  </Dialog>
+)
 
-  useEffect(() => {
-    if (open) setSelected(value)
-  }, [open, value])
+type ChangeTemplateFormProps = Omit<ChangeTemplateDialogProps, 'open' | 'onOpenChange'> & { onCancel: () => void }
+
+const ChangeTemplateForm: React.FC<ChangeTemplateFormProps> = ({ templateType, options, value, isLoading, onSave, isPending, onCancel }) => {
+  const [selected, setSelected] = useState<string>(value ?? '')
+  const [pickerState, setPickerState] = useState<QuestionnaireEmailPickerState>(() => initialQuestionnaireEmailPickerState({ customize: true }))
+  const isQuestionnaire = templateType === EmailTemplateType.QUESTIONNAIRE
+  const canSave = isQuestionnaire ? selected !== (value ?? '') : !!selected
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-w-md flex-col">
-        <DialogHeader>
-          <DialogTitle>Change email template</DialogTitle>
-          <p className="text-sm text-muted-foreground">Choose the email template used to contact recipients.</p>
-        </DialogHeader>
+    <>
+      <DialogHeader>
+        <DialogTitle>{isQuestionnaire ? 'Questionnaire email' : 'Change email template'}</DialogTitle>
+        <p className="text-sm text-muted-foreground">
+          {isQuestionnaire ? 'Send the system questionnaire email, or customize the email recipients receive.' : 'Choose the email template used to contact recipients.'}
+        </p>
+      </DialogHeader>
 
-        <Select value={selected} onValueChange={setSelected}>
+      {isQuestionnaire ? (
+        <QuestionnaireEmailTemplatePicker value={selected} onChange={setSelected} state={pickerState} onStateChange={setPickerState} disabled={isPending} />
+      ) : (
+        <Select value={selected || undefined} onValueChange={setSelected}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select an email template" />
           </SelectTrigger>
-          <SelectContent>
-            {isLoading ? (
-              <div className="p-2 text-sm text-muted-foreground">Loading templates...</div>
-            ) : options.length === 0 ? (
-              <div className="p-2 text-sm text-muted-foreground">No email templates available</div>
-            ) : (
-              options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))
-            )}
-          </SelectContent>
+          <EmailTemplateSelectContent options={options} isLoading={isLoading} />
         </Select>
+      )}
 
-        <div className="flex items-center justify-end gap-2">
-          <Button variant="secondary" type="button" onClick={() => onOpenChange(false)} disabled={isPending}>
-            Cancel
-          </Button>
-          <Button variant="primary" type="button" onClick={() => selected && onSave(selected)} disabled={isPending || !selected}>
-            {isPending ? 'Saving...' : 'Save'}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+      <div className="flex items-center justify-end gap-2">
+        <Button variant="secondary" type="button" onClick={onCancel} disabled={isPending}>
+          Cancel
+        </Button>
+        <Button variant="primary" type="button" onClick={() => onSave(selected)} disabled={isPending || !canSave}>
+          {isPending ? 'Saving...' : 'Save'}
+        </Button>
+      </div>
+    </>
   )
 }

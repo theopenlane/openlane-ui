@@ -31,7 +31,6 @@ import { useSession } from 'next-auth/react'
 
 export const TemplatesTable = () => {
   const router = useRouter()
-  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.TEMPLATE)
   const [filters, setFilters] = useState<TemplateWhereInput | null>(null)
   const { setCrumbs } = use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
@@ -83,6 +82,10 @@ export const TemplatesTable = () => {
 
     return base
   }, [filters, debouncedSearch])
+
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.TEMPLATE, {
+    restorePage: { where: whereFilter, orderBy: orderByFilter, ready: filters !== null },
+  })
 
   const {
     templates,
@@ -217,10 +220,7 @@ export const TemplatesTable = () => {
           handleExport={handleExport}
           creating={fetching}
           searchTerm={searchTerm}
-          setSearchTerm={(inputVal) => {
-            setSearchTerm(inputVal)
-            resetPagination()
-          }}
+          setSearchTerm={setSearchTerm}
           setFilters={setFilters}
           mappedColumns={mappedColumns}
           columnVisibility={columnVisibility}

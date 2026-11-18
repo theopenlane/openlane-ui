@@ -77,7 +77,7 @@ export const RiskLabel = ({
             value={score}
             onChange={(e) => onChange?.(Number(e.target.value))}
             onMouseUp={(e) => onMouseUp?.(Number(e.currentTarget.value))}
-            className="accent-brand w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer "
+            className="w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer "
           />
           <span className="text-sm w-8 text-right">{score}</span>
         </div>
@@ -140,12 +140,12 @@ export const RiskLabel = ({
     return (
       <div ref={triggerRef}>
         <CreatableCustomTypeEnumSelect
+          itemLabel="risk type"
           value={riskKindName}
           options={riskKindOptions ?? []}
           onValueChange={(val) => onChange?.(val)}
           onCreateOption={createRiskKind}
           placeholder="Select type"
-          searchPlaceholder="Search risk type..."
           triggerClassName={cn('w-40', selectFieldClassname)}
           contentRef={popoverRef}
         />
@@ -157,12 +157,11 @@ export const RiskLabel = ({
     return (
       <div ref={triggerRef}>
         <CreatableCustomTypeEnumSelect
+          itemLabel="category"
           value={riskCategoryName}
           options={riskCategoryOptions ?? []}
           onValueChange={(val) => onChange?.(val)}
           onCreateOption={createRiskCategory}
-          placeholder="Select category"
-          searchPlaceholder="Search category..."
           triggerClassName={cn('w-40', selectFieldClassname)}
           contentRef={popoverRef}
         />
@@ -316,14 +315,14 @@ export function riskDecisionStyle(decision: RiskRiskDecision, showIcon: boolean)
   switch (decision) {
     case RiskRiskDecision.ACCEPT:
       return (
-        <div className=" flex gap-2 items-center text-sm">
+        <div className="flex gap-2 items-center text-sm">
           {showIcon && <ShieldCheck size={16} strokeWidth={1.5} className="text-green-500" />}
           Accept
         </div>
       )
     case RiskRiskDecision.AVOID:
       return (
-        <div className=" flex gap-2 items-center text-sm">
+        <div className="flex gap-2 items-center text-sm">
           {showIcon && <Ban size={16} strokeWidth={1.5} className="text-red-500" />}
           Avoid
         </div>

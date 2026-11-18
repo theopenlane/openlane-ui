@@ -1,6 +1,5 @@
 import React from 'react'
-import Link from 'next/link'
-import { ExternalLink } from 'lucide-react'
+import { Link } from '@/components/shared/link/link'
 import { type ColumnDef, type VisibilityState } from '@repo/ui/table-types'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { CampaignCampaignType } from '@repo/codegen/src/schema'
@@ -53,16 +52,9 @@ const CampaignTypeCell: React.FC<{ campaign: Campaign | null }> = ({ campaign })
       portal
       content={`Questionnaire: ${assessment.name}`}
       icon={
-        <a
-          href={getHrefForObjectType('assessments', { id: assessment.id })}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={`${label}: ${assessment.name}`}
-          className="inline-flex items-center gap-1 align-middle text-blue-500 hover:underline"
-        >
+        <Link href={getHrefForObjectType('assessments', { id: assessment.id })} newTab aria-label={`${label}: ${assessment.name}`}>
           {label}
-          <ExternalLink className="size-3.5 shrink-0" />
-        </a>
+        </Link>
       }
     />
   )
@@ -89,7 +81,7 @@ export const personnelCampaignColumns: ColumnDef<PersonnelCampaignRow>[] = [
     size: 220,
     cell: ({ row }) =>
       row.original.campaign ? (
-        <Link href={getHrefForObjectType('campaigns', { id: row.original.campaign.id })} className="block truncate text-blue-500 hover:underline">
+        <Link href={getHrefForObjectType('campaigns', { id: row.original.campaign.id })} className="block truncate">
           {row.original.name}
         </Link>
       ) : (

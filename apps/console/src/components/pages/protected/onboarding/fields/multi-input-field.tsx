@@ -46,7 +46,7 @@ export const MultiInputField: React.FC<{ question: OnboardingQuestion }> = ({ qu
     <div className="space-y-2">
       <QuestionLabel question={question} htmlFor={question.key} />
       <QuestionDescription text={question.description} />
-      <div className="flex min-h-10 flex-wrap items-center gap-2 rounded-md border bg-input px-3 py-1.5 focus-within:border-brand">
+      <div className="flex min-h-10 flex-wrap items-center gap-2 rounded-md border bg-input px-3 py-1.5">
         {items.map((item) => (
           <Badge key={item} className="flex items-center gap-1">
             {item}

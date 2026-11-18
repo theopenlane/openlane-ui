@@ -1,6 +1,4 @@
-export function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-}
+export const isValidEmail = (email: string): boolean => /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(email)
 
 export const normalizeEmail = (email: string): string => email.trim().toLowerCase()
 

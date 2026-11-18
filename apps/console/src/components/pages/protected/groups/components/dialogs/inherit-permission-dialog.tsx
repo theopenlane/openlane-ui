@@ -9,7 +9,7 @@ import { ChevronDown, ChevronUp, Copy } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
-import { useGetAllGroups, useGetGroupDetails, useGetGroupPermissions, useUpdateGroup } from '@/lib/graphql-hooks/group'
+import { useGroupSelect, useGetGroupDetails, useGetGroupPermissions, useUpdateGroup } from '@/lib/graphql-hooks/group'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { canEdit } from '@/lib/authz/utils'
@@ -43,7 +43,8 @@ const InheritPermissionDialog = () => {
   const { data: permissionsResponse } = useGetGroupPermissions(group || null)
 
   const where = selectedGroup ? { idNEQ: selectedGroup } : undefined
-  const { data: TableData } = useGetAllGroups({ where })
+  const { groupOptions } = useGroupSelect({ where })
+  const selectedGroupLabel = groupOptions.find((option) => option.value === group)?.label
 
   const { mutateAsync: updateGroup } = useUpdateGroup()
 
@@ -67,7 +68,7 @@ const InheritPermissionDialog = () => {
       queryClient.invalidateQueries({ queryKey: ['groups', selectedGroup] })
 
       successNotification({
-        description: `Permissions successfully inherited from ${groups.find((g) => g.id === group)?.name || 'selected group'}.`,
+        description: `Permissions successfully inherited from ${selectedGroupLabel || 'selected group'}.`,
       })
 
       setIsOpen(false)
@@ -79,12 +80,6 @@ const InheritPermissionDialog = () => {
       })
     }
   }
-
-  const groups =
-    TableData?.groups?.edges?.map((edge) => ({
-      id: edge?.node?.id,
-      name: edge?.node?.displayName || edge?.node?.name,
-    })) || []
 
   const permissionsData =
     permissionsResponse?.group?.permissions?.edges?.map((edge) => ({
@@ -121,11 +116,11 @@ const InheritPermissionDialog = () => {
           <div className="flex flex-col gap-2">
             <Label>Select Group</Label>
             <Select value={group} onValueChange={setGroup}>
-              <SelectTrigger className="w-full">{group ? groups.find((g) => g.id === group)?.name : 'Choose...'}</SelectTrigger>
+              <SelectTrigger className="w-full">{group ? selectedGroupLabel : 'Choose...'}</SelectTrigger>
               <SelectContent>
-                {groups.map((group) => (
-                  <SelectItem key={group.id} value={group.id ?? ''}>
-                    {group.name}
+                {groupOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -135,8 +130,7 @@ const InheritPermissionDialog = () => {
         ) : (
           <div>
             <p className="">
-              You are about to inherit permission from group <strong>{groups.find((g) => g.id === group)?.name}</strong>. This will give all users in this group access to the same objects as users in
-              that group.
+              You are about to inherit permission from group <strong>{selectedGroupLabel}</strong>. This will give all users in this group access to the same objects as users in that group.
             </p>
 
             <button className="flex items-center  hover:underline my-4" onClick={() => setIsExpanded(!isExpanded)}>

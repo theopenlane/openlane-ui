@@ -90,7 +90,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
       {/* Status Required */}
       <div className="flex items-center gap-1 border-b border-border pb-3">
         <div className="flex gap-2 min-w-40 items-center">
-          <Binoculars size={16} className="text-brand" />
+          <Binoculars size={16} />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -159,7 +159,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
       {/* Version */}
       <div className="flex items-center gap-1 border-b border-border pb-3">
         <div className="flex gap-2 min-w-40 items-center">
-          <FileStack size={16} className="text-brand" />
+          <FileStack size={16} />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -233,7 +233,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
       {/* Procedure Type */}
       <div className="flex items-center gap-1 border-b border-border pb-3">
         <div className="flex gap-2 min-w-40 items-center">
-          <ScrollText size={16} className="text-brand" />
+          <ScrollText size={16} />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -258,10 +258,10 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                 <FormItem>
                   <FormControl>
                     <CreatableCustomTypeEnumSelect
+                      itemLabel="procedure type"
                       value={field.value || ''}
                       options={enumOptions ?? []}
                       onCreateOption={onCreateOption}
-                      searchPlaceholder="Search procedure type..."
                       contentRef={popoverRef}
                       onValueChange={(value) => {
                         if (isEditing) {
@@ -300,7 +300,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
       {/* Review date */}
       <div className="flex items-center gap-1 border-b border-border pb-3">
         <div className="flex gap-2 min-w-40 items-center">
-          <Calendar size={16} className="text-brand" />
+          <Calendar size={16} />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

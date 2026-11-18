@@ -10,14 +10,13 @@ import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Callout } from '@/components/shared/callout/callout'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
-import { pluralizeWithCount } from '@/utils/strings'
 import { getVulnerabilityTitle, type TVulnerabilityDetail } from '../../../vulnerability-display'
 import { useVulnerabilityExposure } from './use-vulnerability-exposure'
 import ExposureMapList from './exposure-map-list'
 import ExposureBulkActions, { type TSelectedReport } from './exposure-bulk-actions'
 import { ExposureSelectionContext } from './exposure-report-node'
 import { groupExposureRows, limitRowsByReports } from './exposure-model'
-import { EnvironmentChip } from './environment-chip'
+import { ExposureReportCounts } from './exposure-report-counts'
 
 const ExposureRowsSkeleton = () => (
   <div className="space-y-2">
@@ -124,20 +123,7 @@ const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          {exposure.isCountsError ? (
-            <span className="text-muted-foreground">Report counts are unavailable</span>
-          ) : exposure.isCountsPending ? (
-            <span className="text-muted-foreground">Counting reports…</span>
-          ) : (
-            <span>
-              Reported in <strong>{pluralizeWithCount(exposure.totalReports ?? 0, 'place')}</strong> · <strong>{exposure.openReports ?? 0} open</strong>
-            </span>
-          )}
-          {exposure.groups.map((group) => (
-            <EnvironmentChip key={group.environment} environment={group.environment} suffix={`${group.openCount} open`} />
-          ))}
-        </div>
+        <ExposureReportCounts exposure={exposure} />
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Checkbox

@@ -26,7 +26,7 @@ const StepSecurity: React.FC = () => {
       <Card className="h-full">
         <CardHeader className="pb-3">
           <CardTitle className="text-md flex items-center gap-2 p-0">
-            <ShieldCheck size={16} className="text-brand" />
+            <ShieldCheck size={16} />
             Compliance and Risk
           </CardTitle>
           <CardDescription className="p-0">
@@ -65,7 +65,7 @@ const StepSecurity: React.FC = () => {
       <Card className="h-full">
         <CardHeader className="pb-3">
           <CardTitle className="text-md flex items-center gap-2 p-0">
-            <KeyRound size={16} className="text-brand" />
+            <KeyRound size={16} />
             Security Features
           </CardTitle>
           <CardDescription className="p-0">Single sign-on and multi-factor authentication capabilities the vendor supports or enforces.</CardDescription>

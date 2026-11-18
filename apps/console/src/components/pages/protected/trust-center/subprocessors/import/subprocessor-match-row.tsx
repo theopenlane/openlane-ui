@@ -73,7 +73,7 @@ const MatchRow: React.FC<TSubprocessorMatchRowProps> = ({ row, targetOptions, ca
             <Badge variant={badge.variant}>{badge.label}</Badge>
             {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
             {row.status === 'suggested' && (
-              <Button variant="link" className="text-blue-500" icon={<Check size={14} />} iconPosition="left" onClick={() => update({ confirmed: true })}>
+              <Button variant="link" icon={<Check size={14} />} iconPosition="left" onClick={() => update({ confirmed: true })}>
                 Confirm
               </Button>
             )}
@@ -99,13 +99,12 @@ const MatchRow: React.FC<TSubprocessorMatchRowProps> = ({ row, targetOptions, ca
             Category for row {fileRow}
           </label>
           <CreatableCustomTypeEnumSelect
+            itemLabel="category"
             triggerId={categoryId}
             value={row.category}
             options={categoryOptions}
             allowCreate={canCreateCategory}
             disabled={!isActive}
-            placeholder="Select category"
-            searchPlaceholder="Search category..."
             onValueChange={(category) => update({ category })}
           />
           {isActive && row.categoryFromDefault && row.category && <p className="text-xs text-muted-foreground">From defaults</p>}

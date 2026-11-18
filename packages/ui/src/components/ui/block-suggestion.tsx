@@ -61,7 +61,7 @@ export function BlockSuggestion({ element }: { element: TSuggestionElement }) {
 
   const isRemove = suggestionData?.type === 'remove'
 
-  return <div className={cn('pointer-events-none absolute inset-0 z-1 border-2 border-brand/[0.8] transition-opacity', isRemove && 'border-gray-300')} contentEditable={false} />
+  return <div className={cn('pointer-events-none absolute inset-0 z-1 border-2 transition-opacity', isRemove && 'border-gray-300')} contentEditable={false} />
 }
 
 export function BlockSuggestionCard({ idx, isLast, suggestion }: { idx: number; isLast: boolean; suggestion: ResolvedSuggestion }) {
@@ -140,7 +140,7 @@ export function BlockSuggestionCard({ idx, isLast, suggestion }: { idx: number; 
               <div className="flex flex-col gap-2">
                 {suggestionText2Array(suggestion.newText!).map((text, index) => (
                   <React.Fragment key={index}>
-                    <div key={index} className="flex items-start gap-2 text-brand/80">
+                    <div key={index} className="flex items-start gap-2">
                       <span className="text-sm">with:</span>
                       <span className="text-sm">{text || 'line breaks'}</span>
                     </div>

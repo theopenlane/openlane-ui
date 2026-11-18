@@ -110,7 +110,6 @@ export function InlineEquationElement(props: PlateElementProps<TEquationElement>
             className={cn(
               'after:-top-0.5 after:-left-1 after:absolute after:inset-0 after:z-1 after:h-[calc(100%)+4px] after:w-[calc(100%+8px)] after:rounded-sm after:content-[""]',
               'h-6',
-              ((element.texExpression.length > 0 && open) || selected) && 'after:bg-brand/15',
               element.texExpression.length === 0 && 'text-muted-foreground after:bg-neutral-500/10',
             )}
             contentEditable={false}

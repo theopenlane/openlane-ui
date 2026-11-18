@@ -3,7 +3,7 @@
 import React from 'react'
 import { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { useBulkEditFinding, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFilterFields, visibilityFields } from './table-config'
 import { type FindingTablePageConfig, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
@@ -11,9 +11,8 @@ import { getColumns } from './columns'
 import TableComponent from './table'
 import { type UpdateFindingInput } from '@repo/codegen/src/schema'
 import { FINDING_INTERNAL_OWNER } from '../finding-responsibility'
-import { useFindingSheetConfig } from '../hooks/use-finding-sheet-config'
+import { useFindingCreateSheetConfig } from '../hooks/use-finding-sheet-config'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
-import ViewFindingSheet from '../view-finding-sheet'
 import { FindingSeverityChart } from '@/components/shared/severity-chart/severity-chart'
 import { useSlaQuickFilters } from '@/hooks/useSla'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
@@ -24,22 +23,13 @@ const DEFAULT_FILTER_VALUES = { open: true }
 const BULK_EDIT_ASSOCIATIONS: TBulkEditAssociations<UpdateFindingInput> = { addAssetIDs: ObjectTypeObjects.ASSET }
 
 const FindingPage: React.FC = () => {
-  const router = useRouter()
   const searchParams = useSearchParams()
-  const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
   const scanId = searchParams.get('scanId')
 
-  const { enumOpts, form, ...sheetConfig } = useFindingSheetConfig(null, isCreate)
+  const { enumOpts, form, ...sheetConfig } = useFindingCreateSheetConfig(isCreate)
 
-  const quickFilters = useSlaQuickFilters()
-
-  const handleCloseViewSheet = () => {
-    const newSearchParams = new URLSearchParams(searchParams.toString())
-    newSearchParams.delete('id')
-    newSearchParams.delete('trackRemediation')
-    router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
-  }
+  const quickFilters = useSlaQuickFilters('reportedAt')
 
   const baseBulkDeleteMutation = useBulkDeleteFinding()
   const baseBulkEditMutation = useBulkEditFinding()
@@ -61,6 +51,7 @@ const FindingPage: React.FC = () => {
     getColumns,
     TableComponent,
     sheetConfig,
+    viewEditMode: { type: 'full-page', route: '/exposure/findings' },
     onBulkDelete: async (ids: string[]) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids })
       return result.deleteBulkFinding
@@ -84,7 +75,6 @@ const FindingPage: React.FC = () => {
   return (
     <>
       <GenericTablePage {...tableConfig} />
-      <ViewFindingSheet entityId={isCreate ? null : id} onClose={handleCloseViewSheet} />
       <TaskDetailsSheet queryParamKey="taskId" />
     </>
   )

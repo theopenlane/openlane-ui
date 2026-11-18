@@ -4,33 +4,27 @@ import React from 'react'
 import { CheckCircle2, Link2Off, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import { ControlImplementationCard } from './control-implementation-card'
-import { canEdit } from '@/lib/authz/utils'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import Menu from '@/components/shared/menu/menu'
 import { Button } from '@repo/ui/button'
 import { LinkControlsModal } from './link-controls-modal'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { useSession } from 'next-auth/react'
 
 type Props = {
   node: ControlImplementationFieldsFragment
+  canEdit: boolean
   onEdit: (node: ControlImplementationFieldsFragment) => void
   onMarkVerified: (id: string, verified: boolean) => void
   onDelete: (node: ControlImplementationFieldsFragment) => void
   isUpdating?: boolean
 }
 
-export const ImplementationItem: React.FC<Props> = ({ node, onEdit, onMarkVerified, onDelete, isUpdating }) => {
-  const { data: permission, isLoading: permLoading } = useAccountRoles(ObjectTypes.CONTROL_IMPLEMENTATION, node.id)
-  const { data: session } = useSession()
-  const isEditAllowed = canEdit(permission?.roles, session)
+export const ImplementationItem: React.FC<Props> = ({ node, canEdit, onEdit, onMarkVerified, onDelete, isUpdating }) => {
   const [associationsOpen, setAssociationsOpen] = React.useState(false)
   const totalLinks = (node.controls?.edges?.length ?? 0) + (node.subcontrols?.edges?.length ?? 0)
   const willUnlink = totalLinks > 1
 
   return (
     <div className="space-y-4">
-      {isEditAllowed && !permLoading && (
+      {canEdit && (
         <div className="flex items-center justify-end">
           <Menu
             closeOnSelect
@@ -86,7 +80,7 @@ export const ImplementationItem: React.FC<Props> = ({ node, onEdit, onMarkVerifi
       <ControlImplementationCard
         obj={node}
         actions={
-          isEditAllowed && !permLoading ? (
+          canEdit ? (
             <Button type="button" className="h-8" onClick={() => setAssociationsOpen(true)} disabled={isUpdating} aria-label="Link controls">
               Link Controls
             </Button>

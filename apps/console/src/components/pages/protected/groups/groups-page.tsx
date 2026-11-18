@@ -46,7 +46,6 @@ const GroupsPage = () => {
   const [isExportOpen, setIsExportOpen] = useState(false)
   const { data: session } = useSession()
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.GROUP)
   const defaultVisibility: VisibilityState = {
     id: false,
     updatedAt: false,
@@ -141,6 +140,10 @@ const GroupsPage = () => {
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
   }, [orderBy])
+
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.GROUP, {
+    restorePage: { where: whereFilter, orderBy: orderByFilter, ready: whereFilter !== null },
+  })
 
   const { mappedColumns } = getGroupTableColumns({})
 

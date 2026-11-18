@@ -1,4 +1,5 @@
 import { getOwnerApi, gql, seedEntity, type ApiSession } from './api'
+import { EmailTemplateType, emailTemplateTypeForKey } from '@/lib/email-template-type'
 
 const MINIMAL_SURVEY = {
   title: 'Seeded questionnaire',
@@ -160,7 +161,7 @@ const getEmailCatalogEntry = async (session: ApiSession): Promise<{ key: string;
     session,
     `{ emailTemplateCatalog { entries { key exampleValues } } }`,
   )
-  const entry = result.data?.emailTemplateCatalog.entries[0]
+  const entry = result.data?.emailTemplateCatalog.entries.find((candidate) => emailTemplateTypeForKey(candidate.key) === EmailTemplateType.GENERAL)
   if (!entry) throw new Error(`emailTemplateCatalog failed: ${JSON.stringify(result.errors)}`)
   return entry
 }

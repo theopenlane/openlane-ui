@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request'
 
 export const GET_ALL_ORGANIZATIONS = gql`
-  query GetAllOrganizations {
+  query GetAllOrganizations($userId: String!) {
     organizations {
       edges {
         node {
@@ -16,6 +16,14 @@ export const GET_ALL_ORGANIZATIONS = gql`
           }
           setting {
             identityProviderLoginEnforced
+          }
+          members(where: { userID: $userId }) {
+            edges {
+              node {
+                id
+                role
+              }
+            }
           }
         }
       }
@@ -63,37 +71,6 @@ export const GET_SINGLE_ORGANIZATION_MEMBERS = gql`
           hasNextPage
         }
         totalCount
-      }
-    }
-  }
-`
-
-export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
-  query GetAllOrganizationsWithMembers($membersWhere: OrgMembershipWhereInput) {
-    organizations {
-      edges {
-        node {
-          id
-          personalOrg
-          displayName
-          name
-          avatarRemoteURL
-          avatarFile {
-            id
-            base64
-          }
-          members(where: $membersWhere) {
-            edges {
-              node {
-                id
-                role
-                user {
-                  id
-                }
-              }
-            }
-          }
-        }
       }
     }
   }

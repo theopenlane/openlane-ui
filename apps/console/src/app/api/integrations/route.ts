@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth/auth'
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { type NextRequest, NextResponse } from 'next/server'
 import { appendSetCookieHeaders, parseProxyResponse } from './proxy-response'
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     const payload = (await request.json()) as StartRequestBody
 
-    const upstreamResponse = await secureFetch(INTEGRATION_AUTH_START_URL, {
+    const upstreamResponse = await serverSecureFetch(INTEGRATION_AUTH_START_URL, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

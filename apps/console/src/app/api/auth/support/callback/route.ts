@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 
 interface SupportCallbackRequest {
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       ...(cookies ? { cookie: cookies } : {}),
     }
 
-    const callbackData = await secureFetch(`${process.env.API_REST_URL}/v1/support/callback`, {
+    const callbackData = await serverSecureFetch(`${process.env.API_REST_URL}/v1/support/callback`, {
       method: 'POST',
       headers,
       body: JSON.stringify({

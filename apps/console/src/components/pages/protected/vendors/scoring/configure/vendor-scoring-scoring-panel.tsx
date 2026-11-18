@@ -102,7 +102,7 @@ export const VendorScoringScoringPanel: React.FC<TVendorScoringScoringPanelProps
             <p className="text-sm text-muted-foreground">A vendor gets the first rating whose upper score it doesn&apos;t exceed.</p>
           </div>
           {!readOnly && changedRatings.length > 0 && (
-            <Button type="button" variant="link" className="shrink-0 text-blue-500" onClick={() => onResetMaxScores(EDITABLE_RISK_RATINGS)}>
+            <Button type="button" variant="link" className="shrink-0" onClick={() => onResetMaxScores(EDITABLE_RISK_RATINGS)}>
               Reset all to default
             </Button>
           )}
@@ -163,7 +163,7 @@ export const VendorScoringScoringPanel: React.FC<TVendorScoringScoringPanelProps
                   <TableCell className="text-muted-foreground tabular-nums">{defaultValue}</TableCell>
                   <TableCell className="text-right">
                     {!readOnly && value !== defaultValue && (
-                      <Button type="button" variant="link" className="text-xs text-blue-500" onClick={() => onResetMaxScores([rating])}>
+                      <Button type="button" variant="link" className="text-xs" onClick={() => onResetMaxScores([rating])}>
                         Reset
                       </Button>
                     )}

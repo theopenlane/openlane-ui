@@ -1,0 +1,51 @@
+'use client'
+
+import React from 'react'
+import { CircleAlert, CircleDashed } from 'lucide-react'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
+import { getVulnerabilityDueDate, type TVulnerabilityDueDateSource } from '@/utils/vulnerability-due-date'
+import { formatDate } from '@/utils/date'
+import { pluralizeWithCount } from '@/utils/strings'
+
+type TRemediationSlaSource = TVulnerabilityDueDateSource & { open?: boolean | null }
+
+type TRemediationSlaStatus = { kind: 'closed' } | { kind: 'unset' } | { kind: 'overdue'; days: number; dueDate: Date } | { kind: 'on-track'; days: number; dueDate: Date }
+
+const useRemediationSlaStatus = (item: TRemediationSlaSource): TRemediationSlaStatus & { slaDays: number | null; isSlaOverride: boolean } => {
+  const { slaDefinitionsNodes } = useSlaDefinitionsWithFilter({})
+  const { dueDate, slaDays, isSlaOverride, pastDue, daysOverdue, daysUntilDue } = getVulnerabilityDueDate(item, slaDefinitionsNodes)
+
+  if (item.open === false) return { kind: 'closed', slaDays, isSlaOverride }
+  if (!dueDate || Number.isNaN(dueDate.getTime())) return { kind: 'unset', slaDays, isSlaOverride }
+  if (pastDue) return { kind: 'overdue', days: daysOverdue ?? 0, dueDate, slaDays, isSlaOverride }
+  return { kind: 'on-track', days: daysUntilDue ?? 0, dueDate, slaDays, isSlaOverride }
+}
+
+const slaTooltip = (slaDays: number | null, isSlaOverride: boolean, dueDate: Date) => {
+  const due = `Due ${formatDate(dueDate.toISOString())}`
+  if (slaDays === null) return due
+  return `${pluralizeWithCount(slaDays, 'day')} SLA${isSlaOverride ? '' : ' (severity default)'} · ${due}`
+}
+
+export const RemediationSla: React.FC<{ item: TRemediationSlaSource }> = ({ item }) => {
+  const status = useRemediationSlaStatus(item)
+
+  if (status.kind === 'closed') return <span className="text-sm text-muted-foreground">Closed</span>
+  if (status.kind === 'unset') return <span className="text-sm text-muted-foreground">Not set</span>
+
+  const isOverdue = status.kind === 'overdue'
+  const label = isOverdue ? (status.days === 0 ? 'Overdue today' : `${pluralizeWithCount(status.days, 'day')} overdue`) : `${pluralizeWithCount(status.days, 'day')} left`
+
+  return (
+    <SystemTooltip
+      icon={
+        <span className={`inline-flex items-center gap-1.5 text-sm font-medium ${isOverdue ? 'text-destructive' : ''}`}>
+          {isOverdue ? <CircleAlert size={14} /> : <CircleDashed size={14} className="text-muted-foreground" />}
+          {label}
+        </span>
+      }
+      content={slaTooltip(status.slaDays, status.isSlaOverride, status.dueDate)}
+    />
+  )
+}

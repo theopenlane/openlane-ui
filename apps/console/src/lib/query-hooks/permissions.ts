@@ -1,4 +1,5 @@
 import { type TAccessRole, type TPermissionData, type TScopesResponse } from '@/types/authz'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { useQuery, type UseQueryResult } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import { useSession } from 'next-auth/react'
@@ -79,7 +80,7 @@ export const useHasOrgFullAccess = (): boolean => {
   return !!isImpersonation(session) || orgRolesGrantFullAccess
 }
 
-export const useAccountRoles = (objectType: string, id?: string | number | null, enabled: boolean = true) => {
+export const useAccountRoles = (objectType: ObjectTypes, id?: string | number | null, enabled: boolean = true) => {
   const fetchWithRetry = useFetchWithRetry()
   const { data: session } = useSession()
   const hasOrgFullAccess = useOrgRolesGrantFullAccess()
@@ -135,7 +136,7 @@ type TAccountRolesManyResponse = {
 }
 
 type UseAccountRolesManyParams = {
-  objectType: string
+  objectType: ObjectTypes
   ids: string[]
   enabled?: boolean
 }
@@ -145,9 +146,10 @@ export const useAccountRolesMany = ({ objectType, ids, enabled = true }: UseAcco
   const { data: session } = useSession()
   const hasOrgFullAccess = useOrgRolesGrantFullAccess()
 
+  const snakeCaseObjectType = objectToSnakeCase(objectType)
   const idsKey = [...new Set(ids.filter(Boolean))].sort().join(',')
   const objectIds = useMemo(() => (idsKey ? idsKey.split(',') : []), [idsKey])
-  const isRequested = !!objectType && objectIds.length > 0 && enabled && !isImpersonation(session)
+  const isRequested = !!snakeCaseObjectType && objectIds.length > 0 && enabled && !isImpersonation(session)
 
   const fullAccessObjectRoles = useMemo<TAccountRolesManyResponse | undefined>(
     () => (isRequested && hasOrgFullAccess ? { success: true, roles: null, object_roles: Object.fromEntries(objectIds.map((objectId) => [objectId, FULL_ACCESS_ROLES])) } : undefined),
@@ -155,7 +157,7 @@ export const useAccountRolesMany = ({ objectType, ids, enabled = true }: UseAcco
   )
 
   const resp = useQuery<TAccountRolesManyResponse>({
-    queryKey: ['accountRolesMany', objectType, idsKey, hasOrgFullAccess],
+    queryKey: ['accountRolesMany', snakeCaseObjectType, idsKey, hasOrgFullAccess],
     enabled: isRequested && !hasOrgFullAccess,
     retry: shouldRetryPermission,
     placeholderData: undefined,
@@ -164,7 +166,7 @@ export const useAccountRolesMany = ({ objectType, ids, enabled = true }: UseAcco
       const res = await fetchWithRetry('/api/permissions/account-roles', {
         method: 'POST',
         body: JSON.stringify({
-          object_type: objectType,
+          object_type: snakeCaseObjectType,
           object_ids: objectIds,
         }),
       })

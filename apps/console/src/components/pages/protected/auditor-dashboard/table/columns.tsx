@@ -1,5 +1,5 @@
 import React from 'react'
-import Link from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { Button } from '@repo/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -46,13 +46,7 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
       enableHiding: false,
       cell: ({ row }) => (
         <div className="flex flex-col">
-          <Link
-            href={`/controls/${row.original.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-blue-500 hover:underline w-fit"
-            onClick={(event) => event.stopPropagation()}
-          >
+          <Link href={`/controls/${row.original.id}`} newTab className="w-fit" onClick={(event) => event.stopPropagation()}>
             {row.original.refCode}
           </Link>
           {row.original.title && <TruncatedCell className="text-muted-foreground text-xs">{row.original.title}</TruncatedCell>}

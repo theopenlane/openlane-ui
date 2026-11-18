@@ -256,7 +256,7 @@ const CalendarPopover = <T extends FieldValues>({
               />
               <div className="flex shrink-0 items-center gap-x-1">
                 {showNowButton && (
-                  <Button type="button" variant="link" className="text-xs text-blue-500" onMouseDown={keepInputFocus} onClick={handleNow}>
+                  <Button type="button" variant="link" className="text-xs" onMouseDown={keepInputFocus} onClick={handleNow}>
                     Now
                   </Button>
                 )}

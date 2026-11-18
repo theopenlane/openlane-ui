@@ -66,6 +66,14 @@ export const CAMPAIGN = gql`
   query Campaign($campaignId: ID!) {
     campaign(id: $campaignId) {
       assessmentID
+      assessment {
+        id
+        name
+        updatedAt
+        internalPolicies {
+          totalCount
+        }
+      }
       campaignType
       completedAt
       createdAt

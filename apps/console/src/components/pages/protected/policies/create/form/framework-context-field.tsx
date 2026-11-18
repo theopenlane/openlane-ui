@@ -76,7 +76,7 @@ export const FrameworkContextField = ({ frameworks, isLoading, isError, checked,
                     Frameworks
                   </label>
                   {!allSelected && (
-                    <Button type="button" variant="link" className="text-blue-500" onClick={() => onSelectedIdsChange(frameworks.map((framework) => framework.id))}>
+                    <Button type="button" variant="link" onClick={() => onSelectedIdsChange(frameworks.map((framework) => framework.id))}>
                       Select all
                     </Button>
                   )}

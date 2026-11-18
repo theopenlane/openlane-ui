@@ -27,7 +27,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ procedure }) => {
       {/* Created By */}
       <div className="flex justify-between items-center border-b border-border pb-3">
         <div className="flex gap-2 min-w-40 items-center">
-          <UserRoundCheck size={16} className="text-brand" />
+          <UserRoundCheck size={16} />
           <span className="text-sm">Created By</span>
         </div>
 
@@ -39,7 +39,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ procedure }) => {
       {/* Created At */}
       <div className="flex justify-between items-center border-b border-border pb-3">
         <div className="flex gap-2 min-w-40 items-center">
-          <CalendarCheck2 size={16} className="text-brand" />
+          <CalendarCheck2 size={16} />
           <span className="text-sm">Created At</span>
         </div>
 
@@ -53,7 +53,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ procedure }) => {
       {/* Updated By */}
       <div className="flex justify-between items-center border-b border-border pb-3">
         <div className="flex gap-2 min-w-40 items-center">
-          <UserRoundPen size={16} className="text-brand" />
+          <UserRoundPen size={16} />
           <span className="text-sm">Updated By</span>
         </div>
 
@@ -65,7 +65,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ procedure }) => {
       {/* Updated At */}
       <div className="flex justify-between items-center border-b border-border pb-3">
         <div className="flex gap-2 min-w-40 items-center">
-          <CalendarClock size={16} className="text-brand" />
+          <CalendarClock size={16} />
           <span className="text-sm">Updated At</span>
         </div>
 

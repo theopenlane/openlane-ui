@@ -98,7 +98,7 @@ export const getDeliveryColumns = ({ jsonconfig, onOpenSheet, onResend, onViewRe
           portal
           side="left"
           icon={
-            <Button type="button" variant="link" className="font-normal text-blue-500" icon={<FileText />} iconPosition="left" onClick={() => onViewResponse(row.original)}>
+            <Button type="button" variant="link" className="font-normal" icon={<FileText />} iconPosition="left" onClick={() => onViewResponse(row.original)}>
               View response
             </Button>
           }

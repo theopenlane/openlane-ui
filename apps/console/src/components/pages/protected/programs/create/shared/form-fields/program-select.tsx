@@ -28,11 +28,11 @@ const ProgramTypeSelect = ({ autoName = true }: { autoName?: boolean }) => {
 
           <FormControl>
             <CreatableCustomTypeEnumSelect
+              itemLabel="program type"
               value={field.value}
               options={enumOptions ?? []}
               onCreateOption={onCreateOption}
               placeholder="Select Program Type"
-              searchPlaceholder="Search program type..."
               triggerClassName="grow justify-between"
               onValueChange={(value) => {
                 field.onChange(value)

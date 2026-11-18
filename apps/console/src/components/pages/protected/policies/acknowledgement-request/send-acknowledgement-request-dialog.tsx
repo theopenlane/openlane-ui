@@ -2,7 +2,7 @@
 
 import { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { isCancelledError } from '@tanstack/react-query'
-import Link from 'next/link'
+import { Link } from '@/components/shared/link/link'
 import { defineStepper } from '@stepperize/react'
 import { Button } from '@repo/ui/button'
 import { Form } from '@repo/ui/form'
@@ -62,11 +62,7 @@ const PHASE_LABELS: Record<TAcknowledgementRequestPhase, string> = {
   sending: 'Sending the acknowledgment request...',
 }
 
-const QuestionnaireLink = ({ assessmentId }: { assessmentId: string }) => (
-  <Link href={getHrefForObjectType('assessments', { id: assessmentId })} className="text-blue-500 hover:underline">
-    Open the questionnaire
-  </Link>
-)
+const QuestionnaireLink = ({ assessmentId }: { assessmentId: string }) => <Link href={getHrefForObjectType('assessments', { id: assessmentId })}>Open the questionnaire</Link>
 
 type TPreparationStatusProps = {
   phase: TSubmitPhase | null
@@ -88,7 +84,7 @@ const PreparationStatus = ({ phase, preparation, policyCount, onRetry }: TPrepar
     return (
       <p className="text-sm text-destructive" role="alert">
         Could not prepare the policy PDFs: {parseErrorMessage(preparation.error)}{' '}
-        <Button type="button" variant="link" className="text-blue-500" onClick={onRetry}>
+        <Button type="button" variant="link" onClick={onRetry}>
           Retry
         </Button>
       </p>

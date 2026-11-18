@@ -26,6 +26,7 @@ import {
   ShieldAlert,
   SearchCheck,
   Files,
+  MapPin,
 } from 'lucide-react'
 
 export type EnumGroupConfig = {
@@ -77,6 +78,12 @@ export const ENUM_GROUP_MAP: Record<string, EnumGroupConfig> = {
     objectType: 'control',
     field: 'kind',
     icon: SlidersHorizontal,
+  },
+  'Control Origins': {
+    label: 'Control Origins',
+    objectType: GLOBAL_ENUM_GROUP,
+    field: GLOBAL_ENUM_FIELD.controlOrigin,
+    icon: MapPin,
   },
   'Risk Kinds': {
     label: 'Risk Kinds',

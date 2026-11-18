@@ -35,7 +35,6 @@ import { includeQuestionnaireCreation } from '@repo/dally/auth'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
-  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.QUESTIONNAIRE)
   const [filters, setFilters] = useState<AssessmentWhereInput | null>(null)
   const { setCrumbs } = use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
@@ -81,6 +80,10 @@ export const QuestionnairesTable = () => {
 
     return { ...base, ...generated }
   }, [filters, debouncedSearch])
+
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.QUESTIONNAIRE, {
+    restorePage: { where: whereFilter, orderBy: orderByFilter, ready: filters !== null },
+  })
 
   const {
     assessments,
@@ -247,10 +250,7 @@ export const QuestionnairesTable = () => {
           handleExport={handleExport}
           creating={fetching}
           searchTerm={searchTerm}
-          setSearchTerm={(inputVal) => {
-            setSearchTerm(inputVal)
-            resetPagination()
-          }}
+          setSearchTerm={setSearchTerm}
           setFilters={setFilters}
           mappedColumns={mappedColumns}
           columnVisibility={columnVisibility}

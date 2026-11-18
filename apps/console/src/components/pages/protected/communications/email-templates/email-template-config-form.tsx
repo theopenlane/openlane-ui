@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react'
 import Form from '@rjsf/core'
 import type { IChangeEvent } from '@rjsf/core'
-import type { ArrayFieldItemTemplateProps, ObjectFieldTemplateProps, RJSFSchema, TemplatesType, UiSchema } from '@rjsf/utils'
+import type { ArrayFieldItemTemplateProps, ErrorTransformer, ObjectFieldTemplateProps, RJSFSchema, TemplatesType, UiSchema } from '@rjsf/utils'
 import { customizeValidator } from '@rjsf/validator-ajv8'
 import Ajv2020 from 'ajv/dist/2020'
 import { ChevronDown, ChevronUp, Copy, Plus, Trash2, X } from 'lucide-react'
@@ -23,7 +23,20 @@ interface FormIconButtonProps {
   id?: string
 }
 
-const validator = customizeValidator({ AjvClass: Ajv2020 })
+const TEMPLATE_EXPRESSION = /\{\{[^}]*\}\}/g
+
+const isTemplateAwareUri = (value: string) => URL.canParse(value.replace(TEMPLATE_EXPRESSION, 'x'))
+
+const validator = customizeValidator({ AjvClass: Ajv2020, customFormats: { uri: isTemplateAwareUri } })
+
+const ignoreSystemKeyErrors: ErrorTransformer = (errors) => errors.filter((error) => error.name !== 'additionalProperties')
+
+export const useEmailTemplateSaveBlockedReason = (name: string, schema: RJSFSchema | undefined, formData: Record<string, unknown>): string | undefined => {
+  const hasConfigErrors = useMemo(() => !!schema && validator.validateFormData(formData, schema, undefined, ignoreSystemKeyErrors).errors.length > 0, [schema, formData])
+  if (!name.trim()) return 'Enter a name for the template'
+  if (hasConfigErrors) return 'Fix the highlighted configuration fields'
+  return undefined
+}
 
 const iconButtonBase = 'inline-flex items-center justify-center gap-1 rounded-md border px-2 py-1.5 text-xs font-medium transition-colors disabled:pointer-events-none disabled:opacity-50'
 const neutralIconButton = `${iconButtonBase} border-border bg-card text-foreground hover:bg-accent`
@@ -121,11 +134,11 @@ const configFormClassName = [
   '[&_.field-description]:text-xs [&_.field-description]:text-muted-foreground',
   '[&_.form-group]:flex [&_.form-group]:flex-col [&_.form-group]:gap-1.5',
   '[&_input[type=text]]:h-9 [&_input[type=email]]:h-9 [&_input[type=number]]:h-9 [&_input[type=url]]:h-9',
-  '[&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:w-full [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:rounded-md [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:border [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:border-input [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:bg-transparent [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:px-3 [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:py-2 [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:text-sm',
-  '[&_input[type=color]]:h-9 [&_input[type=color]]:w-14 [&_input[type=color]]:cursor-pointer [&_input[type=color]]:rounded-md [&_input[type=color]]:border [&_input[type=color]]:border-input [&_input[type=color]]:bg-transparent [&_input[type=color]]:p-1',
+  '[&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:w-full [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:rounded-md [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:border [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:border-border [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:bg-transparent [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:px-3 [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:py-2 [&_input:not([type=checkbox]):not([type=radio]):not([type=color])]:text-sm',
+  '[&_input[type=color]]:h-9 [&_input[type=color]]:w-14 [&_input[type=color]]:cursor-pointer [&_input[type=color]]:rounded-md [&_input[type=color]]:border [&_input[type=color]]:border-border [&_input[type=color]]:bg-transparent [&_input[type=color]]:p-1',
   '[&_input[type=checkbox]]:size-4 [&_input[type=checkbox]]:accent-primary',
-  '[&_textarea]:w-full [&_textarea]:min-h-24 [&_textarea]:rounded-md [&_textarea]:border [&_textarea]:border-input [&_textarea]:bg-transparent [&_textarea]:px-3 [&_textarea]:py-2 [&_textarea]:text-sm',
-  '[&_select]:h-9 [&_select]:w-full [&_select]:rounded-md [&_select]:border [&_select]:border-input [&_select]:bg-transparent [&_select]:px-3 [&_select]:text-sm',
+  '[&_textarea]:w-full [&_textarea]:min-h-24 [&_textarea]:rounded-md [&_textarea]:border [&_textarea]:border-border [&_textarea]:bg-transparent [&_textarea]:px-3 [&_textarea]:py-2 [&_textarea]:text-sm',
+  '[&_select]:h-9 [&_select]:w-full [&_select]:rounded-md [&_select]:border [&_select]:border-border [&_select]:bg-transparent [&_select]:px-3 [&_select]:text-sm',
   '[&_.control-label_.required]:text-destructive [&_.control-label_.required]:ml-0.5',
   '[&_.text-danger]:text-xs [&_.text-danger]:text-destructive [&_.error-detail]:text-xs [&_.error-detail]:text-destructive [&_.error-detail]:list-disc [&_.error-detail]:pl-4',
 ].join(' ')
@@ -146,6 +159,7 @@ export const EmailTemplateConfigForm: React.FC<EmailTemplateConfigFormProps> = (
         uiSchema={mergedUiSchema}
         formData={formData}
         validator={validator}
+        transformErrors={ignoreSystemKeyErrors}
         templates={{ ButtonTemplates: buttonTemplates, ArrayFieldItemTemplate, ObjectFieldTemplate: GroupedObjectFieldTemplate }}
         readonly={readOnly}
         disabled={readOnly}

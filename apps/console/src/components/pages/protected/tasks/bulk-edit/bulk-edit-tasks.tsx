@@ -190,12 +190,12 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
                           <div className="flex flex-col items-center gap-2">
                             {item.selectedObject.name === 'taskKindName' ? (
                               <CreatableCustomTypeEnumSelect
+                                itemLabel="task type"
                                 value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
                                 options={item.selectedObject?.options || []}
                                 onCreateOption={createTaskType}
                                 triggerClassName="w-60"
                                 placeholder={item.selectedObject?.placeholder ?? ''}
-                                searchPlaceholder="Search task type..."
                                 onValueChange={(value) =>
                                   update(index, {
                                     ...item,

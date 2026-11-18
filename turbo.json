@@ -30,6 +30,8 @@
         "NODE_ENV",
         "API_REST_URL",
         "API_GQL_URL",
+        "API_FORWARDER_SECRET",
+        "CLOUDFLARE_INGRESS_SECRET",
         "NEXT_PUBLIC_OPENLANE_URL",
 
         // Auth Settings

@@ -194,12 +194,12 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                           <div className="flex flex-col items-center gap-2">
                             {item.selectedObject.name === 'riskKindName' || item.selectedObject.name === 'riskCategoryName' ? (
                               <CreatableCustomTypeEnumSelect
+                                itemLabel={item.selectedObject.name === 'riskKindName' ? 'risk type' : 'risk category'}
                                 value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
                                 options={item.selectedObject?.options || []}
                                 onCreateOption={item.selectedObject.name === 'riskKindName' ? createRiskType : createRiskCategory}
                                 triggerClassName="w-60"
                                 placeholder={item.selectedObject?.placeholder ?? ''}
-                                searchPlaceholder={item.selectedObject.name === 'riskKindName' ? 'Search risk type...' : 'Search risk category...'}
                                 onValueChange={(value) =>
                                   update(index, {
                                     ...item,

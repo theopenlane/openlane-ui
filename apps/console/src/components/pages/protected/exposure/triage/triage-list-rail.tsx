@@ -3,6 +3,8 @@
 import React from 'react'
 import { Loader2, Search } from 'lucide-react'
 import { Input } from '@repo/ui/input'
+import { Button } from '@repo/ui/button'
+import { cn } from '@repo/ui/lib/utils'
 import { getSeverityStyle } from '@/utils/severity'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import { getSeverityLabel, type TriageFacet, type TriageGroups, type TriageVuln } from './triage-utils'
@@ -35,7 +37,7 @@ const VulnRow: React.FC<{ vuln: TriageVuln; isSelected: boolean; onSelect: (id: 
     <button
       type="button"
       onClick={() => onSelect(vuln.id)}
-      className={`flex w-full items-center gap-3 border-l-2 px-3 py-2.5 text-left transition-colors ${isSelected ? 'border-brand bg-muted' : 'border-transparent hover:bg-muted/60'}`}
+      className={`flex w-full items-center gap-3 border-l-2 px-3 py-2.5 text-left transition-colors ${isSelected ? 'border-primary bg-muted' : 'border-transparent hover:bg-muted/60'}`}
     >
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-sm font-semibold" style={getSeverityStyle(severityLabel)}>
         {typeof vuln.score === 'number' ? vuln.score.toFixed(1) : '—'}
@@ -75,19 +77,15 @@ const TriageListRail: React.FC<Props> = ({ groups, counts, search, onSearchChang
           <Search size={15} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input value={search} onChange={(e) => onSearchChange(e.target.value)} placeholder="Search vulnerabilities…" className="pl-8" />
         </div>
-        <div className="flex flex-wrap gap-2">
-          {chips.map((chip) => (
-            <button
-              key={chip.key}
-              type="button"
-              onClick={() => onFacetChange(chip.key)}
-              className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-                facet === chip.key ? 'border-brand bg-brand/10 text-brand' : 'border-border text-muted-foreground hover:bg-muted'
-              }`}
-            >
-              {chip.label}
-            </button>
-          ))}
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter vulnerabilities">
+          {chips.map((chip) => {
+            const isActive = facet === chip.key
+            return (
+              <Button key={chip.key} type="button" variant="tag" aria-pressed={isActive} className={cn(isActive && 'is-active')} onClick={() => onFacetChange(chip.key)}>
+                {chip.label}
+              </Button>
+            )
+          })}
         </div>
       </div>
 
@@ -118,15 +116,9 @@ const TriageListRail: React.FC<Props> = ({ groups, counts, search, onSearchChang
 
             {hasMore && (
               <div className="p-3">
-                <button
-                  type="button"
-                  onClick={onLoadMore}
-                  disabled={isLoadingMore}
-                  className="flex w-full items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted disabled:opacity-60"
-                >
-                  {isLoadingMore && <Loader2 size={14} className="animate-spin" />}
+                <Button type="button" variant="outline" full loading={isLoadingMore} disabled={isLoadingMore} onClick={onLoadMore}>
                   {isLoadingMore ? 'Loading…' : 'Load more'}
-                </button>
+                </Button>
               </div>
             )}
           </>

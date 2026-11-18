@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth/auth'
 import { type NextRequest, NextResponse } from 'next/server'
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
 
 interface SSOTokenAuthorizeRequest {
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       Authorization: `Bearer ${accessToken}`,
     }
 
-    const ssoData = await secureFetch(`${process.env.API_REST_URL}/v1/sso/token/authorize`, {
+    const ssoData = await serverSecureFetch(`${process.env.API_REST_URL}/v1/sso/token/authorize`, {
       headers,
       method: 'POST',
       body: JSON.stringify({

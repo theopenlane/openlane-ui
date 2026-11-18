@@ -72,7 +72,7 @@ const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode
           <span className="font-medium">Name</span>
         </div>
         {interactive ? (
-          <span className="cursor-pointer wrap-break-word text-brand hover:underline inline-flex items-center gap-1" {...activatable(() => window.open(node.link, '_blank'))}>
+          <span className="cursor-pointer wrap-break-word hover:underline inline-flex items-center gap-1" {...activatable(() => window.open(node.link, '_blank'))}>
             {display.name}
             <ExternalLink size={12} />
           </span>
@@ -370,13 +370,12 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
     const group = groupedSections[selectedGroup]
     const mapEntry = ObjectAssociationMap[selectedGroup as keyof typeof ObjectAssociationMap]
     const typeColor = colorMap[selectedGroup] || '#ccc'
-    const coloredIconSrc = mapEntry?.svg ? `data:image/svg+xml;charset=utf8,${encodeURIComponent(mapEntry.svg.replaceAll('currentColor', typeColor))}` : undefined
+    const TypeIcon = mapEntry?.icon
 
     return (
       <div className="flex flex-col h-full overflow-auto">
         <div className="flex items-center gap-2 mb-4">
-          {/* eslint-disable-next-line @next/next/no-img-element -- data URI; next/image does not optimize data URIs */}
-          {coloredIconSrc && <img src={coloredIconSrc} alt="" className="w-5 h-5" />}
+          {TypeIcon && <TypeIcon className="size-5 shrink-0" aria-hidden />}
           <span className="text-sm font-normal">{group.label}</span>
           <span
             className="text-xs font-normal px-1.5 py-0.5"

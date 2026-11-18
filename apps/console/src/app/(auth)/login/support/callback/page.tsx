@@ -58,7 +58,7 @@ const SupportCallbackContent: React.FC = () => {
   return (
     <div className="flex h-full w-full min-h-screen justify-center items-center">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand mx-auto mb-4"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
         <p className="text-lg font-medium">Completing Openlane support authentication...</p>
         <p className="text-sm text-gray-600 mt-2">Please wait while we start your support session.</p>
       </div>

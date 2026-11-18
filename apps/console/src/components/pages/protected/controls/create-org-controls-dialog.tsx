@@ -535,7 +535,7 @@ export function CreateOrgControlsRowsList({
                       title={row.description.trim() ? 'Write a title from the description' : 'Add a description first'}
                       className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
                     >
-                      <Sparkles size={12} className="text-brand" />
+                      <Sparkles size={12} />
                       {pendingTitleKeys.includes(rowKey(row)) ? 'Writing…' : 'Generate title'}
                     </button>
                   )}
@@ -544,7 +544,7 @@ export function CreateOrgControlsRowsList({
                       className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground"
                       title="The docs gave no title for this control, so AI wrote one from the description below. The description itself is unchanged from the docs"
                     >
-                      <Sparkles size={12} className="text-brand" />
+                      <Sparkles size={12} />
                       AI-written title
                     </span>
                   )}

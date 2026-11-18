@@ -1,12 +1,12 @@
 'use client'
 
-import { type Ref, useMemo, useState } from 'react'
+import { type Ref, useMemo, useRef, useState } from 'react'
 import { Check, ChevronDown, Plus, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { cn } from '@repo/ui/lib/utils'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { type CustomTypeEnumOption, findCustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
+import { type CustomTypeEnumOption, findCustomTypeEnumOption, useCustomTypeEnumsStatus } from '@/lib/graphql-hooks/custom-type-enum'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
@@ -14,6 +14,7 @@ interface CreatableCustomTypeEnumSelectProps {
   triggerId?: string
   value?: string
   options: CustomTypeEnumOption[]
+  itemLabel: string
   onValueChange: (value: string) => void | Promise<void>
   onCreateOption?: (value: string) => Promise<void>
   allowCreate?: boolean
@@ -33,12 +34,13 @@ export const CreatableCustomTypeEnumSelect = ({
   triggerId,
   value,
   options,
+  itemLabel,
   onValueChange,
   onCreateOption,
   allowCreate,
   clearable = false,
-  placeholder = 'Select',
-  searchPlaceholder = 'Search...',
+  placeholder = `Select ${itemLabel}`,
+  searchPlaceholder = `Search ${itemLabel}...`,
   disabled = false,
   useCustomDisplay = true,
   triggerClassName,
@@ -48,13 +50,15 @@ export const CreatableCustomTypeEnumSelect = ({
   onOpenChange,
 }: CreatableCustomTypeEnumSelectProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen)
+  const [searchValue, setSearchValue] = useState('')
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const setOpen = (next: boolean) => {
     setIsOpen(next)
     onOpenChange?.(next)
   }
-  const [searchValue, setSearchValue] = useState('')
   const [createdOptions, setCreatedOptions] = useState<CustomTypeEnumOption[]>([])
   const { errorNotification } = useNotification()
+  const { isResolved: optionsResolved, isError: optionsFailed } = useCustomTypeEnumsStatus()
 
   const canCreate = allowCreate ?? !!onCreateOption
 
@@ -77,6 +81,16 @@ export const CreatableCustomTypeEnumSelect = ({
     const needle = trimmedSearch.toLowerCase()
     return !allOptions.some((option) => option.value.toLowerCase() === needle || option.label.toLowerCase() === needle)
   }, [allOptions, canCreate, trimmedSearch])
+
+  const showCreatePrompt = canCreate && optionsResolved && allOptions.length === 0 && !trimmedSearch
+  const isLoadingOptions = !optionsResolved && !optionsFailed
+
+  const emptyMessage = (() => {
+    if (trimmedSearch) return 'No results found.'
+    if (optionsResolved) return `No ${itemLabel} options yet.`
+    if (optionsFailed) return `Could not load ${itemLabel} options.`
+    return `Loading ${itemLabel} options...`
+  })()
 
   const handleSelectValue = async (nextValue: string) => {
     setOpen(false)
@@ -122,12 +136,20 @@ export const CreatableCustomTypeEnumSelect = ({
       </PopoverTrigger>
       <PopoverContent ref={contentRef} className={cn('min-w-(--radix-popover-trigger-width) w-auto p-0 flex flex-col', contentClassName)} align="start">
         <Command>
-          <CommandInput className="text-muted-foreground" placeholder={searchPlaceholder} value={searchValue} onValueChange={setSearchValue} />
+          <CommandInput ref={searchInputRef} className="text-muted-foreground" placeholder={searchPlaceholder} searching={isLoadingOptions} value={searchValue} onValueChange={setSearchValue} />
           <CommandList>
             {!showCreateOption && (
               <CommandEmpty className="p-0">
-                <div className="p-4 text-center text-sm text-muted-foreground">No results found.</div>
+                <div className="p-4 text-center text-sm text-muted-foreground">{emptyMessage}</div>
               </CommandEmpty>
+            )}
+            {showCreatePrompt && (
+              <CommandGroup>
+                <CommandItem value="create-prompt" onSelect={() => searchInputRef.current?.focus()} className="cursor-pointer">
+                  <Plus className="mr-2 h-4 w-4" />
+                  <span>Create {itemLabel}</span>
+                </CommandItem>
+              </CommandGroup>
             )}
             <CommandGroup>
               {clearable && value && (

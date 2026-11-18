@@ -29,10 +29,10 @@ type BrowseIntegrationsGridProps = {
   allTags: string[]
   selectedTags: string[]
   setSelectedTags: (tags: string[]) => void
-  canManage: boolean
+  canEdit: boolean
 }
 
-export const BrowseIntegrationsGrid = ({ availableIntegrations, statusFilter, setStatusFilter, searchQuery, allTags, selectedTags, setSelectedTags, canManage }: BrowseIntegrationsGridProps) => {
+export const BrowseIntegrationsGrid = ({ availableIntegrations, statusFilter, setStatusFilter, searchQuery, allTags, selectedTags, setSelectedTags, canEdit }: BrowseIntegrationsGridProps) => {
   const normalizedQuery = searchQuery.trim().toLowerCase()
 
   const searchAndTagMatches = useMemo(
@@ -115,13 +115,13 @@ export const BrowseIntegrationsGrid = ({ availableIntegrations, statusFilter, se
       ) : grouped ? (
         <div className="flex flex-col gap-8">
           {sections.map((section) => (
-            <IntegrationTagSection key={section.title} {...section} canManage={canManage} forceExpanded={selectedTags.length > 0} />
+            <IntegrationTagSection key={section.title} {...section} canEdit={canEdit} forceExpanded={selectedTags.length > 0} />
           ))}
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredAvailableIntegrations.map((integration) => (
-            <AvailableIntegrationCard key={integration.id} integration={integration} canManage={canManage} />
+            <AvailableIntegrationCard key={integration.id} integration={integration} canEdit={canEdit} />
           ))}
         </div>
       )}
@@ -147,11 +147,11 @@ type IntegrationTagSectionProps = {
   title: string
   description?: string
   integrations: AvailableIntegrationNode[]
-  canManage: boolean
+  canEdit: boolean
   forceExpanded?: boolean
 }
 
-const IntegrationTagSection = ({ title, description, integrations, canManage, forceExpanded = false }: IntegrationTagSectionProps) => {
+const IntegrationTagSection = ({ title, description, integrations, canEdit, forceExpanded = false }: IntegrationTagSectionProps) => {
   const [expanded, setExpanded] = useState(false)
 
   useEffect(() => {
@@ -184,7 +184,7 @@ const IntegrationTagSection = ({ title, description, integrations, canManage, fo
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visibleIntegrations.map((integration) => (
-          <AvailableIntegrationCard key={integration.id} integration={integration} canManage={canManage} />
+          <AvailableIntegrationCard key={integration.id} integration={integration} canEdit={canEdit} />
         ))}
       </div>
     </section>

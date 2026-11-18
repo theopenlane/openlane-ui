@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth/auth'
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { type NextRequest, NextResponse } from 'next/server'
 import { parseProxyResponse } from '../proxy-response'
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     const upstreamURL = `${openlaneAPIUrl}/v1/integrations/${encodeURIComponent(integrationId)}/health`
 
-    const upstreamResponse = await secureFetch(upstreamURL, {
+    const upstreamResponse = await serverSecureFetch(upstreamURL, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

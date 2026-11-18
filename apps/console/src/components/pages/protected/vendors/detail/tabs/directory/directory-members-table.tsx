@@ -1,5 +1,7 @@
 import React from 'react'
-import Link from 'next/link'
+import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 import { Badge } from '@repo/ui/badge'
 import { cn } from '@repo/ui/lib/utils'
 import { formatDate } from '@/utils/date'
@@ -20,6 +22,8 @@ const directoryIdentityLabel = (account: VendorDirectoryMember['directoryAccount
 }
 
 const DirectoryMembersTable: React.FC<DirectoryMembersTableProps> = ({ members }) => {
+  const openObjectSheet = useOpenObjectSheet()
+
   if (members.length === 0) {
     return <div className="px-4 py-3 text-sm italic text-muted-foreground">No members in this group.</div>
   }
@@ -50,9 +54,7 @@ const DirectoryMembersTable: React.FC<DirectoryMembersTableProps> = ({ members }
               <div className="px-3 py-2 truncate">{directoryIdentityLabel(account)}</div>
               <div className="px-3 py-2 truncate">
                 {personnel ? (
-                  <Link href={`/registry/personnel/${personnel.id}`} className="text-blue-500 hover:underline">
-                    {personnel.fullName || personnel.email || personnel.id}
-                  </Link>
+                  <ObjectSheetLink id={personnel.id} kind={ObjectAssociationNodeEnum.IDENTITY_HOLDER} label={personnel.fullName || personnel.email || personnel.id} onOpenSheet={openObjectSheet} />
                 ) : (
                   <span className="italic">No personnel record</span>
                 )}

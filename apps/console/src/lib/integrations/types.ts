@@ -70,12 +70,18 @@ export type IntegrationOperationInput = {
   schema?: IntegrationSchemaNode
 }
 
+export type IntegrationOperationPolicy = {
+  inline?: boolean
+  reconcile?: boolean
+}
+
 export type IntegrationOperationMetadata = {
   name: string
   description?: string
   requiredPermissions?: string[]
   disabledForAll: boolean
   stored?: boolean
+  policy?: IntegrationOperationPolicy
   input?: IntegrationOperationInput
 }
 

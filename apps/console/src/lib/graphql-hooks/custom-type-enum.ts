@@ -36,6 +36,7 @@ export const GLOBAL_ENUM_FIELD = {
   encryptionStatus: 'encryption_status',
   securityTier: 'security_tier',
   criticality: 'criticality',
+  controlOrigin: 'control_origin',
 } as const
 
 export const FILE_CATEGORY_ENUM = { objectType: GLOBAL_ENUM_OBJECT_TYPE, field: 'category' } as const
@@ -115,6 +116,11 @@ export const useShadowedSystemEnumIds = () => {
   const { allNodes, isComplete } = useAllCustomTypeEnums()
   const shadowedIds = useMemo(() => getShadowedSystemEnumIds(allNodes), [allNodes])
   return { shadowedIds, isResolved: isComplete }
+}
+
+export const useCustomTypeEnumsStatus = () => {
+  const { data, isPlaceholderData, isError } = useAllCustomTypeEnums()
+  return { isResolved: !!data && !isPlaceholderData, isError }
 }
 
 export const useGetCustomTypeEnums = ({ where }: { where?: CustomTypeEnumWhereInput } = {}) => {

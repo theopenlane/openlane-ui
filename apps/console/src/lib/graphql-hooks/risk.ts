@@ -1,3 +1,6 @@
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { getNodes } from '@/lib/graphql-hooks/connection'
+import { useModuleGatedQuery } from '@/lib/graphql-hooks/use-module-gated-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
@@ -16,6 +19,7 @@ import {
   UPDATE_RISK_COMMENT,
   GET_RISK_ASSOCIATIONS,
   GET_RISK_COMMENTS,
+  GET_RISK_ACTIVITY,
 } from '@repo/codegen/query/risk'
 
 import {
@@ -46,6 +50,8 @@ import {
   type GetRiskAssociationsQuery,
   type GetRiskCommentsQuery,
   type GetRiskCommentsQueryVariables,
+  type RiskActivityQuery,
+  type RiskActivityQueryVariables,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { useMemo } from 'react'
@@ -257,4 +263,17 @@ export const useGetRiskAssociations = (riskId?: string) => {
     queryFn: async () => client.request<GetRiskAssociationsQuery>(GET_RISK_ASSOCIATIONS, { riskId: riskId as string }),
     enabled: !!riskId,
   })
+}
+
+export const useRiskActivity = ({ enabled, ...variables }: RiskActivityQueryVariables & { enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+  const { data, isLoading } = useModuleGatedQuery({
+    objectType: ObjectTypes.RISK,
+    queryKey: ['risks', 'activity', variables],
+    queryFn: () => client.request<RiskActivityQuery, RiskActivityQueryVariables>(GET_RISK_ACTIVITY, variables),
+    enabled,
+  })
+  const risks = useMemo(() => getNodes(data?.risks), [data])
+
+  return { risks, totalCount: data?.risks?.totalCount ?? 0, isLoading }
 }

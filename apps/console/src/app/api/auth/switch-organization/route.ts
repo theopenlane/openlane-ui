@@ -4,6 +4,7 @@ import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import { csrfHeader } from '@repo/dally/auth'
 import { getCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
 import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
+import { coreFetch } from '@/lib/server/core-fetch'
 
 export async function POST(request: Request) {
   const session = await auth()
@@ -30,7 +31,7 @@ export async function POST(request: Request) {
     headers[csrfHeader] = csrfToken
   }
 
-  const fData = await fetch(`${process.env.API_REST_URL}/v1/switch`, {
+  const fData = await coreFetch(`${process.env.API_REST_URL}/v1/switch`, {
     method: 'POST',
     headers,
     body: JSON.stringify(bodyData),

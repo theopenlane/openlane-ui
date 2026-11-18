@@ -52,7 +52,7 @@ export const SelectField = <TUpdateInput,>({
   layout = 'vertical',
   labelClassName,
   triggerClassName,
-  placeholder = 'Select',
+  placeholder,
   renderValue,
   renderOption,
 }: SelectFieldProps<TUpdateInput>) => {
@@ -79,11 +79,12 @@ export const SelectField = <TUpdateInput,>({
             {shouldShowInput ? (
               onCreateOption ? (
                 <CreatableCustomTypeEnumSelect
+                  itemLabel={label.toLowerCase()}
+                  placeholder={placeholder}
                   value={field.value ?? undefined}
                   options={options}
                   onCreateOption={onCreateOption}
                   useCustomDisplay={useCustomDisplay}
-                  searchPlaceholder={`Search ${label.toLowerCase()}...`}
                   onValueChange={async (val) => {
                     field.onChange(val)
                     if (!isEditing && !isCreate && handleUpdate) {
@@ -105,7 +106,7 @@ export const SelectField = <TUpdateInput,>({
                 >
                   <FormControl>
                     <SelectTrigger className={cn('w-full', triggerClassName)}>
-                      <SelectValue placeholder={placeholder}>
+                      <SelectValue placeholder={placeholder ?? 'Select'}>
                         {renderOption && field.value ? (
                           renderOption(field.value)
                         ) : useCustomDisplay ? (

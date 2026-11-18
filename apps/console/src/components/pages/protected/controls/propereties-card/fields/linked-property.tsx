@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from '@/components/shared/link/link'
 
 export const LinkedProperty = ({ label, href, value, icon }: { label: string; href: string; value: string; icon: React.ReactNode }) => (
   <div className="grid grid-cols-[160px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
@@ -7,9 +7,7 @@ export const LinkedProperty = ({ label, href, value, icon }: { label: string; hr
       <div className="text-sm">{label}</div>
     </div>
     <div className="text-sm">
-      <Link href={href} className="text-blue-500 hover:underline">
-        {value}
-      </Link>
+      <Link href={href}>{value}</Link>
     </div>
   </div>
 )

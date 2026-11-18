@@ -595,3 +595,18 @@ export const GET_POLICY_COMMENTS_BY_ID = gql`
     }
   }
 `
+
+export const GET_INTERNAL_POLICY_ACTIVITY = gql`
+  query InternalPolicyActivity($where: InternalPolicyWhereInput, $orderBy: [InternalPolicyOrder!], $first: Int) {
+    internalPolicies(where: $where, orderBy: $orderBy, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          name
+          createdAt
+        }
+      }
+    }
+  }
+`

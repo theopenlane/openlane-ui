@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth/auth'
 import { csrfHeader } from '@repo/dally/auth'
 import { getCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
+import { coreFetch } from '@/lib/server/core-fetch'
 
 export async function POST(request: Request) {
   const session = await auth()
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
       headers[csrfHeader] = csrfToken
     }
 
-    const fData = await fetch(`${process.env.API_REST_URL}/v1/impersonation/end`, {
+    const fData = await coreFetch(`${process.env.API_REST_URL}/v1/impersonation/end`, {
       method: 'POST',
       headers,
       body: JSON.stringify(bodyData),

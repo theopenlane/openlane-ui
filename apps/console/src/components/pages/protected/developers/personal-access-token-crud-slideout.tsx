@@ -342,7 +342,7 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
         <SheetTrigger asChild>
           {triggerText ? (
             <div className="flex cursor-pointer">
-              <p className="text-brand">Create token</p>
+              <p>Create token</p>
               <p>?</p>
             </div>
           ) : (

@@ -76,7 +76,7 @@ export const InviteActions = ({ inviteId, recipient, role }: InviteActionsProps)
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="secondary" className="-mr-2" data-testid="invite-actions-trigger">
-          <MoreHorizontal className="h-4 w-4 text-brand" />
+          <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-10">

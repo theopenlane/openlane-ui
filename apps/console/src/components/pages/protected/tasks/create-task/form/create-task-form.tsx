@@ -296,14 +296,7 @@ const CreateTaskForm: React.FC<TProps> = ({ ref, ...props }: TProps) => {
                               />
                             </div>
                             <FormControl>
-                              <CreatableCustomTypeEnumSelect
-                                value={field.value}
-                                options={taskKindOptions}
-                                onValueChange={field.onChange}
-                                onCreateOption={createTaskKind}
-                                placeholder="Select"
-                                searchPlaceholder="Search task type..."
-                              />
+                              <CreatableCustomTypeEnumSelect itemLabel="task type" value={field.value} options={taskKindOptions} onValueChange={field.onChange} onCreateOption={createTaskKind} />
                             </FormControl>
                             {form.formState.errors.taskKindName && <p className="text-red-500 text-sm">{form.formState.errors.taskKindName.message}</p>}
                           </FormItem>
