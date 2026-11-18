@@ -14,6 +14,7 @@ import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ROW_ACTIONS_COLUMN_ID } from '@repo/ui/pinned-columns'
 import { AssessmentResponseStatusLabel } from '@/components/shared/enum-mapper/assessment-response-enum'
@@ -61,11 +62,15 @@ const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, showDeliv
     data,
     isLoading,
     isFetching,
+    isError,
+    error,
   } = useCampaignTargetsWithFilter({
     where,
     pagination,
     enabled: !!campaignId,
   })
+
+  useQueryErrorNotification({ error, description: 'Failed to load recipients' })
 
   const recipientLinks = useRecipientLinks(recipients)
   const openObjectSheet = useOpenObjectSheet()
@@ -149,7 +154,7 @@ const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, showDeliv
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
         tableKey={TableKeyEnum.CAMPAIGN_RECIPIENTS}
-        noResultsText="No recipients found"
+        noResultsText={isError ? 'Recipients could not be loaded' : 'No recipients found'}
       />
       <ConfirmationDialog
         open={!!pendingRemoval}

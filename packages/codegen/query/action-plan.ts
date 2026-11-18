@@ -20,8 +20,6 @@ export const GET_ALL_ACTION_PLANS = gql`
           details
           dueDate
           fileID
-          hasPendingWorkflow
-          hasWorkflowHistory
           id
           internalOwner
           internalOwnerUser {
@@ -82,8 +80,6 @@ export const ACTION_PLAN = gql`
       details
       dueDate
       fileID
-      hasPendingWorkflow
-      hasWorkflowHistory
       id
       internalOwner
       internalOwnerUser {

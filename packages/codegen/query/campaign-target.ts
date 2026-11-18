@@ -1,32 +1,21 @@
 import { gql } from 'graphql-request'
 
 export const GET_ALL_CAMPAIGN_TARGETS = gql`
-  query CampaignTargetsWithFilter($where: CampaignTargetWhereInput, $orderBy: [CampaignTargetOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+  query CampaignTargetsWithFilter($where: CampaignTargetWhereInput, $orderBy: [CampaignTargetOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor, $withContact: Boolean = false) {
     campaignTargets(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       totalCount
       edges {
         node {
-          campaignID
-          completedAt
-          contactID
-          contact {
-            id
-          }
-          createdAt
-          createdBy
+          id
           email
           fullName
-          groupID
-          hasPendingWorkflow
-          hasWorkflowHistory
-          id
-          metadata
-          sentAt
           status
-          updatedAt
-          updatedBy
-          userID
-          workflowEligibleMarker
+          sentAt
+          completedAt
+          createdAt
+          contact @include(if: $withContact) {
+            id
+          }
         }
       }
       pageInfo {
@@ -106,8 +95,6 @@ export const CAMPAIGN_TARGET = gql`
       email
       fullName
       groupID
-      hasPendingWorkflow
-      hasWorkflowHistory
       id
       metadata
       sentAt

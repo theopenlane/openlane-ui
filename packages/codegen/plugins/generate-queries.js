@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const { toKebab, toUpperSnake, pluralizeTypeName, isExcludedCrudType, EXCLUDED_FIELDS, EXCLUDED_ASSOCIATIONS } = require('./lib')
+const { toKebab, toUpperSnake, pluralizeTypeName, isExcludedCrudType, EXCLUDED_FIELDS, WORKFLOW_ADDON_FIELDS, EXCLUDED_ASSOCIATIONS } = require('./lib')
 
 const schemaPath = path.join(__dirname, '..', 'src', 'schema-types.ts')
 const queryOutputDir = path.join(__dirname, '..', 'query')
@@ -41,7 +41,7 @@ function extractFields(bodyContent) {
     const fieldMatch = trimmed.match(/^(\w+)\??:\s*([^;]+);?/)
     if (fieldMatch) {
       const [, fieldName, fieldType] = fieldMatch
-      if (EXCLUDED_FIELDS.includes(fieldName)) continue
+      if (EXCLUDED_FIELDS.includes(fieldName) || WORKFLOW_ADDON_FIELDS.includes(fieldName)) continue
       if (isScalarField(fieldType)) {
         fields.add(fieldName)
       }

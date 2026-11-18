@@ -21,6 +21,8 @@ import {
 
 import { type TPagination } from '@repo/ui/pagination-types'
 import { getNodes } from '@/lib/graphql-hooks/connection'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
 import {
   GET_ALL_CAMPAIGN_TARGETS,
   GET_CAMPAIGN_TARGETS_WITH_CAMPAIGN,
@@ -45,18 +47,14 @@ export type CampaignTargetsNodeNonNull = NonNullable<CampaignTargetsNode>
 
 export const useCampaignTargetsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllCampaignTargetsArgs) => {
   const { client } = useGraphQLClient()
+  const withContact = useHasObjectType(ObjectTypes.CONTACT)
   const queryResult = useQuery<CampaignTargetsWithFilterQuery, unknown>({
-    queryKey: ['campaignTargets', where, orderBy, pagination?.page, pagination?.pageSize],
-    queryFn: async (): Promise<CampaignTargetsWithFilterQuery> => {
-      const result = await client.request<CampaignTargetsWithFilterQuery>(GET_ALL_CAMPAIGN_TARGETS, { where, orderBy, ...pagination?.query })
-      return result as CampaignTargetsWithFilterQuery
-    },
+    queryKey: ['campaignTargets', where, orderBy, pagination?.page, pagination?.pageSize, withContact],
+    queryFn: async () => client.request<CampaignTargetsWithFilterQuery, CampaignTargetsWithFilterQueryVariables>(GET_ALL_CAMPAIGN_TARGETS, { where, orderBy, ...pagination?.query, withContact }),
     enabled,
   })
 
-  const edges = queryResult.data?.campaignTargets?.edges
-
-  const CampaignTargetsNodes = useMemo(() => (edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [edges])
+  const CampaignTargetsNodes = useMemo(() => getNodes(queryResult.data?.campaignTargets), [queryResult.data])
 
   return { ...queryResult, CampaignTargetsNodes }
 }
@@ -84,7 +82,7 @@ export const useCampaignTargetStats = ({ where, enabled = true }: { where?: Camp
     enabled,
   })
 
-  const nodes = useMemo(() => (queryResult.data?.campaignTargets?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [queryResult.data])
+  const nodes = useMemo(() => getNodes(queryResult.data?.campaignTargets), [queryResult.data])
 
   return {
     ...queryResult,
