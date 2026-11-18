@@ -10,7 +10,9 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { formatDate } from '@/utils/date'
 import { type TaskQuery, type TaskTaskStatus, type UpdateTaskInput } from '@repo/codegen/src/schema'
-import { useTaskStore } from '../../../hooks/useTaskStore'
+import { useOrganizationMemberOptions } from '@/lib/graphql-hooks/organization'
+import { StatusLine } from '@/components/shared/status-line/status-line'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { type EditTaskFormData } from '../../../hooks/use-form-schema'
 import { TaskStatusIconMapper, TaskStatusOptions } from '@/components/shared/enum-mapper/task-enum'
 import RelatedObjects from './related-objects'
@@ -38,8 +40,17 @@ const allProperties = ['assigneeID', 'due', 'status', 'taskKindName', 'tags']
 
 const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEditing, setInternalEditing, handleUpdate, isEditAllowed, isTemplate }) => {
   const { control, formState, watch, resetField } = useFormContext<EditTaskFormData>()
-  const { orgMembers } = useTaskStore()
+  const isEditingAssignee = isEditing || internalEditing === 'assigneeID'
+  const { orgMembers, isPending: isMembersPending, error: membersError } = useOrganizationMemberOptions({ enabled: isEditingAssignee })
+  useQueryErrorNotification({ error: isEditingAssignee ? membersError : null, description: 'Failed to load members' })
   const persistField = usePersistFormField<EditTaskFormData>()
+
+  const getAssigneeLabel = (assigneeId: string | null | undefined) => {
+    if (!assigneeId) return undefined
+    const memberLabel = orgMembers?.find((member) => member.value === assigneeId)?.label
+    if (memberLabel) return memberLabel
+    return assigneeId === taskData?.assignee?.id ? taskData.assignee.displayName : undefined
+  }
 
   const statusOptions = TaskStatusOptions
   const { tagOptions } = useGetTags()
@@ -127,7 +138,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
         <UserRoundPen className="text-primary" size={16} />
         <p className="text-sm w-[120px] shrink-0">Assignee</p>
 
-        {isEditing || internalEditing === 'assigneeID' ? (
+        {isEditingAssignee ? (
           <Controller
             name="assigneeID"
             control={control}
@@ -149,9 +160,14 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                     void persistField('assigneeID', newValue, (options) => handleUpdate(newValue ? { assigneeID: newValue } : { clearAssignee: true }, options))
                   }}
                 >
-                  <SelectTrigger className="w-full">{orgMembers?.find((m) => m.value === field.value)?.label || (field.value ? 'Select' : 'Not Assigned')}</SelectTrigger>
+                  <SelectTrigger className="w-full">{getAssigneeLabel(field.value) || (field.value ? 'Select' : 'Not Assigned')}</SelectTrigger>
                   <SelectContent ref={popoverRef}>
                     <SelectItem value="unassigned">Not Assigned</SelectItem>
+                    {isMembersPending && !membersError && (
+                      <div className="px-2 py-1.5">
+                        <StatusLine>Loading members...</StatusLine>
+                      </div>
+                    )}
                     {orgMembers?.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
@@ -169,9 +185,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} capitalize text-sm pr-5`}
             onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('assigneeID')}
           >
-            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('assigneeID')}>
-              {watch('assigneeID') ? (orgMembers?.find((m) => m.value === watch('assigneeID'))?.label ?? taskData?.assignee?.displayName ?? 'Unassigned') : 'Unassigned'}
-            </p>
+            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('assigneeID')}>{getAssigneeLabel(watch('assigneeID')) ?? 'Unassigned'}</p>
           </HoverPencilWrapper>
         )}
       </div>

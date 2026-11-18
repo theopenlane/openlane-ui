@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/group'
-import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import { useOrganizationMemberOptions } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { type User } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils'
@@ -39,14 +39,8 @@ const AddMembersDialog = () => {
     [membersGroupData?.edges],
   )
 
-  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
+  const { orgMembers: membersOptions } = useOrganizationMemberOptions()
   const { mutateAsync: updateGroup } = useUpdateGroup()
-
-  const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
-    value: member?.node?.user?.id,
-    label: `${member?.node?.user?.displayName}`,
-    membershipId: member?.node?.user?.id,
-  }))
 
   const handleMemberChange = (newSelected: Option[]) => {
     setSelectedMembers(newSelected)
@@ -119,8 +113,7 @@ const AddMembersDialog = () => {
 
         <div className="space-y-2">
           <p className="font-medium">Group member(s)</p>
-          {/* mateo todo: fix type error and remove as Option[] */}
-          {membersOptions && <MultipleSelector defaultOptions={membersOptions as Option[]} value={selectedMembers} onChange={handleMemberChange} />}
+          {membersOptions && <MultipleSelector defaultOptions={membersOptions} value={selectedMembers} onChange={handleMemberChange} />}
         </div>
 
         <DialogFooter className="flex justify-center pt-4">

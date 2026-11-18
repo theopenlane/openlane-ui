@@ -17,6 +17,7 @@ import { useMemo } from 'react'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { buildMutationKey } from '@/components/shared/object-association/utils'
 import { getAssociationActionLabel } from './association-action-labels'
+import { type TOrgMemberOption } from '@/lib/graphql-hooks/organization'
 
 export type BulkEditRisksDialogProps = {
   selectedRisks: { id: string }[]
@@ -508,15 +509,7 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: BulkEditGroup[
   ]
 }
 
-export const getAllSelectOptionsForBulkEditTasks = (
-  membersOptions:
-    | {
-        value: string | undefined
-        label: string
-      }[]
-    | undefined,
-  taskKindOptions: { value: string; label: string }[],
-): SelectOptionSelectedObject[] => {
+export const getAllSelectOptionsForBulkEditTasks = (membersOptions: TOrgMemberOption[] | undefined, taskKindOptions: { value: string; label: string }[]): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditTasks.TaskAssignee,

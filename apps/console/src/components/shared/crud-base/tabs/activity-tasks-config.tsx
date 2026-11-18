@@ -8,14 +8,14 @@ import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/c
 import { TaskFilterIcons, TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { formatDate } from '@/utils/date'
-import type { TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskStore'
+import type { TOrgMemberOption } from '@/lib/graphql-hooks/organization'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export type ActivityTaskRow = Pick<Task, 'id' | 'title' | 'taskKindName' | 'status' | 'assignee' | 'due'>
 
 type TaskKindOption = { label: string; value: string }
 
-export const getActivityTaskFilterFields = (taskKindOptions: TaskKindOption[] = [], orgMembers: TOrgMembers[] = []) =>
+export const getActivityTaskFilterFields = (taskKindOptions: TaskKindOption[] = [], orgMembers: TOrgMemberOption[] = []) =>
   defineFilterFields<TaskWhereInput>()([
     {
       key: 'taskKindNameIn',

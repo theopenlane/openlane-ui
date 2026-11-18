@@ -2,14 +2,19 @@ import { defineFilterFields } from '@/types'
 import { toDayStartIso, type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { addDays, endOfWeek, startOfWeek } from 'date-fns'
 import { TaskTaskStatus, type TaskWhereInput } from '@repo/codegen/src/schema'
-import { type TOrgMembers } from '../hooks/useTaskStore'
+import { type TOrgMemberOption } from '@/lib/graphql-hooks/organization'
 import { TaskFilterIcons } from '@/components/shared/enum-mapper/task-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 import { TASK_TERMINAL_STATUSES } from '@/lib/suggested-tasks/types'
 import { overdueTaskQuickFilter } from '@/components/pages/protected/tasks/util/task'
 
-export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: { value: string; label: string }[], taskKindOptions: { value: string; label: string }[], hasProgramAccess: boolean) =>
+export const getTasksFilterFields = (
+  orgMembers: TOrgMemberOption[],
+  programOptions: { value: string; label: string }[],
+  taskKindOptions: { value: string; label: string }[],
+  hasProgramAccess: boolean,
+) =>
   defineFilterFields<TaskWhereInput>()([
     { key: 'displayID', label: 'DisplayID', type: 'text', icon: TaskFilterIcons.DisplayID },
     { key: 'title', label: 'Title', type: 'text', icon: TaskFilterIcons.Title },

@@ -37,8 +37,6 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { type CustomEvidenceControl } from '../../../evidence/evidence-sheet-config'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
-import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
-import { type TOrgMembers, useTaskStore } from '../../hooks/useTaskStore'
 import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
@@ -81,9 +79,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const { mutateAsync: updateTask, isPending } = useUpdateTask()
-  const { orgMembers, setOrgMembers } = useTaskStore()
   const { data: session } = useSession()
-  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: orgMembers === undefined ? session?.user.activeOrganizationId : undefined })
 
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -110,19 +106,6 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   useEffect(() => {
     setAssociations(initialAssociations)
   }, [initialAssociations])
-
-  useEffect(() => {
-    if (!membersData) return
-    const members = membersData.organization?.members?.edges?.map(
-      (member) =>
-        ({
-          value: member?.node?.user?.id,
-          label: `${member?.node?.user?.displayName}`,
-          membershipId: member?.node?.user?.id,
-        }) as TOrgMembers,
-    )
-    setOrgMembers(members)
-  }, [membersData, setOrgMembers])
 
   const isEditingRef = useRef(isEditing)
 

@@ -13,7 +13,7 @@ import { useSession } from 'next-auth/react'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateTask } from '@/lib/graphql-hooks/task'
-import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import { useOrganizationMemberOptions } from '@/lib/graphql-hooks/organization'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
@@ -70,7 +70,7 @@ const CreateTaskForm: React.FC<TProps> = ({ ref, ...props }: TProps) => {
   const { successNotification, errorNotification } = useNotification()
   const openObjectSheet = useOpenObjectSheet()
   const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
-  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
+  const { orgMembers: membersOptions } = useOrganizationMemberOptions()
 
   const { tagOptions } = useGetTags()
 
@@ -166,12 +166,6 @@ const CreateTaskForm: React.FC<TProps> = ({ ref, ...props }: TProps) => {
     }),
     [isFormDirty, initialAssociations, associations, clearDraft],
   )
-
-  const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
-    value: member?.node?.user?.id,
-    label: `${member?.node?.user?.displayName}`,
-    membershipId: member?.node?.id,
-  }))
 
   const onSubmitHandler = async (data: CreateTaskFormData, action: TSubmitAction) => {
     setSubmittingAction(action)

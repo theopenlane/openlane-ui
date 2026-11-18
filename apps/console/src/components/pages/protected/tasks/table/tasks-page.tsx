@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react'
 import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-table-toolbar'
-import { type TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
+import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { ExportExportFormat, ExportExportType, OrderDirection, TaskOrderField, type TaskWhereInput } from '@repo/codegen/src/schema'
 import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -10,12 +10,9 @@ import TaskBoard from '@/components/pages/protected/tasks/board/task-board'
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useSearchParams } from 'next/navigation'
-import { useSession } from 'next-auth/react'
-import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
-import { Loading } from '@/components/shared/loading/loading'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereContainsKey, whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
@@ -27,14 +24,12 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { resolveTasksWhere } from '@/lib/graphql-hooks/task-where'
 
 const TasksPage: React.FC = () => {
-  const { setSelectedTask, setOrgMembers } = useTaskStore()
+  const { setSelectedTask } = useTaskStore()
   const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.TASK)
   const [activeTab, setActiveTab] = useOrgTableViewMode(TableKeyEnum.TASK)
   const [showMyTasks, setShowMyTasks] = useState<boolean>(false)
   const [filters, setFilters] = useState<TaskWhereInput | null>(null)
   const searchParams = useSearchParams()
-  const { data: session } = useSession()
-  const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { handleExport } = useFileExport()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.TASK, TaskOrderField, [
@@ -115,18 +110,6 @@ const TasksPage: React.FC = () => {
     }
   }, [searchParams, setSelectedTask])
 
-  useEffect(() => {
-    const members = membersData?.organization?.members?.edges?.map(
-      (member) =>
-        ({
-          value: member?.node?.user?.id,
-          label: `${member?.node?.user?.displayName}`,
-          membershipId: member?.node?.user.id,
-        }) as TOrgMembers,
-    )
-    setOrgMembers(members)
-  }, [membersData, setOrgMembers])
-
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
   }, [orderBy])
@@ -166,10 +149,6 @@ const TasksPage: React.FC = () => {
 
   const handleClearSelectedTasks = () => {
     setSelectedTasks([])
-  }
-
-  if (isMembersLoading) {
-    return <Loading />
   }
 
   return (

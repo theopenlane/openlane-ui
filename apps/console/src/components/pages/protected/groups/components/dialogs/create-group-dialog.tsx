@@ -12,9 +12,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle } from 'lucide-react'
 import { GroupMembershipRole, GroupSettingVisibility } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import MultipleSelector from '@repo/ui/multiple-selector'
 import { useCreateGroupWithMembers } from '@/lib/graphql-hooks/group'
-import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import { useOrganizationMemberOptions } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -43,11 +43,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
   const [adminValues, setAdminValues] = useState<{ value: string; label: string }[]>([])
   const { tagOptions } = useGetTags()
 
-  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
-  const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
-    value: member?.node?.user?.id,
-    label: `${member?.node?.user?.displayName}`,
-  }))
+  const { orgMembers: membersOptions } = useOrganizationMemberOptions()
 
   const {
     register,
@@ -150,7 +146,8 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
               Add admins(s):
             </Label>
             <MultipleSelector
-              defaultOptions={membersOptions as Option[]}
+              key={membersOptions ? 'admins-loaded' : 'admins-loading'}
+              defaultOptions={membersOptions}
               value={adminValues}
               onChange={(selected) =>
                 setValue(
@@ -168,7 +165,8 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
               Add member(s):
             </Label>
             <MultipleSelector
-              defaultOptions={membersOptions as Option[]}
+              key={membersOptions ? 'members-loaded' : 'members-loading'}
+              defaultOptions={membersOptions}
               onChange={(selected) =>
                 setValue(
                   'members',
