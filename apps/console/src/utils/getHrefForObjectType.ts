@@ -37,6 +37,7 @@ const SIMPLE_ROUTES: Record<string, (id: string) => string> = {
   scans: (id) => `/exposure/scans?id=${id}`,
   campaigns: (id) => `/automation/campaigns/${id}`,
   assessments: (id) => `/automation/questionnaires/${id}`,
+  templates: (id) => `/automation/questionnaires/templates/template-viewer?id=${id}`,
   findings: (id) => `/exposure/findings/${id}`,
   remediations: (id) => `/exposure/remediations?id=${id}`,
   reviews: (id) => `/exposure/reviews?id=${id}`,
@@ -86,8 +87,6 @@ export const getHrefForSearchEntityType = (
       return getHrefForObjectType('policies', { id: entityId })
     case 'Standard':
       return `/standards/${entityId}`
-    case 'Template':
-      return `/questionnaires/templates/template-viewer?id=${entityId}`
     default:
       return getHrefForObjectType(pluralizeTypeName(entityType), { id: entityId })
   }

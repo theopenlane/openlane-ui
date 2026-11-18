@@ -38,7 +38,7 @@ test.describe('automation — campaigns list tooling', () => {
     await expect(sheet).toBeVisible({ timeout: 10_000 })
     await expect(sheet.getByText('Campaign Name')).toBeVisible({ timeout: 10_000 })
     await expect(sheet.getByPlaceholder('Enter a campaign name')).toBeVisible()
-    await expect(sheet.getByText(/^Select Questionnaire Template/)).toBeVisible()
+    await expect(sheet.getByText(/^Select Questionnaire/)).toBeVisible()
   })
 })
 
@@ -51,7 +51,7 @@ test.describe('automation — campaign create stepper', () => {
     await expect(sheet).toBeVisible({ timeout: 10_000 })
 
     await expect(sheet.getByText(/STEP 1 OF 3/)).toBeVisible({ timeout: 10_000 })
-    await expect(sheet.getByText('No questionnaire template selected')).toBeVisible()
+    await expect(sheet.getByText('No questionnaire selected')).toBeVisible()
   })
 
   test('Next advances from the Campaign Details step to the Targets step', async ({ page }) => {

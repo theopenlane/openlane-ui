@@ -15,6 +15,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CampaignCampaignStatus, CampaignCampaignType } from '@repo/codegen/src/schema'
 import useCampaignFormSchema, { type CampaignFormData } from './hooks/use-campaign-form-schema'
+import { questionnaireCreateInput } from '../questionnaire-source'
 
 interface CreateCampaignSheetProps {
   open: boolean
@@ -36,8 +37,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
 
-  const questionnaireTemplateID = form.watch('questionnaireTemplateID')
-  const hasQuestionnaire = !!questionnaireTemplateID
+  const hasQuestionnaire = !!form.watch('questionnaire')
 
   const resetAll = useCallback(() => {
     setCurrentStep(QUESTIONNAIRE_STEP)
@@ -60,9 +60,8 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
           campaign: {
             name: data.name.trim(),
             description: data.description || undefined,
-            campaignType: data.questionnaireTemplateID ? CampaignCampaignType.QUESTIONNAIRE : CampaignCampaignType.CUSTOM,
             status: CampaignCampaignStatus.DRAFT,
-            templateID: data.questionnaireTemplateID || undefined,
+            ...(data.questionnaire ? questionnaireCreateInput(data.questionnaire) : { campaignType: CampaignCampaignType.CUSTOM }),
             emailTemplateID: data.emailTemplateID || undefined,
           },
           targets: toCampaignTargetInputs(targets),
@@ -91,7 +90,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
     const baseSteps: StepperStep[] = [
       {
         title: 'Campaign Details',
-        description: 'Name your campaign and optionally select a questionnaire template',
+        description: 'Name your campaign and optionally select a questionnaire',
         content: <QuestionnaireStep form={form} />,
       },
       {

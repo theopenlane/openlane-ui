@@ -709,6 +709,20 @@ export interface DeleteBulkAssessmentMutation {
   deleteBulkAssessment: { deletedIDs: Array<string>; notDeletedIDs: Array<string>; error: string | null }
 }
 
+export type GetAssessmentPickerOptionsQueryVariables = Exact<{
+  where?: Types.AssessmentWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetAssessmentPickerOptionsQuery {
+  assessments: {
+    totalCount: number
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{ node: { id: string; name: string; updatedAt: any; internalPolicies: { totalCount: number } } | null } | null> | null
+  }
+}
+
 export type AssetsWithFilterQueryVariables = Exact<{
   where?: Types.AssetWhereInput | null | undefined
   orderBy?: Array<Types.AssetOrder> | Types.AssetOrder | null | undefined
@@ -1136,6 +1150,7 @@ export interface CampaignQuery {
     templateID: string | null
     updatedAt: any
     updatedBy: string | null
+    assessment: { id: string; name: string; updatedAt: any; internalPolicies: { totalCount: number } } | null
     template: { id: string; name: string; description: string | null; updatedAt: any; jsonconfig: any } | null
   }
 }

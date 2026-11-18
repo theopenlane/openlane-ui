@@ -105,11 +105,12 @@ export const useCreateCampaignWithOptionalTargets = () => {
       const result = await client.request<CreateCampaignMutation, CreateCampaignMutationVariables>(CREATE_CAMPAIGN, variables)
       return result.createCampaign.campaign.id
     },
-    onSuccess: () => {
+    onSuccess: (_id, { campaign }) => {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] })
       queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
       queryClient.invalidateQueries({ queryKey: ['campaignTargetStats'] })
       queryClient.invalidateQueries({ queryKey: ['emailTemplates'] })
+      if (campaign.assessmentID) queryClient.invalidateQueries({ queryKey: ['assessments'] })
     },
   })
 }
@@ -119,10 +120,11 @@ export const useUpdateCampaign = () => {
   const queryClient = useQueryClient()
   return useMutation<UpdateCampaignMutation, unknown, UpdateCampaignMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_CAMPAIGN, variables),
-    onSuccess: () => {
+    onSuccess: (_data, { input }) => {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] })
       queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
       queryClient.invalidateQueries({ queryKey: ['emailTemplates'] })
+      if (input.assessmentID || input.clearAssessment) queryClient.invalidateQueries({ queryKey: ['assessments'] })
     },
   })
 }
@@ -135,6 +137,7 @@ export const useDeleteCampaign = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] })
       queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
+      queryClient.invalidateQueries({ queryKey: ['assessments'] })
     },
   })
 }
@@ -148,14 +151,20 @@ export const useLaunchCampaign = () => {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] })
       queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
       queryClient.invalidateQueries({ queryKey: ['campaignTargetStats'] })
+      queryClient.invalidateQueries({ queryKey: ['assessments'] })
     },
   })
 }
 
 export const useSendCampaignTestEmail = () => {
   const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
   return useMutation<SendCampaignTestEmailMutation, unknown, SendCampaignTestEmailMutationVariables>({
     mutationFn: async (variables) => client.request(SEND_CAMPAIGN_TEST_EMAIL, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['campaigns'] })
+      queryClient.invalidateQueries({ queryKey: ['assessments'] })
+    },
   })
 }
 

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { Ban, Calendar, CalendarClock, ExternalLink, FileText, Lock, Mail, Rocket, SendHorizontal } from 'lucide-react'
+import { Ban, CalendarClock, Lock, Mail, Rocket, SendHorizontal } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { CAMPAIGN_TERMINAL_STATUSES, useCampaign, useUpdateCampaign, useLaunchCampaign, useResendCampaignIncompleteTargets } from '@/lib/graphql-hooks/campaign'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
@@ -34,7 +34,9 @@ import { type CampaignDetailsValues, EditDetailsDialog } from './edit-details-di
 import { ChangeTemplateDialog } from './change-template-dialog'
 import { AddRecipientsDialog } from './add-recipients-dialog'
 import { SelectQuestionnaireDialog } from '../create/steps/questionnaire/select-questionnaire-dialog'
-import { getQuestionCount } from '../create/steps/questionnaire/questionnaire-metrics'
+import { isSameQuestionnaire, questionnaireRefFromChoice, questionnaireUpdateInput, type TQuestionnaireChoice } from '../questionnaire-source'
+import { getCampaignQuestionnaire } from './campaign-questionnaire'
+import { CampaignQuestionnaireCard } from './campaign-questionnaire-card'
 import { useTemplateSelect } from '@/lib/graphql-hooks/template'
 import { TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { CampaignStatusIcon } from '@/components/shared/enum-mapper/campaign-enum'
@@ -73,7 +75,7 @@ const doesEmailEventExists = (metadata: campaignTargetMetadata, eventType: campa
 }
 
 const getLaunchBlockedReason = ({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount }: LaunchGateInput): string | undefined => {
-  if (!hasCampaignContent) return 'Select a questionnaire template or an email template first.'
+  if (!hasCampaignContent) return 'Select a questionnaire or an email template first.'
   if (isFetchingRecipients) return 'Checking recipients...'
   if (hasRecipientsError) return 'Recipients could not be loaded. Refresh and try again.'
   if (recipientCount === 0) return 'Add at least one recipient first.'
@@ -95,7 +97,8 @@ const CampaignDetailPage: React.FC = () => {
   const campaignId = params.id
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data, isLoading } = useCampaign(campaignId)
-  const isQuestionnaireCampaign = !!data?.campaign?.templateID
+  const questionnaire = data?.campaign ? getCampaignQuestionnaire(data.campaign) : undefined
+  const isQuestionnaireCampaign = !!questionnaire
   const emailTemplateType = isQuestionnaireCampaign ? EmailTemplateType.QUESTIONNAIRE : EmailTemplateType.GENERAL
   const { emailTemplateOptions, isLoading: emailTemplatesLoading } = useCampaignEmailTemplateSelect({
     type: emailTemplateType,
@@ -261,17 +264,13 @@ const CampaignDetailPage: React.FC = () => {
 
   const handleRemoveTemplate = () => handleUpdateField(buildTemplateInput(''))
 
-  const handleSelectQuestionnaire = async (templateId: string) => {
-    const replacesExistingTemplate = !!campaign?.templateID && campaign.templateID !== templateId
-    if (
-      await handleUpdateField({
-        templateID: templateId,
-        campaignType: CampaignCampaignType.QUESTIONNAIRE,
-        clearEmailTemplate: isQuestionnaireCampaign ? undefined : true,
-        clearAssessment: replacesExistingTemplate || undefined,
-      })
-    )
+  const handleSelectQuestionnaire = async (choice: TQuestionnaireChoice) => {
+    const ref = questionnaireRefFromChoice(choice)
+    if (!campaign || isSameQuestionnaire(questionnaire?.ref, ref)) {
       setQuestionnaireDialogOpen(false)
+      return
+    }
+    if (await handleUpdateField(questionnaireUpdateInput(ref, campaign))) setQuestionnaireDialogOpen(false)
   }
 
   const handleRemoveQuestionnaire = () => handleUpdateField({ clearTemplate: true, clearAssessment: true, clearEmailTemplate: true, campaignType: CampaignCampaignType.CUSTOM })
@@ -336,9 +335,7 @@ const CampaignDetailPage: React.FC = () => {
 
   const emailTemplateName = emailTemplateOptions.find((option) => option.value === campaign.emailTemplateID)?.label
   const emailTemplateLabel = emailTemplateName ?? (hasEmailTemplate ? (emailTemplatesLoading ? 'Loading...' : 'Unavailable template') : undefined)
-  const questionnaireName = campaign.template?.name ?? undefined
-  const questionnaireQuestionCount = campaign.template ? getQuestionCount(campaign.template.jsonconfig) : 0
-  const questionnaireLabel = questionnaireName ? `${questionnaireName} (${questionnaireQuestionCount} question${questionnaireQuestionCount === 1 ? '' : 's'})` : undefined
+  const questionnaireLabel = questionnaire?.name ? `${questionnaire.name} (${questionnaire.detail})` : undefined
 
   const sharedFieldProps = {
     isEditing: false as const,
@@ -379,8 +376,6 @@ const CampaignDetailPage: React.FC = () => {
       ]}
     />
   )
-
-  const tmpl = campaign.template
 
   const sidebarContent = (
     <>
@@ -461,39 +456,7 @@ const CampaignDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {tmpl && (
-        <div className="rounded-md border border-border bg-card p-4">
-          <h3 className="text-sm font-semibold mb-3">Questionnaire Template</h3>
-          <div className="flex flex-col gap-3">
-            <p className="text-sm font-medium">{tmpl.name}</p>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center h-7 w-7 rounded-sm bg-secondary">
-                <Calendar size={14} className="text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Last updated</p>
-                <p className="text-sm">{tmpl.updatedAt ? formatDate(tmpl.updatedAt) : '—'}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center h-7 w-7 rounded-sm bg-secondary">
-                <FileText size={14} className="text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Questions</p>
-                <p className="text-sm">
-                  {questionnaireQuestionCount} question{questionnaireQuestionCount !== 1 ? 's' : ''}
-                </p>
-              </div>
-            </div>
-            {assessmentHref && (
-              <Button variant="secondary" type="button" className="w-full justify-center" onClick={() => window.open(assessmentHref, '_blank', 'noopener,noreferrer')} icon={<ExternalLink />}>
-                View responses
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
+      {questionnaire && <CampaignQuestionnaireCard questionnaire={questionnaire} responsesHref={assessmentHref} launched={launched} />}
     </>
   )
 
@@ -547,8 +510,7 @@ const CampaignDetailPage: React.FC = () => {
           hasEmailTemplate={hasEmailTemplate}
           emailTemplateLabel={emailTemplateLabel}
           isUpdating={isUpdating}
-          questionnaireName={questionnaireName}
-          questionnaireQuestionCount={questionnaireQuestionCount}
+          questionnaire={questionnaire}
           dueDate={campaign.dueDate as string | null | undefined}
           recipientCount={stats.total}
           launchBlockedReason={launchBlockedReason}
@@ -682,8 +644,8 @@ const CampaignDetailPage: React.FC = () => {
         onOpenChange={setQuestionnaireDialogOpen}
         templates={questionnaireTemplates ?? []}
         isLoading={questionnairesLoading}
-        selectedId={campaign.templateID ?? undefined}
-        onSelect={(template) => handleSelectQuestionnaire(template.id)}
+        selected={questionnaire?.ref}
+        onSelect={handleSelectQuestionnaire}
       />
       <AddRecipientsDialog open={addRecipientsOpen} onOpenChange={setAddRecipientsOpen} campaignId={campaignId} existingEmails={existingRecipientEmails} />
       <ConfirmationDialog
