@@ -8,6 +8,7 @@ import { toCampaignTargetInputs, toEmailKeys, type CampaignTargetEntry, type Tar
 import { useCreateBulkCampaignTarget } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { pluralizeWithCount } from '@/utils/strings'
 
 interface AddRecipientsDialogProps {
   open: boolean
@@ -45,7 +46,7 @@ export const AddRecipientsDialog: React.FC<AddRecipientsDialogProps> = ({ open, 
       await createBulkTarget({
         input: validTargets.map((target) => ({ ...target, campaignID: campaignId })),
       })
-      successNotification({ title: `Added ${validTargets.length} recipient${validTargets.length === 1 ? '' : 's'}` })
+      successNotification({ title: `Added ${pluralizeWithCount(validTargets.length, 'recipient')}` })
       reset()
       onOpenChange(false)
     } catch (error) {
@@ -61,7 +62,7 @@ export const AddRecipientsDialog: React.FC<AddRecipientsDialogProps> = ({ open, 
           <p className="text-sm text-muted-foreground">
             {existingEmails.length === 0
               ? 'This campaign has no recipients yet.'
-              : `${existingEmails.length} recipient${existingEmails.length === 1 ? '' : 's'} already added. They are marked "Already added" and cannot be added twice.`}
+              : `${pluralizeWithCount(existingEmails.length, 'recipient')} already added (marked "Already added"). To remove one, use its remove button in the Recipients table.`}
           </p>
         </DialogHeader>
 
@@ -80,7 +81,7 @@ export const AddRecipientsDialog: React.FC<AddRecipientsDialogProps> = ({ open, 
             Cancel
           </Button>
           <Button variant="primary" type="button" onClick={handleSave} disabled={isPending || validTargets.length === 0}>
-            {isPending ? 'Adding...' : `Add ${validTargets.length} recipient${validTargets.length === 1 ? '' : 's'}`}
+            {isPending ? 'Adding...' : `Add ${pluralizeWithCount(validTargets.length, 'recipient')}`}
           </Button>
         </div>
       </DialogContent>

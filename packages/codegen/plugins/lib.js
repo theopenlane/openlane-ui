@@ -87,6 +87,8 @@ export const EXCLUDED_TYPES = [
 // Fields to exclude from all queries
 export const EXCLUDED_FIELDS = ['deletedAt', 'deletedBy', 'systemInternalID', 'internalNotes', 'ownerID', '__typename', 'owner']
 
+export const WORKFLOW_ADDON_FIELDS = ['hasPendingWorkflow', 'hasWorkflowHistory']
+
 // Edge types to exclude from associations
 export const EXCLUDED_ASSOCIATIONS = ['groups', 'editors', 'viewers', 'blockedGroups', 'user', 'owner', 'organization']
 

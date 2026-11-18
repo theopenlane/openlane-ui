@@ -170,8 +170,6 @@ export interface ActionPlansWithFilterQuery {
         details: string | null
         dueDate: any
         fileID: string | null
-        hasPendingWorkflow: boolean
-        hasWorkflowHistory: boolean
         id: string
         internalOwner: string | null
         metadata: any
@@ -219,8 +217,6 @@ export interface ActionPlanQuery {
     details: string | null
     dueDate: any
     fileID: string | null
-    hasPendingWorkflow: boolean
-    hasWorkflowHistory: boolean
     id: string
     internalOwner: string | null
     metadata: any
@@ -909,6 +905,7 @@ export type CampaignTargetsWithFilterQueryVariables = Exact<{
   after?: any
   last?: number | null | undefined
   before?: any
+  withContact?: boolean | null | undefined
 }>
 
 export interface CampaignTargetsWithFilterQuery {
@@ -916,25 +913,14 @@ export interface CampaignTargetsWithFilterQuery {
     totalCount: number
     edges: Array<{
       node: {
-        campaignID: string | null
-        completedAt: string | null
-        contactID: string | null
-        createdAt: any
-        createdBy: string | null
+        id: string
         email: string
         fullName: string | null
-        groupID: string | null
-        hasPendingWorkflow: boolean
-        hasWorkflowHistory: boolean
-        id: string
-        metadata: any
-        sentAt: string | null
         status: Types.CampaignTargetAssessmentResponseStatus
-        updatedAt: any
-        updatedBy: string | null
-        userID: string | null
-        workflowEligibleMarker: boolean | null
-        contact: { id: string } | null
+        sentAt: string | null
+        completedAt: string | null
+        createdAt: any
+        contact?: { id: string } | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -1001,8 +987,6 @@ export interface CampaignTargetQuery {
     email: string
     fullName: string | null
     groupID: string | null
-    hasPendingWorkflow: boolean
-    hasWorkflowHistory: boolean
     id: string
     metadata: any
     sentAt: string | null
