@@ -202,7 +202,7 @@ export const TextField = <TUpdateInput,>({
             ) : (
               <div
                 className={cn(
-                  'text-sm py-2 rounded-md px-1 w-full min-w-0',
+                  'text-sm py-2 rounded-md px-1 w-full min-w-0 wrap-break-word',
                   isEditAllowed ? 'cursor-pointer hover:bg-accent' : 'cursor-not-allowed',
                   layout === 'horizontal' && 'text-right',
                   multiline && 'whitespace-pre-wrap',
