@@ -1,4 +1,4 @@
-import { EmailTemplateNotificationTemplateFormat, EmailTemplateTemplateContext, type CreateEmailTemplateInput, type EmailTemplateWhereInput } from '@repo/codegen/src/schema'
+import type { EmailTemplateWhereInput } from '@repo/codegen/src/schema'
 import { isOneOf } from '@/utils/type-guards'
 
 export enum EmailTemplateType {
@@ -19,22 +19,3 @@ export const emailTemplateTypesInCatalog = (entries: { key: string }[]): EmailTe
 
 export const emailTemplateTypeWhere = (type: EmailTemplateType): EmailTemplateWhereInput =>
   type === EmailTemplateType.QUESTIONNAIRE ? { key: QUESTIONNAIRE_EMAIL_TEMPLATE_KEY } : { keyNEQ: QUESTIONNAIRE_EMAIL_TEMPLATE_KEY }
-
-type CampaignEmailTemplateFields = Pick<CreateEmailTemplateInput, 'key' | 'name' | 'defaults' | 'active'> & Partial<Pick<CreateEmailTemplateInput, 'locale' | 'format'>>
-
-export const buildCampaignEmailTemplateInput = ({
-  key,
-  name,
-  defaults,
-  active,
-  locale = 'en',
-  format = EmailTemplateNotificationTemplateFormat.HTML,
-}: CampaignEmailTemplateFields): CreateEmailTemplateInput => ({
-  key,
-  name: name.trim(),
-  defaults,
-  active,
-  locale,
-  format,
-  templateContext: EmailTemplateTemplateContext.CAMPAIGN_RECIPIENT,
-})
