@@ -11,7 +11,7 @@ import { createSlateEditor } from 'platejs'
 import { useEditorRef, usePluginOption } from 'platejs/react'
 import { serializeHtml } from 'platejs/static'
 import { splitParagraphNewlinesForExport } from './export-docx-helper'
-import { pdfExportPlugin } from '../editor/plugins/pdf-export-kit.tsx'
+import { DEFAULT_EXPORT_TITLE, documentExportPlugin } from '../editor/plugins/document-export-kit.tsx'
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
@@ -24,14 +24,18 @@ import { ThemeAwareFontBackgroundColorPlugin, ThemeAwareFontColorPlugin } from '
 
 const siteUrl = 'https://platejs.org'
 
+const RESERVED_FILENAME_CHARS = /[\\/:*?"<>|]+/g
+
 const getExportFilename = (title: string, ext: string) => {
   const date = new Date().toISOString().slice(0, 10)
-  return `${title}-${date}.${ext}`
+  const safeTitle = title.replace(RESERVED_FILENAME_CHARS, '-').replace(/^[\s.-]+|[\s.-]+$/g, '') || DEFAULT_EXPORT_TITLE
+  return `${safeTitle}-${date}.${ext}`
 }
 
-export function ExportToolbarButton({ title = 'document', ...props }: DropdownMenuProps & { title?: string }) {
+export function ExportToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef()
-  const onExportPdf = usePluginOption(pdfExportPlugin, 'onExportPdf') as (() => void) | null
+  const onExportPdf = usePluginOption(documentExportPlugin, 'onExportPdf')
+  const title = usePluginOption(documentExportPlugin, 'title')
   const [open, setOpen] = React.useState(false)
 
   const getCanvas = async () => {

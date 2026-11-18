@@ -6,17 +6,16 @@ import { ExportToolbarButton } from './export-toolbar-button'
 import { CommentToolbarButton, useCanComment } from './comment-toolbar-button'
 
 type ReadOnlyToolbarButtonsProps = {
-  title?: string
   className?: string
 }
 
-export function ReadOnlyToolbarButtons({ title = 'Document', className }: ReadOnlyToolbarButtonsProps) {
+export function ReadOnlyToolbarButtons({ className }: ReadOnlyToolbarButtonsProps) {
   const canComment = useCanComment()
 
   return (
     <div className={cn('flex justify-end bg-none border-none pointer-events-none', className)}>
       <ToolbarGroup className="pointer-events-auto">
-        <ExportToolbarButton title={title} />
+        <ExportToolbarButton />
       </ToolbarGroup>
       {canComment && (
         <ToolbarGroup className="pointer-events-auto">

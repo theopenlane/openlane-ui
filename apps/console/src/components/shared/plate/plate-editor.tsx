@@ -9,7 +9,8 @@ import { Editor, EditorContainer, type TPlateEditorStyleVariant } from '@repo/ui
 import { createPlateEditor, Plate, type PlatePlugin, usePlateEditor } from 'platejs/react'
 import { detectFormat } from './usePlateEditor'
 import { type CommentEntityType, discussionPlugin } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
-import { pdfExportPlugin } from '@repo/ui/components/editor/plugins/pdf-export-kit.tsx'
+import { DEFAULT_EXPORT_TITLE, documentExportPlugin } from '@repo/ui/components/editor/plugins/document-export-kit.tsx'
+import { getObjectDisplayName } from '@/utils/object-display-name'
 import { stripDraftCommentMarks } from '@repo/ui/components/editor/comment-utils.ts'
 import { type GetUserProfileQuery } from '@repo/codegen/src/schema.ts'
 import { mapEntityDiscussions, type TDiscussionEntity, useDiscussionUsers } from './discussions'
@@ -31,6 +32,7 @@ export type TPlateEditorProps = {
   toolbarClassName?: string
   containerClassName?: string
   onExportPdf?: () => void
+  exportTitle?: string
   ref?: Ref<PlateEditorRef>
 }
 
@@ -56,22 +58,10 @@ const PlateEditor = ({
   toolbarClassName,
   containerClassName,
   onExportPdf,
+  exportTitle,
   ref,
 }: TPlateEditorProps) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getFirstDefinedProperty = (obj: any, keys: string[], fallback: string): string => {
-    for (const key of keys) {
-      if (obj && obj[key] != null && obj[key] !== '') {
-        return obj[key]
-      }
-    }
-    return fallback
-  }
-
-  const getPlugins = useCallback(() => {
-    const title = getFirstDefinedProperty(entity, ['name', 'title', 'refCode', 'id'], 'Document')
-    return EditorKitVariant[variant]({ title, toolbarClassName }) as PlatePlugin[]
-  }, [variant, entity, toolbarClassName])
+  const getPlugins = useCallback(() => EditorKitVariant[variant]({ toolbarClassName }) as PlatePlugin[], [variant, toolbarClassName])
 
   const [initialSlateValue] = React.useState(() => (Array.isArray(initialValue) ? stripDraftCommentMarks(initialValue) : undefined))
 
@@ -87,9 +77,10 @@ const PlateEditor = ({
     editor.setOption(ThemeAwareFontBackgroundColorPlugin, 'theme', resolvedTheme)
   }, [editor, resolvedTheme])
 
+  const resolvedExportTitle = exportTitle?.trim() || getObjectDisplayName(entity) || DEFAULT_EXPORT_TITLE
   useEffect(() => {
-    editor.setOption(pdfExportPlugin, 'onExportPdf', onExportPdf ?? null)
-  }, [editor, onExportPdf])
+    editor.setOptions(documentExportPlugin, { onExportPdf: onExportPdf ?? null, title: resolvedExportTitle })
+  }, [editor, onExportPdf, resolvedExportTitle])
 
   const plateEditor = React.useMemo(
     () =>

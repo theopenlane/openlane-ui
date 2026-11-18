@@ -10,17 +10,16 @@ import { ReadOnlyToolbarPortalContext } from '@repo/ui/components/editor/read-on
 import { cn } from '@repo/ui/lib/utils'
 
 type ReadOnlyToolbarKitOptions = {
-  title?: string
   className?: string
 }
 
-const ReadOnlyToolbar = ({ title, className }: ReadOnlyToolbarKitOptions) => {
+const ReadOnlyToolbar = ({ className }: ReadOnlyToolbarKitOptions) => {
   const portalTarget = useContext(ReadOnlyToolbarPortalContext)
 
   if (portalTarget) {
     return createPortal(
       <Toolbar>
-        <ReadOnlyToolbarButtons title={title} />
+        <ReadOnlyToolbarButtons />
       </Toolbar>,
       portalTarget,
     )
@@ -28,17 +27,17 @@ const ReadOnlyToolbar = ({ title, className }: ReadOnlyToolbarKitOptions) => {
 
   return (
     <Toolbar className="w-full">
-      <ReadOnlyToolbarButtons title={title} className={cn('w-full mt-[-7rem]', className)} />
+      <ReadOnlyToolbarButtons className={cn('w-full mt-[-7rem]', className)} />
     </Toolbar>
   )
 }
 
-export function createReadOnlyToolbarKit({ title, className }: ReadOnlyToolbarKitOptions = {}) {
+export function createReadOnlyToolbarKit({ className }: ReadOnlyToolbarKitOptions = {}) {
   return [
     createPlatePlugin({
       key: 'read-only-toolbar',
       render: {
-        beforeContainer: () => <ReadOnlyToolbar title={title} className={className} />,
+        beforeContainer: () => <ReadOnlyToolbar className={className} />,
       },
     }),
   ]
