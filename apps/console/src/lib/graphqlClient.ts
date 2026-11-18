@@ -11,6 +11,7 @@ import { probeSession, resetSessionProbe, SessionUnavailableError } from './auth
 import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
 import { ACCESS_EXPIRY_MARGIN_MS, tokenExpiresAt } from './auth/utils/token-claims'
 import { describeToken, logSessionEvent } from './auth/utils/session-log'
+import { withoutModuleAccessErrors } from './graphql-module-access'
 
 export { getIsSessionInvalid, markSessionExpired } from './auth/utils/session-status'
 
@@ -192,11 +193,11 @@ export const useFetchWithRetry = (cookieAuth = false) => {
   return fetchWithRetry
 }
 
-export const useGetGraphQLClient = (cookieAuth = false) => {
+export const useGetGraphQLClient = ({ endpoint = GRAPHQL_ENDPOINT, cookieAuth = false }: { endpoint?: string; cookieAuth?: boolean } = {}) => {
   const fetchWithRetry = useFetchWithRetry(cookieAuth)
 
-  return new GraphQLClient(GRAPHQL_ENDPOINT, {
-    fetch: fetchWithRetry,
+  return new GraphQLClient(endpoint, {
+    fetch: async (input: RequestInfo | URL, init?: RequestInit) => withoutModuleAccessErrors(await fetchWithRetry(input, init)),
     credentials: 'include',
   })
 }

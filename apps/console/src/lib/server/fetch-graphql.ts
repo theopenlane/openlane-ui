@@ -2,6 +2,7 @@ import 'server-only'
 import { sessionCookieName } from '@repo/dally/auth'
 import { jsonContentType } from '@/lib/auth/utils/secure-fetch'
 import { coreFetch } from '@/lib/server/core-fetch'
+import { isModuleAccessError } from '@/utils/graphQlErrorMatcher'
 
 interface GraphQLResponse<T> {
   data?: T
@@ -33,7 +34,7 @@ export const queryGraphqlServer = async <T>(query: string, variables: Record<str
 
     const result: GraphQLResponse<T> = await response.json()
 
-    if (result.errors?.length) {
+    if (result.errors?.some((error) => !isModuleAccessError(error))) {
       console.warn('[queryGraphqlServer] GraphQL errors:', result.errors)
       return null
     }

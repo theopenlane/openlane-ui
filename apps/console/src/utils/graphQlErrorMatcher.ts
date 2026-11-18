@@ -72,6 +72,8 @@ const toGraphQlErrorInfos = (error: unknown): TGraphQlErrorInfo[] => {
   return raw.map(toGraphQlErrorInfo).filter((info): info is TGraphQlErrorInfo => info !== null)
 }
 
+export const isModuleAccessError = (error: unknown): boolean => toGraphQlErrorInfo(error)?.code === GraphQlResponseError.NoAccessToModuleErrorCode
+
 const RETRYABLE_CLIENT_STATUSES = new Set([408, 425, 429])
 
 const PERMANENT_ERROR_CODES = new Set<string>([
