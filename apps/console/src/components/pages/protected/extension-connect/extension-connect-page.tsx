@@ -23,7 +23,7 @@ import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
 import { ScopeSummary } from '@/components/shared/token-scopes/scope-summary'
 import { useConnectedAppConnectReason } from '@/components/pages/protected/developers/hooks/use-api-token-access-reason'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useGetAllOrganizations } from '@/lib/graphql-hooks/organization'
+import { useGetOrganizationsForCurrentUser } from '@/lib/graphql-hooks/organization'
 import { useCreateAPIToken, useDeleteApiToken } from '@/lib/graphql-hooks/tokens'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { isEvidenceExtensionReachable, sendConnectionToEvidenceExtension } from '@/lib/evidence-extension'
@@ -36,7 +36,7 @@ const subscribeToNothing = () => () => {}
 const ExtensionConnectPage: React.FC = () => {
   const { data: session } = useSession()
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const { isPending: organizationsPending } = useGetAllOrganizations()
+  const { isLoadingOrganizations: organizationsPending } = useGetOrganizationsForCurrentUser()
   const organization = getOrganizationByID(currentOrgId)?.node
   const accessReason = useConnectedAppConnectReason('Only organization owners and admins can connect the extension for now.')
   const { data: userData, isPending: userPending } = useGetCurrentUser(session?.user?.userId)
