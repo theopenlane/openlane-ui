@@ -2,7 +2,8 @@
 
 import React, { useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { NavigationGuardLink } from 'nextjs-nav-guard'
+import { usePathname } from 'next/navigation'
 import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText, Lock, Ellipsis } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Separator as Hr } from '@repo/ui/separator'
@@ -23,32 +24,22 @@ import { TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { getNavLandingHref } from '@/routes/get-nav-landing-href'
 import { elementAnchor, type TElementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
-const SidebarChildLink: React.FC<{ child: NavItem; anchor: TElementAnchor; pathname: string; secondaryExpanded: boolean; router: ReturnType<typeof useRouter>; locked: boolean }> = ({
+const isHrefActive = (pathname: string, href: string) => pathname === href || pathname.startsWith(`${href}/`)
+
+const SidebarChildLink: React.FC<{ child: NavItem; anchor: TElementAnchor; pathname: string; secondaryExpanded: boolean; locked: boolean }> = ({
   child,
   anchor,
   pathname,
   secondaryExpanded,
-  router,
   locked,
 }) => {
-  const isActive = pathname === child.href || pathname.startsWith(`${child.href}/`)
+  const isActive = isHrefActive(pathname, child.href)
   if (child.hidden) return null
 
   const linkContent = (
     <Link
-      href={child.href ?? '#'}
+      href={child.href}
       {...anchor}
-      onClick={(e) => {
-        if (e.metaKey || e.ctrlKey) return
-        e.preventDefault()
-        router.push(child.href ?? '#')
-      }}
-      onAuxClick={(e) => {
-        if (e.button === 1) {
-          e.preventDefault()
-          window.open(child.href ?? '#', '_blank', 'noopener')
-        }
-      }}
       data-animated-icon-trigger
       className={`group relative flex gap-2 mb-2 rounded-md *:pointer-events-none hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
         secondaryExpanded ? 'items-start min-h-8 px-2.5 py-1.5' : 'items-center justify-center h-8'
@@ -108,7 +99,6 @@ export default function SideNav({
 }: TSideNavProps) {
   const { data: session, status: sessionStatus } = useSession()
   const pathname = usePathname()
-  const router = useRouter()
   const isLocked = useIsNavItemLocked()
   const isOfficial = useIsOfficialDeployment()
 
@@ -128,7 +118,7 @@ export default function SideNav({
     onToggleAction((firstItem?.title?.toLowerCase() as PanelKey) ?? null)
   }, [isLocked, navItems, onToggleAction, openPanel, sessionStatus])
 
-  const handleTogglePanel = (item: NavItem) => {
+  const handleSectionNavigate = (item: NavItem, navigation: { preventDefault: () => void }) => {
     const panelKey = item?.title?.toLowerCase() as PanelKey
     const children = item.children ?? []
 
@@ -136,11 +126,9 @@ export default function SideNav({
       onToggleAction(panelKey)
     }
 
-    if (children.length > 0) {
-      const hasActiveChild = children.some((child) => !child.hidden && (pathname === child.href || pathname.startsWith(`${child.href}/`)))
-      if (!hasActiveChild) {
-        router.push(getNavLandingHref(item, isLocked))
-      }
+    const hasActiveChild = children.some((child) => !child.hidden && isHrefActive(pathname, child.href))
+    if (children.length === 0 || hasActiveChild) {
+      navigation.preventDefault()
     }
   }
 
@@ -154,7 +142,7 @@ export default function SideNav({
         return item
       }
 
-      if (item.children?.some((child) => !child.hidden && (pathname === child.href || pathname.startsWith(`${child.href}/`)))) {
+      if (item.children?.some((child) => !child.hidden && isHrefActive(pathname, child.href))) {
         return item
       }
     }
@@ -180,63 +168,36 @@ export default function SideNav({
         const iconHoverClass = 'animated' in Icon && Icon.animated ? '' : 'group-hover:animate-nav-pop'
         const isExpandable = !!item.children
         const isActive = activeNav?.title === item.title
-        const url = item.params ? item.href + item.params : item.href
+        const href = isExpandable ? getNavLandingHref(item, isLocked) : item.params ? item.href + item.params : item.href
         const anchor = elementAnchor('nav', item.anchor)
 
-        const button = (
+        const navEntry = (
           <div key={idx} className="relative flex w-full items-center justify-center">
             <div className="w-2.5 h-full flex absolute left-0">{isActive && <span className="h-full w-0.5 bg-foreground dark:bg-primary absolute" />}</div>
 
             {isLocked(item) && <Lock className="absolute bottom-6 right-[5px] w-3 h-3 z-90 text-gray-400" />}
 
-            {isExpandable ? (
-              <Button
-                variant="sidebar"
-                {...anchor}
-                onClick={() => handleTogglePanel(item)}
-                data-animated-icon-trigger
-                className={`group relative flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center [&_svg]:size-5!'}`}
-              >
-                <Icon size={primaryExpanded ? 16 : 20} className={`shrink-0 ${iconHoverClass}`} />
-                {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
-              </Button>
-            ) : (
-              <Link
-                href={url}
-                {...anchor}
-                onClick={(e) => {
-                  if (e.metaKey || e.ctrlKey) {
-                    onToggleAction(null)
-                    return
-                  }
-                  e.preventDefault()
-                  onToggleAction(null)
-                  router.push(url)
-                }}
-                onAuxClick={(e) => {
-                  if (e.button === 1) {
-                    e.preventDefault()
-                    window.open(url, '_blank', 'noopener')
-                  }
-                }}
-                data-animated-icon-trigger
-                className={`group relative flex items-center px-2 gap-2 h-8 *:pointer-events-none bg-transparent border border-transparent rounded-[6px] text-muted-foreground transition-all duration-500 ease-in-out hover:bg-nav hover:border-border hover:text-text-paragraph [&.is-active]:bg-nav [&.is-active]:border-border [&.is-active]:text-text-paragraph ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2 justify-start' : 'w-8 justify-center'}`}
-              >
-                <Icon size={primaryExpanded ? 16 : 20} className={`shrink-0 ${iconHoverClass}`} />
-                {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
-              </Link>
-            )}
+            <NavigationGuardLink
+              href={href}
+              {...anchor}
+              onNavigate={(navigation) => (isExpandable ? handleSectionNavigate(item, navigation) : onToggleAction(null))}
+              data-animated-icon-trigger
+              className={`group relative flex items-center px-2 gap-2 h-8 *:pointer-events-none bg-transparent border border-transparent rounded-[6px] text-muted-foreground transition-all duration-500 ease-in-out hover:bg-nav hover:border-border hover:text-text-paragraph [&.is-active]:bg-nav [&.is-active]:border-border [&.is-active]:text-text-paragraph ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2 justify-start' : 'w-8 justify-center'}`}
+            >
+              <Icon size={primaryExpanded ? 16 : 20} className={`shrink-0 ${iconHoverClass}`} />
+              {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
+            </NavigationGuardLink>
           </div>
         )
 
         if (primaryExpanded) {
-          return button
+          return navEntry
         }
 
         return (
           <TooltipProvider delayDuration={100} key={idx}>
             <Tooltip>
-              <TooltipTrigger asChild>{button}</TooltipTrigger>
+              <TooltipTrigger asChild>{navEntry}</TooltipTrigger>
               <TooltipContent side="right" sideOffset={-2}>
                 <p>{item.title}</p>
               </TooltipContent>
@@ -403,7 +364,6 @@ export default function SideNav({
                         anchor={elementAnchor('nav', item.anchor, child.anchor)}
                         pathname={pathname}
                         secondaryExpanded={secondaryExpanded}
-                        router={router}
                         locked={isLocked(child)}
                       />
                     ))}
