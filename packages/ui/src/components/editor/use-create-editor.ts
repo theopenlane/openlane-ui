@@ -43,7 +43,7 @@ import { MinimalisticFloatingToolbarKit } from '@repo/ui/components/editor/plugi
 import { createReadOnlyToolbarKit } from './plugins/read-only-toolbar-kit.tsx'
 import { ReadOnlyFloatingToolbarKit } from './plugins/read-only-floating-toolbar-kit.tsx'
 import { DocxExportKit } from './plugins/docx-export-kit.tsx'
-import { PdfExportKit } from './plugins/pdf-export-kit.tsx'
+import { DocumentExportKit } from './plugins/document-export-kit.tsx'
 
 export const EditorKit = [
   ...TemplatePlaceholderKit,
@@ -88,7 +88,7 @@ export const EditorKit = [
   // Parsers
   ...DocxKit,
   ...DocxExportKit,
-  ...PdfExportKit,
+  ...DocumentExportKit,
   ...MarkdownKit,
   // UI
   ...BlockPlaceholderKit,
@@ -107,7 +107,6 @@ export type MyEditor = TPlateEditor<Value, (typeof EditorKit)[number]>
 export type TPlateEditorVariants = 'basic' | 'standard' | 'advanced' | 'minimal' | 'readonly'
 
 type EditorKitOptions = {
-  title?: string
   toolbarClassName?: string
 }
 
@@ -116,5 +115,5 @@ export const EditorKitVariant = {
   basic: (_options?: EditorKitOptions) => BasicKit,
   standard: (_options?: EditorKitOptions) => AdvancedKit,
   advanced: (_options?: EditorKitOptions) => AdvancedKit,
-  readonly: (options?: EditorKitOptions) => [...EditorKit, ...createReadOnlyToolbarKit({ title: options?.title ?? 'Document', className: options?.toolbarClassName }), ...ReadOnlyFloatingToolbarKit],
+  readonly: (options?: EditorKitOptions) => [...EditorKit, ...createReadOnlyToolbarKit({ className: options?.toolbarClassName }), ...ReadOnlyFloatingToolbarKit],
 }

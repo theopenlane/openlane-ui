@@ -4,6 +4,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
+import { useWatch } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { type Value } from 'platejs'
 import { useCreateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
@@ -29,6 +30,7 @@ const POLICY_DRAFT_KEY = 'draft:policy-create'
 
 const CreatePolicyForm: React.FC = () => {
   const { form } = useFormSchema()
+  const policyName = useWatch({ control: form.control, name: 'name' })
   const searchParams = useSearchParams()
 
   const nameParam = searchParams.get('name')
@@ -154,6 +156,7 @@ const CreatePolicyForm: React.FC = () => {
                       ref={editorRef}
                       onChange={handleDetailsChange}
                       userData={userData}
+                      exportTitle={policyName}
                       clearData={clearData}
                       isCreate={true}
                       onClear={() => setClearData(false)}

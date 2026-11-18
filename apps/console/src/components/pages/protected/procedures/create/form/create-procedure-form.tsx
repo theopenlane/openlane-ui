@@ -4,6 +4,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
+import { useWatch } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { type Value } from 'platejs'
 import { type CreateProcedureInput } from '@repo/codegen/src/schema.ts'
@@ -40,6 +41,7 @@ export type TMetadata = {
 
 const CreateProcedureForm: React.FC = () => {
   const { form } = useFormSchema()
+  const procedureName = useWatch({ control: form.control, name: 'name' })
   const router = useRouter()
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { mutateAsync: createProcedure, isPending: isSubmitting } = useCreateProcedure()
@@ -166,6 +168,7 @@ const CreateProcedureForm: React.FC = () => {
                       key={editorKey}
                       onChange={handleDetailsChange}
                       userData={userData}
+                      exportTitle={procedureName}
                       clearData={clearData}
                       onClear={() => setClearData(false)}
                       isCreate
