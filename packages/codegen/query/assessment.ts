@@ -396,3 +396,25 @@ export const DELETE_BULK_ASSESSMENT = gql`
     }
   }
 `
+
+export const GET_ASSESSMENT_PICKER_OPTIONS = gql`
+  query GetAssessmentPickerOptions($where: AssessmentWhereInput, $first: Int, $after: Cursor) {
+    assessments(where: $where, first: $first, after: $after, orderBy: [{ field: updated_at, direction: DESC }]) {
+      totalCount
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          name
+          updatedAt
+          internalPolicies {
+            totalCount
+          }
+        }
+      }
+    }
+  }
+`

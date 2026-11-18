@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import type { GraphQLClient } from 'graphql-request'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
 import {
@@ -21,6 +21,7 @@ import {
   GET_ASSESSMENT_RESPONSES_TOTAL_COUNT,
   DELETE_ASSESSMENT,
   DELETE_BULK_ASSESSMENT,
+  GET_ASSESSMENT_PICKER_OPTIONS,
 } from '@repo/codegen/query/assessment'
 
 import {
@@ -63,6 +64,8 @@ import {
   type AssessmentResponseWhereInput,
   type AssessmentTemplateCreatePayload,
   type MutationCreateAssessmentTemplateArgs,
+  type GetAssessmentPickerOptionsQuery,
+  type GetAssessmentPickerOptionsQueryVariables,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { getSurveyPolicySources } from '@/components/shared/survey/pdf-document/survey-policy-sources'
@@ -460,4 +463,57 @@ export const useDeleteBulkAssessment = () => {
       queryClient.invalidateQueries({ queryKey: ['assessments'] })
     },
   })
+}
+
+const ASSESSMENT_PICKER_PAGE_SIZE = 25
+
+type TAssessmentPickerConnection = GetAssessmentPickerOptionsQuery['assessments']
+
+export type TAssessmentPickerOption = NonNullable<NonNullable<NonNullable<TAssessmentPickerConnection['edges']>[number]>['node']>
+
+const assessmentPickerOptionKey = (id?: string) => ['assessments', 'picker-option', id] as const
+
+export const useAssessmentPickerOptions = ({ where, enabled = true }: { where?: GetAssessmentPickerOptionsQueryVariables['where']; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useInfiniteQuery<TAssessmentPickerConnection, Error, InfiniteData<TAssessmentPickerConnection>, readonly unknown[], string | null>({
+    queryKey: ['assessments', 'picker-options', where],
+    queryFn: async ({ pageParam }) => {
+      const { assessments } = await client.request<GetAssessmentPickerOptionsQuery, GetAssessmentPickerOptionsQueryVariables>(GET_ASSESSMENT_PICKER_OPTIONS, {
+        where,
+        first: ASSESSMENT_PICKER_PAGE_SIZE,
+        after: pageParam,
+      })
+      return assessments
+    },
+    initialPageParam: null,
+    getNextPageParam: (last) => (last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? null) : null),
+    enabled,
+  })
+
+  const options = useMemo(() => (queryResult.data?.pages ?? []).flatMap((page) => getNodes(page)), [queryResult.data?.pages])
+
+  return { ...queryResult, options, totalCount: queryResult.data?.pages[0]?.totalCount ?? 0 }
+}
+
+export const useAssessmentPickerOption = (id?: string) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<TAssessmentPickerOption | null>({
+    queryKey: assessmentPickerOptionKey(id),
+    queryFn: async () => {
+      const { assessments } = await client.request<GetAssessmentPickerOptionsQuery, GetAssessmentPickerOptionsQueryVariables>(GET_ASSESSMENT_PICKER_OPTIONS, { where: { id }, first: 1 })
+      return getNodes(assessments)[0] ?? null
+    },
+    enabled: !!id,
+  })
+
+  const option = queryResult.data && queryResult.data.id === id ? queryResult.data : undefined
+
+  return { ...queryResult, option, isPending: queryResult.isPending || queryResult.isPlaceholderData }
+}
+
+export const useSeedAssessmentPickerOption = () => {
+  const queryClient = useQueryClient()
+  return useCallback((option: TAssessmentPickerOption) => queryClient.setQueryData(assessmentPickerOptionKey(option.id), option), [queryClient])
 }
