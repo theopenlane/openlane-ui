@@ -7,6 +7,8 @@ export const TESTS_DIR = join(dirname(fileURLToPath(import.meta.url)), 'tests')
 export const SEGMENTS: Record<string, string[]> = {
   smoke: ['smoke.spec.ts'],
 
+  accessibility: ['accessibility-app.spec.ts', 'accessibility-overlays.spec.ts', 'accessibility-public.spec.ts', 'accessibility-records.spec.ts', 'accessibility-trust-center.spec.ts'],
+
   auth: ['auth.spec.ts', 'onboarding.spec.ts', 'org-lifecycle-fresh.spec.ts', 'public.spec.ts', 'storage-state.spec.ts', 'user-settings.spec.ts'],
 
   permissions: ['permissions-matrix.spec.ts', 'permissions-programs-controls.spec.ts', 'permissions.spec.ts'],
