@@ -25,8 +25,7 @@ import { EmailTemplateVariables } from './email-template-variables'
 import { EmailTemplatePreview } from './email-template-preview'
 import { EmailTemplateBrandingDetect } from './email-template-branding-detect'
 import { applyEmailBranding, type TEmailBrandingSuggestion } from './email-template-branding'
-
-const LIST_PATH = '/automation/email-templates'
+import { EMAIL_TEMPLATES_HREF, readEmailTemplateEditorParams } from '@/constants/email-template-routes'
 
 type EmailTemplateEditorValues = {
   name: string
@@ -59,7 +58,7 @@ const EditorCard: React.FC<{ title: string; action?: React.ReactNode; children: 
 export const EmailTemplateEditorPage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const templateId = searchParams.get('id') ?? undefined
+  const { id: templateId, type: requestedType } = readEmailTemplateEditorParams(searchParams)
   const isEditMode = !!templateId
 
   const { setCrumbs } = React.use(BreadcrumbContext)
@@ -112,7 +111,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Automation', href: '/automation' },
-      { label: 'Email Templates', href: LIST_PATH },
+      { label: 'Email Templates', href: EMAIL_TEMPLATES_HREF },
       { label: title, href: '#' },
     ])
   }, [setCrumbs, title])
@@ -120,10 +119,10 @@ export const EmailTemplateEditorPage: React.FC = () => {
   useEffect(() => {
     if (isEditMode) return
     if (selectedKey || entries.length === 0) return
-    const initial = catalogEntryForType(entries, EmailTemplateType.GENERAL) ?? entries[0]
+    const initial = catalogEntryForType(entries, requestedType ?? EmailTemplateType.GENERAL) ?? entries[0]
     setSelectedKey(initial.key)
     setConfigData(initial.exampleValues ?? {})
-  }, [isEditMode, selectedKey, entries])
+  }, [isEditMode, selectedKey, entries, requestedType])
 
   useEffect(() => {
     const t = templateData?.emailTemplate
@@ -136,7 +135,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
     initializedIdRef.current = templateId ?? null
   }, [isEditMode, templateData, templateId])
 
-  const handleCancel = () => router.push(LIST_PATH)
+  const handleCancel = () => router.push(EMAIL_TEMPLATES_HREF)
 
   const handleTypeChange = (type: EmailTemplateType) => {
     const entry = catalogEntryForType(entries, type)
@@ -168,7 +167,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
         await createEmailTemplate({ input: buildCampaignEmailTemplateInput({ key: selectedKey, name, defaults: configData, active }) })
         successNotification({ title: 'Email template created' })
       }
-      router.push(LIST_PATH)
+      router.push(EMAIL_TEMPLATES_HREF)
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
     } finally {

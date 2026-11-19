@@ -8,6 +8,7 @@ import { formatDate } from '@/utils/date'
 import { StepBadge } from '@/components/shared/step-badge/step-badge'
 import { ModeOption } from '../shared/mode-option'
 import { Callout } from '@/components/shared/callout/callout'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { type TCampaignQuestionnaire } from './campaign-questionnaire'
 
 type CampaignContentMode = 'questionnaire' | 'email'
@@ -56,6 +57,7 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
   onLaunch,
 }) => {
   const hasQuestionnaire = !!questionnaire
+  const customizeEmailBlockedReason = hasQuestionnaire ? undefined : 'Select a questionnaire to customize its email.'
   const hasRecipients = recipientCount > 0
 
   const [pendingMode, setPendingMode] = useState<CampaignContentMode>('email')
@@ -160,11 +162,12 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
             <SetupCard
               icon={<Mail size={18} />}
               title="Email template"
-              subtitle={emailTemplateLabel ?? 'System email'}
+              subtitle={customizeEmailBlockedReason ?? emailTemplateLabel ?? 'System email'}
               actionLabel={hasEmailTemplate ? 'Change email' : 'Customize email'}
               onAction={onChangeTemplate}
               secondaryAction={hasEmailTemplate ? { label: 'Use system email', onAction: onRemoveTemplate } : undefined}
-              done
+              disabledReason={customizeEmailBlockedReason}
+              done={hasQuestionnaire}
             />
           </>
         ) : (
@@ -208,7 +211,7 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
           subtitle={launchBlockedReason ?? 'Launch now or schedule for later.'}
           actionLabel="Launch campaign"
           onAction={onLaunch}
-          disabled={!!launchBlockedReason}
+          disabledReason={launchBlockedReason}
           primary
         />
       </div>
@@ -225,11 +228,11 @@ interface SetupCardProps {
   secondaryAction?: { label: string; onAction: () => void }
   done?: boolean
   primary?: boolean
-  disabled?: boolean
+  disabledReason?: string
   extra?: React.ReactNode
 }
 
-const SetupCard: React.FC<SetupCardProps> = ({ icon, title, subtitle, actionLabel, onAction, secondaryAction, done, primary, disabled, extra }) => (
+const SetupCard: React.FC<SetupCardProps> = ({ icon, title, subtitle, actionLabel, onAction, secondaryAction, done, primary, disabledReason, extra }) => (
   <div className="flex items-center gap-4 rounded-md border border-border bg-card p-4">
     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-secondary">{icon}</div>
     <div className="flex min-w-0 flex-1 flex-col">
@@ -242,9 +245,11 @@ const SetupCard: React.FC<SetupCardProps> = ({ icon, title, subtitle, actionLabe
         {secondaryAction.label}
       </Button>
     )}
-    <Button variant={primary ? 'primary' : 'secondary'} type="button" onClick={onAction} disabled={disabled} className="shrink-0">
-      {actionLabel}
-    </Button>
+    <DisabledReasonTooltip reason={disabledReason}>
+      <Button variant={primary ? 'primary' : 'secondary'} type="button" onClick={onAction} disabled={!!disabledReason} className="shrink-0">
+        {actionLabel}
+      </Button>
+    </DisabledReasonTooltip>
     <StepBadge done={done} size="sm" />
   </div>
 )

@@ -25,8 +25,7 @@ import { EmailTemplatePreviewSheet } from './email-template-preview-sheet'
 import { LinkedCampaignsSheet } from './linked-campaigns-sheet'
 import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-
-const EDITOR_PATH = '/automation/email-templates/editor'
+import { emailTemplateCreateHref, emailTemplateEditHref } from '@/constants/email-template-routes'
 
 type StatusFilter = 'all' | 'active' | 'inactive'
 
@@ -70,8 +69,8 @@ export const EmailTemplatesTab: React.FC = () => {
 
   const previewTemplate = useMemo(() => emailTemplatesNodes.find((t) => t.id === previewId), [emailTemplatesNodes, previewId])
 
-  const handleCreate = () => router.push(EDITOR_PATH)
-  const handleEdit = (id: string) => router.push(`${EDITOR_PATH}?id=${id}`)
+  const handleCreate = () => router.push(emailTemplateCreateHref(typeFilter === ALL_TYPES ? undefined : typeFilter))
+  const handleEdit = (id: string) => router.push(emailTemplateEditHref(id))
 
   const handleToggleActive = async (id: string, currentActive: boolean) => {
     try {
