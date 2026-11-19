@@ -388,6 +388,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         policy={policy}
         procedures={procedures}
         procedureCount={procedureCount}
+        discussionEntity={discussionData?.internalPolicy}
         onSendAcknowledgementRequest={acknowledgementAllowed ? () => setIsAcknowledgementDialogOpen(true) : undefined}
         policyPanel={
           policy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION ? (

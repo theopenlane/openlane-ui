@@ -11,14 +11,16 @@ import { useNotification } from '@/hooks/useNotification'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { resolveAuthor } from '@/lib/authors'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 import { type TEntityComments } from '@/lib/graphql-hooks/entity-comments'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { compareByCreatedAt } from '@/lib/sort'
 
 type TCommentsSectionProps = TEntityComments & {
   showHeading?: boolean
 }
 
-const CommentsSection: React.FC<TCommentsSectionProps> = ({ comments, totalCount, isLoading, error, addComment, editComment, removeComment, showHeading = true }) => {
+const CommentsSection: React.FC<TCommentsSectionProps> = ({ comments, totalCount, isLoading, error, canAttachFiles, addComment, editComment, removeComment, showHeading = true }) => {
   const headingId = useId()
   const plateEditorHelper = usePlateEditor()
   const { errorNotification } = useNotification()
@@ -37,8 +39,9 @@ const CommentsSection: React.FC<TCommentsSectionProps> = ({ comments, totalCount
           createdAt: node.createdAt ?? '',
           createdBy: node.createdBy ?? '',
           author: resolveAuthor(node.createdBy, { userMap, tokenMap }),
+          files: getNodes(node.files),
         }))
-        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
+        .sort(compareByCreatedAt),
     [comments, userMap, tokenMap],
   )
 
@@ -55,8 +58,14 @@ const CommentsSection: React.FC<TCommentsSectionProps> = ({ comments, totalCount
   )
 
   const handleAdd = useCallback(
-    (data: TComments) => notifyOnFailure('Failed to add comment', async () => addComment(await plateEditorHelper.convertToHtml(data.comment))),
-    [notifyOnFailure, addComment, plateEditorHelper],
+    (data: TComments) =>
+      notifyOnFailure('Failed to add comment', async () => {
+        const outcome = await addComment(await plateEditorHelper.convertToHtml(data.comment), data.files)
+        if (outcome === 'posted-without-attachments') {
+          errorNotification({ title: 'Attachments not uploaded', description: 'Your comment was posted without its attachments. Please try attaching them again later.' })
+        }
+      }),
+    [notifyOnFailure, addComment, plateEditorHelper, errorNotification],
   )
 
   const handleEdit = useCallback((commentId: string, html: string) => notifyOnFailure('Failed to update comment', () => editComment(commentId, html)), [notifyOnFailure, editComment])
@@ -97,7 +106,7 @@ const CommentsSection: React.FC<TCommentsSectionProps> = ({ comments, totalCount
         </h3>
       )}
       {renderList()}
-      <AddComment onSuccess={handleAdd} />
+      <AddComment onSuccess={handleAdd} canAttachFiles={canAttachFiles} />
     </section>
   )
 }

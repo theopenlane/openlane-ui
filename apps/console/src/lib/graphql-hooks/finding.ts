@@ -251,7 +251,9 @@ export const useFindingComments = (findingId: string | null | undefined) =>
     queryKeyPrefix: FINDING_COMMENTS_KEY,
     entityId: findingId,
     fetchComments: async (client, id) => (await client.request<GetFindingCommentsQuery, GetFindingCommentsQueryVariables>(GET_FINDING_COMMENTS, { findingId: id })).finding.comments,
-    addComment: (client, id, text) => client.request<UpdateFindingMutation, UpdateFindingMutationVariables>(UPDATE_FINDING, { updateFindingId: id, input: { addComment: { text } } }),
+    addComment: async (client, id, text) => {
+      await client.request<UpdateFindingMutation, UpdateFindingMutationVariables>(UPDATE_FINDING, { updateFindingId: id, input: { addComment: { text } } })
+    },
     editComment: (client, commentId, text) =>
       client.request<UpdateFindingCommentMutation, UpdateFindingCommentMutationVariables>(UPDATE_FINDING_COMMENT, { updateFindingCommentId: commentId, input: { text } }),
   })

@@ -12,6 +12,9 @@ import { type Value } from 'platejs'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useHasOrgFullAccess } from '@/lib/query-hooks/permissions'
 import { Button } from '@repo/ui/button'
+import FilePreviewDialog from '@/components/shared/file-preview/file-preview-dialog'
+import { type TCommentFile } from '@/lib/graphql-hooks/entity-comments'
+import { CommentAttachments } from './comment-attachments'
 
 type CommentListProps = {
   comments: TCommentData[]
@@ -29,6 +32,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove, s
   const [draftValue, setDraftValue] = useState<Value | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [commentToDelete, setCommentToDelete] = useState<TCommentData | null>(null)
+  const [previewFile, setPreviewFile] = useState<TCommentFile | null>(null)
 
   const handleEditClick = (item: TCommentData) => {
     setIsEditingItemId(item.id)
@@ -121,11 +125,14 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove, s
                 </div>
 
                 <div className="mt-1">{isEditing ? <PlateEditor initialValue={item.comment} onChange={(val: Value) => setDraftValue(val)} /> : plateEditorHelper.convertToReadOnly(item.comment)}</div>
+                {!!item.files?.length && <CommentAttachments files={item.files} onPreview={setPreviewFile} />}
               </div>
             </div>
           </div>
         )
       })}
+
+      {comments.some((item) => !!item.files?.length) && <FilePreviewDialog file={previewFile} open={!!previewFile} onOpenChange={(open) => !open && setPreviewFile(null)} />}
 
       <ConfirmationDialog
         open={deleteDialogOpen}

@@ -1,25 +1,14 @@
 'use client'
 
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { DocumentStatusBadge } from '@/components/shared/enum-mapper/policy-enum'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import AddComment from '@/components/shared/comments/AddComment'
-import CommentList from '@/components/shared/comments/CommentList'
-import { type TCommentData } from '@/components/shared/comments/types/TCommentData'
-import { type TComments } from '@/components/shared/comments/types/TComments'
-import { useGetInternalPolicyDetailsById, useGetPolicyDiscussionById, useGetPolicyCommentsById, useInsertPolicyComment, useUpdatePolicyComment } from '@/lib/graphql-hooks/internal-policy'
-import { useDeleteNote } from '@/lib/graphql-hooks/control'
-import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
-import { useNotification } from '@/hooks/useNotification'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useQueryClient } from '@tanstack/react-query'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import Skeleton from '@/components/shared/skeleton/skeleton'
+import CommentsSection from '@/components/shared/comments/comments-section'
+import { useGetInternalPolicyDetailsById, useGetPolicyDiscussionById, usePolicyComments } from '@/lib/graphql-hooks/internal-policy'
 import { type Value } from 'platejs'
 import { type Group, type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
-import { resolveAuthor } from '@/lib/authors'
 import { GenericDetailsSheet, type RenderFieldsProps, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
 import { SlideoutPreviewHeader } from '@/components/shared/crud-base/slideout-preview-header'
 import IntegrationDocumentView from '@/components/pages/protected/policies/view/fields/integration-document-view'
@@ -38,76 +27,9 @@ export const ViewPolicySheet: React.FC<Props> = ({ policyId, onClose }) => {
   const normalizeData = useCallback(() => ({}), [])
   const { data, isLoading } = useGetInternalPolicyDetailsById(policyId, !!policyId)
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
-  const { data: commentsData, isLoading: commentsLoading } = useGetPolicyCommentsById(policyId)
-  const { mutateAsync: insertComment } = useInsertPolicyComment()
-  const { mutateAsync: updateComment } = useUpdatePolicyComment()
-  const { mutateAsync: deleteNote } = useDeleteNote()
-  const { errorNotification } = useNotification()
-  const queryClient = useQueryClient()
-  const plateEditorHelper = usePlateEditor()
+  const comments = usePolicyComments(policyId)
 
   const policy = data?.internalPolicy
-  const commentEdges = useMemo(() => commentsData?.internalPolicy?.comments?.edges ?? [], [commentsData])
-
-  const userIds = useMemo(() => {
-    return [...new Set(commentEdges.map((e) => e?.node?.createdBy).filter((id): id is string => typeof id === 'string'))]
-  }, [commentEdges])
-
-  const { userMap, tokenMap, isLoading: usersLoading } = useAuthorMaps(userIds)
-
-  const comments: TCommentData[] = useMemo(() => {
-    return commentEdges.flatMap((item) => {
-      const node = item?.node
-      if (!node) return []
-      return [
-        {
-          id: node.id,
-          comment: node.text ?? '',
-          createdAt: String(node.createdAt ?? ''),
-          author: resolveAuthor(node.createdBy, { userMap, tokenMap }),
-          createdBy: node.createdBy ?? '',
-        },
-      ]
-    })
-  }, [commentEdges, tokenMap, userMap])
-
-  const handleSendComment = useCallback(
-    async (data: TComments) => {
-      if (!policyId) return
-      try {
-        const comment = await plateEditorHelper.convertToHtml(data.comment)
-        await insertComment({ updateInternalPolicyId: policyId, input: { addComment: { text: comment } } })
-        queryClient.invalidateQueries({ queryKey: ['policyComments', policyId] })
-      } catch (error) {
-        errorNotification({ title: 'Error', description: parseErrorMessage(error) })
-      }
-    },
-    [policyId, insertComment, queryClient, plateEditorHelper, errorNotification],
-  )
-
-  const handleEditComment = useCallback(
-    async (commentId: string, newValue: string) => {
-      try {
-        await updateComment({ updateInternalPolicyCommentId: commentId, input: { text: newValue } })
-        queryClient.invalidateQueries({ queryKey: ['policyComments', policyId] })
-      } catch (error) {
-        errorNotification({ title: 'Error', description: parseErrorMessage(error) })
-      }
-    },
-    [updateComment, queryClient, policyId, errorNotification],
-  )
-
-  const handleRemoveComment = useCallback(
-    async (commentId: string) => {
-      try {
-        await deleteNote({ deleteNoteId: commentId })
-        queryClient.invalidateQueries({ queryKey: ['policyComments', policyId] })
-      } catch (error) {
-        errorNotification({ title: 'Error', description: parseErrorMessage(error) })
-      }
-    },
-    [deleteNote, queryClient, policyId, errorNotification],
-  )
 
   const renderHeader = useCallback(({ close }: RenderHeaderProps) => <SlideoutPreviewHeader title="Policy" close={close} fullPagePath={policyId ? `/policies/${policyId}/view` : null} />, [policyId])
 
@@ -159,18 +81,8 @@ export const ViewPolicySheet: React.FC<Props> = ({ policyId, onClose }) => {
   )
 
   const commentsSection = (
-    <div className="space-y-3 px-1 pb-4">
-      <p className="text-sm font-medium">Comments</p>
-      {(commentsLoading || usersLoading) && commentEdges.length > 0 ? (
-        <div className="space-y-2">
-          {commentEdges.map((_, i) => (
-            <Skeleton key={i} height={56} />
-          ))}
-        </div>
-      ) : (
-        <CommentList comments={comments} onEdit={handleEditComment} onRemove={handleRemoveComment} />
-      )}
-      <AddComment onSuccess={handleSendComment} />
+    <div className="px-1 pb-4">
+      <CommentsSection key={policyId} {...comments} />
     </div>
   )
 

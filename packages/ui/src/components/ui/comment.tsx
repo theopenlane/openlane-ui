@@ -632,7 +632,7 @@ export function CommentCreateForm({
     }
 
     if (entityUpdateKey && entityDiscussionKey) {
-      queryClient.invalidateQueries({ queryKey: [entityUpdateKey, entityId] })
+      queryClient.invalidateQueries({ queryKey: [entityUpdateKey, entityId] }, { cancelRefetch: false })
       queryClient.invalidateQueries({ queryKey: [entityDiscussionKey, entityId] })
     }
   }

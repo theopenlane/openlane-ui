@@ -371,7 +371,7 @@ test.describe('policies — comments round-trip', () => {
     await page.getByText(policyName).first().click()
     await expect(page.getByRole('dialog')).toBeVisible({ timeout: 30_000 })
 
-    await postComment(page, page, 'InsertInternalPolicyComment', body)
+    await postComment(page, page, 'AddPolicyComment', body)
     await editFirstComment(page, 'UpdatePolicyComment', edited)
     await deleteFirstComment(page, 'DeleteNote', edited)
   })

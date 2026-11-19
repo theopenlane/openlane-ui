@@ -13,6 +13,7 @@ import { parseCommentTextToChildren } from '@repo/ui/components/editor/plugins/m
 import { getAvatarImageSrc } from '@/components/shared/avatar/avatar'
 import { EMPTY_DISPLAY_NAME, resolveAuthor, UNKNOWN_AUTHOR_ID } from '@/lib/authors'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 
 export type TDiscussionEntity = PolicyDiscussionFieldsFragment | ProcedureDiscussionFieldsFragment | RiskDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment | ControlDiscussionFieldsFragment
 
@@ -90,3 +91,7 @@ export const useDiscussionUsers = (discussions: TDiscussion[], currentUser?: TCu
     return users
   }, [authorIds, currentUser, authorMaps])
 }
+
+export const getCommentedDiscussions = (entity: TDiscussionEntity | undefined) => getNodes(entity?.discussions).filter((discussion) => getNodes(discussion.comments).length > 0)
+
+export const countDiscussionThreads = (entity: TDiscussionEntity | undefined): number => getCommentedDiscussions(entity).length
