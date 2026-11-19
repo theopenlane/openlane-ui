@@ -78,23 +78,25 @@ export function MediaToolbarButton({ nodeType, ...props }: DropdownMenuProps & {
 
   return (
     <>
-      <ToolbarSplitButton
-        onClick={() => {
-          openFilePicker()
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'ArrowDown') {
-            e.preventDefault()
-            setOpen(true)
-          }
-        }}
-        pressed={open}
-      >
-        <ToolbarSplitButtonPrimary>{currentConfig.icon}</ToolbarSplitButtonPrimary>
+      <ToolbarSplitButton pressed={open}>
+        <ToolbarSplitButtonPrimary
+          aria-label={currentConfig.tooltip}
+          onClick={() => {
+            openFilePicker()
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowDown') {
+              e.preventDefault()
+              setOpen(true)
+            }
+          }}
+        >
+          {currentConfig.icon}
+        </ToolbarSplitButtonPrimary>
 
         <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
           <DropdownMenuTrigger asChild>
-            <ToolbarSplitButtonSecondary />
+            <ToolbarSplitButtonSecondary aria-label={`${currentConfig.tooltip} options`} />
           </DropdownMenuTrigger>
 
           <DropdownMenuContent onClick={(e) => e.stopPropagation()} align="start" alignOffset={-32}>

@@ -335,6 +335,9 @@
       },
     },
   },
+  "patchedDependencies": {
+    "@platejs/selection@53.1.6": "patches/@platejs%2Fselection@53.1.6.patch",
+  },
   "overrides": {
     "@radix-ui/react-label": "2.1.17",
     "@radix-ui/react-slot": "1.5.0",

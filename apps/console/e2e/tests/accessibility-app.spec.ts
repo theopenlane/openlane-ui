@@ -26,7 +26,8 @@ const APP_ROUTES: ScannedRoute[] = [
     path: '/standards/template-controls',
     ready: (page) =>
       page
-        .getByRole('heading', { name: /^Template Controls$/ })
+        .getByRole('navigation', { name: /breadcrumb/i })
+        .getByText(/^Template Controls$/)
         .or(page.getByText('Template controls are not available yet'))
         .first(),
   },

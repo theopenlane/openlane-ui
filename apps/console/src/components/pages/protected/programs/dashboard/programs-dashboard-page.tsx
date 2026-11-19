@@ -160,7 +160,7 @@ const ProgramsDashboardPage = () => {
           <div className="flex items-center justify-between">
             <Input icon={<SearchIcon size={16} />} placeholder="Search" value={search} onChange={(event) => setSearch(event.currentTarget.value)} variant="searchTable" />{' '}
           </div>
-          <Tabs value={filterStatus} onValueChange={(v) => setFilterStatus(v as 'ARCHIVED' | 'ACTIVE')} className="space-y-4 ">
+          <Tabs panelless value={filterStatus} onValueChange={(v) => setFilterStatus(v as 'ARCHIVED' | 'ACTIVE')} className="space-y-4 ">
             <TabsList className="size-fit min-w-[18px]">
               <TabsTrigger value="ACTIVE">Active Programs</TabsTrigger>
               <TabsTrigger value="ARCHIVED">Archived</TabsTrigger>

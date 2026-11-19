@@ -131,7 +131,7 @@ const ActivityFeed = ({ activityItems, allActivityItems = activityItems, title =
   const seeAll = (
     <Sheet open={isSeeAllOpen} onOpenChange={setIsSeeAllOpen}>
       <SheetTrigger asChild>
-        <Button variant="transparent" size="sm" className="text-xs">
+        <Button variant="link" className="text-xs">
           See all
         </Button>
       </SheetTrigger>

@@ -146,7 +146,7 @@ export const getMappedControlsActionsColumn = (basePath: string, canEdit: boolea
       <div role="presentation" onClick={(e) => e.stopPropagation()} className="flex justify-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" className="h-8 w-8 p-0">
+            <Button variant="secondary" className="h-8 w-8 p-0" aria-label="Mapping actions">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

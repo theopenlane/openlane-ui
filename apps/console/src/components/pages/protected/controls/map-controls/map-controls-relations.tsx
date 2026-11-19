@@ -11,7 +11,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Button } from '@repo/ui/button'
 import { InfoIcon, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { useId, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 
 const relationTypes = [
@@ -31,12 +31,17 @@ const MapControlsRelations = ({ onDelete, deleteLoading }: Props) => {
   const { control, setValue } = useFormContext()
   const router = useRouter()
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const fieldId = useId()
+  const relationTypeId = `${fieldId}-relation-type`
+  const relationId = `${fieldId}-relation`
 
   return (
     <div className="flex flex-col space-y-6">
       <div className="space-y-2">
         <div className="flex items-center gap-1">
-          <Label className="block text-sm font-medium">Relation type</Label>
+          <Label htmlFor={relationTypeId} className="block text-sm font-medium">
+            Relation type
+          </Label>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -61,7 +66,7 @@ const MapControlsRelations = ({ onDelete, deleteLoading }: Props) => {
           control={control}
           render={({ field }) => (
             <Select value={field.value} onValueChange={(val) => field.onChange(val)}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger id={relationTypeId} className="w-full">
                 <SelectValue placeholder="Intersection" />
               </SelectTrigger>
               <SelectContent>
@@ -107,8 +112,8 @@ const MapControlsRelations = ({ onDelete, deleteLoading }: Props) => {
           control={control}
           render={({ field }) => (
             <div className="flex items-center flex-col">
-              <Slider value={field.value ?? 0} onChange={(val) => field.onChange(val)} />
-              <p className="text-blue-500 cursor-pointer self-start" {...activatable(() => setValue('confidence', undefined, { shouldDirty: true }))}>
+              <Slider value={field.value ?? 0} onChange={(val) => field.onChange(val)} ariaLabel="Confidence" />
+              <p className="text-hyperlink cursor-pointer self-start" {...activatable(() => setValue('confidence', undefined, { shouldDirty: true }))}>
                 Clear
               </p>
             </div>
@@ -118,7 +123,9 @@ const MapControlsRelations = ({ onDelete, deleteLoading }: Props) => {
 
       <div className="space-y-2">
         <div className="flex items-center gap-1">
-          <Label className="block text-sm font-medium">Relation</Label>
+          <Label htmlFor={relationId} className="block text-sm font-medium">
+            Relation
+          </Label>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -131,7 +138,11 @@ const MapControlsRelations = ({ onDelete, deleteLoading }: Props) => {
             </Tooltip>
           </TooltipProvider>
         </div>
-        <Controller name="relation" control={control} render={({ field }) => <Textarea placeholder="Add description..." rows={4} value={field.value ?? ''} onChange={field.onChange} />} />{' '}
+        <Controller
+          name="relation"
+          control={control}
+          render={({ field }) => <Textarea id={relationId} placeholder="Add description..." rows={4} value={field.value ?? ''} onChange={field.onChange} />}
+        />{' '}
       </div>
 
       <div className="flex justify-end space-x-2">

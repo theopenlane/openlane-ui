@@ -1,6 +1,5 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { type FieldValues, useFormContext } from 'react-hook-form'
@@ -10,6 +9,7 @@ import { InfoIcon } from 'lucide-react'
 import { type InternalEditingType } from '../generic-sheet'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { cn } from '@repo/ui/lib/utils'
+import { InlineEditDisplay } from './inline-edit-display'
 
 interface SelectFieldProps<TUpdateInput> {
   name: string
@@ -75,9 +75,9 @@ export const SelectField = <TUpdateInput,>({
             <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>
             {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
           </div>
-          <FormControl>
-            {shouldShowInput ? (
-              onCreateOption ? (
+          {shouldShowInput ? (
+            <FormControl>
+              {onCreateOption ? (
                 <CreatableCustomTypeEnumSelect
                   itemLabel={label.toLowerCase()}
                   placeholder={placeholder}
@@ -125,30 +125,30 @@ export const SelectField = <TUpdateInput,>({
                     ))}
                   </SelectContent>
                 </Select>
-              )
-            ) : (
-              <div
-                className={cn('text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full', layout === 'horizontal' && 'flex justify-end')}
-                {...activatable(() => {
-                  if (isEditAllowed) {
-                    setInternalEditing(name)
-                  }
-                })}
-              >
-                {renderValue && rawValue ? (
-                  renderValue(rawValue)
-                ) : useCustomDisplay ? (
-                  rawValue ? (
-                    <CustomTypeEnumValue value={rawValue} options={options} placeholder={rawValue} />
-                  ) : (
-                    <span className="text-muted-foreground italic">Not set</span>
-                  )
+              )}
+            </FormControl>
+          ) : (
+            <InlineEditDisplay
+              className={cn('text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full', layout === 'horizontal' && 'flex justify-end')}
+              onActivate={() => {
+                if (isEditAllowed) {
+                  setInternalEditing(name)
+                }
+              }}
+            >
+              {renderValue && rawValue ? (
+                renderValue(rawValue)
+              ) : useCustomDisplay ? (
+                rawValue ? (
+                  <CustomTypeEnumValue value={rawValue} options={options} placeholder={rawValue} />
                 ) : (
-                  displayValue || <span className="text-muted-foreground italic">Not set</span>
-                )}
-              </div>
-            )}
-          </FormControl>
+                  <span className="text-muted-foreground italic">Not set</span>
+                )
+              ) : (
+                displayValue || <span className="text-muted-foreground italic">Not set</span>
+              )}
+            </InlineEditDisplay>
+          )}
         </FormItem>
       )}
     />

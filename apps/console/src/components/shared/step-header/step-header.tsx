@@ -18,10 +18,16 @@ export function StepHeader<T extends readonly Step[]>({ stepper, disabledIDs = [
   return (
     <div className={cn('flex justify-between items-center', className)}>
       <div className="flex items-center gap-5">
-        {visibleSteps.map((s) => {
+        {visibleSteps.map((s, index) => {
           const isActive = stepper.current.id === s.id
           return (
-            <div key={s.id} {...activatable(() => !disabledIDs.includes(s.id) && onStepSelect(s.id))} className="flex items-center cursor-pointer">
+            <div
+              key={s.id}
+              {...activatable(() => !disabledIDs.includes(s.id) && onStepSelect(s.id))}
+              aria-label={`Go to step ${index + 1} of ${visibleSteps.length}`}
+              aria-current={isActive ? 'step' : undefined}
+              className="flex items-center cursor-pointer"
+            >
               <StepIndicator active={isActive} />
             </div>
           )

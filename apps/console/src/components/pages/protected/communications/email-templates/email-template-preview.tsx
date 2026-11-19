@@ -61,7 +61,7 @@ export const EmailTemplatePreview: React.FC<EmailTemplatePreviewProps> = ({ prev
               Updating
             </div>
           )}
-          <div className="min-h-0 flex-1 overflow-y-auto">
+          <div role="region" aria-label="Email template preview" tabIndex={0} className="min-h-0 flex-1 overflow-y-auto">
             <iframe
               ref={frameRef}
               srcDoc={sanitizedPreview}

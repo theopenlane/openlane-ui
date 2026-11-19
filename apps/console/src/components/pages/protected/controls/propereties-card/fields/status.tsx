@@ -4,7 +4,7 @@ import useEscapeKey from '@/hooks/useEscapeKey'
 import { type ControlControlStatus, type SubcontrolControlStatus, type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import type { ControlByIdNode } from '@/lib/graphql-hooks/control'
 import type { SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { ControlIconMapper16, controlIconsMap, ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
@@ -69,6 +69,7 @@ export const Status = ({
     }
   }
 
+  const labelId = useId()
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
 
@@ -102,7 +103,9 @@ export const Status = ({
     <div className="grid grid-cols-[160px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
         <div className="pt-0.5">{controlIconsMap.Status}</div>
-        <div className="text-sm">Status</div>
+        <div id={labelId} className="text-sm">
+          Status
+        </div>
       </div>
       <div ref={triggerRef} className="text-sm">
         {editing ? (
@@ -116,7 +119,7 @@ export const Status = ({
                   handleChange(val, field.onChange)
                 }}
               >
-                <SelectTrigger data-testid="control-status-select">
+                <SelectTrigger data-testid="control-status-select" aria-labelledby={labelId}>
                   <SelectValue>{field.value === 'NULL' ? '-' : getEnumLabel(field.value as ControlControlStatus)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent ref={popoverRef}>

@@ -1,7 +1,7 @@
 'use client'
 
 import { activatable } from '@repo/ui/lib/a11y'
-import React, { useRef, useState } from 'react'
+import React, { useId, useRef, useState } from 'react'
 import { type ProcedureByIdFragment, type ProcedureDocumentStatus, type UpdateProcedureInput } from '@repo/codegen/src/schema'
 import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-react'
 import { Controller, type PathValue, type UseFormReturn } from 'react-hook-form'
@@ -35,6 +35,8 @@ type TPropertiesCardProps = {
 }
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEditing, editAllowed, handleUpdate, activeField, setActiveField }) => {
+  const procedureTypeLabelId = useId()
+  const procedureTypeValueId = useId()
   const [internalEditingField, setInternalEditingField] = useState<null | 'status' | 'procedureKindName' | 'reviewDue' | 'revision'>(null)
   const isControlled = activeField !== undefined && setActiveField !== undefined
   const editingField = isControlled ? activeField : internalEditingField
@@ -238,7 +240,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help text-sm">Procedure Type</span>
+                  <span id={procedureTypeLabelId} className="cursor-help text-sm">
+                    Procedure Type
+                  </span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -284,6 +288,8 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
             />
           ) : (
             <div
+              id={procedureTypeValueId}
+              aria-labelledby={`${procedureTypeLabelId} ${procedureTypeValueId}`}
               className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}
               {...activatable(() => {
                 if (!isEditing && editAllowed) setEditingField('procedureKindName')

@@ -147,7 +147,7 @@ test.describe('controls — linking (seeded)', () => {
     await page.goto(`/controls/${controlId}`, { waitUntil: 'domcontentloaded' })
     await expect(editControlButton(page)).toBeVisible({ timeout: 45_000 })
 
-    await page.getByTestId('assoc-view-toggle').click()
+    await page.getByTestId('assoc-view-toggle').getByRole('button', { name: 'List view' }).click()
     const removeX = page.getByTestId('objects-chip-remove')
     if ((await removeX.count()) === 0) {
       await page.getByText('Policies', { exact: true }).click()

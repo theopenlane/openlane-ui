@@ -76,14 +76,17 @@ const DocumentActions = ({ documentId, watermarkEnabled, onPreview }: DocumentAc
 
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <div
-            role="presentation"
+          <Button
+            type="button"
+            variant="transparent"
+            size="icon-sm"
+            aria-label="Document actions"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center justify-center bg-homepage-card-item border border-switch-bg-inactive rounded-md w-8 h-8 cursor-pointer"
+            className="bg-homepage-card-item border border-switch-bg-inactive rounded-md w-8 h-8 cursor-pointer"
           >
             <MoreHorizontal size={16} />
-          </div>
+          </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="min-w-[15px] bg-homepage-card-item border border-switch-bg-inactive">

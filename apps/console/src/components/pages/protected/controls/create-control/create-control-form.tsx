@@ -5,7 +5,7 @@ import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
 import { Switch } from '@repo/ui/switch'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -29,9 +29,8 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useControlSelect, useCreateControl, useUpdateControl, useGetControlById, useGetControlDiscussionById, useGetControlMinifiedById } from '@/lib/graphql-hooks/control'
 import { useNotification } from '@/hooks/useNotification'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { Popover, PopoverContent } from '@repo/ui/popover'
+import { Popover, PopoverAnchor, PopoverContent } from '@repo/ui/popover'
 import { Command, CommandItem, CommandList, CommandEmpty } from '@repo/ui/command'
-import { PopoverTrigger } from '@radix-ui/react-popover'
 import useClickOutside from '@/hooks/useClickOutside'
 import { type Option } from '@repo/ui/multiple-selector'
 import { useCreateSubcontrol, useUpdateSubcontrol, useGetSubcontrolMinifiedById } from '@/lib/graphql-hooks/subcontrol'
@@ -100,6 +99,12 @@ export default function CreateControlForm() {
   const dropdownRef = useClickOutside(() => setOpen(false))
   const navigateDocs = useDocsHelpNavigate()
   const searchRef = useRef(null)
+  const fieldId = useId()
+  const parentControlInputId = `${fieldId}-parent-control`
+  const parentControlPopoverId = `${fieldId}-parent-control-popover`
+  const createObjectiveId = `${fieldId}-create-objective`
+  const createImplementationId = `${fieldId}-create-implementation`
+  const createMultipleId = `${fieldId}-create-multiple`
 
   const initialValues = {
     status: ControlControlStatus.NOT_IMPLEMENTED,
@@ -402,13 +407,17 @@ export default function CreateControlForm() {
 
             {isCreateSubcontrol && (
               <div className=" mt-4">
-                <Label>
+                <Label htmlFor={parentControlInputId}>
                   Parent Control <span className="text-destructive">*</span>
                 </Label>
                 <div ref={dropdownRef} className="relative w-full">
                   <Input
                     ref={searchRef}
+                    id={parentControlInputId}
                     role="combobox"
+                    aria-expanded={open}
+                    aria-controls={parentControlPopoverId}
+                    aria-autocomplete="list"
                     value={search}
                     placeholder="Search Control"
                     onFocus={() => setOpen(true)}
@@ -423,8 +432,8 @@ export default function CreateControlForm() {
                   {errors?.controlID && <p className="text-destructive text-sm mt-1">Parent Control is required</p>}
 
                   <Popover open={open}>
-                    <PopoverTrigger className="h-0 absolute" />
-                    <PopoverContent onOpenAutoFocus={(e) => e.preventDefault()} align="start" className="absolute z-50  w-[334px] p-0">
+                    <PopoverAnchor className="h-0 absolute" />
+                    <PopoverContent id={parentControlPopoverId} onOpenAutoFocus={(e) => e.preventDefault()} align="start" className="absolute z-50  w-[334px] p-0">
                       <Command shouldFilter={false}>
                         <CommandList>
                           <CommandEmpty>No results.</CommandEmpty>
@@ -480,8 +489,8 @@ export default function CreateControlForm() {
             <div className="mt-4 space-y-4">
               {/* Create Objective Checkbox */}
               <div className="flex items-center gap-2">
-                <Switch checked={createObjective} onCheckedChange={setCreateObjective} />
-                <Label>Create Control Objective</Label>
+                <Switch id={createObjectiveId} checked={createObjective} onCheckedChange={setCreateObjective} />
+                <Label htmlFor={createObjectiveId}>Create Control Objective</Label>
               </div>
               {createObjective && (
                 <Controller
@@ -495,8 +504,8 @@ export default function CreateControlForm() {
 
               {/* Create Implementation Checkbox */}
               <div className="flex items-center gap-2">
-                <Switch checked={createImplementation} onCheckedChange={setCreateImplementation} />
-                <Label>Create Control Implementation</Label>
+                <Switch id={createImplementationId} checked={createImplementation} onCheckedChange={setCreateImplementation} />
+                <Label htmlFor={createImplementationId}>Create Control Implementation</Label>
               </div>
               {createImplementation && (
                 <Controller
@@ -518,8 +527,8 @@ export default function CreateControlForm() {
                 <CancelButton onClick={onCancel}></CancelButton>
               </div>
               <div className="flex items-center gap-2">
-                <Switch checked={createMultiple} onCheckedChange={setCreateMultiple} />
-                <span>Create multiple</span>
+                <Switch id={createMultipleId} checked={createMultiple} onCheckedChange={setCreateMultiple} />
+                <label htmlFor={createMultipleId}>Create multiple</label>
               </div>
             </div>
           </div>

@@ -1,6 +1,5 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
@@ -13,6 +12,7 @@ import { ExternalLinkValue } from '@/components/shared/external-link/external-li
 import { cn } from '@repo/ui/lib/utils'
 import { useRef } from 'react'
 import { usePersistFormField, type TPersistOptions } from '../persist-form-field'
+import { InlineEditDisplay, InlineEditDisplayWithActions } from './inline-edit-display'
 
 interface TextFieldProps<TUpdateInput> {
   name: string
@@ -127,6 +127,13 @@ export const TextField = <TUpdateInput,>({
 
   const popoverRef = useRef<HTMLDivElement>(null)
 
+  const displayClassName = cn(
+    'text-sm py-2 rounded-md px-1 w-full min-w-0 wrap-break-word',
+    isEditAllowed ? 'cursor-pointer hover:bg-accent' : 'cursor-not-allowed',
+    layout === 'horizontal' && 'text-right',
+    multiline && 'whitespace-pre-wrap',
+  )
+
   const notSet = <span className="text-muted-foreground italic">Not set</span>
 
   const renderDisplayValue = () => {
@@ -166,9 +173,9 @@ export const TextField = <TUpdateInput,>({
             </FormLabel>
             {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
           </div>
-          <FormControl>
-            {isFieldEditing ? (
-              renderEditor ? (
+          {isFieldEditing ? (
+            <FormControl>
+              {renderEditor ? (
                 renderEditor({ field, onBlur: handleBlur, autoFocus: internalEditing === name })
               ) : type === 'number' ? (
                 <div ref={popoverRef} className="w-full flex items-center gap-4 p-2">
@@ -178,8 +185,9 @@ export const TextField = <TUpdateInput,>({
                     max={20}
                     value={typeof field.value === 'number' ? field.value : 0}
                     onChange={(e) => field.onChange(Number(e.target.value))}
+                    aria-label={label}
                     onBlur={handleBlur}
-                    className="w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer "
+                    className="w-full h-6 py-2 bg-clip-content bg-input-slider rounded-lg appearance-none cursor-pointer"
                   />
                   <span className="text-sm w-8 text-right gap-4">{typeof field.value === 'number' ? field.value : 0}</span>
                 </div>
@@ -198,41 +206,37 @@ export const TextField = <TUpdateInput,>({
                   autoFocus={internalEditing === name}
                   aria-required={required || undefined}
                 />
-              )
-            ) : (
-              <div
-                className={cn(
-                  'text-sm py-2 rounded-md px-1 w-full min-w-0 wrap-break-word',
-                  isEditAllowed ? 'cursor-pointer hover:bg-accent' : 'cursor-not-allowed',
-                  layout === 'horizontal' && 'text-right',
-                  multiline && 'whitespace-pre-wrap',
-                )}
-                {...activatable(isEditAllowed ? handleClick : undefined)}
-              >
-                {type === 'number' ? (
-                  <div ref={popoverRef} className="w-full flex items-center gap-4">
-                    <input
-                      type="range"
-                      min={0}
-                      max={20}
-                      value={typeof field.value === 'number' ? field.value : Number(field.value) || 0}
-                      className="w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer "
-                    />
-                    <span className="text-sm w-8 text-right gap-4">{typeof field.value === 'number' ? field.value : 0}</span>
-                  </div>
-                ) : displaySuffix ? (
-                  <div className="flex items-center justify-between gap-2 w-full">
-                    <div className={cn('min-w-0', layout === 'horizontal' && 'text-right')}>{renderDisplayValue()}</div>
-                    <div role="presentation" className="shrink-0" onClick={(e) => e.stopPropagation()}>
-                      {displaySuffix}
-                    </div>
-                  </div>
-                ) : (
-                  renderDisplayValue()
-                )}
-              </div>
-            )}
-          </FormControl>
+              )}
+            </FormControl>
+          ) : type !== 'number' && displaySuffix ? (
+            <InlineEditDisplayWithActions
+              className={displayClassName}
+              valueClassName={cn(layout === 'horizontal' && 'text-right')}
+              onActivate={isEditAllowed ? handleClick : undefined}
+              actions={displaySuffix}
+            >
+              {renderDisplayValue()}
+            </InlineEditDisplayWithActions>
+          ) : (
+            <InlineEditDisplay className={displayClassName} onActivate={isEditAllowed ? handleClick : undefined}>
+              {type === 'number' ? (
+                <div ref={popoverRef} className="w-full flex items-center gap-4">
+                  <input
+                    type="range"
+                    min={0}
+                    max={20}
+                    value={typeof field.value === 'number' ? field.value : Number(field.value) || 0}
+                    readOnly
+                    inert
+                    className="w-full h-6 py-2 bg-clip-content bg-input-slider rounded-lg appearance-none cursor-pointer"
+                  />
+                  <span className="text-sm w-8 text-right gap-4">{typeof field.value === 'number' ? field.value : 0}</span>
+                </div>
+              ) : (
+                renderDisplayValue()
+              )}
+            </InlineEditDisplay>
+          )}
           {(error || typeof formState.errors[name]?.message === 'string') && (
             <p className="text-destructive text-sm">{error || (typeof formState.errors[name]?.message === 'string' ? formState.errors[name]?.message : '')}</p>
           )}

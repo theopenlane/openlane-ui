@@ -34,7 +34,7 @@ export const Avatar = ({ variant, entity, className }: AvatarProps) => {
 
   return (
     <AvatarComponent variant={variant} className={className}>
-      {image && <AvatarImage src={image} />}
+      {image && <AvatarImage src={image} alt={entity.displayName ?? ''} />}
       <AvatarFallback>{fallbackText || 'N/A'}</AvatarFallback>
     </AvatarComponent>
   )

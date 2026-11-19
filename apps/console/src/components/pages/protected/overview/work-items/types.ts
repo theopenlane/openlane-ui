@@ -28,7 +28,11 @@ export const FILTER_LABELS: Record<'recommendations' | 'tasks' | 'approvals' | '
 }
 
 export const WORK_ITEM_ROW_CLASS =
-  'flex items-center justify-between gap-3 rounded-lg border border-homepage-card-border bg-homepage-card-item-transparent p-3 cursor-pointer hover:border-muted-foreground transition-colors duration-200'
+  'relative flex items-center justify-between gap-3 rounded-lg border border-homepage-card-border bg-homepage-card-item-transparent p-3 cursor-pointer hover:border-muted-foreground transition-colors duration-200'
+
+export const WORK_ITEM_ROW_TARGET_CLASS = 'min-w-0 flex-1 after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:outline-2'
+
+export const WORK_ITEM_ROW_ACTION_CLASS = 'relative h-8 !px-2 shrink-0'
 
 export type WorkItem = {
   key: string

@@ -67,7 +67,7 @@ const ColorCell = ({ id, label, initialColor, disabled, onSave }: ColorCellProps
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button type="button" variant="transparent" size="sm" aria-label={`Edit color for ${label}`} className="group h-auto gap-1.5 px-1.5 py-1 hover:bg-muted">
+        <Button type="button" variant="transparent" size="sm" aria-label={`Edit color for ${label}: ${saved}`} className="group h-auto gap-1.5 px-1.5 py-1 hover:bg-muted">
           <ColorSwatch color={saved} />
           <Pencil className="h-3 w-3 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
         </Button>

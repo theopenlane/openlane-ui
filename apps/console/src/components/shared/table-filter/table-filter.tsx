@@ -405,7 +405,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
                 <span>{currentValue}</span>
                 <span>{field.max ?? 100}</span>
               </div>
-              <Slider value={currentValue} onChange={(v: number) => handleChange(field.key, v)} />
+              <Slider ariaLabel={field.label} value={currentValue} onChange={(v: number) => handleChange(field.key, v)} />
             </div>
           )
         }
@@ -424,7 +424,14 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
                 </span>
                 <span>{rangeMax}</span>
               </div>
-              <Slider range min={rangeMin} max={rangeMax} value={[currentMin, currentMax]} onChange={(values: [number, number]) => handleChange(field.key, { min: values[0], max: values[1] })} />
+              <Slider
+                ariaLabel={field.label}
+                range
+                min={rangeMin}
+                max={rangeMax}
+                value={[currentMin, currentMax]}
+                onChange={(values: [number, number]) => handleChange(field.key, { min: values[0], max: values[1] })}
+              />
             </div>
           )
         }

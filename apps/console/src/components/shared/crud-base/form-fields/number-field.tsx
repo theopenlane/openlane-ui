@@ -1,12 +1,12 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { type InternalEditingType } from '../generic-sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
+import { InlineEditDisplay } from './inline-edit-display'
 
 interface NumberFieldProps {
   name: string
@@ -54,8 +54,8 @@ export const NumberField: React.FC<NumberFieldProps> = ({
             <FormLabel>{label}</FormLabel>
             {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
           </div>
-          <FormControl>
-            {shouldShowInput ? (
+          {shouldShowInput ? (
+            <FormControl>
               <Input
                 {...field}
                 value={field.value ?? ''}
@@ -71,19 +71,19 @@ export const NumberField: React.FC<NumberFieldProps> = ({
                   }
                 }}
               />
-            ) : (
-              <div
-                className="text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full"
-                {...activatable(() => {
-                  if (isEditAllowed) {
-                    setInternalEditing(name)
-                  }
-                })}
-              >
-                {value || <span className="text-muted-foreground italic">Not set</span>}
-              </div>
-            )}
-          </FormControl>
+            </FormControl>
+          ) : (
+            <InlineEditDisplay
+              className="text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full"
+              onActivate={() => {
+                if (isEditAllowed) {
+                  setInternalEditing(name)
+                }
+              }}
+            >
+              {value || <span className="text-muted-foreground italic">Not set</span>}
+            </InlineEditDisplay>
+          )}
         </FormItem>
       )}
     />

@@ -28,7 +28,7 @@ export const heading =
   (page) =>
     page.getByRole('heading', { name }).first()
 
-const firstHeading: ReadyLocator = (page) => page.getByRole('heading').first()
+const firstHeading: ReadyLocator = (page) => page.getByRole('heading').filter({ visible: true }).first()
 
 export const waitForPageToSettle = async (page: Page, ready: ReadyLocator = firstHeading): Promise<void> => {
   await expect(ready(page)).toBeVisible({ timeout: 60_000 }) // 1min

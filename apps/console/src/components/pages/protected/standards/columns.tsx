@@ -32,6 +32,7 @@ export const getColumns = ({
         const isAllSelected = controls.length > 0 && controls.every((c) => selectedControls.some((sel) => sel.id === c.id))
         return (
           <Checkbox
+            aria-label="Select all controls"
             checked={isAllSelected}
             onCheckedChange={(checked: boolean) => {
               setSelectedControls((prev) => {
@@ -53,7 +54,7 @@ export const getColumns = ({
         const isChecked = selectedControls.some((c) => c.id === id)
         return (
           <div role="presentation" onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id, refCode })} />
+            <Checkbox aria-label={`Select ${refCode}`} checked={isChecked} onCheckedChange={() => toggleSelection({ id, refCode })} />
           </div>
         )
       },

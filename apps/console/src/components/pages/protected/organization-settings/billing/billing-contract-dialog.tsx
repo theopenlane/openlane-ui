@@ -11,6 +11,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { type PlaceAddress } from '@/hooks/usePlacesAutocomplete'
 import { AddressAutocompleteInput } from '@/components/shared/address-autocomplete-input/address-autocomplete-input'
+import { Button } from '@repo/ui/button'
 
 const emptyAddress: PlaceAddress = {
   line1: '',
@@ -85,7 +86,9 @@ const BillingContactDialog = () => {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange} aria-describedby={undefined}>
       <DialogTrigger asChild>
-        <h1 className="text-primary text-sm font-medium cursor-pointer">Edit</h1>
+        <Button variant="link" className="text-sm">
+          Edit
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[455px]">
         <DialogHeader>

@@ -28,7 +28,7 @@ export const SanitizedHtml: React.FC<TSanitizedHtmlProps> = ({ value, className 
   return <HtmlContainer html={html} className={className} />
 }
 
-const INLINE_HTML_CLASS = 'prose prose-sm dark:prose-invert max-w-none whitespace-normal break-words text-inherit [&_a]:text-blue-500 [&_a]:no-underline [&_a:hover]:underline'
+const INLINE_HTML_CLASS = 'prose prose-sm dark:prose-invert max-w-none whitespace-normal break-words text-inherit [&_a]:text-hyperlink [&_a]:no-underline [&_a:hover]:underline'
 
 const renderPlainText = (value: string) => <span className="whitespace-pre-wrap">{value}</span>
 

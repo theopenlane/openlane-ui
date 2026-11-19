@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
 import { EvidenceStatusColors, getEvidenceStatusStyle } from './evidence-enum'
+import { tintedTextColor } from '@/utils/color-contrast'
 
 const uiStyles = readFileSync(new URL('../../../../../../packages/ui/src/styles.css', import.meta.url), 'utf8')
 
@@ -15,10 +16,10 @@ describe('EvidenceStatusColors', () => {
 })
 
 describe('getEvidenceStatusStyle', () => {
-  test('pairs a solid text colour with a translucent background of the same hue', () => {
+  test('pairs a contrast-safe tint of the status colour with a translucent background of the same hue', () => {
     const style = getEvidenceStatusStyle(EvidenceEvidenceStatus.REJECTED)
 
-    expect(style.color).toBe(EvidenceStatusColors[EvidenceEvidenceStatus.REJECTED])
+    expect(style.color).toBe(tintedTextColor(EvidenceStatusColors[EvidenceEvidenceStatus.REJECTED]))
     expect(style.backgroundColor).toContain(EvidenceStatusColors[EvidenceEvidenceStatus.REJECTED])
     expect(style.backgroundColor).toContain('color-mix')
   })

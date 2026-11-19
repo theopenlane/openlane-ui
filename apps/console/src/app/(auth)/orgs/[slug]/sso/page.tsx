@@ -79,7 +79,7 @@ const SSOInitiatePage: React.FC = () => {
           <OfficialOnly>
             {' '}
             or{' '}
-            <Link href={`${SUPPORT_URL}`} className="underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500" target="_blank" rel="noopener noreferrer">
+            <Link href={`${SUPPORT_URL}`} className="underline hover:text-hyperlink hover:opacity-80 transition-colors duration-500" target="_blank" rel="noopener noreferrer">
               Openlane support
             </Link>
           </OfficialOnly>

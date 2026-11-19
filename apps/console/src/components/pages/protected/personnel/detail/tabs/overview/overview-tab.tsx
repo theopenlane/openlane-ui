@@ -5,8 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
-import { Copy } from 'lucide-react'
-import { useNotification } from '@/hooks/useNotification'
+import { CopyIconButton } from '@/components/shared/copy-icon-button/copy-icon-button'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { UserStatusLabel } from '@/components/shared/enum-mapper/user-status-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
@@ -25,26 +24,6 @@ interface OverviewTabProps {
   isEditing: boolean
   canEdit: boolean
   handleUpdateField: (input: UpdateIdentityHolderInput) => Promise<void>
-}
-
-const CopyButton: React.FC<{ value: string }> = ({ value }) => {
-  const { successNotification, errorNotification } = useNotification()
-
-  const handleCopy = async (e: React.MouseEvent) => {
-    e.stopPropagation()
-    try {
-      await navigator.clipboard.writeText(value)
-      successNotification({ title: 'Copied', description: `"${value}" copied to clipboard.` })
-    } catch {
-      errorNotification({ title: 'Copy failed', description: 'Clipboard access is not available in this context.' })
-    }
-  }
-
-  return (
-    <button type="button" onClick={handleCopy} className="text-muted-foreground hover:text-foreground transition-colors">
-      <Copy size={13} />
-    </button>
-  )
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({ personnel, isEditing, canEdit: canEditPersonnel, handleUpdateField }) => {
@@ -78,7 +57,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ personnel, isEditing, canEdit
               label="Email"
               type="email"
               tooltipContent="The primary email address for this person"
-              displaySuffix={personnel.email ? <CopyButton value={personnel.email} /> : undefined}
+              displaySuffix={personnel.email ? <CopyIconButton value={personnel.email} label="email" /> : undefined}
               {...sharedFieldProps}
               layout="vertical"
             />
@@ -95,7 +74,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ personnel, isEditing, canEdit
               label="Phone Number"
               type="tel"
               tooltipContent="The phone number for this person"
-              displaySuffix={personnel.phoneNumber ? <CopyButton value={personnel.phoneNumber} /> : undefined}
+              displaySuffix={personnel.phoneNumber ? <CopyIconButton value={personnel.phoneNumber} label="phone number" /> : undefined}
               formatDisplayValue={formatPhoneNumber}
               {...sharedFieldProps}
               layout="vertical"

@@ -122,7 +122,7 @@ export const getColumns = ({
         <div role="presentation" onClick={(e) => e.stopPropagation()} onAuxClick={(e) => e.stopPropagation()} className="flex justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" className="h-8 w-8 p-0">
+              <Button variant="secondary" aria-label="Finding actions" className="h-8 w-8 p-0">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

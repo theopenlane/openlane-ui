@@ -63,7 +63,7 @@ export const SignupPage = () => {
       <p className="text-3xl font-medium">Create your account</p>
       <div className="mt-2 text-center">
         <span className="text-muted-foreground text-sm">Sign up with your work account. Already have an account?&nbsp;</span>
-        <Link href={`/login${token ? `?token=${token}` : ''}`} className="text-sm hover:text-blue-500 hover:opacity-80 transition-color duration-500">
+        <Link href={`/login${token ? `?token=${token}` : ''}`} className="text-sm hover:text-hyperlink hover:opacity-80 transition-color duration-500">
           Login
         </Link>
       </div>

@@ -90,7 +90,7 @@ const RunRecords = ({ run, providerId, isFailed, lastSuccess }: TRunRecordsProps
       <p className="mb-3 text-sm text-muted-foreground">Records this run created or changed. Records it found unchanged are not listed.</p>
       {selected ? (
         <>
-          <Tabs value={selected.key} onValueChange={setSelectedKey} variant="solid" className="mb-3 max-w-full min-w-0">
+          <Tabs panelless value={selected.key} onValueChange={setSelectedKey} variant="solid" className="mb-3 max-w-full min-w-0">
             <TabsList className="w-fit max-w-full overflow-x-auto overflow-y-hidden">
               {writtenTypes.map((type) => (
                 <TabsTrigger key={type.key} value={type.key}>
@@ -117,7 +117,7 @@ const RunRecords = ({ run, providerId, isFailed, lastSuccess }: TRunRecordsProps
             </p>
           )}
           {isFailed && lastSuccess ? (
-            <Link href={integrationRunHref(providerId, lastSuccess.id)} className="mt-2 inline-block text-blue-500 hover:underline">
+            <Link href={integrationRunHref(providerId, lastSuccess.id)} className="mt-2 inline-block text-hyperlink hover:underline">
               View last successful run
             </Link>
           ) : null}

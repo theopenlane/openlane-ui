@@ -41,7 +41,7 @@ export const getEvidenceColumns = (
     header: () => <span className="whitespace-nowrap">Name</span>,
     cell: ({ row }) => (
       <div className="flex flex-col gap-1">
-        <button type="button" className="text-blue-500 hover:underline truncate whitespace-nowrap text-left" onClick={() => onOpenEvidence(row.original.id)}>
+        <button type="button" className="text-hyperlink hover:underline truncate whitespace-nowrap text-left" onClick={() => onOpenEvidence(row.original.id)}>
           {row.original.name}
         </button>
         {inheritedFromMap?.has(row.original.id) && <InheritedBadge sources={inheritedFromMap.get(row.original.id) ?? []} />}

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Textarea } from '@repo/ui/textarea'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
 import { useWorkflowMetadata } from '@/lib/graphql-hooks/workflows'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -128,33 +128,33 @@ const WorkflowDefinitionDetailPage = () => {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2">
-          <CardHeader className="pb-0">
-            <div className="flex items-center justify-between">
-              <CardTitle className="p-0">Definition</CardTitle>
-              <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'visual' | 'json')}>
-                <TabsList>
+        <Tabs asChild value={viewMode} onValueChange={(value) => setViewMode(value as 'visual' | 'json')}>
+          <Card className="lg:col-span-2">
+            <CardHeader className="pb-0">
+              <div className="flex items-center justify-between">
+                <CardTitle className="p-0">Definition</CardTitle>
+                <TabsList className="w-fit">
                   <TabsTrigger value="visual">Visual</TabsTrigger>
                   <TabsTrigger value="json">JSON</TabsTrigger>
                 </TabsList>
-              </Tabs>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className={viewMode === 'visual' ? '' : 'hidden'}>
-              <WorkflowVisualEditor
-                triggers={Array.isArray(definitionDoc?.triggers) ? definitionDoc.triggers : []}
-                conditions={Array.isArray(definitionDoc?.conditions) ? definitionDoc.conditions : []}
-                actions={actions}
-                objectTypes={objectTypes}
-                readOnly
-              />
-            </div>
-            <div className={viewMode === 'json' ? '' : 'hidden'}>
-              <Textarea readOnly value={definitionJSON} className="font-mono text-xs" rows={18} />
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <TabsContent value="visual" forceMount className="mt-0 text-[length:inherit] data-[state=inactive]:hidden">
+                <WorkflowVisualEditor
+                  triggers={Array.isArray(definitionDoc?.triggers) ? definitionDoc.triggers : []}
+                  conditions={Array.isArray(definitionDoc?.conditions) ? definitionDoc.conditions : []}
+                  actions={actions}
+                  objectTypes={objectTypes}
+                  readOnly
+                />
+              </TabsContent>
+              <TabsContent value="json" forceMount className="mt-0 text-[length:inherit] data-[state=inactive]:hidden">
+                <Textarea readOnly value={definitionJSON} className="font-mono text-xs" rows={18} />
+              </TabsContent>
+            </CardContent>
+          </Card>
+        </Tabs>
       </div>
     </div>
   )

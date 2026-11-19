@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useId, useState } from 'react'
 import { useCreateRisk } from '@/lib/graphql-hooks/risk'
 import useFormSchema, { type CreateRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
@@ -30,6 +30,7 @@ const CreateRiskForm: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
   const { form } = useFormSchema()
   const [createMultiple, setCreateMultiple] = useState(false)
+  const createMultipleId = useId()
   const [clearData, setClearData] = useState<boolean>(false)
 
   const onSubmitHandler = async (values: CreateRisksFormData) => {
@@ -98,8 +99,8 @@ const CreateRiskForm: React.FC = () => {
                 {isPending ? 'Creating risk' : 'Create risk'}
               </Button>
               <div className="flex items-center gap-2">
-                <Switch checked={createMultiple} onCheckedChange={setCreateMultiple} />
-                <span>Create multiple</span>
+                <Switch id={createMultipleId} checked={createMultiple} onCheckedChange={setCreateMultiple} />
+                <label htmlFor={createMultipleId}>Create multiple</label>
               </div>
             </div>
           </div>

@@ -58,7 +58,7 @@ export const getActivityTaskColumns = (taskKindOptions: TaskKindOption[] = [], o
     accessorKey: 'title',
     header: () => <span className="whitespace-nowrap">Title</span>,
     cell: ({ row }) => (
-      <button type="button" className="text-blue-500 text-left hover:underline  whitespace-nowrap" onClick={() => onTaskOpen?.(row.original.id)}>
+      <button type="button" className="text-hyperlink text-left hover:underline  whitespace-nowrap" onClick={() => onTaskOpen?.(row.original.id)}>
         {row.original.title}
       </button>
     ),

@@ -72,7 +72,7 @@ export const QuestionnaireEmailTemplatePicker: React.FC<QuestionnaireEmailTempla
 
       {customize && (
         <>
-          <Tabs variant="solid" value={activeSource} onValueChange={(next) => isTemplateSource(next) && setSource(next)}>
+          <Tabs panelless variant="solid" value={activeSource} onValueChange={(next) => isTemplateSource(next) && setSource(next)}>
             <TabsList className="w-fit">
               <TabsTrigger value="existing">Choose existing</TabsTrigger>
               <TabsTrigger value="new">Create new</TabsTrigger>

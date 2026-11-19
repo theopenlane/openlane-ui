@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useId } from 'react'
 import { ProcedureFrequency } from '@repo/codegen/src/schema.ts'
 import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Calendar, CalendarCheck2, CalendarClock, ClockArrowUp, FileStack, ScanEye, ScrollText } from 'lucide-react'
@@ -21,6 +21,8 @@ type TStatusCardProps = {
 }
 
 const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
+  const statusLabelId = useId()
+  const statusTriggerId = useId()
   const statusOptions = ProcedureStatusOptions
 
   const reviewFrequencyOptions = Object.values(ProcedureFrequency).map((value) => ({
@@ -44,7 +46,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
             <Binoculars size={16} />
-            <span>Status</span>
+            <span id={statusLabelId}>Status</span>
           </div>
 
           <div className="w-48">
@@ -61,7 +63,9 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                       }
                     }}
                   >
-                    <SelectTrigger className="w-full">{statusOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>
+                    <SelectTrigger id={statusTriggerId} aria-labelledby={`${statusLabelId} ${statusTriggerId}`} className="w-full">
+                      {statusOptions.find((item) => item.value === field.value)?.label}
+                    </SelectTrigger>
                     <SelectContent>
                       {statusOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>

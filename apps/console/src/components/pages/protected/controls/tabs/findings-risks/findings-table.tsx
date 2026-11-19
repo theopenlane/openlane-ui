@@ -85,7 +85,7 @@ const FindingsTable: React.FC<FindingsTableProps> = ({ controlId, subcontrolIds 
           return {
             ...col,
             cell: ({ row }: { row: { original: FindingsNodeNonNull } }) => (
-              <button type="button" onClick={() => replace({ findingId: row.original.id })} className="block truncate text-blue-500 hover:underline">
+              <button type="button" onClick={() => replace({ findingId: row.original.id })} className="block truncate text-hyperlink hover:underline">
                 {row.original.displayName || ''}
               </button>
             ),

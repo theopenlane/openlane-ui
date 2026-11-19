@@ -1,8 +1,9 @@
-type SliderProps =
+type SliderProps = { ariaLabel: string } & (
   | { value: number; onChange?: (value: number) => void; range?: false; min?: number; max?: number }
   | { value: [number, number]; onChange?: (value: [number, number]) => void; range: true; min?: number; max?: number }
+)
 
-const Slider = ({ value, onChange, range, min = 0, max = 100 }: SliderProps) => {
+const Slider = ({ value, onChange, range, min = 0, max = 100, ariaLabel }: SliderProps) => {
   if (range) {
     const [minVal, maxVal] = value as [number, number]
     const onChangeRange = onChange as (value: [number, number]) => void
@@ -25,6 +26,7 @@ const Slider = ({ value, onChange, range, min = 0, max = 100 }: SliderProps) => 
             min={min}
             max={max}
             value={minVal}
+            aria-label={`${ariaLabel} minimum`}
             onChange={handleMinChange}
             className="absolute inset-0 w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-moz-range-thumb]:pointer-events-auto"
           />
@@ -33,6 +35,7 @@ const Slider = ({ value, onChange, range, min = 0, max = 100 }: SliderProps) => 
             min={min}
             max={max}
             value={maxVal}
+            aria-label={`${ariaLabel} maximum`}
             onChange={handleMaxChange}
             className="absolute inset-0 w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-moz-range-thumb]:pointer-events-auto"
           />
@@ -48,7 +51,15 @@ const Slider = ({ value, onChange, range, min = 0, max = 100 }: SliderProps) => 
 
   return (
     <div className="w-full flex items-center gap-4">
-      <input type="range" min={min} max={max} value={value as number} onChange={handleChange} className="w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer" />
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={value as number}
+        aria-label={ariaLabel}
+        onChange={handleChange}
+        className="w-full h-6 py-2 bg-clip-content bg-input-slider rounded-lg appearance-none cursor-pointer"
+      />
       <span className="text-sm w-8 text-right">{value as number}</span>
     </div>
   )
