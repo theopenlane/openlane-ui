@@ -22,7 +22,14 @@ const APP_ROUTES: ScannedRoute[] = [
   { path: '/controls/create-subcontrol' },
   { path: '/standards', ready: heading(/^Standards Catalog$/) },
   { path: '/standards/create' },
-  { path: '/standards/template-controls' },
+  {
+    path: '/standards/template-controls',
+    ready: (page) =>
+      page
+        .getByRole('heading', { name: /^Template Controls$/ })
+        .or(page.getByText('Template controls are not available yet'))
+        .first(),
+  },
 
   { path: '/policies', ready: heading(/^Internal Policies$/) },
   { path: '/policies/create' },
