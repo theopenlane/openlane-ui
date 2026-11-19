@@ -3,13 +3,14 @@
 import React, { useMemo } from 'react'
 import { FindingHistoryOpType } from '@repo/codegen/src/historyschema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { type FindingDetailNode, useFindingHistories, useFindingHistoryEdges } from '@/lib/graphql-hooks/finding'
+import { type FindingDetailNode, useFindingCreationProvenance, useFindingHistories, useFindingHistoryEdges } from '@/lib/graphql-hooks/finding'
 import ExposureHistoryTab from '../../../exposure/detail/history/exposure-history-tab'
 import { getFindingTitle } from '../../finding-display'
 
 const FindingHistoryTab: React.FC<{ finding: FindingDetailNode }> = ({ finding }) => {
   const edgesQuery = useFindingHistoryEdges(finding.id)
   const history = useFindingHistories(finding.id)
+  const creation = useFindingCreationProvenance(finding.id)
   const milestones = useMemo(() => [{ label: 'Reported', at: finding.reportedAt, phrase: 'first reported by the source' }], [finding.reportedAt])
 
   return (
@@ -21,6 +22,7 @@ const FindingHistoryTab: React.FC<{ finding: FindingDetailNode }> = ({ finding }
       milestones={milestones}
       edges={{ data: edgesQuery.data?.finding, isPending: edgesQuery.isPending, isError: edgesQuery.isError, error: edgesQuery.error }}
       history={history}
+      creation={creation}
     />
   )
 }

@@ -5442,6 +5442,18 @@ export interface DeleteIntegrationMutation {
   deleteIntegration: { deletedID: string }
 }
 
+export type GetIntegrationInstallersQueryVariables = Exact<{
+  where?: Types.IntegrationWhereInput | null | undefined
+}>
+
+export interface GetIntegrationInstallersQuery {
+  integrations: {
+    edges: Array<{
+      node: { id: string; name: string; kind: string | null; definitionID: string | null; definitionSlug: string | null; family: string | null; createdBy: string | null } | null
+    } | null> | null
+  }
+}
+
 export type CreateInternalPolicyMutationVariables = Exact<{
   input: Types.CreateInternalPolicyInput
 }>

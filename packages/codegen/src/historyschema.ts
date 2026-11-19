@@ -23,6 +23,8 @@ export interface GetFindingHistoriesQuery {
         operation: Types.FindingHistoryOpType
         createdBy: string | null
         updatedBy: string | null
+        managedBy: string | null
+        sourceDefinitionID: string | null
         internalOwner: string | null
         internalOwnerUserID: string | null
         internalOwnerGroupID: string | null
@@ -39,6 +41,14 @@ export interface GetFindingHistoriesQuery {
     } | null> | null
     pageInfo: { endCursor: any; hasNextPage: boolean }
   }
+}
+
+export type GetFindingCreationHistoryQueryVariables = Exact<{
+  where?: Types.FindingHistoryWhereInput | null | undefined
+}>
+
+export interface GetFindingCreationHistoryQuery {
+  findingHistories: { edges: Array<{ node: { id: string; managedBy: string | null; sourceDefinitionID: string | null } | null } | null> | null }
 }
 
 export type GetInternalPolicyHistoriesQueryVariables = Exact<{
@@ -123,6 +133,8 @@ export interface GetVulnerabilityHistoriesQuery {
         operation: Types.VulnerabilityHistoryOpType
         createdBy: string | null
         updatedBy: string | null
+        managedBy: string | null
+        sourceDefinitionID: string | null
         source: string | null
         internalOwner: string | null
         internalOwnerUserID: string | null
@@ -140,6 +152,14 @@ export interface GetVulnerabilityHistoriesQuery {
     } | null> | null
     pageInfo: { endCursor: any; hasNextPage: boolean }
   }
+}
+
+export type GetVulnerabilityCreationHistoryQueryVariables = Exact<{
+  where?: Types.VulnerabilityHistoryWhereInput | null | undefined
+}>
+
+export interface GetVulnerabilityCreationHistoryQuery {
+  vulnerabilityHistories: { edges: Array<{ node: { id: string; managedBy: string | null; sourceDefinitionID: string | null } | null } | null> | null }
 }
 
 export type ActionPlansWithFilterQueryVariables = Exact<{
@@ -5575,6 +5595,18 @@ export type DeleteIntegrationMutationVariables = Exact<{
 
 export interface DeleteIntegrationMutation {
   deleteIntegration: { deletedID: string }
+}
+
+export type GetIntegrationInstallersQueryVariables = Exact<{
+  where?: Types.IntegrationWhereInput | null | undefined
+}>
+
+export interface GetIntegrationInstallersQuery {
+  integrations: {
+    edges: Array<{
+      node: { id: string; name: string; kind: string | null; definitionID: string | null; definitionSlug: string | null; family: string | null; createdBy: string | null } | null
+    } | null> | null
+  }
 }
 
 export type CreateInternalPolicyMutationVariables = Exact<{

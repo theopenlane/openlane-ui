@@ -36,7 +36,15 @@ import {
   type FindingActivityQuery,
   type FindingActivityQueryVariables,
 } from '@repo/codegen/src/schema'
-import { FindingHistoryOrderField, OrderDirection, type GetFindingHistoriesQuery, type GetFindingHistoriesQueryVariables } from '@repo/codegen/src/historyschema'
+import {
+  FindingHistoryOpType,
+  FindingHistoryOrderField,
+  OrderDirection,
+  type GetFindingCreationHistoryQuery,
+  type GetFindingCreationHistoryQueryVariables,
+  type GetFindingHistoriesQuery,
+  type GetFindingHistoriesQueryVariables,
+} from '@repo/codegen/src/historyschema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
@@ -56,7 +64,7 @@ import {
   GET_FINDING_HISTORY_EDGES,
   GET_FINDING_ACTIVITY,
 } from '@repo/codegen/query/finding'
-import { GET_FINDING_HISTORIES } from '@repo/codegen/query-history/finding'
+import { GET_FINDING_CREATION_HISTORY, GET_FINDING_HISTORIES } from '@repo/codegen/query-history/finding'
 import { useEntityComments } from '@/lib/graphql-hooks/entity-comments'
 import { getNodes } from '@/lib/graphql-hooks/connection'
 import { EXPOSURE_QUERY_SECTION, exposureRelatedSections, useRefreshOnRelatedChange } from '@/lib/graphql-hooks/use-refresh-on-related-change'
@@ -292,6 +300,20 @@ export const useFindingHistoryEdges = (findingId?: string) => {
 
 const FINDING_HISTORY_PAGE_SIZE = 25
 const FINDING_HISTORY_ORDER = { field: FindingHistoryOrderField.history_time, direction: OrderDirection.DESC }
+
+export const useFindingCreationProvenance = (findingId?: string) => {
+  const { client } = useHistoryGraphQLClient()
+  const query = useQuery({
+    queryKey: ['findingHistories', findingId, 'creation'],
+    queryFn: async () =>
+      client.request<GetFindingCreationHistoryQuery, GetFindingCreationHistoryQueryVariables>(GET_FINDING_CREATION_HISTORY, {
+        where: { ref: findingId, operation: FindingHistoryOpType.INSERT },
+      }),
+    enabled: !!findingId,
+  })
+
+  return { provenance: getNodes(query.data?.findingHistories)[0], isPending: !!findingId && query.isPending }
+}
 
 export const useFindingHistories = (findingId?: string) => {
   const { client } = useHistoryGraphQLClient()
