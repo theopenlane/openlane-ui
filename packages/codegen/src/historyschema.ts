@@ -2589,6 +2589,14 @@ export interface ControlActivityQuery {
   controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; title: string | null; createdAt: any } | null } | null> | null }
 }
 
+export type GetControlCountQueryVariables = Exact<{
+  where: Types.ControlWhereInput
+}>
+
+export interface GetControlCountQuery {
+  controls: { totalCount: number }
+}
+
 export type CustomTypeEnumFieldsFragment = { id: string; name: string; color: string | null; objectType: string; description: string | null; field: string; systemOwned: boolean | null }
 
 export type GetCustomTypeEnumsQueryVariables = Exact<{
@@ -10371,6 +10379,14 @@ export type UpdateTrustCenterComplianceMutationVariables = Exact<{
 
 export interface UpdateTrustCenterComplianceMutation {
   updateTrustCenterCompliance: { trustCenterCompliance: { id: string } }
+}
+
+export type GetTrustCenterComplianceCountQueryVariables = Exact<{
+  where: Types.TrustCenterComplianceWhereInput
+}>
+
+export interface GetTrustCenterComplianceCountQuery {
+  trustCenterCompliances: { totalCount: number }
 }
 
 export type GetTrustCenterDocsQueryVariables = Exact<{

@@ -182,6 +182,11 @@
     "keywords": ["auth"]
   },
   {
+    "route": "/organization-settings/badges",
+    "name": "Badges",
+    "keywords": ["aicpa", "soc 2", "soc badge", "logo", "trust badge"]
+  },
+  {
     "route": "/organization-settings/billing",
     "name": "Billing",
     "keywords": ["subscription", "plan", "payment method"]

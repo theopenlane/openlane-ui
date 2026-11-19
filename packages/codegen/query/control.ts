@@ -1217,3 +1217,11 @@ export const GET_CONTROL_ACTIVITY = gql`
     }
   }
 `
+
+export const GET_CONTROL_COUNT = gql`
+  query GetControlCount($where: ControlWhereInput!) {
+    controls(where: $where, first: 1) {
+      totalCount
+    }
+  }
+`

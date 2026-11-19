@@ -1,4 +1,4 @@
-import { UserRoundPen } from 'lucide-react'
+import { BadgeCheck, UserRoundPen } from 'lucide-react'
 import {
   ActivityIcon,
   ArchiveIcon,
@@ -66,6 +66,7 @@ import type { Session } from 'next-auth'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
 import { arePlanChecksDisabled, featureUtil } from '@/lib/subscription-plan/plans'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { isSocBadgeConfigured } from '@/components/shared/soc-badge/soc-badge-config'
 
 export const topNavigationItems = (session: Session | null, currentUserRole?: OrgMembershipRole, isOfficial = true, orgPermission?: TPermissionData): (NavItem | Separator | NavHeading)[] => {
   const billingExpired = featureUtil.hasNoModules(session)
@@ -465,6 +466,13 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
           href: '/organization-settings/custom-data',
           hidden: billingExpired,
           icon: BookmarkIcon,
+        },
+        {
+          title: 'Badges',
+          anchor: 'badges',
+          href: '/organization-settings/badges',
+          hidden: billingExpired || !isSocBadgeConfigured,
+          icon: BadgeCheck,
         },
         {
           title: 'Subscribers',
