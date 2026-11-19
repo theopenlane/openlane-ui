@@ -265,6 +265,7 @@ function SortableHeaderCell<TData extends RowData>({ header, sortField, sorting,
   const columnWidth = `var(--col-${columnCssKey})`
   const isResizing = header.column.getIsResizing()
   const ariaSort = sorting === OrderDirection.ASC ? 'ascending' : sorting === OrderDirection.DESC ? 'descending' : 'none'
+  const columnLabel = typeof header.column.columnDef.header === 'string' ? header.column.columnDef.header : (sortField?.label ?? header.column.id)
 
   const style: CSSProperties = {
     position: 'relative',
@@ -279,11 +280,6 @@ function SortableHeaderCell<TData extends RowData>({ header, sortField, sorting,
     <TableHead variant="data" className="[&_svg]:shrink-0" ref={setNodeRef} style={style} aria-sort={ariaSort}>
       {header.isPlaceholder ? null : (
         <div className="flex items-center gap-1">
-          {!isDragDisabled && (
-            <button type="button" className="flex items-center cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 -ml-1 shrink-0" {...attributes} {...listeners}>
-              <GripVertical size={14} />
-            </button>
-          )}
           <div
             onClick={() => sortField?.key && handleSortChange(sortField.key)}
             className={cn('flex items-center gap-1 select-none', sortField ? 'cursor-pointer' : 'cursor-default')}
@@ -309,6 +305,17 @@ function SortableHeaderCell<TData extends RowData>({ header, sortField, sorting,
                 <ArrowUpDown size={16} className="text-gray-400" />
               ))}
           </div>
+          {!isDragDisabled && (
+            <button
+              type="button"
+              aria-label={`Reorder ${columnLabel} column`}
+              className="order-first flex size-6 items-center justify-center cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 -my-1 -ml-[9px] shrink-0"
+              {...attributes}
+              {...listeners}
+            >
+              <GripVertical size={14} />
+            </button>
+          )}
         </div>
       )}
       {!isLastHeader && header.column.getCanResize() && (

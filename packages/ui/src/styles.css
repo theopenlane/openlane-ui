@@ -204,13 +204,19 @@
   --primary: #2dcdad;
   --primary-foreground: hsl(191 72% 9%);
   --link: hsl(168 64% 28%);
+  --hyperlink: #0062f8;
+  --standard-custom: #8c6707;
+  --severity-critical: #d91b0e;
+  --severity-high: #b84d00;
+  --severity-medium: #936403;
+  --severity-low: #195eff;
   --secondary: #ffffff;
   --secondary-foreground: hsl(191 72% 9%);
   --muted: #ffffff;
-  --muted-foreground: #6b7682;
+  --muted-foreground: #636d78;
   --accent: #f4f9fa;
   --accent-foreground: hsl(209 22% 24%);
-  --destructive: hsl(0 69% 60%);
+  --destructive: hsl(0 72% 45%);
   --destructive-foreground: hsl(156 82% 98%);
   --border: hsl(198 26% 89%);
   --input: #ffffff;
@@ -224,7 +230,7 @@
   --color-gradient-border-top: #09151d3d;
   --color-gradient-border-primary-from: rgba(255, 255, 255, 0.36);
   --color-gradient-border-primary-to: #ffffff00;
-  --color-document-chip: #6b7682;
+  --color-document-chip: #636d78;
   --color-trust-center-title: #09151d;
   --color-trust-center-text: #99a1af;
   --color-trust-center-created-at: #6a7282;
@@ -265,8 +271,8 @@
   --tip-background: rgba(154, 245, 220, 0.24);
   --tip-border: rgba(154, 245, 220, 0.48);
 
-  --inverted-muted-foreground: #9aa5b0;
-  --text-informational: #798695;
+  --inverted-muted-foreground: #636d78;
+  --text-informational: #636f7d;
   --indicator: #e1e7ea;
   --color-svg-secondary: #09151d;
 
@@ -323,13 +329,19 @@
   --primary: hsl(168 64% 49%);
   --primary-foreground: hsl(210 40% 98%);
   --link: hsl(168 64% 70%);
+  --hyperlink: #8ebbff;
+  --standard-custom: #f6c444;
+  --severity-critical: #f7837b;
+  --severity-high: #ff842c;
+  --severity-medium: #dd9704;
+  --severity-low: #7ba3ff;
   --secondary: #162431;
   --secondary-foreground: hsl(216 33% 9%);
   --muted: #4c5e69;
-  --muted-foreground: #9aa5b0;
+  --muted-foreground: #b2bac2;
   --accent: #162431;
   --accent-foreground: hsl(196 20% 73%);
-  --destructive: hsl(0 84% 64%);
+  --destructive: hsl(0 72% 48%);
   --destructive-foreground: hsl(156 82% 98%);
   --border: hsl(208 21% 24%);
   --input: #09151d;
@@ -376,7 +388,7 @@
   --tip-background: rgba(96, 232, 201, 0.12);
   --tip-border: rgba(96, 232, 201, 0.32);
 
-  --inverted-muted-foreground: #6b7682;
+  --inverted-muted-foreground: #98a1aa;
   --color-toast-success: linear-gradient(273deg, rgba(33, 197, 93, 0) 54.63%, rgba(33, 197, 93, 0.08) 77.12%, rgba(33, 197, 93, 0.16) 99.61%), #233440;
   --color-toast-success-icon: #21c55d;
   --color-toast-success-icon-muted: #21c55d29;
@@ -401,7 +413,7 @@
   --color-toast-error-icon-muted: #f45b5029;
   --color-toast-error-icon-border: #f45b5070;
   --color-toast-error-icon: #f45b50;
-  --text-informational: #7a8588;
+  --text-informational: #949d9f;
   --indicator: #4c5e69;
 
   --color-svg-secondary: #9af5dc;
@@ -468,6 +480,7 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-link: var(--link);
+  --color-hyperlink: var(--hyperlink);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -557,7 +570,13 @@
   --color-standard-hipaa: #418ede;
   --color-standard-sox: #c83b03;
   --color-standard-pci: #43b4c0;
-  --color-standard-custom: #f6c444;
+  --color-standard-custom: var(--standard-custom);
+  --color-hyperlink-light: #0062f8;
+  --color-success-text: color-mix(in srgb, var(--color-success) 45%, var(--foreground));
+  --color-info-text: color-mix(in srgb, var(--color-info) 45%, var(--foreground));
+  --color-warning-text: color-mix(in srgb, var(--color-warning) 45%, var(--foreground));
+  --color-destructive-text: color-mix(in srgb, var(--destructive) 45%, var(--foreground));
+  --color-primary-text: color-mix(in srgb, var(--primary) 45%, var(--foreground));
   --color-standard-masvs: #9d9d9d;
   --color-standard-ccpa: #003162;
   --color-standard-nerc: #00437a;
@@ -599,10 +618,10 @@
   --color-logo-light: #ffffff;
 
   /* Severity */
-  --color-severity-critical: var(--color-danger);
-  --color-severity-high: var(--color-warning);
-  --color-severity-medium: var(--color-moderate);
-  --color-severity-low: var(--color-info);
+  --color-severity-critical: var(--severity-critical);
+  --color-severity-high: var(--severity-high);
+  --color-severity-medium: var(--severity-medium);
+  --color-severity-low: var(--severity-low);
 
   /* Task */
   --color-task-in-review: #ff842c;

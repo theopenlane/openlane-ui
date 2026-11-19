@@ -71,7 +71,7 @@ test.describe('procedures — detail (seeded)', () => {
     await page.goto(`/procedures/${procedureId}/view`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
 
-    await page.getByTestId('assoc-view-toggle').click()
+    await page.getByTestId('assoc-view-toggle').getByRole('button', { name: 'List view' }).click()
     const removeX = page.getByTestId('objects-chip-remove')
     if ((await removeX.count()) === 0) {
       await page.getByText('Controls', { exact: true }).click()

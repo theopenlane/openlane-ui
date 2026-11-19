@@ -9,7 +9,7 @@ export const CreateBtn = (
 )
 
 export const CreateBtnIcon = (
-  <Button variant="primary" className={`p-1 rounded-md h-8 w-8 items-center justify-center flex`}>
+  <Button variant="primary" aria-label="Quick create" className={`p-1 rounded-md h-8 w-8 items-center justify-center flex`}>
     <Plus size={16} />
   </Button>
 )

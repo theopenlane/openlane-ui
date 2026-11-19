@@ -3,7 +3,7 @@ import NextLink from 'next/link'
 import { ExternalLink } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 
-export const LINK_CLASS_NAME = 'text-blue-500 hover:underline'
+export const LINK_CLASS_NAME = 'text-hyperlink hover:underline'
 
 type TLinkProps = React.ComponentProps<typeof NextLink> & {
   newTab?: boolean

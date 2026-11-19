@@ -45,13 +45,13 @@ type TSectionProps = {
 const Section: React.FC<TSectionProps> = ({ value, icon, title, description, children }) => (
   <AccordionItem value={value} className="border border-border rounded-md px-4 py-3">
     <AccordionTrigger asChild>
-      <div className="flex items-center justify-between w-full cursor-pointer group">
-        <div className="flex items-center gap-2">
+      <button type="button" className="flex items-center justify-between w-full cursor-pointer group text-left">
+        <span className="flex items-center gap-2">
           <span className="text-accent-secondary">{icon}</span>
           <span className="text-sm font-medium">{title}</span>
-        </div>
+        </span>
         <ChevronDown size={18} className="transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
-      </div>
+      </button>
     </AccordionTrigger>
     <AccordionContent>
       <div className="pt-3 flex flex-col gap-4">

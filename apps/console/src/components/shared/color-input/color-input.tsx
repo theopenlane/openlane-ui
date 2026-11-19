@@ -1,6 +1,6 @@
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
-import React, { memo, startTransition, useState } from 'react'
+import React, { memo, startTransition, useId, useState } from 'react'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
 
 interface ColorInputProps {
@@ -14,6 +14,7 @@ const SWATCH_FALLBACK = '#000000'
 
 export const ColorInput = memo(({ label, value, onChange, disabled }: ColorInputProps) => {
   const [draft, setDraft] = useState(value ?? '')
+  const textInputId = useId()
   const [prevValue, setPrevValue] = useState(value)
 
   if (value !== prevValue) {
@@ -59,10 +60,20 @@ export const ColorInput = memo(({ label, value, onChange, disabled }: ColorInput
 
   return (
     <div className="flex flex-col gap-1 w-full">
-      <Label className="text-sm">{label}</Label>
+      <Label htmlFor={textInputId} className="text-sm">
+        {label}
+      </Label>
       <div className="flex items-center gap-2 w-full border rounded-md px-2 bg-input">
-        <Input type="color" disabled={disabled} value={swatchValue} onChange={(e) => handleSwatchChange(e.target.value)} className="w-6 h-6 p-0 border-none cursor-pointer rounded-full" />
         <Input
+          type="color"
+          aria-label={label ? `${label} picker` : 'Color picker'}
+          disabled={disabled}
+          value={swatchValue}
+          onChange={(e) => handleSwatchChange(e.target.value)}
+          className="w-6 h-6 p-0 border-none cursor-pointer rounded-full"
+        />
+        <Input
+          id={textInputId}
           type="text"
           disabled={disabled}
           value={draft}

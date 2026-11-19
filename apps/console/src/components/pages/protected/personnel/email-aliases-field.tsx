@@ -4,11 +4,11 @@ import { activatable } from '@repo/ui/lib/a11y'
 import React, { useEffect, useRef, useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { Copy, InfoIcon, X } from 'lucide-react'
+import { InfoIcon, X } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
-import { useNotification } from '@/hooks/useNotification'
 import { type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
 import { type EditPersonnelFormData } from './hooks/use-form-schema'
+import { CopyIconButton } from '@/components/shared/copy-icon-button/copy-icon-button'
 
 type EmailAliasesFieldProps = {
   isEditing: boolean
@@ -20,26 +20,6 @@ type EmailAliasesFieldProps = {
   label?: string
   tooltipContent?: string
   labelClassName?: string
-}
-
-const CopyButton: React.FC<{ value: string }> = ({ value }) => {
-  const { successNotification, errorNotification } = useNotification()
-
-  const handleCopy = async (e: React.MouseEvent) => {
-    e.stopPropagation()
-    try {
-      await navigator.clipboard.writeText(value)
-      successNotification({ title: 'Copied', description: `"${value}" copied to clipboard.` })
-    } catch {
-      errorNotification({ title: 'Copy failed', description: 'Clipboard access is not available in this context.' })
-    }
-  }
-
-  return (
-    <button type="button" onClick={handleCopy} className="text-muted-foreground hover:text-foreground transition-colors">
-      <Copy size={13} />
-    </button>
-  )
 }
 
 export const EmailAliasesField: React.FC<EmailAliasesFieldProps> = ({
@@ -138,7 +118,7 @@ export const EmailAliasesField: React.FC<EmailAliasesFieldProps> = ({
                   {values.map((alias) => (
                     <div key={alias} className="flex items-center gap-2">
                       <span>{alias}</span>
-                      <CopyButton value={alias} />
+                      <CopyIconButton value={alias} label="email alias" />
                     </div>
                   ))}
                 </div>

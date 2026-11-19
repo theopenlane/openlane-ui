@@ -106,7 +106,7 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
         <p>{isDragActive ? dropMessage : defaultMessage}</p>
         <div className={avatarPreview()}>
           <Avatar variant="extra-large">
-            {(avatarUrl || placeholderImage) && <AvatarImage src={avatarUrl || placeholderImage} />}
+            {(avatarUrl || placeholderImage) && <AvatarImage src={avatarUrl || placeholderImage} alt="Current avatar" />}
             <AvatarFallback>{fallbackString}</AvatarFallback>
           </Avatar>
         </div>

@@ -74,7 +74,7 @@ test.describe('controls — bulk upload import pages', () => {
 
     await scope.getByRole('button', { name: /^Continue$/ }).click()
     await expect(scope.getByText('Import as', { exact: true })).toBeVisible({ timeout: 30_000 })
-    await expect(scope.getByText('Internal Notes From Ops')).toBeVisible()
+    await expect(scope.getByText('Internal Notes From Ops', { exact: true })).toBeVisible()
     await expect(scope.getByText('Ignore this column').first()).toBeVisible()
 
     await scope.getByRole('button', { name: /^Continue$/ }).click()

@@ -194,7 +194,7 @@ export const ProgramSettingsGroups = () => {
             cell: ({ row }: { row: Row<GroupRow> }) => (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="secondary" className="w-8 h-7 !p-0">
+                  <Button variant="secondary" aria-label="Group actions" className="w-8 h-7 !p-0">
                     <EllipsisVertical />
                   </Button>
                 </DropdownMenuTrigger>

@@ -123,8 +123,8 @@ const ProfileNameForm = () => {
                     <FormLabel>First name</FormLabel>
                     <TooltipProvider disableHoverableContent={true}>
                       <Tooltip>
-                        <TooltipTrigger type="button" className="bg-unset">
-                          <InfoIcon size={14} className="mx-1 mt-1" />
+                        <TooltipTrigger type="button" aria-label="About first name" className="bg-unset">
+                          <InfoIcon aria-hidden size={14} className="mx-1 mt-1" />
                         </TooltipTrigger>
                         <TooltipContent side="right">
                           <p>Your official name as recognized on legal documents like IDs, tax forms, or contracts.</p>
@@ -147,8 +147,8 @@ const ProfileNameForm = () => {
                   <FormLabel>Last name</FormLabel>
                   <TooltipProvider disableHoverableContent={true}>
                     <Tooltip>
-                      <TooltipTrigger type="button" className="bg-unset">
-                        <InfoIcon size={14} className="mx-1 mt-1" />
+                      <TooltipTrigger type="button" aria-label="About last name" className="bg-unset">
+                        <InfoIcon aria-hidden size={14} className="mx-1 mt-1" />
                       </TooltipTrigger>
                       <TooltipContent side="right">
                         <p>Your official last name as recognized on legal documents like IDs, tax forms, or contracts.</p>
@@ -172,8 +172,8 @@ const ProfileNameForm = () => {
                   <FormLabel>Display name</FormLabel>
                   <TooltipProvider disableHoverableContent={true}>
                     <Tooltip>
-                      <TooltipTrigger type="button" className="bg-unset">
-                        <InfoIcon size={14} className="mx-1 mt-1" />
+                      <TooltipTrigger type="button" aria-label="About display name" className="bg-unset">
+                        <InfoIcon aria-hidden size={14} className="mx-1 mt-1" />
                       </TooltipTrigger>
                       <TooltipContent side="right">
                         <p>Your display name is what other users will see.</p>
@@ -195,8 +195,8 @@ const ProfileNameForm = () => {
                   <FormLabel>Email</FormLabel>
                   <TooltipProvider disableHoverableContent={true}>
                     <Tooltip>
-                      <TooltipTrigger type="button" className="bg-unset">
-                        <InfoIcon size={14} className="mx-1 mt-1" />
+                      <TooltipTrigger type="button" aria-label="About email" className="bg-unset">
+                        <InfoIcon aria-hidden size={14} className="mx-1 mt-1" />
                       </TooltipTrigger>
                       <TooltipContent side="right">
                         <p>Your email address used for login as well as for communication and account-related updates.</p>

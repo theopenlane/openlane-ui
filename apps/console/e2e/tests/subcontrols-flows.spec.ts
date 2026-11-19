@@ -23,7 +23,7 @@ test.describe('controls — create subcontrol from the bare route', () => {
     await page.goto('/controls/create-subcontrol', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await expect(page.getByText(/Create a? ?Subcontrol/).first()).toBeVisible({ timeout: 60_000 })
 
-    const combobox = page.getByRole('combobox', { name: 'Search Control' })
+    const combobox = page.getByRole('combobox', { name: 'Parent Control' })
     await combobox.click()
     await combobox.fill(parentRefCode)
 
@@ -43,7 +43,7 @@ test.describe('controls — create subcontrol from the bare route', () => {
       await page.goto('/controls/create-subcontrol', { waitUntil: 'domcontentloaded', timeout: 180_000 })
       await expect(page.getByText(/Create a? ?Subcontrol/).first()).toBeVisible({ timeout: 60_000 })
 
-      const combobox = page.getByRole('combobox', { name: 'Search Control' })
+      const combobox = page.getByRole('combobox', { name: 'Parent Control' })
       await combobox.click()
       await combobox.fill(parentRefCode)
       await clickResilient(page.getByRole('option', { name: new RegExp(parentRefCode) }).first())
@@ -88,7 +88,7 @@ test.describe('controls — create subcontrol', () => {
     await page.goto(`/controls/${parentId}/create-subcontrol`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
     await expect(page.getByText(/Create a? ?Subcontrol/).first()).toBeVisible({ timeout: 60_000 })
-    await expect(page.getByRole('combobox', { name: 'Search Control' })).toHaveValue(new RegExp(parentRefCode), { timeout: 30_000 })
+    await expect(page.getByRole('combobox', { name: 'Parent Control' })).toHaveValue(new RegExp(parentRefCode), { timeout: 30_000 })
   })
 
   test('submitting without a Ref Code surfaces the required-field error', async ({ page }) => {

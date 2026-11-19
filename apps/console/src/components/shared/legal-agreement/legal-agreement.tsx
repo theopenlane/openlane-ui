@@ -5,7 +5,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import OfficialOnly from '@/components/shared/official-only/official-only'
 
-const linkClassName = 'text-xs underline hover:text-blue-500 hover:opacity-80 transition-colors duration-500'
+const linkClassName = 'text-xs underline hover:text-hyperlink hover:opacity-80 transition-colors duration-500'
 
 type LegalAgreementProps = {
   action: 'signing in' | 'signing up'

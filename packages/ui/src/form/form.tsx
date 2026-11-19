@@ -58,6 +58,11 @@ type FormItemContextValue = {
 
 const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue)
 
+const useFormItemLabelId = (): string | undefined => {
+  const { id, hasLabel } = React.useContext(FormItemContext)
+  return id && hasLabel ? `${id}-form-item-label` : undefined
+}
+
 const FormItem = ({ className, ref, ...props }: React.HTMLAttributes<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }) => {
   const id = React.useId()
   const [hasLabel, setHasLabel] = React.useState(false)
@@ -145,4 +150,4 @@ const FormMessage = ({ className, children, reserveSpace = false, ref, ...props 
   )
 }
 
-export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField }
+export { useFormField, useFormItemLabelId, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField }

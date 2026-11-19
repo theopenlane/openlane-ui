@@ -7,6 +7,7 @@ import { formatDate } from '@/utils/date'
 import { Clock } from 'lucide-react'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
+import { tintedTextColor } from '@/utils/color-contrast'
 import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
 import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 
@@ -23,7 +24,7 @@ const getTimelineColorVar = (type: string) => {
 const getChipStyle = (type: string): React.CSSProperties => {
   const cssVar = getTimelineColorVar(type)
   return {
-    color: `var(${cssVar}, var(--foreground))`,
+    color: tintedTextColor(`var(${cssVar}, var(--foreground))`),
     backgroundColor: `color-mix(in srgb, var(${cssVar}, var(--foreground)) 15%, transparent)`,
   }
 }

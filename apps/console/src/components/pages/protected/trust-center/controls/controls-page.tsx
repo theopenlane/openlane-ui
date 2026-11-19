@@ -347,7 +347,7 @@ export default function ControlsPage() {
           variant="searchTable"
         />
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FilterTab)} className="shrink-0">
+        <Tabs panelless value={activeTab} onValueChange={(v) => setActiveTab(v as FilterTab)} className="shrink-0">
           <TabsList className="flex-nowrap">
             <TabsTrigger value="all">All ({tabCounts.all})</TabsTrigger>
             <TabsTrigger value="added">Added ({tabCounts.added})</TabsTrigger>

@@ -175,7 +175,7 @@ const IntegrationTagSection = ({ title, description, integrations, canEdit, forc
             </Badge>
           </div>
           {hasMore && !forceExpanded ? (
-            <Button type="button" variant="transparent" className="text-sm text-primary" onClick={() => setExpanded((prev) => !prev)}>
+            <Button type="button" variant="link" className="text-sm" onClick={() => setExpanded((prev) => !prev)}>
               {expanded ? 'Show less' : 'See all'}
             </Button>
           ) : null}

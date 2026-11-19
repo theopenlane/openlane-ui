@@ -16,7 +16,7 @@ import {
   createSubcontrol,
   createVendor,
   createVulnerability,
-  getOwnerApi,
+  getDemoApi,
 } from '../utils/api'
 import { createAssessment, createAutomationCampaign, createQuestionnaireTemplate, createWorkflowDefinition } from '../utils/api-automation'
 import { A11Y_TAG, COLOR_SCHEMES, expectNoA11yViolations, waitForPageToSettle, type ReadyLocator } from '../utils/accessibility'
@@ -46,7 +46,7 @@ type SeededRecords = {
 type RecordRoute = { route: string; href: (records: SeededRecords) => string; ready?: ReadyLocator }
 
 const seedRecords = async (): Promise<SeededRecords> => {
-  const api = await getOwnerApi()
+  const api = await getDemoApi()
   const name = (prefix: string) => uniqueName(`E2E A11y ${prefix}`)
   const personnelName = name('Personnel')
 
@@ -91,7 +91,7 @@ const tryAcquireSeedLock = (lockPath: string): boolean => {
 }
 
 const loadOrSeedRecords = async (): Promise<SeededRecords> => {
-  const cachePath = path.join(AUTH_DIR, `a11y-records-${readManifest().sharedOrgId}.json`)
+  const cachePath = path.join(AUTH_DIR, `a11y-records-${readManifest().demoEmail.replace(/[^a-z0-9]/gi, '-')}.json`)
   const lockPath = `${cachePath}.lock`
 
   for (let attempt = 0; attempt < SEED_LOCK_ATTEMPTS; attempt++) {
@@ -175,7 +175,7 @@ test.describe.configure({ retries: 0 })
 
 for (const colorScheme of COLOR_SCHEMES) {
   test.describe(`accessibility — record pages (${colorScheme})`, { tag: A11Y_TAG }, () => {
-    test.use({ colorScheme })
+    test.use({ colorScheme, authProfile: 'demo' })
 
     for (const { route, href, ready } of [...RECORD_ROUTES, ...DETAIL_TAB_ROUTES]) {
       test(`${route} has no WCAG 2.2 AA violations`, async ({ page, records }, testInfo) => {

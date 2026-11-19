@@ -5,6 +5,7 @@ import { Badge, type BadgeProps } from '@repo/ui/badge'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { cn } from '@repo/ui/lib/utils'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { tintedTextColor } from '@/utils/color-contrast'
 
 export const EvidenceStatusColors: Record<EvidenceEvidenceStatus, string> = {
   [EvidenceEvidenceStatus.AUDITOR_APPROVED]: 'var(--color-evidence-auditor-approved)',
@@ -34,7 +35,7 @@ export const EvidenceIconMapper: Record<EvidenceEvidenceStatus, React.ReactNode>
 
 export const getEvidenceStatusStyle = (status: EvidenceEvidenceStatus) => ({
   backgroundColor: `color-mix(in srgb, ${EvidenceStatusColors[status]} 15%, transparent)`,
-  color: EvidenceStatusColors[status],
+  color: tintedTextColor(EvidenceStatusColors[status]),
 })
 
 type EvidenceStatusBadgeProps = Omit<BadgeProps, 'variant' | 'style'> & { status: EvidenceEvidenceStatus }

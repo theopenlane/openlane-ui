@@ -104,7 +104,7 @@ export default function ForgotPasswordComponent() {
 
         {error && <MessageBox message={error} variant="error" className="mt-4" />}
 
-        <Link href="/login" className="text-sm text-blue-500 underline mt-6 text-center hover:opacity-80 transition">
+        <Link href="/login" className="text-sm text-hyperlink-light underline mt-6 text-center hover:opacity-80 transition">
           Return to login
         </Link>
       </div>

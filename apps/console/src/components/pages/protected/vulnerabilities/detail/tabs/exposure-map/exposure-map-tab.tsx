@@ -137,7 +137,7 @@ const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit
             />
             <Label htmlFor="exposure-open-only">Open only</Label>
           </div>
-          <Tabs value={view} onValueChange={(value) => setView(value === 'list' ? 'list' : 'map')} variant="solid">
+          <Tabs panelless value={view} onValueChange={(value) => setView(value === 'list' ? 'list' : 'map')} variant="solid">
             <TabsList className="w-fit">
               <TabsTrigger value="map" className="inline-flex items-center justify-center gap-1.5">
                 <Network size={14} />

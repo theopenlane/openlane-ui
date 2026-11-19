@@ -21,7 +21,7 @@ type OnboardingFooterProps = {
 
 const ExitOnboardingLink = ({ onExit, disabled }: { onExit: () => void; disabled: boolean }) => (
   <p className="text-sm">
-    <button type="button" className="bg-transparent text-blue-500 disabled:opacity-50" onClick={onExit} disabled={disabled}>
+    <button type="button" className="bg-transparent text-hyperlink disabled:opacity-50" onClick={onExit} disabled={disabled}>
       Exit the onboarding process
     </button>
     <span> and use general template for my account.</span>

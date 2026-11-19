@@ -182,6 +182,7 @@ export const GlobalSearch = () => {
         <Button
           variant="secondary"
           className="p-1 rounded-md h-8 w-8 items-center justify-center flex"
+          aria-label="Search"
           {...elementAnchor('nav-search')}
           onClick={() => {
             setOpen(true)

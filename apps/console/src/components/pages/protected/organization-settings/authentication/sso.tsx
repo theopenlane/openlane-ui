@@ -132,7 +132,7 @@ const SSOOverview = ({
             {isSSOConfigured ? (
               <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="secondary" size="sm" className="h-8 w-8 p-0">
+                  <Button variant="secondary" aria-label="SSO actions" size="sm" className="h-8 w-8 p-0">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -653,7 +653,7 @@ const SSOPage = () => {
                   {isSSOConfigured ? (
                     <DropdownMenu modal={false}>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="secondary" size="sm" className="h-8 w-8 p-0">
+                        <Button variant="secondary" aria-label="SSO actions" size="sm" className="h-8 w-8 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
