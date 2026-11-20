@@ -261,7 +261,7 @@ export const VendorScoringQuestionForm: React.FC<TVendorScoringQuestionFormProps
                     Add option
                   </Button>
                 </div>
-                {optionsError && <p className="text-sm text-destructive">{optionsError}</p>}
+                <FormMessage>{optionsError}</FormMessage>
               </FormItem>
             )}
           />

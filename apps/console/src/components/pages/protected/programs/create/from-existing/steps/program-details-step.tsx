@@ -83,7 +83,7 @@ const ProgramDetailsStep = ({ sourceProgram, ownerLeftOrg }: ProgramDetailsStepP
         <div className="flex flex-col gap-1.5">
           <FormLabel>End Date</FormLabel>
           <DateSelect name="endDate" />
-          {errors.endDate?.message && <span className="text-xs text-destructive">{errors.endDate.message}</span>}
+          <FormMessage error={errors.endDate} />
         </div>
       </div>
 

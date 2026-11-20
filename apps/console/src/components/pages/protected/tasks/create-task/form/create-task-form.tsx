@@ -3,7 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { InfoIcon } from 'lucide-react'
 import useFormSchema, { type CreateTaskFormData } from '../../hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
 import { Button } from '@repo/ui/button'
@@ -292,7 +292,7 @@ const CreateTaskForm: React.FC<TProps> = ({ ref, ...props }: TProps) => {
                             <FormControl>
                               <CreatableCustomTypeEnumSelect itemLabel="task type" value={field.value} options={taskKindOptions} onValueChange={field.onChange} onCreateOption={createTaskKind} />
                             </FormControl>
-                            {form.formState.errors.taskKindName && <p className="text-red-500 text-sm">{form.formState.errors.taskKindName.message}</p>}
+                            <FormMessage error={form.formState.errors.taskKindName} />
                           </FormItem>
                         )}
                       />
@@ -312,7 +312,7 @@ const CreateTaskForm: React.FC<TProps> = ({ ref, ...props }: TProps) => {
                             <FormControl>
                               <Input variant="medium" {...field} className="w-full" />
                             </FormControl>
-                            {form.formState.errors.title && <p className="text-red-500 text-sm">{form.formState.errors.title.message}</p>}
+                            <FormMessage error={form.formState.errors.title} />
                           </FormItem>
                         )}
                       />
@@ -333,7 +333,7 @@ const CreateTaskForm: React.FC<TProps> = ({ ref, ...props }: TProps) => {
                               />
                             </div>
                             <PlateEditor key={editorKey} onChange={handleDetailsChange} placeholder="Write your task details" initialValue={form.getValues('details')} />
-                            {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
+                            <FormMessage error={form.formState.errors.details} />
                           </FormItem>
                         )}
                       />
@@ -360,7 +360,7 @@ const CreateTaskForm: React.FC<TProps> = ({ ref, ...props }: TProps) => {
                                 className="w-full"
                               />
                             </FormControl>
-                            {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
+                            <FormMessage error={form.formState.errors.tags} />
                           </FormItem>
                         )}
                       />
@@ -395,7 +395,7 @@ const CreateTaskForm: React.FC<TProps> = ({ ref, ...props }: TProps) => {
                                   ))}
                               </SelectContent>
                             </Select>
-                            {form.formState.errors.assigneeID && <p className="text-red-500 text-sm">{form.formState.errors.assigneeID.message}</p>}
+                            <FormMessage error={form.formState.errors.assigneeID} />
                           </FormItem>
                         )}
                       />
@@ -413,7 +413,7 @@ const CreateTaskForm: React.FC<TProps> = ({ ref, ...props }: TProps) => {
                               <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Set the deadline by which the task must be completed.</p>} />
                             </FormLabel>
                             <CalendarPopover field={field} disabledFrom={new Date()} />
-                            {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message as string}</p>}
+                            <FormMessage error={form.formState.errors.due} />
                           </FormItem>
                         )}
                       />

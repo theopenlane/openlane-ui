@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
-import { FormControl, FormItem, FormLabel } from '@repo/ui/form'
+import { FormControl, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
@@ -71,7 +71,7 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate,
             <FormControl>
               <Input {...field} onBlur={() => handleBlur(field.value ?? '')} onKeyDown={handleKeyDown} autoFocus className="w-full" />
             </FormControl>
-            {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
+            <FormMessage error={form.formState.errors.name} />
           </FormItem>
         )}
       />

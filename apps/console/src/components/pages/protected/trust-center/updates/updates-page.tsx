@@ -7,7 +7,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { omit, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import * as z from 'zod'
 import { Keyboard, Megaphone, Pencil, Loader2, Trash2 } from 'lucide-react'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Textarea } from '@repo/ui/textarea'
@@ -170,7 +170,7 @@ export default function UpdatesSection() {
                       <FormControl>
                         <Input placeholder="Add a title" className="bg-background" {...field} />
                       </FormControl>
-                      {createForm.formState.errors.title && <p className="text-red-500 text-sm">{createForm.formState.errors.title.message}</p>}
+                      <FormMessage error={createForm.formState.errors.title} />
                     </FormItem>
                   )}
                 />
@@ -184,7 +184,7 @@ export default function UpdatesSection() {
                       <FormControl>
                         <Textarea placeholder="Write an update..." className="min-h-30 bg-background" {...field} />
                       </FormControl>
-                      {createForm.formState.errors.text && <p className="text-red-500 text-sm">{createForm.formState.errors.text.message}</p>}
+                      <FormMessage error={createForm.formState.errors.text} />
                     </FormItem>
                   )}
                 />
@@ -243,10 +243,10 @@ export default function UpdatesSection() {
                         <div className="space-y-3">
                           <Label>Title</Label>
                           <Input autoFocus className="bg-background text-sm" {...editForm.register('title')} />
-                          {editForm.formState.errors.title && <p className="text-red-500 text-sm">{editForm.formState.errors.title.message}</p>}
+                          <FormMessage error={editForm.formState.errors.title} />
                           <Label>Description</Label>
                           <Textarea autoFocus className="min-h-25 bg-background text-sm" {...editForm.register('text')} />
-                          {editForm.formState.errors.text && <p className="text-red-500 text-sm">{editForm.formState.errors.text.message}</p>}
+                          <FormMessage error={editForm.formState.errors.text} />
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <Keyboard size={16} />

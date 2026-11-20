@@ -10,7 +10,8 @@ import { BooleanField } from './fields/boolean-field'
 import { CheckboxField } from './fields/checkbox-field'
 import { MultiInputField } from './fields/multi-input-field'
 import { MultiselectField } from './fields/multiselect-field'
-import { FieldError, QuestionDescription, QuestionLabel } from './question-label'
+import { QuestionDescription, QuestionLabel } from './question-label'
+import { FormMessage } from '@repo/ui/form'
 
 export const DynamicQuestionField: React.FC<{ question: OnboardingQuestion }> = ({ question }) => {
   const {
@@ -30,7 +31,7 @@ export const DynamicQuestionField: React.FC<{ question: OnboardingQuestion }> = 
           <QuestionLabel question={question} htmlFor={question.key} />
           <QuestionDescription text={question.description} />
           <Input id={question.key} type={question.format === 'email' ? 'email' : 'text'} {...register(question.key)} />
-          <FieldError message={error?.message} />
+          <FormMessage error={error} />
         </div>
       )
 
@@ -51,7 +52,7 @@ export const DynamicQuestionField: React.FC<{ question: OnboardingQuestion }> = 
               ))}
             </SelectContent>
           </Select>
-          <FieldError message={error?.message} />
+          <FormMessage error={error} />
         </div>
       )
 

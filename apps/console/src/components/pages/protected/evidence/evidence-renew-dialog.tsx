@@ -8,7 +8,7 @@ import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { acceptedFileTypes, acceptedFileTypesShort } from '@/components/pages/protected/evidence/upload/evidence-upload-config.ts'
-import { Form, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { Form, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import useFormSchema, { type CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
@@ -116,7 +116,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
                       <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>The date the evidence was collected, generally the current date but can be adjusted.</p>} />
                     </FormLabel>
                     <CalendarPopover field={field} defaultToday required />
-                    {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
+                    <FormMessage error={form.formState.errors.creationDate} />
                   </FormItem>
                 )}
               />
@@ -145,7 +145,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
                         </b>
                       </p>
                     )}
-                    {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
+                    <FormMessage error={form.formState.errors.renewalDate} />
                   </FormItem>
                 )}
               />

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { type Value } from 'platejs'
@@ -33,7 +33,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
           <FormControl>
             <PlateEditor onChange={field.onChange} onHydrate={hydrate(field.name)} initialValue={initialValue ?? ''} placeholder="Write your vendor description" />
           </FormControl>
-          {formState.errors.description && <p className="text-red-500 text-sm">{formState.errors.description.message}</p>}
+          <FormMessage error={formState.errors.description} />
         </FormItem>
       )}
     />

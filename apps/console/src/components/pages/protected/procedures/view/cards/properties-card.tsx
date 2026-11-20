@@ -9,7 +9,7 @@ import { isSameDay } from 'date-fns'
 import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
-import { FormControl, FormField, FormItem } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormMessage } from '@repo/ui/form'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { formatDate } from '@/utils/date'
 import { DocumentIconMapper, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
@@ -139,7 +139,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                       ))}
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
+                  <FormMessage error={form.formState.errors.status} />
                 </div>
               )}
             />
@@ -208,7 +208,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                       className="w-full"
                     />
                   </FormControl>
-                  {form.formState.errors.revision && <p className="text-red-500 text-sm">{form.formState.errors.revision.message}</p>}
+                  <FormMessage error={form.formState.errors.revision} />
                 </FormItem>
               )}
             />
@@ -282,7 +282,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                     />
                   </FormControl>
 
-                  {form.formState.errors.procedureKindName && <p className="text-red-500 text-sm">{form.formState.errors.procedureKindName.message}</p>}
+                  <FormMessage error={form.formState.errors.procedureKindName} />
                 </FormItem>
               )}
             />
@@ -346,7 +346,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                     disabledFrom={new Date()}
                     required
                   />
-                  {form.formState.errors.reviewDue && <p className="text-red-500 text-sm">{form.formState.errors.reviewDue.message}</p>}
+                  <FormMessage error={form.formState.errors.reviewDue} />
                 </>
               )}
             />

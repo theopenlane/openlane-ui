@@ -8,7 +8,7 @@ import { isSameDay } from 'date-fns'
 import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
-import { FormControl, FormField, FormItem } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormMessage } from '@repo/ui/form'
 import { type EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { formatDate } from '@/utils/date'
 import { DocumentIconMapper, InternalPolicyStatusOptions, ManagementModeLabel } from '@/components/shared/enum-mapper/policy-enum'
@@ -259,7 +259,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                       className="w-full"
                     />
                   </FormControl>
-                  {form.formState.errors.revision && <p className="text-red-500 text-sm">{form.formState.errors.revision.message}</p>}
+                  <FormMessage error={form.formState.errors.revision} />
                 </FormItem>
               )}
             />
@@ -331,7 +331,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                     />
                   </FormControl>
 
-                  {form.formState.errors.internalPolicyKindName && <p className="text-red-500 text-sm">{form.formState.errors.internalPolicyKindName.message}</p>}
+                  <FormMessage error={form.formState.errors.internalPolicyKindName} />
                 </FormItem>
               )}
             />
@@ -400,7 +400,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
                     disabledFrom={new Date()}
                     required
                   />
-                  {form.formState.errors.reviewDue && <p className="text-red-500 text-sm">{form.formState.errors.reviewDue.message}</p>}
+                  <FormMessage error={form.formState.errors.reviewDue} />
                 </>
               )}
             />

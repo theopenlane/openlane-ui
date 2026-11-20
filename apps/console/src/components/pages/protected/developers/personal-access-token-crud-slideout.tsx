@@ -11,7 +11,7 @@ import { Switch } from '@repo/ui/switch'
 import { CopyIcon, SquarePlus } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
-import { Form, FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useWatch } from 'react-hook-form'
 import { associationsInput, omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
@@ -217,7 +217,7 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
                 <FormControl>
                   <Input placeholder="Enter token name" {...field} disabled={isEditMode} />
                 </FormControl>
-                {fieldState.error && <p className="mt-1 text-sm text-destructive">{fieldState.error.message}</p>}
+                <FormMessage error={fieldState.error} />
               </FormItem>
             )}
           />
@@ -267,7 +267,7 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
                     <Input type="date" value={field.value ? field.value.toISOString().split('T')[0] : ''} onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)} />
                   </FormControl>
                 )}
-                {fieldState.error && <p className="mt-1 text-sm text-destructive">{fieldState.error.message}</p>}
+                <FormMessage error={fieldState.error} />
               </FormItem>
             )}
           />

@@ -1,7 +1,7 @@
 'use client'
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { InfoIcon } from 'lucide-react'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import useFormSchema, { type CreateEvidenceFormData, type CreateEvidenceFormInput } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
@@ -314,7 +314,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                       <Input variant="medium" {...field} className="w-full" placeholder="Enter a descriptive name for this evidence" />
                     </FormControl>
                     <p className="text-xs text-muted-foreground">Choose a clear, searchable name so others can easily find it.</p>
-                    {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
+                    <FormMessage error={form.formState.errors.name} />
                   </FormItem>
                 )}
               />
@@ -336,7 +336,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
               </Panel>
               {mode.requireLinkedControls &&
                 (form.formState.errors.controlIDs ? (
-                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.controlIDs.message}</p>
+                  <FormMessage error={form.formState.errors.controlIDs} />
                 ) : (
                   <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                     <InfoIcon size={12} />
@@ -366,7 +366,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                       <Textarea id="description" {...field} className="w-full" placeholder="Provide context about this evidence (what it shows, why it's important, etc.)" />
                     </FormControl>
                     <p className="text-xs text-muted-foreground">Help reviewers understand the purpose and relevance of this evidence.</p>
-                    {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
+                    <FormMessage error={form.formState.errors.description} />
                   </FormItem>
                 )}
               />
@@ -397,7 +397,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                           </SelectContent>
                         </Select>
                       </FormControl>
-                      {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
+                      <FormMessage error={form.formState.errors.status} />
                     </FormItem>
                   )}
                 />

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
-import { FormControl, FormItem, FormLabel } from '@repo/ui/form'
+import { FormControl, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
@@ -79,7 +79,7 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, isEditAllowed = tru
             <FormControl>
               <Input variant="medium" {...field} className="w-full" onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus />
             </FormControl>
-            {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
+            <FormMessage error={form.formState.errors.name} />
           </FormItem>
         )}
       />

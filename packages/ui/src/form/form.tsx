@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as LabelPrimitive from '@radix-ui/react-label'
 import { Slot } from '@radix-ui/react-slot'
-import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, useFormContext } from 'react-hook-form'
+import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, UseFormReturn, useFormContext } from 'react-hook-form'
 
 import { cn } from '../../lib/utils'
 import { Label } from '../label/label'
@@ -122,21 +122,36 @@ const FormDescription = ({ className, ref, ...props }: React.HTMLAttributes<HTML
   return <p ref={ref} id={formDescriptionId} className={cn(formDescription(), className)} {...props} />
 }
 
+type FormMessageError = { message?: string } | { message?: string }[]
+
 interface FormMessageProps extends React.HTMLAttributes<HTMLDivElement> {
   reserveSpace?: boolean
+  error?: FormMessageError | null
 }
 
-const FormMessage = ({ className, children, reserveSpace = false, ref, ...props }: FormMessageProps & { ref?: React.Ref<HTMLDivElement> }) => {
-  const { error, formMessageId } = useFormField()
+const toMessages = (error: FormMessageError | null | undefined): string[] => {
+  if (!error) return []
+  const messages = (Array.isArray(error) ? error : [error]).map((err) => err?.message).filter((message): message is string => !!message)
+  return Array.from(new Set(messages))
+}
 
-  let body: React.ReactNode = null
-  if (error) {
-    if (Array.isArray(error)) {
-      const uniqueMessages = Array.from(new Set(error.map((err) => err.message)))
-      body = uniqueMessages.map((msg, index) => <div key={index}>{msg}</div>)
-    } else {
-      body = error.message ?? null
-    }
+const useContextFieldError = (): FormMessageError | undefined => {
+  const { name } = React.useContext(FormFieldContext)
+  const form: UseFormReturn | null = useFormContext()
+  if (!name || !form) return undefined
+  return form.getFieldState(name, form.formState).error
+}
+
+const FormMessage = ({ className, children, reserveSpace = false, error, id, ref, ...props }: FormMessageProps & { ref?: React.Ref<HTMLDivElement> }) => {
+  const contextError = useContextFieldError()
+  const { id: itemId } = React.useContext(FormItemContext)
+  const messages = toMessages(error ?? contextError)
+
+  let body: React.ReactNode
+  if (messages.length > 1) {
+    body = messages.map((message) => <div key={message}>{message}</div>)
+  } else if (messages.length === 1) {
+    body = messages[0]
   } else {
     body = children || (reserveSpace ? <span style={{ visibility: 'hidden' }}>Placeholder</span> : null)
   }
@@ -144,7 +159,7 @@ const FormMessage = ({ className, children, reserveSpace = false, ref, ...props 
   if (!body) return null
 
   return (
-    <div ref={ref} id={formMessageId} className={cn(formMessage(), className)} {...props}>
+    <div ref={ref} id={id ?? (itemId ? `${itemId}-form-item-message` : undefined)} className={cn(formMessage(), className)} {...props}>
       {body}
     </div>
   )

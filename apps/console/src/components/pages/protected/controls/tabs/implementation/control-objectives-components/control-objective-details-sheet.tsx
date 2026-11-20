@@ -21,6 +21,7 @@ import { omit, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import { CONTROL_OBJECTIVE_UPDATE_FIELDS, revisionBumpExtras } from './form/control-objective-update-fields'
 import { VersionBump } from '@/lib/enums/revision-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { FormMessage } from '@repo/ui/form'
 
 type Props = {
   queryParamKey?: string
@@ -107,7 +108,7 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
             </Label>
             <div className="flex flex-col">
               <Controller name="name" control={control} render={({ field }) => <Input {...field} />} />
-              {errors.name && <p className="text-red-500 mt-1 text-xs">{errors.name.message}</p>}
+              <FormMessage error={errors.name} />
             </div>
           </div>
 

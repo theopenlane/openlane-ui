@@ -7,7 +7,8 @@ import { Input } from '@repo/ui/input'
 import { X } from 'lucide-react'
 import { DOMAIN_REGEX } from '@/lib/onboarding-questions/build-schema'
 import { type OnboardingQuestion } from '@/lib/onboarding-questions/types'
-import { FieldError, QuestionDescription, QuestionLabel } from '../question-label'
+import { QuestionDescription, QuestionLabel } from '../question-label'
+import { FormMessage } from '@repo/ui/form'
 
 export const MultiInputField: React.FC<{ question: OnboardingQuestion }> = ({ question }) => {
   const { setValue, watch, formState } = useFormContext()
@@ -73,8 +74,8 @@ export const MultiInputField: React.FC<{ question: OnboardingQuestion }> = ({ qu
           className="h-auto border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
         />
       </div>
-      {invalidDraft && <p className="text-red-500 text-sm">Invalid domain format. Example: acme.com</p>}
-      <FieldError message={error?.message} />
+      {invalidDraft && <FormMessage>Invalid domain format. Example: acme.com</FormMessage>}
+      <FormMessage error={error} />
     </div>
   )
 }

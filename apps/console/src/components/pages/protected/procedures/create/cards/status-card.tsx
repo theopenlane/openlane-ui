@@ -6,7 +6,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Calendar, CalendarCheck2, CalendarClock, ClockArrowUp, FileStack, ScanEye, ScrollText } from 'lucide-react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { FormControl, FormField, FormItem } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormMessage } from '@repo/ui/form'
 import { type CreateProcedureFormData } from '@/components/pages/protected/procedures/create/hooks/use-form-schema.ts'
 import { formatTimeSince } from '@/utils/date'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
@@ -74,7 +74,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
+                  <FormMessage error={form.formState.errors.status} />
                 </>
               )}
             />
@@ -103,7 +103,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                       <SelectItem value="false">False</SelectItem>
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.approvalRequired && <p className="text-red-500 text-sm">{form.formState.errors.approvalRequired.message}</p>}
+                  <FormMessage error={form.formState.errors.approvalRequired} />
                 </>
               )}
             />
@@ -142,7 +142,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.reviewFrequency && <p className="text-red-500 text-sm">{form.formState.errors.reviewFrequency.message}</p>}
+                  <FormMessage error={form.formState.errors.reviewFrequency} />
                 </>
               )}
             />
@@ -184,7 +184,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                     />
                   </FormControl>
 
-                  {form.formState.errors.procedureKindName && <p className="text-red-500 text-sm">{form.formState.errors.procedureKindName.message}</p>}
+                  <FormMessage error={form.formState.errors.procedureKindName} />
                 </FormItem>
               )}
             />
@@ -229,7 +229,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
               render={({ field }) => (
                 <>
                   <CalendarPopover field={field} disabledFrom={new Date()} />
-                  {form.formState.errors.reviewDue && <p className="text-red-500 text-sm">{form.formState.errors.reviewDue.message}</p>}
+                  <FormMessage error={form.formState.errors.reviewDue} />
                 </>
               )}
             />
