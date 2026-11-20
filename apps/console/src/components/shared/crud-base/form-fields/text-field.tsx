@@ -10,6 +10,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 import { cn } from '@repo/ui/lib/utils'
+import { fieldItemLayoutClassName, fieldMessageLayoutClassName, type TFieldLayout } from './field-layout'
 import { useRef } from 'react'
 import { usePersistFormField, type TPersistOptions } from '../persist-form-field'
 import { InlineEditDisplay, InlineEditDisplayWithActions } from './inline-edit-display'
@@ -32,7 +33,7 @@ interface TextFieldProps<TUpdateInput> {
   error?: string
   tooltipContent?: string
   icon?: React.ReactNode
-  layout?: 'vertical' | 'horizontal'
+  layout?: TFieldLayout
   labelClassName?: string
   multiline?: boolean
   displaySuffix?: React.ReactNode
@@ -165,7 +166,7 @@ export const TextField = <TUpdateInput,>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn(className, layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : '')}>
+        <FormItem className={cn(className, fieldItemLayoutClassName(layout))}>
           <div className="flex items-center gap-2 shrink-0">
             {icon}
             <FormLabel required={required && isEditAllowed} className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>
@@ -237,7 +238,7 @@ export const TextField = <TUpdateInput,>({
               )}
             </InlineEditDisplay>
           )}
-          <FormMessage>{error}</FormMessage>
+          <FormMessage className={fieldMessageLayoutClassName(layout)}>{error}</FormMessage>
         </FormItem>
       )}
     />

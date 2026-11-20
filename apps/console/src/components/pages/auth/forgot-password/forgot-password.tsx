@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
-import { MessageBox } from '@repo/ui/message-box'
+import { FormMessage } from '@repo/ui/form'
 import { ArrowUpRight } from 'lucide-react'
 import { loginStyles } from '@/components/pages/auth/login/login.styles'
 import Link from 'next/link'
@@ -102,7 +102,7 @@ export default function ForgotPasswordComponent() {
           </Button>
         </form>
 
-        {error && <MessageBox message={error} variant="error" className="mt-4" />}
+        <FormMessage role="alert">{error}</FormMessage>
 
         <Link href="/login" className="text-sm text-hyperlink-light underline mt-6 text-center hover:opacity-80 transition">
           Return to login

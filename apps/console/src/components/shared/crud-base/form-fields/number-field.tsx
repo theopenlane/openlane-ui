@@ -2,7 +2,7 @@
 
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { type InternalEditingType } from '../generic-sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
@@ -84,6 +84,7 @@ export const NumberField: React.FC<NumberFieldProps> = ({
               {value || <span className="text-muted-foreground italic">Not set</span>}
             </InlineEditDisplay>
           )}
+          <FormMessage />
         </FormItem>
       )}
     />

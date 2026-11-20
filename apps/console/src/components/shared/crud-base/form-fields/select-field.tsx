@@ -1,6 +1,6 @@
 'use client'
 
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
@@ -9,6 +9,7 @@ import { InfoIcon } from 'lucide-react'
 import { type InternalEditingType } from '../generic-sheet'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { cn } from '@repo/ui/lib/utils'
+import { fieldItemLayoutClassName, fieldMessageLayoutClassName, type TFieldLayout } from './field-layout'
 import { InlineEditDisplay } from './inline-edit-display'
 
 interface SelectFieldProps<TUpdateInput> {
@@ -26,7 +27,7 @@ interface SelectFieldProps<TUpdateInput> {
   useCustomDisplay?: boolean
   tooltipContent?: string
   icon?: React.ReactNode
-  layout?: 'vertical' | 'horizontal'
+  layout?: TFieldLayout
   labelClassName?: string
   triggerClassName?: string
   placeholder?: string
@@ -69,7 +70,7 @@ export const SelectField = <TUpdateInput,>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : ''}>
+        <FormItem className={fieldItemLayoutClassName(layout)}>
           <div className="flex items-center gap-2 shrink-0">
             {icon}
             <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>
@@ -149,6 +150,7 @@ export const SelectField = <TUpdateInput,>({
               )}
             </InlineEditDisplay>
           )}
+          <FormMessage className={fieldMessageLayoutClassName(layout)} />
         </FormItem>
       )}
     />

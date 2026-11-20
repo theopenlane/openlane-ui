@@ -1,6 +1,6 @@
 'use client'
 
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
 import { formatDate } from '@/utils/date'
@@ -8,6 +8,7 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
+import { fieldItemLayoutClassName, fieldMessageLayoutClassName, type TFieldLayout } from './field-layout'
 import { InlineEditDisplay } from './inline-edit-display'
 
 interface DateFieldProps<TUpdateInput> {
@@ -24,7 +25,7 @@ interface DateFieldProps<TUpdateInput> {
   tooltipContent?: string
   disableFuture?: boolean
   icon?: React.ReactNode
-  layout?: 'vertical' | 'horizontal'
+  layout?: TFieldLayout
   labelClassName?: string
   calendarButtonClassName?: string
   calendarInputClassName?: string
@@ -65,7 +66,7 @@ export const DateField = <TUpdateInput,>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn(className, layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : '')}>
+        <FormItem className={cn(className, fieldItemLayoutClassName(layout))}>
           <div className="flex items-center gap-2 shrink-0">
             {icon}
             <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>
@@ -94,6 +95,7 @@ export const DateField = <TUpdateInput,>({
               {value ? formatDate(value) : <span className="text-muted-foreground italic">Not set</span>}
             </InlineEditDisplay>
           )}
+          <FormMessage className={fieldMessageLayoutClassName(layout)} />
         </FormItem>
       )}
     />

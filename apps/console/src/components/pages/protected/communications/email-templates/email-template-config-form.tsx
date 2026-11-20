@@ -3,11 +3,13 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import Form from '@rjsf/core'
 import type { IChangeEvent } from '@rjsf/core'
-import type { ArrayFieldItemTemplateProps, ErrorTransformer, ObjectFieldTemplateProps, RegistryWidgetsType, RJSFSchema, TemplatesType, UiSchema, WidgetProps } from '@rjsf/utils'
+import { errorId } from '@rjsf/utils'
+import type { ArrayFieldItemTemplateProps, ErrorTransformer, FieldErrorProps, ObjectFieldTemplateProps, RegistryWidgetsType, RJSFSchema, TemplatesType, UiSchema, WidgetProps } from '@rjsf/utils'
 import { customizeValidator } from '@rjsf/validator-ajv8'
 import Ajv2020 from 'ajv/dist/2020'
 import { ChevronDown, ChevronUp, Copy, Plus, RotateCcw, Trash2, X } from 'lucide-react'
 import { Button } from '@repo/ui/button'
+import { FormMessage } from '@repo/ui/form'
 import { toHumanLabel } from '@/utils/strings'
 import { isFieldAtDefault, resetFieldsToDefault } from './email-template-defaults'
 
@@ -199,6 +201,10 @@ const ArrayFieldItemTemplate: React.FC<ArrayFieldItemTemplateProps> = ({ childre
   )
 }
 
+const FieldErrorTemplate: React.FC<FieldErrorProps> = ({ errors = [], fieldPathId }) => (
+  <FormMessage id={errorId(fieldPathId)} error={errors.filter((error): error is string => typeof error === 'string').map((message) => ({ message }))} />
+)
+
 const configFormClassName = [
   'email-template-config-form',
   'flex flex-col gap-4',
@@ -214,7 +220,6 @@ const configFormClassName = [
   '[&_textarea]:w-full [&_textarea]:min-h-24 [&_textarea]:rounded-md [&_textarea]:border [&_textarea]:border-border [&_textarea]:bg-transparent [&_textarea]:px-3 [&_textarea]:py-2 [&_textarea]:text-sm',
   '[&_select]:h-9 [&_select]:w-full [&_select]:rounded-md [&_select]:border [&_select]:border-border [&_select]:bg-transparent [&_select]:px-3 [&_select]:text-sm',
   '[&_.control-label_.required]:text-destructive [&_.control-label_.required]:ml-0.5',
-  '[&_.text-danger]:text-xs [&_.text-danger]:text-destructive [&_.error-detail]:text-xs [&_.error-detail]:text-destructive [&_.error-detail]:list-disc [&_.error-detail]:pl-4',
 ].join(' ')
 
 export const EmailTemplateConfigForm: React.FC<EmailTemplateConfigFormProps> = ({ schema, uiSchema, formData, onChange, defaultValues, readOnly = false }) => {
@@ -244,7 +249,7 @@ export const EmailTemplateConfigForm: React.FC<EmailTemplateConfigFormProps> = (
         formContext={formContext}
         widgets={configFormWidgets}
         transformErrors={ignoreSystemKeyErrors}
-        templates={{ ButtonTemplates: buttonTemplates, ArrayFieldItemTemplate, ObjectFieldTemplate: GroupedObjectFieldTemplate }}
+        templates={{ ButtonTemplates: buttonTemplates, ArrayFieldItemTemplate, FieldErrorTemplate, ObjectFieldTemplate: GroupedObjectFieldTemplate }}
         readonly={readOnly}
         disabled={readOnly}
         liveValidate={!readOnly}
