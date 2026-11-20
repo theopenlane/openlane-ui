@@ -4,6 +4,7 @@ import { Button } from '@repo/ui/button'
 import { Plus, Trash2 } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
+import { FormMessage } from '@repo/ui/form'
 
 type DomainListEditorProps = {
   domains: string[]
@@ -70,7 +71,7 @@ export const DomainListEditor = ({
         </div>
       )}
 
-      {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+      <FormMessage>{error}</FormMessage>
 
       {domains.length === 0 && emptyText && <p className="text-sm text-muted-foreground">{emptyText}</p>}
 

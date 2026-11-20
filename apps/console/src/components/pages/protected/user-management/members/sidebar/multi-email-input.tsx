@@ -2,6 +2,7 @@ import { type KeyboardEvent, useEffect, useMemo, useState } from 'react'
 import { type Tag } from 'emblor'
 import { TagInput } from '@repo/ui/tag-input'
 import { dedupeEmails, isDuplicateEmail, isValidEmail } from '@/lib/validators'
+import { FormMessage } from '@repo/ui/form'
 
 type TMultiEmailInputProps = {
   value: string[]
@@ -82,7 +83,7 @@ export const MultiEmailInput = ({ value, onChange, error, disabled, onValidChang
         inputProps={{ disabled }}
         onInputChange={handleInputChange}
       />
-      {message && <p className="text-sm font-medium text-destructive mt-1 text-left">{message}</p>}
+      <FormMessage className="text-left">{message}</FormMessage>
     </div>
   )
 }

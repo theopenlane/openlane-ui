@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import PlateEditor from '@/components/shared/plate/plate-editor'
@@ -21,10 +21,8 @@ type RichTextFieldProps = {
 }
 
 const RichTextField: React.FC<RichTextFieldProps> = ({ name, label, tooltip, placeholder, isEditing, isCreate, initialValue }) => {
-  const { control, formState, resetField } = useFormContext<SystemDetailFormData>()
+  const { control, resetField } = useFormContext<SystemDetailFormData>()
   const hydrate = usePlateHydration({ resetField })
-  const errorMessage = formState.errors[name]?.message
-  const showError = typeof errorMessage === 'string'
 
   return isEditing || isCreate ? (
     <FormField
@@ -39,7 +37,7 @@ const RichTextField: React.FC<RichTextFieldProps> = ({ name, label, tooltip, pla
           <FormControl>
             <PlateEditor onChange={field.onChange} onHydrate={hydrate(field.name)} initialValue={initialValue ?? ''} placeholder={placeholder} />
           </FormControl>
-          {showError && <p className="text-red-500 text-sm">{errorMessage}</p>}
+          <FormMessage />
         </FormItem>
       )}
     />

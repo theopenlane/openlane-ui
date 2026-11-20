@@ -6,6 +6,7 @@ import { type TUploadedFile } from '@/components/pages/protected/evidence/upload
 import { FileText, Repeat2 } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
+import { FormMessage } from '@repo/ui/form'
 
 interface Props {
   isEditing: boolean
@@ -55,7 +56,7 @@ export const FileField = ({ onFileUpload, uploadedFile }: Props) => {
         <FileUpload onFileUpload={onFileUpload} maxFileSizeInMb={10} acceptedFileTypes={acceptedFileTypes} acceptedFileTypesShort={acceptedFileTypesShort} multipleFiles={false} />
       )}
 
-      {errors.file && <p className="text-red-500 text-sm mt-1">{String(errors.file.message)}</p>}
+      <FormMessage error={errors.file} />
     </div>
   )
 }

@@ -20,6 +20,7 @@ import { VersionBump } from '@/lib/enums/revision-enum'
 import { ControlObjectiveSourceOptions, ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { Callout } from '@/components/shared/callout/callout'
+import { FormMessage } from '@repo/ui/form'
 
 const versionBumpOptions = enumToOptions(VersionBump)
 
@@ -119,7 +120,7 @@ export const CreateControlObjectiveForm = ({
           </Label>
           <div className="flex flex-col">
             <Controller name="name" control={control} render={({ field }) => <Input {...field} />} />
-            {errors.name && <p className="text-red-500 mt-1 text-xs">{errors.name.message}</p>}
+            <FormMessage error={errors.name} />
           </div>
         </div>
 

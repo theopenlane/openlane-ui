@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { ChevronDown, Check } from 'lucide-react'
-import { FormField, FormItem, FormControl, FormLabel } from '@repo/ui/form'
+import { FormField, FormItem, FormControl, FormLabel, FormMessage } from '@repo/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { cn } from '@repo/ui/lib/utils'
@@ -157,7 +157,7 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor }: Subp
             )}
           </FormControl>
 
-          {errors.subprocessorID && <p className="text-red-500 text-sm mt-1">{String(errors.subprocessorID.message)}</p>}
+          <FormMessage error={errors.subprocessorID} />
         </FormItem>
       )}
     />

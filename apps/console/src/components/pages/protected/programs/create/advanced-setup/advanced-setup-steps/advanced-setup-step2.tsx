@@ -7,6 +7,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { DateSelect } from '../../shared/form-fields/date-select'
 import StandardSelect from '../../shared/form-fields/standard-select'
 import { PROGRAM_KIND } from '../../shared/program-kind'
+import { FormMessage } from '@repo/ui/form'
 
 const AdvancedSetupStep2 = ({ defaultFramework }: { defaultFramework?: string }) => {
   const {
@@ -41,14 +42,14 @@ const AdvancedSetupStep2 = ({ defaultFramework }: { defaultFramework?: string })
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">Framework{programKindName === PROGRAM_KIND.FRAMEWORK && <span className="text-destructive">*</span>}</label>
           <StandardSelect defaultFramework={defaultFramework} />
-          {errors.framework && <span className="text-xs text-destructive">{String(errors.framework.message)}</span>}
+          <FormMessage error={errors.framework} />
         </div>
         <div className="flex flex-col gap-1.5">
           <label className="text-sm" htmlFor={nameId}>
             Program Name<span className="text-destructive">*</span>
           </label>
           <Input id={nameId} placeholder="Program Test" {...register('name', { required: 'Program name is required' })} />
-          {errors.name && <span className="text-xs text-destructive">{String(errors.name.message)}</span>}
+          <FormMessage error={errors.name} />
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -66,7 +67,7 @@ const AdvancedSetupStep2 = ({ defaultFramework }: { defaultFramework?: string })
           <div className="flex flex-col gap-1.5">
             <span className="text-sm">End Date</span>
             <DateSelect name="endDate" />
-            {errors.endDate && <span className="text-xs text-destructive">{String(errors.endDate.message)}</span>}
+            <FormMessage error={errors.endDate} />
           </div>
         </div>
       </div>

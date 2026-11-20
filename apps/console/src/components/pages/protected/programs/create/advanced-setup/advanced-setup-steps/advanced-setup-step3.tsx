@@ -3,6 +3,7 @@ import React, { useId } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
 import { Input } from '@repo/ui/input'
+import { FormMessage } from '@repo/ui/form'
 
 const AdvancedSetupStep3 = () => {
   const {
@@ -40,7 +41,7 @@ const AdvancedSetupStep3 = () => {
             Audit Partner
           </label>
           <Input id={auditPartnerId} placeholder="Auditor Contact" {...register('auditPartnerName')} />
-          {errors.auditPartnerName && <span className="text-xs text-destructive">{String(errors.auditPartnerName.message)}</span>}
+          <FormMessage error={errors.auditPartnerName} />
         </div>
 
         {/* Audit Firm */}
@@ -49,7 +50,7 @@ const AdvancedSetupStep3 = () => {
             Audit Firm
           </label>
           <Input id={auditFirmId} placeholder="Audit Firm Name" {...register('auditFirm')} />
-          {errors.auditFirm && <span className="text-xs text-destructive">{String(errors.auditFirm.message)}</span>}
+          <FormMessage error={errors.auditFirm} />
         </div>
 
         {/* Audit Partner Email */}
@@ -58,7 +59,7 @@ const AdvancedSetupStep3 = () => {
             Audit Partner Email
           </label>
           <Input id={auditPartnerEmailId} placeholder="Enter a primary contact email for the audit partner" type="email" {...register('auditPartnerEmail')} />
-          {errors.auditPartnerEmail && <span className="text-xs text-destructive">{String(errors.auditPartnerEmail.message)}</span>}
+          <FormMessage error={errors.auditPartnerEmail} />
         </div>
       </div>
     </div>

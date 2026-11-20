@@ -4,7 +4,7 @@ import React, { useMemo } from 'react'
 import { Calendar, CalendarCheck2, CalendarClock, CircuitBoard, Eye, Fingerprint, LinkIcon, Maximize2, Radio, RefreshCw, ShieldCheck, Tag, UserRoundCheck, UserRoundPen } from 'lucide-react'
 import NextLink from 'next/link'
 import { Controller } from 'react-hook-form'
-import { FormControl, FormField, FormItem } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormMessage } from '@repo/ui/form'
 import { Input, InputRow } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
@@ -93,7 +93,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                       onUpdateField()
                     }}
                   />
-                  {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
+                  <FormMessage error={form.formState.errors.creationDate} />
                 </FormItem>
               )}
             />
@@ -122,7 +122,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                       onUpdateField()
                     }}
                   />
-                  {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
+                  <FormMessage error={form.formState.errors.renewalDate} />
                 </FormItem>
               )}
             />
@@ -158,7 +158,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                       ))}
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.reviewFrequency && <p className="text-red-500 text-sm">{form.formState.errors.reviewFrequency.message}</p>}
+                  <FormMessage error={form.formState.errors.reviewFrequency} />
                 </>
               )}
             />
@@ -182,7 +182,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                     <FormControl>
                       <Input variant="medium" {...field} className="w-62.5" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'source'} />
                     </FormControl>
-                    {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
+                    <FormMessage error={form.formState.errors.source} />
                   </FormItem>
                 )}
               />
@@ -207,7 +207,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                     <FormControl>
                       <Input variant="medium" {...field} className="w-62.5" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'url'} />
                     </FormControl>
-                    {form.formState.errors.url && <p className="text-red-500 text-sm">{form.formState.errors.url.message}</p>}
+                    <FormMessage error={form.formState.errors.url} />
                   </FormItem>
                 )}
               />
@@ -312,7 +312,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                     <FormControl>
                       <Input variant="medium" {...field} value={field.value ?? ''} className="w-62.5" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'externalUUID'} />
                     </FormControl>
-                    {form.formState.errors.externalUUID && <p className="text-red-500 text-sm">{form.formState.errors.externalUUID.message}</p>}
+                    <FormMessage error={form.formState.errors.externalUUID} />
                   </FormItem>
                 )}
               />
@@ -337,7 +337,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                     <FormControl>
                       <Input variant="medium" {...field} value={field.value ?? ''} className="w-62.5" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'auditorReferenceID'} />
                     </FormControl>
-                    {form.formState.errors.auditorReferenceID && <p className="text-red-500 text-sm">{form.formState.errors.auditorReferenceID.message}</p>}
+                    <FormMessage error={form.formState.errors.auditorReferenceID} />
                   </FormItem>
                 )}
               />
@@ -368,7 +368,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                     options={tagOptions}
                     onChange={(selectedOptions) => field.onChange(selectedOptions.map((option) => option.value))}
                   />
-                  {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
+                  <FormMessage error={form.formState.errors.tags} />
                 </>
               )}
             />

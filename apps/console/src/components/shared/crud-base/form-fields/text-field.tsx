@@ -1,6 +1,6 @@
 'use client'
 
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { type ControllerRenderProps, type FieldValues, useFormContext } from 'react-hook-form'
@@ -67,7 +67,7 @@ export const TextField = <TUpdateInput,>({
   required = false,
   renderEditor,
 }: TextFieldProps<TUpdateInput>) => {
-  const { control, getValues, formState } = useFormContext()
+  const { control, getValues } = useFormContext()
   const persistField = usePersistFormField()
 
   const isFieldEditing = isCreate || isEditing || internalEditing === name
@@ -237,9 +237,7 @@ export const TextField = <TUpdateInput,>({
               )}
             </InlineEditDisplay>
           )}
-          {(error || typeof formState.errors[name]?.message === 'string') && (
-            <p className="text-destructive text-sm">{error || (typeof formState.errors[name]?.message === 'string' ? formState.errors[name]?.message : '')}</p>
-          )}
+          <FormMessage>{error}</FormMessage>
         </FormItem>
       )}
     />

@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react'
 import { InfoIcon } from 'lucide-react'
-import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
@@ -66,7 +66,7 @@ const EvidenceOverviewSection: React.FC<TEvidenceOverviewSectionProps> = ({
                 <FormControl>
                   <Input variant="medium" {...field} className="w-full" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'name'} />
                 </FormControl>
-                {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
+                <FormMessage error={form.formState.errors.name} />
               </FormItem>
             )}
           />
@@ -91,7 +91,7 @@ const EvidenceOverviewSection: React.FC<TEvidenceOverviewSectionProps> = ({
                 <FormControl>
                   <Textarea id="description" {...field} className="w-full" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'description'} />
                 </FormControl>
-                {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
+                <FormMessage error={form.formState.errors.description} />
               </FormItem>
             )}
           />
@@ -122,7 +122,7 @@ const EvidenceOverviewSection: React.FC<TEvidenceOverviewSectionProps> = ({
                   <FormControl>
                     <PlateEditor initialValue={field.value ?? ''} onChange={field.onChange} onHydrate={hydrate(field.name)} />
                   </FormControl>
-                  {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
+                  <FormMessage error={form.formState.errors.collectionProcedure} />
                 </FormItem>
               )}
             />

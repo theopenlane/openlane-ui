@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { normalizeUrl } from '@/utils/normalizeUrl'
+import { FormMessage } from '@repo/ui/form'
 
 interface Props {
   onFileUpload: (file: TUploadedFile) => void
@@ -93,13 +94,13 @@ export const LogoField = ({ onFileUpload, isEditing, fallbackPreviewSrc }: Props
                   maxFileSizeInMb={5}
                   multipleFiles={false}
                 />
-                {errors.logoFile && <p className="text-red-500 text-sm mt-1">{String(errors.logoFile.message)}</p>}
+                <FormMessage error={errors.logoFile} />
               </>
             ) : (
               <>
                 <Label className="mb-2 block text-sm">Logo URL</Label>
                 <Input {...register('logoUrl')} placeholder="https://example.com/logo.png" className="w-full" />
-                {errors.logoUrl && <p className="text-red-500 text-sm mt-1">{String(errors.logoUrl.message)}</p>}
+                <FormMessage error={errors.logoUrl} />
               </>
             )}
           </div>

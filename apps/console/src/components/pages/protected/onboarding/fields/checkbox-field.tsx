@@ -5,7 +5,8 @@ import { useFormContext } from 'react-hook-form'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Label } from '@repo/ui/label'
 import { type OnboardingQuestion } from '@/lib/onboarding-questions/types'
-import { FieldError, QuestionDescription, QuestionLabel } from '../question-label'
+import { QuestionDescription, QuestionLabel } from '../question-label'
+import { FormMessage } from '@repo/ui/form'
 
 export const CheckboxField: React.FC<{ question: OnboardingQuestion }> = ({ question }) => {
   const { setValue, watch, formState } = useFormContext()
@@ -23,7 +24,7 @@ export const CheckboxField: React.FC<{ question: OnboardingQuestion }> = ({ ques
         <Checkbox id={question.key} checked={value} onCheckedChange={(next) => setValue(question.key, next === true, { shouldDirty: true, shouldValidate: true })} />
         {question.checkboxLabel ?? question.label}
       </Label>
-      <FieldError message={error?.message} />
+      <FormMessage error={error} />
     </div>
   )
 }

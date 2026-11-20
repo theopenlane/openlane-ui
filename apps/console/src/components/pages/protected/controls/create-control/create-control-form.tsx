@@ -61,6 +61,7 @@ import { useDocsHelpNavigate } from '@/components/shared/docs-help/docs-help-con
 import { docsHelpAvailable } from '@repo/dally/ai'
 import { BookText } from 'lucide-react'
 import { buildControlEntityInput } from './build-control-input'
+import { FormMessage } from '@repo/ui/form'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -395,8 +396,8 @@ export default function CreateControlForm() {
               <Label htmlFor="control-ref-code">
                 Ref Code <span className="text-destructive">*</span>
               </Label>
-              {errors?.refCode && <p className="text-destructive text-sm mt-1">{errors.refCode.message}</p>}
               <Controller name="refCode" control={control} rules={{ required: true }} render={({ field }) => <Input id="control-ref-code" {...field} />} />
+              <FormMessage error={errors?.refCode} />
             </div>
 
             {/* Title */}
@@ -429,7 +430,7 @@ export default function CreateControlForm() {
                       if (e.key === 'Escape') setOpen(false)
                     }}
                   />
-                  {errors?.controlID && <p className="text-destructive text-sm mt-1">Parent Control is required</p>}
+                  {errors?.controlID && <FormMessage>Parent Control is required</FormMessage>}
 
                   <Popover open={open}>
                     <PopoverAnchor className="h-0 absolute" />

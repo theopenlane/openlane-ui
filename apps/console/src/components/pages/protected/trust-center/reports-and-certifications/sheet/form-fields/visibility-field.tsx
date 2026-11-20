@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { InfoIcon } from 'lucide-react'
 import { TrustCenterDocTrustCenterDocumentVisibility } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { FormMessage } from '@repo/ui/form'
 
 interface Props {
   isEditing: boolean
@@ -67,7 +68,7 @@ export const VisibilityField = ({ isEditing }: Props) => {
               ))}
             </SelectContent>
           </Select>
-          {errors.visibility && <p className="text-red-500 text-sm mt-1">{String(errors.visibility.message)}</p>}
+          <FormMessage error={errors.visibility} />
         </>
       ) : (
         <p className="text-base text-muted-foreground mt-1 capitalize">{visibilityValue?.split('_').join(' ').toLowerCase() || '—'}</p>

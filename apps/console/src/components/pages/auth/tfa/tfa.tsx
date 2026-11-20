@@ -12,6 +12,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { buildLoginRedirect, sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
+import { FormMessage } from '@repo/ui/form'
 
 const TfaPage: React.FC<{ enrollment?: boolean }> = ({ enrollment = false }) => {
   const [otpValue, setOtpValue] = useState('')
@@ -199,7 +200,7 @@ const TfaPage: React.FC<{ enrollment?: boolean }> = ({ enrollment = false }) => 
           </InputOTPGroup>
           <InputOTPSeparator />
         </InputOTP>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        <FormMessage>{error}</FormMessage>
         <div className="flex ">{config.bottomText}</div>
         {isPending && <p className="text-sm text-text-light">Validating OTP...</p>}
       </div>

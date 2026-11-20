@@ -1,7 +1,7 @@
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Button } from '@repo/ui/button'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { CircleHelp, Loader2 } from 'lucide-react'
@@ -43,7 +43,7 @@ export function CreateFaqForm({ disabled, isCreating, onSubmit, canCreateCategor
                   <FormControl>
                     <Input placeholder="Enter a frequently asked question" className="bg-background" {...field} />
                   </FormControl>
-                  {form.formState.errors.question && <p className="text-red-500 text-sm">{form.formState.errors.question.message}</p>}
+                  <FormMessage error={form.formState.errors.question} />
                 </FormItem>
               )}
             />
@@ -56,7 +56,7 @@ export function CreateFaqForm({ disabled, isCreating, onSubmit, canCreateCategor
                   <FormControl>
                     <Textarea placeholder="Provide the answer..." className="min-h-[120px] bg-background" {...field} />
                   </FormControl>
-                  {form.formState.errors.answer && <p className="text-red-500 text-sm">{form.formState.errors.answer.message}</p>}
+                  <FormMessage error={form.formState.errors.answer} />
                 </FormItem>
               )}
             />
@@ -69,7 +69,7 @@ export function CreateFaqForm({ disabled, isCreating, onSubmit, canCreateCategor
                   <FormControl>
                     <Input placeholder="https://..." className="bg-background" {...field} />
                   </FormControl>
-                  {form.formState.errors.referenceLink && <p className="text-red-500 text-sm">{form.formState.errors.referenceLink.message}</p>}
+                  <FormMessage error={form.formState.errors.referenceLink} />
                 </FormItem>
               )}
             />

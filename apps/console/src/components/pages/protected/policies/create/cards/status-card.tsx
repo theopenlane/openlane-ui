@@ -6,7 +6,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Calendar, ClockArrowUp, ScanEye, ScrollText } from 'lucide-react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { FormControl, FormField, FormItem } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormMessage } from '@repo/ui/form'
 import { type CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { InternalPolicyStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
@@ -65,7 +65,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
+                  <FormMessage error={form.formState.errors.status} />
                 </>
               )}
             />
@@ -94,7 +94,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
                       <SelectItem value="false">False</SelectItem>
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.approvalRequired && <p className="text-red-500 text-sm">{form.formState.errors.approvalRequired.message}</p>}
+                  <FormMessage error={form.formState.errors.approvalRequired} />
                 </>
               )}
             />
@@ -131,7 +131,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.reviewFrequency && <p className="text-red-500 text-sm">{form.formState.errors.reviewFrequency.message}</p>}
+                  <FormMessage error={form.formState.errors.reviewFrequency} />
                 </>
               )}
             />
@@ -163,7 +163,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
                     />
                   </FormControl>
 
-                  {form.formState.errors.internalPolicyKindName && <p className="text-red-500 text-sm">{form.formState.errors.internalPolicyKindName.message}</p>}
+                  <FormMessage error={form.formState.errors.internalPolicyKindName} />
                 </FormItem>
               )}
             />
@@ -184,7 +184,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
               render={({ field }) => (
                 <>
                   <CalendarPopover field={field} disabledFrom={new Date()} />
-                  {form.formState.errors.reviewDue && <p className="text-red-500 text-sm">{form.formState.errors.reviewDue.message}</p>}
+                  <FormMessage error={form.formState.errors.reviewDue} />
                 </>
               )}
             />

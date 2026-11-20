@@ -15,6 +15,7 @@ import { vendorRiskRatingColor, type TVendorRiskRating } from '@/lib/vendor-risk
 import { SCORING_MODE_COPY, SCORING_MODE_ORDER } from '../vendor-scoring-copy'
 import { SegmentedBar } from '../segmented-bar'
 import { isOneOf } from '@/utils/type-guards'
+import { FormMessage } from '@repo/ui/form'
 
 const isScoringMode = isOneOf(SCORING_MODE_ORDER)
 
@@ -154,11 +155,7 @@ export const VendorScoringScoringPanel: React.FC<TVendorScoringScoringPanelProps
                       onChange={(event) => onMaxScoreChange(rating, parseMaxScore(event.target.value))}
                       className={cn('w-24', error && 'border-destructive')}
                     />
-                    {error && (
-                      <p id={errorId} className="mt-1 text-xs text-destructive">
-                        {error}
-                      </p>
-                    )}
+                    <FormMessage id={errorId}>{error}</FormMessage>
                   </TableCell>
                   <TableCell className="text-muted-foreground tabular-nums">{defaultValue}</TableCell>
                   <TableCell className="text-right">

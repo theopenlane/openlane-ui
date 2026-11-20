@@ -1,6 +1,6 @@
 'use client'
 import { Input, InputRow } from '@repo/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
@@ -146,7 +146,7 @@ const CreateProcedureForm: React.FC = () => {
                     <FormControl>
                       <Input variant="medium" {...field} className="w-full min-w-0" />
                     </FormControl>
-                    {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
+                    <FormMessage error={form.formState.errors.name} />
                   </FormItem>
                 )}
               />
@@ -174,7 +174,7 @@ const CreateProcedureForm: React.FC = () => {
                       isCreate
                       initialValue={form.getValues('detailsJSON') ?? (form.getValues('details') as string) ?? undefined}
                     />
-                    {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
+                    <FormMessage error={form.formState.errors.details} />
                   </FormItem>
                 )}
               />

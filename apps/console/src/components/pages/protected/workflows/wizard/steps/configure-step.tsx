@@ -10,6 +10,7 @@ import { FlowSummary } from '../components/flow-summary'
 import { TargetSelector } from '../components/target-selector'
 import type { ApprovalTiming } from '../types'
 import type { WizardState } from '../hooks/use-wizard-state'
+import { FormMessage } from '@repo/ui/form'
 
 type ConfigureStepProps = {
   state: WizardState
@@ -182,7 +183,7 @@ export const ConfigureStep = ({ state }: ConfigureStepProps) => {
 
         {!state.actionType && <p className="text-sm text-muted-foreground">Choose a goal to configure the action.</p>}
         {currentStepError && state.actionType !== WizardActionType.REQUEST_APPROVAL && state.actionType !== WizardActionType.REQUEST_REVIEW && state.actionType !== WizardActionType.NOTIFY && (
-          <p className="text-sm text-destructive">{currentStepError}</p>
+          <FormMessage>{currentStepError}</FormMessage>
         )}
       </CardContent>
     </Card>

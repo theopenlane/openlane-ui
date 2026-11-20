@@ -7,6 +7,7 @@ import type { ObjectTypes } from '@repo/codegen/src/type-names'
 import { categoryEnumWhere } from './category-options'
 import { Label } from '@repo/ui/label'
 import { Controller, useFormContext } from 'react-hook-form'
+import { FormMessage } from '@repo/ui/form'
 
 interface CategoryFieldProps {
   objectType: ObjectTypes
@@ -52,7 +53,7 @@ export const CategoryField = ({ objectType, isEditing, canCreate, clearable = fa
             )}
           />
 
-          {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>}
+          <FormMessage error={errors.category} />
         </>
       ) : (
         <div className="mt-1">

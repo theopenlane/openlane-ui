@@ -39,6 +39,7 @@ import { useSession } from 'next-auth/react'
 import { isSoc2Framework } from '@/constants/trust-services-categories'
 import { SOC_2_FRAMEWORK_NAME } from '@/constants/trust-services-category-names'
 import TrustServicesCategoriesField from './trust-services-categories-field'
+import { FormMessage } from '@repo/ui/form'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -187,7 +188,7 @@ const BasicInformation = () => {
               <Label className="block w-56 shrink-0">Name</Label>
               <div className="flex flex-col w-full">
                 {isEditing ? <Controller name="name" control={form.control} render={({ field }) => <Input {...field} className="w-full" />} /> : <span>{program?.name || '—'}</span>}
-                {form.formState.errors.name && <p className="text-destructive ">{form.formState.errors.name.message}</p>}
+                <FormMessage error={form.formState.errors.name} />
               </div>
             </div>
           </div>
