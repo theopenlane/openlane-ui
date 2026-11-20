@@ -1,4 +1,5 @@
 import { UserRoundPen } from 'lucide-react'
+import { EMAIL_TEMPLATES_HREF } from '@/constants/email-template-routes'
 import {
   ActivityIcon,
   ArchiveIcon,
@@ -358,7 +359,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
         {
           title: 'Email Templates',
           anchor: 'email-templates',
-          href: '/automation/email-templates',
+          href: EMAIL_TEMPLATES_HREF,
           icon: MailCheckIcon,
         },
         {

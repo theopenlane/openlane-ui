@@ -5,6 +5,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import React from 'react'
 import { EmailTemplatesTab } from './email-templates/email-templates-tab'
+import { EMAIL_TEMPLATES_HREF } from '@/constants/email-template-routes'
 
 const CommunicationsPage: React.FC = () => {
   const { setCrumbs } = React.use(BreadcrumbContext)
@@ -13,7 +14,7 @@ const CommunicationsPage: React.FC = () => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Automation', href: '/automation' },
-      { label: 'Email Templates', href: '/automation/email-templates' },
+      { label: 'Email Templates', href: EMAIL_TEMPLATES_HREF },
     ])
   }, [setCrumbs])
 
