@@ -13,6 +13,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { deleteMenuAction } from '@/components/shared/crud-base/slideout-header'
 import DetailHeaderActions from '@/components/shared/detail-header-actions/detail-header-actions'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { tintedTextColor } from '@/utils/color-contrast'
 
 interface RiskDetailHeaderProps {
   risk: GetRiskByIdQuery['risk']
@@ -98,7 +99,8 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
                     variant={'outline'}
                     className={`shrink-0 mt-2`}
                     style={{
-                      backgroundColor: sevColor(risk.impact),
+                      backgroundColor: `color-mix(in srgb, ${sevColor(risk.impact)} 15%, transparent)`,
+                      color: tintedTextColor(sevColor(risk.impact)),
                     }}
                   >
                     {risk.impact}

@@ -25,6 +25,7 @@ import { ENUM_GROUP_MAP, fromApiObjectType, isGlobalEnumGroup, toApiObjectType }
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { FormMessage } from '@repo/ui/form'
 
 const ENUM_FORM_ID = 'enumForm'
 
@@ -233,7 +234,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
                 <div className="space-y-2">
                   <Label htmlFor="custom-enum-name">Name</Label>
                   <Input id="custom-enum-name" {...formMethods.register('name')} disabled={isPending || isEditMode} />
-                  {errors.name && <p className="text-destructive text-xs font-medium">{errors.name.message}</p>}
+                  <FormMessage error={errors.name} />
                 </div>
 
                 {!isGlobal && (
@@ -258,7 +259,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
                           ))}
                         </SelectContent>
                       </Select>
-                      {errors.objectType && <p className="text-destructive text-xs font-medium">{errors.objectType.message}</p>}
+                      <FormMessage error={errors.objectType} />
                     </div>
 
                     <div className="space-y-2">
@@ -281,20 +282,20 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
                           ))}
                         </SelectContent>
                       </Select>
-                      {errors.field && <p className="text-destructive text-xs font-medium">{errors.field.message}</p>}
+                      <FormMessage error={errors.field} />
                     </div>
                   </div>
                 )}
 
                 <div className="space-y-2">
                   <ColorInput label="Select Color" value={colorField.value} onChange={colorField.onChange} disabled={isPending} />
-                  {errors.color && <p className="text-destructive text-xs font-medium">{errors.color.message}</p>}
+                  <FormMessage error={errors.color} />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="custom-enum-description">Description</Label>
                   <Textarea id="custom-enum-description" {...formMethods.register('description')} disabled={isPending} placeholder="Description..." className="min-h-[100px]" />
-                  {errors.description && <p className="text-destructive text-xs font-medium">{errors.description.message}</p>}
+                  <FormMessage error={errors.description} />
                 </div>
               </form>
             </FormProvider>

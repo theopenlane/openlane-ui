@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { userMenuStyles } from './user-menu.styles'
 import { Button } from '@repo/ui/button'
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator } from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@repo/ui/dropdown-menu'
 import { useTheme } from 'next-themes'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { Avatar, type AvatarEntityLike } from '../avatar/avatar'
@@ -52,9 +52,9 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
-        <div className={trigger()} {...userMenuTriggerAnchor}>
+        <Button variant="icon" size="icon-sm" aria-label="Account menu" className={trigger()} {...userMenuTriggerAnchor}>
           <Avatar entity={avatarEntity} />
-        </div>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-64 pb-1" align="end" aria-labelledby={userMenuTriggerAnchor.id}>
         {(displayName || emailAddress) && (
@@ -75,17 +75,23 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
 
           <div className="flex items-center gap-1 rounded-lg bg-popover p-1 border">
             {themeOptions.map((opt) => (
-              <button
+              <DropdownMenuItem
                 key={opt.value}
-                onClick={() => setTheme(opt.value)}
-                className={`flex items-center justify-center rounded-md p-1 transition-all *:pointer-events-none hover:bg-popover-accent ${
+                role="menuitemradio"
+                aria-checked={theme === opt.value}
+                aria-label={opt.label}
+                title={opt.label}
+                onSelect={(event) => {
+                  event.preventDefault()
+                  setTheme(opt.value)
+                }}
+                className={`flex items-center justify-center rounded-md focus:rounded-md p-1 transition-all *:pointer-events-none hover:bg-popover-accent ${
                   theme === opt.value ? 'bg-popover-accent' : 'text-muted-foreground'
                 }`}
-                title={opt.label}
                 {...elementAnchor('user-menu', 'theme', opt.value)}
               >
                 {opt.icon}
-              </button>
+              </DropdownMenuItem>
             ))}
           </div>
         </div>
@@ -94,10 +100,12 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
 
         {!sessionUser?.isImpersonation && (
           <>
-            <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => handleSettingsRedirect()} {...elementAnchor('user-menu-user-settings')}>
-              <UserCog size={16} className="text-muted-foreground" />
-              <span>User Settings</span>
-            </Button>
+            <DropdownMenuItem asChild className="rounded-md focus:rounded-md focus:border-border focus:bg-btn-secondary" onSelect={handleSettingsRedirect}>
+              <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" {...elementAnchor('user-menu-user-settings')}>
+                <UserCog size={16} className="text-muted-foreground" />
+                <span>User Settings</span>
+              </Button>
+            </DropdownMenuItem>
 
             <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1" />
           </>
@@ -129,10 +137,12 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
 
         <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1 mt-3" />
 
-        <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => void handleSignOut()} {...elementAnchor('user-menu-log-out')}>
-          <LogOut size={16} className="text-muted-foreground" />
-          <span>Log out</span>
-        </Button>
+        <DropdownMenuItem asChild className="rounded-md focus:rounded-md focus:border-border focus:bg-btn-secondary" onSelect={() => void handleSignOut()}>
+          <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" {...elementAnchor('user-menu-log-out')}>
+            <LogOut size={16} className="text-muted-foreground" />
+            <span>Log out</span>
+          </Button>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

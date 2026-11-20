@@ -200,11 +200,11 @@ const HelperText = ({ form, editorRef, initialAIPolicyName }: THelperProps) => {
                 />
               )}
 
-              <a href={`${POLICY_MANAGEMENT_DOCS_URL}/policies`} target="_blank" rel="noreferrer" aria-label="View Compliance Management Documentation">
-                <Button type="button" variant="secondary" className="h-8 px-2! pl-3!" icon={<BookOpenIcon />} iconPosition="left">
+              <Button asChild variant="secondary" className="h-8 px-2! pl-3!" icon={<BookOpenIcon />} iconPosition="left">
+                <a href={`${POLICY_MANAGEMENT_DOCS_URL}/policies`} target="_blank" rel="noreferrer">
                   View Docs
-                </Button>
-              </a>
+                </a>
+              </Button>
             </div>
 
             {/* AI Suggestions Panel */}

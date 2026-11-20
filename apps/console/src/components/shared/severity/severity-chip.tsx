@@ -17,7 +17,7 @@ export const SeverityChip: React.FC<TSeverityChipProps> = ({ severity, level, su
 
   return (
     <span
-      className={cn('text-xs px-2 py-0.5 rounded-full font-medium', level === 'none' && 'bg-border text-muted-foreground', className)}
+      className={cn('text-xs px-2 py-0.5 rounded-full font-medium', level === 'none' && 'bg-border text-foreground', className)}
       style={level === 'none' ? undefined : getSeverityStyle(level ?? severity)}
     >
       {suffix ? `${getEnumLabel(severity)} ${suffix}` : getEnumLabel(severity)}

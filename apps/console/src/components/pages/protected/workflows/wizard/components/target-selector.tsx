@@ -11,6 +11,7 @@ import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { useGetAllGroups, type GroupsNode } from '@/lib/graphql-hooks/group'
 import type { TargetSelectorProps } from '../types'
 import { buildTargetKey, formatResolverLabel } from '../utils'
+import { FormMessage } from '@repo/ui/form'
 
 const ResolverIcon = () => {
   return (
@@ -184,7 +185,7 @@ export const TargetSelector = ({ targets, onAdd, onRemove, resolverKeys, getTarg
             </Command>
           </PopoverContent>
         </Popover>
-        {error && <p className="mt-1.5 text-sm text-destructive">{error}</p>}
+        <FormMessage>{error}</FormMessage>
       </div>
     </div>
   )

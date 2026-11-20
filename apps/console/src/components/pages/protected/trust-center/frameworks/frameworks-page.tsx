@@ -231,8 +231,8 @@ export default function FrameworksPage() {
                     <StandardDialog
                       resetPagination={resetPagination}
                       trigger={
-                        <button>
-                          <PencilIcon size={16} className="text-muted-foreground" />
+                        <button type="button" aria-label={`Edit ${standard.shortName ?? 'framework'}`}>
+                          <PencilIcon aria-hidden size={16} className="text-muted-foreground" />
                         </button>
                       }
                       standard={standard}
@@ -243,6 +243,8 @@ export default function FrameworksPage() {
                       <Tooltip delayDuration={0}>
                         <TooltipTrigger asChild>
                           <button
+                            type="button"
+                            aria-label={`Delete ${standard.shortName ?? 'framework'}`}
                             disabled={defaultIsAssociated}
                             className="disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={() => {
@@ -250,7 +252,7 @@ export default function FrameworksPage() {
                               setDeleteDialogOpen(true)
                             }}
                           >
-                            <Trash2 size={16} className="text-muted-foreground" />
+                            <Trash2 aria-hidden size={16} className="text-muted-foreground" />
                           </button>
                         </TooltipTrigger>
                         {defaultIsAssociated && (
@@ -272,7 +274,12 @@ export default function FrameworksPage() {
 
           <div role="presentation" className="flex" onClick={(e) => e.stopPropagation()}>
             <div className="flex gap-3">
-              <Switch disabled={!canEditCompliance && !canEditTc} checked={isAssociated} onCheckedChange={(checked) => handleToggle(standard.id, checked)} />
+              <Switch
+                aria-label={`Show ${standard.shortName ?? 'framework'} on the Trust Center`}
+                disabled={!canEditCompliance && !canEditTc}
+                checked={isAssociated}
+                onCheckedChange={(checked) => handleToggle(standard.id, checked)}
+              />
             </div>
           </div>
         </CardContent>

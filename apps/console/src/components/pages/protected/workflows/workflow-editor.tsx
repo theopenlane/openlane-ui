@@ -9,7 +9,7 @@ import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Switch } from '@repo/ui/switch'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { WorkflowVisualEditor } from '@/components/workflows/workflow-visual-editor'
 import { WorkflowFormEditor } from '@/components/workflows/workflow-form-editor'
 import { useNotification } from '@/hooks/useNotification'
@@ -375,49 +375,53 @@ export default function WorkflowEditor() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="pb-0">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <CardTitle className="p-0">Workflow Builder</CardTitle>
-            <Tabs value={editorMode} onValueChange={(value) => setEditorMode(value as 'visual' | 'form')}>
-              <TabsList>
+      <Tabs asChild value={editorMode} onValueChange={(value) => setEditorMode(value as 'visual' | 'form')}>
+        <Card>
+          <CardHeader className="pb-0">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <CardTitle className="p-0">Workflow Builder</CardTitle>
+              <TabsList className="w-full md:w-fit">
                 <TabsTrigger value="form">Form</TabsTrigger>
                 <TabsTrigger value="visual">Visual</TabsTrigger>
               </TabsList>
-            </Tabs>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading || !initialized ? (
-            <p className="text-sm text-muted-foreground">Loading workflow builder...</p>
-          ) : editorMode === 'visual' ? (
-            <WorkflowVisualEditor
-              triggers={triggers}
-              conditions={conditions}
-              actions={actions}
-              objectTypes={objectTypes}
-              onUpdate={(nextTriggers, nextConditions, nextActions) => {
-                setTriggers(nextTriggers)
-                setConditions(nextConditions)
-                setActions(nextActions)
-              }}
-            />
-          ) : (
-            <WorkflowFormEditor
-              triggers={triggers}
-              conditions={conditions}
-              actions={actions}
-              objectTypes={objectTypes}
-              schemaType={schemaType}
-              onUpdate={(nextTriggers, nextConditions, nextActions) => {
-                setTriggers(nextTriggers)
-                setConditions(nextConditions)
-                setActions(nextActions)
-              }}
-            />
-          )}
-        </CardContent>
-      </Card>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isLoading || !initialized ? (
+              <p className="text-sm text-muted-foreground">Loading workflow builder...</p>
+            ) : (
+              <TabsContent value={editorMode} className="mt-0 text-[length:inherit]">
+                {editorMode === 'visual' ? (
+                  <WorkflowVisualEditor
+                    triggers={triggers}
+                    conditions={conditions}
+                    actions={actions}
+                    objectTypes={objectTypes}
+                    onUpdate={(nextTriggers, nextConditions, nextActions) => {
+                      setTriggers(nextTriggers)
+                      setConditions(nextConditions)
+                      setActions(nextActions)
+                    }}
+                  />
+                ) : (
+                  <WorkflowFormEditor
+                    triggers={triggers}
+                    conditions={conditions}
+                    actions={actions}
+                    objectTypes={objectTypes}
+                    schemaType={schemaType}
+                    onUpdate={(nextTriggers, nextConditions, nextActions) => {
+                      setTriggers(nextTriggers)
+                      setConditions(nextConditions)
+                      setActions(nextActions)
+                    }}
+                  />
+                )}
+              </TabsContent>
+            )}
+          </CardContent>
+        </Card>
+      </Tabs>
 
       <div className="flex justify-end gap-2">
         <Button variant="secondary" onClick={() => router.push('/automation/workflows')} disabled={isSaving}>

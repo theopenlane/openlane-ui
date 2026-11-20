@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { FormField, FormItem, FormLabel, FormControl, Form } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, Form, FormMessage } from '@repo/ui/form'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { useNotification } from '@/hooks/useNotification'
@@ -100,7 +100,7 @@ const ContactDetailSheet: React.FC<ContactDetailSheetProps> = ({ contactId, onCl
                     <FormControl>
                       <Input {...field} disabled={!canEdit} />
                     </FormControl>
-                    {form.formState.errors.fullName?.message && <p className="text-sm text-red-500">{form.formState.errors.fullName.message}</p>}
+                    <FormMessage error={form.formState.errors.fullName} />
                   </FormItem>
                 )}
               />

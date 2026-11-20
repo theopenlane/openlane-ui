@@ -47,7 +47,7 @@ const NdaRequestsTableToolbar: React.FC<Props> = ({
   return (
     <div className="flex min-w-0 flex-wrap items-center justify-between gap-3 my-3 w-full">
       <div className="flex min-w-0 flex-wrap items-center gap-3 grow sm:grow-0">
-        <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as typeof activeTab)}>
+        <Tabs panelless value={activeTab} onValueChange={(value) => onTabChange(value as typeof activeTab)}>
           <TabsList className={`grid w-full *:truncate ${requireApproval ? 'max-w-[400px] grid-cols-3' : 'max-w-[320px] grid-cols-2'}`}>
             <TabsTrigger value="requested">{requireApproval ? 'Needs Approval' : 'Requested'}</TabsTrigger>
             {requireApproval && <TabsTrigger value="approved">Approved</TabsTrigger>}

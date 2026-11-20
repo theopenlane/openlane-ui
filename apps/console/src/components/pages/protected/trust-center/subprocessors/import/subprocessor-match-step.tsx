@@ -119,7 +119,7 @@ export const SubprocessorMatchStep: React.FC<TSubprocessorMatchStepProps> = ({ s
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 flex-wrap items-center gap-3">
-          <Tabs variant="solid" className="max-w-full" value={filter} onValueChange={(value) => isRowFilter(value) && setSnapshot(snapshotRows(value, rows))}>
+          <Tabs panelless variant="solid" className="max-w-full" value={filter} onValueChange={(value) => isRowFilter(value) && setSnapshot(snapshotRows(value, rows))}>
             <TabsList className="w-fit max-w-full overflow-x-auto">
               {ROW_FILTERS.map((key) => (
                 <TabsTrigger key={key} value={key}>

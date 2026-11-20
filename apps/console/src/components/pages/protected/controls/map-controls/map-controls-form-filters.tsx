@@ -150,7 +150,7 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
               onFilterChange({})
               setEnableSubcontrols(false)
             })}
-            className="text-blue-500 cursor-pointer self-start"
+            className="text-hyperlink cursor-pointer self-start"
           >
             Clear
           </p>

@@ -275,7 +275,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
               ))}
             </div>
           ) : (
-            <span className="text-sm text-gray-500">None</span>
+            <span className="text-sm text-muted-foreground">None</span>
           )}
         </div>
         <div className="flex gap-3 items-center p-4 pt-5">

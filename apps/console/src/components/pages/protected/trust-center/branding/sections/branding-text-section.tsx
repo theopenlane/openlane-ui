@@ -9,6 +9,7 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
+import { FormMessage } from '@repo/ui/form'
 
 interface BrandingTextSectionProps {
   isReadOnly: boolean
@@ -41,7 +42,7 @@ export const BrandingTextSection = ({ isReadOnly, warning, setting }: BrandingTe
               <p className="text-sm text-inverted-muted-foreground">The headline shown at the top of your trust center.</p>
             </div>
             <RenderBrandField name="title" label="Title" component="input" isReadOnly={isReadOnly} setting={setting} register={register} />
-            {!isReadOnly && errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
+            {!isReadOnly && <FormMessage error={errors.title} />}
           </div>
 
           <div className="flex flex-col gap-3">
@@ -60,7 +61,7 @@ export const BrandingTextSection = ({ isReadOnly, warning, setting }: BrandingTe
                 render={({ field }) => <PlateEditor initialValue={field.value as string | Value} onChange={field.onChange} onHydrate={hydrate(field.name)} placeholder="Overview" />}
               />
             )}
-            {!isReadOnly && errors.overview && <p className="text-xs text-red-500">{errors.overview.message}</p>}
+            {!isReadOnly && <FormMessage error={errors.overview} />}
           </div>
         </div>
       </CardContent>

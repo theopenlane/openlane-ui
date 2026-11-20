@@ -55,13 +55,13 @@ const AuditorStep = ({ sourceProgram, onUseSameAuditorChange }: AuditorStepProps
       <FormField
         control={control}
         name="auditPartnerName"
-        render={({ field, fieldState }) => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>Audit Partner Name</FormLabel>
             <FormControl>
               <Input {...field} value={field.value ?? ''} placeholder="Jane Doe" disabled={useSameAuditor} />
             </FormControl>
-            {fieldState.error && <FormMessage />}
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -69,13 +69,13 @@ const AuditorStep = ({ sourceProgram, onUseSameAuditorChange }: AuditorStepProps
       <FormField
         control={control}
         name="auditFirm"
-        render={({ field, fieldState }) => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>Audit Firm</FormLabel>
             <FormControl>
               <Input {...field} value={field.value ?? ''} placeholder="Audit firm" disabled={useSameAuditor} />
             </FormControl>
-            {fieldState.error && <FormMessage />}
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -83,13 +83,13 @@ const AuditorStep = ({ sourceProgram, onUseSameAuditorChange }: AuditorStepProps
       <FormField
         control={control}
         name="auditPartnerEmail"
-        render={({ field, fieldState }) => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>Audit Partner Email</FormLabel>
             <FormControl>
               <Input {...field} value={field.value ?? ''} placeholder="jane@auditfirm.com" disabled={useSameAuditor} />
             </FormControl>
-            {fieldState.error && <FormMessage />}
+            <FormMessage />
           </FormItem>
         )}
       />

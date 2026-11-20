@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { PlatformPlatformStatus } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { type EditPlatformFormData } from '../../hooks/use-form-schema'
@@ -26,7 +26,7 @@ const StepBasicInfo: React.FC = () => {
             <FormControl>
               <Input placeholder="SaaS Product" {...field} />
             </FormControl>
-            {form.formState.errors.name?.message && <p className="text-sm text-red-500">{String(form.formState.errors.name.message)}</p>}
+            <FormMessage error={form.formState.errors.name} />
           </FormItem>
         )}
       />

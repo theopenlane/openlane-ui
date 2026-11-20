@@ -25,3 +25,5 @@ export const isLightColor = (color: string): boolean => {
   const rgb = parseCssColor(color)
   return !!rgb && relativeLuminance(rgb) >= LIGHT_SURFACE_MIN_LUMINANCE
 }
+
+export const tintedTextColor = (color: string): string => `color-mix(in srgb, ${color} 45%, var(--foreground))`

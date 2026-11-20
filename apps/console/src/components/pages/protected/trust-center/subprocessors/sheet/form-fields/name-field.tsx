@@ -3,6 +3,7 @@
 import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
+import { FormMessage } from '@repo/ui/form'
 
 interface Props {
   isEditing: boolean
@@ -22,7 +23,7 @@ export const NameField = ({ isEditing }: Props) => {
       {isEditing ? (
         <>
           <Input placeholder="Subprocessor name" {...register('name')} />
-          {errors.name && <p className="text-red-500 text-sm mt-1">{String(errors.name.message)}</p>}
+          <FormMessage error={errors.name} />
         </>
       ) : (
         <p className="text-base text-muted-foreground mt-1">{watch('name') || '—'}</p>

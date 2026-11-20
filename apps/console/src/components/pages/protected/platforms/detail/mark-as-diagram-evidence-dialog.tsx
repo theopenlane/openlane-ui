@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
-import { FormField, FormItem, FormLabel, FormControl, Form } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, Form, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -111,7 +111,7 @@ const MarkAsDiagramEvidenceDialog: React.FC<MarkAsDiagramEvidenceDialogProps> = 
                   <FormControl>
                     <Input {...field} placeholder='e.g. "Architecture diagram for AWS environment"' />
                   </FormControl>
-                  {form.formState.errors.name?.message && <p className="text-sm text-red-500">{form.formState.errors.name.message}</p>}
+                  <FormMessage error={form.formState.errors.name} />
                 </FormItem>
               )}
             />

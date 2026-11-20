@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { EntityEntityStatus } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
@@ -60,7 +60,7 @@ const StepVendorInfo: React.FC = () => {
               <FormControl>
                 <Input placeholder="e.g. Acme Corp" {...field} />
               </FormControl>
-              {form.formState.errors.name?.message && <p className="text-sm text-red-500">{String(form.formState.errors.name.message)}</p>}
+              <FormMessage error={form.formState.errors.name} />
             </FormItem>
           )}
         />
@@ -74,7 +74,7 @@ const StepVendorInfo: React.FC = () => {
               <FormControl>
                 <Input placeholder="e.g. Acme Corporation Inc." {...field} />
               </FormControl>
-              {form.formState.errors.displayName?.message && <p className="text-sm text-red-500">{String(form.formState.errors.displayName.message)}</p>}
+              <FormMessage error={form.formState.errors.displayName} />
             </FormItem>
           )}
         />
@@ -89,7 +89,7 @@ const StepVendorInfo: React.FC = () => {
             <FormControl>
               <Textarea placeholder="Brief description of the vendor and services" {...field} value={typeof field.value === 'string' ? field.value : ''} />
             </FormControl>
-            {form.formState.errors.description?.message && <p className="text-sm text-red-500">{String(form.formState.errors.description.message)}</p>}
+            <FormMessage error={form.formState.errors.description} />
           </FormItem>
         )}
       />
@@ -117,7 +117,7 @@ const StepVendorInfo: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
-              {form.formState.errors.status?.message && <p className="text-sm text-red-500">{String(form.formState.errors.status.message)}</p>}
+              <FormMessage error={form.formState.errors.status} />
             </FormItem>
           )}
         />
@@ -131,7 +131,7 @@ const StepVendorInfo: React.FC = () => {
               <FormControl>
                 <CreatableCustomTypeEnumSelect itemLabel="environment" value={field.value} options={environmentOptions} onValueChange={field.onChange} onCreateOption={createEnvironment} />
               </FormControl>
-              {form.formState.errors.environmentName?.message && <p className="text-sm text-red-500">{String(form.formState.errors.environmentName.message)}</p>}
+              <FormMessage error={form.formState.errors.environmentName} />
             </FormItem>
           )}
         />
@@ -145,7 +145,7 @@ const StepVendorInfo: React.FC = () => {
               <FormControl>
                 <CreatableCustomTypeEnumSelect itemLabel="scope" value={field.value ?? ''} options={scopeOptions} onValueChange={field.onChange} onCreateOption={createScope} />
               </FormControl>
-              {form.formState.errors.scopeName?.message && <p className="text-sm text-red-500">{String(form.formState.errors.scopeName.message)}</p>}
+              <FormMessage error={form.formState.errors.scopeName} />
             </FormItem>
           )}
         />

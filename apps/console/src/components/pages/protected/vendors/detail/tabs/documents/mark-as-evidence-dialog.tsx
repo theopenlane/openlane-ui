@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
-import { FormField, FormItem, FormLabel, FormControl, Form } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, Form, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Checkbox } from '@repo/ui/checkbox'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -120,7 +120,7 @@ const MarkAsEvidenceDialog: React.FC<MarkAsEvidenceDialogProps> = ({ fileId, fil
                   <FormControl>
                     <Input {...field} placeholder='e.g. "SOC 2 report for AWS"' />
                   </FormControl>
-                  {form.formState.errors.name?.message && <p className="text-sm text-red-500">{form.formState.errors.name.message}</p>}
+                  <FormMessage error={form.formState.errors.name} />
                 </FormItem>
               )}
             />

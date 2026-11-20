@@ -1,6 +1,5 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
 import React, { use, useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useDeleteControlImplementation, useGetAllControlImplementations, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementation'
@@ -127,15 +126,12 @@ const ControlImplementationPage = () => {
     return (
       <>
         <CreateControlImplementationSheet open={showCreateSheet} onOpenChange={setShowCreateSheet} />
-        <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-300">
+        <div className="flex flex-col items-center justify-center h-[60vh] text-center text-muted-foreground">
           <Settings2 className="w-20 h-20 mb-4 text-border" strokeWidth={1} />
           <p className="mb-2 text-sm">No Implementations found for this Control.</p>
-          <div className="text-blue-500 flex items-center gap-1 cursor-pointer">
-            <p {...activatable(() => setShowCreateSheet(true))} className="text-blue-500">
-              Create a new one
-            </p>
-            <ArrowRight className="mt-0.5" size={16} />
-          </div>
+          <Button type="button" variant="link" icon={<ArrowRight size={16} />} onClick={() => setShowCreateSheet(true)}>
+            Create a new one
+          </Button>
         </div>
       </>
     )

@@ -224,7 +224,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                               </SelectContent>
                             </Select>
                           </FormControl>
-                          {errors.role && <FormMessage>{errors.role.message}</FormMessage>}
+                          <FormMessage error={errors.role} />
                         </FormItem>
                       )}
                     />

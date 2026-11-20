@@ -3,6 +3,7 @@ import { Input } from '@repo/ui/input'
 import clsx from 'clsx'
 import { BadgeCheck, CircleX, Hourglass } from 'lucide-react'
 import React from 'react'
+import { FormMessage } from '@repo/ui/form'
 
 const BLOCKED_DOMAINS = ['theopenlane.net', 'example.com', 'example.net', 'example.org', 'localhost']
 
@@ -42,7 +43,7 @@ function UrlInput({ value, onChange, disabled, className, verifiedStatus, placeh
           )}
         </div>
       </div>
-      {blocked && <p className="text-red-500 text-xs">Enter a domain you own — theopenlane and reserved domains cannot be used as a vanity domain</p>}
+      {blocked && <FormMessage>Enter a domain you own — theopenlane and reserved domains cannot be used as a vanity domain</FormMessage>}
     </div>
   )
 }

@@ -68,7 +68,7 @@ const ScansTable: React.FC<ScansTableProps> = ({ controlId }) => {
           return {
             ...col,
             cell: ({ row }: { row: { original: ScansNodeNonNull } }) => (
-              <button type="button" onClick={() => replace({ scanId: row.original.id })} className="block truncate text-blue-500 hover:underline">
+              <button type="button" onClick={() => replace({ scanId: row.original.id })} className="block truncate text-hyperlink hover:underline">
                 {row.original.target || ''}
               </button>
             ),

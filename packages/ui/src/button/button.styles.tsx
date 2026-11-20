@@ -74,9 +74,9 @@ export const buttonStyles = tv({
         [&.is-active]:border-border
         [&.is-active]:text-text-paragraph
       `,
-      link: 'bg-transparent border-none font-medium text-blue-500 hover:underline underline-offset-4 disabled:cursor-not-allowed disabled:opacity-50',
+      link: 'bg-transparent border-none font-medium text-hyperlink hover:underline underline-offset-4 disabled:cursor-not-allowed disabled:opacity-50',
       menuItem: 'justify-start bg-transparent rounded-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
-      destructive: 'flex-row-reverse !bg-destructive text-destructive-foreground ',
+      destructive: 'flex-row-reverse !bg-destructive-fill text-destructive-foreground ',
       destructiveOutline: 'border-red-500 text-red-500 border dark:border-red-500 dark:text-red-500',
       success: 'flex-row-reverse !bg-teal-600 text-white',
       approve: 'border-teal-600 text-teal-600 border disabled:cursor-not-allowed disabled:opacity-50',

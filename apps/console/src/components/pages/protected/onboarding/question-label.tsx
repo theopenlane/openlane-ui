@@ -31,7 +31,5 @@ export const QuestionLabel: React.FC<{ question: OnboardingQuestion; htmlFor?: s
   )
 }
 
-export const FieldError: React.FC<{ message?: unknown }> = ({ message }) => (typeof message === 'string' ? <p className="text-red-500 text-sm">{message}</p> : null)
-
 export const QuestionDescription: React.FC<{ text?: string; className?: string }> = ({ text, className = 'text-sm' }) =>
   text ? <p className={`${className} text-muted-foreground whitespace-pre-line`}>{text}</p> : null

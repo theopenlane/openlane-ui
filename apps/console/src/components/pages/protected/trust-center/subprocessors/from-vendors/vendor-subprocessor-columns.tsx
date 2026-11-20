@@ -13,6 +13,7 @@ import { type TVendorSubprocessorCandidate } from '@/lib/graphql-hooks/subproces
 import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import { type TVendorSubprocessorTarget, vendorSubprocessorName } from '@/components/pages/protected/trust-center/shared/vendor-subprocessor'
 import { type TListingEdit, type TVendorRow } from './vendor-subprocessor-rows'
+import { FormMessage } from '@repo/ui/form'
 
 const LISTED_REASON = 'Already listed on your Trust Center.'
 
@@ -25,8 +26,6 @@ const TARGET_LABELS: Record<TVendorSubprocessorTarget['kind'], string> = {
   catalog: 'Openlane catalog',
   new: 'New subprocessor',
 }
-
-const FieldProblem = ({ message }: { message?: string }) => (message ? <p className="text-xs text-destructive">{message}</p> : null)
 
 type TColumnParams = {
   categoryOptions: CustomTypeEnumOption[]
@@ -108,7 +107,7 @@ export const getVendorSubprocessorColumns = ({ categoryOptions, canCreateCategor
             </span>
           )}
           {linkSkipped && <p className="text-xs text-muted-foreground">{LINK_SKIPPED_HINT}</p>}
-          <FieldProblem message={problems.subprocessor} />
+          <FormMessage>{problems.subprocessor}</FormMessage>
         </div>
       )
     },
@@ -130,7 +129,7 @@ export const getVendorSubprocessorColumns = ({ categoryOptions, canCreateCategor
             onChange={(next) => onEdit(vendor.id, { countries: next })}
             placeholder="Select countries"
           />
-          <FieldProblem message={problems.countries} />
+          <FormMessage>{problems.countries}</FormMessage>
         </div>
       )
     },
@@ -159,7 +158,7 @@ export const getVendorSubprocessorColumns = ({ categoryOptions, canCreateCategor
             onValueChange={(next) => onEdit(vendor.id, { category: next })}
           />
           {selected && categoryFromVendor && <p className="text-xs text-muted-foreground">From the vendor&apos;s services</p>}
-          <FieldProblem message={problems.category} />
+          <FormMessage>{problems.category}</FormMessage>
         </div>
       )
     },

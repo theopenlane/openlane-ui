@@ -4,6 +4,7 @@ import { type LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
 import { UserAuthProvider } from '@repo/codegen/src/schema'
 import SimpleForm from '@repo/ui/simple-form'
+import { FormMessage } from '@repo/ui/form'
 import { ArrowRightCircle, KeyRoundIcon } from 'lucide-react'
 import { signIn, type SignInResponse } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -394,7 +395,7 @@ export const LoginPage = () => {
         {!showSSOButton && !showPasswordField && (
           <div className="mt-2 text-center">
             <span className="text-muted-foreground text-sm">Don’t have an account yet? </span>
-            <Link href={`/signup${token ? `?token=${token}` : ''}`} className="text-sm hover:text-blue-500 hover:opacity-80 transition-color duration-500">
+            <Link href={`/signup${token ? `?token=${token}` : ''}`} className="text-sm hover:text-hyperlink hover:opacity-80 transition-color duration-500">
               Sign up
             </Link>
           </div>
@@ -439,7 +440,7 @@ export const LoginPage = () => {
                 <button
                   type="button"
                   onClick={() => setPreferredMethod('password')}
-                  className="text-xs bg-unset text-muted-foreground underline hover:text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition-colors duration-500"
+                  className="text-xs bg-unset text-muted-foreground underline hover:text-hyperlink mt-1 mb-1 text-right hover:opacity-80 transition-colors duration-500"
                 >
                   Switch to password
                 </button>
@@ -448,7 +449,7 @@ export const LoginPage = () => {
                 <button
                   type="button"
                   onClick={() => setPreferredMethod('sso')}
-                  className="text-xs bg-unset text-muted-foreground underline hover:text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition-colors duration-500"
+                  className="text-xs bg-unset text-muted-foreground underline hover:text-hyperlink mt-1 mb-1 text-right hover:opacity-80 transition-colors duration-500"
                 >
                   Sign in with SSO
                 </button>
@@ -464,7 +465,7 @@ export const LoginPage = () => {
               onChange={handleEmailChange}
               className={`bg-transparent ${showLoginError ? 'border border-toast-error-icon' : ''}`}
             />
-            {showLoginError && <span className="text-xs text-toast-error-icon text-left">{signInErrorMessage}</span>}
+            {showLoginError && <FormMessage className="text-left">{signInErrorMessage}</FormMessage>}
           </div>
 
           {showSSOButton && (
@@ -491,7 +492,7 @@ export const LoginPage = () => {
                     <div className={input()}>
                       <div className="flex items-center justify-between">
                         <p className="text-sm">Password</p>
-                        <Link href="/forgot-password" className="text-xs text-muted-foreground underline hover:text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition-colors duration-500">
+                        <Link href="/forgot-password" className="text-xs text-muted-foreground underline hover:text-hyperlink mt-1 mb-1 text-right hover:opacity-80 transition-colors duration-500">
                           Forgot password?
                         </Link>
                       </div>

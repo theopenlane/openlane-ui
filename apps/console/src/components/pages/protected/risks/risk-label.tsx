@@ -75,6 +75,7 @@ export const RiskLabel = ({
             min={0}
             max={20}
             value={score}
+            aria-label="Score"
             onChange={(e) => onChange?.(Number(e.target.value))}
             onMouseUp={(e) => onMouseUp?.(Number(e.currentTarget.value))}
             className="w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer "
@@ -88,7 +89,7 @@ export const RiskLabel = ({
       return (
         <div ref={triggerRef}>
           <Select value={impact} onValueChange={(val) => onChange?.(val)}>
-            <SelectTrigger className={cn('w-30', selectFieldClassname)}>
+            <SelectTrigger aria-label={impact ? `Impact: ${getEnumLabel(impact)}` : 'Select impact'} className={cn('w-30', selectFieldClassname)}>
               <SelectValue className="text-muted-foreground" placeholder="Select impact" />
             </SelectTrigger>
             <SelectContent ref={popoverRef}>
@@ -105,7 +106,7 @@ export const RiskLabel = ({
     if (fieldName === 'likelihood') {
       return (
         <Select value={likelihood} onValueChange={(val) => onChange?.(val)}>
-          <SelectTrigger className={cn('w-35', selectFieldClassname)}>
+          <SelectTrigger aria-label={likelihood ? `Likelihood: ${getEnumLabel(likelihood)}` : 'Select likelihood'} className={cn('w-35', selectFieldClassname)}>
             <SelectValue className="text-muted-foreground" placeholder="Select likelihood" />
           </SelectTrigger>
           <SelectContent ref={popoverRef}>
@@ -120,7 +121,7 @@ export const RiskLabel = ({
     if (fieldName === 'status') {
       return (
         <Select value={status} onValueChange={(v) => onChange?.(v)}>
-          <SelectTrigger className={cn('w-35', selectFieldClassname)}>
+          <SelectTrigger aria-label={status ? `Status: ${getEnumLabel(status)}` : 'Select status'} className={cn('w-35', selectFieldClassname)}>
             <SelectValue className="text-muted-foreground" placeholder="Select status" />
           </SelectTrigger>
 

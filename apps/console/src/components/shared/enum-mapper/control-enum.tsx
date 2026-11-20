@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import { type ControlControlSource, ControlControlStatus, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
 import { getEnumLabel } from './common-enum'
+import { tintedTextColor } from '@/utils/color-contrast'
 
 export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> = {
   [ControlControlStatus.DRAFT]: <FilePenLine height={16} width={16} className="text-draft" />,
@@ -53,11 +54,11 @@ export const ORG_COVERAGE_SEVERITY_ORDER: ControlControlStatus[] = [
 ]
 
 export const CONTROL_STATUS_STYLES: Partial<Record<ControlControlStatus, { bg: string; color: string }>> = {
-  [ControlControlStatus.CHANGES_REQUESTED]: { bg: 'color-mix(in srgb, var(--color-changes-requested) 15%, transparent)', color: 'var(--color-changes-requested)' },
-  [ControlControlStatus.NEEDS_APPROVAL]: { bg: 'color-mix(in srgb, var(--color-needs-approval) 15%, transparent)', color: 'var(--color-needs-approval)' },
-  [ControlControlStatus.PREPARING]: { bg: 'color-mix(in srgb, var(--color-preparing) 15%, transparent)', color: 'var(--color-preparing)' },
-  [ControlControlStatus.NOT_IMPLEMENTED]: { bg: 'color-mix(in srgb, var(--color-not-implemented) 15%, transparent)', color: 'var(--color-not-implemented)' },
-  [ControlControlStatus.APPROVED]: { bg: 'color-mix(in srgb, var(--color-approved) 15%, transparent)', color: 'var(--color-approved)' },
+  [ControlControlStatus.CHANGES_REQUESTED]: { bg: 'color-mix(in srgb, var(--color-changes-requested) 15%, transparent)', color: tintedTextColor('var(--color-changes-requested)') },
+  [ControlControlStatus.NEEDS_APPROVAL]: { bg: 'color-mix(in srgb, var(--color-needs-approval) 15%, transparent)', color: tintedTextColor('var(--color-needs-approval)') },
+  [ControlControlStatus.PREPARING]: { bg: 'color-mix(in srgb, var(--color-preparing) 15%, transparent)', color: tintedTextColor('var(--color-preparing)') },
+  [ControlControlStatus.NOT_IMPLEMENTED]: { bg: 'color-mix(in srgb, var(--color-not-implemented) 15%, transparent)', color: tintedTextColor('var(--color-not-implemented)') },
+  [ControlControlStatus.APPROVED]: { bg: 'color-mix(in srgb, var(--color-approved) 15%, transparent)', color: tintedTextColor('var(--color-approved)') },
 }
 
 export const ControlStatusOrder: ControlControlStatus[] = [

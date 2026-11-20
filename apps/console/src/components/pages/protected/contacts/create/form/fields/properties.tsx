@@ -12,6 +12,7 @@ import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hov
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
+import { FormMessage } from '@repo/ui/form'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -112,7 +113,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
                   field.onChange(newTags)
                 }}
               />
-              {formState.errors.tags && <p className="text-destructive text-sm mt-1">{formState.errors.tags.message}</p>}
+              <FormMessage error={formState.errors.tags} />
             </div>
           )}
         />

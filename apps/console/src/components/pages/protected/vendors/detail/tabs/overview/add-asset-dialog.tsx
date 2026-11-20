@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { FormField, FormItem, FormLabel, FormControl, Form } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, Form, FormMessage } from '@repo/ui/form'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useNotification } from '@/hooks/useNotification'
@@ -105,7 +105,7 @@ const AddAssetDialog: React.FC<AddAssetDialogProps> = ({ vendorId, linkedAssetId
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  {form.formState.errors.assetId?.message && <p className="text-sm text-red-500">{form.formState.errors.assetId.message}</p>}
+                  <FormMessage error={form.formState.errors.assetId} />
                   <p className="text-sm text-muted-foreground">
                     Don&apos;t see the system you&apos;re looking for?{' '}
                     <button type="button" onClick={onCreateNew} className="text-primary underline hover:text-primary/80">

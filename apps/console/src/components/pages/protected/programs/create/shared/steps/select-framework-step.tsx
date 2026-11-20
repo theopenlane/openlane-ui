@@ -1,6 +1,7 @@
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import StandardSelect from '../form-fields/standard-select'
+import { FormMessage } from '@repo/ui/form'
 
 const SelectFrameworkStep = ({ required = false, defaultFramework }: { required?: boolean; defaultFramework?: string }) => {
   const {
@@ -34,7 +35,7 @@ const SelectFrameworkStep = ({ required = false, defaultFramework }: { required?
         <div className="flex flex-col gap-1.5">
           <StandardSelect defaultFramework={defaultFramework} />
         </div>
-        {errors.framework && <span className="text-xs text-destructive">{String(errors.framework.message)}</span>}
+        <FormMessage error={errors.framework} />
       </div>
     </div>
   )

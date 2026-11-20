@@ -1,29 +1,11 @@
 import React from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { Copy } from 'lucide-react'
+import { CopyIconButton } from '@/components/shared/copy-icon-button/copy-icon-button'
 import { type GetContactsQuery } from '@repo/codegen/src/schema'
-import { useNotification } from '@/hooks/useNotification'
 import { UserStatusBadge } from '@/components/shared/enum-mapper/user-status-enum'
 
 type ContactNode = NonNullable<NonNullable<NonNullable<GetContactsQuery['contacts']['edges']>[number]>['node']>
 
-const CopyButton: React.FC<{ value: string }> = ({ value }) => {
-  const { successNotification } = useNotification()
-
-  const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    navigator.clipboard.writeText(value)
-    successNotification({ title: 'Copied', description: `"${value}" copied to clipboard.` })
-  }
-
-  return (
-    <button type="button" onClick={handleCopy} className="text-muted-foreground hover:text-foreground transition-colors">
-      <Copy size={13} />
-    </button>
-  )
-}
-
-export { CopyButton }
 export type { ContactNode }
 
 const ContactCard: React.FC<{ contact: ContactNode; onClick?: () => void }> = ({ contact, onClick }) => (
@@ -34,7 +16,7 @@ const ContactCard: React.FC<{ contact: ContactNode; onClick?: () => void }> = ({
         {contact.email && (
           <div className="flex items-center gap-1.5 mt-1">
             <span className="text-sm text-muted-foreground">{contact.email}</span>
-            <CopyButton value={contact.email} />
+            <CopyIconButton value={contact.email} label="email" />
           </div>
         )}
       </div>
@@ -48,7 +30,7 @@ const ContactCard: React.FC<{ contact: ContactNode; onClick?: () => void }> = ({
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Phone</p>
           <div className="flex items-center gap-1.5">
             <span className="text-sm">{contact.phoneNumber ?? '-'}</span>
-            {contact.phoneNumber && <CopyButton value={contact.phoneNumber} />}
+            {contact.phoneNumber && <CopyIconButton value={contact.phoneNumber} label="phone number" />}
           </div>
         </div>
         <div className="border-l border-border px-4">

@@ -7,6 +7,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { getFiltersUpdatedEvent, saveFilters, loadFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { useOrganization } from '@/hooks/useOrganization'
+import { tintedTextColor } from '@/utils/color-contrast'
 
 type SeverityLevel = 'critical' | 'high' | 'medium' | 'low'
 
@@ -83,7 +84,7 @@ const SeverityChart: React.FC<Props> = ({ variant, tableKey }) => {
               style={isSelected ? { outline: `1px solid ${color}` } : undefined}
             >
               <div className="absolute inset-0 rounded-md transition-all duration-300" style={{ width: `${pct}%`, backgroundColor: bgColor }} />
-              <span className="relative z-10 w-14 shrink-0 text-sm font-medium" style={{ color }}>
+              <span className="relative z-10 w-14 shrink-0 text-sm font-medium" style={{ color: tintedTextColor(color) }}>
                 {label}
               </span>
               <span className="relative z-10 ml-auto text-sm font-semibold tabular-nums">{counts.isLoading ? '—' : count.toLocaleString()}</span>

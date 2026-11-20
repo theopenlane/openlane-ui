@@ -13,6 +13,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { FormMessage } from '@repo/ui/form'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -102,7 +103,7 @@ const GenericProgram = () => {
             {/* Program Type */}
             <div className="flex flex-col">
               <ProgramTypeSelect />
-              {errors.programKindName && <span className="text-xs text-destructive">{errors.programKindName.message as string}</span>}
+              <FormMessage error={errors.programKindName} />
             </div>
 
             {/* Program Name */}
@@ -111,7 +112,7 @@ const GenericProgram = () => {
                 Program Name<span className="text-destructive">*</span>
               </label>
               <Input id={nameId} placeholder="Program Test" {...register('name', { required: 'Program name is required' })} />
-              {errors.name && <span className="text-xs text-destructive">{errors.name.message as string}</span>}
+              <FormMessage error={errors.name} />
             </div>
 
             {/* Description */}

@@ -84,7 +84,7 @@ const AssetsTable: React.FC<AssetsTableProps> = ({ controlId }) => {
           return {
             ...col,
             cell: ({ row }: { row: { original: AssetsNodeNonNull } }) => (
-              <button type="button" onClick={() => replace({ assetId: row.original.id })} className="block truncate text-blue-500 hover:underline">
+              <button type="button" onClick={() => replace({ assetId: row.original.id })} className="block truncate text-hyperlink hover:underline">
                 {row.original.displayName || ''}
               </button>
             ),

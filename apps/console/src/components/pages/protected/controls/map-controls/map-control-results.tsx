@@ -67,7 +67,7 @@ const MapControlResults = ({ controlData, droppedControls, subcontrolData, title
           </div>
         ))
       ) : (
-        <div className="text-sm italic text-neutral-500">No available controls.</div>
+        <div className="text-sm italic text-muted-foreground">No available controls.</div>
       )}
 
       {contextMenu && (

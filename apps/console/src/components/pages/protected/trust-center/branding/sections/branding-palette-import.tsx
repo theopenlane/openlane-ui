@@ -10,6 +10,7 @@ import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema
 import { parseBrandingString } from '@/utils/brandingString'
 import { useNotification } from '@/hooks/useNotification'
 import { type BrandFormValues } from '../brand-schema'
+import { FormMessage } from '@repo/ui/form'
 
 const BRANDING_STRING_INPUT_ID = 'branding-palette-import'
 const BRANDING_STRING_ERROR_ID = 'branding-palette-import-error'
@@ -74,11 +75,9 @@ export const BrandingPaletteImport = ({ colorGeneratorUrl }: BrandingPaletteImpo
             aria-invalid={!!error}
             aria-describedby={error ? BRANDING_STRING_ERROR_ID : undefined}
           />
-          {error && (
-            <p id={BRANDING_STRING_ERROR_ID} role="alert" className="text-xs text-destructive">
-              {error}
-            </p>
-          )}
+          <FormMessage id={BRANDING_STRING_ERROR_ID} role="alert">
+            {error}
+          </FormMessage>
         </div>
         <Button type="button" variant="secondary" icon={<ClipboardPaste size={16} />} onClick={handleApply} disabled={!brandingString.trim()}>
           Apply

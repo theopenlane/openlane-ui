@@ -82,7 +82,7 @@ const SelectQuestionnaireBody: React.FC<SelectQuestionnaireBodyProps> = ({ templ
 
   return (
     <>
-      <Tabs variant="solid" value={tab} onValueChange={(value) => isQuestionnaireSource(value) && setTab(value)}>
+      <Tabs panelless variant="solid" value={tab} onValueChange={(value) => isQuestionnaireSource(value) && setTab(value)}>
         <TabsList className="w-fit">
           <TabsTrigger value="template">Templates</TabsTrigger>
           <TabsTrigger value="assessment">Questionnaires</TabsTrigger>

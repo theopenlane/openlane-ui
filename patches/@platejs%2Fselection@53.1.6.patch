@@ -1,0 +1,12 @@
+diff --git a/dist/react/index.js b/dist/react/index.js
+index 34768daa495810924ce94318f929307b35b68bd3..fd151647b7ce35162d29e81db6523cbefcc07e3b 100644
+--- a/dist/react/index.js
++++ b/dist/react/index.js
+@@ -1610,6 +1610,7 @@ const BlockSelectionAfterEditable = () => {
+ 	return ReactDOM.createPortal(/* @__PURE__ */ React.createElement("input", {
+ 		ref: inputRef,
+ 		className: "slate-shadow-input",
++		"aria-label": "Selected blocks",
+ 		style: {
+ 			left: "-300px",
+ 			opacity: 0,

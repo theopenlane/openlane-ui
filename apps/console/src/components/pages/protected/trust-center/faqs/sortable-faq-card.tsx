@@ -4,7 +4,7 @@ import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Label } from '@repo/ui/label'
-import { Form } from '@repo/ui/form'
+import { Form, FormMessage } from '@repo/ui/form'
 import { CategoryField } from '../shared/category-field'
 import { FaqCategoryChip } from './faq-category-chip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -47,13 +47,13 @@ export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDele
               <div className="space-y-3">
                 <Label>Question</Label>
                 <Input autoFocus className="bg-background text-sm" {...editForm.register('question')} />
-                {editForm.formState.errors.question && <p className="text-red-500 text-sm">{editForm.formState.errors.question.message}</p>}
+                <FormMessage error={editForm.formState.errors.question} />
                 <Label>Answer</Label>
                 <Textarea className="min-h-25 bg-background text-sm" {...editForm.register('answer')} />
-                {editForm.formState.errors.answer && <p className="text-red-500 text-sm">{editForm.formState.errors.answer.message}</p>}
+                <FormMessage error={editForm.formState.errors.answer} />
                 <Label>Reference Link</Label>
                 <Input className="bg-background text-sm" placeholder="https://..." {...editForm.register('referenceLink')} />
-                {editForm.formState.errors.referenceLink && <p className="text-red-500 text-sm">{editForm.formState.errors.referenceLink.message}</p>}
+                <FormMessage error={editForm.formState.errors.referenceLink} />
                 <CategoryField objectType={ObjectTypes.TRUST_CENTER_FAQ} isEditing canCreate={canCreateCategory} clearable />
                 <div className="flex items-center justify-end">
                   <div className="flex gap-2">

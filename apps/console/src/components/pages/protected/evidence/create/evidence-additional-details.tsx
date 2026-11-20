@@ -4,7 +4,7 @@ import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo } from 'react'
 import { ChevronDown, ClipboardList, Clock, CircuitBoard, Folder, Layers, Tag } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -45,13 +45,13 @@ type TSectionProps = {
 const Section: React.FC<TSectionProps> = ({ value, icon, title, description, children }) => (
   <AccordionItem value={value} className="border border-border rounded-md px-4 py-3">
     <AccordionTrigger asChild>
-      <div className="flex items-center justify-between w-full cursor-pointer group">
-        <div className="flex items-center gap-2">
+      <button type="button" className="flex items-center justify-between w-full cursor-pointer group text-left">
+        <span className="flex items-center gap-2">
           <span className="text-accent-secondary">{icon}</span>
           <span className="text-sm font-medium">{title}</span>
-        </div>
+        </span>
         <ChevronDown size={18} className="transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
-      </div>
+      </button>
     </AccordionTrigger>
     <AccordionContent>
       <div className="pt-3 flex flex-col gap-4">
@@ -97,7 +97,7 @@ const EvidenceAdditionalDetails: React.FC<TEvidenceAdditionalDetailsProps> = ({
                   <FormControl>
                     <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
                   </FormControl>
-                  {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
+                  <FormMessage error={form.formState.errors.collectionProcedure} />
                 </FormItem>
               )}
             />
@@ -116,7 +116,7 @@ const EvidenceAdditionalDetails: React.FC<TEvidenceAdditionalDetailsProps> = ({
               <FormItem className="w-full">
                 <FormLabel className="mb-2 flex items-center">Creation Date</FormLabel>
                 <CalendarPopover field={field} defaultToday required disableFuture />
-                {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
+                <FormMessage error={form.formState.errors.creationDate} />
               </FormItem>
             )}
           />
@@ -136,7 +136,7 @@ const EvidenceAdditionalDetails: React.FC<TEvidenceAdditionalDetailsProps> = ({
                     </b>
                   </p>
                 )}
-                {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
+                <FormMessage error={form.formState.errors.renewalDate} />
               </FormItem>
             )}
           />
@@ -161,7 +161,7 @@ const EvidenceAdditionalDetails: React.FC<TEvidenceAdditionalDetailsProps> = ({
                     </SelectContent>
                   </Select>
                 </FormControl>
-                {form.formState.errors.reviewFrequency && <p className="text-red-500 text-sm">{form.formState.errors.reviewFrequency.message}</p>}
+                <FormMessage error={form.formState.errors.reviewFrequency} />
               </FormItem>
             )}
           />
@@ -177,7 +177,7 @@ const EvidenceAdditionalDetails: React.FC<TEvidenceAdditionalDetailsProps> = ({
                 <FormControl>
                   <Input variant="medium" {...field} className="w-full" placeholder="System the evidence was pulled from" />
                 </FormControl>
-                {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
+                <FormMessage error={form.formState.errors.source} />
               </FormItem>
             )}
           />
@@ -201,7 +201,7 @@ const EvidenceAdditionalDetails: React.FC<TEvidenceAdditionalDetailsProps> = ({
                     className="w-full"
                   />
                 </FormControl>
-                {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
+                <FormMessage error={form.formState.errors.tags} />
               </FormItem>
             )}
           />

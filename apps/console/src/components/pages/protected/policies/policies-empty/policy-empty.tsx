@@ -81,7 +81,7 @@ export const PolicyEmptyActions = () => {
             id: 'managed-via-integration',
             title: 'Managed via Integration',
             badge: (
-              <Badge variant="outline" className="ml-2 border-purple-500/40 bg-purple-500/15 text-purple-300">
+              <Badge variant="outline" className="ml-2 border-purple-500/40 bg-purple-500/15 text-purple-700 dark:text-purple-300">
                 New
               </Badge>
             ),

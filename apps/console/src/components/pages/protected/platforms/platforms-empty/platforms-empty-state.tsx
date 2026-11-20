@@ -254,7 +254,7 @@ const PlatformsEmptyState: React.FC<TPlatformsEmptyStateProps> = ({ onCreate }) 
     <div className="flex w-full max-w-6xl flex-col gap-6">
       <div className="flex flex-col gap-3.5 overflow-x-auto rounded-xl border border-border bg-accent px-7 pb-5 pt-6">
         <div className="flex items-center justify-between gap-4">
-          <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground/70">An example representation of a platform definition</p>
+          <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">An example representation of a platform definition</p>
           {onCreate && (
             <Button variant="primary" className="shrink-0" icon={<SquarePlus size={16} />} iconPosition="left" onClick={onCreate}>
               Start the walkthrough

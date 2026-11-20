@@ -5,7 +5,7 @@ import { Tag } from 'lucide-react'
 import { type UseFormReturn } from 'react-hook-form'
 import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { InputRow } from '@repo/ui/input'
-import { FormControl, FormField } from '@repo/ui/form'
+import { FormControl, FormField, FormMessage } from '@repo/ui/form'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { type ProcedureByIdFragment, type UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { type CreateProcedureFormData } from '../../create/hooks/use-form-schema'
@@ -111,7 +111,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAl
                         }}
                       />
                     </FormControl>
-                    {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
+                    <FormMessage error={form.formState.errors.tags} />
                   </>
                 )}
               />

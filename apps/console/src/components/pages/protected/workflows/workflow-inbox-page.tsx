@@ -448,7 +448,7 @@ const WorkflowInboxPage = () => {
           <h2 className="text-base font-semibold">{title}</h2>
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
-        <Badge variant="secondary" className="text-amber-600">
+        <Badge variant="secondary" className="text-amber-700 dark:text-amber-300">
           {items.length} pending
         </Badge>
       </div>
@@ -471,7 +471,7 @@ const WorkflowInboxPage = () => {
               <h1>Workflow Inbox</h1>
               <p className="text-md text-muted-foreground">Review approvals, reviews, and requested changes assigned to you.</p>
             </div>
-            <Badge variant="secondary" className="text-[var(--color-warning)]">
+            <Badge variant="secondary" className="text-warning-text">
               {pendingCount} pending
             </Badge>
           </div>

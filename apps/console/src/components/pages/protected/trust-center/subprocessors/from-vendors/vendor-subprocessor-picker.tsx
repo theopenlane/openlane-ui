@@ -169,7 +169,7 @@ export const VendorSubprocessorPicker: React.FC = () => {
               disabled={!isAllView}
             />
           </div>
-          <Tabs value={view} onValueChange={(value) => setView(value === VIEW.selected ? VIEW.selected : VIEW.all)} variant="solid">
+          <Tabs panelless value={view} onValueChange={(value) => setView(value === VIEW.selected ? VIEW.selected : VIEW.all)} variant="solid">
             <TabsList className="w-fit">
               <TabsTrigger value={VIEW.all}>All vendors</TabsTrigger>
               <TabsTrigger value={VIEW.selected}>Selected ({selectedRows.length})</TabsTrigger>

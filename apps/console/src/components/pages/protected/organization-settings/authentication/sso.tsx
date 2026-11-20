@@ -132,7 +132,7 @@ const SSOOverview = ({
             {isSSOConfigured ? (
               <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="secondary" size="sm" className="h-8 w-8 p-0">
+                  <Button variant="secondary" aria-label="SSO actions" size="sm" className="h-8 w-8 p-0">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -653,7 +653,7 @@ const SSOPage = () => {
                   {isSSOConfigured ? (
                     <DropdownMenu modal={false}>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="secondary" size="sm" className="h-8 w-8 p-0">
+                        <Button variant="secondary" aria-label="SSO actions" size="sm" className="h-8 w-8 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -711,7 +711,7 @@ const SSOPage = () => {
                       <FormField
                         control={form.control}
                         name="identityProvider"
-                        render={({ field, fieldState }) => (
+                        render={({ field }) => (
                           <FormItem className="flex flex-col pt-2">
                             <div className="flex items-center space-x-2">
                               <Label htmlFor="identityProvider" className="text-sm font-medium w-48 shrink-0">
@@ -738,7 +738,7 @@ const SSOPage = () => {
                                 </SelectContent>
                               </Select>
                             </div>
-                            {fieldState.error && <FormMessage />}
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -746,7 +746,7 @@ const SSOPage = () => {
                       <FormField
                         control={form.control}
                         name="identityProviderClientID"
-                        render={({ field, fieldState }) => (
+                        render={({ field }) => (
                           <FormItem className="flex flex-col">
                             <div className="flex items-center space-x-2">
                               <Label htmlFor="identityProviderClientID" className="text-sm font-medium w-48 shrink-0">
@@ -756,7 +756,7 @@ const SSOPage = () => {
                                 <Input variant="medium" maxWidth className="max-w-[440px]" {...field} placeholder="Enter client ID" />
                               </FormControl>
                             </div>
-                            {fieldState.error && <FormMessage />}
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -764,7 +764,7 @@ const SSOPage = () => {
                       <FormField
                         control={form.control}
                         name="identityProviderClientSecret"
-                        render={({ field, fieldState }) => (
+                        render={({ field }) => (
                           <FormItem className="flex flex-col space-y-1">
                             <div className="flex items-center space-x-2">
                               <Label htmlFor="identityProviderClientSecret" className="text-sm font-medium w-48 shrink-0">
@@ -781,7 +781,7 @@ const SSOPage = () => {
                                 />
                               </FormControl>
                             </div>
-                            {fieldState.error && <FormMessage />}
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -789,7 +789,7 @@ const SSOPage = () => {
                       <FormField
                         control={form.control}
                         name="oidcDiscoveryEndpoint"
-                        render={({ field, fieldState }) => (
+                        render={({ field }) => (
                           <FormItem className="flex flex-col space-y-1">
                             <div className="flex items-center space-x-2">
                               <Label htmlFor="oidcDiscoveryEndpoint" className="text-sm font-medium w-48 shrink-0">
@@ -799,7 +799,7 @@ const SSOPage = () => {
                                 <Input variant="medium" maxWidth className="max-w-[440px]" {...field} placeholder="https://your-provider.com/.well-known/openid_configuration" />
                               </FormControl>
                             </div>
-                            {fieldState.error && <FormMessage />}
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
