@@ -35,5 +35,14 @@ export const EmailTemplateConfiguration: React.FC<EmailTemplateConfigurationProp
     return <p className="text-sm text-muted-foreground">Select a template to configure its fields.</p>
   }
 
-  return <EmailTemplateConfigForm schema={selectedEntry.configSchema} uiSchema={selectedEntry.uiSchema} formData={configData} onChange={onConfigChange} readOnly={readOnly} />
+  return (
+    <EmailTemplateConfigForm
+      schema={selectedEntry.configSchema}
+      uiSchema={selectedEntry.uiSchema}
+      formData={configData}
+      defaultValues={selectedEntry.exampleValues}
+      onChange={onConfigChange}
+      readOnly={readOnly}
+    />
+  )
 }

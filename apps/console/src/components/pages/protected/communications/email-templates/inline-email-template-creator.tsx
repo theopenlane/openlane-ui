@@ -97,7 +97,7 @@ const InlineEmailTemplateForm: React.FC<InlineEmailTemplateFormProps> = ({ type,
 
       <EmailTemplateNameField name={name} onNameChange={setName} placeholder="e.g. Policy sign-off email" />
 
-      <EmailTemplateConfigForm schema={entry.configSchema} uiSchema={entry.uiSchema} formData={configData} onChange={setConfigData} />
+      <EmailTemplateConfigForm schema={entry.configSchema} uiSchema={entry.uiSchema} formData={configData} defaultValues={entry.exampleValues} onChange={setConfigData} />
 
       <div className="flex flex-col gap-2">
         <span className="text-sm font-semibold">Preview</span>

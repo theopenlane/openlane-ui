@@ -1,20 +1,52 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import Form from '@rjsf/core'
 import type { IChangeEvent } from '@rjsf/core'
-import type { ArrayFieldItemTemplateProps, ErrorTransformer, ObjectFieldTemplateProps, RJSFSchema, TemplatesType, UiSchema } from '@rjsf/utils'
+import type { ArrayFieldItemTemplateProps, ErrorTransformer, ObjectFieldTemplateProps, RegistryWidgetsType, RJSFSchema, TemplatesType, UiSchema, WidgetProps } from '@rjsf/utils'
 import { customizeValidator } from '@rjsf/validator-ajv8'
 import Ajv2020 from 'ajv/dist/2020'
-import { ChevronDown, ChevronUp, Copy, Plus, Trash2, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Copy, Plus, RotateCcw, Trash2, X } from 'lucide-react'
+import { Button } from '@repo/ui/button'
+import { toHumanLabel } from '@/utils/strings'
+import { isFieldAtDefault, resetFieldsToDefault } from './email-template-defaults'
 
 interface EmailTemplateConfigFormProps {
   schema: RJSFSchema
   uiSchema?: UiSchema
   formData: Record<string, unknown>
   onChange: (data: Record<string, unknown>) => void
+  defaultValues?: Record<string, unknown> | null
   readOnly?: boolean
 }
+
+type TConfigFormContext = {
+  defaultValues?: Record<string, unknown>
+  onDataChange?: (data: Record<string, unknown>) => void
+}
+
+const COLOR_FORMAT = 'color'
+
+const ColorWidget: React.FC<WidgetProps> = ({ id, value, disabled, readonly, onChange, onBlur, onFocus }) => {
+  const color = typeof value === 'string' && value ? value : undefined
+  return (
+    <div className="flex items-center gap-3">
+      <input
+        type="color"
+        id={id}
+        value={color ?? '#000000'}
+        disabled={disabled || readonly}
+        className={color ? undefined : 'opacity-40'}
+        onChange={(event) => onChange(event.target.value)}
+        onBlur={(event) => onBlur(id, event.target.value)}
+        onFocus={(event) => onFocus(id, event.target.value)}
+      />
+      <span className="text-sm text-muted-foreground">{color ?? 'Theme default'}</span>
+    </div>
+  )
+}
+
+const configFormWidgets: RegistryWidgetsType = { ColorWidget }
 
 interface FormIconButtonProps {
   onClick?: React.MouseEventHandler<HTMLButtonElement>
@@ -77,9 +109,24 @@ const emailBrandingGroups = [
 type ObjectProperty = ObjectFieldTemplateProps['properties'][number]
 type ConfigSection = { title: string; items: ObjectProperty[] }
 
-const GroupedObjectFieldTemplate: React.FC<ObjectFieldTemplateProps> = ({ properties, fieldPathId }) => {
+const GroupedObjectFieldTemplate: React.FC<ObjectFieldTemplateProps<Record<string, unknown>, RJSFSchema, TConfigFormContext>> = ({ properties, fieldPathId, registry, formData = {}, schema }) => {
   if (fieldPathId.$id !== 'root') {
     return <div className="flex flex-col gap-4">{properties.map((prop) => prop.content)}</div>
+  }
+
+  const { defaultValues, onDataChange } = registry.formContext
+  const resettableFields = (items: ObjectProperty[]) => {
+    if (!defaultValues) return []
+    return items
+      .map((item) => item.name)
+      .filter((field) => {
+        const property = schema.properties?.[field]
+        return typeof property === 'object' && property.format === COLOR_FORMAT && !isFieldAtDefault(formData, defaultValues, field)
+      })
+  }
+  const resetFields = (fields: string[]) => {
+    if (!defaultValues || !onDataChange) return
+    onDataChange(resetFieldsToDefault(formData, defaultValues, fields))
   }
 
   const byName = new Map<string, ObjectProperty>(properties.map((prop) => [prop.name, prop]))
@@ -97,12 +144,39 @@ const GroupedObjectFieldTemplate: React.FC<ObjectFieldTemplateProps> = ({ proper
 
   return (
     <div className="flex flex-col gap-6">
-      {sections.map((section) => (
-        <div key={section.title} className="flex flex-col gap-4">
-          <p className="text-sm font-semibold text-foreground">{section.title}</p>
-          <div className="flex flex-col gap-4">{section.items.map((item) => item.content)}</div>
-        </div>
-      ))}
+      {sections.map((section) => {
+        const changedFields = resettableFields(section.items)
+        return (
+          <div key={section.title} className="flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-semibold text-foreground">{section.title}</p>
+              {changedFields.length > 0 && (
+                <Button type="button" variant="link" icon={<RotateCcw size={14} />} iconPosition="left" onClick={() => resetFields(changedFields)}>
+                  Reset colors
+                </Button>
+              )}
+            </div>
+            <div className="flex flex-col gap-4">
+              {section.items.map((item) => (
+                <div key={item.name} className="relative">
+                  {item.content}
+                  {changedFields.includes(item.name) && (
+                    <Button
+                      type="button"
+                      variant="icon"
+                      size="icon-xs"
+                      className="absolute right-0 top-0"
+                      icon={<RotateCcw />}
+                      descriptiveTooltipText={`Reset ${toHumanLabel(item.name)} to default`}
+                      onClick={() => resetFields([item.name])}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -143,7 +217,7 @@ const configFormClassName = [
   '[&_.text-danger]:text-xs [&_.text-danger]:text-destructive [&_.error-detail]:text-xs [&_.error-detail]:text-destructive [&_.error-detail]:list-disc [&_.error-detail]:pl-4',
 ].join(' ')
 
-export const EmailTemplateConfigForm: React.FC<EmailTemplateConfigFormProps> = ({ schema, uiSchema, formData, onChange, readOnly = false }) => {
+export const EmailTemplateConfigForm: React.FC<EmailTemplateConfigFormProps> = ({ schema, uiSchema, formData, onChange, defaultValues, readOnly = false }) => {
   const mergedUiSchema = useMemo<UiSchema>(
     () => ({
       'ui:submitButtonOptions': { norender: true, submitText: '', props: {} },
@@ -152,6 +226,14 @@ export const EmailTemplateConfigForm: React.FC<EmailTemplateConfigFormProps> = (
     [uiSchema],
   )
 
+  const onChangeRef = useRef(onChange)
+  useEffect(() => {
+    onChangeRef.current = onChange
+  }, [onChange])
+  const onDataChange = useCallback((data: Record<string, unknown>) => onChangeRef.current(data), [])
+
+  const formContext = useMemo<TConfigFormContext>(() => (readOnly || !defaultValues ? {} : { defaultValues, onDataChange }), [defaultValues, onDataChange, readOnly])
+
   return (
     <div className={configFormClassName}>
       <Form
@@ -159,6 +241,8 @@ export const EmailTemplateConfigForm: React.FC<EmailTemplateConfigFormProps> = (
         uiSchema={mergedUiSchema}
         formData={formData}
         validator={validator}
+        formContext={formContext}
+        widgets={configFormWidgets}
         transformErrors={ignoreSystemKeyErrors}
         templates={{ ButtonTemplates: buttonTemplates, ArrayFieldItemTemplate, ObjectFieldTemplate: GroupedObjectFieldTemplate }}
         readonly={readOnly}
