@@ -11,9 +11,15 @@ import { exposureAssetLabel } from '../../../../exposure/detail/exposure-asset-l
 import { exposureStatusLabel, type TEnvironmentGroup, type TExposureRow } from './exposure-model'
 import { pluralizeWithCount } from '@/utils/strings'
 import { EnvironmentChip } from './environment-chip'
+import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 import { ExposureReportCard, type TExposureReportCardProps } from './exposure-report-node'
 
-type TExposureNodeData = { kind: 'environment' | 'source' | 'asset' | 'owner'; title: string; subtitle?: string } | ({ kind: 'report' } & TExposureReportCardProps)
+type TExposureNodeData =
+  | { kind: 'environment' | 'source' | 'owner'; title: string; subtitle?: string }
+  | { kind: 'asset'; title: string; subtitle?: string; assetId: string | null }
+  | ({ kind: 'report' } & TExposureReportCardProps)
 
 type TExposureNode = Node<TExposureNodeData, 'exposure'>
 
@@ -37,6 +43,8 @@ const usePrefersReducedMotion = () =>
   )
 
 const ExposureNode = ({ data }: NodeProps<TExposureNode>) => {
+  const openObjectSheet = useOpenObjectSheet()
+  const assetId = data.kind === 'asset' ? data.assetId : null
   const handleClass = '!h-1 !w-1 !min-w-0 !border-0 !bg-transparent'
   const body =
     data.kind === 'environment' ? (
@@ -45,7 +53,9 @@ const ExposureNode = ({ data }: NodeProps<TExposureNode>) => {
       <ExposureReportCard {...data} />
     ) : (
       <div className={cn('rounded-md border bg-card px-3 py-2 text-left', data.kind === 'source' ? 'w-[170px]' : 'w-[200px]', data.kind === 'owner' && 'border-dashed bg-transparent')}>
-        <div className={cn('truncate text-sm font-medium', data.kind === 'owner' && 'font-mono')}>{data.title}</div>
+        <div className={cn('truncate text-sm font-medium', data.kind === 'owner' && 'font-mono', assetId && 'nodrag nopan')}>
+          {assetId ? <ObjectSheetLink id={assetId} kind={ObjectAssociationNodeEnum.ASSET} label={data.title} onOpenSheet={openObjectSheet} /> : data.title}
+        </div>
         {data.subtitle && <div className="truncate text-xs text-muted-foreground">{data.subtitle}</div>}
       </div>
     )
@@ -83,10 +93,10 @@ const placeColumn = <TMeta,>(entries: Map<string, TColumnEntry<TMeta>>, startY: 
     }, [])
 
 const assetTarget = (environment: string, row: TExposureRow) => {
-  if (row.asset) return { assetId: `asset:${environment}:${row.asset.id}`, assetLabel: exposureAssetLabel(row.asset), isOwner: false }
+  if (row.asset) return { nodeId: `asset:${environment}:${row.asset.id}`, assetId: row.asset.id, assetLabel: exposureAssetLabel(row.asset), isOwner: false }
   const owner = row.report.externalOwnerID?.trim()
-  if (owner) return { assetId: `owner:${environment}:${row.report.source ?? ''}:${owner}`, assetLabel: owner, isOwner: true }
-  return { assetId: `asset:${environment}:unlinked`, assetLabel: exposureAssetLabel(null), isOwner: false }
+  if (owner) return { nodeId: `owner:${environment}:${row.report.source ?? ''}:${owner}`, assetId: null, assetLabel: owner, isOwner: true }
+  return { nodeId: `asset:${environment}:unlinked`, assetId: null, assetLabel: exposureAssetLabel(null), isOwner: false }
 }
 
 type TGraphModel = { nodes: TExposureNode[]; edges: Edge[]; height: number }
@@ -114,14 +124,14 @@ const buildGraph = (groups: TEnvironmentGroup[], slaDefinitions: SlaDefinitionsN
     const envId = `env:${group.environment}`
     const groupStartY = rowIndex * ROW_HEIGHT + HEADER_OFFSET
     const sources = new Map<string, TColumnEntry<{ label: string }>>()
-    const assets = new Map<string, TColumnEntry<{ label: string; isOwner: boolean }>>()
+    const assets = new Map<string, TColumnEntry<{ label: string; isOwner: boolean; assetId: string | null }>>()
     const reportYs = new Map<string, number>()
 
     group.rows.forEach((row) => {
       const reportId = `report:${group.environment}:${row.report.id}`
       const sourceLabel = row.report.source || 'Unknown source'
       const sourceId = `source:${group.environment}:${sourceLabel}`
-      const { assetId, assetLabel, isOwner } = assetTarget(group.environment, row)
+      const { nodeId, assetId, assetLabel, isOwner } = assetTarget(group.environment, row)
 
       const knownY = reportYs.get(reportId)
       const reportY = knownY ?? rowIndex * ROW_HEIGHT + HEADER_OFFSET
@@ -153,8 +163,8 @@ const buildGraph = (groups: TEnvironmentGroup[], slaDefinitions: SlaDefinitionsN
         addEdge(sourceId, reportId, row.isOpen)
       }
 
-      collect(assets, assetId, reportY, { label: assetLabel, isOwner })
-      addEdge(reportId, assetId, row.isOpen)
+      collect(assets, nodeId, reportY, { label: assetLabel, isOwner, assetId })
+      addEdge(reportId, nodeId, row.isOpen)
     })
 
     nodes.push({
@@ -168,14 +178,15 @@ const buildGraph = (groups: TEnvironmentGroup[], slaDefinitions: SlaDefinitionsN
     const placedSources = placeColumn(sources, groupStartY)
     const placedAssets = placeColumn(assets, groupStartY)
     placedSources.forEach(({ id, label, y }) => nodes.push({ id, type: 'exposure', position: { x: COLUMN_X.source, y }, data: { kind: 'source', title: label }, draggable: false, selectable: false }))
-    placedAssets.forEach(({ id, label, count, y, isOwner }) =>
+    placedAssets.forEach(({ id, label, count, y, isOwner, assetId }) =>
       nodes.push({
         id,
         type: 'exposure',
         position: { x: COLUMN_X.asset, y },
-        data: isOwner ? { kind: 'owner', title: label, subtitle: 'Not linked to an asset' } : { kind: 'asset', title: label, subtitle: pluralizeWithCount(count, 'report') },
+        data: isOwner ? { kind: 'owner', title: label, subtitle: 'Not linked to an asset' } : { kind: 'asset', title: label, subtitle: pluralizeWithCount(count, 'report'), assetId },
         draggable: false,
         selectable: false,
+        style: assetId ? INTERACTIVE_NODE_STYLE : undefined,
       }),
     )
     const columnBottom = Math.max(...[...placedSources, ...placedAssets].map((entry) => entry.y + ROW_HEIGHT), rowIndex * ROW_HEIGHT + HEADER_OFFSET)
