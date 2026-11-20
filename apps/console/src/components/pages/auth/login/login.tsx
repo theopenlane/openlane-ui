@@ -22,7 +22,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { isValidEmail } from '@/lib/validators'
 import LegalAgreement from '@/components/shared/legal-agreement/legal-agreement'
 import { cn } from '@repo/ui/lib/utils'
-import { buildTfaRedirect, sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
+import { buildInviteAcceptPath, buildTfaRedirect, sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 import Github from '@/assets/Github'
 import { recordLastLoginMethod, getLastLoginMethod } from '@/lib/auth/utils/last-login-method'
 import { LastUsedBadge } from './last-used-badge'
@@ -216,7 +216,7 @@ export const LoginPage = () => {
 
   const redirectUrl = useMemo(() => {
     if (token) {
-      return `/invite?token=${token}`
+      return buildInviteAcceptPath(token)
     }
     return sanitizeLoginRedirect(redirect)
   }, [redirect, token])

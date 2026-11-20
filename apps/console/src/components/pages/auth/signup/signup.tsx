@@ -7,6 +7,7 @@ import { Button } from '@repo/ui/button'
 import { ArrowRightCircle } from 'lucide-react'
 import { registerUser, type RegisterUser } from '@/lib/user'
 import { recordLastLoginMethod } from '@/lib/auth/utils/last-login-method'
+import { buildInviteAcceptPath } from '@/lib/auth/utils/redirect'
 import { UserAuthProvider } from '@repo/codegen/src/schema'
 import { GoogleIcon } from '@repo/ui/icons/google'
 import { signIn } from 'next-auth/react'
@@ -41,16 +42,18 @@ export const SignupPage = () => {
 
   const showError = !isLoading && !!registrationErrorMessage
 
+  const oauthRedirect = token ? buildInviteAcceptPath(token) : '/'
+
   const github = async () => {
     recordLastLoginMethod(UserAuthProvider.GITHUB)
-    await signIn('github', { redirectTo: '/' })
+    await signIn('github', { redirectTo: oauthRedirect })
   }
 
   const google = async () => {
     recordLastLoginMethod(UserAuthProvider.GOOGLE)
     await signIn('google', {
       redirect: true,
-      redirectTo: '/signup',
+      redirectTo: oauthRedirect,
     })
   }
 
@@ -135,7 +138,13 @@ export const SignupPage = () => {
               }
 
               if (res?.ok && token) {
-                router.push(`/login`)
+                const signInRes = await signIn('credentials', {
+                  redirect: false,
+                  username: payload.email,
+                  password: payload.password,
+                }).catch(() => null)
+
+                router.push(signInRes?.ok && !signInRes.error ? '/' : `/login?email=${encodeURIComponent(payload.email)}`)
               } else if (res?.ok) {
                 router.push('/verify')
               } else if (token && res?.message && /already exists/i.test(res.message)) {
