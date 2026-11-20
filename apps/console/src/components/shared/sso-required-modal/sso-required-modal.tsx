@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Dialog, DialogContent } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
+import { FormMessage } from '@repo/ui/form'
 import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
 import { getSSORedirect } from '@/lib/auth/utils/get-sso-redirect'
 import { type SSORequirement } from '@/lib/auth/utils/sso-required'
@@ -42,7 +43,7 @@ const SSORequiredModal = ({ requirement }: SSORequiredModalProps) => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-2">Single sign-on required</h2>
           <p className="text-sm max-w-xs mx-auto">Your organization requires single sign-on. Sign in again with your identity provider to continue.</p>
-          {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+          <FormMessage>{error}</FormMessage>
         </div>
         <Button variant="primary" onClick={handleContinue} disabled={loading}>
           {loading ? (

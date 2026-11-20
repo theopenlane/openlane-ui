@@ -1,6 +1,6 @@
 'use client'
 
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { Checkbox } from '@repo/ui/checkbox'
 import { cn } from '@repo/ui/lib/utils'
 import { type FieldValues, useFormContext } from 'react-hook-form'
@@ -42,31 +42,34 @@ export const CheckboxField = <TUpdateInput,>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn('flex items-center space-x-2 space-y-0', className)}>
-          <FormControl>
-            <Checkbox
-              id={name}
-              name={name}
-              checked={!!field.value}
-              disabled={disabled}
-              className="items-center"
-              onCheckedChange={async (checked) => {
-                field.onChange(checked)
-                if (!isCreate && !isEditing && handleUpdate) {
-                  await Promise.resolve(handleUpdate({ [name]: checked } as TUpdateInput))
-                }
-              }}
-            />
-          </FormControl>
-          <FormLabel
-            htmlFor={disabled ? undefined : name}
-            className={cn('text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center', disabled && 'cursor-not-allowed opacity-70')}
-          >
-            <span className="flex items-center gap-1">
-              {label}
-              {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1" />} content={tooltipContent} />}
-            </span>
-          </FormLabel>
+        <FormItem className={cn('space-y-0', className)}>
+          <div className="flex items-center space-x-2">
+            <FormControl>
+              <Checkbox
+                id={name}
+                name={name}
+                checked={!!field.value}
+                disabled={disabled}
+                className="items-center"
+                onCheckedChange={async (checked) => {
+                  field.onChange(checked)
+                  if (!isCreate && !isEditing && handleUpdate) {
+                    await Promise.resolve(handleUpdate({ [name]: checked } as TUpdateInput))
+                  }
+                }}
+              />
+            </FormControl>
+            <FormLabel
+              htmlFor={disabled ? undefined : name}
+              className={cn('text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center', disabled && 'cursor-not-allowed opacity-70')}
+            >
+              <span className="flex items-center gap-1">
+                {label}
+                {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1" />} content={tooltipContent} />}
+              </span>
+            </FormLabel>
+          </div>
+          <FormMessage />
         </FormItem>
       )}
     />

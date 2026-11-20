@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
+import { FormMessage } from '@repo/ui/form'
 import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
 import { getSSORedirect } from '@/lib/auth/utils/get-sso-redirect'
 import { getCookie } from '@/lib/auth/utils/getCookie'
@@ -82,9 +83,9 @@ const SSOEnforcePage: React.FC = () => {
               Email: <span className="font-medium">{email}</span>
             </p>
           )}
-          {!email && <p className="text-sm text-red-600 mt-2">Email not found. Please try logging in again.</p>}
-          {!organizationId && <p className="text-sm text-red-600 mt-2">Organization ID not found. Please try logging in again.</p>}
-          {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+          {!email && <FormMessage>Email not found. Please try logging in again.</FormMessage>}
+          {!organizationId && <FormMessage>Organization ID not found. Please try logging in again.</FormMessage>}
+          <FormMessage>{error}</FormMessage>
         </div>
 
         <div className="flex gap-3">

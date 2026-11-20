@@ -46,7 +46,7 @@ const ProgramDetailsStep = ({ sourceProgram, ownerLeftOrg }: ProgramDetailsStepP
       <FormField
         control={control}
         name="name"
-        render={({ field, fieldState }) => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>
               Program Name<span className="text-destructive"> *</span>
@@ -54,7 +54,7 @@ const ProgramDetailsStep = ({ sourceProgram, ownerLeftOrg }: ProgramDetailsStepP
             <FormControl>
               <Input {...field} value={field.value ?? ''} placeholder="Program name" />
             </FormControl>
-            {fieldState.error && <FormMessage />}
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -64,13 +64,13 @@ const ProgramDetailsStep = ({ sourceProgram, ownerLeftOrg }: ProgramDetailsStepP
       <FormField
         control={control}
         name="framework"
-        render={({ field, fieldState }) => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>Framework</FormLabel>
             <FormControl>
               <SearchableSingleSelect value={field.value ?? ''} options={frameworkOptions} placeholder="Select a framework" clearable clearLabel="No framework" onChange={field.onChange} />
             </FormControl>
-            {fieldState.error && <FormMessage />}
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -90,13 +90,13 @@ const ProgramDetailsStep = ({ sourceProgram, ownerLeftOrg }: ProgramDetailsStepP
       <FormField
         control={control}
         name="programOwnerID"
-        render={({ field, fieldState }) => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>Program Owner</FormLabel>
             <FormControl>
               <SearchableSingleSelect value={field.value} options={userOptions} placeholder="Select owner" clearable clearLabel="No owner" onChange={field.onChange} />
             </FormControl>
-            {fieldState.error && <FormMessage />}
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -110,13 +110,13 @@ const ProgramDetailsStep = ({ sourceProgram, ownerLeftOrg }: ProgramDetailsStepP
       <FormField
         control={control}
         name="description"
-        render={({ field, fieldState }) => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>Description</FormLabel>
             <FormControl>
               <Textarea {...field} value={field.value ?? ''} placeholder="Enter a description for this program" />
             </FormControl>
-            {fieldState.error && <FormMessage />}
+            <FormMessage />
           </FormItem>
         )}
       />

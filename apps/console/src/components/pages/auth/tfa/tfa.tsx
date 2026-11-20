@@ -175,11 +175,7 @@ const TfaPage: React.FC<{ enrollment?: boolean }> = ({ enrollment = false }) => 
         <Button onClick={handleEnrollment} disabled={isPending}>
           Set up authenticator
         </Button>
-        {error && (
-          <p role="alert" className="text-destructive">
-            {error}
-          </p>
-        )}
+        <FormMessage role="alert">{error}</FormMessage>
         {setup && (
           <QRCodeDialog qrcode={setup.qrCode} secret={setup.secret} regeneratedCodes={null} onVerify={verifyEnrollment} onComplete={handleEnrollmentCompletion} onClose={handleCloseEnrollment} />
         )}

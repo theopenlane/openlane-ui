@@ -4,6 +4,7 @@ import { type LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
 import { UserAuthProvider } from '@repo/codegen/src/schema'
 import SimpleForm from '@repo/ui/simple-form'
+import { FormMessage } from '@repo/ui/form'
 import { ArrowRightCircle, KeyRoundIcon } from 'lucide-react'
 import { signIn, type SignInResponse } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -464,7 +465,7 @@ export const LoginPage = () => {
               onChange={handleEmailChange}
               className={`bg-transparent ${showLoginError ? 'border border-toast-error-icon' : ''}`}
             />
-            {showLoginError && <span className="text-xs text-toast-error-icon text-left">{signInErrorMessage}</span>}
+            {showLoginError && <FormMessage className="text-left">{signInErrorMessage}</FormMessage>}
           </div>
 
           {showSSOButton && (

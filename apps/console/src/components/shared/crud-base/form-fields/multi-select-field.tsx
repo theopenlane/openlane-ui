@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useRef } from 'react'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { useFormContext } from 'react-hook-form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
@@ -11,6 +11,7 @@ import { type InternalEditingType } from '../generic-sheet'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { cn } from '@repo/ui/lib/utils'
+import { fieldItemLayoutClassName, fieldMessageLayoutClassName, type TFieldLayout } from './field-layout'
 import { InlineEditDisplay } from './inline-edit-display'
 import { type TPersistOptions, usePersistFormField } from '../persist-form-field'
 
@@ -28,7 +29,7 @@ interface MultiSelectFieldProps<TUpdateInput> {
   setInternalEditing: InternalEditingType
   tooltipContent?: string
   icon?: React.ReactNode
-  layout?: 'vertical' | 'horizontal'
+  layout?: TFieldLayout
   labelClassName?: string
 }
 
@@ -95,7 +96,7 @@ export const MultiSelectField = <TUpdateInput,>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : ''}>
+        <FormItem className={fieldItemLayoutClassName(layout)}>
           <div className="flex items-center gap-2 shrink-0">
             {icon}
             <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>
@@ -130,6 +131,7 @@ export const MultiSelectField = <TUpdateInput,>({
               )}
             </InlineEditDisplay>
           )}
+          <FormMessage className={fieldMessageLayoutClassName(layout)} />
         </FormItem>
       )}
     />

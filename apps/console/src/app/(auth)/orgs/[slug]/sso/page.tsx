@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Logo } from '@repo/ui/logo'
+import { FormMessage } from '@repo/ui/form'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { SUPPORT_URL } from '@/constants'
@@ -71,7 +72,7 @@ const SSOInitiatePage: React.FC = () => {
             {loading ? 'Redirecting…' : 'Continue with SSO'}
           </Button>
 
-          {error && <p className="text-sm text-toast-error-icon mt-3 text-center">{error}</p>}
+          <FormMessage className="text-center">{error}</FormMessage>
         </div>
 
         <p className="text-sm text-muted-foreground text-center">
