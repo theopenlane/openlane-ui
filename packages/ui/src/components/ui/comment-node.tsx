@@ -5,21 +5,25 @@ import * as React from 'react'
 import type { TCommentText } from 'platejs'
 import type { PlateLeafProps } from 'platejs/react'
 
-import { getCommentCount } from '@platejs/comment'
+import { getDraftCommentKey } from '@platejs/comment'
 import { PlateLeaf, useEditorPlugin, usePluginOption } from 'platejs/react'
 
 import { cn } from '@repo/ui/lib/utils'
-import { commentPlugin } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
+import { commentPlugin, getCommentLeafIds } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
 
 export function CommentLeaf(props: PlateLeafProps<TCommentText>) {
   const { children, leaf } = props
 
-  const { api, setOption } = useEditorPlugin(commentPlugin)
+  const { setOption } = useEditorPlugin(commentPlugin)
   const hoverId = usePluginOption(commentPlugin, 'hoverId')
   const activeId = usePluginOption(commentPlugin, 'activeId')
+  const shownIds = usePluginOption(commentPlugin, 'shownIds')
 
-  const isOverlapping = getCommentCount(leaf) > 1
-  const currentId = api.comment.nodeId(leaf)
+  const { visibleIds, currentId } = getCommentLeafIds(leaf, shownIds)
+
+  if (!leaf[getDraftCommentKey()] && visibleIds.length === 0) return <PlateLeaf {...props}>{children}</PlateLeaf>
+
+  const isOverlapping = visibleIds.length > 1
   const isActive = activeId === currentId
   const isHover = hoverId === currentId
 

@@ -3,7 +3,7 @@
 import { cn } from '@repo/ui/lib/utils'
 import { ToolbarGroup } from './toolbar'
 import { ExportToolbarButton } from './export-toolbar-button'
-import { CommentToolbarButton, useCanComment } from './comment-toolbar-button'
+import { CommentToolbarButton, ResolvedCommentsToolbarButton, useCanComment } from './comment-toolbar-button'
 
 type ReadOnlyToolbarButtonsProps = {
   className?: string
@@ -20,6 +20,7 @@ export function ReadOnlyToolbarButtons({ className }: ReadOnlyToolbarButtonsProp
       {canComment && (
         <ToolbarGroup className="pointer-events-auto">
           <CommentToolbarButton />
+          <ResolvedCommentsToolbarButton />
         </ToolbarGroup>
       )}
     </div>

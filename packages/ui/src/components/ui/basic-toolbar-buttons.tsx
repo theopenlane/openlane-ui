@@ -19,6 +19,7 @@ import { ToggleToolbarButton } from './toggle-toolbar-button'
 import { ToolbarGroup } from './toolbar'
 import { useShortcutSuffix } from 'console/src/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 import { ExportToolbarButton } from './export-toolbar-button'
+import { ResolvedCommentsToolbarButton } from './comment-toolbar-button'
 import { ImportToolbarButton } from './import-toolbar-button'
 
 export function BasicToolbarButtons() {
@@ -88,6 +89,7 @@ export function BasicToolbarButtons() {
           <ToolbarGroup>
             <ExportToolbarButton />
             <ImportToolbarButton />
+            <ResolvedCommentsToolbarButton />
           </ToolbarGroup>
         </>
       )}

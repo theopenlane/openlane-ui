@@ -1,7 +1,10 @@
 'use client'
 
+import { useLayoutEffect } from 'react'
 import type { TComment } from '@repo/ui/components/ui/comment.tsx'
-import { createPlatePlugin } from 'platejs/react'
+import { getCommentKeyId, getCommentKeys, getDraftCommentKey } from '@platejs/comment'
+import { createPlatePlugin, usePluginOption } from 'platejs/react'
+import { commentPlugin } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
 import { BlockDiscussion } from '@repo/ui/components/ui/block-discussion.tsx'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -49,10 +52,40 @@ export const discussionPlugin = createPlatePlugin({
     isCreate: false,
     users: {} as Record<string, TDiscussionUser>,
     discussions: [] as TDiscussion[],
+    showResolved: false,
+    hasResolvedInDocument: false,
   },
 })
   .configure({
     render: { aboveNodes: BlockDiscussion },
+    useHooks: ({ editor }) => {
+      const discussions = usePluginOption(discussionPlugin, 'discussions')
+      const showResolved = usePluginOption(discussionPlugin, 'showResolved')
+
+      useLayoutEffect(() => {
+        const shownIds = new Set(discussions.filter((discussion) => showResolved || !discussion.isResolved).map((discussion) => discussion.id))
+        const currentShownIds = editor.getOption(commentPlugin, 'shownIds')
+        if (currentShownIds.size !== shownIds.size || [...shownIds].some((id) => !currentShownIds.has(id))) {
+          editor.setOption(commentPlugin, 'shownIds', shownIds)
+        }
+
+        const isHidden = (id: string | null) => !!id && id !== getDraftCommentKey() && !shownIds.has(id)
+        if (isHidden(editor.getOption(commentPlugin, 'activeId'))) editor.setOption(commentPlugin, 'activeId', null)
+        if (isHidden(editor.getOption(commentPlugin, 'hoverId'))) editor.setOption(commentPlugin, 'hoverId', null)
+
+        const markedIds = new Set(
+          editor
+            .getApi(commentPlugin)
+            .comment.nodes({ at: [] })
+            .flatMap(([node]) => getCommentKeys(node).map(getCommentKeyId)),
+        )
+        editor.setOption(
+          discussionPlugin,
+          'hasResolvedInDocument',
+          discussions.some((discussion) => discussion.isResolved && markedIds.has(discussion.id)),
+        )
+      }, [editor, discussions, showResolved])
+    },
   })
   .extendSelectors(({ getOption }) => ({
     currentUser: () => {

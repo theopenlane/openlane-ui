@@ -7,13 +7,13 @@ import type { PlateElementProps, RenderNodeWrapper } from 'platejs/react'
 import { getDraftCommentKey } from '@platejs/comment'
 import { CommentPlugin } from '@platejs/comment/react'
 import { SuggestionPlugin } from '@platejs/suggestion/react'
-import { MessageSquareTextIcon, MessagesSquareIcon, PencilLineIcon } from 'lucide-react'
+import { CheckIcon, MessageSquareTextIcon, MessagesSquareIcon, PencilLineIcon } from 'lucide-react'
 import { type AnyPluginConfig, type NodeEntry, type Path, type TCommentText, type TElement, type TSuggestionText, PathApi, TextApi } from 'platejs'
 import { useEditorPlugin, useEditorRef, usePluginOption } from 'platejs/react'
 
 import { Button } from '@repo/ui/components/ui/button.tsx'
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@repo/ui/components/ui/popover.tsx'
-import { commentPlugin } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
+import { commentPlugin, getCommentLeafIds } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
 import { type TDiscussion, discussionPlugin } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 import { suggestionPlugin } from '@repo/ui/components/editor/plugins/suggestion-kit.tsx'
 
@@ -68,6 +68,7 @@ const BlockCommentContent = ({
   const activeSuggestion = activeSuggestionId && resolvedSuggestions.find((s) => s.suggestionId === activeSuggestionId)
 
   const commentingBlock = usePluginOption(commentPlugin, 'commentingBlock')
+  const shownIds = usePluginOption(commentPlugin, 'shownIds')
   const activeCommentId = usePluginOption(commentPlugin, 'activeId')
   const isCommenting = activeCommentId === getDraftCommentKey()
   const activeDiscussion = activeCommentId && resolvedDiscussions.find((d) => d.id === activeCommentId)
@@ -98,12 +99,12 @@ const BlockCommentContent = ({
       if (activeCommentId === getDraftCommentKey()) {
         activeNode = draftCommentNode
       } else {
-        activeNode = commentNodes.find(([node]) => editor.getApi(commentPlugin).comment.nodeId(node) === activeCommentId)
+        activeNode = commentNodes.find(([node]) => getCommentLeafIds(node, shownIds).currentId === activeCommentId)
       }
     }
 
     setAnchorElement(activeNode ? (editor.api.toDOMNode(activeNode[0]) ?? null) : null)
-  }, [activeSuggestion, activeCommentId, editor, suggestionNodes, draftCommentNode, commentNodes])
+  }, [activeSuggestion, activeCommentId, editor, suggestionNodes, draftCommentNode, commentNodes, shownIds])
 
   if (suggestionsCount + resolvedDiscussions.length === 0 && !draftCommentNode) return <div className="w-full">{children}</div>
 
@@ -182,6 +183,12 @@ function BlockComment({ discussion, isLast }: { discussion: TDiscussion; isLast:
   return (
     <React.Fragment key={discussion.id}>
       <div className="p-4">
+        {discussion.isResolved && (
+          <p className="mb-3 flex items-center gap-1 text-xs font-medium text-muted-foreground">
+            <CheckIcon className="size-3.5" />
+            Resolved
+          </p>
+        )}
         {discussion.comments.map((comment, index) => (
           <Comment
             key={comment.id ?? index}
@@ -190,11 +197,12 @@ function BlockComment({ discussion, isLast }: { discussion: TDiscussion; isLast:
             documentContent={discussion?.documentContent}
             editingId={editingId}
             index={index}
+            isResolved={discussion.isResolved}
             setEditingId={setEditingId}
             showDocumentContent
           />
         ))}
-        <CommentCreateForm discussionId={discussion.id} />
+        {!discussion.isResolved && <CommentCreateForm discussionId={discussion.id} />}
       </div>
 
       {!isLast && <div className="h-px w-full bg-muted" />}
@@ -206,31 +214,25 @@ const useResolvedDiscussion = (commentNodes: NodeEntry<TCommentText>[], blockPat
   const { api, getOption, setOption } = useEditorPlugin(commentPlugin)
 
   const discussions = usePluginOption(discussionPlugin, 'discussions')
+  const shownIds = usePluginOption(commentPlugin, 'shownIds')
 
-  commentNodes.forEach(([node]) => {
-    const id = api.comment.nodeId(node)
+  const commentsIds = new Set(commentNodes.flatMap(([node]) => getCommentLeafIds(node, shownIds).visibleIds))
+  const uniquePathMap = usePluginOption(commentPlugin, 'uniquePathMap')
+
+  React.useLayoutEffect(() => {
     const map = getOption('uniquePathMap')
+    let nextMap: Map<string, Path> | undefined
 
-    if (!id) return
+    commentsIds.forEach((id) => {
+      const previousPath = map.get(id)
+      if (PathApi.isPath(previousPath) && api.comment.node({ id, at: previousPath })) return
 
-    const previousPath = map.get(id)
+      nextMap ??= new Map(map)
+      nextMap.set(id, blockPath)
+    })
 
-    // If there are no comment nodes in the corresponding path in the map, then update it.
-    if (PathApi.isPath(previousPath)) {
-      const nodes = api.comment.node({ id, at: previousPath })
-
-      if (!nodes) {
-        setOption('uniquePathMap', new Map(map).set(id, blockPath))
-        return
-      }
-
-      return
-    }
-    // TODO: fix throw error
-    setOption('uniquePathMap', new Map(map).set(id, blockPath))
+    if (nextMap) setOption('uniquePathMap', nextMap)
   })
-
-  const commentsIds = new Set(commentNodes.map(([node]) => api.comment.nodeId(node)).filter(Boolean))
 
   const resolvedDiscussions = discussions
     .map((d: TDiscussion) => ({
@@ -239,13 +241,12 @@ const useResolvedDiscussion = (commentNodes: NodeEntry<TCommentText>[], blockPat
     }))
     .filter((item: TDiscussion) => {
       /** If comment cross blocks just show it in the first block */
-      const commentsPathMap = getOption('uniquePathMap')
-      const firstBlockPath = commentsPathMap.get(item.id)
+      const firstBlockPath = uniquePathMap.get(item.id)
 
       if (!firstBlockPath) return false
       if (!PathApi.equals(firstBlockPath, blockPath)) return false
 
-      return api.comment.has({ id: item.id }) && commentsIds.has(item.id) && !item.isResolved
+      return api.comment.has({ id: item.id }) && commentsIds.has(item.id)
     })
 
   return resolvedDiscussions
