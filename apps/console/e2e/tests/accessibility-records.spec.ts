@@ -1,4 +1,4 @@
-import { closeSync, existsSync, openSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { closeSync, openSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { test as authTest } from '../fixtures/auth'
@@ -78,14 +78,23 @@ const seedRecords = async (): Promise<SeededRecords> => {
 const SEED_LOCK_POLL_MS = 1_000 // 1s
 const SEED_LOCK_ATTEMPTS = 120
 
-const isLockHeld = (error: unknown): boolean => error instanceof Error && 'code' in error && error.code === 'EEXIST'
+const hasErrorCode = (error: unknown, code: string): boolean => error instanceof Error && 'code' in error && error.code === code
 
 const tryAcquireSeedLock = (lockPath: string): boolean => {
   try {
     closeSync(openSync(lockPath, 'wx'))
     return true
   } catch (error) {
-    if (isLockHeld(error)) return false
+    if (hasErrorCode(error, 'EEXIST')) return false
+    throw error
+  }
+}
+
+const readCachedRecords = (cachePath: string): SeededRecords | null => {
+  try {
+    return JSON.parse(readFileSync(cachePath, 'utf-8')) as SeededRecords
+  } catch (error) {
+    if (hasErrorCode(error, 'ENOENT')) return null
     throw error
   }
 }
@@ -95,10 +104,14 @@ const loadOrSeedRecords = async (): Promise<SeededRecords> => {
   const lockPath = `${cachePath}.lock`
 
   for (let attempt = 0; attempt < SEED_LOCK_ATTEMPTS; attempt++) {
-    if (existsSync(cachePath)) return JSON.parse(readFileSync(cachePath, 'utf-8')) as SeededRecords
+    const cached = readCachedRecords(cachePath)
+    if (cached) return cached
 
     if (tryAcquireSeedLock(lockPath)) {
       try {
+        const seededMeanwhile = readCachedRecords(cachePath)
+        if (seededMeanwhile) return seededMeanwhile
+
         const records = await seedRecords()
         writeFileSync(cachePath, JSON.stringify(records))
         return records
