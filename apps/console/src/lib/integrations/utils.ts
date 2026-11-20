@@ -14,6 +14,7 @@ import {
 const FINALIZED_INTEGRATION_STATUSES = new Set(['CONNECTED', 'DEGRADED', 'DISABLED', 'ERRORED'])
 
 const PROVIDER_ICON_MAP: Record<string, string> = {
+  'Aikido Security': '/icons/brand/integrations/aikido.png',
   Authentik: '/icons/brand/integrations/authentik.png',
   AWS: '/icons/brand/integrations/aws.jpg',
   'Azure EntraID': '/icons/brand/integrations/microsoft_azure.png',
