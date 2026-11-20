@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server'
 import { subDays, format as formatDate } from 'date-fns'
-import { auth } from '@/lib/auth/auth'
+import { GET_TRUST_CENTER_DASHBOARD } from '@repo/codegen/query/trust-center'
+import { type GetTrustCenterDashboardQuery } from '@repo/codegen/src/schema'
 import { STATS_WINDOW_DAYS } from '@/constants/stats'
+import { getNodes } from '@/lib/graphql-hooks/connection'
+import { queryGraphqlServer } from '@/lib/server/fetch-graphql'
+import { getServerCredentials } from '@/lib/server/server-credentials'
 
 const BASE_URL = 'https://api.pirsch.io/api/v1'
+const PIRSCH_TOKEN_REFRESH_MARGIN_MS = 30_000 // 30s
 
 type PirschTokenCache = {
   token: string | null
@@ -15,7 +20,7 @@ let pirschTokenCache: PirschTokenCache = {
   expiresAtMs: 0,
 }
 
-async function getPirschAccessToken() {
+const getPirschAccessToken = async () => {
   const clientId = process.env.PIRSCH_CLIENT_ID
   const clientSecret = process.env.PIRSCH_SECRET
 
@@ -24,7 +29,7 @@ async function getPirschAccessToken() {
   }
 
   const now = Date.now()
-  if (pirschTokenCache.token && pirschTokenCache.expiresAtMs > now + 30_000) {
+  if (pirschTokenCache.token && pirschTokenCache.expiresAtMs > now + PIRSCH_TOKEN_REFRESH_MARGIN_MS) {
     return { token: pirschTokenCache.token, error: null }
   }
 
@@ -57,18 +62,27 @@ async function getPirschAccessToken() {
   return { token, error: null }
 }
 
-export async function GET(request: Request) {
-  const session = await auth()
-  if (!session || !session.user?.accessToken) {
+const resolveTrustCenterDomainId = async (): Promise<string | NextResponse> => {
+  const credentials = await getServerCredentials()
+  if (!credentials) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { token, error } = await getPirschAccessToken()
-  const { searchParams } = new URL(request.url)
-  const domainId = searchParams.get('pirschDomainID')?.trim() ?? ''
+  const data = await queryGraphqlServer<GetTrustCenterDashboardQuery>(GET_TRUST_CENTER_DASHBOARD, {}, credentials.accessToken, credentials.sessionCookie)
+  if (!data) {
+    return NextResponse.json({ error: 'Unable to load trust center' }, { status: 502 })
+  }
 
+  const domainId = getNodes(data.trustCenters)[0]?.pirschDomainID?.trim()
+  return domainId || NextResponse.json({ error: 'Trust center has no analytics domain' }, { status: 404 })
+}
+
+export const GET = async () => {
+  const domainId = await resolveTrustCenterDomainId()
+  if (typeof domainId !== 'string') return domainId
+
+  const { token, error } = await getPirschAccessToken()
   if (!token) return NextResponse.json({ error: error ?? 'Missing Pirsch credentials' }, { status: 500 })
-  if (!domainId) return NextResponse.json({ error: 'Missing Pirsch domain ID' }, { status: 400 })
 
   const to = new Date()
   const from = subDays(to, STATS_WINDOW_DAYS)
@@ -97,7 +111,7 @@ export async function GET(request: Request) {
         duration: await resDuration.text(),
       }
       console.error('Pirsch API error:', errors)
-      return NextResponse.json({ error: 'Pirsch API error', details: errors }, { status: 502 })
+      return NextResponse.json({ error: 'Pirsch API error' }, { status: 502 })
     }
 
     const statsData: Array<{ visitors: number; views: number }> = await resStats.json()

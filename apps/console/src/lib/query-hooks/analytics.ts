@@ -8,9 +8,8 @@ export interface AnalyticsResponse {
   duration: number
 }
 
-export async function fetchVisitors(pirschDomainID: string): Promise<AnalyticsResponse> {
-  const query = new URLSearchParams({ pirschDomainID })
-  const res = await fetch(`/api/analytics?${query}`)
+const fetchVisitors = async (): Promise<AnalyticsResponse> => {
+  const res = await fetch('/api/analytics')
 
   if (!res.ok) {
     throw new Error('Failed to fetch analytics')
@@ -19,11 +18,10 @@ export async function fetchVisitors(pirschDomainID: string): Promise<AnalyticsRe
   return res.json()
 }
 
-export function useAnalytics(pirschDomainID?: string | null) {
-  return useQuery<AnalyticsResponse>({
-    queryKey: ['analytics', pirschDomainID ?? ''],
-    queryFn: () => fetchVisitors(pirschDomainID ?? ''),
+export const useAnalytics = (pirschDomainID?: string | null) =>
+  useQuery<AnalyticsResponse>({
+    queryKey: ['analytics', pirschDomainID],
+    queryFn: fetchVisitors,
     enabled: !!pirschDomainID,
-    staleTime: 1000 * 60 * 30,
+    staleTime: 1000 * 60 * 30, // 30min
   })
-}
