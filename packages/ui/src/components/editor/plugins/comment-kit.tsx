@@ -1,18 +1,29 @@
 'use client'
 
-import type { ExtendConfig, Path } from 'platejs'
+import type { ExtendConfig, Path, TCommentText } from 'platejs'
 
-import { type BaseCommentConfig, BaseCommentPlugin, getDraftCommentKey } from '@platejs/comment'
+import { type BaseCommentConfig, BaseCommentPlugin, getCommentKeyId, getCommentKeys, getDraftCommentKey } from '@platejs/comment'
 import { isSlateString } from 'platejs'
 import { toTPlatePlugin } from 'platejs/react'
 
 import { CommentLeaf } from '@repo/ui/components/ui/comment-node.tsx'
+
+export const getCommentLeafIds = (leaf: TCommentText, shownIds: ReadonlySet<string>): { visibleIds: string[]; currentId: string | undefined } => {
+  const draftKey = getDraftCommentKey()
+  const visibleIds = getCommentKeys(leaf)
+    .filter((key) => key !== draftKey)
+    .map(getCommentKeyId)
+    .filter((id) => shownIds.has(id))
+
+  return { visibleIds, currentId: leaf[draftKey] ? undefined : visibleIds.at(-1) }
+}
 
 type CommentConfig = ExtendConfig<
   BaseCommentConfig,
   {
     activeId: string | null
     commentingBlock: Path | null
+    shownIds: ReadonlySet<string>
     hoverId: string | null
     uniquePathMap: Map<string, Path>
   }
@@ -20,7 +31,7 @@ type CommentConfig = ExtendConfig<
 
 export const commentPlugin = toTPlatePlugin<CommentConfig>(BaseCommentPlugin, {
   handlers: {
-    onClick: ({ api, event, setOption, type }) => {
+    onClick: ({ api, editor, event, setOption, type }) => {
       let leaf = event.target as HTMLElement
       let isSet = false
 
@@ -33,17 +44,16 @@ export const commentPlugin = toTPlatePlugin<CommentConfig>(BaseCommentPlugin, {
 
       while (leaf.parentElement) {
         if (leaf.classList.contains(`slate-${type}`)) {
-          const commentsEntry = api.comment!.node()
+          const commentNode = api.comment!.node()?.[0]
+          const id = commentNode && getCommentLeafIds(commentNode, editor.getOption(commentPlugin, 'shownIds')).currentId
 
-          if (!commentsEntry) {
+          if (!id) {
             unsetActiveSuggestion()
 
             break
           }
 
-          const id = api.comment!.nodeId(commentsEntry[0])
-
-          setOption('activeId', id ?? null)
+          setOption('activeId', id)
           isSet = true
 
           break
@@ -58,6 +68,7 @@ export const commentPlugin = toTPlatePlugin<CommentConfig>(BaseCommentPlugin, {
   options: {
     activeId: null,
     commentingBlock: null,
+    shownIds: new Set<string>(),
     hoverId: null,
     uniquePathMap: new Map(),
   },

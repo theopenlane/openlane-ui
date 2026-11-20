@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 
-import { MessageSquareTextIcon } from 'lucide-react'
+import { MessageSquareCheckIcon, MessageSquareTextIcon } from 'lucide-react'
 import { useEditorRef, usePluginOption } from 'platejs/react'
 
 import { commentPlugin } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
@@ -34,6 +34,29 @@ export function CommentToolbarButton() {
       tooltip="Comment"
     >
       <MessageSquareTextIcon />
+    </ToolbarButton>
+  )
+}
+
+export const ResolvedCommentsToolbarButton = () => {
+  const editor = useEditorRef()
+  const showResolved = usePluginOption(discussionPlugin, 'showResolved')
+  const hasResolved = usePluginOption(discussionPlugin, 'hasResolvedInDocument')
+
+  if (!hasResolved) return null
+
+  const label = showResolved ? 'Hide resolved comments' : 'Show resolved comments'
+
+  return (
+    <ToolbarButton
+      pressed={showResolved}
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={() => editor.setOption(discussionPlugin, 'showResolved', !showResolved)}
+      data-plate-prevent-overlay
+      tooltip={label}
+      aria-label={label}
+    >
+      <MessageSquareCheckIcon />
     </ToolbarButton>
   )
 }

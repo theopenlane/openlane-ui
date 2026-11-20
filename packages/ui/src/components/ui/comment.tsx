@@ -52,9 +52,10 @@ export function Comment(props: {
   setEditingId: React.Dispatch<React.SetStateAction<string | null>>
   documentContent?: string
   showDocumentContent?: boolean
+  isResolved?: boolean
   onEditorClick?: () => void
 }) {
-  const { comment, discussionLength, documentContent, editingId, index, setEditingId, showDocumentContent = false, onEditorClick } = props
+  const { comment, discussionLength, documentContent, editingId, index, setEditingId, showDocumentContent = false, isResolved = false, onEditorClick } = props
 
   const editor = useEditorRef()
   const userInfo = usePluginOption(discussionPlugin, 'user', comment.userId)
@@ -110,16 +111,21 @@ export function Comment(props: {
 
   const entityUpdate = getEntityUpdater(entityType)
 
+  const isResolvingRef = React.useRef(false)
+
   const resolveDiscussion = async (id: string) => {
     const current = editor.getOption(discussionPlugin, 'discussions')
     const target = current.find((d) => d.id === id)
-    if (!target?.systemId) return
+    if (!target?.systemId || isResolvingRef.current) return
 
+    isResolvingRef.current = true
     try {
       await updateDiscussion({ updateDiscussionId: target.systemId, input: { isResolved: true } })
     } catch (error) {
       errorNotification({ title: 'Failed to resolve comment', description: parseErrorMessage(error) })
       return
+    } finally {
+      isResolvingRef.current = false
     }
 
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').map((discussion) => {
@@ -183,8 +189,6 @@ export function Comment(props: {
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
   }
 
-  const { tf } = useEditorPlugin(CommentPlugin)
-
   const canManageComment = currentUserId === comment.userId || hasOrgFullAccess
   const initialValue = comment.contentRich
 
@@ -216,7 +220,6 @@ export function Comment(props: {
 
   const onResolveComment = () => {
     void resolveDiscussion(comment.discussionId)
-    tf.comment.unsetMark({ id: comment.discussionId })
   }
 
   const isFirst = index === 0
@@ -242,7 +245,7 @@ export function Comment(props: {
 
         {canManageComment && (hovering || dropdownOpen) && (
           <div className="absolute top-0 right-0 flex space-x-1">
-            {index === 0 && (
+            {index === 0 && !isResolved && (
               <Button variant="ghost" className="h-6 p-1 text-muted-foreground" onClick={onResolveComment} type="button">
                 <CheckIcon className="size-4" />
               </Button>

@@ -8,7 +8,7 @@ import { useEditorReadOnly } from 'platejs/react'
 
 import { AIToolbarButton } from './ai-toolbar-button'
 import { AlignToolbarButton } from './align-toolbar-button'
-import { CommentToolbarButton } from './comment-toolbar-button'
+import { CommentToolbarButton, ResolvedCommentsToolbarButton } from './comment-toolbar-button'
 import { EmojiToolbarButton } from './emoji-toolbar-button'
 import { ExportToolbarButton } from './export-toolbar-button'
 import { FontColorToolbarButton } from './font-color-toolbar-button'
@@ -131,6 +131,7 @@ export function FixedToolbarButtons() {
           <HighlighterIcon />
         </MarkToolbarButton>
         <CommentToolbarButton />
+        <ResolvedCommentsToolbarButton />
       </ToolbarGroup>
 
       <ToolbarGroup>
