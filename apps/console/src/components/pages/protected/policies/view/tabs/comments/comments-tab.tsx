@@ -12,12 +12,19 @@ type TCommentsTabProps = {
 
 export const CommentsTab: React.FC<TCommentsTabProps> = ({ policy }) => {
   const comments = usePolicyComments(policy.id)
-  const { data: discussionData, isPending, isError } = useGetPolicyDiscussionById(policy.id)
+  const { data: discussionData, isPending, isPlaceholderData, isError } = useGetPolicyDiscussionById(policy.id)
 
   return (
     <div className="space-y-8 pt-4">
       <CommentsSection {...comments} />
-      <DiscussionThreads entity={discussionData?.internalPolicy} document={policy.detailsJSON} entityLabel="policy" isLoading={isPending && !isError} isError={isError} />
+      <DiscussionThreads
+        key={policy.id}
+        entity={discussionData?.internalPolicy}
+        document={policy.detailsJSON}
+        entityLabel="policy"
+        isLoading={(isPending || isPlaceholderData) && !isError}
+        isError={isError}
+      />
     </div>
   )
 }

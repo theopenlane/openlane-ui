@@ -1,6 +1,6 @@
-import React, { useId, useMemo } from 'react'
+import React, { useId, useMemo, useState } from 'react'
 import { type Value } from 'platejs'
-import { Badge } from '@repo/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { TruncatedCell } from '@repo/ui/truncated-cell'
 import { collectDiscussionQuotes } from '@repo/ui/components/editor/plugins/discussion-quotes.ts'
 import { parseCommentText } from '@repo/ui/components/editor/plugins/mention-serialize.ts'
@@ -12,6 +12,7 @@ import { resolveAuthor } from '@/lib/authors'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { getNodes } from '@/lib/graphql-hooks/connection'
 import { compareByCreatedAt } from '@/lib/sort'
+import { isOneOf } from '@/utils/type-guards'
 
 type TDiscussionThread = {
   id: string
@@ -29,10 +30,19 @@ type TDiscussionThreadsProps = {
   isError: boolean
 }
 
+const DISCUSSION_STATUSES = ['open', 'resolved'] as const
+
+type TDiscussionStatus = (typeof DISCUSSION_STATUSES)[number]
+
+const DISCUSSION_STATUS_LABELS: Record<TDiscussionStatus, string> = { open: 'Open', resolved: 'Resolved' }
+
+const isDiscussionStatus = isOneOf(DISCUSSION_STATUSES)
+
 const toCommentValue = (text: string): Value => text.split('\n').map((line) => parseCommentText(line))
 
 export const DiscussionThreads: React.FC<TDiscussionThreadsProps> = ({ entity, document, entityLabel, isLoading, isError }) => {
   const headingId = useId()
+  const [status, setStatus] = useState<TDiscussionStatus>('open')
   const discussions = useMemo(() => getCommentedDiscussions(entity), [entity])
   const quotes = useMemo(() => collectDiscussionQuotes(document), [document])
 
@@ -57,45 +67,80 @@ export const DiscussionThreads: React.FC<TDiscussionThreadsProps> = ({ entity, d
             }))
             .sort(compareByCreatedAt),
         }))
-        .sort((a, b) => Number(a.isResolved) - Number(b.isResolved) || compareByCreatedAt(b, a)),
+        .sort((a, b) => compareByCreatedAt(b, a)),
     [discussions, quotes, authorMaps],
   )
 
+  const threadsByStatus = useMemo<Record<TDiscussionStatus, TDiscussionThread[]>>(
+    () => ({ open: threads.filter((thread) => !thread.isResolved), resolved: threads.filter((thread) => thread.isResolved) }),
+    [threads],
+  )
+  const isLoaded = !isLoading && !isError
+
+  if (isLoaded && threads.length === 0) return null
+
+  const selectStatus = (value: string) => {
+    if (isDiscussionStatus(value)) setStatus(value)
+  }
+
+  const heading = (
+    <h3 id={headingId} className="text-lg font-semibold">
+      Discussions
+    </h3>
+  )
+
+  if (!isLoaded) {
+    return (
+      <section className="space-y-3" aria-labelledby={headingId}>
+        {heading}
+        {isLoading ? (
+          <div role="status" aria-live="polite" aria-label="Loading discussions">
+            <SkeletonRows count={2} height={56} />
+          </div>
+        ) : (
+          <p className="text-sm text-destructive">Discussions could not be loaded.</p>
+        )}
+      </section>
+    )
+  }
+
   return (
-    <section className="space-y-3" aria-labelledby={headingId}>
-      <h3 id={headingId} className="text-lg font-semibold">
-        Document discussions
-      </h3>
-      {isLoading ? (
-        <div role="status" aria-live="polite" aria-label="Loading discussions">
-          <SkeletonRows count={2} height={56} />
+    <section aria-labelledby={headingId}>
+      <Tabs value={status} onValueChange={selectStatus} variant="solid" className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {heading}
+          <TabsList className="w-fit" aria-label="Discussion status">
+            {DISCUSSION_STATUSES.map((value) => (
+              <TabsTrigger key={value} value={value}>
+                {DISCUSSION_STATUS_LABELS[value]} ({threadsByStatus[value].length})
+              </TabsTrigger>
+            ))}
+          </TabsList>
         </div>
-      ) : isError ? (
-        <p className="text-sm text-destructive">Discussions could not be loaded.</p>
-      ) : threads.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No inline comments yet. Select text in the {entityLabel} to start a discussion.</p>
-      ) : (
-        <ul className="space-y-3">
-          {threads.map((thread) => (
-            <li key={thread.id} className="rounded-lg border p-3">
-              <div className="mb-2 flex items-start gap-3">
-                {thread.quote && (
-                  <blockquote className="min-w-0 border-l-2 border-primary pl-2 text-sm text-muted-foreground">
-                    <TruncatedCell lineClamp={3} portal>
-                      {thread.quote}
-                    </TruncatedCell>
-                  </blockquote>
-                )}
-                {!thread.quote && document && <p className="text-sm italic text-muted-foreground">The commented text is no longer in the {entityLabel}.</p>}
-                <Badge variant={thread.isResolved ? 'green' : 'outline'} className="ml-auto shrink-0">
-                  {thread.isResolved ? 'Resolved' : 'Open'}
-                </Badge>
-              </div>
-              <CommentList comments={thread.comments} />
-            </li>
-          ))}
-        </ul>
-      )}
+        {DISCUSSION_STATUSES.map((value) => (
+          <TabsContent key={value} value={value} className="mt-0">
+            {threadsByStatus[value].length === 0 ? (
+              <p className="text-sm text-muted-foreground">{value === 'open' ? 'No open discussions. All discussions are resolved.' : 'No resolved discussions.'}</p>
+            ) : (
+              <ul className="space-y-3">
+                {threadsByStatus[value].map((thread) => (
+                  <li key={thread.id} className="rounded-lg border p-3">
+                    {thread.quote && (
+                      <blockquote className="mb-2 border-l-2 border-primary pl-2 text-sm text-muted-foreground">
+                        <TruncatedCell lineClamp={3} portal>
+                          {thread.quote}
+                        </TruncatedCell>
+                      </blockquote>
+                    )}
+                    {!thread.quote && document && <p className="mb-2 text-sm italic text-muted-foreground">The commented text is no longer in the {entityLabel}.</p>}
+                    <CommentList comments={thread.comments} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </TabsContent>
+        ))}
+      </Tabs>
     </section>
   )
 }
