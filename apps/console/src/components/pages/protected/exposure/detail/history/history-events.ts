@@ -1,5 +1,6 @@
 import { normalizeResponsibilityField, type ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { EXPOSURE_RESPONSIBILITY_FIELDS, type TExposureResponsibilityKey } from '../responsibility-fields'
+import { type TIntegrationProvenance } from './integration-actor'
 
 type TResponsibilityColumn = TExposureResponsibilityKey | `${TExposureResponsibilityKey}UserID` | `${TExposureResponsibilityKey}GroupID` | `${TExposureResponsibilityKey}IdentityHolderID`
 
@@ -9,6 +10,8 @@ export type TOwnershipHistoryNode<TOp extends string = string> = Partial<Record<
   operation: TOp
   createdBy?: string | null
   updatedBy?: string | null
+  managedBy?: string | null
+  sourceDefinitionID?: string | null
 }
 
 type TResolveName = (kind: 'user' | 'group' | 'personnel', id: string) => string
@@ -19,6 +22,7 @@ export type TOwnershipChange = {
   from: string | null
   to: string | null
   actorId: string | null
+  provenance: TIntegrationProvenance
   at: string
 }
 
@@ -56,6 +60,16 @@ export const buildOwnershipChanges = <TOp extends string>(nodesNewestFirst: TOwn
       const from = responsibilityRef(previous, key)
       const to = responsibilityRef(node, key)
       if (refKey(from) === refKey(to)) return []
-      return [{ id: `${node.id}:${key}`, field: label, from: refLabel(from, resolveName), to: refLabel(to, resolveName), actorId: node.updatedBy ?? node.createdBy ?? null, at: node.historyTime }]
+      return [
+        {
+          id: `${node.id}:${key}`,
+          field: label,
+          from: refLabel(from, resolveName),
+          to: refLabel(to, resolveName),
+          actorId: node.updatedBy ?? node.createdBy ?? null,
+          provenance: { managedBy: node.managedBy, sourceDefinitionID: node.sourceDefinitionID },
+          at: node.historyTime,
+        },
+      ]
     })
   })

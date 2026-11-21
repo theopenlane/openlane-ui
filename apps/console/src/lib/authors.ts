@@ -6,6 +6,7 @@ export const SUPPORT_SUBJECT_ID = process.env.NEXT_PUBLIC_SUPPORT_SUBJECT_ID || 
 export const SUPPORT_DISPLAY_NAME = 'Openlane Support'
 export const INTEGRATION_SUBJECT_ID = process.env.NEXT_PUBLIC_INTEGRATION_SUBJECT_ID || '01JNTGACTR0000000000000000'
 export const INTEGRATION_DISPLAY_NAME = 'Openlane Integrations'
+const INTEGRATION_DEFINITION_ID_PREFIX = 'def_'
 export const DELETED_USER_LABEL = 'Deleted user'
 
 export const UNKNOWN_AUTHOR_ID = 'unknown'
@@ -13,6 +14,8 @@ export const UNKNOWN_AUTHOR_LABEL = 'Unknown'
 export const EMPTY_DISPLAY_NAME = '-'
 export const RESOLVING_AUTHOR_LABEL = '…'
 export const UNAVAILABLE_AUTHOR_LABEL = 'Unavailable'
+
+export const isIntegrationDefinitionID = (id: string | null | undefined): id is string => !!id?.startsWith(INTEGRATION_DEFINITION_ID_PREFIX)
 
 export type AuthorToken = { id: string; name: string }
 
@@ -39,7 +42,7 @@ export function resolveAuthor(id: string | null | undefined, { userMap, tokenMap
   const user = userMap?.[id]
   if (user) return { kind: 'user', displayName: user.displayName || EMPTY_DISPLAY_NAME, user }
   if (id === SUPPORT_SUBJECT_ID) return { kind: 'support', displayName: SUPPORT_DISPLAY_NAME }
-  if (id === INTEGRATION_SUBJECT_ID) return { kind: 'integration', displayName: INTEGRATION_DISPLAY_NAME }
+  if (id === INTEGRATION_SUBJECT_ID || isIntegrationDefinitionID(id)) return { kind: 'integration', displayName: INTEGRATION_DISPLAY_NAME }
   const token = tokenMap?.[id]
   if (token) return { kind: 'token', displayName: token.name, token }
   if (status === 'resolving') return { kind: 'unresolved', displayName: RESOLVING_AUTHOR_LABEL }
