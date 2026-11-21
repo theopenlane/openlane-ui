@@ -2,9 +2,9 @@
 
 import React, { useMemo, useState } from 'react'
 import type { TReportOwnerKind } from '@repo/codegen/src/report-schema.generated'
-import { SearchableItemSelect } from '@/components/shared/searchable-item-select/searchable-item-select'
+import { SearchableItemSelect } from '@repo/ui/searchable-item-select'
 import { ResponsibilityTypeIcon } from '@/components/shared/crud-base/form-fields/responsibility-type-icon'
-import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { useAsyncCommandSearch } from '@repo/ui/use-async-command-search'
 import { useGetGroupNames } from '@/lib/graphql-hooks/group'
 import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'

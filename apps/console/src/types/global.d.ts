@@ -14,5 +14,12 @@ declare global {
       shutdown: () => void
       toggleWidget?: (open: boolean) => void
     }
+
+    chrome?: {
+      runtime?: {
+        sendMessage: (extensionId: string, message: object, callback: (response: unknown) => void) => void
+        lastError?: { message?: string }
+      }
+    }
   }
 }

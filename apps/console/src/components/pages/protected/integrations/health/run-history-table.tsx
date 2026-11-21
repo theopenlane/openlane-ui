@@ -11,7 +11,7 @@ import { IntegrationRunOrderField, type IntegrationRunWhereInput } from '@repo/c
 import { NEWEST_RUNS_FIRST, useIntegrationRuns } from '@/lib/graphql-hooks/integration-run'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
-import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { useAsyncCommandSearch } from '@repo/ui/use-async-command-search'
 import { useCopyWithNotification } from '@/hooks/useCopyWithNotification'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'

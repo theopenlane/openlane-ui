@@ -106,6 +106,12 @@
     "keywords": ["api", "api keys", "auth", "token"]
   },
   {
+    "route": "/developers/connected-apps",
+    "name": "Connected Apps",
+    "hidden": true,
+    "keywords": ["apps", "integrations", "extension", "evidence capture", "api", "token"]
+  },
+  {
     "route": "/developers/personal-access-tokens",
     "name": "Developers",
     "keywords": ["pat", "personal access tokens", "api", "auth"]
@@ -114,6 +120,11 @@
     "route": "/evidence",
     "name": "Evidence",
     "keywords": ["audit", "files"]
+  },
+  {
+    "route": "/extension/connect",
+    "name": "Connect Evidence Capture Extension",
+    "hidden": true
   },
   {
     "route": "/exposure",
