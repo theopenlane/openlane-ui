@@ -252,7 +252,9 @@ export const useRiskComments = (riskId: string | null | undefined) =>
     queryKeyPrefix: RISK_COMMENTS_KEY,
     entityId: riskId,
     fetchComments: async (client, id) => (await client.request<GetRiskCommentsQuery, GetRiskCommentsQueryVariables>(GET_RISK_COMMENTS, { riskId: id })).risk.comments,
-    addComment: (client, id, text) => client.request<UpdateRiskMutation, UpdateRiskMutationVariables>(UPDATE_RISK, { updateRiskId: id, input: { addComment: { text } } }),
+    addComment: async (client, id, text) => {
+      await client.request<UpdateRiskMutation, UpdateRiskMutationVariables>(UPDATE_RISK, { updateRiskId: id, input: { addComment: { text } } })
+    },
     editComment: (client, commentId, text) => client.request<UpdateRiskCommentMutation, UpdateRiskCommentMutationVariables>(UPDATE_RISK_COMMENT, { updateRiskCommentId: commentId, input: { text } }),
   })
 

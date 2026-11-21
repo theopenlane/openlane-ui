@@ -80,6 +80,7 @@ export type MergeableTypeName =
   | 'Risk'
   | 'SLADefinition'
   | 'Scan'
+  | 'ShareLink'
   | 'Standard'
   | 'Subcontrol'
   | 'Subprocessor'
@@ -934,6 +935,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'billingNotificationsEnabled', kind: 'boolean', list: false, nonNull: true, listItemNonNull: false },
     { name: 'billingPhone', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'domains', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
+    { name: 'externalSharingEnabled', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'geoLocation', kind: 'enum', list: false, nonNull: false, listItemNonNull: false, enumName: 'OrganizationSettingRegion' },
     { name: 'identityProvider', kind: 'enum', list: false, nonNull: false, listItemNonNull: false, enumName: 'OrganizationSettingSsoProvider' },
     { name: 'identityProviderClientID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
@@ -1229,6 +1231,12 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'systemInternalID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'target', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
+  ],
+  ShareLink: [
+    { name: 'maxUses', kind: 'number', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'name', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'revokedAt', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
   ],
   Standard: [
     { name: 'description', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
@@ -2091,6 +2099,8 @@ export const MERGEABLE_EDGES_BY_TYPE = {
     { name: 'riskCreators', addKey: 'addRiskCreatorIDs', removeKey: 'removeRiskCreatorIDs', acl: true },
     { name: 'riskManager', addKey: 'addRiskManagerIDs', removeKey: 'removeRiskManagerIDs', acl: true },
     { name: 'scanCreators', addKey: 'addScanCreatorIDs', removeKey: 'removeScanCreatorIDs', acl: true },
+    { name: 'shareLinkCreators', addKey: 'addShareLinkCreatorIDs', removeKey: 'removeShareLinkCreatorIDs', acl: true },
+    { name: 'shareLinkManager', addKey: 'addShareLinkManagerIDs', removeKey: 'removeShareLinkManagerIDs', acl: true },
     { name: 'slaDefinitionCreators', addKey: 'addSLADefinitionCreatorIDs', removeKey: 'removeSLADefinitionCreatorIDs', acl: true },
     { name: 'standardCreators', addKey: 'addStandardCreatorIDs', removeKey: 'removeStandardCreatorIDs', acl: true },
     { name: 'subcontrolCreators', addKey: 'addSubcontrolCreatorIDs', removeKey: 'removeSubcontrolCreatorIDs', acl: true },
@@ -2283,6 +2293,7 @@ export const MERGEABLE_EDGES_BY_TYPE = {
     { name: 'tasks', addKey: 'addTaskIDs', removeKey: 'removeTaskIDs', acl: false },
     { name: 'vulnerabilities', addKey: 'addVulnerabilityIDs', removeKey: 'removeVulnerabilityIDs', acl: false },
   ],
+  ShareLink: [],
   Standard: [
     { name: 'applicablePlatforms', addKey: 'addApplicablePlatformIDs', removeKey: 'removeApplicablePlatformIDs', acl: false },
     { name: 'controls', addKey: 'addControlIDs', removeKey: 'removeControlIDs', acl: false },
@@ -2525,6 +2536,7 @@ export const SINGLE_RECORD_QUERY_FIELD_BY_TYPE = {
   Risk: 'risk',
   SLADefinition: 'slaDefinition',
   Scan: 'scan',
+  ShareLink: 'shareLink',
   Standard: 'standard',
   Subcontrol: 'subcontrol',
   Subprocessor: 'subprocessor',

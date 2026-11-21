@@ -569,8 +569,8 @@ export const INSERT_POLICY_COMMENT = gql`
 `
 
 export const UPDATE_POLICY_COMMENT = gql`
-  mutation UpdatePolicyComment($updateInternalPolicyCommentId: ID!, $input: UpdateNoteInput!) {
-    updateInternalPolicyComment(id: $updateInternalPolicyCommentId, input: $input) {
+  mutation UpdatePolicyComment($updateInternalPolicyCommentId: ID!, $input: UpdateNoteInput!, $noteFiles: [Upload!]) {
+    updateInternalPolicyComment(id: $updateInternalPolicyCommentId, input: $input, noteFiles: $noteFiles) {
       internalPolicy {
         id
       }
@@ -582,13 +582,54 @@ export const GET_POLICY_COMMENTS_BY_ID = gql`
   query GetPolicyCommentsById($policyId: ID!) {
     internalPolicy(id: $policyId) {
       id
-      comments {
+      comments(first: 100, where: { discussionIDIsNil: true }, orderBy: [{ field: created_at, direction: DESC }]) {
+        totalCount
         edges {
           node {
             id
             createdAt
             createdBy
             text
+            files {
+              edges {
+                node {
+                  id
+                  providedFileName
+                  providedFileExtension
+                  providedFileSize
+                  detectedMimeType
+                  presignedURL
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_POLICY_COMMENT_COUNT = gql`
+  query GetPolicyCommentCount($policyId: ID!) {
+    internalPolicy(id: $policyId) {
+      id
+      comments(where: { discussionIDIsNil: true }) {
+        totalCount
+      }
+    }
+  }
+`
+
+export const ADD_POLICY_COMMENT = gql`
+  mutation AddPolicyComment($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!, $commenterId: String, $withCommentId: Boolean!) {
+    updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
+      internalPolicy {
+        id
+        comments(first: 1, where: { discussionIDIsNil: true, createdBy: $commenterId }, orderBy: [{ field: created_at, direction: DESC }]) @include(if: $withCommentId) {
+          edges {
+            node {
+              id
+            }
           }
         }
       }

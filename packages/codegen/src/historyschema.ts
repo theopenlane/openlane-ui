@@ -5974,6 +5974,7 @@ export interface InsertInternalPolicyCommentMutation {
 export type UpdatePolicyCommentMutationVariables = Exact<{
   updateInternalPolicyCommentId: string
   input: Types.UpdateNoteInput
+  noteFiles?: Array<any> | any | null | undefined
 }>
 
 export interface UpdatePolicyCommentMutation {
@@ -5985,7 +5986,44 @@ export type GetPolicyCommentsByIdQueryVariables = Exact<{
 }>
 
 export interface GetPolicyCommentsByIdQuery {
-  internalPolicy: { id: string; comments: { edges: Array<{ node: { id: string; createdAt: any; createdBy: string | null; text: string } | null } | null> | null } }
+  internalPolicy: {
+    id: string
+    comments: {
+      totalCount: number
+      edges: Array<{
+        node: {
+          id: string
+          createdAt: any
+          createdBy: string | null
+          text: string
+          files: {
+            edges: Array<{
+              node: { id: string; providedFileName: string; providedFileExtension: string; providedFileSize: number | null; detectedMimeType: string | null; presignedURL: string | null } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type GetPolicyCommentCountQueryVariables = Exact<{
+  policyId: string
+}>
+
+export interface GetPolicyCommentCountQuery {
+  internalPolicy: { id: string; comments: { totalCount: number } }
+}
+
+export type AddPolicyCommentMutationVariables = Exact<{
+  updateInternalPolicyId: string
+  input: Types.UpdateInternalPolicyInput
+  commenterId?: string | null | undefined
+  withCommentId: boolean
+}>
+
+export interface AddPolicyCommentMutation {
+  updateInternalPolicy: { internalPolicy: { id: string; comments?: { edges: Array<{ node: { id: string } | null } | null> | null } } }
 }
 
 export type InternalPolicyActivityQueryVariables = Exact<{

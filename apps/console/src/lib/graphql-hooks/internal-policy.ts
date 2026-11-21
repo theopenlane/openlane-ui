@@ -24,6 +24,8 @@ import {
   GET_POLICY_DISCUSSION_BY_ID,
   UPDATE_POLICY_COMMENT,
   GET_POLICY_COMMENTS_BY_ID,
+  ADD_POLICY_COMMENT,
+  GET_POLICY_COMMENT_COUNT,
   GET_INTERNAL_POLICY_ACTIVITY,
 } from '@repo/codegen/query/internal-policy'
 import { GET_INTERNAL_POLICY_HISTORIES } from '@repo/codegen/query-history/internal-policy'
@@ -61,10 +63,18 @@ import {
   type UpdatePolicyCommentMutationVariables,
   type InternalPolicyActivityQuery,
   type InternalPolicyActivityQueryVariables,
+  type GetPolicyCommentsByIdQuery,
+  type GetPolicyCommentsByIdQueryVariables,
+  type AddPolicyCommentMutation,
+  type AddPolicyCommentMutationVariables,
+  type GetPolicyCommentCountQuery,
+  type GetPolicyCommentCountQueryVariables,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useSession } from 'next-auth/react'
+import { useEntityComments } from '@/lib/graphql-hooks/entity-comments'
+import { UserFacingError } from '@/utils/graphQlErrorMatcher'
 import { subDays } from 'date-fns'
 import { wherePoliciesDashboard } from '@/components/pages/protected/policies/policies-dashboard/dashboard-config.ts'
 
@@ -299,22 +309,28 @@ export const useBulkDeletePolicy = () => {
   })
 }
 
+const POLICY_COMMENTS_KEY = 'policyComments'
+const POLICY_DISCUSSION_KEY = 'policyDiscussion'
+
 export const useGetPolicyDiscussionById = (policyId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetPolicyDiscussionByIdQuery, unknown>({
-    queryKey: ['policyDiscussion', policyId],
+    queryKey: [POLICY_DISCUSSION_KEY, policyId],
     queryFn: async () => client.request(GET_POLICY_DISCUSSION_BY_ID, { policyId }),
     enabled: !!policyId,
   })
 }
 
 export const useInsertPolicyComment = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<InsertInternalPolicyCommentMutation, unknown, InsertInternalPolicyCommentMutationVariables>({
     mutationFn: async (variables) => {
       return client.request(INSERT_POLICY_COMMENT, variables)
+    },
+    onSuccess: (_, { updateInternalPolicyId }) => {
+      queryClient.invalidateQueries({ queryKey: [POLICY_DISCUSSION_KEY, updateInternalPolicyId] })
     },
   })
 }
@@ -325,34 +341,52 @@ export const useUpdatePolicyComment = () => {
   return useMutation<UpdatePolicyCommentMutation, unknown, UpdatePolicyCommentMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_POLICY_COMMENT, variables),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['policyComments', data.updateInternalPolicyComment.internalPolicy.id] })
+      const policyId = data.updateInternalPolicyComment.internalPolicy.id
+      queryClient.invalidateQueries({ queryKey: [POLICY_COMMENTS_KEY, policyId] })
+      queryClient.invalidateQueries({ queryKey: [POLICY_DISCUSSION_KEY, policyId] })
     },
   })
 }
 
-type PolicyCommentsQuery = {
-  internalPolicy: {
-    id: string
-    comments: {
-      edges: Array<{
-        node: {
-          id: string
-          createdAt: string | null
-          createdBy: string | null
-          text: string | null
-        } | null
-      } | null> | null
-    }
-  }
+const attachPolicyCommentFiles = (commentId: string, files: File[]) =>
+  fetchGraphQLWithUpload<UpdatePolicyCommentMutationVariables>({
+    query: UPDATE_POLICY_COMMENT,
+    variables: { updateInternalPolicyCommentId: commentId, input: {}, noteFiles: files },
+  })
+
+export const usePolicyComments = (policyId: string | null | undefined) => {
+  const { data: session } = useSession()
+  const commenterId = session?.user?.userId
+
+  return useEntityComments({
+    queryKeyPrefix: POLICY_COMMENTS_KEY,
+    entityId: policyId,
+    fetchComments: async (client, id) => (await client.request<GetPolicyCommentsByIdQuery, GetPolicyCommentsByIdQueryVariables>(GET_POLICY_COMMENTS_BY_ID, { policyId: id })).internalPolicy.comments,
+    addComment: async (client, id, text, withCommentId) => {
+      if (withCommentId && !commenterId) throw new UserFacingError('Your session is still loading. Please try again.')
+      const data = await client.request<AddPolicyCommentMutation, AddPolicyCommentMutationVariables>(ADD_POLICY_COMMENT, {
+        updateInternalPolicyId: id,
+        input: { addComment: { text } },
+        commenterId,
+        withCommentId,
+      })
+      return getNodes(data.updateInternalPolicy.internalPolicy.comments)[0]?.id
+    },
+    editComment: (client, commentId, text) =>
+      client.request<UpdatePolicyCommentMutation, UpdatePolicyCommentMutationVariables>(UPDATE_POLICY_COMMENT, { updateInternalPolicyCommentId: commentId, input: { text } }),
+    attachFiles: attachPolicyCommentFiles,
+  })
 }
 
-export const useGetPolicyCommentsById = (policyId: string | null | undefined) => {
+export const usePolicyCommentCount = (policyId: string) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<PolicyCommentsQuery>({
-    queryKey: ['policyComments', policyId],
-    queryFn: async () => client.request(GET_POLICY_COMMENTS_BY_ID, { policyId }),
+  return useQuery({
+    queryKey: [POLICY_COMMENTS_KEY, policyId, 'count'],
+    queryFn: () => client.request<GetPolicyCommentCountQuery, GetPolicyCommentCountQueryVariables>(GET_POLICY_COMMENT_COUNT, { policyId }),
+    select: (data) => data.internalPolicy.comments.totalCount,
     enabled: !!policyId,
+    placeholderData: undefined,
   })
 }
 

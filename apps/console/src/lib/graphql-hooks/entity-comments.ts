@@ -3,21 +3,28 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useDeleteNote } from '@/lib/graphql-hooks/control'
 import { getNodes, type Connection } from '@/lib/graphql-hooks/connection'
+import { type TFileActionsRow } from '@/components/shared/file-table/file-actions-column'
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'
+
+export type TCommentFile = TFileActionsRow & { providedFileSize?: number | null }
 
 export type TCommentNode = {
   id: string
   createdAt?: string | null
   createdBy?: string | null
   text: string
+  files?: Connection<TCommentFile> | null
 }
+
+export type TAddCommentOutcome = 'posted' | 'posted-without-attachments'
 
 export type TEntityComments = {
   comments: TCommentNode[]
   totalCount: number
   isLoading: boolean
   error: Error | null
-  addComment: (html: string) => Promise<void>
+  canAttachFiles: boolean
+  addComment: (html: string, files: File[]) => Promise<TAddCommentOutcome>
   editComment: (commentId: string, html: string) => Promise<void>
   removeComment: (commentId: string) => Promise<void>
 }
@@ -28,8 +35,9 @@ type TEntityCommentRequests = {
   queryKeyPrefix: string
   entityId: string | null | undefined
   fetchComments: (client: TGraphQLClient, entityId: string) => Promise<(Connection<TCommentNode> & { totalCount: number }) | null | undefined>
-  addComment: (client: TGraphQLClient, entityId: string, text: string) => Promise<unknown>
+  addComment: (client: TGraphQLClient, entityId: string, text: string, withCommentId: boolean) => Promise<string | void>
   editComment: (client: TGraphQLClient, commentId: string, text: string) => Promise<unknown>
+  attachFiles?: (commentId: string, files: File[]) => Promise<unknown>
 }
 
 type TCommentsPage = { comments: TCommentNode[]; totalCount: number }
@@ -41,7 +49,7 @@ const requireEntityId = (entityId: string | null | undefined): string => {
   return entityId
 }
 
-export const useEntityComments = ({ queryKeyPrefix, entityId, fetchComments, addComment, editComment }: TEntityCommentRequests): TEntityComments => {
+export const useEntityComments = ({ queryKeyPrefix, entityId, fetchComments, addComment, editComment, attachFiles }: TEntityCommentRequests): TEntityComments => {
   const { client, queryClient } = useGraphQLClient()
 
   const { data, isPending, error } = useQuery<TCommentsPage, Error>({
@@ -57,8 +65,19 @@ export const useEntityComments = ({ queryKeyPrefix, entityId, fetchComments, add
   const invalidate = useCallback((id: string) => queryClient.invalidateQueries({ queryKey: [queryKeyPrefix, id] }), [queryClient, queryKeyPrefix])
 
   const { mutateAsync: add } = useMutation({
-    mutationFn: ({ id, text }: { id: string; text: string }) => addComment(client, id, text),
-    onSuccess: (_, { id }) => invalidate(id),
+    mutationFn: async ({ id, text, files }: { id: string; text: string; files: File[] }): Promise<TAddCommentOutcome> => {
+      const withAttachments = !!attachFiles && files.length > 0
+      const commentId = await addComment(client, id, text, withAttachments)
+      if (!withAttachments) return 'posted'
+      if (!commentId) return 'posted-without-attachments'
+      try {
+        await attachFiles(commentId, files)
+        return 'posted'
+      } catch {
+        return 'posted-without-attachments'
+      }
+    },
+    onSettled: (_, __, { id }) => invalidate(id),
   })
   const { mutateAsync: edit } = useMutation({
     mutationFn: (variables: { id: string; commentId: string; text: string }) => editComment(client, variables.commentId, variables.text),
@@ -66,12 +85,7 @@ export const useEntityComments = ({ queryKeyPrefix, entityId, fetchComments, add
   })
   const { mutateAsync: deleteNote } = useDeleteNote()
 
-  const addCommentToEntity = useCallback(
-    async (text: string) => {
-      await add({ id: requireEntityId(entityId), text })
-    },
-    [add, entityId],
-  )
+  const addCommentToEntity = useCallback((text: string, files: File[]) => add({ id: requireEntityId(entityId), text, files }), [add, entityId])
   const editCommentById = useCallback(
     async (commentId: string, text: string) => {
       await edit({ id: requireEntityId(entityId), commentId, text })
@@ -94,6 +108,7 @@ export const useEntityComments = ({ queryKeyPrefix, entityId, fetchComments, add
     totalCount: page.totalCount,
     isLoading: !!entityId && isPending && !error,
     error,
+    canAttachFiles: !!attachFiles,
     addComment: addCommentToEntity,
     editComment: editCommentById,
     removeComment,
