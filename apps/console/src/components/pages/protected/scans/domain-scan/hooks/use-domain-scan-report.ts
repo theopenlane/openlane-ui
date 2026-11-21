@@ -8,16 +8,15 @@ import { usePlatformsWithFilter } from '@/lib/graphql-hooks/platform'
 import { useSystemDetailsWithFilter } from '@/lib/graphql-hooks/system-detail'
 import { useScan } from '@/lib/graphql-hooks/scan'
 import {
-  canonicalizeLookupValue,
   domainsFromNotification,
   findingsFromNotification,
   isDomainScanNotificationData,
   platformCandidateFromNotification,
   platformCandidatesFromSystems,
-  sanitizeEntityName,
   systemCandidatesFromNotification,
   vendorsFromNotification,
 } from '../notification-mappers'
+import { canonicalizeLookupValue, sanitizeEntityName } from '../../shared/name-utils'
 
 export const useDomainScanReport = (scanIdParam: string | null) => {
   const { notifications } = useNotificationsContext()
