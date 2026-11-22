@@ -4,7 +4,8 @@ import React, { useRef, useState } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
 import { cn } from '@repo/ui/lib/utils'
 import { useElementSize } from '@/hooks/useElementSize'
-import { InfoCard, LoadingSpinner } from '@/components/shared/file-preview/preview-chrome'
+import { InfoCard } from '@/components/shared/file-preview/preview-chrome'
+import { LoadingSpinner } from '@/components/shared/loading/loading-spinner'
 import 'react-pdf/dist/Page/TextLayer.css'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 
@@ -35,7 +36,13 @@ const PdfPreview: React.FC<Props> = ({ source, title, className, errorAction }) 
 
   return (
     <div ref={containerRef} role="document" aria-label={title} className={cn('h-[80vh] w-full overflow-auto rounded-md border bg-muted p-4', className)}>
-      <Document file={source} loading={<LoadingSpinner />} onLoadSuccess={({ numPages }) => setPageCount(numPages)} onLoadError={() => setFailed(true)} className="flex flex-col items-center gap-4">
+      <Document
+        file={source}
+        loading={<LoadingSpinner label="Loading file preview" />}
+        onLoadSuccess={({ numPages }) => setPageCount(numPages)}
+        onLoadError={() => setFailed(true)}
+        className="flex flex-col items-center gap-4"
+      >
         {width > 0 && Array.from({ length: pageCount }, (_, index) => <Page key={index + 1} pageNumber={index + 1} width={width} loading={null} className="shadow-sm" />)}
       </Document>
     </div>

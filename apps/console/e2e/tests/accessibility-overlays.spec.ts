@@ -1,9 +1,10 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 
 import { test } from '../fixtures/auth'
-import { A11Y_TAG, COLOR_SCHEMES, expectNoA11yViolations, heading, waitForPageToSettle, type ReadyLocator } from '../utils/accessibility'
+import { A11Y_TAG, COLOR_SCHEMES, dashboardWelcome, expectNoA11yViolations, heading, waitForLoadingToFinish, waitForPageToSettle, type ReadyLocator } from '../utils/accessibility'
 import { createTask, getOwnerApi } from '../utils/api'
 import { openSubmitEvidenceSheet } from '../utils/evidence'
+import { slideoutReady } from '../utils/slideout'
 import { openCreateTaskDialog } from '../utils/tasks'
 import { uniqueName } from '../utils/unique'
 
@@ -26,14 +27,16 @@ const openTaskSheet = async (page: Page): Promise<Locator> => {
     .filter({ hasText: title })
     .first()
     .click()
-  return page.getByRole('dialog')
+  const sheet = page.getByRole('dialog')
+  await slideoutReady(sheet)
+  return sheet
 }
 
 const OVERLAYS: Overlay[] = [
   {
     name: 'command palette',
     path: '/dashboard',
-    ready: (page) => page.getByText(/^Welcome,/),
+    ready: dashboardWelcome,
     scope: '[role="dialog"]',
     open: async (page) => {
       await page.keyboard.press('ControlOrMeta+k')
@@ -43,7 +46,7 @@ const OVERLAYS: Overlay[] = [
   {
     name: 'user menu',
     path: '/dashboard',
-    ready: (page) => page.getByText(/^Welcome,/),
+    ready: dashboardWelcome,
     scope: '[role="menu"]',
     open: async (page) => {
       await page.getByTestId('user-menu-trigger').click()
@@ -68,7 +71,7 @@ for (const colorScheme of COLOR_SCHEMES) {
         await waitForPageToSettle(page, ready)
 
         await expect(await open(page)).toBeVisible({ timeout: 20_000 }) // 20s
-        await expect(page.locator('.animate-custom-pulse')).toHaveCount(0, { timeout: 30_000 }) // 30s
+        await waitForLoadingToFinish(page)
 
         await expectNoA11yViolations(page, testInfo, scope)
       })

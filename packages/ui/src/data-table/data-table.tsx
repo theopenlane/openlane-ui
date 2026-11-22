@@ -751,6 +751,7 @@ export function DataTable<TData extends RowData>({
               <Table
                 ref={scrollRef}
                 variant="data"
+                aria-busy={loading || isLoading || undefined}
                 stickyHeader={stickyHeader}
                 stickyDialogHeader={stickyDialogHeader}
                 style={{

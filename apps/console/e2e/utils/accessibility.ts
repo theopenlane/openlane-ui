@@ -28,12 +28,22 @@ export const heading =
   (page) =>
     page.getByRole('heading', { name }).first()
 
+export const dashboardWelcome: ReadyLocator = (page) => page.getByText(/^Welcome, \S.*!$/)
+
 const firstHeading: ReadyLocator = (page) => page.getByRole('heading').filter({ visible: true }).first()
+
+const LOADING_INDICATORS = '.animate-custom-pulse, [aria-busy="true"]'
+
+const LOADING_TEXT = /^\s*Loading\b.*(\.\.\.|…)\s*$/
+
+export const waitForLoadingToFinish = async (page: Page): Promise<void> => {
+  const loading = page.locator(LOADING_INDICATORS).or(page.getByText(LOADING_TEXT))
+  await expect(loading.filter({ visible: true })).toHaveCount(0, { timeout: 30_000 }) // 30s
+}
 
 export const waitForPageToSettle = async (page: Page, ready: ReadyLocator = firstHeading): Promise<void> => {
   await expect(ready(page)).toBeVisible({ timeout: 60_000 }) // 1min
-  await page.waitForLoadState('networkidle')
-  await expect(page.locator('.animate-custom-pulse')).toHaveCount(0, { timeout: 30_000 }) // 30s
+  await waitForLoadingToFinish(page)
 }
 
 export const expectNoA11yViolations = async (page: Page, testInfo: TestInfo, include?: string): Promise<void> => {

@@ -1,12 +1,13 @@
 'use client'
 
 import React from 'react'
-import { Loader2, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { cn } from '@repo/ui/lib/utils'
 import { getSeverityStyle } from '@/utils/severity'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
+import { LoadingSpinner } from '@/components/shared/loading/loading-spinner'
 import { getSeverityLabel, type TriageFacet, type TriageGroups, type TriageVuln } from './triage-utils'
 import { getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilities/vulnerability-display'
 
@@ -91,9 +92,7 @@ const TriageListRail: React.FC<Props> = ({ groups, counts, search, onSearchChang
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         {isLoading ? (
-          <div className="flex h-full items-center justify-center">
-            <Loader2 className="animate-spin text-muted-foreground" />
-          </div>
+          <LoadingSpinner label="Loading vulnerabilities" className="h-full" />
         ) : (
           <>
             {totalShown === 0 && <p className="p-4 text-sm text-muted-foreground">No vulnerabilities match.</p>}

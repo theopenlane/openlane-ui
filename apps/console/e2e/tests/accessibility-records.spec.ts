@@ -19,31 +19,10 @@ import {
   getDemoApi,
 } from '../utils/api'
 import { createAssessment, createAutomationCampaign, createQuestionnaireTemplate, createWorkflowDefinition } from '../utils/api-automation'
-import { A11Y_TAG, COLOR_SCHEMES, expectNoA11yViolations, waitForPageToSettle, type ReadyLocator } from '../utils/accessibility'
+import { A11Y_TAG, COLOR_SCHEMES, expectNoA11yViolations, waitForPageToSettle } from '../utils/accessibility'
+import { isSeededRecords, RECORD_SCAN_CASES, type SeededRecords } from '../utils/accessibility-routes'
 import { AUTH_DIR, readManifest } from '../utils/manifest'
 import { uniqueName, uniqueRef } from '../utils/unique'
-
-type SeededRecords = {
-  control: string
-  subcontrol: string
-  mappedControl: string
-  policy: string
-  procedure: string
-  program: string
-  risk: string
-  finding: string
-  vulnerability: string
-  personnel: string
-  platform: string
-  vendor: string
-  standard: string
-  campaign: string
-  assessment: string
-  questionnaireTemplate: string
-  workflowDefinition: string
-}
-
-type RecordRoute = { route: string; href: (records: SeededRecords) => string; ready?: ReadyLocator }
 
 const seedRecords = async (): Promise<SeededRecords> => {
   const api = await getDemoApi()
@@ -92,7 +71,8 @@ const tryAcquireSeedLock = (lockPath: string): boolean => {
 
 const readCachedRecords = (cachePath: string): SeededRecords | null => {
   try {
-    return JSON.parse(readFileSync(cachePath, 'utf-8')) as SeededRecords
+    const cached: unknown = JSON.parse(readFileSync(cachePath, 'utf-8'))
+    return isSeededRecords(cached) ? cached : null
   } catch (error) {
     if (hasErrorCode(error, 'ENOENT')) return null
     throw error
@@ -130,68 +110,14 @@ const test = authTest.extend<object, { records: SeededRecords }>({
   records: [async ({ playwright: _playwright }, provide) => provide(await loadOrSeedRecords()), { scope: 'worker' }],
 })
 
-const noImplementations: ReadyLocator = (page) => page.getByText(/^No Implementations found for this/)
-
-const tabRoutes = (route: string, href: (records: SeededRecords) => string, tabs: string[]): RecordRoute[] =>
-  tabs.map((tab) => ({ route: `${route}?tab=${tab}`, href: (r) => `${href(r)}?tab=${tab}` }))
-
-const DETAIL_TAB_ROUTES: RecordRoute[] = [
-  ...tabRoutes('/controls/[id]', (r) => `/controls/${r.control}`, [
-    'implementation',
-    'guidance',
-    'documentation',
-    'evidence',
-    'linked-controls',
-    'findings-risks',
-    'assets-scans',
-    'reviews',
-    'activity',
-  ]),
-  ...tabRoutes('/policies/[id]/view', (r) => `/policies/${r.policy}/view`, ['procedures', 'acknowledgements', 'history']),
-  ...tabRoutes('/exposure/risks/[id]', (r) => `/exposure/risks/${r.risk}`, ['risk-review', 'mitigation', 'activity']),
-  ...tabRoutes('/exposure/findings/[id]', (r) => `/exposure/findings/${r.finding}`, ['remediation', 'comments', 'history']),
-  ...tabRoutes('/exposure/vulnerabilities/[id]', (r) => `/exposure/vulnerabilities/${r.vulnerability}`, ['exposure-map', 'remediation', 'comments', 'history']),
-  ...tabRoutes('/registry/vendors/[id]', (r) => `/registry/vendors/${r.vendor}`, ['risk-review', 'contacts', 'directory', 'documents', 'activity']),
-  ...tabRoutes('/registry/personnel/[id]', (r) => `/registry/personnel/${r.personnel}`, ['linked-accounts', 'documents', 'assessments', 'campaigns', 'history']),
-]
-
-const RECORD_ROUTES: RecordRoute[] = [
-  { route: '/controls/[id]', href: (r) => `/controls/${r.control}` },
-  { route: '/controls/[id]/control-implementation', href: (r) => `/controls/${r.control}/control-implementation`, ready: noImplementations },
-  { route: '/controls/[id]/control-objectives', href: (r) => `/controls/${r.control}/control-objectives` },
-  { route: '/controls/[id]/map-control', href: (r) => `/controls/${r.control}/map-control` },
-  { route: '/controls/[id]/edit-map-control', href: (r) => `/controls/${r.control}/edit-map-control?mappedControlId=${r.mappedControl}` },
-  { route: '/controls/[id]/clone-control', href: (r) => `/controls/${r.control}/clone-control` },
-  { route: '/controls/[id]/create-subcontrol', href: (r) => `/controls/${r.control}/create-subcontrol` },
-  { route: '/controls/[id]/[subcontrolId]', href: (r) => `/controls/${r.control}/${r.subcontrol}` },
-  { route: '/controls/[id]/[subcontrolId]/control-implementation', href: (r) => `/controls/${r.control}/${r.subcontrol}/control-implementation`, ready: noImplementations },
-  { route: '/controls/[id]/[subcontrolId]/control-objectives', href: (r) => `/controls/${r.control}/${r.subcontrol}/control-objectives` },
-  { route: '/controls/[id]/[subcontrolId]/map-control', href: (r) => `/controls/${r.control}/${r.subcontrol}/map-control` },
-  { route: '/standards/[id]', href: (r) => `/standards/${r.standard}` },
-  { route: '/programs/[id]', href: (r) => `/programs/${r.program}` },
-  { route: '/programs/[id]/settings', href: (r) => `/programs/${r.program}/settings` },
-  { route: '/policies/[id]/view', href: (r) => `/policies/${r.policy}/view` },
-  { route: '/procedures/[id]/view', href: (r) => `/procedures/${r.procedure}/view` },
-  { route: '/exposure/risks/[id]', href: (r) => `/exposure/risks/${r.risk}` },
-  { route: '/exposure/findings/[id]', href: (r) => `/exposure/findings/${r.finding}` },
-  { route: '/exposure/vulnerabilities/[id]', href: (r) => `/exposure/vulnerabilities/${r.vulnerability}` },
-  { route: '/registry/personnel/[id]', href: (r) => `/registry/personnel/${r.personnel}` },
-  { route: '/registry/platforms/[id]', href: (r) => `/registry/platforms/${r.platform}` },
-  { route: '/registry/vendors/[id]', href: (r) => `/registry/vendors/${r.vendor}` },
-  { route: '/automation/campaigns/[id]', href: (r) => `/automation/campaigns/${r.campaign}` },
-  { route: '/automation/questionnaires/[id]', href: (r) => `/automation/questionnaires/${r.assessment}` },
-  { route: '/automation/questionnaires/templates/template-viewer?id=', href: (r) => `/automation/questionnaires/templates/template-viewer?id=${r.questionnaireTemplate}` },
-  { route: '/automation/workflows/definitions/[id]', href: (r) => `/automation/workflows/definitions/${r.workflowDefinition}` },
-]
-
 test.describe.configure({ retries: 0 })
 
 for (const colorScheme of COLOR_SCHEMES) {
   test.describe(`accessibility — record pages (${colorScheme})`, { tag: A11Y_TAG }, () => {
     test.use({ colorScheme, authProfile: 'demo' })
 
-    for (const { route, href, ready } of [...RECORD_ROUTES, ...DETAIL_TAB_ROUTES]) {
-      test(`${route} has no WCAG 2.2 AA violations`, async ({ page, records }, testInfo) => {
+    for (const { name, href, ready } of RECORD_SCAN_CASES) {
+      test(`${name} has no WCAG 2.2 AA violations`, async ({ page, records }, testInfo) => {
         test.slow()
         await page.goto(href(records), { waitUntil: 'domcontentloaded' })
         await waitForPageToSettle(page, ready)
