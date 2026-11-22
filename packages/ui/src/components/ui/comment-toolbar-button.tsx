@@ -43,7 +43,7 @@ export const ResolvedCommentsToolbarButton = () => {
   const showResolved = usePluginOption(discussionPlugin, 'showResolved')
   const hasResolved = usePluginOption(discussionPlugin, 'hasResolvedInDocument')
 
-  if (!hasResolved) return null
+  if (!hasResolved && !showResolved) return null
 
   const label = showResolved ? 'Hide resolved comments' : 'Show resolved comments'
 

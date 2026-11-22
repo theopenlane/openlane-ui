@@ -5,6 +5,7 @@ import { TruncatedCell } from '@repo/ui/truncated-cell'
 import { collectDiscussionQuotes } from '@repo/ui/components/editor/plugins/discussion-quotes.ts'
 import { parseCommentText } from '@repo/ui/components/editor/plugins/mention-serialize.ts'
 import CommentList from '@/components/shared/comments/CommentList'
+import { ReopenDiscussionButton } from '@/components/shared/comments/reopen-discussion-button'
 import { type TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { getCommentedDiscussions, type TDiscussionEntity } from '@/components/shared/plate/discussions'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
@@ -134,6 +135,11 @@ export const DiscussionThreads: React.FC<TDiscussionThreadsProps> = ({ entity, d
                     )}
                     {!thread.quote && document && <p className="mb-2 text-sm italic text-muted-foreground">The commented text is no longer in the {entityLabel}.</p>}
                     <CommentList comments={thread.comments} />
+                    {thread.isResolved && (
+                      <div className="mt-2 flex justify-end">
+                        <ReopenDiscussionButton discussionId={thread.id} authorId={thread.comments[0]?.createdBy} />
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
