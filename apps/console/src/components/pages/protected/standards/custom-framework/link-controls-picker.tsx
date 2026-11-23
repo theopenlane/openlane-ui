@@ -15,7 +15,7 @@ import { mergeWhere } from '@/lib/merge-where'
 import { ControlIconMapper16 } from '@/components/shared/enum-mapper/control-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { pluralizeWithCount } from '@/utils/strings'
-import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { useAsyncCommandSearch } from '@repo/ui/use-async-command-search'
 import { UNLINKED_CUSTOM_CONTROLS_WHERE } from './custom-framework'
 import { type TLinkedControl } from './hooks/use-custom-framework-form-schema'
 

@@ -55,6 +55,10 @@ export const CREATE_API_TOKEN = gql`
       apiToken {
         id
         token
+        owner {
+          id
+          displayName
+        }
       }
     }
   }
@@ -72,6 +76,8 @@ export const GET_API_TOKENS = gql`
           expiresAt
           lastUsedAt
           ssoAuthorizations
+          createdAt
+          createdBy
         }
       }
       pageInfo {

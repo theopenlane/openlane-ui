@@ -1,10 +1,12 @@
 import { gql } from 'graphql-request'
 
 export const CREATE_EVIDENCE = gql`
-  mutation CreateEvidence($input: CreateEvidenceInput!, $evidenceFiles: [Upload!]) {
-    createEvidence(input: $input, evidenceFiles: $evidenceFiles) {
+  mutation CreateEvidence($input: CreateEvidenceInput!, $evidenceFiles: [Upload!], $evidenceFilesMetadata: [FileMetadataInput!]) {
+    createEvidence(input: $input, evidenceFiles: $evidenceFiles, evidenceFilesMetadata: $evidenceFilesMetadata) {
       evidence {
         id
+        displayID
+        name
       }
     }
   }

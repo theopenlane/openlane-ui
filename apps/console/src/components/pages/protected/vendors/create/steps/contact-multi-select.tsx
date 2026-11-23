@@ -8,7 +8,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Badge } from '@repo/ui/badge'
 import { Check, X, Users } from 'lucide-react'
 import { useContacts } from '@/lib/graphql-hooks/contact'
-import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
+import { useAsyncCommandSearch } from '@repo/ui/use-async-command-search'
 import { cn } from '@repo/ui/lib/utils'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
 

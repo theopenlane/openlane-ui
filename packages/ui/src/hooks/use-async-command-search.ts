@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useDebounce } from '@uidotdev/usehooks'
+import { useDebounce } from './use-debounce'
 
 type UseAsyncCommandSearchOptions = {
   delay?: number

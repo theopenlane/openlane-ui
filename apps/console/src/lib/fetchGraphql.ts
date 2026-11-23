@@ -3,8 +3,7 @@ import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
 import { clearSSOReauthRequired, getIsSessionInvalid, reportSSORequirementFromResponse } from './auth/utils/session-status'
 import { currentAccessToken } from './graphqlClient'
-
-const isFileArray = (value: unknown): value is File[] => Array.isArray(value) && value.length > 0 && value.every((item) => item instanceof File)
+import { buildGraphQLRequestBody } from '@repo/dally/graphql-body'
 
 export const fetchGraphQLWithUpload = async <TVariables extends object>({ query, variables }: { query: string; variables?: TVariables }) => {
   if (getIsSessionInvalid()) {
@@ -26,59 +25,9 @@ export const fetchGraphQLWithUpload = async <TVariables extends object>({ query,
   headers[csrfHeader] = csrfToken // Ensure CSRF token is in the headers
   headers['cookie'] = `${csrfCookieName}=${csrfToken}`
 
-  const normalizedVariables = variables ? { ...variables } : {}
-  let body: BodyInit
-  const formData = new FormData()
-  const updatedVariables: Record<string, unknown> = { ...normalizedVariables }
-
-  let hasFile = false
-  const fileMap: Record<string, string[]> = {}
-  let fileIndex = 0
-
-  // Process variables and detect files
-  Object.entries(normalizedVariables).forEach(([key, value]) => {
-    if (value instanceof File) {
-      // Single file
-      hasFile = true
-      fileMap[fileIndex] = [`variables.${key}`]
-      updatedVariables[key] = null // GraphQL expects null for files
-      fileIndex++
-    } else if (isFileArray(value)) {
-      // Multiple files
-      hasFile = true
-      updatedVariables[key] = value.map(() => null) // Replace all files with null in variables
-      value.forEach((file, index) => {
-        fileMap[fileIndex] = [`variables.${key}.${index}`]
-        fileIndex++
-      })
-    }
-  })
-
-  if (hasFile) {
-    // **IMPORTANT**: Append `operations` FIRST
-    formData.append('operations', JSON.stringify({ query, variables: updatedVariables }))
-
-    // Append `map` SECOND
-    formData.append('map', JSON.stringify(fileMap))
-
-    // Append FILES LAST
-    fileIndex = 0
-    Object.entries(normalizedVariables).forEach(([, value]) => {
-      if (value instanceof File) {
-        formData.append(fileIndex.toString(), value)
-        fileIndex++
-      } else if (isFileArray(value)) {
-        value.forEach((file) => {
-          formData.append(fileIndex.toString(), file)
-          fileIndex++
-        })
-      }
-    })
-
-    body = formData
-  } else {
+  const { body, isMultipart } = buildGraphQLRequestBody(query, variables)
+  if (!isMultipart) {
     headers['Content-Type'] = 'application/json'
-    body = JSON.stringify({ query, variables: normalizedVariables })
   }
 
   const endpoint = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
