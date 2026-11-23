@@ -43,21 +43,17 @@ export const tableStyles = tv({
     stickyHeader: {
       true: {
         container: 'max-h-[70vh]',
-        stickyDialog: false,
       },
     },
     stickyDialogHeader: {
       true: {
         container: 'max-h-96',
-        sticky: false,
       },
     },
   },
   defaultVariants: {
     striped: false,
     compact: false,
-    sticky: false,
-    stickyDialog: false,
   },
 })
 
