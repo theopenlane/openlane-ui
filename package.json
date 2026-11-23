@@ -68,7 +68,7 @@
     "uuid": "^14.0.3",
     "xmlbuilder2": "^4.0.3",
     "postcss-selector-parser": "^7.1.6",
-    "argparse": "^2.0.1"
+    "argparse": "^3.0.0"
   },
   "resolutionsRationale": {
     "react": "DEDUPE. 240+ transitive peer ranges span ^16..^19 and some still cap at ^18 (emblor, its nested @radix-ui/react-dialog, cmdk). Without the pin bun installs a second React and hooks throw \"Invalid hook call\". Bump in lockstep with react-dom, @types/react and @types/react-dom.",
