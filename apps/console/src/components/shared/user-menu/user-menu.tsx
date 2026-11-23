@@ -6,7 +6,7 @@ import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@repo/ui/dropdown-menu'
 import { useTheme } from 'next-themes'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
-import { Avatar, type AvatarEntityLike } from '../avatar/avatar'
+import { Avatar, getAvatarFallbackText, type AvatarEntityLike } from '../avatar/avatar'
 import { Computer, Keyboard, LogOut, Moon, PaintbrushVertical, Sun, TextSearch, UserCog } from 'lucide-react'
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 import { useRouter } from 'next/navigation'
@@ -52,8 +52,8 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
-        <Button variant="icon" size="icon-sm" aria-label="Account menu" className={trigger()} {...userMenuTriggerAnchor}>
-          <Avatar entity={avatarEntity} decorative />
+        <Button variant="icon" size="icon-sm" aria-label={`Account menu, ${getAvatarFallbackText(avatarEntity)}`} className={trigger()} {...userMenuTriggerAnchor}>
+          <Avatar entity={avatarEntity} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-64 pb-1" align="end" aria-labelledby={userMenuTriggerAnchor.id}>
