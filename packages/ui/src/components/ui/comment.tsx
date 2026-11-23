@@ -21,6 +21,7 @@ import { serializeCommentValue } from '@repo/ui/components/editor/plugins/mentio
 import { stripDraftCommentMarks } from '@repo/ui/components/editor/comment-utils.ts'
 import { type TDiscussion, discussionPlugin, CommentEntityType } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Editor, EditorContainer } from './editor'
 import { useInsertPolicyComment, useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/internal-policy'
 import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateNoteInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
@@ -59,15 +60,12 @@ export function Comment(props: {
 
   const editor = useEditorRef()
   const userInfo = usePluginOption(discussionPlugin, 'user', comment.userId)
-  const currentUserId = usePluginOption(discussionPlugin, 'currentUserId')
-  const hasOrgFullAccess = useHasOrgFullAccess()
   const { mutateAsync: updateControlComment } = useUpdateControlComment()
   const { mutateAsync: updateSubcontrolComment } = useUpdateSubcontrolComment()
   const { mutateAsync: updatePolicyComment } = useUpdatePolicyComment()
   const { mutateAsync: updateProcedureComment } = useUpdateProcedureComment()
   const { mutateAsync: updateRiskComment } = useUpdateRiskComment()
-  const { mutateAsync: updateDiscussion } = useUpdateDiscussion()
-  const { errorNotification } = useNotification()
+  const { setDiscussionResolved } = useSetDiscussionResolved()
 
   const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
 
@@ -110,33 +108,6 @@ export function Comment(props: {
   }
 
   const entityUpdate = getEntityUpdater(entityType)
-
-  const isResolvingRef = React.useRef(false)
-
-  const resolveDiscussion = async (id: string) => {
-    const current = editor.getOption(discussionPlugin, 'discussions')
-    const target = current.find((d) => d.id === id)
-    if (!target?.systemId || isResolvingRef.current) return
-
-    isResolvingRef.current = true
-    try {
-      await updateDiscussion({ updateDiscussionId: target.systemId, input: { isResolved: true } })
-    } catch (error) {
-      errorNotification({ title: 'Failed to resolve comment', description: parseErrorMessage(error) })
-      return
-    } finally {
-      isResolvingRef.current = false
-    }
-
-    const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').map((discussion) => {
-      if (discussion.id === id) {
-        return { ...discussion, isResolved: true }
-      }
-      return discussion
-    })
-
-    editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
-  }
 
   const removeDiscussion = (id: string) => {
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').filter((discussion) => discussion.id !== id)
@@ -189,7 +160,7 @@ export function Comment(props: {
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
   }
 
-  const canManageComment = currentUserId === comment.userId || hasOrgFullAccess
+  const canManageComment = useCanManageDiscussionComment(comment.userId)
   const initialValue = comment.contentRich
 
   const commentEditor = useCommentEditor(
@@ -219,7 +190,7 @@ export function Comment(props: {
   }
 
   const onResolveComment = () => {
-    void resolveDiscussion(comment.discussionId)
+    void setDiscussionResolved(comment.discussionId, true)
   }
 
   const isFirst = index === 0
@@ -246,9 +217,15 @@ export function Comment(props: {
         {canManageComment && (hovering || dropdownOpen) && (
           <div className="absolute top-0 right-0 flex space-x-1">
             {index === 0 && !isResolved && (
-              <Button variant="ghost" className="h-6 p-1 text-muted-foreground" onClick={onResolveComment} type="button">
-                <CheckIcon className="size-4" />
-              </Button>
+              <SystemTooltip
+                portal
+                content="Resolve discussion"
+                icon={
+                  <Button variant="ghost" className="h-6 p-1 text-muted-foreground" onClick={onResolveComment} type="button" aria-label="Resolve discussion">
+                    <CheckIcon className="size-4" />
+                  </Button>
+                }
+              />
             )}
 
             <CommentMoreDropdown
@@ -320,6 +297,40 @@ export function Comment(props: {
       </div>
     </div>
   )
+}
+
+export const useSetDiscussionResolved = () => {
+  const editor = useEditorRef()
+  const { mutateAsync: updateDiscussion, isPending } = useUpdateDiscussion()
+  const { errorNotification } = useNotification()
+  const isUpdatingRef = React.useRef(false)
+
+  const setDiscussionResolved = async (id: string, isResolved: boolean) => {
+    const target = editor.getOption(discussionPlugin, 'discussions').find((d) => d.id === id)
+    if (!target?.systemId || isUpdatingRef.current) return
+
+    isUpdatingRef.current = true
+    try {
+      await updateDiscussion({ updateDiscussionId: target.systemId, input: { isResolved } })
+    } catch (error) {
+      errorNotification({ title: isResolved ? 'Failed to resolve discussion' : 'Failed to reopen discussion', description: parseErrorMessage(error) })
+      return
+    } finally {
+      isUpdatingRef.current = false
+    }
+
+    const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').map((discussion) => (discussion.id === id ? { ...discussion, isResolved } : discussion))
+    editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
+  }
+
+  return { setDiscussionResolved, isPending }
+}
+
+export const useCanManageDiscussionComment = (commentUserId: string | undefined) => {
+  const currentUserId = usePluginOption(discussionPlugin, 'currentUserId')
+  const hasOrgFullAccess = useHasOrgFullAccess()
+
+  return (!!commentUserId && currentUserId === commentUserId) || hasOrgFullAccess
 }
 
 function CommentMoreDropdown(props: {

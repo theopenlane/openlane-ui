@@ -7,7 +7,7 @@ import type { PlateElementProps, RenderNodeWrapper } from 'platejs/react'
 import { getDraftCommentKey } from '@platejs/comment'
 import { CommentPlugin } from '@platejs/comment/react'
 import { SuggestionPlugin } from '@platejs/suggestion/react'
-import { CheckIcon, MessageSquareTextIcon, MessagesSquareIcon, PencilLineIcon } from 'lucide-react'
+import { CheckIcon, MessageSquareTextIcon, MessagesSquareIcon, PencilLineIcon, RotateCcwIcon } from 'lucide-react'
 import { type AnyPluginConfig, type NodeEntry, type Path, type TCommentText, type TElement, type TSuggestionText, PathApi, TextApi } from 'platejs'
 import { useEditorPlugin, useEditorRef, usePluginOption } from 'platejs/react'
 
@@ -18,7 +18,7 @@ import { type TDiscussion, discussionPlugin } from '@repo/ui/components/editor/p
 import { suggestionPlugin } from '@repo/ui/components/editor/plugins/suggestion-kit.tsx'
 
 import { BlockSuggestionCard, isResolvedSuggestion, useResolveSuggestion } from './block-suggestion'
-import { Comment, CommentCreateForm } from './comment'
+import { Comment, CommentCreateForm, useCanManageDiscussionComment, useSetDiscussionResolved } from './comment'
 
 export const BlockDiscussion: RenderNodeWrapper<AnyPluginConfig> = (props) => {
   const { editor, element } = props
@@ -179,15 +179,25 @@ const BlockCommentContent = ({
 
 function BlockComment({ discussion, isLast }: { discussion: TDiscussion; isLast: boolean }) {
   const [editingId, setEditingId] = React.useState<string | null>(null)
+  const { setDiscussionResolved, isPending: isReopening } = useSetDiscussionResolved()
+  const canReopen = useCanManageDiscussionComment(discussion.comments[0]?.userId)
 
   return (
     <React.Fragment key={discussion.id}>
       <div className="p-4">
         {discussion.isResolved && (
-          <p className="mb-3 flex items-center gap-1 text-xs font-medium text-muted-foreground">
-            <CheckIcon className="size-3.5" />
-            Resolved
-          </p>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <p className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+              <CheckIcon className="size-3.5" />
+              Resolved
+            </p>
+            {canReopen && (
+              <Button type="button" variant="ghost" size="xs" className="text-muted-foreground" disabled={isReopening} onClick={() => void setDiscussionResolved(discussion.id, false)}>
+                <RotateCcwIcon />
+                Reopen
+              </Button>
+            )}
+          </div>
         )}
         {discussion.comments.map((comment, index) => (
           <Comment
