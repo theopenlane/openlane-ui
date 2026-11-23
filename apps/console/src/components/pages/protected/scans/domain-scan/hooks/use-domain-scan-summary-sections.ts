@@ -1,13 +1,14 @@
 'use client'
 
 import { useMemo } from 'react'
-import { getLinkedIds, type LinkMap } from '../selection-utils'
-import type { DomainScanSummaryItem, DomainScanSummarySection, LinkableItem, StepId } from '../types'
+import { getLinkedIds, type LinkMap } from '../../shared/selection-utils'
+import type { EditableStepId, StepId } from '../types'
+import type { LinkableItem, ScanSummaryItem, ScanSummarySection } from '../../shared/types'
 
 type UseDomainScanSummarySectionsArgs = {
   stepVisibility: Record<StepId, boolean>
-  platforms: DomainScanSummaryItem[]
-  systems: DomainScanSummaryItem[]
+  platforms: ScanSummaryItem[]
+  systems: ScanSummaryItem[]
   vendors: LinkableItem[]
   assets: LinkableItem[]
   findings: LinkableItem[]
@@ -28,10 +29,10 @@ export const useDomainScanSummarySections = ({
   systemVendorLinks,
   defaultLinkedVendorIds,
   systemDefaultLinkedVendorIds,
-}: UseDomainScanSummarySectionsArgs): DomainScanSummarySection[] =>
+}: UseDomainScanSummarySectionsArgs): ScanSummarySection<EditableStepId>[] =>
   useMemo(() => {
     const vendorNameById = new Map(vendors.map((vendor) => [vendor.id, vendor.name]))
-    const withLinkedVendorNames = (items: DomainScanSummaryItem[], vendorLinks: LinkMap, defaultIds: string[]): DomainScanSummaryItem[] =>
+    const withLinkedVendorNames = (items: ScanSummaryItem[], vendorLinks: LinkMap, defaultIds: string[]): ScanSummaryItem[] =>
       items.map((item) => ({
         ...item,
         linkedVendorNames: Array.from(getLinkedIds(vendorLinks, item.id, defaultIds))
@@ -39,7 +40,7 @@ export const useDomainScanSummarySections = ({
           .filter((name): name is string => Boolean(name)),
       }))
 
-    const sections: DomainScanSummarySection[] = [
+    const sections: ScanSummarySection<EditableStepId>[] = [
       { stepId: 'platform', title: 'Platforms', items: withLinkedVendorNames(platforms, platformVendorLinks, defaultLinkedVendorIds) },
       { stepId: 'systems', title: 'System Details', items: withLinkedVendorNames(systems, systemVendorLinks, systemDefaultLinkedVendorIds) },
       { stepId: 'vendors', title: 'Vendors', items: vendors },

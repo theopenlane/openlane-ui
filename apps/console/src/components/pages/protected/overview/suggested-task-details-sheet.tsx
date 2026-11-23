@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
-import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
 import { Callout } from '@/components/shared/callout/callout'
 import { Check, ArrowUpRight } from 'lucide-react'
@@ -10,6 +9,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type SuggestedTask } from '@/lib/suggested-tasks/types'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { Link } from '@/components/shared/link/link'
+import { SuggestedTaskKindBadge } from './suggested-task-kind-badge'
 
 type SuggestedTaskDetailsSheetProps = {
   task: SuggestedTask | null
@@ -30,11 +30,7 @@ const SuggestedTaskDetailsSheet: React.FC<SuggestedTaskDetailsSheetProps> = ({ t
           task && (
             <SlideoutHeader
               title={task.title}
-              aboveTitle={
-                <Badge variant="outline" className="self-start" style={{ borderColor: task.taskKind.color, color: task.taskKind.color }}>
-                  {task.taskKind.name}
-                </Badge>
-              }
+              aboveTitle={<SuggestedTaskKindBadge taskKind={task.taskKind} />}
               onClose={onClose}
               primaryAction={{
                 label: 'Mark as complete',

@@ -9,7 +9,7 @@ import { ROW_ACTIONS_COLUMN_ID } from '@repo/ui/pinned-columns'
 
 type RowPredicate<T> = boolean | ((row: T) => boolean)
 
-type RowAction<T> = {
+export type TRowAction<T> = {
   label: string
   icon?: React.ReactNode
   onClick: (row: T) => void
@@ -18,7 +18,7 @@ type RowAction<T> = {
 }
 
 type RowActionsColumnOptions<T> = {
-  actions: RowAction<T>[]
+  actions: TRowAction<T>[]
   label?: string
 }
 

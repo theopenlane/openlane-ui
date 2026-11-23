@@ -15,7 +15,8 @@ import FindingsSummarySection from './openlane-domain-scan/findings-summary-sect
 import { EmailAuthSection, WebPostureSection } from './openlane-domain-scan/posture-section'
 import DiscoverySection from './discovery-section'
 import RawMetadataSection from './raw-metadata-section'
-import { parseScanMetadata, hasFindingsSummary, hasCompanyInfo, hasEmailAuth, hasWebPosture, getVendors, OPENLANE_DOMAIN_SCAN_PERFORMER } from './openlane-domain-scan/scan-metadata'
+import { parseScanMetadata, hasFindingsSummary, hasCompanyInfo, hasEmailAuth, hasWebPosture, getVendors } from './openlane-domain-scan/scan-metadata'
+import { SCAN_PERFORMER } from '@/constants/scan-performers'
 
 type Props = {
   data: ScanDetailNode
@@ -36,7 +37,7 @@ const ScanDetailView: React.FC<Props> = ({ data }) => {
   const performedBy = getResponsibility(data.performedByUser, data.performedByGroup, data.performedBy)
   const targetUrl = metadata?.url ?? (data.target.startsWith('http') ? data.target : `https://${data.target}`)
   const hasScopeOrEnvironment = !!data.environmentName || !!data.scopeName
-  const isDomainScanFormat = data.performedBy === OPENLANE_DOMAIN_SCAN_PERFORMER
+  const isDomainScanFormat = data.performedBy === SCAN_PERFORMER.DOMAIN_SCAN
 
   return (
     <div className="space-y-4 mt-4">

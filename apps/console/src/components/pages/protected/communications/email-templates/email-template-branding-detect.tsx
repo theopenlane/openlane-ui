@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { useSession } from 'next-auth/react'
 import type { RJSFSchema } from '@rjsf/utils'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
@@ -17,15 +16,13 @@ import { useDomainBrandingScan } from '@/components/shared/domain-branding/use-d
 import { useRecentDomainBranding } from '@/components/shared/domain-branding/use-recent-domain-branding'
 import type { ScanBranding } from '@/components/pages/protected/scans/detail/openlane-domain-scan/scan-metadata'
 import { useNotification } from '@/hooks/useNotification'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { hasPermission, isImpersonation } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useCanCreateScan } from '@/hooks/useCanCreateScan'
 import { formatTimeSince } from '@/utils/date'
 import { buildEmailBrandingReview, type TEmailBrandingReview, type TEmailBrandingSuggestion } from './email-template-branding'
 import { EmailTemplateBrandingReview } from './email-template-branding-review'
 
 const DOMAIN_SELECT_ID = 'email-template-branding-domain'
-const NO_SCAN_PERMISSION_REASON = "You don't have permission to run domain scans. Ask an organization admin to detect branding."
+const NO_BRANDING_SCAN_PERMISSION_REASON = "You don't have permission to run domain scans. Ask an organization admin to detect branding."
 
 interface EmailTemplateBrandingDetectProps {
   schema: RJSFSchema
@@ -43,9 +40,8 @@ export const EmailTemplateBrandingDetect: React.FC<EmailTemplateBrandingDetectPr
     openRef.current = open
   }, [open])
 
-  const { data: session } = useSession()
   const { successNotification } = useNotification()
-  const { data: orgPermission, isPending: isPermissionPending } = useOrganizationRoles()
+  const { canCreateScan, isCheckingPermission } = useCanCreateScan()
   const { domainOptions, isLoadingDomains, refetchDomains } = useOrganizationDomainOptions(true)
   const { isCheckingWindow, scanHistoryUnavailable, runningScanTarget, availableIn } = useDomainScanWindow(open)
   const { recentBrandingByDomain, isLoadingRecentBranding } = useRecentDomainBranding({ domains: domainOptions, enabled: open, isScanRunning: !!runningScanTarget })
@@ -64,12 +60,10 @@ export const EmailTemplateBrandingDetect: React.FC<EmailTemplateBrandingDetectPr
   const selectedDomain = domainOptions.includes(pickedDomain) ? pickedDomain : (domainOptions[0] ?? '')
   const recentBranding = recentBrandingByDomain.get(selectedDomain)
   const hasDomains = domainOptions.length > 0
-  const isCheckingPermission = !isImpersonation(session) && isPermissionPending
-  const canCreateScan = hasPermission(orgPermission?.roles, AccessEnum.CanCreateScan, session)
   const isCheckingBlockers = isCheckingWindow || isLoadingDomains || isLoadingRecentBranding || isCheckingPermission
   const scanBlockedReason =
     !isCheckingPermission && !canCreateScan
-      ? NO_SCAN_PERMISSION_REASON
+      ? NO_BRANDING_SCAN_PERMISSION_REASON
       : getDomainScanBlockedReason({ isChecking: isCheckingBlockers, scanHistoryUnavailable, hasDomains, availableIn, runningScanTarget }, 'detect branding')
   const triggerBlockedReason = !isLoadingDomains && !hasDomains ? NO_DOMAIN_REASON : null
   const hasPendingReview = !!review && !open

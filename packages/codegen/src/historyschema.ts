@@ -2589,6 +2589,14 @@ export interface ControlActivityQuery {
   controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; title: string | null; createdAt: any } | null } | null> | null }
 }
 
+export type CreateBulkControlMutationVariables = Exact<{
+  input?: Array<Types.CreateControlInput> | Types.CreateControlInput | null | undefined
+}>
+
+export interface CreateBulkControlMutation {
+  createBulkControl: { controls: Array<{ id: string; refCode: string }> | null }
+}
+
 export type CustomTypeEnumFieldsFragment = { id: string; name: string; color: string | null; objectType: string; description: string | null; field: string; systemOwned: boolean | null }
 
 export type GetCustomTypeEnumsQueryVariables = Exact<{
@@ -3480,6 +3488,7 @@ export interface GetEntityFilesPaginatedQuery {
           providedFileName: string
           providedFileSize: number | null
           providedFileExtension: string
+          detectedMimeType: string | null
           id: string
           uri: string | null
           presignedURL: string | null
@@ -4753,6 +4762,14 @@ export interface GroupsExportQuery {
       } | null
     } | null> | null
   }
+}
+
+export type CreateBulkGroupMutationVariables = Exact<{
+  input?: Array<Types.CreateGroupInput> | Types.CreateGroupInput | null | undefined
+}>
+
+export interface CreateBulkGroupMutation {
+  createBulkGroup: { groups: Array<{ id: string }> | null }
 }
 
 export type DirectoryMembershipConnectionFieldsFragment = {
@@ -6129,6 +6146,14 @@ export interface DeleteMappedControlMutation {
   deleteMappedControl: { deletedID: string }
 }
 
+export type CreateBulkMappedControlMutationVariables = Exact<{
+  input?: Array<Types.CreateMappedControlInput> | Types.CreateMappedControlInput | null | undefined
+}>
+
+export interface CreateBulkMappedControlMutation {
+  createBulkMappedControl: { mappedControls: Array<{ id: string }> | null }
+}
+
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: string
   input: Types.UpdateOrgMembershipInput
@@ -7094,6 +7119,14 @@ export type DeletePlatformMutationVariables = Exact<{
 
 export interface DeletePlatformMutation {
   deletePlatform: { deletedID: string }
+}
+
+export type CreateBulkPlatformMutationVariables = Exact<{
+  input?: Array<Types.CreatePlatformInput> | Types.CreatePlatformInput | null | undefined
+}>
+
+export interface CreateBulkPlatformMutation {
+  createBulkPlatform: { platforms: Array<{ id: string }> | null }
 }
 
 export type CreateProcedureMutationVariables = Exact<{
@@ -8430,6 +8463,14 @@ export interface ReviewActivityQuery {
   reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string; externalID: string | null; createdAt: any } | null } | null> | null }
 }
 
+export type CreateBulkReviewMutationVariables = Exact<{
+  input?: Array<Types.CreateReviewInput> | Types.CreateReviewInput | null | undefined
+}>
+
+export interface CreateBulkReviewMutation {
+  createBulkReview: { reviews: Array<{ id: string }> | null }
+}
+
 export type RiskFieldsFragment = {
   id: string
   displayID: string
@@ -8891,6 +8932,7 @@ export interface ScanQuery {
     assignedToUser: { id: string; displayName: string } | null
     assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
     assignedToGroup: { id: string; displayName: string } | null
+    entities: { edges: Array<{ node: { id: string } | null } | null> | null }
     performedByUser: { id: string; displayName: string } | null
     performedByGroup: { id: string; displayName: string } | null
     reviewedByUser: { id: string; displayName: string } | null
@@ -8998,6 +9040,37 @@ export type ScanActivityQueryVariables = Exact<{
 
 export interface ScanActivityQuery {
   scans: { totalCount: number; edges: Array<{ node: { id: string; target: string; createdAt: any } | null } | null> | null }
+}
+
+export type CreateReportScanMutationVariables = Exact<{
+  input: Types.CreateScanInput
+  scanFiles?: Array<any> | any | null | undefined
+}>
+
+export interface CreateReportScanMutation {
+  createScan: { scan: { id: string; target: string } }
+}
+
+export type ReportScanExistingRecordsQueryVariables = Exact<{
+  platformNames?: Array<string> | string | null | undefined
+  vendorNames?: Array<string> | string | null | undefined
+  assetNames?: Array<string> | string | null | undefined
+  groupNames?: Array<string> | string | null | undefined
+  controlRefCodes?: Array<string> | string | null | undefined
+  withPlatforms: boolean
+  withVendors: boolean
+  withAssets: boolean
+  withGroups: boolean
+  withControls: boolean
+  first?: number | null | undefined
+}>
+
+export interface ReportScanExistingRecordsQuery {
+  platforms?: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+  entities?: { edges: Array<{ node: { id: string; name: string | null } | null } | null> | null }
+  assets?: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+  groups?: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+  controls?: { edges: Array<{ node: { id: string; refCode: string } | null } | null> | null }
 }
 
 export type SearchQueryVariables = Exact<{
@@ -9911,6 +9984,14 @@ export interface UpdateBulkSystemDetailMutation {
   updateBulkSystemDetail: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
+export type CreateBulkSystemDetailMutationVariables = Exact<{
+  input?: Array<Types.CreateSystemDetailInput> | Types.CreateSystemDetailInput | null | undefined
+}>
+
+export interface CreateBulkSystemDetailMutation {
+  createBulkSystemDetail: { systemDetails: Array<{ id: string }> | null }
+}
+
 export type GetTagsQueryVariables = Exact<{ [key: string]: never }>
 
 export interface GetTagsQuery {
@@ -10466,7 +10547,15 @@ export type CreateTrustCenterDocMutationVariables = Exact<{
 }>
 
 export interface CreateTrustCenterDocMutation {
-  createTrustCenterDoc: { trustCenterDoc: { id: string } }
+  createTrustCenterDoc: {
+    trustCenterDoc: {
+      id: string
+      title: string
+      originalFile: { id: string; providedFileName: string } | null
+      file: { id: string; providedFileName: string } | null
+      standard: { id: string; shortName: string | null; framework: string | null } | null
+    }
+  }
 }
 
 export type GetTruestCenterDocByIdQueryVariables = Exact<{

@@ -4,7 +4,8 @@ import { useCreateScan, useScanStatus } from '@/lib/graphql-hooks/scan'
 import { useNotification } from '@/hooks/useNotification'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { getScanBranding, OPENLANE_DOMAIN_SCAN_PERFORMER, parseScanMetadata, type ScanBranding } from '@/components/pages/protected/scans/detail/openlane-domain-scan/scan-metadata'
+import { getScanBranding, parseScanMetadata, type ScanBranding } from '@/components/pages/protected/scans/detail/openlane-domain-scan/scan-metadata'
+import { SCAN_PERFORMER } from '@/constants/scan-performers'
 
 const POLL_TIMEOUT_MS = 3 * 60 * 1000 // 3min
 
@@ -86,7 +87,7 @@ export const useDomainBrandingScan = ({ applyTo, onBrandingFound }: UseDomainBra
             target: domain,
             scanType: ScanScanType.DOMAIN,
             status: ScanScanStatus.PENDING,
-            performedBy: OPENLANE_DOMAIN_SCAN_PERFORMER,
+            performedBy: SCAN_PERFORMER.DOMAIN_SCAN,
             metadata: { brandDesignOnly: true, ...applyTo },
           },
         })
