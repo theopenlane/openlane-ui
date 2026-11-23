@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   const fetchedData = await fData.json()
 
   if (fData.ok) {
-    setSessionCookie(fetchedData.session)
+    await setSessionCookie(fetchedData.session)
 
     const response = NextResponse.json(fetchedData, { status: 200 })
 

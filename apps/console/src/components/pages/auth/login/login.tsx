@@ -320,7 +320,7 @@ export const LoginPage = () => {
       const options = await getPasskeySignInOptions({
         email: email || '',
       })
-      setSessionCookie(options.session)
+      await setSessionCookie(options.session)
 
       const assertionResponse = await startAuthentication({
         optionsJSON: {

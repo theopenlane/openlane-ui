@@ -181,7 +181,7 @@ export const config = {
           })
 
           // Store session in a cookie
-          setSessionCookie(apiData.session)
+          await setSessionCookie(apiData.session)
         } catch (error) {
           console.error('❌ OAuth sign-in error:', error)
           return false
