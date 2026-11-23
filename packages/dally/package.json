@@ -21,13 +21,13 @@
   },
   "devDependencies": {
     "swr": "^2.5.1",
-    "dotenv": "^18.0.7",
+    "dotenv": "^18.0.10",
     "@repo/eslint-config": "workspace:*",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@types/eslint": "^9.6.1",
-    "eslint": "^10.12.0",
+    "eslint": "^10.15.0",
     "react": "19.3.1",
-    "tsup": "^8.5.1",
+    "tsup": "^9.0.0",
     "typescript": "^6.0.3"
   }
 }

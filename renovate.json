@@ -2,5 +2,18 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "labels": ["dependencies"],
-  "minimumReleaseAge": "7 days"
+  "minimumReleaseAge": "7 days",
+  "packageRules": [
+    {
+      "description": "Hold Plate on the 53.3 line: platejs 53.3.18+ and 53.5 pin slate 0.146, which breaks editor slash-menu filtering (udecode/plate#5149). Remove together with the @platejs/core, @platejs/slate and @platejs/utils resolutions in package.json once a fixed release ships.",
+      "matchPackageNames": ["platejs", "@platejs/**"],
+      "allowedVersions": "<53.3.17"
+    },
+    {
+      "description": "Stay on Node 24 (the Vercel runtime and .nvmrc). Node major upgrades are a deliberate decision, so Renovate does not propose them; patch and minor updates within 24.x still come through.",
+      "matchDepNames": ["node"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ]
 }
