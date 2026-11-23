@@ -57,10 +57,10 @@ const ScansTable: React.FC<ScansTableProps> = ({ controlId }) => {
 
   const memberIds = useMemo(() => [...new Set(scansNodes.flatMap((s) => [s.createdBy, s.updatedBy]).filter((id): id is string => typeof id === 'string' && id.length > 0))], [scansNodes])
 
-  const { userMap, tokenMap } = useAuthorMaps(memberIds)
+  const { userMap, authorMaps } = useAuthorMaps(memberIds)
 
   const columns = useMemo<ColumnDef<ScansNodeNonNull>[]>(() => {
-    const allCols = getColumns({ userMap, tokenMap, selectedItems: [], setSelectedItems: () => {} })
+    const allCols = getColumns({ userMap, authorMaps, selectedItems: [], setSelectedItems: () => {} })
     return allCols
       .filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
       .map((col) => {
@@ -76,7 +76,7 @@ const ScansTable: React.FC<ScansTableProps> = ({ controlId }) => {
         }
         return col
       })
-  }, [userMap, tokenMap, replace])
+  }, [userMap, authorMaps, replace])
 
   const paginationMeta = useMemo(
     () => ({

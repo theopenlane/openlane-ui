@@ -74,6 +74,7 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
           updatedBy
           createdAt
           createdBy
+          sourceDefinitionID
           summary
           managementMode
           approvalRequired
@@ -424,6 +425,7 @@ export const GET_INTERNAL_POLICIES_DASHBOARD = gql`
           updatedAt
           createdBy
           updatedBy
+          sourceDefinitionID
         }
       }
     }

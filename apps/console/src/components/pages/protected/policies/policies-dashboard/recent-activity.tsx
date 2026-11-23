@@ -31,7 +31,7 @@ const RecentActivity = () => {
     return Array.from(ids)
   }, [recentPolicies])
 
-  const { userMap, tokenMap } = useAuthorMaps(userIds)
+  const { authorMaps } = useAuthorMaps(userIds)
 
   if (!recentPolicies?.length) {
     return <p className="text-sm text-muted-foreground">No recent activity</p>
@@ -45,7 +45,7 @@ const RecentActivity = () => {
         {recentPolicies.map((policy) => {
           const isCreated = policy.createdAt === policy.updatedAt
           const userId = isCreated ? policy.createdBy : policy.updatedBy
-          const author = resolveAuthor(userId, { userMap, tokenMap })
+          const author = resolveAuthor(userId, authorMaps, policy)
           const action = isCreated ? 'created' : 'updated'
           const timestamp = isCreated ? policy.createdAt : policy.updatedAt
           const formattedDate = formatDate(timestamp)

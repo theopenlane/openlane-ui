@@ -93,7 +93,7 @@ export const PoliciesTable = () => {
     return [...new Set(policies.flatMap((item) => [item.createdBy, item.updatedBy]).filter((id): id is string => !!id && isUlid(id)))]
   }, [policies])
 
-  const { userMap, tokenMap } = useAuthorMaps(memberIds)
+  const { authorMaps } = useAuthorMaps(memberIds)
   const [selectedPolicies, setSelectedPolicies] = useState<{ id: string }[]>([])
   const defaultVisibility: VisibilityState = {
     id: false,
@@ -114,7 +114,7 @@ export const PoliciesTable = () => {
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.INTERNAL_POLICY, defaultVisibility))
 
-  const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ userMap, tokenMap, selectedPolicies, setSelectedPolicies, enumOptions }), [userMap, tokenMap, selectedPolicies, enumOptions])
+  const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ authorMaps, selectedPolicies, setSelectedPolicies, enumOptions }), [authorMaps, selectedPolicies, enumOptions])
 
   function isVisibleColumn<T extends RowData>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false

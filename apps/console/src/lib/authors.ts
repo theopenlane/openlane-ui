@@ -1,4 +1,6 @@
 import { type User } from '@repo/codegen/src/schema'
+import { type IntegrationProvider } from '@/lib/integrations/types'
+import { isIntegrationSourced, providerForDefinitionID } from '@/lib/integrations/utils'
 
 // Must match the backend SupportAccessConfig.SubjectID (theopenlane/core), the stable subject id
 // used for created_by/updated_by attribution during Openlane support impersonation sessions
@@ -21,25 +23,35 @@ export type AuthorLookupStatus = 'ready' | 'resolving' | 'error'
 export type AuthorMaps = {
   userMap?: Record<string, User>
   tokenMap?: Record<string, AuthorToken>
+  providers?: IntegrationProvider[]
   status?: AuthorLookupStatus
 }
+
+export type AuthorSource = { sourceDefinitionID?: string | null }
 
 export type ResolvedAuthor =
   | { kind: 'user'; displayName: string; user: User }
   | { kind: 'support'; displayName: string }
-  | { kind: 'integration'; displayName: string }
+  | { kind: 'integration'; displayName: string; provider?: IntegrationProvider }
   | { kind: 'token'; displayName: string; token: AuthorToken }
   | { kind: 'unknown'; displayName: string }
   | { kind: 'deleted'; displayName: string }
   | { kind: 'unresolved'; displayName: string }
 
-export function resolveAuthor(id: string | null | undefined, { userMap, tokenMap, status = 'ready' }: AuthorMaps = {}): ResolvedAuthor {
+const resolveIntegrationAuthor = (source: AuthorSource | undefined, providers: IntegrationProvider[] | undefined, status: AuthorLookupStatus): ResolvedAuthor => {
+  const provider = providerForDefinitionID(source?.sourceDefinitionID, providers ?? [])
+  if (provider) return { kind: 'integration', displayName: provider.displayName, provider }
+  if (isIntegrationSourced(source) && status === 'resolving') return { kind: 'unresolved', displayName: RESOLVING_AUTHOR_LABEL }
+  return { kind: 'integration', displayName: INTEGRATION_DISPLAY_NAME }
+}
+
+export const resolveAuthor = (id: string | null | undefined, { userMap, tokenMap, providers, status = 'ready' }: AuthorMaps = {}, source?: AuthorSource): ResolvedAuthor => {
   if (!id) return { kind: 'deleted', displayName: DELETED_USER_LABEL }
   if (id === UNKNOWN_AUTHOR_ID) return { kind: 'unknown', displayName: UNKNOWN_AUTHOR_LABEL }
   const user = userMap?.[id]
   if (user) return { kind: 'user', displayName: user.displayName || EMPTY_DISPLAY_NAME, user }
   if (id === SUPPORT_SUBJECT_ID) return { kind: 'support', displayName: SUPPORT_DISPLAY_NAME }
-  if (id === INTEGRATION_SUBJECT_ID) return { kind: 'integration', displayName: INTEGRATION_DISPLAY_NAME }
+  if (id === INTEGRATION_SUBJECT_ID) return resolveIntegrationAuthor(source, providers, status)
   const token = tokenMap?.[id]
   if (token) return { kind: 'token', displayName: token.name, token }
   if (status === 'resolving') return { kind: 'unresolved', displayName: RESOLVING_AUTHOR_LABEL }

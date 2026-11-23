@@ -74,10 +74,10 @@ const FindingsTable: React.FC<FindingsTableProps> = ({ controlId, subcontrolIds 
 
   const memberIds = useMemo(() => [...new Set(findingsNodes.flatMap((f) => [f.createdBy, f.updatedBy]).filter((id): id is string => typeof id === 'string' && id.length > 0))], [findingsNodes])
 
-  const { userMap, tokenMap } = useAuthorMaps(memberIds)
+  const { userMap, authorMaps } = useAuthorMaps(memberIds)
 
   const columns = useMemo<ColumnDef<FindingsNodeNonNull>[]>(() => {
-    const allCols = getColumns({ userMap, tokenMap, selectedItems: [], setSelectedItems: () => {} })
+    const allCols = getColumns({ userMap, authorMaps, selectedItems: [], setSelectedItems: () => {} })
     return allCols
       .filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
       .map((col) => {
@@ -93,7 +93,7 @@ const FindingsTable: React.FC<FindingsTableProps> = ({ controlId, subcontrolIds 
         }
         return col
       })
-  }, [userMap, tokenMap, replace])
+  }, [userMap, authorMaps, replace])
 
   const paginationMeta = useMemo(
     () => ({

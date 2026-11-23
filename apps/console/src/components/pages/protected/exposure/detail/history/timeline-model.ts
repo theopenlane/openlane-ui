@@ -1,6 +1,7 @@
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { getObjectDisplayName } from '@/utils/object-display-name'
 import { type TimelineNode } from '@/lib/graphql-hooks/associations-timeline'
+import { type AuthorSource } from '@/lib/authors'
 import { type Connection, getNodes } from '@/lib/graphql-hooks/connection'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { htmlToInlineText } from '@/lib/html/html-to-text'
@@ -11,7 +12,7 @@ import { type TOwnershipChange } from './history-events'
 
 const COMMENT_EXCERPT_LENGTH = 80
 
-type TResolveAuthor = (id: string | null | undefined) => string | null
+type TResolveAuthor = (id: string | null | undefined, source?: AuthorSource) => string | null
 
 type THistoryEdgeNode = {
   id: string
@@ -64,8 +65,8 @@ export type TExposureHistoryEdges = Record<THistoryEdge['key'], Connection<THist
 
 const edgeNodes = (edges: TExposureHistoryEdges | undefined, key: THistoryEdge['key']): THistoryEdgeNode[] => (edges ? getNodes(edges[key]) : [])
 
-const byLine = (phrase: string, actorId: string | null | undefined, at: string, resolveAuthor: TResolveAuthor) => {
-  const actor = actorId ? resolveAuthor(actorId) : null
+const byLine = (phrase: string, actorId: string | null | undefined, at: string, resolveAuthor: TResolveAuthor, source?: AuthorSource) => {
+  const actor = actorId ? resolveAuthor(actorId, source) : null
   return `${phrase}${actor ? ` by ${actor}` : ''} on ${formatDate(at)}`
 }
 
@@ -76,6 +77,7 @@ export type TExposureHistoryEntity = {
   createdAt?: string | null
   createdBy?: string | null
   source?: string | null
+  sourceDefinitionID?: string | null
 }
 
 export type TExposureMilestone = {
@@ -115,7 +117,7 @@ export const buildExposureTimeline = ({ edges, ownershipChanges, milestones, ent
     name: change.to ?? 'Unassigned',
     type: change.field,
     createdAt: change.at,
-    subtext: byLine(change.from ? `changed from ${change.from}` : 'set', change.actorId, change.at, resolveAuthor),
+    subtext: byLine(change.from ? `changed from ${change.from}` : 'set', change.actorId, change.at, resolveAuthor, entity),
   }))
 
   const milestoneNodes: TimelineNode[] = milestones.flatMap(({ label, at, phrase }) =>
@@ -130,7 +132,7 @@ export const buildExposureTimeline = ({ edges, ownershipChanges, milestones, ent
           type: entityType,
           role: 'source',
           createdAt: entityCreatedAt,
-          subtext: byLine(entity.source ? `created from ${entity.source}` : 'created', entity.createdBy, entityCreatedAt, resolveAuthor),
+          subtext: byLine(entity.source ? `created from ${entity.source}` : 'created', entity.createdBy, entityCreatedAt, resolveAuthor, entity),
         },
       ]
     : []

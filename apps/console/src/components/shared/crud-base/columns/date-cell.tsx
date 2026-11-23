@@ -1,5 +1,7 @@
 import { formatDate, formatTimeSince } from '@/utils/date'
 
+export const DATE_COLUMN_SIZE = 170
+
 type DateCellProps = {
   value: string | null | undefined
   variant?: 'date' | 'timesince'

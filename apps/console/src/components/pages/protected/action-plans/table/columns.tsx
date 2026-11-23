@@ -9,7 +9,7 @@ import { TruncatedCell } from '@repo/ui/data-table'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type ActionPlanDocumentStatus, type ActionPlanPriority } from '@repo/codegen/src/schema'
 
-export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ActionPlansNodeNonNull>[] => {
+export const getColumns = ({ userMap, authorMaps, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ActionPlansNodeNonNull>[] => {
   return [
     createSelectColumn<ActionPlansNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
@@ -56,14 +56,14 @@ export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems 
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} {...authorMaps} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" /> },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} {...authorMaps} />,
     },
   ]
 }

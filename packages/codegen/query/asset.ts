@@ -31,6 +31,7 @@ export const GET_ALL_ASSETS = gql`
           cpe
           createdAt
           createdBy
+          sourceDefinitionID
           updatedAt
           updatedBy
           criticalityName
@@ -99,6 +100,7 @@ export const ASSET = gql`
       cpe
       createdAt
       createdBy
+      sourceDefinitionID
       updatedAt
       updatedBy
       criticalityName

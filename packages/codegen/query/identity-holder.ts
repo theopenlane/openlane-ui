@@ -29,6 +29,7 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
           emailAliases
           createdAt
           createdBy
+          sourceDefinitionID
           department
           displayID
           email

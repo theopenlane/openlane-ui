@@ -12,6 +12,7 @@ export const GET_ALL_FINDINGS = gql`
           categories
           createdAt
           createdBy
+          sourceDefinitionID
           description
           displayID
           displayName

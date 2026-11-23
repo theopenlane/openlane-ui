@@ -61,10 +61,10 @@ const RisksTable: React.FC<RisksTableProps> = ({ controlId, subcontrolIds }) => 
 
   const memberIds = useMemo(() => [...new Set(risks.flatMap((r) => [r.createdBy, r.updatedBy]).filter((id): id is string => typeof id === 'string' && id.length > 0))], [risks])
 
-  const { userMap, tokenMap } = useAuthorMaps(memberIds)
+  const { authorMaps } = useAuthorMaps(memberIds)
   const openObjectSheet = useOpenObjectSheet()
 
-  const { columns } = useMemo(() => getRiskColumns({ userMap, tokenMap, convertToReadOnly, selectedRisks: [], setSelectedRisks: () => {} }), [userMap, tokenMap, convertToReadOnly])
+  const { columns } = useMemo(() => getRiskColumns({ authorMaps, convertToReadOnly, selectedRisks: [], setSelectedRisks: () => {} }), [authorMaps, convertToReadOnly])
 
   const filteredColumns = useMemo<ColumnDef<RiskTableFieldsFragment>[]>(
     () =>

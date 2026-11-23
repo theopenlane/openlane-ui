@@ -92,6 +92,7 @@ const RISK_TABLE_FIELDS = gql`
     updatedBy
     createdAt
     createdBy
+    sourceDefinitionID
     nextReviewDueAt
     residualScore
     reviewFrequency

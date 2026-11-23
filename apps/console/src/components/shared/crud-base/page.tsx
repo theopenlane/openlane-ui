@@ -32,7 +32,7 @@ import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type FilterField, type WhereInputKey } from '@/types'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type User } from '@repo/codegen/src/schema'
-import { type AuthorToken } from '@/lib/authors'
+import { type AuthorMaps } from '@/lib/authors'
 import { MergeModeProvider } from '@/components/shared/merge-records/merge-mode-context'
 import type { BulkDeletePayload, BulkUpdatePayload, ViewEditMode, CreateMode } from './types'
 import { type Session } from 'next-auth'
@@ -46,7 +46,7 @@ export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promi
 
 export type ColumnOptions = {
   userMap: Record<string, User>
-  tokenMap?: Record<string, AuthorToken>
+  authorMaps: AuthorMaps
   convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
   selectedItems: { id: string }[]
   setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>
@@ -273,6 +273,7 @@ export function GenericTablePage<
 
   const mappedColumns = getColumns({
     userMap: emptyUserMap,
+    authorMaps: {},
     selectedItems,
     setSelectedItems,
   })

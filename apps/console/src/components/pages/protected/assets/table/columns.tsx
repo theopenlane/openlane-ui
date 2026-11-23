@@ -12,7 +12,7 @@ import { ResponsibilityCell } from '@/components/shared/crud-base/columns/respon
 import { TruncatedCell } from '@repo/ui/data-table'
 import { GLOBAL_ENUM_FIELD } from '@/lib/graphql-hooks/custom-type-enum'
 
-export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
+export const getColumns = ({ userMap, authorMaps, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
   return [
     createSelectColumn<AssetsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
@@ -42,7 +42,7 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} source={row.original} {...authorMaps} />,
     },
     { accessorKey: 'criticalityName', header: 'Criticality', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field={GLOBAL_ENUM_FIELD.criticality} /> },
     {
@@ -122,7 +122,7 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} source={row.original} {...authorMaps} />,
     },
     { accessorKey: 'website', header: 'Website', size: 120 },
     {

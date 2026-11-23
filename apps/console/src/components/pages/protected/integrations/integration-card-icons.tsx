@@ -3,7 +3,7 @@
 import React from 'react'
 import { ArrowLeftRight } from 'lucide-react'
 import { Logo } from '@repo/ui/logo'
-import ProviderIcon from './provider-icon'
+import ProviderIcon from '@/components/shared/provider-icon/provider-icon'
 
 type IntegrationCardIconsProps = {
   providerName: string

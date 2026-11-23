@@ -85,7 +85,7 @@ const TableComponent = ({
     return map
   }, [users])
 
-  const columns = useMemo(() => getColumns({ userMap, selectedItems, setSelectedItems }), [userMap, selectedItems, setSelectedItems])
+  const columns = useMemo(() => getColumns({ userMap, authorMaps: {}, selectedItems, setSelectedItems }), [userMap, selectedItems, setSelectedItems])
 
   return (
     <DataTable<PlatformsNodeNonNull>
