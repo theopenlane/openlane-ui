@@ -14,7 +14,7 @@ type LegalAgreementProps = {
 
 const LegalAgreement = ({ action, className }: LegalAgreementProps) => (
   <OfficialOnly>
-    <div className={cn('text-xs opacity-90 flex gap-1 text-muted-foreground', className)}>
+    <div className={cn('text-xs flex gap-1 text-muted-foreground', className)}>
       By {action}, you agree to our
       <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className={linkClassName}>
         Terms of Service

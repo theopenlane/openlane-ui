@@ -36,9 +36,22 @@ const LOADING_INDICATORS = '.animate-custom-pulse, [aria-busy="true"]'
 
 const LOADING_TEXT = /^\s*Loading\b.*(\.\.\.|…)\s*$/
 
+const QUIET_POLLS_REQUIRED = 3
+
+const QUIET_POLL_INTERVAL_MS = 250
+
 export const waitForLoadingToFinish = async (page: Page): Promise<void> => {
-  const loading = page.locator(LOADING_INDICATORS).or(page.getByText(LOADING_TEXT))
-  await expect(loading.filter({ visible: true })).toHaveCount(0, { timeout: 30_000 }) // 30s
+  const loading = page.locator(LOADING_INDICATORS).or(page.getByText(LOADING_TEXT)).filter({ visible: true })
+  let quietPolls = 0
+  await expect
+    .poll(
+      async () => {
+        quietPolls = (await loading.count()) === 0 ? quietPolls + 1 : 0
+        return quietPolls
+      },
+      { timeout: 30_000, intervals: [QUIET_POLL_INTERVAL_MS] }, // 30s
+    )
+    .toBeGreaterThanOrEqual(QUIET_POLLS_REQUIRED)
 }
 
 export const waitForPageToSettle = async (page: Page, ready: ReadyLocator = firstHeading): Promise<void> => {
@@ -46,7 +59,10 @@ export const waitForPageToSettle = async (page: Page, ready: ReadyLocator = firs
   await waitForLoadingToFinish(page)
 }
 
+const FREEZE_MOTION_CSS = '*, *::before, *::after { transition: none !important; animation: none !important; }'
+
 export const expectNoA11yViolations = async (page: Page, testInfo: TestInfo, include?: string): Promise<void> => {
+  await page.addStyleTag({ content: FREEZE_MOTION_CSS })
   const builder = new AxeBuilder({ page }).withTags(WCAG_AA_TAGS).setLegacyMode()
   const { violations } = await (include ? builder.include(include) : builder).analyze()
 

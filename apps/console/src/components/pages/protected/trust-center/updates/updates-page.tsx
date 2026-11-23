@@ -55,11 +55,12 @@ export default function UpdatesSection() {
   const [postToDelete, setPostToDelete] = useState<string | null>(null)
 
   const { successNotification, errorNotification } = useNotification()
-  const { data: trustCenterData } = useGetTrustCenter()
+  const { data: trustCenterData, isLoading: isTrustCenterLoading } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
-  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
+  const { data: tcPermission, isLoading: isTcPermissionLoading } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
   const { data: session } = useSession()
   const canEditTc = canEdit(tcPermission?.roles, session)
+  const isResolvingTcPermission = isTrustCenterLoading || isTcPermissionLoading
 
   const { posts, isLoadingPosts, error: postsError } = useGetTrustCenterPosts()
   useQueryErrorNotification({ error: postsError, description: 'Failed to load updates' })
@@ -150,7 +151,7 @@ export default function UpdatesSection() {
       <h1 className="text-2xl font-bold tracking-tight mb-8">Updates</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-6">
-        <Card className={editingPostId || !canEditTc ? 'opacity-50 pointer-events-none' : ''}>
+        <Card aria-busy={isResolvingTcPermission || undefined} className={editingPostId || !canEditTc ? 'opacity-50 pointer-events-none' : ''}>
           <CardContent className="pt-6">
             <div className="mb-6">
               <h2 className="text-lg font-semibold">Share Update</h2>

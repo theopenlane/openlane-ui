@@ -64,11 +64,12 @@ export default function FaqsPage() {
   const queryClient = useQueryClient()
   const openImport = useOpenImport()
   const { successNotification, errorNotification } = useNotification()
-  const { data: trustCenterData } = useGetTrustCenter()
+  const { data: trustCenterData, isLoading: isTrustCenterLoading } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
-  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
+  const { data: tcPermission, isLoading: isTcPermissionLoading } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
   const { data: session } = useSession()
   const canEditTc = canEdit(tcPermission?.roles, session)
+  const isResolvingTcPermission = isTrustCenterLoading || isTcPermissionLoading
   const { data: orgPermission } = useOrganizationRoles()
   const canCreateCategory = hasPermission(orgPermission?.roles, AccessEnum.CanCreateCustomTypeEnum, session)
 
@@ -232,7 +233,7 @@ export default function FaqsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-6">
-        <CreateFaqForm disabled={!!editingFaqId || !canEditTc} isCreating={isCreating} onSubmit={handleCreateSubmit} canCreateCategory={canCreateCategory} />
+        <CreateFaqForm disabled={!!editingFaqId || !canEditTc} busy={isResolvingTcPermission} isCreating={isCreating} onSubmit={handleCreateSubmit} canCreateCategory={canCreateCategory} />
 
         <div className="relative min-h-100">
           {orderedFaqs.length === 0 ? (

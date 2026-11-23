@@ -11,12 +11,13 @@ import { CategoryField } from '../shared/category-field'
 
 interface CreateFaqFormProps {
   disabled: boolean
+  busy?: boolean
   isCreating: boolean
   onSubmit: (values: FaqFormValues) => Promise<boolean>
   canCreateCategory: boolean
 }
 
-export function CreateFaqForm({ disabled, isCreating, onSubmit, canCreateCategory }: CreateFaqFormProps) {
+export function CreateFaqForm({ disabled, busy = false, isCreating, onSubmit, canCreateCategory }: CreateFaqFormProps) {
   const { form } = useFormSchema()
 
   const handleSubmit = async (values: FaqFormValues) => {
@@ -25,7 +26,7 @@ export function CreateFaqForm({ disabled, isCreating, onSubmit, canCreateCategor
   }
 
   return (
-    <Card className={disabled ? 'opacity-50 pointer-events-none' : ''}>
+    <Card aria-busy={busy || undefined} className={disabled ? 'opacity-50 pointer-events-none' : ''}>
       <CardContent className="pt-6">
         <div className="mb-6">
           <CardTitle className="p-0 pb-6">Add FAQ</CardTitle>

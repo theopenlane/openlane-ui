@@ -15,6 +15,7 @@ interface AvatarProps {
   entity?: User | Organization | Group | Entity | AvatarEntityLike | null
   variant?: 'small' | 'medium' | 'large' | 'extra-large'
   className?: string
+  decorative?: boolean
 }
 
 export const getAvatarImageSrc = (entity?: AvatarEntityLike | null): string | undefined => {
@@ -26,14 +27,14 @@ export const getAvatarImageSrc = (entity?: AvatarEntityLike | null): string | un
   return entity.avatarRemoteURL || entity.gravatarLogoURL || entity.logoURL || undefined
 }
 
-export const Avatar = ({ variant, entity, className }: AvatarProps) => {
+export const Avatar = ({ variant, entity, className, decorative = false }: AvatarProps) => {
   if (!entity) return null
 
   const image = getAvatarImageSrc(entity)
   const fallbackText = entity.displayName?.substring(0, variant === 'small' ? 1 : 2)
 
   return (
-    <AvatarComponent variant={variant} className={className}>
+    <AvatarComponent variant={variant} className={className} aria-hidden={decorative || undefined}>
       {image && <AvatarImage src={image} alt={entity.displayName ?? ''} />}
       <AvatarFallback>{fallbackText || 'N/A'}</AvatarFallback>
     </AvatarComponent>

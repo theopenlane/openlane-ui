@@ -196,7 +196,9 @@ export const ROUTE_TABLE_PROBLEMS = collectProblems(ROUTES)
 const hasEveryParam = (template: string, params: Readonly<Record<string, string>> = {}): boolean => routeParamNames(template).every((name) => name in params)
 
 export const scanCasesFor = (suite: Exclude<RouteSuite, 'records'>): ScanCase[] =>
-  ROUTES.filter((route) => suiteOf(route) === suite && !(route.template in EXCLUDED_ROUTES) && hasEveryParam(route.template, ROUTE_SCANS[route.template]?.params)).map(({ template }) => {
+  ROUTES.filter(
+    (route) => suiteOf(route) === suite && !(route.template in EXCLUDED_ROUTES) && !(route.template in RECORD_SCANS) && hasEveryParam(route.template, ROUTE_SCANS[route.template]?.params),
+  ).map(({ template }) => {
     const { ready, query, params } = ROUTE_SCANS[template] ?? {}
     const path = withQuery(fillRouteParams(template, params), query)
     return { name: path, path, ready }

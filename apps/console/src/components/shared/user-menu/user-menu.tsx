@@ -53,7 +53,7 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button variant="icon" size="icon-sm" aria-label="Account menu" className={trigger()} {...userMenuTriggerAnchor}>
-          <Avatar entity={avatarEntity} />
+          <Avatar entity={avatarEntity} decorative />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-64 pb-1" align="end" aria-labelledby={userMenuTriggerAnchor.id}>
