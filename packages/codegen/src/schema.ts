@@ -1102,6 +1102,7 @@ export type CheckResultsWithFilterQueryVariables = Exact<{
   last?: number | null | undefined
   before?: any
   findingsLimit?: number | null | undefined
+  includeFindings?: boolean
 }>
 
 export interface CheckResultsWithFilterQuery {
@@ -1116,13 +1117,15 @@ export interface CheckResultsWithFilterQuery {
         id: string
         integrationID: string | null
         lastObservedAt: string | null
+        managedBy: string | null
         parentExternalID: string | null
         source: string
+        sourceDefinitionID: string | null
         status: Types.CheckResultCheckStatus
         tags: Array<string> | null
         updatedAt: any
         updatedBy: string | null
-        findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string; externalID: string | null } | null } | null> | null }
+        findings?: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string; externalID: string | null } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }

@@ -35,20 +35,23 @@ import {
   BULK_DELETE_CHECK_RESULT,
 } from '@repo/codegen/query/check-result'
 
+export type CheckResultIncludeVars = Pick<CheckResultsWithFilterQueryVariables, 'includeFindings'>
+
 type GetAllCheckResultsArgs = {
   where?: CheckResultsWithFilterQueryVariables['where']
   orderBy?: CheckResultsWithFilterQueryVariables['orderBy']
   pagination?: TPagination
   enabled?: boolean
+  includeVars?: CheckResultIncludeVars
 }
 
 export type CheckResultsNode = NonNullable<NonNullable<NonNullable<CheckResultsWithFilterQuery['checkResults']['edges']>[number]>['node']>
 
-export const useCheckResultsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllCheckResultsArgs) => {
+export const useCheckResultsWithFilter = ({ where, orderBy, pagination, enabled = true, includeVars }: GetAllCheckResultsArgs) => {
   const { client } = useGraphQLClient()
   const queryResult = useQuery<CheckResultsWithFilterQuery>({
-    queryKey: ['checkResults', where, orderBy, pagination?.page, pagination?.pageSize],
-    queryFn: () => client.request<CheckResultsWithFilterQuery, CheckResultsWithFilterQueryVariables>(GET_ALL_CHECK_RESULTS, { where, orderBy, ...pagination?.query }),
+    queryKey: ['checkResults', where, orderBy, pagination?.page, pagination?.pageSize, includeVars],
+    queryFn: () => client.request<CheckResultsWithFilterQuery, CheckResultsWithFilterQueryVariables>(GET_ALL_CHECK_RESULTS, { where, orderBy, ...includeVars, ...pagination?.query }),
     enabled,
   })
 
