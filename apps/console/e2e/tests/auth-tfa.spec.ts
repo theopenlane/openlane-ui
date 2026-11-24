@@ -52,7 +52,7 @@ test.describe('auth journeys — user two-factor', () => {
     await page.waitForURL(/\/tfa/, { timeout: 30_000 }) // 30s
     expect(await submitOtp(page, wrongTotpCode(enrollment.secret))).toBe(false)
 
-    await expect(page.locator('p.text-destructive')).toBeVisible()
+    await expect(page.getByText(/^Invalid authentication token entered!/)).toBeVisible()
     await expect(page).toHaveURL(/\/tfa/)
     await expect(otpInput(page)).toBeVisible()
   })

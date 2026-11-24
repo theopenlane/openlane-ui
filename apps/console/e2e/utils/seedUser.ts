@@ -13,12 +13,24 @@ export interface SeedUserOptions {
   viaWizard?: boolean
 }
 
-export const seedLoggedInUser = async (page: Page, slug: string, opts: SeedUserOptions = {}): Promise<{ email: string; orgId: string }> => {
+export const seedUserWithOrg = async (slug: string): Promise<{ email: string; orgId: string }> => {
   const unique = `${slug}-${RUN_ID}-${Date.now().toString(36)}`
   const email = `user@${unique}.invalid`
   await registerAndVerify({ email })
 
+  const api = await loginViaApi(email)
+  const { settingId } = await getSelf(api)
+  const orgId = await createSharedOrg(api, `E2E Org ${unique}`)
+  await setDefaultOrg(api, settingId, orgId)
+
+  return { email, orgId }
+}
+
+export const seedLoggedInUser = async (page: Page, slug: string, opts: SeedUserOptions = {}): Promise<{ email: string; orgId: string }> => {
   if (opts.viaWizard) {
+    const unique = `${slug}-${RUN_ID}-${Date.now().toString(36)}`
+    const email = `user@${unique}.invalid`
+    await registerAndVerify({ email })
     await loginViaForm(page, email, PASSWORD)
     await completeOnboarding(page, { companyName: `E2E Org ${unique}` })
     const wizardApi = await loginViaApi(email)
@@ -26,10 +38,7 @@ export const seedLoggedInUser = async (page: Page, slug: string, opts: SeedUserO
     return { email, orgId: org?.id ?? '' }
   }
 
-  const api = await loginViaApi(email)
-  const { settingId } = await getSelf(api)
-  const orgId = await createSharedOrg(api, `E2E Org ${unique}`)
-  await setDefaultOrg(api, settingId, orgId)
+  const { email, orgId } = await seedUserWithOrg(slug)
 
   await loginViaForm(page, email, PASSWORD)
   await page.waitForURL(/\/dashboard/, { timeout: 30_000 })

@@ -17,7 +17,7 @@ test.describe('programs — list', () => {
   test('the programs dashboard exposes search and Active/Archived tabs', async ({ page }) => {
     test.slow()
     await createProgram(ownerApi, uniqueProgramName()) // ensure the list view (not the empty state) renders
-    await page.goto('/programs', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await page.goto('/programs?view=all', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
     await expect(page.getByPlaceholder('Search').first()).toBeVisible({ timeout: 20_000 })
     await expect(page.getByRole('tab', { name: /Active/ })).toBeVisible({ timeout: 15_000 })
@@ -27,7 +27,7 @@ test.describe('programs — list', () => {
   test('switching to the Archived tab updates the active selection', async ({ page }) => {
     test.slow()
     await createProgram(ownerApi, uniqueProgramName())
-    await page.goto('/programs', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await page.goto('/programs?view=all', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
     const active = page.getByRole('tab', { name: /Active/ })
     const archived = page.getByRole('tab', { name: /Archived/ })
