@@ -5,17 +5,20 @@ export const CONTROL_IMPLEMENTATIONS_HREF = '/control-implementations'
 
 export const controlImplementationHref = (id: string): string => `${CONTROL_IMPLEMENTATIONS_HREF}/${id}`
 
-type TRefCodeConnection = Pick<Connection<{ refCode?: string | null }>, 'edges'> | null
+type TRefCodeConnection = Pick<Connection<{ refCode?: string | null; referenceFramework?: string | null }>, 'edges'> | null
 
 type TControlImplementationTitleSource = {
   controls?: TRefCodeConnection
   subcontrols?: TRefCodeConnection
 }
 
-const firstRefCode = (connection?: TRefCodeConnection): string | undefined =>
-  getNodes(connection)
-    .flatMap(({ refCode }) => refCode?.trim() || [])
-    .sort(compareNatural)[0]
+const firstControlLabel = (connection?: TRefCodeConnection): string | undefined => {
+  const [first] = getNodes(connection)
+    .flatMap(({ refCode, referenceFramework }) => (refCode?.trim() ? [{ refCode: refCode.trim(), framework: referenceFramework?.trim() ?? '' }] : []))
+    .sort((a, b) => compareNatural(a.refCode, b.refCode) || compareNatural(a.framework, b.framework))
+
+  return first && [first.framework, first.refCode].filter(Boolean).join(' ')
+}
 
 export const sortByRefCode = <T extends { refCode: string }>(connection: Pick<Connection<T>, 'edges'>): { node: T }[] =>
   getNodes(connection)
@@ -23,8 +26,8 @@ export const sortByRefCode = <T extends { refCode: string }>(connection: Pick<Co
     .map((node) => ({ node }))
 
 export const getControlImplementationTitle = (implementation?: TControlImplementationTitleSource | null): string => {
-  const refCode = firstRefCode(implementation?.controls) ?? firstRefCode(implementation?.subcontrols)
-  return refCode ? `${refCode} Implementation` : 'Control Implementation'
+  const label = firstControlLabel(implementation?.controls) ?? firstControlLabel(implementation?.subcontrols)
+  return label ? `${label} Implementation` : 'Control Implementation'
 }
 
 export const toParentControlIDs = (controlId: string, subcontrolId?: string | null): { controlIDs: string[] } | { subcontrolIDs: string[] } =>

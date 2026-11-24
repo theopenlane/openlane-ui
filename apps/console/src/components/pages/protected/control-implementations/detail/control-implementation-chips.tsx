@@ -1,12 +1,9 @@
 import React from 'react'
-import { ChevronDown } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { ControlImplementationDocumentStatus } from '@repo/codegen/src/schema'
+import { type ControlImplementationDocumentStatus } from '@repo/codegen/src/schema'
+import { ChipSelect } from '@/components/shared/chip-select/chip-select'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { DocumentStatusBadge } from '@/components/shared/enum-mapper/policy-enum'
-import { isOneOf } from '@/utils/type-guards'
+import { DocumentStatusBadge, getDocumentStatusClassName } from '@/components/shared/enum-mapper/policy-enum'
 import { getVerifiedLabel } from '@/utils/control-implementation'
 import { statusOptions } from '../table/table-config'
 import { VerifiedIcon } from '../verified-label'
@@ -16,42 +13,6 @@ const VERIFIED_OPTIONS = [
   { value: 'false', label: getVerifiedLabel(false) },
 ]
 
-const isStatus = isOneOf(Object.values(ControlImplementationDocumentStatus))
-
-type TChipMenuProps = {
-  label: string
-  value: string
-  options: { value: string; label: string }[]
-  disabled: boolean
-  onSelect: (value: string) => void
-  children: React.ReactNode
-}
-
-const ChipMenu: React.FC<TChipMenuProps> = ({ label, value, options, disabled, onSelect, children }) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger asChild>
-      <Button type="button" variant="transparent" className="h-auto p-0" aria-label={label} disabled={disabled}>
-        {children}
-        <ChevronDown size={16} className="text-muted-foreground" />
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="start">
-      <DropdownMenuRadioGroup
-        value={value}
-        onValueChange={(next) => {
-          if (next !== value) onSelect(next)
-        }}
-      >
-        {options.map((option) => (
-          <DropdownMenuRadioItem key={option.value} value={option.value}>
-            {option.label}
-          </DropdownMenuRadioItem>
-        ))}
-      </DropdownMenuRadioGroup>
-    </DropdownMenuContent>
-  </DropdownMenu>
-)
-
 type TStatusChipProps = {
   status?: ControlImplementationDocumentStatus | null
   canEdit: boolean
@@ -60,21 +21,22 @@ type TStatusChipProps = {
 }
 
 export const StatusChip: React.FC<TStatusChipProps> = ({ status, canEdit, disabled, onChange }) => {
-  const chip = status ? <DocumentStatusBadge status={status} /> : <Badge variant="outline">No status</Badge>
-  if (!canEdit) return chip
+  if (!canEdit) return status ? <DocumentStatusBadge status={status} /> : <Badge variant="outline">No status</Badge>
+
+  const label = status ? getEnumLabel(status) : 'No status'
 
   return (
-    <ChipMenu
-      label={`Status: ${status ? getEnumLabel(status) : 'none'}. Change status`}
-      value={status ?? ''}
+    <ChipSelect
+      label={`Status: ${label}. Change status`}
+      value={status}
       options={statusOptions}
+      onChange={onChange}
+      variant="outline"
+      className={status ? getDocumentStatusClassName(status) : undefined}
       disabled={disabled}
-      onSelect={(next) => {
-        if (isStatus(next)) onChange(next)
-      }}
     >
-      {chip}
-    </ChipMenu>
+      {label}
+    </ChipSelect>
   )
 }
 
@@ -86,17 +48,32 @@ type TVerifiedChipProps = {
 }
 
 export const VerifiedChip: React.FC<TVerifiedChipProps> = ({ verified, canEdit, disabled, onChange }) => {
-  const chip = (
-    <Badge variant={verified ? 'green' : 'red'} className="gap-1.5">
+  const variant = verified ? 'green' : 'red'
+  const content = (
+    <>
       <VerifiedIcon verified={verified} />
       {getVerifiedLabel(verified)}
-    </Badge>
+    </>
   )
-  if (!canEdit) return chip
+
+  if (!canEdit) {
+    return (
+      <Badge variant={variant} className="gap-1.5">
+        {content}
+      </Badge>
+    )
+  }
 
   return (
-    <ChipMenu label={`${getVerifiedLabel(verified)}. Change verification`} value={String(verified)} options={VERIFIED_OPTIONS} disabled={disabled} onSelect={(next) => onChange(next === 'true')}>
-      {chip}
-    </ChipMenu>
+    <ChipSelect
+      label={`${getVerifiedLabel(verified)}. Change verification`}
+      value={String(verified)}
+      options={VERIFIED_OPTIONS}
+      onChange={(next) => onChange(next === 'true')}
+      variant={variant}
+      disabled={disabled}
+    >
+      <span className="inline-flex items-center gap-1.5">{content}</span>
+    </ChipSelect>
   )
 }

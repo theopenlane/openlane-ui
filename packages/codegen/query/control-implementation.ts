@@ -207,6 +207,7 @@ export const CONTROL_IMPLEMENTATION_REFERENCE_FIELDS = gql`
       edges {
         node {
           refCode
+          referenceFramework
         }
       }
     }
@@ -214,6 +215,7 @@ export const CONTROL_IMPLEMENTATION_REFERENCE_FIELDS = gql`
       edges {
         node {
           refCode
+          referenceFramework
         }
       }
     }

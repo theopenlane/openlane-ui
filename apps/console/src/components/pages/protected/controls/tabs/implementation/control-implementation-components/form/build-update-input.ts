@@ -7,6 +7,7 @@ export const CONTROL_IMPLEMENTATION_UPDATE_FIELDS = {
   implementationDate: dateOrClear('clearImplementationDate'),
   status: orClear('clearStatus'),
   tags: orClear('clearTags'),
+  verified: orClear('clearVerified'),
   controlIDs: omit,
   subcontrolIDs: omit,
   id: omit,

@@ -1,22 +1,13 @@
 import { StandardsColorSpan, StandardsHexagon } from '@/components/shared/standards-color-mapper/standards-color-mapper'
-import { cn } from '@repo/ui/lib/utils'
-
-type TStandardChipSize = 'default' | 'lg'
 
 type TStandardChipProps = {
   referenceFramework?: string
-  size?: TStandardChipSize
 }
 
-const SIZES: Record<TStandardChipSize, { className: string; hexagon: number }> = {
-  default: { className: 'gap-1 px-2.5 py-0.5 text-xs', hexagon: 10 },
-  lg: { className: 'gap-1.5 px-3 py-1 text-sm', hexagon: 12 },
-}
-
-const StandardChip = ({ referenceFramework, size = 'default' }: TStandardChipProps) => {
+const StandardChip = ({ referenceFramework }: TStandardChipProps) => {
   return (
-    <div className={cn('inline-flex items-center rounded-full border font-semibold bg-secondary transition-colors focus:outline-hidden h-fit shrink-0', SIZES[size].className)}>
-      <StandardsHexagon shortName={referenceFramework ?? ''} size={SIZES[size].hexagon} />
+    <div className="inline-flex gap-1 items-center rounded-full px-2.5 py-0.5 border text-xs font-semibold bg-secondary transition-colors focus:outline-hidden h-fit shrink-0">
+      <StandardsHexagon shortName={referenceFramework ?? ''} />
       <StandardsColorSpan shortName={referenceFramework || ''}>{referenceFramework || 'CUSTOM'}</StandardsColorSpan>
     </div>
   )

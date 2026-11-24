@@ -1,19 +1,15 @@
-'use client'
-
-import React, { useState, useCallback } from 'react'
+import React, { useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ChevronDown, ChevronRight } from 'lucide-react'
-import { type ControlImplementationFieldsFragment, type UpdateControlImplementationInput } from '@repo/codegen/src/schema'
-import { useGetControlImplementationById, useUpdateControlImplementation, useDeleteControlImplementation } from '@/lib/graphql-hooks/control-implementation'
-import { Link } from '@/components/shared/link/link'
-import { controlImplementationHref } from '@/utils/control-implementation'
-import { ControlImplementationCard } from './control-implementation-card'
-import { LinkControlsModal } from './link-controls-modal'
-import { GenericDetailsSheet, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import useFormSchema, { type TFormData } from './form/use-form-schema'
-import { ControlImplementationFields } from './form/control-implementation-fields'
-import { CONTROL_IMPLEMENTATION_UPDATE_FIELDS } from './form/build-update-input'
+import { useGetControlImplementationById } from '@/lib/graphql-hooks/control-implementation'
+import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
+import { SlideoutPreviewHeader } from '@/components/shared/crud-base/slideout-preview-header'
+import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
+import { RelatedControlsCell } from '@/components/shared/crud-base/columns/related-controls-cell'
+import { getControlImplementationTitle, sortByRefCode } from '@/utils/control-implementation'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import { ControlImplementationCard } from './control-implementation-card'
+import useFormSchema from './form/use-form-schema'
 
 type Props = {
   queryParamKey?: string
@@ -24,29 +20,13 @@ type Props = {
 const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'controlImplementationId', entityId: entityIdProp, onClose: onCloseProp }) => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const entityIdFromUrl = searchParams.get(queryParamKey)
-  const entityId = entityIdProp !== undefined ? entityIdProp : entityIdFromUrl
+  const entityId = entityIdProp !== undefined ? entityIdProp : searchParams.get(queryParamKey)
 
-  const [detailsOpen, setDetailsOpen] = useState(true)
-
-  const { data: node, isLoading } = useGetControlImplementationById(entityId)
+  const { data: node, isLoading, isError } = useGetControlImplementationById(entityId)
   const { form } = useFormSchema()
-
-  const baseUpdateMutation = useUpdateControlImplementation()
-  const baseDeleteMutation = useDeleteControlImplementation()
-
-  const updateMutation = {
-    isPending: baseUpdateMutation.isPending,
-    mutateAsync: async (params: { id: string; input: UpdateControlImplementationInput }) => baseUpdateMutation.mutateAsync({ updateControlImplementationId: params.id, input: params.input }),
-  }
-
-  const deleteMutation = {
-    isPending: baseDeleteMutation.isPending,
-    mutateAsync: async ({ ids }: { ids: string[] }) => {
-      await Promise.all(ids.map((id) => baseDeleteMutation.mutateAsync({ deleteControlImplementationId: id })))
-      return { deletedIDs: ids, notDeletedIDs: [] }
-    },
-  }
+  const title = getControlImplementationTitle(node)
+  const controlEdges = useMemo(() => node && sortByRefCode(node.controls), [node])
+  const subcontrolEdges = useMemo(() => node && sortByRefCode(node.subcontrols).map(({ node: subcontrol }) => ({ node: { ...subcontrol, controlID: subcontrol.control.id } })), [node])
 
   const handleClose = () => {
     if (onCloseProp) {
@@ -58,49 +38,6 @@ const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'c
     router.replace(`${window.location.pathname}?${params.toString()}`)
   }
 
-  const normalizeData = useCallback(
-    (data: ControlImplementationFieldsFragment): Partial<TFormData> => ({
-      details: data.details ?? '',
-      status: data.status ?? undefined,
-      implementationDate: data.implementationDate ? new Date(data.implementationDate) : null,
-    }),
-    [],
-  )
-
-  const renderFields = useCallback(
-    ({ isEditing, data, isFormInitialized }: RenderFieldsProps<ControlImplementationFieldsFragment, UpdateControlImplementationInput>) => {
-      if (!isEditing) return null
-      return <ControlImplementationFields form={form} detailsInitialValue={isFormInitialized ? (data?.details ?? undefined) : undefined} />
-    },
-    [form],
-  )
-
-  const extraContent = node ? (
-    <div className="mt-4">
-      <Link href={controlImplementationHref(node.id)} onClick={onCloseProp} className="mb-4 inline-block text-sm">
-        View full page
-      </Link>
-      <button className="flex items-center gap-1 text-sm font-medium w-full text-left mb-2" onClick={() => setDetailsOpen((o) => !o)}>
-        {detailsOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-        Details
-      </button>
-      {detailsOpen && (
-        <ControlImplementationCard
-          obj={node}
-          actions={
-            <LinkControlsModal
-              updateControlImplementationId={node.id}
-              initialData={{
-                controlIDs: node.controls?.edges?.flatMap((edge) => edge?.node?.id || []),
-                subcontrolIDs: node.subcontrols?.edges?.flatMap((edge) => edge?.node?.id || []),
-              }}
-            />
-          }
-        />
-      )}
-    </div>
-  ) : null
-
   return (
     <GenericDetailsSheet
       objectType={ObjectTypes.CONTROL_IMPLEMENTATION}
@@ -108,13 +45,22 @@ const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'c
       entityId={entityId}
       data={node}
       isFetching={isLoading}
-      deleteMutation={deleteMutation}
-      update={{ mutation: updateMutation, fields: CONTROL_IMPLEMENTATION_UPDATE_FIELDS }}
-      normalizeData={normalizeData}
       getName={() => null}
-      renderFields={renderFields}
-      extraContent={extraContent}
       onClose={handleClose}
+      renderHeader={({ close }) => <SlideoutPreviewHeader title={title} close={close} fullPagePath={node ? getHrefForObjectType('controlImplementations', { id: node.id }) : null} />}
+      overrideContent={
+        node ? (
+          <div className="mt-4 space-y-6">
+            <ControlImplementationCard obj={node} />
+            <section className="space-y-2">
+              <h3 className="text-sm font-medium">Linked Controls</h3>
+              <RelatedControlsCell controlEdges={controlEdges} subcontrolEdges={subcontrolEdges} />
+            </section>
+          </div>
+        ) : (
+          <EmptyTabState description={isError ? 'This control implementation could not be loaded.' : 'Control implementation not found.'} />
+        )
+      }
     />
   )
 }

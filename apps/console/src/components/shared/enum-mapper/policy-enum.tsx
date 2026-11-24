@@ -23,9 +23,11 @@ const DocumentStatusColorMapper: Record<TDocumentStatus, string> = {
   [InternalPolicyDocumentStatus.PENDING]: 'text-document-pending bg-document-pending-muted border-document-pending-border',
 }
 
+export const getDocumentStatusClassName = (status: TDocumentStatus) => DocumentStatusColorMapper[status] ?? ''
+
 export function DocumentStatusBadge({ status }: { status: TDocumentStatus }) {
   return (
-    <Badge variant="outline" className={`flex items-center text-center gap-2 ${DocumentStatusColorMapper[status] ?? ''}`}>
+    <Badge variant="outline" className={`flex items-center text-center gap-2 ${getDocumentStatusClassName(status)}`}>
       {getEnumLabel(status)}
     </Badge>
   )

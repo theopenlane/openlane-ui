@@ -69,6 +69,7 @@ const toFormValues = (implementation: ControlImplementationDetailNode): TFormDat
   status: implementation.status ?? undefined,
   implementationDate: implementation.implementationDate ? new Date(implementation.implementationDate) : null,
   tags: implementation.tags ?? [],
+  verified: !!implementation.verified,
 })
 
 type TControlImplementationDetailPageProps = {
@@ -95,7 +96,6 @@ const ControlImplementationDetailPage: React.FC<TControlImplementationDetailPage
   const { mutateAsync: updateImplementation, isPending: isUpdating } = useUpdateControlImplementation()
   const { mutateAsync: deleteImplementation } = useDeleteControlImplementation()
   const { setVerified, isPending: isVerifying } = useControlImplementationVerification()
-  const isSaving = isUpdating || isVerifying
 
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -104,6 +104,7 @@ const ControlImplementationDetailPage: React.FC<TControlImplementationDetailPage
   const [isAskAIOpen, setIsAskAIOpen] = useState(false)
 
   const { form } = useFormSchema()
+  const isSaving = isUpdating || isVerifying || form.formState.isSubmitting
   const buildDirtyInput = useDirtyInput(form)
   const navGuard = useNavigationGuard({ enabled: form.formState.isDirty })
   const tabs = useDetailTabs<TTabValue>({ page: 'control-implementation', tabs: TABS, defaultTab: 'overview' })
@@ -192,6 +193,7 @@ const ControlImplementationDetailPage: React.FC<TControlImplementationDetailPage
     setCloneDefaults({
       ...toFormValues(implementation),
       status: ControlImplementationDocumentStatus.DRAFT,
+      verified: undefined,
       controlIDs: getNodes(implementation.controls).map(({ id }) => id),
       subcontrolIDs: getNodes(implementation.subcontrols).map(({ id }) => id),
     })
@@ -272,7 +274,12 @@ const ControlImplementationDetailPage: React.FC<TControlImplementationDetailPage
               <TabsContent value="overview" className="space-y-6" forceMount hidden={tabs.activeTab !== 'overview'}>
                 <ControlImplementationDetails details={implementation.details} isEditing={isEditing} />
                 <div className="border-t pt-6">
-                  <LinkedControlsSection controlImplementationId={controlImplementationId} />
+                  <LinkedControlsSection
+                    key={controlImplementationId}
+                    controlImplementationId={controlImplementationId}
+                    details={implementation.details}
+                    canEdit={canEditImplementation && !isEditing}
+                  />
                 </div>
               </TabsContent>
               <TabsContent value="activity" forceMount hidden={tabs.activeTab !== 'activity'}>

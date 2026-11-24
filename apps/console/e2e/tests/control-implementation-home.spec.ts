@@ -180,13 +180,13 @@ test.describe('control implementations — page', () => {
     const verifying = waitForMutation(page, 'UpdateControlImplementation')
     await page.getByRole('button', { name: 'Mark Verified', exact: true }).click()
     expect((await verifying).request().postDataJSON().variables.input).toEqual({ verified: true })
-    await expect(page.getByRole('button', { name: 'Verified. Change verification', exact: true })).toBeVisible({ timeout: 30_000 })
+    await expect(page.getByRole('combobox', { name: 'Verified. Change verification', exact: true })).toBeVisible({ timeout: 30_000 })
     await expect.poll(async () => (await readImplementation(id)).verificationDate, { timeout: 30_000 }).toBeTruthy()
 
     const unverifying = waitForMutation(page, 'UpdateControlImplementation')
     await page.getByRole('button', { name: 'Mark Not Verified', exact: true }).click()
     expect((await unverifying).request().postDataJSON().variables.input).toEqual({ verified: false, clearVerificationDate: true })
-    await expect(page.getByRole('button', { name: 'Not verified. Change verification', exact: true })).toBeVisible({ timeout: 30_000 })
+    await expect(page.getByRole('combobox', { name: 'Not verified. Change verification', exact: true })).toBeVisible({ timeout: 30_000 })
     await expect.poll(async () => (await readImplementation(id)).verificationDate, { timeout: 30_000 }).toBeNull()
   })
 
@@ -231,7 +231,7 @@ test.describe('control implementations — page', () => {
     expect(clone.verified).not.toBe(true)
     expect(linkedControlIds(clone)).toEqual(controls)
 
-    await expect(page.getByRole('button', { name: 'Status: Draft. Change status', exact: true })).toBeVisible({ timeout: 60_000 })
+    await expect(page.getByRole('combobox', { name: 'Status: Draft. Change status', exact: true })).toBeVisible({ timeout: 60_000 })
     await openMenuAction(page, 'control-implementation-delete-button')
     await confirmDestructive(page, 'DeleteControlImplementation')
 

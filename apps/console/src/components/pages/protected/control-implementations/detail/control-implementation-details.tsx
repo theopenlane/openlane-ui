@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils'
-import { ControlImplementationFields } from '../../controls/tabs/implementation/control-implementation-components/form/control-implementation-fields'
+import { ControlImplementationDetailsField } from '../../controls/tabs/implementation/control-implementation-components/form/control-implementation-fields'
 import { type TFormData } from '../../controls/tabs/implementation/control-implementation-components/form/use-form-schema'
 import { ReadOnlyRichText } from '../../exposure/detail/read-only-rich-text'
 
@@ -14,7 +14,7 @@ const EditableDetails: React.FC<{ details?: string | null }> = ({ details }) => 
   const form = useFormContext<TFormData>()
   const [initialDetails] = useState(details ?? undefined)
 
-  return <ControlImplementationFields form={form} detailsInitialValue={initialDetails} />
+  return <ControlImplementationDetailsField form={form} detailsInitialValue={initialDetails} />
 }
 
 const ControlImplementationDetails: React.FC<TControlImplementationDetailsProps> = ({ details, isEditing }) => {

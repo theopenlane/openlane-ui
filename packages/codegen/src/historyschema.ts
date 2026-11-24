@@ -1621,8 +1621,8 @@ export interface GetControlImplementationAssociationsQuery {
 
 export type ControlImplementationReferenceFieldsFragment = {
   id: string
-  controls: { edges: Array<{ node: { refCode: string } | null } | null> | null }
-  subcontrols: { edges: Array<{ node: { refCode: string } | null } | null> | null }
+  controls: { edges: Array<{ node: { refCode: string; referenceFramework: string | null } | null } | null> | null }
+  subcontrols: { edges: Array<{ node: { refCode: string; referenceFramework: string | null } | null } | null> | null }
 }
 
 export type GetControlImplementationLinkedControlsQueryVariables = Exact<{
@@ -1646,8 +1646,8 @@ export interface GetControlImplementationLinkedControlsQuery {
             edges: Array<{
               node: {
                 id: string
-                controls: { edges: Array<{ node: { refCode: string } | null } | null> | null }
-                subcontrols: { edges: Array<{ node: { refCode: string } | null } | null> | null }
+                controls: { edges: Array<{ node: { refCode: string; referenceFramework: string | null } | null } | null> | null }
+                subcontrols: { edges: Array<{ node: { refCode: string; referenceFramework: string | null } | null } | null> | null }
               } | null
             } | null> | null
           }
@@ -1669,8 +1669,8 @@ export interface GetControlImplementationLinkedControlsQuery {
             edges: Array<{
               node: {
                 id: string
-                controls: { edges: Array<{ node: { refCode: string } | null } | null> | null }
-                subcontrols: { edges: Array<{ node: { refCode: string } | null } | null> | null }
+                controls: { edges: Array<{ node: { refCode: string; referenceFramework: string | null } | null } | null> | null }
+                subcontrols: { edges: Array<{ node: { refCode: string; referenceFramework: string | null } | null } | null> | null }
               } | null
             } | null> | null
           }

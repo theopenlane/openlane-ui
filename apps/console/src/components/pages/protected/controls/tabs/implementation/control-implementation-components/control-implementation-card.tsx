@@ -37,9 +37,11 @@ export const ControlImplementationCard = ({ obj, actions }: Props) => {
         <p className="text-sm mt-6 uppercase tracking-widest text-muted-foreground">Implementation</p>
         <div className="mt-2 text-sm text-foreground">{convertToReadOnly(obj.details || '—', 0)}</div>
       </div>
-      <div>
-        <div className="border-t border-border p-6">{actions ? <div className=" flex items-center justify-end">{actions}</div> : null}</div>
-      </div>
+      {actions && (
+        <div className="border-t border-border p-6">
+          <div className="flex items-center justify-end">{actions}</div>
+        </div>
+      )}
     </Card>
   )
 }

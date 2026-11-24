@@ -88,6 +88,7 @@ interface GenericTablePageBaseConfig<TEntity extends { id: string }, TFormData e
   defaultVisibility: VisibilityState
   filterFields?: FilterField[] | undefined
   mapFilterKey?: (key: string, value: unknown) => TWhereInput
+  transformFilters?: (filters: TWhereInput) => TWhereInput
   quickFilters?: TQuickFilter[]
   searchFields?: WhereInputKey<TWhereInput>[]
   buildSearchWhere?: (term: string) => TWhereInput[]
@@ -189,6 +190,7 @@ export function GenericTablePage<
     defaultVisibility,
     filterFields,
     mapFilterKey,
+    transformFilters,
     quickFilters,
     searchFields,
     buildSearchWhere,
@@ -239,7 +241,7 @@ export function GenericTablePage<
   }
 
   const whereFilter = useMemo(() => {
-    const result = filters ? (whereGenerator<TWhereInput>(filters, mapFilterKey ?? identityFilterKey) as Record<string, unknown>) : ({} as Record<string, unknown>)
+    const result = filters ? (whereGenerator<TWhereInput>(transformFilters?.(filters) ?? filters, mapFilterKey ?? identityFilterKey) as Record<string, unknown>) : ({} as Record<string, unknown>)
 
     const merged = { ...result }
 
@@ -255,7 +257,7 @@ export function GenericTablePage<
     if (Object.keys(merged).length === 0) return null
 
     return merged as TWhereInput
-  }, [filters, mapFilterKey, debouncedSearch, searchFields, buildSearchWhere, additionalWhereFilter])
+  }, [filters, mapFilterKey, transformFilters, debouncedSearch, searchFields, buildSearchWhere, additionalWhereFilter])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
