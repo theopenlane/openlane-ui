@@ -38,3 +38,21 @@ export const DELETE_INTEGRATION = gql`
     }
   }
 `
+
+export const GET_INTEGRATION_INSTALLERS = gql`
+  query GetIntegrationInstallers($where: IntegrationWhereInput) {
+    integrations(where: $where) {
+      edges {
+        node {
+          id
+          name
+          kind
+          definitionID
+          definitionSlug
+          family
+          createdBy
+        }
+      }
+    }
+  }
+`

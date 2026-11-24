@@ -8,10 +8,9 @@ import { formatDate } from '@/utils/date'
 import { toHumanLabel } from '@/utils/strings'
 import { exposureAssetLabel } from '../exposure-asset-label'
 import { type TOwnershipChange } from './history-events'
+import { type TIntegrationProvenance, type TResolveActor } from './integration-actor'
 
 const COMMENT_EXCERPT_LENGTH = 80
-
-type TResolveAuthor = (id: string | null | undefined) => string | null
 
 type THistoryEdgeNode = {
   id: string
@@ -64,8 +63,8 @@ export type TExposureHistoryEdges = Record<THistoryEdge['key'], Connection<THist
 
 const edgeNodes = (edges: TExposureHistoryEdges | undefined, key: THistoryEdge['key']): THistoryEdgeNode[] => (edges ? getNodes(edges[key]) : [])
 
-const byLine = (phrase: string, actorId: string | null | undefined, at: string, resolveAuthor: TResolveAuthor) => {
-  const actor = actorId ? resolveAuthor(actorId) : null
+const byLine = (phrase: string, actorId: string | null | undefined, at: string, resolveActor: TResolveActor, provenance?: TIntegrationProvenance) => {
+  const actor = actorId ? resolveActor(actorId, provenance) : null
   return `${phrase}${actor ? ` by ${actor}` : ''} on ${formatDate(at)}`
 }
 
@@ -92,18 +91,19 @@ type TBuildArgs = {
   title: string
   objectType: ObjectTypes
   entityName: string
-  resolveAuthor: TResolveAuthor
+  creationProvenance: TIntegrationProvenance | undefined
+  resolveActor: TResolveActor
 }
 
 const isBefore = (at: string, reference: string) => new Date(at).getTime() < new Date(reference).getTime()
 
-export const buildExposureTimeline = ({ edges, ownershipChanges, milestones, entity, title, objectType, entityName, resolveAuthor }: TBuildArgs): TimelineNode[] => {
+export const buildExposureTimeline = ({ edges, ownershipChanges, milestones, entity, title, objectType, entityName, creationProvenance, resolveActor }: TBuildArgs): TimelineNode[] => {
   const entityCreatedAt = entity.createdAt
   const entityType = toHumanLabel(objectType)
   const linked: TimelineNode[] = HISTORY_EDGES.flatMap(({ key, type, verb, sheetKind, name }) =>
     edgeNodes(edges, key).flatMap((node) => {
       if (!node.createdAt) return []
-      const created = byLine(verb, node.createdBy, node.createdAt, resolveAuthor)
+      const created = byLine(verb, node.createdBy, node.createdAt, resolveActor)
       return entityCreatedAt && isBefore(node.createdAt, entityCreatedAt)
         ? [{ id: node.id, name: name(node), type, sheetKind, createdAt: entityCreatedAt, subtext: `associated with this ${entityName} · ${created}` }]
         : [{ id: node.id, name: name(node), type, sheetKind, createdAt: node.createdAt, subtext: created }]
@@ -115,7 +115,7 @@ export const buildExposureTimeline = ({ edges, ownershipChanges, milestones, ent
     name: change.to ?? 'Unassigned',
     type: change.field,
     createdAt: change.at,
-    subtext: byLine(change.from ? `changed from ${change.from}` : 'set', change.actorId, change.at, resolveAuthor),
+    subtext: byLine(change.from ? `changed from ${change.from}` : 'set', change.actorId, change.at, resolveActor, change.provenance),
   }))
 
   const milestoneNodes: TimelineNode[] = milestones.flatMap(({ label, at, phrase }) =>
@@ -130,7 +130,7 @@ export const buildExposureTimeline = ({ edges, ownershipChanges, milestones, ent
           type: entityType,
           role: 'source',
           createdAt: entityCreatedAt,
-          subtext: byLine(entity.source ? `created from ${entity.source}` : 'created', entity.createdBy, entityCreatedAt, resolveAuthor),
+          subtext: byLine(entity.source ? `created from ${entity.source}` : 'created', entity.createdBy, entityCreatedAt, resolveActor, creationProvenance),
         },
       ]
     : []

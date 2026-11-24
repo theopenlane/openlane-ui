@@ -10,6 +10,8 @@ export const GET_FINDING_HISTORIES = gql`
           operation
           createdBy
           updatedBy
+          managedBy
+          sourceDefinitionID
           internalOwner
           internalOwnerUserID
           internalOwnerGroupID
@@ -27,6 +29,20 @@ export const GET_FINDING_HISTORIES = gql`
       pageInfo {
         endCursor
         hasNextPage
+      }
+    }
+  }
+`
+
+export const GET_FINDING_CREATION_HISTORY = gql`
+  query GetFindingCreationHistory($where: FindingHistoryWhereInput) {
+    findingHistories(where: $where, first: 1) {
+      edges {
+        node {
+          id
+          managedBy
+          sourceDefinitionID
+        }
       }
     }
   }

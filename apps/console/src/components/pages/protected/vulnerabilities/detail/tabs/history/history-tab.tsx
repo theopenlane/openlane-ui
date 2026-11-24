@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react'
 import { VulnerabilityHistoryOpType } from '@repo/codegen/src/historyschema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { useVulnerabilityHistories, useVulnerabilityHistoryEdges } from '@/lib/graphql-hooks/vulnerability'
+import { useVulnerabilityCreationProvenance, useVulnerabilityHistories, useVulnerabilityHistoryEdges } from '@/lib/graphql-hooks/vulnerability'
 import ExposureHistoryTab from '../../../../exposure/detail/history/exposure-history-tab'
 import { getVulnerabilityTitle, type TVulnerabilityDetail } from '../../../vulnerability-display'
 import { vulnerabilityHistoryMilestones } from './vulnerability-history-milestones'
@@ -11,6 +11,7 @@ import { vulnerabilityHistoryMilestones } from './vulnerability-history-mileston
 const HistoryTab: React.FC<{ vulnerability: TVulnerabilityDetail }> = ({ vulnerability }) => {
   const edgesQuery = useVulnerabilityHistoryEdges(vulnerability.id)
   const history = useVulnerabilityHistories(vulnerability.id)
+  const creation = useVulnerabilityCreationProvenance(vulnerability.id)
   const milestones = useMemo(() => vulnerabilityHistoryMilestones(vulnerability), [vulnerability])
 
   return (
@@ -22,6 +23,7 @@ const HistoryTab: React.FC<{ vulnerability: TVulnerabilityDetail }> = ({ vulnera
       milestones={milestones}
       edges={{ data: edgesQuery.data?.vulnerability, isPending: edgesQuery.isPending, isError: edgesQuery.isError, error: edgesQuery.error }}
       history={history}
+      creation={creation}
     />
   )
 }
