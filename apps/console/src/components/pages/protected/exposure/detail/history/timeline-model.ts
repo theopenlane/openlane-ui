@@ -11,7 +11,7 @@ import { type TOwnershipChange } from './history-events'
 
 const COMMENT_EXCERPT_LENGTH = 80
 
-type TResolveAuthor = (id: string | null | undefined) => string | null
+export type TResolveAuthor = (id: string | null | undefined) => string | null
 
 type THistoryEdgeNode = {
   id: string
@@ -64,7 +64,7 @@ export type TExposureHistoryEdges = Record<THistoryEdge['key'], Connection<THist
 
 const edgeNodes = (edges: TExposureHistoryEdges | undefined, key: THistoryEdge['key']): THistoryEdgeNode[] => (edges ? getNodes(edges[key]) : [])
 
-const byLine = (phrase: string, actorId: string | null | undefined, at: string, resolveAuthor: TResolveAuthor) => {
+export const byLine = (phrase: string, actorId: string | null | undefined, at: string, resolveAuthor: TResolveAuthor) => {
   const actor = actorId ? resolveAuthor(actorId) : null
   return `${phrase}${actor ? ` by ${actor}` : ''} on ${formatDate(at)}`
 }

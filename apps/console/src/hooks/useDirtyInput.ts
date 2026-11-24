@@ -73,6 +73,16 @@ const toDateInput = (value: unknown): unknown => (value instanceof Date ? value.
 
 const isValueRule = (rule: unknown): rule is TValueRule<TValueRuleKind, string> => isRecord(rule) && typeof rule.kind === 'string' && typeof rule.clearKey === 'string'
 
+export const toInlineInput = <TForm, TInput extends object>(input: TInput, fields: TFieldMappers<TForm, TInput>): Record<string, unknown> => {
+  const rules = new Map<string, unknown>(Object.entries(fields))
+  return Object.fromEntries(
+    Object.entries(input).map(([name, value]) => {
+      const rule = rules.get(name)
+      return isValueRule(rule) && isEmptyInputValue(value) ? [rule.clearKey, true] : [name, value]
+    }),
+  )
+}
+
 const isRuleless = (rule: unknown): boolean => rule === undefined || rule === omit
 
 const applyValueRule = async (rule: TValueRule<TValueRuleKind, string>, name: string, value: unknown, converter: TPlateHtmlConverter): Promise<[string, unknown]> => {

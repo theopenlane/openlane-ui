@@ -14,7 +14,7 @@ import { CHANNELS_LIST_OPERATION, PICKER_SESSION_OPERATION, RESOURCE_SELECTION_O
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'
 import { isRecord } from '@/utils/type-guards'
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { reportSSORequirementFromResponse } from '@/lib/auth/utils/session-status'
 
 const invalidateIntegrationQueries = (queryClient: QueryClient) =>
@@ -86,6 +86,16 @@ export const useSourceIntegrationProvider = (definitionID: string | null | undef
   const { data } = useIntegrationProviders()
 
   return useMemo(() => providerForDefinitionID(definitionID, data?.providers ?? []), [definitionID, data?.providers])
+}
+
+export const useSourceLabelResolver = () => {
+  const { data } = useIntegrationProviders()
+  const providers = data?.providers
+
+  return useCallback(
+    (definitionID: string | null | undefined, fallback?: string | null): string | null => providerForDefinitionID(definitionID, providers ?? [])?.displayName || fallback?.trim() || null,
+    [providers],
+  )
 }
 
 const describeUnhealthyOperations = (operations: IntegrationOperationHealth[]): string => operations.map((operation) => `${operation.name}: ${operation.reason ?? 'unhealthy'}`).join('\n')

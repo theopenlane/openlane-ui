@@ -13,7 +13,7 @@ import { Callout } from '@/components/shared/callout/callout'
 import { DEFAULT_VENDOR_SCORING_MODE, EDITABLE_RISK_RATINGS, getDefaultMaxScore, type TVendorScoringDraft } from '@/lib/vendor-scoring-config'
 import { vendorRiskRatingColor, type TVendorRiskRating } from '@/lib/vendor-risk-rating'
 import { SCORING_MODE_COPY, SCORING_MODE_ORDER } from '../vendor-scoring-copy'
-import { SegmentedBar } from '../segmented-bar'
+import { SegmentedBar } from '@/components/shared/segmented-bar/segmented-bar'
 import { isOneOf } from '@/utils/type-guards'
 import { FormMessage } from '@repo/ui/form'
 

@@ -7,16 +7,19 @@ type TModuleGatedQueryArgs<TData> = {
   queryKey: QueryKey
   queryFn: () => Promise<TData>
   enabled?: boolean
+  staleTime?: number
 }
 
-export const useModuleGatedQuery = <TData>({ objectType, queryKey, queryFn, enabled = true }: TModuleGatedQueryArgs<TData>) => {
+export const useModuleGatedQuery = <TData>({ objectType, queryKey, queryFn, enabled = true, staleTime }: TModuleGatedQueryArgs<TData>) => {
   const { hasAccess, isLoading: isAccessLoading } = useObjectTypeAccess(objectType)
   const isEnabled = enabled && hasAccess
-  const queryResult = useQuery({ queryKey, queryFn, enabled: isEnabled })
+  const queryResult = useQuery({ queryKey, queryFn, enabled: isEnabled, ...(staleTime === undefined ? {} : { staleTime }) })
   const hasFreshData = isEnabled && !queryResult.isPlaceholderData
 
   return {
     data: hasFreshData ? queryResult.data : undefined,
+    hasAccess,
+    isError: isEnabled && queryResult.isError,
     isLoading: enabled && (isAccessLoading || (hasAccess && (queryResult.isPending || queryResult.isPlaceholderData))),
   }
 }

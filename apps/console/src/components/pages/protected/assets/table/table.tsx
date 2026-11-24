@@ -6,7 +6,6 @@ import { type AssetWhereInput, type AssetOrderField } from '@repo/codegen/src/sc
 import { getColumns } from '@/components/pages/protected/assets/table/columns.tsx'
 import { type AssetsNodeNonNull, useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
-import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { ASSETS_SORT_FIELDS } from './table-config'
@@ -33,7 +32,6 @@ const TableComponent = ({
   permission,
   rowHref,
 }: TTableProps<AssetWhereInput>) => {
-  const { replace } = useSmartRouter()
   const { data: session } = useSession()
 
   const orderBy = useMemo(() => {
@@ -104,9 +102,6 @@ const TableComponent = ({
         data={items}
         loading={fetching || fetchingUsers}
         sorting={orderBy}
-        onRowClick={(item) => {
-          replace({ id: item.id })
-        }}
         rowHref={rowHref}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

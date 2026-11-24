@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type PlatformsWithFilterQuery,
@@ -43,6 +43,10 @@ export type PlatformDiagram = {
 const platformKey = (platformId?: string) => ['platform', platformId]
 const platformAssetsKey = (platformId?: string) => [...platformKey(platformId), 'assets']
 const platformVendorsKey = (platformId?: string) => [...platformKey(platformId), 'vendors']
+export const invalidatePlatformPlacement = (platformIds: string[], queryClient: QueryClient) => {
+  queryClient.invalidateQueries({ queryKey: ['platforms'] })
+  platformIds.forEach((id) => queryClient.invalidateQueries({ queryKey: platformKey(id) }))
+}
 const platformDiagramsKey = (platformId?: string) => [...platformKey(platformId), 'diagrams']
 
 const DIAGRAM_FIELDS = {

@@ -1,4 +1,4 @@
-import { useSourceIntegrationProvider } from '@/lib/query-hooks/integrations'
+import { useSourceLabelResolver } from '@/lib/query-hooks/integrations'
 
 export type TExposureSourceFields = {
   id: string
@@ -26,8 +26,7 @@ export const hasExposureSourceDetails = (fields: TExposureSourceFields, extraRow
   !!fields.source?.trim() || getExposureSourceRows(fields, extraRows).some((row) => !!row.value?.trim())
 
 export const useExposureSource = (fields: TExposureSourceFields) => {
-  const provider = useSourceIntegrationProvider(fields.sourceDefinitionID)
-  const label = provider?.displayName || fields.source?.trim() || null
+  const label = useSourceLabelResolver()(fields.sourceDefinitionID, fields.source)
 
   return { label, openLabel: label ? `Open in ${label}` : 'Open source' }
 }

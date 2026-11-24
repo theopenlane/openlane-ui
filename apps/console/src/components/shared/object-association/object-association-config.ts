@@ -1088,7 +1088,7 @@ export const RISK_ASSOCIATION_SECTIONS = [
   'vulnerabilities',
   'findings',
 ] as const
-const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls', 'subcontrols', 'policies', 'findings', 'vulnerabilities', 'reviews', 'remediations'] as const
+export const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls', 'subcontrols', 'policies', 'findings', 'vulnerabilities', 'reviews', 'remediations'] as const
 export const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHolders', 'controls', 'subcontrols', 'policies', 'findings', 'vulnerabilities', 'reviews', 'remediations'] as const
 export const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'controls', 'subcontrols', 'entities', 'campaigns', 'policies', 'tasks'] as const
 export const FINDING_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'vulnerabilities', 'remediations', 'reviews', 'assets', 'tasks', 'programs', 'actionPlans', 'risks', 'scans'] as const

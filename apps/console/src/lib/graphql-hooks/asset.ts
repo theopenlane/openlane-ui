@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
@@ -21,7 +21,13 @@ import {
   type DeleteBulkAssetMutation,
   type DeleteBulkAssetMutationVariables,
   type GetAssetAssociationsQuery,
+  type GetAssetAssociationsQueryVariables,
+  type UpdateAssetInput,
 } from '@repo/codegen/src/schema'
+import { invalidateEdgeUpdateTargets } from '@/components/shared/object-association/object-association-config'
+import { invalidatePlatformPlacement } from '@/lib/graphql-hooks/platform'
+import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
@@ -64,6 +70,18 @@ export const useAssetsWithFilter = ({ where, orderBy, pagination, enabled = true
   return { ...queryResult, assetsNodes }
 }
 
+const invalidateAssetUpdate = (input: UpdateAssetInput, queryClient: QueryClient) => {
+  queryClient.invalidateQueries({ queryKey: ['assets'] })
+  queryClient.invalidateQueries({ queryKey: ['assetHistories'] })
+  invalidateEdgeUpdateTargets(input, queryClient)
+  const platformIds = [...(input.addPlatformIDs ?? []), ...(input.removePlatformIDs ?? [])]
+  if (platformIds.length > 0) invalidatePlatformPlacement(platformIds, queryClient)
+  if (input.addSystemDetailIDs?.length || input.removeSystemDetailIDs?.length) queryClient.invalidateQueries({ queryKey: ['systemDetails'] })
+  if (input.addControlIDs || input.removeControlIDs || input.addSubcontrolIDs || input.removeSubcontrolIDs) {
+    queryClient.invalidateQueries({ queryKey: ['evidences', 'asset-readiness'] })
+  }
+}
+
 export const useCreateAsset = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
@@ -99,8 +117,8 @@ export const useUpdateAsset = () => {
   const queryClient = useQueryClient()
   return useMutation<UpdateAssetMutation, unknown, UpdateAssetMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_ASSET, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['assets'] })
+    onSuccess: (_, { input }) => {
+      invalidateAssetUpdate(input, queryClient)
     },
   })
 }
@@ -142,8 +160,8 @@ export const useBulkEditAsset = () => {
   const { client, queryClient } = useGraphQLClient()
   return useMutation<UpdateBulkAssetMutation, unknown, UpdateBulkAssetMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_EDIT_ASSET, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['assets'] })
+    onSuccess: (_, { input }) => {
+      invalidateAssetUpdate(input, queryClient)
     },
   })
 }
@@ -160,9 +178,23 @@ export const useBulkDeleteAsset = () => {
 
 export const useGetAssetAssociations = (assetId?: string) => {
   const { client } = useGraphQLClient()
+  const { hasObjectType, isLoading: isAccessLoading } = useModuleAccess()
+  const includes = {
+    withScans: hasObjectType(ObjectTypes.SCAN),
+    withEntities: hasObjectType(ObjectTypes.ENTITY),
+    withIdentityHolders: hasObjectType(ObjectTypes.IDENTITY_HOLDER),
+    withControls: hasObjectType(ObjectTypes.CONTROL),
+    withInternalPolicies: hasObjectType(ObjectTypes.INTERNAL_POLICY),
+    withSubcontrols: hasObjectType(ObjectTypes.SUBCONTROL),
+    withFindings: hasObjectType(ObjectTypes.FINDING),
+    withVulnerabilities: hasObjectType(ObjectTypes.VULNERABILITY),
+    withReviews: hasObjectType(ObjectTypes.REVIEW),
+    withRemediations: hasObjectType(ObjectTypes.REMEDIATION),
+  }
+
   return useQuery<GetAssetAssociationsQuery, unknown>({
-    queryKey: ['assets', assetId, 'associations'],
-    queryFn: async () => client.request<GetAssetAssociationsQuery>(GET_ASSET_ASSOCIATIONS, { assetId: assetId as string }),
-    enabled: !!assetId,
+    queryKey: ['assets', assetId, 'associations', includes],
+    queryFn: async () => client.request<GetAssetAssociationsQuery, GetAssetAssociationsQueryVariables>(GET_ASSET_ASSOCIATIONS, { assetId: assetId as string, ...includes }),
+    enabled: !!assetId && !isAccessLoading,
   })
 }

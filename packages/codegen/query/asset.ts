@@ -113,8 +113,10 @@ export const ASSET = gql`
       region
       scopeName
       securityTierName
+      sourceDefinitionID
       sourceIdentifier
       sourceType
+      observedAt
       tags
       website
       categories
@@ -190,9 +192,21 @@ export const BULK_DELETE_ASSET = gql`
 `
 
 export const GET_ASSET_ASSOCIATIONS = gql`
-  query GetAssetAssociations($assetId: ID!) {
+  query GetAssetAssociations(
+    $assetId: ID!
+    $withScans: Boolean!
+    $withEntities: Boolean!
+    $withIdentityHolders: Boolean!
+    $withControls: Boolean!
+    $withInternalPolicies: Boolean!
+    $withSubcontrols: Boolean!
+    $withFindings: Boolean!
+    $withVulnerabilities: Boolean!
+    $withReviews: Boolean!
+    $withRemediations: Boolean!
+  ) {
     asset(id: $assetId) {
-      scans {
+      scans @include(if: $withScans) {
         edges {
           node {
             id
@@ -201,7 +215,7 @@ export const GET_ASSET_ASSOCIATIONS = gql`
         }
         totalCount
       }
-      entities {
+      entities @include(if: $withEntities) {
         edges {
           node {
             id
@@ -211,7 +225,7 @@ export const GET_ASSET_ASSOCIATIONS = gql`
         }
         totalCount
       }
-      identityHolders {
+      identityHolders @include(if: $withIdentityHolders) {
         edges {
           node {
             id
@@ -223,7 +237,7 @@ export const GET_ASSET_ASSOCIATIONS = gql`
         }
         totalCount
       }
-      controls {
+      controls @include(if: $withControls) {
         edges {
           node {
             id
@@ -235,7 +249,7 @@ export const GET_ASSET_ASSOCIATIONS = gql`
         }
         totalCount
       }
-      internalPolicies {
+      internalPolicies @include(if: $withInternalPolicies) {
         edges {
           node {
             id
@@ -245,7 +259,7 @@ export const GET_ASSET_ASSOCIATIONS = gql`
         }
         totalCount
       }
-      subcontrols {
+      subcontrols @include(if: $withSubcontrols) {
         edges {
           node {
             id
@@ -255,7 +269,7 @@ export const GET_ASSET_ASSOCIATIONS = gql`
         }
         totalCount
       }
-      findings {
+      findings @include(if: $withFindings) {
         edges {
           node {
             id
@@ -265,7 +279,7 @@ export const GET_ASSET_ASSOCIATIONS = gql`
         }
         totalCount
       }
-      vulnerabilities {
+      vulnerabilities @include(if: $withVulnerabilities) {
         edges {
           node {
             id
@@ -277,7 +291,7 @@ export const GET_ASSET_ASSOCIATIONS = gql`
         }
         totalCount
       }
-      reviews {
+      reviews @include(if: $withReviews) {
         edges {
           node {
             id
@@ -286,7 +300,7 @@ export const GET_ASSET_ASSOCIATIONS = gql`
         }
         totalCount
       }
-      remediations {
+      remediations @include(if: $withRemediations) {
         edges {
           node {
             id
@@ -306,6 +320,392 @@ export const BULK_EDIT_ASSET = gql`
       updatedIDs
       notUpdatedIDs
       error
+    }
+  }
+`
+
+export const GET_ASSET_RELATIONSHIPS = gql`
+  query GetAssetRelationships($assetId: ID!, $first: Int, $withSystems: Boolean!, $withPlatforms: Boolean!) {
+    asset(id: $assetId) {
+      id
+      connectedAssets(first: $first) {
+        totalCount
+        edges {
+          node {
+            id
+            name
+            displayName
+            assetType
+            assetSubtypeName
+          }
+        }
+      }
+      connectedFrom(first: $first) {
+        totalCount
+        edges {
+          node {
+            id
+            name
+            displayName
+            assetType
+            assetSubtypeName
+          }
+        }
+      }
+      sourcePlatform @include(if: $withPlatforms) {
+        id
+        name
+      }
+      platforms(first: $first) @include(if: $withPlatforms) {
+        totalCount
+        edges {
+          node {
+            id
+            name
+            status
+          }
+        }
+      }
+      systemDetails(first: $first) @include(if: $withSystems) {
+        totalCount
+        edges {
+          node {
+            id
+            systemName
+            version
+            sensitivityLevel
+            lastReviewed
+            authorizationBoundary
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_ASSET_TOPOLOGY_PLATFORMS = gql`
+  query GetAssetTopologyPlatforms($assetId: ID!, $where: PlatformWhereInput, $first: Int, $systemsFirst: Int, $assetsFirst: Int, $withSystems: Boolean!) {
+    platforms(where: $where, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          name
+          status
+          linkedAsset: assets(where: { id: $assetId }, first: 1) {
+            totalCount
+          }
+          assetSystems: systemDetails(where: { hasAssetsWith: [{ id: $assetId }] }, first: $systemsFirst) @include(if: $withSystems) {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+          systemDetails(first: $systemsFirst) @include(if: $withSystems) {
+            totalCount
+            edges {
+              node {
+                id
+                systemName
+                sensitivityLevel
+                assets(first: $assetsFirst) {
+                  totalCount
+                  edges {
+                    node {
+                      id
+                      name
+                      displayName
+                      assetType
+                      assetSubtypeName
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_ASSET_TOPOLOGY_SYSTEMS = gql`
+  query GetAssetTopologySystems($where: SystemDetailWhereInput, $first: Int, $assetsFirst: Int) {
+    systemDetails(where: $where, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          systemName
+          sensitivityLevel
+          assets(first: $assetsFirst) {
+            totalCount
+            edges {
+              node {
+                id
+                name
+                displayName
+                assetType
+                assetSubtypeName
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_ASSET_VULNERABILITIES = gql`
+  query GetAssetVulnerabilities($where: VulnerabilityWhereInput, $first: Int, $after: Cursor) {
+    vulnerabilities(where: $where, first: $first, after: $after) {
+      totalCount
+      edges {
+        node {
+          id
+          cveID
+          displayID
+          displayName
+          externalID
+          summary
+          severity
+          securityLevel
+          open
+          vulnerabilityStatusName
+          source
+          sourceDefinitionID
+          environmentName
+          remediationSLA
+          discoveredAt
+          createdAt
+          createdBy
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`
+
+export const GET_ASSET_FINDINGS = gql`
+  query GetAssetFindings($where: FindingWhereInput, $first: Int, $after: Cursor) {
+    findings(where: $where, first: $first, after: $after) {
+      totalCount
+      edges {
+        node {
+          id
+          displayID
+          displayName
+          externalID
+          category
+          severity
+          securityLevel
+          open
+          findingStatusName
+          source
+          sourceDefinitionID
+          environmentName
+          remediationSLA
+          reportedAt
+          createdAt
+          createdBy
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`
+
+export const GET_ASSET_RISKS = gql`
+  query GetAssetRisks($where: RiskWhereInput, $first: Int, $after: Cursor) {
+    risks(where: $where, first: $first, after: $after) {
+      totalCount
+      edges {
+        node {
+          id
+          displayID
+          name
+          impact
+          status
+          sourceDefinitionID
+          environmentName
+          dueDate
+          createdAt
+          createdBy
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`
+
+export const GET_ASSET_VENDORS = gql`
+  query GetAssetVendors($assetId: ID!, $first: Int) {
+    asset(id: $assetId) {
+      id
+      entities(first: $first) {
+        totalCount
+        edges {
+          node {
+            id
+            name
+            displayName
+            domains
+            status
+            approvedForUse
+            providedServices
+            ssoEnforced
+            mfaEnforced
+            tier
+            riskRating
+            reviewFrequency
+            nextReviewAt
+            hasSoc2
+            soc2PeriodEnd
+            logoFile {
+              base64
+            }
+            createdAt
+            createdBy
+            sourceDefinitionID
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_VENDOR_ASSETS = gql`
+  query GetVendorAssets($where: AssetWhereInput, $orderBy: [AssetOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor, $withVulnerabilities: Boolean!, $withFindings: Boolean!) {
+    assets(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
+      totalCount
+      edges {
+        node {
+          id
+          name
+          displayName
+          assetType
+          assetSubtypeName
+          environmentName
+          openVulnerabilities: vulnerabilities(where: { open: true }) @include(if: $withVulnerabilities) {
+            totalCount
+          }
+          openFindings: findings(where: { open: true }) @include(if: $withFindings) {
+            totalCount
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+    }
+  }
+`
+
+export const GET_ASSET_READINESS_REVIEWS = gql`
+  query GetAssetReadinessReviews($assetReviewWhere: ReviewWhereInput, $accessReviewWhere: ReviewWhereInput, $orderBy: [ReviewOrder!], $first: Int) {
+    assetReviews: reviews(where: $assetReviewWhere, orderBy: $orderBy, first: $first) {
+      edges {
+        node {
+          id
+          title
+          reviewedAt
+          createdAt
+        }
+      }
+    }
+    accessReviews: reviews(where: $accessReviewWhere, orderBy: $orderBy, first: $first) {
+      edges {
+        node {
+          id
+          title
+          reviewedAt
+          createdAt
+        }
+      }
+    }
+  }
+`
+
+export const GET_ASSET_READINESS_SCANS = gql`
+  query GetAssetReadinessScans($where: ScanWhereInput, $orderBy: [ScanOrder!], $first: Int) {
+    scans(where: $where, orderBy: $orderBy, first: $first) {
+      edges {
+        node {
+          id
+          target
+          scanType
+          scanDate
+          createdAt
+        }
+      }
+    }
+  }
+`
+
+export const GET_ASSET_READINESS_EVIDENCE = gql`
+  query GetAssetReadinessEvidence(
+    $linkedWhere: ControlWhereInput
+    $missingWhere: ControlWhereInput
+    $staleWhere: ControlWhereInput
+    $linkedSubcontrolWhere: SubcontrolWhereInput
+    $missingSubcontrolWhere: SubcontrolWhereInput
+    $staleSubcontrolWhere: SubcontrolWhereInput
+    $first: Int
+  ) {
+    linkedControls: controls(where: $linkedWhere) {
+      totalCount
+    }
+    missingControls: controls(where: $missingWhere, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          refCode
+        }
+      }
+    }
+    staleControls: controls(where: $staleWhere, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          refCode
+        }
+      }
+    }
+    linkedSubcontrols: subcontrols(where: $linkedSubcontrolWhere) {
+      totalCount
+    }
+    missingSubcontrols: subcontrols(where: $missingSubcontrolWhere, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          refCode
+        }
+      }
+    }
+    staleSubcontrols: subcontrols(where: $staleSubcontrolWhere, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          refCode
+        }
+      }
     }
   }
 `
