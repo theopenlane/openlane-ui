@@ -195,8 +195,8 @@ interface SessionUser {
 
 export const readSessionUser = (page: Page): Promise<SessionUser | null> =>
   page.evaluate(async () => {
-    const body: { user?: SessionUser } = await (await fetch('/api/auth/session')).json()
-    return body.user ?? null
+    const body: { user?: SessionUser } | null = await (await fetch('/api/auth/session')).json()
+    return body?.user ?? null
   })
 
 interface SignedInExpectation {

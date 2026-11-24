@@ -14,6 +14,7 @@ const memberWithPasskey = async (page: Page, slug: string) => {
   await loginViaForm(page, scenario.member.email, PASSWORD)
   await page.waitForURL(/\/dashboard/, { timeout: 60_000 }) // 1min
   await registerPasskeyFromProfile(page)
+  await page.goto('about:blank')
   await page.context().clearCookies()
 
   return scenario

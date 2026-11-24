@@ -34,7 +34,8 @@ const getPasskeyData = (id: string): PasskeyEntry => {
 }
 
 const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefined }) => {
-  const { handleConfigure, loading } = useCreatePasskey(userData?.user.email)
+  const email = userData?.user.email
+  const { handleConfigure, loading } = useCreatePasskey(email)
   const { data: passkeys } = useGetPasskeys()
 
   const passKeyConfig = useMemo(() => {
@@ -66,7 +67,7 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
                 </div>
                 <div className="flex items-center justify-between">
                   <span>{passKeyConfig?.text}</span>
-                  <Button variant="primary" onClick={handleConfigure} loading={loading} disabled={loading}>
+                  <Button variant="primary" onClick={handleConfigure} loading={loading} disabled={loading || !email}>
                     {passkeys?.webauthns?.edges?.length ? 'Add another Passkey' : 'Add passkey'}
                   </Button>
                 </div>
