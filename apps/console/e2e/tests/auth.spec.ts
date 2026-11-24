@@ -63,7 +63,7 @@ test.describe('auth — login', () => {
 
     await page.getByTestId('user-menu-trigger').click()
     const signOutResponse = page.waitForResponse(/\/api\/auth\/signout/)
-    await page.getByRole('button', { name: /^log out$/i }).click()
+    await page.getByRole('menuitem', { name: /^log out$/i }).click()
     await signOutResponse
     await expect(async () => {
       await page.goto('/login').catch(() => {})

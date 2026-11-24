@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react'
 import { Tag } from 'lucide-react'
 import { type UseFormReturn } from 'react-hook-form'
 import { InputRow } from '@repo/ui/input'
-import { FormControl, FormField } from '@repo/ui/form'
+import { FormControl, FormField, FormMessage } from '@repo/ui/form'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { type RiskFieldsFragment, type UpdateRiskInput } from '@repo/codegen/src/schema'
 import { type EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
@@ -110,7 +110,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
                           hideClearAllButton
                         />
                       </FormControl>
-                      {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
+                      <FormMessage error={form.formState.errors.tags} />
                     </>
                   )}
                 />

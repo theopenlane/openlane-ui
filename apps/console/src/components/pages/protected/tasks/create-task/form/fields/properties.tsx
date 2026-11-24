@@ -25,6 +25,7 @@ import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
+import { FormMessage } from '@repo/ui/form'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -175,7 +176,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                     ))}
                   </SelectContent>
                 </Select>
-                {formState.errors.assigneeID && <p className="text-red-500 text-sm">{formState.errors.assigneeID.message}</p>}
+                <FormMessage error={formState.errors.assigneeID} />
               </div>
             )}
           />
@@ -218,7 +219,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                     disabledFrom={new Date()}
                     buttonClassName="w-full flex justify-between items-center"
                   />
-                  {formState.errors.due && <p className="text-red-500 text-sm">{formState.errors.due.message as string}</p>}
+                  <FormMessage error={formState.errors.due} />
                 </div>
               )}
             />
@@ -267,7 +268,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                       ))}
                     </SelectContent>
                   </Select>
-                  {formState.errors.status && <p className="text-red-500 text-sm">{formState.errors.status.message}</p>}
+                  <FormMessage error={formState.errors.status} />
                 </div>
               )}
             />
@@ -319,7 +320,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                   }}
                   placeholder="Select"
                 />
-                {formState.errors.taskKindName && <p className="text-red-500 text-sm">{formState.errors.taskKindName.message as string}</p>}
+                <FormMessage error={formState.errors.taskKindName} />
               </div>
             )}
           />
@@ -359,7 +360,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                     field.onChange(newTags)
                   }}
                 />
-                {formState.errors.tags && <p className="text-red-500 text-sm">{formState.errors.tags.message}</p>}
+                <FormMessage error={formState.errors.tags} />
               </div>
             )}
           />

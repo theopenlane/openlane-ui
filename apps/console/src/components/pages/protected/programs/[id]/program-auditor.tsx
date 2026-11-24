@@ -28,6 +28,7 @@ import { useSession } from 'next-auth/react'
 import { Callout } from '@/components/shared/callout/callout'
 import { AUDITOR_URL } from '@/constants'
 import OfficialOnly from '@/components/shared/official-only/official-only'
+import { FormMessage } from '@repo/ui/form'
 
 interface ProgramAuditorProps {
   firm?: string | null
@@ -174,7 +175,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
                 <span className="w-32 flex shrink-0">Firm:</span>
                 <div className="flex flex-col gap-1.5">
                   {isEditing && <Controller control={control} name="auditFirm" render={({ field }) => <Input {...field} className="w-[180px]" placeholder="SecureSphere Compliance" />}></Controller>}
-                  {form.formState.errors.auditFirm && <p className="text-red-500 text-sm">{form.formState.errors.auditFirm.message}</p>}
+                  <FormMessage error={form.formState.errors.auditFirm} />
                 </div>
               </div>
               <div className="flex border-b pb-2.5 gap-2 items-center">
@@ -183,7 +184,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
                   {isEditing && (
                     <Controller control={control} name="auditor" render={({ field }) => <Input {...field} value={field.value ?? ''} className="w-[180px]" placeholder="Amy Shields" />}></Controller>
                   )}
-                  {form.formState.errors.auditor && <p className="text-red-500 text-sm">{form.formState.errors.auditor.message}</p>}
+                  <FormMessage error={form.formState.errors.auditor} />
                 </div>
               </div>
               <div className="flex border-b pb-2.5 gap-2 items-center">
@@ -196,7 +197,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
                       render={({ field }) => <Input {...field} value={field.value ?? ''} className="w-[180px]" placeholder="amy.shields@securesphere.io" />}
                     ></Controller>
                   )}
-                  {form.formState.errors.auditorEmail && <p className="text-red-500 text-sm">{form.formState.errors.auditorEmail.message}</p>}
+                  <FormMessage error={form.formState.errors.auditorEmail} />
                 </div>
               </div>
             </div>

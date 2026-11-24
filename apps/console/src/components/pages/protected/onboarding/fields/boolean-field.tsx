@@ -7,7 +7,8 @@ import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 import { cn } from '@repo/ui/lib/utils'
 import { sortByOrder } from '@/lib/onboarding-questions/build-schema'
 import { type OnboardingQuestion, type OnboardingQuestionOption } from '@/lib/onboarding-questions/types'
-import { FieldError, QuestionDescription, QuestionLabel } from '../question-label'
+import { QuestionDescription, QuestionLabel } from '../question-label'
+import { FormMessage } from '@repo/ui/form'
 
 const DEFAULT_BOOLEAN_OPTIONS: OnboardingQuestionOption[] = [
   { value: 'true', label: 'Yes', hidden: false },
@@ -60,7 +61,7 @@ export const BooleanField: React.FC<{ question: OnboardingQuestion }> = ({ quest
           )
         })}
       </RadioGroup>
-      <FieldError message={error?.message} />
+      <FormMessage error={error} />
     </div>
   )
 }

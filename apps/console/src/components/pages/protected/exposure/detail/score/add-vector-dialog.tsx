@@ -8,6 +8,7 @@ import { Label } from '@repo/ui/label'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CVSS_VECTOR_ERROR, explainCvssVector, parseCvssVector } from '@/utils/cvss-vector'
+import { FormMessage } from '@repo/ui/form'
 
 type TAddVectorDialogProps = {
   onSave: (vector: string) => Promise<boolean>
@@ -72,11 +73,7 @@ const AddVectorDialog: React.FC<TAddVectorDialogProps> = ({ onSave }) => {
                 setError(null)
               }}
             />
-            {error && (
-              <p id={errorId} className="text-sm text-destructive">
-                {error}
-              </p>
-            )}
+            <FormMessage id={errorId}>{error}</FormMessage>
             {preview && <p className="text-sm text-muted-foreground">{preview}</p>}
           </div>
           <DialogFooter>

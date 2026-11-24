@@ -26,16 +26,17 @@ export const getAvatarImageSrc = (entity?: AvatarEntityLike | null): string | un
   return entity.avatarRemoteURL || entity.gravatarLogoURL || entity.logoURL || undefined
 }
 
+export const getAvatarFallbackText = (entity: AvatarEntityLike, variant?: AvatarProps['variant']): string => entity.displayName?.substring(0, variant === 'small' ? 1 : 2) || 'N/A'
+
 export const Avatar = ({ variant, entity, className }: AvatarProps) => {
   if (!entity) return null
 
   const image = getAvatarImageSrc(entity)
-  const fallbackText = entity.displayName?.substring(0, variant === 'small' ? 1 : 2)
 
   return (
     <AvatarComponent variant={variant} className={className}>
-      {image && <AvatarImage src={image} />}
-      <AvatarFallback>{fallbackText || 'N/A'}</AvatarFallback>
+      {image && <AvatarImage src={image} alt={entity.displayName ?? ''} />}
+      <AvatarFallback>{getAvatarFallbackText(entity, variant)}</AvatarFallback>
     </AvatarComponent>
   )
 }

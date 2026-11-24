@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 import ControlObjectiveDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-objectives-components/control-objective-details-sheet'
 import ControlImplementationDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/control-implementation-details-sheet'
 import { Label } from '@repo/ui/label'
@@ -41,6 +41,7 @@ type Props = {
 const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCodeInitialData, defaultSelectedObject }: Props) => {
   const { client } = useGraphQLClient()
   const { hasObjectType } = useModuleAccess()
+  const objectTypeLabelId = useId()
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(defaultSelectedObject || null)
   const [searchValue, setSearchValue] = useState('')
   const [pagination, setPagination] = useState<TPagination>(initialPagination)
@@ -117,7 +118,7 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4 items-center">
         <div className="flex flex-col gap-2">
-          <Label>Object Type</Label>
+          <Label id={objectTypeLabelId}>Object Type</Label>
           <Select
             onValueChange={(val: ObjectTypeObjects) => {
               setSelectedObject(val)
@@ -125,7 +126,9 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
               setSearchValue('')
             }}
           >
-            <SelectTrigger className="w-full">{isSelectedObjectAllowed ? selectedObject : 'Select object'}</SelectTrigger>
+            <SelectTrigger className="w-full" aria-labelledby={objectTypeLabelId}>
+              {isSelectedObjectAllowed ? selectedObject : 'Select object'}
+            </SelectTrigger>
             <SelectContent>
               {selectableObjectTypes.length === 0 ? (
                 <div className="px-2 py-1.5 text-sm text-muted-foreground">No object types available in your plan</div>

@@ -9,6 +9,7 @@ import RiskLabel from '@/components/pages/protected/risks/risk-label'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { Card } from '@repo/ui/cardpanel'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { FormMessage } from '@repo/ui/form'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditRisksFormData>
@@ -103,7 +104,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isCreate, isEdit
                     }
                   }}
                 />
-                {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}
+                <FormMessage error={fieldState.error} />
               </div>
             )
           }}

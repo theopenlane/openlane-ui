@@ -107,7 +107,7 @@ export const VendorScoringQuestionsPanel: React.FC<TVendorScoringQuestionsPanelP
             variant="searchTable"
           />
         </div>
-        <Tabs variant="solid" value={filter} onValueChange={(value) => isQuestionFilter(value) && onFilterChange(value)}>
+        <Tabs panelless variant="solid" value={filter} onValueChange={(value) => isQuestionFilter(value) && onFilterChange(value)}>
           <TabsList className="w-fit">
             {QUESTION_FILTERS.map((option) => (
               <TabsTrigger key={option} value={option}>

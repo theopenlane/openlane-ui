@@ -13,6 +13,7 @@ import AssetsScansTab from '@/components/pages/protected/controls/tabs/assets-sc
 import FindingsRisksTab from '@/components/pages/protected/controls/tabs/findings-risks/findings-risks-tab'
 import ReviewsTab from '@/components/pages/protected/controls/tabs/reviews/reviews-tab'
 import DetailTabs from '@/components/shared/detail-tabs/detail-tabs'
+import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
 import { useDetailTabs, type TDetailTab } from '@/components/shared/detail-tabs/use-detail-tabs'
 import { useGetControlAssociationsById, type ControlByIdNode } from '@/lib/graphql-hooks/control'
 import { type SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
@@ -142,9 +143,9 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
 
   return (
     <DetailTabs state={tabs} badges={{ documentation: documentationAlertCount }}>
-      {hasImplementationData && (
+      {(hasImplementationData || isImplementationDataLoading) && (
         <TabsContent value="implementation" className="space-y-6">
-          <ImplementationTab isEditing={props.isEditing} data={props.data} canEdit={props.canEdit} />
+          {hasImplementationData ? <ImplementationTab isEditing={props.isEditing} data={props.data} canEdit={props.canEdit} /> : <SkeletonRows count={3} height={80} />}
         </TabsContent>
       )}
 

@@ -12,6 +12,7 @@ import { Separator } from '@repo/ui/separator'
 import { TargetSelector } from '@/components/pages/protected/workflows/wizard/components/target-selector'
 import { getTargetLabel } from '@/components/pages/protected/workflows/wizard/utils'
 import type { Target, UpdateWorkflowAction, UpdateWorkflowActionParam, WebhookMethod, WorkflowAction, WorkflowActionType } from '@/types/workflow'
+import { FormMessage } from '@repo/ui/form'
 
 const ACTION_TYPE_OPTIONS: Array<{ label: string; value: WorkflowActionType }> = [
   { label: 'Request Approval', value: 'REQUEST_APPROVAL' },
@@ -230,7 +231,7 @@ export const ActionFormSection = ({
                       placeholder='{"key": "value"}'
                       rows={6}
                     />
-                    {paramsDraft?.error && <p className="text-xs text-destructive">{paramsDraft.error}</p>}
+                    <FormMessage>{paramsDraft?.error}</FormMessage>
                   </div>
                 )}
               </CardContent>

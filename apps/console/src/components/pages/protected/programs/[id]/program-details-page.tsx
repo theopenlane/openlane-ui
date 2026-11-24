@@ -130,11 +130,9 @@ const ProgramDetailsPage: React.FC = () => {
               <h1 className="truncate">{programName}</h1>
             </div>
             <div className="flex gap-2.5 items-center">
-              <Link href={`/programs/${id}/settings`}>
-                <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<Cog />} iconPosition="left">
-                  Edit Settings
-                </Button>
-              </Link>
+              <Button asChild variant="primary" className="h-8 !px-2 !pl-3" icon={<Cog />} iconPosition="left">
+                <Link href={`/programs/${id}/settings`}>Edit Settings</Link>
+              </Button>
               <Menu
                 closeOnSelect
                 content={(close) => (

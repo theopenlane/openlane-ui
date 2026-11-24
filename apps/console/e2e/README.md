@@ -141,24 +141,25 @@ Each task is a thin wrapper over the matching `apps/console` package script, so
 
 ### Segments
 
-The suite is split into 13 Playwright projects by product area, so a failing
+The suite is split into 14 Playwright projects by product area, so a failing
 area can be re-run on its own instead of paying for the whole suite (~1250 tests).
 
-| Segment        | Files | Tests | Covers                                                               |
-| -------------- | ----: | ----: | -------------------------------------------------------------------- |
-| `permissions`  |     3 |   235 | permission matrix, role gating                                       |
-| `automation`   |    10 |   150 | campaigns, questionnaires, templates, workflows, tasks               |
-| `admin`        |    12 |   143 | org settings, user management, developers, integrations, custom data |
-| `registry`     |    11 |   120 | vendors, assets, personnel, platforms, system details                |
-| `controls`     |    14 |   110 | controls, subcontrols, objectives, mapping, standards                |
-| `exposure`     |     9 |    98 | risks, findings, vulnerabilities, action plans, reviews              |
-| `documents`    |     8 |    88 | policies, procedures                                                 |
-| `programs`     |     3 |    74 | programs list, CRUD, wizard                                          |
-| `platform`     |     9 |    74 | dashboard, search, notifications, cross-cutting, table prefs         |
-| `auth`         |     6 |    74 | login, onboarding, org lifecycle, public routes, user settings       |
-| `trust-center` |     3 |    48 | trust center, documents, NDAs                                        |
-| `evidence`     |     2 |    39 | evidence list and CRUD                                               |
-| `smoke`        |     1 |     1 | single sanity check                                                  |
+| Segment         | Files | Tests | Covers                                                               |
+| --------------- | ----: | ----: | -------------------------------------------------------------------- |
+| `accessibility` |     5 |   320 | axe WCAG 2.2 AA scans of every page, detail tab and key overlay      |
+| `permissions`   |     3 |   235 | permission matrix, role gating                                       |
+| `automation`    |    10 |   150 | campaigns, questionnaires, templates, workflows, tasks               |
+| `admin`         |    12 |   143 | org settings, user management, developers, integrations, custom data |
+| `registry`      |    11 |   120 | vendors, assets, personnel, platforms, system details                |
+| `controls`      |    14 |   110 | controls, subcontrols, objectives, mapping, standards                |
+| `exposure`      |     9 |    98 | risks, findings, vulnerabilities, action plans, reviews              |
+| `documents`     |     8 |    88 | policies, procedures                                                 |
+| `programs`      |     3 |    74 | programs list, CRUD, wizard                                          |
+| `platform`      |     9 |    74 | dashboard, search, notifications, cross-cutting, table prefs         |
+| `auth`          |     6 |    74 | login, onboarding, org lifecycle, public routes, user settings       |
+| `trust-center`  |     3 |    48 | trust center, documents, NDAs                                        |
+| `evidence`      |     2 |    39 | evidence list and CRUD                                               |
+| `smoke`         |     1 |     1 | single sanity check                                                  |
 
 The counts are a snapshot and drift as specs land; `task e2e -- --project=<name>
 --list` is the authoritative answer.

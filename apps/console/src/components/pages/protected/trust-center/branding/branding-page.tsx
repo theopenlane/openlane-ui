@@ -229,7 +229,7 @@ const BrandPage: React.FC = () => {
             onPublish={() => setIsConfirmationDialogOpen(true)}
           />
           <TrustCenterPreviewStatusNote status={trustCenter?.previewStatus} />
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'preview' | 'published')} className="w-full">
+          <Tabs panelless value={activeTab} onValueChange={(v) => setActiveTab(v as 'preview' | 'published')} className="w-full">
             <TabsList className="grid w-full max-w-[400px] grid-cols-2">
               <TabsTrigger value="preview">Preview</TabsTrigger>
               <TabsTrigger value="published">Published</TabsTrigger>

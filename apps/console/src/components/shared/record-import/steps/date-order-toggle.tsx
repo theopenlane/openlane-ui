@@ -22,7 +22,7 @@ export const DateOrderToggle: React.FC<TDateOrderToggleProps> = ({ order, column
       <span id={labelId} className="text-xs text-muted-foreground">
         Date order
       </span>
-      <Tabs value={order} onValueChange={selectOrder} variant="solid">
+      <Tabs panelless value={order} onValueChange={selectOrder} variant="solid">
         <TabsList className="w-fit" aria-labelledby={labelId} aria-description={`How "${columnHeader}" dates like 4/5 are read`}>
           {DATE_ORDERS.map((candidate) => (
             <TabsTrigger key={candidate} value={candidate} title={DATE_ORDER_LABELS[candidate]}>

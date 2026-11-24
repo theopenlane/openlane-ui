@@ -6,8 +6,11 @@ import { cn } from '../../lib/utils'
 import { tabsStyles, type TabsVariants } from './tabs.styles'
 
 const { tabsList, tabsTrigger, tabsContent } = tabsStyles()
-const Tabs = ({ variant, ...props }: TabsVariants & React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>) => (
-  <TabsProvider variant={variant as 'underline' | 'solid'}>
+
+type TabsProps = TabsVariants & React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root> & { panelless?: boolean }
+
+const Tabs = ({ variant, panelless = false, ...props }: TabsProps) => (
+  <TabsProvider variant={variant as 'underline' | 'solid'} panelless={panelless}>
     <TabsPrimitive.Root {...props} />
   </TabsProvider>
 )
@@ -18,6 +21,7 @@ interface TabsContentProps extends React.ComponentPropsWithoutRef<typeof TabsPri
 
 interface TabsContextValue {
   variant: TabsVariants['variant']
+  panelless: boolean
 }
 
 const TabsContext = React.createContext<TabsContextValue | undefined>(undefined)
@@ -32,11 +36,13 @@ const useTabsContext = () => {
 
 interface TabsProviderProps {
   variant: TabsVariants['variant']
+  panelless: boolean
   children: React.ReactNode
 }
 
-const TabsProvider: React.FC<TabsProviderProps> = ({ variant, children }) => {
-  return <TabsContext.Provider value={{ variant }}>{children}</TabsContext.Provider>
+const TabsProvider: React.FC<TabsProviderProps> = ({ variant, panelless, children }) => {
+  const value = React.useMemo(() => ({ variant, panelless }), [variant, panelless])
+  return <TabsContext.Provider value={value}>{children}</TabsContext.Provider>
 }
 
 const TabsList = ({ className, ref, ...props }: TabsListProps & { ref?: React.Ref<React.ElementRef<typeof TabsPrimitive.List>> }) => {
@@ -45,7 +51,7 @@ const TabsList = ({ className, ref, ...props }: TabsListProps & { ref?: React.Re
 }
 
 const TabsTrigger = ({ className, ref, onMouseDown, ...props }: TabsTriggerProps & { ref?: React.Ref<React.ElementRef<typeof TabsPrimitive.Trigger>> }) => {
-  const { variant } = useTabsContext()
+  const { variant, panelless } = useTabsContext()
 
   const handleMouseDown = (event: React.MouseEvent<HTMLButtonElement>) => {
     onMouseDown?.(event)
@@ -53,7 +59,7 @@ const TabsTrigger = ({ className, ref, onMouseDown, ...props }: TabsTriggerProps
     event.currentTarget.focus({ focusVisible: false })
   }
 
-  return <TabsPrimitive.Trigger ref={ref} className={cn(tabsTrigger({ variant }), className)} onMouseDown={handleMouseDown} {...props} />
+  return <TabsPrimitive.Trigger ref={ref} className={cn(tabsTrigger({ variant }), className)} onMouseDown={handleMouseDown} {...(panelless ? { 'aria-controls': undefined } : {})} {...props} />
 }
 
 const TabsContent = ({ className, ref, ...props }: TabsContentProps & { ref?: React.Ref<React.ElementRef<typeof TabsPrimitive.Content>> }) => {

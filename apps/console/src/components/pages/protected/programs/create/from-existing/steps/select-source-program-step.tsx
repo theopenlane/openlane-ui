@@ -68,7 +68,7 @@ const SelectSourceProgramStep = ({
         <FormField
           control={control}
           name="sourceProgramID"
-          render={({ field, fieldState }) => (
+          render={({ field }) => (
             <FormItem className="max-w-md">
               <FormLabel>
                 Program<span className="text-destructive"> *</span>
@@ -84,7 +84,7 @@ const SelectSourceProgramStep = ({
                   }}
                 />
               </FormControl>
-              {fieldState.error && <FormMessage />}
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -103,7 +103,7 @@ const SelectSourceProgramStep = ({
             <FormField
               control={control}
               name="name"
-              render={({ field, fieldState }) => (
+              render={({ field }) => (
                 <FormItem className="space-y-0">
                   <div className="flex flex-wrap items-center gap-2">
                     {isEditingName ? (
@@ -137,7 +137,7 @@ const SelectSourceProgramStep = ({
                     {summaryProgram.programKindName && <CustomTypeEnumValue value={summaryProgram.programKindName} options={enumOptions ?? []} />}
                     {summaryProgram.frameworkName && <Badge variant="outline">{summaryProgram.frameworkName}</Badge>}
                   </div>
-                  {fieldState.error && <FormMessage />}
+                  <FormMessage />
                 </FormItem>
               )}
             />

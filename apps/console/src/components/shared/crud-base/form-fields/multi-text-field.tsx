@@ -2,7 +2,7 @@
 
 import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState } from 'react'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
@@ -52,7 +52,7 @@ export const MultiStringField: React.FC<MultiStringFieldProps> = ({
   description,
   type,
 }) => {
-  const { control, formState } = useFormContext()
+  const { control } = useFormContext()
   const isFieldEditing = isCreate || isEditing || internalEditing === name
 
   const [input, setInput] = useState('')
@@ -153,9 +153,7 @@ export const MultiStringField: React.FC<MultiStringFieldProps> = ({
                 </div>
               )}
             </div>
-            {(error || validationError || typeof formState.errors[name]?.message === 'string') && (
-              <p className="text-red-500 text-sm">{error || validationError || (typeof formState.errors[name]?.message === 'string' ? formState.errors[name]?.message : '')}</p>
-            )}
+            <FormMessage>{error || validationError}</FormMessage>
           </FormItem>
         )
       }}

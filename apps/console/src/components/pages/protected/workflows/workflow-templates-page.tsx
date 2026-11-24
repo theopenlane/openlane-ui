@@ -19,9 +19,9 @@ const categoryLabel: Record<string, string> = {
 }
 
 const categoryBadgeClassName: Record<WorkflowTemplate['category'], string> = {
-  approval: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600',
-  notification: 'border-sky-500/30 bg-sky-500/10 text-sky-600',
-  lifecycle: 'border-amber-500/30 bg-amber-500/10 text-amber-600',
+  approval: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+  notification: 'border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300',
+  lifecycle: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
 }
 
 const actionLabelMap: Record<string, string> = {
@@ -95,19 +95,19 @@ const TemplateSummary = ({ template }: { template: WorkflowTemplate }) => {
     <div className="mt-auto rounded-lg border border-border/60 bg-muted/10 p-3">
       <div className="space-y-3 text-xs text-muted-foreground">
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Goal</p>
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Goal</p>
           <p className="text-sm font-medium text-foreground">{goal}</p>
         </div>
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Object</p>
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Object</p>
           <p className="text-sm font-medium text-foreground">{schemaType || '—'}</p>
         </div>
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Trigger</p>
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Trigger</p>
           <p className="text-sm font-medium text-foreground line-clamp-2">{formatTrigger(triggers[0])}</p>
         </div>
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Targets</p>
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Targets</p>
           <p className="text-sm font-medium text-foreground">{formatTargets(primaryAction)}</p>
         </div>
       </div>

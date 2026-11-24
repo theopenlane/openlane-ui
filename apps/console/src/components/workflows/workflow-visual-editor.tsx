@@ -427,10 +427,10 @@ export const WorkflowVisualEditor = ({ triggers, conditions, actions, objectType
         <div ref={reactFlowWrapperRef} className="flex-1 border rounded-lg bg-background relative min-w-0 h-full">
           {!readOnly && (
             <div className="absolute top-2 right-2 z-10 flex gap-2">
-              <Button size="sm" variant="outline" onClick={handleUndo} disabled={historyIndex <= 0}>
+              <Button size="sm" variant="outline" aria-label="Undo" onClick={handleUndo} disabled={historyIndex <= 0}>
                 <Undo2 className="h-4 w-4" />
               </Button>
-              <Button size="sm" variant="outline" onClick={handleRedo} disabled={historyIndex >= history.length - 1}>
+              <Button size="sm" variant="outline" aria-label="Redo" onClick={handleRedo} disabled={historyIndex >= history.length - 1}>
                 <Redo2 className="h-4 w-4" />
               </Button>
             </div>

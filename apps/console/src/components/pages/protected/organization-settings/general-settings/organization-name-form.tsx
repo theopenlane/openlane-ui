@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { z } from 'zod'
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
@@ -24,6 +24,7 @@ type OrganizationNameFormProps = {
 
 const OrganizationNameForm = ({ canEdit }: OrganizationNameFormProps) => {
   const [isSuccess, setIsSuccess] = useState(false)
+  const nameHeadingId = useId()
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const { mutateAsync: uploadAvatar } = useUpdateOrgAvatar()
 
@@ -123,7 +124,9 @@ const OrganizationNameForm = ({ canEdit }: OrganizationNameFormProps) => {
       <Panel>
         <PanelHeader heading="Organization Settings" noBorder />
         <div className="space-y-0.5">
-          <h3 className="text-sm font-medium">Name</h3>
+          <h3 id={nameHeadingId} className="text-sm font-medium">
+            Name
+          </h3>
           <p className="text-sm text-muted-foreground">
             This is the name of your organization, which will hold your data and other configuration. This would typically be the name of the company you work for or represent.
           </p>
@@ -137,7 +140,7 @@ const OrganizationNameForm = ({ canEdit }: OrganizationNameFormProps) => {
                 <FormItem className="w-full space-y-0">
                   <div className="flex gap-4 items-center">
                     <FormControl className="flex-1">
-                      <Input {...field} variant="medium" className="h-10" readOnly={!canEdit} />
+                      <Input {...field} aria-labelledby={nameHeadingId} variant="medium" className="h-10" readOnly={!canEdit} />
                     </FormControl>
 
                     {canEdit && <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving...' : isSuccess ? 'Saved' : 'Save'} />}

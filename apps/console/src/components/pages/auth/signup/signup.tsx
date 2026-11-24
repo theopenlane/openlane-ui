@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SimpleForm } from '@repo/ui/simple-form'
+import { FormMessage } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
 import { ArrowRightCircle } from 'lucide-react'
 import { registerUser, type RegisterUser } from '@/lib/user'
@@ -63,7 +64,7 @@ export const SignupPage = () => {
       <p className="text-3xl font-medium">Create your account</p>
       <div className="mt-2 text-center">
         <span className="text-muted-foreground text-sm">Sign up with your work account. Already have an account?&nbsp;</span>
-        <Link href={`/login${token ? `?token=${token}` : ''}`} className="text-sm hover:text-blue-500 hover:opacity-80 transition-color duration-500">
+        <Link href={`/login${token ? `?token=${token}` : ''}`} className="text-sm hover:text-hyperlink hover:opacity-80 transition-color duration-500">
           Login
         </Link>
       </div>
@@ -162,7 +163,7 @@ export const SignupPage = () => {
             <p className="text-sm">Work email</p>
           </div>
           <Input type="email" variant="light" name="email" placeholder="you@company.com" className={`bg-transparent !text-text ${showError ? 'border border-toast-error-icon' : ''}`} />
-          {showError && <span className="text-xs text-toast-error-icon text-left">{registrationErrorMessage}</span>}
+          {showError && <FormMessage className="text-left">{registrationErrorMessage}</FormMessage>}
         </div>
 
         {isPasswordActive && (

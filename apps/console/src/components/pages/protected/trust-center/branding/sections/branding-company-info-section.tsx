@@ -3,6 +3,7 @@ import { type BrandFormValues } from '../brand-schema'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { RenderBrandField } from '../../shared/render-field'
 import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
+import { FormMessage } from '@repo/ui/form'
 
 interface BrandingCompanyInfoSectionProps {
   isReadOnly: boolean
@@ -51,7 +52,7 @@ export const BrandingCompanyInfoSection = ({ isReadOnly, setting, warning }: Bra
               <p className="text-sm text-inverted-muted-foreground">Public contact email for responsible disclosure of security vulnerabilities</p>
             </div>
             <RenderBrandField name="securityContact" label="security@company.com" component="input" isReadOnly={isReadOnly} setting={setting} register={register} />
-            {!isReadOnly && errors.securityContact && <p className="text-xs text-red-500">{errors.securityContact.message}</p>}
+            {!isReadOnly && <FormMessage error={errors.securityContact} />}
           </div>
 
           <div className="flex flex-col gap-3">

@@ -9,7 +9,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { sortByOrder } from '@/lib/onboarding-questions/build-schema'
 import { type OnboardingQuestion } from '@/lib/onboarding-questions/types'
-import { FieldError, QuestionDescription, QuestionLabel } from '../question-label'
+import { QuestionDescription, QuestionLabel } from '../question-label'
+import { FormMessage } from '@repo/ui/form'
 
 const COLLAPSED_VISIBLE_COUNT = 5
 const OTHER_OPTION_VALUE = 'other'
@@ -83,7 +84,7 @@ export const MultiselectField: React.FC<{ question: OnboardingQuestion }> = ({ q
           </Button>
         </div>
       )}
-      <FieldError message={error?.message} />
+      <FormMessage error={error} />
     </div>
   )
 }

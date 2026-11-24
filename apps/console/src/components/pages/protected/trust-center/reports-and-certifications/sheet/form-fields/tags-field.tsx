@@ -7,6 +7,7 @@ import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { useSession } from 'next-auth/react'
+import { FormMessage } from '@repo/ui/form'
 
 interface Props {
   isEditing: boolean
@@ -42,7 +43,7 @@ export const TagsField = ({ isEditing }: Props) => {
               />
             )}
           />
-          {errors.tags && <p className="text-red-500 text-sm mt-1">{String(errors.tags.message)}</p>}
+          <FormMessage error={errors.tags} />
         </>
       ) : (
         <div className="flex flex-wrap gap-1 mt-1">{tags.length ? tags.map((tag: string, i: number) => <TagChip tag={tag} key={i} />) : <p className="text-base text-muted-foreground">—</p>}</div>

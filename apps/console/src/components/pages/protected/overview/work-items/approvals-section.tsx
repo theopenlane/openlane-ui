@@ -4,7 +4,7 @@ import { Button } from '@repo/ui/button'
 import { X } from 'lucide-react'
 import type { Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { formatTimeSince } from '@/utils/date'
-import { FILTER_LABELS, WORK_ITEM_ROW_CLASS } from './types'
+import { FILTER_LABELS, WORK_ITEM_ROW_ACTION_CLASS, WORK_ITEM_ROW_CLASS, WORK_ITEM_ROW_TARGET_CLASS } from './types'
 import SectionHeader from './section-header'
 
 type ApprovalsSectionProps = {
@@ -21,8 +21,8 @@ const ApprovalsSection = ({ notifications, showHeader, onOpen, onDismiss }: Appr
     <div className="space-y-3">
       {showHeader && <SectionHeader label={FILTER_LABELS.approvals} count={notifications.length} />}
       {notifications.map((notification) => (
-        <div key={`notification-${notification.id}`} className={WORK_ITEM_ROW_CLASS} {...activatable(() => onOpen(notification))}>
-          <div className="min-w-0 flex-1">
+        <div key={`notification-${notification.id}`} className={WORK_ITEM_ROW_CLASS}>
+          <div className={WORK_ITEM_ROW_TARGET_CLASS} {...activatable(() => onOpen(notification))}>
             <p className="text-sm font-medium truncate">{notification.title}</p>
             <p className="text-xs text-muted-foreground truncate">{notification.body}</p>
           </div>
@@ -31,7 +31,7 @@ const ApprovalsSection = ({ notifications, showHeader, onOpen, onDismiss }: Appr
             variant="secondary"
             icon={<X />}
             iconPosition="left"
-            className="h-8 !px-2 shrink-0"
+            className={WORK_ITEM_ROW_ACTION_CLASS}
             onClick={(event) => {
               event.stopPropagation()
               onDismiss(notification.id)

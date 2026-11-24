@@ -3,6 +3,7 @@ import * as SelectPrimitive from '@radix-ui/react-select'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { selectStyles, type SelectVariants } from './select.styles'
+import { useFormItemLabelId } from '../form/form'
 
 const Select = SelectPrimitive.Root
 const SelectGroup = SelectPrimitive.Group
@@ -15,8 +16,11 @@ const SelectTrigger = ({
   ...props
 }: React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & SelectVariants & { ref?: React.Ref<React.ElementRef<typeof SelectPrimitive.Trigger>> }) => {
   const styles = selectStyles(props)
+  const generatedId = React.useId()
+  const triggerId = props.id ?? generatedId
+  const formLabelId = useFormItemLabelId()
   return (
-    <SelectPrimitive.Trigger ref={ref} className={cn(styles.trigger(), className)} {...props}>
+    <SelectPrimitive.Trigger ref={ref} id={triggerId} aria-labelledby={formLabelId ? `${formLabelId} ${triggerId}` : undefined} className={cn(styles.trigger(), className)} {...props}>
       {children}
       <SelectPrimitive.Icon asChild>
         <ChevronDown className={cn(styles.icon())} />

@@ -48,7 +48,7 @@ export const FontColorToolbarButton = ({
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <ToolbarButton pressed={open} tooltip={tooltip}>
+        <ToolbarButton className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground" tooltip={tooltip}>
           {children}
         </ToolbarButton>
       </DropdownMenuTrigger>

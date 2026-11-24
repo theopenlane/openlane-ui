@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { type EditTaskFormData } from '../../../hooks/use-form-schema'
@@ -36,7 +36,7 @@ const DetailsField: React.FC<DetailsFieldProps> = ({ isEditing, initialValue }) 
           <FormControl>
             <PlateEditor onChange={field.onChange} onHydrate={hydrate(field.name)} initialValue={initialValue ?? undefined} placeholder="Write your task details" />
           </FormControl>
-          {formState.errors.details && <p className="text-red-500 text-sm">{formState.errors.details.message}</p>}
+          <FormMessage error={formState.errors.details} />
         </FormItem>
       )}
     />

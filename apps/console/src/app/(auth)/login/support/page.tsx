@@ -5,6 +5,7 @@ import { useIsOfficialDeployment } from '@repo/ui/lib/official-deployment'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { PasswordInput } from '@repo/ui/password-input'
+import { FormMessage } from '@repo/ui/form'
 import { Logo } from '@repo/ui/logo'
 import { ArrowRight, Headphones } from 'lucide-react'
 import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
@@ -74,7 +75,7 @@ const SupportLoginPage: React.FC = () => {
             <p className="text-sm text-muted-foreground mt-1">Authenticate with your support identity, then verify with the Openlane identity provider</p>
           </div>
 
-          {error && <p className="text-sm text-toast-error-icon mb-4 text-center">{error}</p>}
+          <FormMessage className="text-center">{error}</FormMessage>
 
           <form onSubmit={submit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">

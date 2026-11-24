@@ -5,6 +5,7 @@ import { Check, Pencil } from 'lucide-react'
 import { Badge, type BadgeProps } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { CountryDropdown } from '@repo/ui/country-dropdown'
+import { FormMessage } from '@repo/ui/form'
 import { TableCell, TableRow } from '@repo/ui/table'
 import { type Option } from '@repo/ui/multiple-selector'
 import { cn } from '@repo/ui/lib/utils'
@@ -89,7 +90,7 @@ const MatchRow: React.FC<TSubprocessorMatchRowProps> = ({ row, targetOptions, ca
             disabled={!isActive}
             placeholder="Select countries"
           />
-          {row.unresolvedCountries.length > 0 && <p className="text-xs text-destructive">Not recognised: {row.unresolvedCountries.join(', ')}</p>}
+          {row.unresolvedCountries.length > 0 && <FormMessage>Not recognised: {row.unresolvedCountries.join(', ')}</FormMessage>}
           {isActive && row.countriesFromDefault && row.countries.length > 0 && <p className="text-xs text-muted-foreground">From defaults</p>}
         </div>
       </TableCell>
@@ -117,7 +118,7 @@ const MatchRow: React.FC<TSubprocessorMatchRowProps> = ({ row, targetOptions, ca
             <Button variant="icon" size="icon-sm" descriptiveTooltipText={`Edit details for ${name}`} onClick={() => onEditDetails(row)}>
               <Pencil size={16} />
             </Button>
-            {row.logo.state === 'invalid' && <span className="text-xs text-destructive">Invalid logo URL</span>}
+            {row.logo.state === 'invalid' && <FormMessage>Invalid logo URL</FormMessage>}
             {row.logo.state === 'none' && <span className="text-xs text-muted-foreground">Add a website for a logo</span>}
           </div>
         ) : (

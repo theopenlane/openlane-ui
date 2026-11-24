@@ -5,7 +5,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Tag } from 'lucide-react'
 import { useWatch, type UseFormReturn } from 'react-hook-form'
 import { InputRow } from '@repo/ui/input'
-import { FormControl, FormField } from '@repo/ui/form'
+import { FormControl, FormField, FormMessage } from '@repo/ui/form'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { type CreateProcedureFormData } from '@/components/pages/protected/procedures/create/hooks/use-form-schema.ts'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -54,7 +54,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
                         onChange={(selectedOptions) => field.onChange(selectedOptions.map((option) => option.value))}
                       />
                     </FormControl>
-                    {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
+                    <FormMessage error={form.formState.errors.tags} />
                   </>
                 )}
               />

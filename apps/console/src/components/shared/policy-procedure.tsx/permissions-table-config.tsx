@@ -55,7 +55,7 @@ export const useGroupColumns = ({ onRemoveGroup }: { onRemoveGroup: (group: TGro
       cell: ({ row }) => (
         <DropdownMenu open={activeRow === row?.original?.id} onOpenChange={(open) => setActiveRow(open ? row?.original?.id || '' : null)}>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" className="-mr-2">
+            <Button variant="secondary" aria-label="Permission actions" className="-mr-2">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

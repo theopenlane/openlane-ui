@@ -59,6 +59,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
         return (
           <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox
+              aria-label="Select all subprocessors on this page"
               checked={allSelected}
               onCheckedChange={(checked) => {
                 const newSelection = checked
@@ -75,7 +76,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
 
         return (
           <div role="presentation" onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id: row.original.id })} />
+            <Checkbox aria-label={`Select ${row.original.name}`} checked={isChecked} onCheckedChange={() => toggleSelection({ id: row.original.id })} />
           </div>
         )
       },

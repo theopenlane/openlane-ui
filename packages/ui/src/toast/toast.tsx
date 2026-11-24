@@ -76,8 +76,8 @@ const ToastAction = ({ className, ref, ...props }: React.ComponentPropsWithoutRe
 )
 
 const ToastClose = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof ToastPrimitives.Close> & { ref?: React.Ref<React.ElementRef<typeof ToastPrimitives.Close>> }) => (
-  <ToastPrimitives.Close ref={ref} className={cn(close(), className)} {...props}>
-    <X className={cn(closeIcon())} />
+  <ToastPrimitives.Close ref={ref} aria-label="Close notification" className={cn(close(), className)} {...props}>
+    <X aria-hidden className={cn(closeIcon())} />
   </ToastPrimitives.Close>
 )
 

@@ -19,7 +19,7 @@ export function MoreToolbarButton(props: DropdownMenuProps) {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
       <DropdownMenuTrigger asChild>
-        <ToolbarButton pressed={open} tooltip="Insert">
+        <ToolbarButton className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground" tooltip="Insert">
           <MoreHorizontalIcon />
         </ToolbarButton>
       </DropdownMenuTrigger>

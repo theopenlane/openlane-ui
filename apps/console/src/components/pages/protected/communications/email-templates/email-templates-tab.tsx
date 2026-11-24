@@ -8,7 +8,7 @@ import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useEmailTemplatesWithFilter, useDeleteEmailTemplate, useUpdateEmailTemplate, useCreateEmailTemplate } from '@/lib/graphql-hooks/email-template'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
@@ -113,7 +113,7 @@ export const EmailTemplatesTab: React.FC = () => {
   }
 
   return (
-    <>
+    <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
       <div className="flex items-center gap-2 mb-4">
         <Input
           className="bg-transparent w-[280px]"
@@ -138,113 +138,113 @@ export const EmailTemplatesTab: React.FC = () => {
               ))}
             </SelectContent>
           </Select>
-          <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)} className="shrink-0">
-            <TabsList className="flex-nowrap">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="active">Active</TabsTrigger>
-              <TabsTrigger value="inactive">Inactive</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <TabsList className="w-fit shrink-0 flex-nowrap">
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="active">Active</TabsTrigger>
+            <TabsTrigger value="inactive">Inactive</TabsTrigger>
+          </TabsList>
           <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={handleCreate} {...tableActionAnchor(ObjectTypes.EMAIL_TEMPLATE, 'create')}>
             Create Email Template
           </Button>
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <LoaderCircle className="animate-spin text-muted-foreground" size={24} />
-        </div>
-      ) : emailTemplatesNodes.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-          <Mail size={40} className="mb-3 opacity-50" />
-          <p className="text-sm">No email templates found</p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {emailTemplatesNodes.map((template) => {
-            const authorName = template.createdBy ? resolveAuthorName(template.createdBy, { userMap, tokenMap }) : '—'
-            const campaignsCount = template.campaigns?.totalCount ?? 0
-            return (
-              <div key={template.id} className="flex items-start gap-4 rounded-lg border border-border bg-card p-4 transition-colors">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-avatar-transparent">
-                  <Mail size={16} className="text-white" />
-                </div>
-                <div className="flex-1 min-w-0 flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold truncate">{template.name}</span>
-                    {template.active ? (
-                      <Badge variant="green" className="shrink-0 gap-1 text-xs">
-                        <Check size={12} />
-                        Active
-                      </Badge>
-                    ) : (
-                      <Badge variant="white" className="shrink-0 gap-1 text-xs">
-                        <FilePen size={12} />
-                        Draft
-                      </Badge>
-                    )}
-                    <Badge variant="outline" className="shrink-0 text-xs">
-                      {getEnumLabel(emailTemplateTypeForKey(template.key))}
-                    </Badge>
+      <TabsContent value={statusFilter} className="mt-0 text-[length:inherit]">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <LoaderCircle className="animate-spin text-muted-foreground" size={24} />
+          </div>
+        ) : emailTemplatesNodes.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+            <Mail size={40} className="mb-3 opacity-50" />
+            <p className="text-sm">No email templates found</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {emailTemplatesNodes.map((template) => {
+              const authorName = template.createdBy ? resolveAuthorName(template.createdBy, { userMap, tokenMap }) : '—'
+              const campaignsCount = template.campaigns?.totalCount ?? 0
+              return (
+                <div key={template.id} className="flex items-start gap-4 rounded-lg border border-border bg-card p-4 transition-colors">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-avatar-transparent">
+                    <Mail size={16} className="text-white" />
                   </div>
-                  <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-                    <span>Created {formatDate(template.createdAt)}</span>
-                    <span>·</span>
-                    <span>Updated {formatDate(template.updatedAt)}</span>
-                    <span>·</span>
-                    <span>By {authorName}</span>
-                    <span>·</span>
-                    <button
-                      type="button"
-                      className="cursor-pointer text-primary underline-offset-2 hover:underline"
-                      onClick={() => setLinkedCampaignsTemplate({ id: template.id, name: template.name })}
-                    >
-                      Used in {campaignsCount} {campaignsCount === 1 ? 'campaign' : 'campaigns'}
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <Button variant="secondary" size="sm" className="px-2 py-2" onClick={() => handleEdit(template.id)} aria-label="Edit template">
-                    <Pencil size={14} />
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="secondary" size="sm" className="px-2 py-2" aria-label="More actions">
-                        <MoreHorizontal size={16} />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="min-w-48">
-                      <DropdownMenuItem onClick={() => handleToggleActive(template.id, template.active)}>
-                        <CircleCheckBig className="h-4 w-4" />
-                        {template.active ? 'Disable' : 'Mark Active'}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDuplicate(template)}>
-                        <CopyPlus className="h-4 w-4" />
-                        Duplicate
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setPreviewId(template.id)}>
-                        <Eye className="h-4 w-4" />
-                        Preview
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => {
-                          setDeleteTargetId(template.id)
-                          setDeleteDialogOpen(true)
-                        }}
+                  <div className="flex-1 min-w-0 flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold truncate">{template.name}</span>
+                      {template.active ? (
+                        <Badge variant="green" className="shrink-0 gap-1 text-xs">
+                          <Check size={12} />
+                          Active
+                        </Badge>
+                      ) : (
+                        <Badge variant="white" className="shrink-0 gap-1 text-xs">
+                          <FilePen size={12} />
+                          Draft
+                        </Badge>
+                      )}
+                      <Badge variant="outline" className="shrink-0 text-xs">
+                        {getEnumLabel(emailTemplateTypeForKey(template.key))}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                      <span>Created {formatDate(template.createdAt)}</span>
+                      <span>·</span>
+                      <span>Updated {formatDate(template.updatedAt)}</span>
+                      <span>·</span>
+                      <span>By {authorName}</span>
+                      <span>·</span>
+                      <button
+                        type="button"
+                        className="cursor-pointer text-primary underline-offset-2 hover:underline"
+                        onClick={() => setLinkedCampaignsTemplate({ id: template.id, name: template.name })}
                       >
-                        <Trash2 className="h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        Used in {campaignsCount} {campaignsCount === 1 ? 'campaign' : 'campaigns'}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button variant="secondary" size="sm" className="px-2 py-2" onClick={() => handleEdit(template.id)} aria-label="Edit template">
+                      <Pencil size={14} />
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="secondary" size="sm" className="px-2 py-2" aria-label="More actions">
+                          <MoreHorizontal size={16} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="min-w-48">
+                        <DropdownMenuItem onClick={() => handleToggleActive(template.id, template.active)}>
+                          <CircleCheckBig className="h-4 w-4" />
+                          {template.active ? 'Disable' : 'Mark Active'}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDuplicate(template)}>
+                          <CopyPlus className="h-4 w-4" />
+                          Duplicate
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setPreviewId(template.id)}>
+                          <Eye className="h-4 w-4" />
+                          Preview
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => {
+                            setDeleteTargetId(template.id)
+                            setDeleteDialogOpen(true)
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
+              )
+            })}
+          </div>
+        )}
+      </TabsContent>
 
       <EmailTemplatePreviewSheet
         open={!!previewTemplate}
@@ -266,6 +266,6 @@ export const EmailTemplatesTab: React.FC = () => {
         confirmationTextVariant="destructive"
         showInput={false}
       />
-    </>
+    </Tabs>
   )
 }

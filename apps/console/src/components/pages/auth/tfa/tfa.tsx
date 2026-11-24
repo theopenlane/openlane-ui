@@ -12,6 +12,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { buildLoginRedirect, sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
+import { FormMessage } from '@repo/ui/form'
 
 const TfaPage: React.FC<{ enrollment?: boolean }> = ({ enrollment = false }) => {
   const [otpValue, setOtpValue] = useState('')
@@ -174,11 +175,7 @@ const TfaPage: React.FC<{ enrollment?: boolean }> = ({ enrollment = false }) => 
         <Button onClick={handleEnrollment} disabled={isPending}>
           Set up authenticator
         </Button>
-        {error && (
-          <p role="alert" className="text-destructive">
-            {error}
-          </p>
-        )}
+        <FormMessage role="alert">{error}</FormMessage>
         {setup && (
           <QRCodeDialog qrcode={setup.qrCode} secret={setup.secret} regeneratedCodes={null} onVerify={verifyEnrollment} onComplete={handleEnrollmentCompletion} onClose={handleCloseEnrollment} />
         )}
@@ -199,7 +196,7 @@ const TfaPage: React.FC<{ enrollment?: boolean }> = ({ enrollment = false }) => 
           </InputOTPGroup>
           <InputOTPSeparator />
         </InputOTP>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        <FormMessage>{error}</FormMessage>
         <div className="flex ">{config.bottomText}</div>
         {isPending && <p className="text-sm text-text-light">Validating OTP...</p>}
       </div>

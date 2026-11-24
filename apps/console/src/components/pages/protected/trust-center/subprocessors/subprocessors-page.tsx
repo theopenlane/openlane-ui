@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
+import React, { use, useCallback, useEffect, useId, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { type ColumnDef, type RowData, type VisibilityState } from '@repo/ui/table-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -51,6 +51,7 @@ const SubprocessorsPage = () => {
   const searchParams = useSearchParams()
 
   const [embedSheetOpen, setEmbedSheetOpen] = useState(false)
+  const notifySubscribersId = useId()
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.SUBPROCESSOR)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
     getInitialVisibility(TableKeyEnum.TRUST_CENTER_SUBPROCESSORS, {
@@ -320,8 +321,15 @@ const SubprocessorsPage = () => {
         {mode === 'manage' ? (
           <>
             <div className="flex items-center gap-2 mb-4">
-              <Switch checked={!!setting?.notifySubscribersOnSubprocessorChange} onCheckedChange={handleToggleSubprocessorNotify} disabled={!setting?.id || !canEditSubprocessor} />
-              <span className="text-sm">Email subscribers when subprocessors change</span>
+              <Switch
+                id={notifySubscribersId}
+                checked={!!setting?.notifySubscribersOnSubprocessorChange}
+                onCheckedChange={handleToggleSubprocessorNotify}
+                disabled={!setting?.id || !canEditSubprocessor}
+              />
+              <label htmlFor={notifySubscribersId} className="text-sm">
+                Email subscribers when subprocessors change
+              </label>
             </div>
 
             <SubprocessorsTableToolbar

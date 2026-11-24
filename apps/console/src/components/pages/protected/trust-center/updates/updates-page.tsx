@@ -7,7 +7,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { omit, orClear, useDirtyInput, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
 import * as z from 'zod'
 import { Keyboard, Megaphone, Pencil, Loader2, Trash2 } from 'lucide-react'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Textarea } from '@repo/ui/textarea'
@@ -55,11 +55,12 @@ export default function UpdatesSection() {
   const [postToDelete, setPostToDelete] = useState<string | null>(null)
 
   const { successNotification, errorNotification } = useNotification()
-  const { data: trustCenterData } = useGetTrustCenter()
+  const { data: trustCenterData, isLoading: isTrustCenterLoading } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
-  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
+  const { data: tcPermission, isLoading: isTcPermissionLoading } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
   const { data: session } = useSession()
   const canEditTc = canEdit(tcPermission?.roles, session)
+  const isResolvingTcPermission = isTrustCenterLoading || isTcPermissionLoading
 
   const { posts, isLoadingPosts, error: postsError } = useGetTrustCenterPosts()
   useQueryErrorNotification({ error: postsError, description: 'Failed to load updates' })
@@ -150,7 +151,7 @@ export default function UpdatesSection() {
       <h1 className="text-2xl font-bold tracking-tight mb-8">Updates</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-6">
-        <Card className={editingPostId || !canEditTc ? 'opacity-50 pointer-events-none' : ''}>
+        <Card aria-busy={isResolvingTcPermission || undefined} className={editingPostId || !canEditTc ? 'opacity-50 pointer-events-none' : ''}>
           <CardContent className="pt-6">
             <div className="mb-6">
               <h2 className="text-lg font-semibold">Share Update</h2>
@@ -170,7 +171,7 @@ export default function UpdatesSection() {
                       <FormControl>
                         <Input placeholder="Add a title" className="bg-background" {...field} />
                       </FormControl>
-                      {createForm.formState.errors.title && <p className="text-red-500 text-sm">{createForm.formState.errors.title.message}</p>}
+                      <FormMessage error={createForm.formState.errors.title} />
                     </FormItem>
                   )}
                 />
@@ -184,7 +185,7 @@ export default function UpdatesSection() {
                       <FormControl>
                         <Textarea placeholder="Write an update..." className="min-h-30 bg-background" {...field} />
                       </FormControl>
-                      {createForm.formState.errors.text && <p className="text-red-500 text-sm">{createForm.formState.errors.text.message}</p>}
+                      <FormMessage error={createForm.formState.errors.text} />
                     </FormItem>
                   )}
                 />
@@ -243,10 +244,10 @@ export default function UpdatesSection() {
                         <div className="space-y-3">
                           <Label>Title</Label>
                           <Input autoFocus className="bg-background text-sm" {...editForm.register('title')} />
-                          {editForm.formState.errors.title && <p className="text-red-500 text-sm">{editForm.formState.errors.title.message}</p>}
+                          <FormMessage error={editForm.formState.errors.title} />
                           <Label>Description</Label>
                           <Textarea autoFocus className="min-h-25 bg-background text-sm" {...editForm.register('text')} />
-                          {editForm.formState.errors.text && <p className="text-red-500 text-sm">{editForm.formState.errors.text.message}</p>}
+                          <FormMessage error={editForm.formState.errors.text} />
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <Keyboard size={16} />

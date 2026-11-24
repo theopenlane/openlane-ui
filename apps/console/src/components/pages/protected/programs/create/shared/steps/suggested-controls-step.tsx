@@ -261,7 +261,7 @@ const SuggestedControlsStep = ({ frameworkName }: { frameworkName?: string }) =>
               <span className="shrink-0 text-xs font-medium text-muted-foreground">Show only selected</span>
               <Switch checked={showOnlySelected} onCheckedChange={setShowOnlySelected} />
               <span className="shrink-0 text-xs font-medium text-muted-foreground">Group categories by:</span>
-              <Tabs value={groupBy} onValueChange={(value) => setGroupBy(toGroupBy(value))} variant="solid" className="shrink-0">
+              <Tabs panelless value={groupBy} onValueChange={(value) => setGroupBy(toGroupBy(value))} variant="solid" className="shrink-0">
                 <TabsList className="w-auto">
                   <TabsTrigger value="openlane" className="px-3">
                     Openlane
