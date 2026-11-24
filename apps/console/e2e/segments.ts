@@ -15,6 +15,7 @@ export const SEGMENTS: Record<string, string[]> = {
 
   controls: [
     'comments-flows.spec.ts',
+    'control-implementation-home.spec.ts',
     'control-implementations.spec.ts',
     'control-objectives-list.spec.ts',
     'control-objectives.spec.ts',

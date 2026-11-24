@@ -122,6 +122,10 @@ export const createFinding = (sess: ApiSession, displayName: string, extra: Reco
 export const createControlImplementation = (sess: ApiSession, details: string, extra: Record<string, unknown> = {}): Promise<string> =>
   seedEntity(sess, 'createControlImplementation', 'CreateControlImplementationInput', 'controlImplementation', { details, ...extra })
 
+export const deleteControlImplementation = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteControlImplementation(id: $id){ deletedID } }`, { id })
+}
+
 export const deleteFinding = async (sess: ApiSession, id: string): Promise<void> => {
   await gql(sess, `mutation($id: ID!){ deleteFinding(id: $id){ deletedID } }`, { id })
 }
