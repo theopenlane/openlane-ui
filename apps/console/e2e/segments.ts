@@ -104,6 +104,8 @@ export const SEGMENTS: Record<string, string[]> = {
     'user-management.spec.ts',
   ],
 
+  billing: ['billing-stripe-sandbox.spec.ts', 'billing.spec.ts'],
+
   platform: [
     'bulk-import-and-pagination.spec.ts',
     'cross-cutting.spec.ts',
