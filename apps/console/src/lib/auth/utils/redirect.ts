@@ -64,6 +64,8 @@ const buildAuthRedirect = (basePath: string, redirect?: string | null) => {
   return `${basePath}?redirect=${encodeURIComponent(sanitized)}`
 }
 
+export const buildInviteAcceptPath = (token: string) => `/invite?token=${encodeURIComponent(token)}`
+
 export const buildLoginRedirect = (redirect?: string | null) => buildAuthRedirect(LOGIN_PATH, redirect)
 
 export const buildTfaRedirect = (redirect?: string | null) => buildAuthRedirect(TFA_PATH, redirect)
