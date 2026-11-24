@@ -72,7 +72,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
     }
   }
 
-  const buildSwaps = useCallback((modules: Product[], addons: Product[], currentInterval: BillingInterval) => {
+  const buildSwaps = useCallback((modules: Product[], addons: Product[], currentInterval: BillingInterval, activePriceIds: ReadonlySet<string | Price>) => {
     const allProducts = [...modules, ...addons]
 
     return allProducts
@@ -80,17 +80,24 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
         const monthly = p.billing.prices.find((pr) => pr.interval === 'month')
         const yearly = p.billing.prices.find((pr) => pr.interval === 'year')
 
-        if (!monthly || !yearly) return null
+        // a price without a stripe id would serialize as an empty swap and fail server validation
+        if (!monthly?.price_id || !yearly?.price_id) return null
 
-        return currentInterval === 'month' ? { from: monthly.price_id, to: yearly.price_id } : { from: yearly.price_id, to: monthly.price_id }
+        const from = currentInterval === 'month' ? monthly.price_id : yearly.price_id
+        const to = currentInterval === 'month' ? yearly.price_id : monthly.price_id
+
+        // only swap items that are actually on the subscription
+        if (!activePriceIds.has(from)) return null
+
+        return { from, to }
       })
       .filter((swap): swap is { from: string; to: string } => swap !== null)
   }, [])
 
   const swaps = useMemo(() => {
     if (!currentInterval) return []
-    return buildSwaps(modules, addons, currentInterval)
-  }, [modules, addons, currentInterval, buildSwaps])
+    return buildSwaps(modules, addons, currentInterval, activePriceIds)
+  }, [modules, addons, currentInterval, activePriceIds, buildSwaps])
 
   const calcPhaseCost = (phase: SchedulePhase): number => {
     if (!phase?.items) return 0
