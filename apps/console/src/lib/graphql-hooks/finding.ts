@@ -81,6 +81,7 @@ const RELATED_SECTIONS = exposureRelatedSections(FINDING_COMMENTS_KEY)
 export const invalidateFindingQueries = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({ queryKey: ['findings'] })
   queryClient.invalidateQueries({ queryKey: ['findingHistories'] })
+  queryClient.invalidateQueries({ queryKey: ['checkResults'] })
 }
 
 export const invalidateFindingCommentQueries = (queryClient: QueryClient) => queryClient.invalidateQueries({ queryKey: [FINDING_COMMENTS_KEY] })
@@ -151,7 +152,7 @@ export const useDeleteFinding = () => {
   return useMutation<DeleteFindingMutation, unknown, DeleteFindingMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_FINDING, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['findings'] })
+      invalidateFindingQueries(queryClient)
     },
   })
 }
@@ -182,7 +183,7 @@ export const useBulkDeleteFinding = () => {
   return useMutation<DeleteBulkFindingMutation, unknown, DeleteBulkFindingMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_DELETE_FINDING, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['findings'] })
+      invalidateFindingQueries(queryClient)
     },
   })
 }

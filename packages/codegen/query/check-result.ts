@@ -1,7 +1,16 @@
 import { gql } from 'graphql-request'
 
 export const GET_ALL_CHECK_RESULTS = gql`
-  query CheckResultsWithFilter($where: CheckResultWhereInput, $orderBy: [CheckResultOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+  query CheckResultsWithFilter(
+    $where: CheckResultWhereInput
+    $orderBy: [CheckResultOrder!]
+    $first: Int
+    $after: Cursor
+    $last: Int
+    $before: Cursor
+    $findingsLimit: Int = 5
+    $includeFindings: Boolean! = false
+  ) {
     checkResults(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       totalCount
       edges {
@@ -13,10 +22,25 @@ export const GET_ALL_CHECK_RESULTS = gql`
           id
           integrationID
           lastObservedAt
+          managedBy
           parentExternalID
           source
+          sourceDefinitionID
+          status
+          tags
           updatedAt
           updatedBy
+          findings(first: $findingsLimit, where: { open: true }) @include(if: $includeFindings) {
+            totalCount
+            edges {
+              node {
+                id
+                displayName
+                displayID
+                externalID
+              }
+            }
+          }
         }
       }
       pageInfo {
@@ -25,6 +49,14 @@ export const GET_ALL_CHECK_RESULTS = gql`
         hasPreviousPage
         hasNextPage
       }
+    }
+  }
+`
+
+export const GET_CHECK_RESULTS_COUNT = gql`
+  query CheckResultsCount($where: CheckResultWhereInput) {
+    checkResults(where: $where) {
+      totalCount
     }
   }
 `

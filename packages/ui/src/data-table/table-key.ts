@@ -78,6 +78,7 @@ export enum AdditionalTableKeyEnum {
   CONTROL_ASSETS = 'control-assets',
   CONTROL_SCANS = 'control-scans',
   CONTROL_FINDINGS = 'control-findings',
+  CONTROL_CHECK_RESULTS = 'control-check-results',
   CONTROL_RISKS = 'control-risks',
   CONTROL_REVIEWS = 'control-reviews',
   EXPOSURE_ATTENTION = 'exposure-attention',
