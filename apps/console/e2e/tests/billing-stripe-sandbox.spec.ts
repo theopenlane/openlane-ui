@@ -53,6 +53,16 @@ test.describe('billing — real Stripe sandbox', () => {
     expect(response.status(), await response.text()).toBe(200)
   }
 
+  const expectRenewRefused = async (current: Stripe.SubscriptionSchedule): Promise<void> => {
+    const response = await page.request.post('/api/stripe/schedules/renew', { data: { scheduleId: current.id } })
+    expect(response.status()).toBe(409)
+    expect(await response.json()).toEqual({ error: 'Trial subscriptions cannot be renewed' })
+
+    const after = await stripe.subscriptionSchedules.retrieve(current.id)
+    expect(after.end_behavior).toBe(current.end_behavior)
+    expect(after.phases).toEqual(current.phases)
+  }
+
   test.beforeAll(async ({ browser }) => {
     test.setTimeout(SETUP_TIMEOUT)
     const client = stripeSandboxFromEnv()
@@ -183,8 +193,11 @@ test.describe('billing — real Stripe sandbox', () => {
     expect(phasePriceIds(await schedule())).toEqual(before.map((prices) => prices.map((price) => counterpart.get(price) ?? price)))
   })
 
-  test('cancelling and renewing update the schedule and keep the trial', async () => {
+  test('a cancelled trial keeps its end date and cannot be renewed', async () => {
     const before = await schedule()
+    expect(before.phases[0].trial_end).not.toBeNull()
+    await expectRenewRefused(before)
+
     await openBilling(page)
     await page.getByRole('button', { name: 'Cancel subscription', exact: true }).click()
     await succeed('/api/stripe/schedules/cancel', () => confirmDialog(page, 'Cancel subscription?'))
@@ -193,10 +206,7 @@ test.describe('billing — real Stripe sandbox', () => {
     expect(cancelled.end_behavior).toBe('cancel')
     expect(cancelled.phases[0].trial_end).toBe(before.phases[0].trial_end)
 
-    const response = await page.request.post('/api/stripe/schedules/renew', { data: { scheduleId: before.id } })
-    expect(response.status()).toBe(200)
-    const renewed = await stripe.subscriptionSchedules.retrieve(before.id)
-    expect(renewed.end_behavior).toBe('release')
-    expect(renewed.phases[0].trial_end).toBe(before.phases[0].trial_end)
+    await expect(page.getByText('Your trial subscription was cancelled and cannot be renewed.')).toBeVisible()
+    await expectRenewRefused(cancelled)
   })
 })

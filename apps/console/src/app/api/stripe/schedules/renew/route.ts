@@ -1,5 +1,5 @@
 import { billingResourceNotFound, withBillingCustomer } from '@/lib/server/billing-customer'
-import { getStripe, retrieveCustomerSchedule } from '@/lib/stripe'
+import { getStripe, retrieveCustomerSchedule, retrieveCustomerSubscription } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 
@@ -13,6 +13,12 @@ export const POST = withBillingCustomer(async (customerId, req) => {
     const schedule = await retrieveCustomerSchedule(scheduleId, customerId)
     if (!schedule) {
       return billingResourceNotFound()
+    }
+
+    const subscriptionId = typeof schedule.subscription === 'string' ? schedule.subscription : schedule.subscription?.id
+    const subscription = subscriptionId ? await retrieveCustomerSubscription(subscriptionId, customerId) : null
+    if (subscription?.status === 'trialing') {
+      return NextResponse.json({ error: 'Trial subscriptions cannot be renewed' }, { status: 409 })
     }
 
     if (!schedule.phases?.length) {
