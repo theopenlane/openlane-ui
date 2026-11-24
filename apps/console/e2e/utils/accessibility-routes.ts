@@ -7,6 +7,7 @@ export const SEEDED_RECORD_KEYS = [
   'control',
   'subcontrol',
   'mappedControl',
+  'controlImplementation',
   'policy',
   'procedure',
   'program',
@@ -49,6 +50,7 @@ const ROUTE_SCANS: Readonly<Record<string, RouteScan>> = {
   '/import': { query: 'type=control' },
   '/programs': { ready: heading(/^Programs$/) },
   '/controls': { ready: heading(/^Controls$/) },
+  '/control-implementations': { ready: heading(/^Control Implementations$/) },
   '/standards': { ready: heading(/^Standards Catalog$/) },
   '/standards/template-controls': {
     ready: (page) =>
@@ -97,6 +99,7 @@ const RECORD_SCANS: Readonly<Record<string, RecordScan>> = {
   '/controls/[id]/[subcontrolId]/control-objectives': { params: subcontrol },
   '/controls/[id]/[subcontrolId]/map-control': { params: subcontrol },
   '/controls/[id]/[subcontrolId]/edit-map-control': { params: subcontrol, query: (r) => `mappedControlId=${r.mappedControl}` },
+  '/control-implementations/[id]': { params: recordId('controlImplementation'), tabs: ['activity'] },
   '/standards/[id]': { params: recordId('standard') },
   '/programs/[id]': { params: recordId('program') },
   '/programs/[id]/settings': { params: recordId('program') },

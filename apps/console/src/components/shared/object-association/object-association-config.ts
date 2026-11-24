@@ -95,6 +95,8 @@ import { type RequestDocument } from 'graphql-request'
 
 import {
   type CreateTaskInput,
+  type CreateControlImplementationInput,
+  type UpdateControlImplementationInput,
   type CreateRemediationInput,
   type CreateRiskInput,
   type CreateReviewInput,
@@ -494,7 +496,10 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
   },
 }
 
-export const invalidateCreateEdgeTargets = (payload: CreateTaskInput | CreateRemediationInput | CreateRiskInput | CreateReviewInput, queryClient: ReturnType<typeof useQueryClient>) => {
+export const invalidateCreateEdgeTargets = (
+  payload: CreateTaskInput | CreateRemediationInput | CreateRiskInput | CreateReviewInput | CreateControlImplementationInput,
+  queryClient: ReturnType<typeof useQueryClient>,
+) => {
   const fields = new Map(Object.entries(payload))
 
   Object.values(OBJECT_QUERY_CONFIG).forEach((config) => {
@@ -1093,11 +1098,13 @@ export const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'ide
 export const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'controls', 'subcontrols', 'entities', 'campaigns', 'policies', 'tasks'] as const
 export const FINDING_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'vulnerabilities', 'remediations', 'reviews', 'assets', 'tasks', 'programs', 'actionPlans', 'risks', 'scans'] as const
 const REVIEW_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'remediations', 'entities', 'tasks', 'assets', 'programs', 'risks'] as const
+export const CONTROL_IMPLEMENTATION_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'tasks'] as const
 const REMEDIATION_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'findings', 'vulnerabilities'] as const
 export const VULNERABILITY_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'findings', 'remediations', 'reviews', 'assets', 'tasks', 'programs', 'actionPlans'] as const
 
 export const ASSOCIATION_REMOVAL_CONFIG = {
   control: createAssociationRemovalConfig<UpdateControlInput>()(CONTROL_ASSOCIATION_SECTIONS),
+  controlImplementation: createAssociationRemovalConfig<UpdateControlImplementationInput>()(CONTROL_IMPLEMENTATION_ASSOCIATION_SECTIONS),
   subcontrol: createAssociationRemovalConfig<UpdateSubcontrolInput>()(SUBCONTROL_ASSOCIATION_SECTIONS),
   policy: createAssociationRemovalConfig<UpdateInternalPolicyInput>()(POLICY_ASSOCIATION_SECTIONS),
   procedure: createAssociationRemovalConfig<UpdateProcedureInput>()(PROCEDURE_ASSOCIATION_SECTIONS),

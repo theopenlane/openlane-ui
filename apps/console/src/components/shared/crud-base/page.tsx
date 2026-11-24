@@ -90,6 +90,7 @@ interface GenericTablePageBaseConfig<TEntity extends { id: string }, TFormData e
   mapFilterKey?: (key: string, value: unknown) => TWhereInput
   quickFilters?: TQuickFilter[]
   searchFields?: WhereInputKey<TWhereInput>[]
+  buildSearchWhere?: (term: string) => TWhereInput[]
 
   // Breadcrumbs
   breadcrumbs: Array<{ label: string; href: string }>
@@ -107,7 +108,7 @@ interface GenericTablePageBaseConfig<TEntity extends { id: string }, TFormData e
   ToolbarComponent?: React.ComponentType<{
     onFilterChange: (filters: TWhereInput | null) => void
     handleClearSelected: () => void
-    handleExport: () => void
+    handleExport?: () => void
     mappedColumns: Array<{ accessorKey: string; header: string; meta?: { exportPrefix?: string } }>
     columnVisibility: VisibilityState
     setColumnVisibility: React.Dispatch<React.SetStateAction<VisibilityState>>
@@ -190,6 +191,7 @@ export function GenericTablePage<
     mapFilterKey,
     quickFilters,
     searchFields,
+    buildSearchWhere,
     breadcrumbs,
     form,
     getColumns,
@@ -241,8 +243,8 @@ export function GenericTablePage<
 
     const merged = { ...result }
 
-    if (debouncedSearch && searchFields && searchFields.length > 0) {
-      const orClause = searchFields.map((field) => ({ [field]: debouncedSearch }))
+    const orClause: object[] = debouncedSearch ? [...(searchFields ?? []).map((field) => ({ [field]: debouncedSearch })), ...(buildSearchWhere?.(debouncedSearch) ?? [])] : []
+    if (orClause.length > 0) {
       merged.and = [...((merged.and as unknown[]) || []), { or: orClause }]
     }
 
@@ -253,7 +255,7 @@ export function GenericTablePage<
     if (Object.keys(merged).length === 0) return null
 
     return merged as TWhereInput
-  }, [filters, mapFilterKey, debouncedSearch, searchFields, additionalWhereFilter])
+  }, [filters, mapFilterKey, debouncedSearch, searchFields, buildSearchWhere, additionalWhereFilter])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
@@ -407,7 +409,7 @@ export function GenericTablePage<
         displayNamePlural={displayNamePlural}
         onFilterChange={handleFilterChange}
         handleClearSelected={handleClearSelected}
-        handleExport={handleExportFile}
+        handleExport={exportType ? handleExportFile : undefined}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}

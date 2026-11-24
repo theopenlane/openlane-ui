@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { DataTable } from '@repo/ui/data-table'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -17,24 +17,14 @@ import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 
 type ActivityTasksSectionProps = {
-  controlId?: string
-  subcontrolIds: string[]
+  associationFilter: TaskWhereInput
+  emptyDescription: string
 }
 
-const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ controlId, subcontrolIds }) => {
-  const { subcontrolId } = useParams<{ subcontrolId?: string }>()
-  const isSubcontrolPage = Boolean(subcontrolId)
+const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ associationFilter, emptyDescription }) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const associationFilter = useMemo(() => {
-    if (isSubcontrolPage) {
-      return subcontrolIds.length > 0 ? { hasSubcontrolsWith: [{ idIn: subcontrolIds }] } : {}
-    }
-
-    return controlId ? { hasControlsWith: [{ id: controlId }] } : {}
-  }, [controlId, isSubcontrolPage, subcontrolIds])
-
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const [filters, setFilters] = useState<WhereCondition>({})
@@ -77,7 +67,7 @@ const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ controlId, 
       ...result,
     }
 
-    return mergeWhere<TaskWhereInput>([associationFilter as TaskWhereInput, withDefaults])
+    return mergeWhere<TaskWhereInput>([associationFilter, withDefaults])
   }, [filters, debouncedSearch, associationFilter])
 
   const orderBy = useMemo<TaskOrder[]>(() => [{ field: TaskOrderField.updated_at, direction: OrderDirection.DESC }], [])
@@ -111,7 +101,7 @@ const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ controlId, 
   }
 
   if (!hasSearchOrFilters && (tasks?.length ?? 0) === 0) {
-    return <EmptyTabState description="Use tasks to track work related to this control. Add a task to get started." />
+    return <EmptyTabState description={emptyDescription} />
   }
 
   return (

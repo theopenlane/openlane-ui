@@ -3,7 +3,7 @@
 import { Card } from '@repo/ui/cardpanel'
 import { ControlImplementationDocumentStatus, type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { CheckCircle, XCircle } from 'lucide-react'
+import { VerifiedLabel } from '@/components/pages/protected/control-implementations/verified-label'
 import { formatDate } from '@/utils/date'
 import { ControlImplementationIconMap } from '@/components/shared/enum-mapper/control-enum'
 
@@ -29,9 +29,8 @@ export const ControlImplementationCard = ({ obj, actions }: Props) => {
           </div>
           <div className="space-y-1 px-3 sm:pt-1 sm:pr-1">
             <p className="text-sm uppercase tracking-widest text-muted-foreground">Verified</p>
-            <div className="inline-flex items-center gap-1 font-medium text-foreground">
-              {obj.verified ? <CheckCircle size={16} className="text-green-500" /> : <XCircle size={16} className="text-destructive" />}
-              {obj.verified ? 'Yes' : 'No'}
+            <div className="font-medium text-foreground">
+              <VerifiedLabel verified={obj.verified} />
             </div>
           </div>
         </div>

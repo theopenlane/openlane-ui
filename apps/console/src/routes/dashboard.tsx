@@ -1,4 +1,5 @@
-import { UserRoundPen } from 'lucide-react'
+import { Settings2, UserRoundPen } from 'lucide-react'
+import { CONTROL_IMPLEMENTATIONS_HREF } from '@/utils/control-implementation'
 import { EMAIL_TEMPLATES_HREF } from '@/constants/email-template-routes'
 import {
   ActivityIcon,
@@ -112,6 +113,13 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           params: '?tab=report',
           icon: SlidersHorizontalIcon,
           objectType: ObjectTypes.CONTROL,
+        },
+        {
+          title: 'Implementations',
+          anchor: 'control-implementations',
+          href: CONTROL_IMPLEMENTATIONS_HREF,
+          icon: Settings2,
+          objectType: ObjectTypes.CONTROL_IMPLEMENTATION,
         },
         {
           title: 'Evidence',

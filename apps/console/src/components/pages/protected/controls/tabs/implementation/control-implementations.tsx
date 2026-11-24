@@ -1,10 +1,12 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useDeleteControlImplementation, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementation'
 import { type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/create-control-implementation-sheet'
+import { useControlImplementationVerification } from '@/components/pages/protected/control-implementations/use-control-implementation-verification'
+import { toParentControlIDs } from '@/utils/control-implementation'
 import { useNotification } from '@/hooks/useNotification'
 import { ImplementationItem } from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/implementation-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -23,24 +25,11 @@ const ControlImplementations: React.FC<ControlImplementationsProps> = ({ edges }
   const { successNotification, errorNotification } = useNotification()
 
   const { mutateAsync: updateImplementation, isPending } = useUpdateControlImplementation()
+  const { setVerified, isPending: isVerifying } = useControlImplementationVerification()
   const { mutateAsync: deleteImplementation } = useDeleteControlImplementation()
   const canEditImplementation = useCanEditObjects(ObjectTypes.CONTROL_IMPLEMENTATION, edges?.map(({ node }) => node.id) ?? [])
 
-  const handleMarkVerified = async (implementationId: string, verified: boolean) => {
-    try {
-      await updateImplementation({
-        updateControlImplementationId: implementationId,
-        input: { verified },
-      })
-      successNotification({ title: verified ? 'Marked as verified' : 'Marked as not verified' })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
+  const createDefaults = useMemo(() => toParentControlIDs(id, subcontrolId), [id, subcontrolId])
 
   const handleDelete = async (node: ControlImplementationFieldsFragment) => {
     const totalLinks = (node.controls?.edges?.length ?? 0) + (node.subcontrols?.edges?.length ?? 0)
@@ -73,6 +62,7 @@ const ControlImplementations: React.FC<ControlImplementationsProps> = ({ edges }
           if (!open) setEditData(null)
         }}
         editData={editData}
+        createDefaults={createDefaults}
       />
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -90,9 +80,9 @@ const ControlImplementations: React.FC<ControlImplementationsProps> = ({ edges }
                 setEditData(node)
                 setShowCreateSheet(true)
               }}
-              onMarkVerified={handleMarkVerified}
+              onMarkVerified={setVerified}
               onDelete={handleDelete}
-              isUpdating={isPending}
+              isUpdating={isPending || isVerifying}
             />
           ))
         ) : (

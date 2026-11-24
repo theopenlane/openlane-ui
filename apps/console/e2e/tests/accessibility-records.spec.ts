@@ -4,6 +4,7 @@ import path from 'node:path'
 import { test as authTest } from '../fixtures/auth'
 import {
   createControl,
+  createControlImplementation,
   createFinding,
   createIdentityHolder,
   createInternalPolicy,
@@ -37,6 +38,7 @@ const seedRecords = async (): Promise<SeededRecords> => {
     control,
     subcontrol: await createSubcontrol(api, uniqueRef('A11Y-SUB'), control),
     mappedControl: await createMappedControl(api, control, mappedTo),
+    controlImplementation: await createControlImplementation(api, name('Implementation'), { controlIDs: [mappedTo] }),
     policy: await createInternalPolicy(api, name('Policy')),
     procedure: await createProcedure(api, name('Procedure')),
     program: await createProgram(api, name('Program')),

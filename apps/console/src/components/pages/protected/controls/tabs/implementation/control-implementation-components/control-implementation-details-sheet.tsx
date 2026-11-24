@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { type ControlImplementationFieldsFragment, type UpdateControlImplementationInput } from '@repo/codegen/src/schema'
 import { useGetControlImplementationById, useUpdateControlImplementation, useDeleteControlImplementation } from '@/lib/graphql-hooks/control-implementation'
+import { Link } from '@/components/shared/link/link'
+import { controlImplementationHref } from '@/utils/control-implementation'
 import { ControlImplementationCard } from './control-implementation-card'
 import { LinkControlsModal } from './link-controls-modal'
 import { GenericDetailsSheet, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
@@ -75,6 +77,9 @@ const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'c
 
   const extraContent = node ? (
     <div className="mt-4">
+      <Link href={controlImplementationHref(node.id)} onClick={onCloseProp} className="mb-4 inline-block text-sm">
+        View full page
+      </Link>
       <button className="flex items-center gap-1 text-sm font-medium w-full text-left mb-2" onClick={() => setDetailsOpen((o) => !o)}>
         {detailsOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         Details

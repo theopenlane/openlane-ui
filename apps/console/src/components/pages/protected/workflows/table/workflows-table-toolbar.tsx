@@ -28,7 +28,7 @@ type WorkflowsTableToolbarProps = {
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   onFilterChange: (filters: Record<string, unknown>) => void
-  handleExport: () => void
+  handleExport?: () => void
   columnVisibility: VisibilityState
   setColumnVisibility: React.Dispatch<React.SetStateAction<VisibilityState>>
   mappedColumns: { accessorKey: string; header: string }[]

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { use, useEffect, useState } from 'react'
+import React, { use, useEffect, useMemo, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useDeleteControlImplementation, useGetAllControlImplementations, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementation'
 import { type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
@@ -9,6 +9,8 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
 import { Loading } from '@/components/shared/loading/loading'
 import CreateControlImplementationSheet from './create-control-implementation-sheet'
+import { useControlImplementationVerification } from '@/components/pages/protected/control-implementations/use-control-implementation-verification'
+import { toParentControlIDs } from '@/utils/control-implementation'
 import { useNotification } from '@/hooks/useNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetControlById } from '@/lib/graphql-hooks/control'
@@ -44,6 +46,7 @@ const ControlImplementationPage = () => {
   const { data: subcontrolData, isLoading: isSubcontrolLoading } = useGetSubcontrolById(isSubControl ? (subcontrolId as string) : null)
 
   const { mutateAsync: updateImplementation, isPending } = useUpdateControlImplementation()
+  const { setVerified, isPending: isVerifying } = useControlImplementationVerification()
   const { mutateAsync: deleteImplementation } = useDeleteControlImplementation()
   const edges = data?.controlImplementations?.edges?.filter((edge): edge is { node: ControlImplementationFieldsFragment } => !!edge?.node)
   const canEditImplementation = useCanEditObjects(ObjectTypes.CONTROL_IMPLEMENTATION, edges?.map(({ node }) => node.id) ?? [])
@@ -52,21 +55,7 @@ const ControlImplementationPage = () => {
   const { data: session } = useSession()
   const createAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanCreateControlImplementation, session)
 
-  const handleMarkVerified = async (id: string, verified: boolean) => {
-    try {
-      await updateImplementation({
-        updateControlImplementationId: id,
-        input: { verified },
-      })
-      successNotification({ title: verified ? 'Marked as verified' : 'Marked as not verified' })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
+  const createDefaults = useMemo(() => toParentControlIDs(id, subcontrolId), [id, subcontrolId])
 
   const handleDelete = async (node: ControlImplementationFieldsFragment) => {
     const totalLinks = (node.controls?.edges?.length ?? 0) + (node.subcontrols?.edges?.length ?? 0)
@@ -125,7 +114,7 @@ const ControlImplementationPage = () => {
   if (!edges?.length) {
     return (
       <>
-        <CreateControlImplementationSheet open={showCreateSheet} onOpenChange={setShowCreateSheet} />
+        <CreateControlImplementationSheet open={showCreateSheet} onOpenChange={setShowCreateSheet} createDefaults={createDefaults} />
         <div className="flex flex-col items-center justify-center h-[60vh] text-center text-muted-foreground">
           <Settings2 className="w-20 h-20 mb-4 text-border" strokeWidth={1} />
           <p className="mb-2 text-sm">No Implementations found for this Control.</p>
@@ -146,6 +135,7 @@ const ControlImplementationPage = () => {
           if (!open) setEditData(null)
         }}
         editData={editData}
+        createDefaults={createDefaults}
       />
       <div className="flex justify-between items-center">
         <PageHeading heading="Control Implementations" />
@@ -165,9 +155,9 @@ const ControlImplementationPage = () => {
               setEditData(n)
               setShowCreateSheet(true)
             }}
-            onMarkVerified={handleMarkVerified}
+            onMarkVerified={setVerified}
             onDelete={handleDelete}
-            isUpdating={isPending}
+            isUpdating={isPending || isVerifying}
           />
         ))}
       </div>

@@ -27,12 +27,12 @@ export const StandardsColorSpan = ({ shortName, children }: { shortName: string;
   return <span className={className}>{children}</span>
 }
 
-export const StandardsHexagon = ({ shortName }: { shortName: string }) => {
+export const StandardsHexagon = ({ shortName, size = 10 }: { shortName: string; size?: number }) => {
   const className = classes[shortName] || 'text-standard-custom'
 
   const hexagonStyle: React.CSSProperties = {
-    width: '10px',
-    height: '10px',
+    width: size,
+    height: size,
     backgroundColor: 'currentColor',
     clipPath: 'polygon(50% 0, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%)',
   }
