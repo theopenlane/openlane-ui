@@ -3,7 +3,7 @@ import { RUN_ID } from '../utils/constants'
 import { createIdentityHolder, createRisk, createVulnerability, deleteVulnerability, type ApiSession, getOwnerApi } from '../utils/api'
 import { uniqueName, uniqueRef } from '../utils/unique'
 import { expectMutationOk } from '../utils/mutations'
-import { responsibilityValue, setResponsibilityEmail, setResponsibilityOption } from '../utils/responsibility'
+import { openResponsibilityPicker, responsibilityValue, setResponsibilityEmail, setResponsibilityOption } from '../utils/responsibility'
 
 let ownerApi: ApiSession
 const uniqueRiskName = () => uniqueName('E2E RiskCRUD')
@@ -666,9 +666,7 @@ test.describe('exposure — vulnerability assignment (ISS-3013)', () => {
       const rail = page.locator('body')
       await expect(page.getByRole('heading', { name: 'Properties' })).toBeVisible({ timeout: 60_000 })
 
-      await responsibilityValue(rail, 'Assigned to').click()
-      const search = page.getByPlaceholder('Search users, groups, personnel, or type a name/email...')
-      await expect(search).toBeVisible({ timeout: 15_000 })
+      const search = await openResponsibilityPicker(page, rail, 'Assigned to')
       await search.fill('not-an-email')
 
       await page.getByRole('option').filter({ hasText: 'Use "not-an-email" as custom email' }).first().click()

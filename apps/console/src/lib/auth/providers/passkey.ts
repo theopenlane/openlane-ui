@@ -53,7 +53,7 @@ export const passKeyProvider = Credentials({
 
       const isTfaEnabled = data.edges?.setting?.is_tfa_enabled || false
 
-      setSessionCookie(credentials.session)
+      await setSessionCookie(credentials.session)
 
       return {
         id: data.id || credentials.email,

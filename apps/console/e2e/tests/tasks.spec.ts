@@ -322,7 +322,10 @@ test.describe('tasks — quick filters', () => {
       }).toPass({ timeout: 25_000 })
 
       await quick.click()
-      await expect.poll(async () => (await quick.getAttribute('class'))?.includes('is-active') ?? false, { timeout: 30_000 }).toBe(true)
+      await expect(async () => {
+        if (!(await quick.isVisible())) await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
+        await expect(quick).toHaveClass(/is-active/, { timeout: 3_000 }) // 3s
+      }).toPass({ timeout: 30_000 }) // 30s
     })
   }
 })

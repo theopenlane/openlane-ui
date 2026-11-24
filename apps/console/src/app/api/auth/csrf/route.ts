@@ -12,7 +12,7 @@ export async function GET() {
     status: fData.status,
   })
 
-  setCSRFCookie(data.csrf)
+  await setCSRFCookie(data.csrf)
   response.headers.set(csrfHeader, data.csrf)
 
   return response ?? ''

@@ -45,6 +45,8 @@ services:
     ports: !reset []
   openfga:
     ports: !reset []
+    environment:
+      - OPENFGA_REQUEST_TIMEOUT=30s
   api:
     # same release as the core checkout, E2E_CORE_REF is set by the core-dev-config plugin
     image: ghcr.io/theopenlane/core:${E2E_CORE_REF:-latest}

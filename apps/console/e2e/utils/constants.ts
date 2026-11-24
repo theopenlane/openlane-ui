@@ -1,6 +1,8 @@
 export const API_BASE = process.env.E2E_API_BASE ?? 'http://localhost:17608'
 export const BASE_URL = process.env.E2E_BASE_URL ?? 'http://localhost:3001'
 
+export const CORE_CONSOLE_ORIGIN = process.env.E2E_CORE_CONSOLE_ORIGIN ?? 'http://localhost:3001'
+
 export const PASSWORD = 'mattisthebest1234'
 
 // auth form fields are matched by name so copy changes don't break selectors

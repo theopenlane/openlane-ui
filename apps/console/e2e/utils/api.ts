@@ -33,6 +33,17 @@ export const loginViaApi = async (email: string, password: string = PASSWORD): P
 
 const CSRF_TOKEN = `e2e-${RUN_ID}-csrf-token`
 
+export const coreHeaders = (sess?: ApiSession, extraCookies: string[] = []): Record<string, string> => {
+  const owned = [`${CSRF_COOKIE}=${CSRF_TOKEN}`, ...(sess ? [`${SESSION_COOKIE}=${sess.session}`] : [])]
+  const ownedNames = owned.map((cookie) => cookie.slice(0, cookie.indexOf('=') + 1))
+  const extra = extraCookies.filter((cookie) => !ownedNames.some((name) => cookie.startsWith(name)))
+  return {
+    [CSRF_HEADER]: CSRF_TOKEN,
+    cookie: [...owned, ...extra].join('; '),
+    ...(sess ? { authorization: `Bearer ${sess.accessToken}` } : {}),
+  }
+}
+
 interface GqlResult<T> {
   data?: T
   errors?: Array<{ message: string }>
@@ -44,12 +55,7 @@ export const gql = async <T>(sess: ApiSession, query: string, variables?: Record
   for (let i = 0; i < tries; i++) {
     const res = await fetch(`${API_BASE}/query`, {
       method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${sess.accessToken}`,
-        [CSRF_HEADER]: CSRF_TOKEN,
-        cookie: `${SESSION_COOKIE}=${sess.session}; ${CSRF_COOKIE}=${CSRF_TOKEN}`,
-      },
+      headers: { 'content-type': 'application/json', ...coreHeaders(sess) },
       body: JSON.stringify({ query, variables }),
     })
     last = res
@@ -498,11 +504,7 @@ const gqlMultipart = async (sess: ApiSession, label: string, query: string, vari
 
   const res = await fetch(`${API_BASE}/query`, {
     method: 'POST',
-    headers: {
-      authorization: `Bearer ${sess.accessToken}`,
-      [CSRF_HEADER]: CSRF_TOKEN,
-      cookie: `${SESSION_COOKIE}=${sess.session}; ${CSRF_COOKIE}=${CSRF_TOKEN}`,
-    },
+    headers: coreHeaders(sess),
     body: form,
   })
 

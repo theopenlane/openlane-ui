@@ -4,7 +4,7 @@ import { CONFIRM_PASSWORD_INPUT, emailFor, LOGIN_EMAIL_INPUT, PASSWORD, PASSWORD
 import { loginViaForm, waitForLoginMethodCheck } from '../utils/login'
 import { installRecaptchaShim } from '../utils/recaptcha'
 import { registerAndVerify } from '../utils/registerUser'
-import { seedLoggedInUser } from '../utils/seedUser'
+import { seedUserWithOrg } from '../utils/seedUser'
 
 test.describe('auth — login', () => {
   let registeredEmail: string
@@ -59,17 +59,9 @@ test.describe('auth — login', () => {
   })
 
   test('login at /login?redirect=/policies routes to /policies after auth', async ({ page }) => {
-    const { email } = await seedLoggedInUser(page, 'redir')
+    const { email } = await seedUserWithOrg('redir')
 
-    await page.getByTestId('user-menu-trigger').click()
-    const signOutResponse = page.waitForResponse(/\/api\/auth\/signout/)
-    await page.getByRole('menuitem', { name: /^log out$/i }).click()
-    await signOutResponse
-    await expect(async () => {
-      await page.goto('/login').catch(() => {})
-      await expect(page).toHaveURL(/\/login(\?|$)/, { timeout: 3_000 })
-    }).toPass({ timeout: 60_000 })
-
+    await installRecaptchaShim(page)
     await page.goto('/login?redirect=/policies')
 
     const loginMethodCheck = waitForLoginMethodCheck(page)

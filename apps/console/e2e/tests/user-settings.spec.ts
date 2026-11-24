@@ -106,6 +106,7 @@ test.describe('user-settings — default org dropdown (owner)', () => {
 
     await expect(page.getByText('Default Organization', { exact: true }).first()).toBeVisible({ timeout: 15_000 })
     const trigger = page.getByRole('main').getByRole('combobox').first()
+    await expect(trigger).not.toHaveText('', { timeout: 30_000 }) // 30s
     await trigger.click()
 
     await expect(page.getByRole('option').first()).toBeVisible({ timeout: 10_000 })

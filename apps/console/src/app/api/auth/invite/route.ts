@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   const fetchedData = await fData.json()
 
   if (fData.ok) {
-    setSessionCookie(fetchedData.session)
+    await setSessionCookie(fetchedData.session)
     return NextResponse.json(fetchedData, { status: 200 })
   }
 
