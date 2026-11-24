@@ -101,7 +101,7 @@ export const ExposureSnoozeForm: React.FC<TExposureSnoozeFormProps> = ({
           <span id={durationLabelId} className="text-sm font-medium">
             Snooze for
           </span>
-          <Tabs value={option} onValueChange={(value) => isSnoozeOption(value) && setOption(value)} variant="solid">
+          <Tabs panelless value={option} onValueChange={(value) => isSnoozeOption(value) && setOption(value)} variant="solid">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4" aria-labelledby={durationLabelId}>
               {SNOOZE_OPTIONS.map(({ value, label }) => (
                 <TabsTrigger key={value} value={value}>

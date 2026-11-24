@@ -18,6 +18,7 @@ import { useOrganizationMemberOptions } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { FormMessage } from '@repo/ui/form'
 
 const CreateGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -138,7 +139,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
               Group name:
             </Label>
             <Controller name="groupName" control={control} render={({ field }) => <Input placeholder="Group name" {...field} />} />
-            {errors.groupName && <p className="text-red-500 text-sm">{errors.groupName.message}</p>}
+            <FormMessage error={errors.groupName} />
           </div>
 
           <div className="space-y-2">
@@ -157,7 +158,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
                 )
               }
             />
-            {errors.admins && <p className="text-red-500 text-sm">{errors.admins.message}</p>}
+            <FormMessage error={errors.admins} />
           </div>
 
           <div className="space-y-2">
@@ -175,7 +176,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
                 )
               }
             />
-            {errors.members && <p className="text-red-500 text-sm">{errors.members.message}</p>}
+            <FormMessage error={errors.members} />
           </div>
 
           <div className="space-y-2">
@@ -200,7 +201,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
                 )
               }
             />
-            {errors.tags && <p className="text-red-500 text-sm">{errors.tags.message}</p>}
+            <FormMessage error={errors.tags} />
           </div>
 
           <div className="space-y-2">
@@ -212,7 +213,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
                 <SelectItem value="Private">Private</SelectItem>
               </SelectContent>
             </Select>
-            {errors.visibility && <p className="text-red-500 text-sm">{errors.visibility.message}</p>}
+            <FormMessage error={errors.visibility} />
           </div>
 
           <DialogFooter>

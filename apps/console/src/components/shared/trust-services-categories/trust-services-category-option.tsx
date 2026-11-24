@@ -37,7 +37,7 @@ export const TrustServicesCategoryOption = ({ category, checked, onCheckedChange
         <span className="flex flex-wrap items-center gap-2 font-semibold">
           {name}
           {requiredLabel && (
-            <Badge variant="outline" className="border-primary/40 bg-primary/15 text-primary">
+            <Badge variant="outline" className="border-primary/40 bg-primary/15 text-primary-text">
               {requiredLabel}
             </Badge>
           )}

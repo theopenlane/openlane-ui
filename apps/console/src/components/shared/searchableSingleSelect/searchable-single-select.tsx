@@ -7,7 +7,7 @@ import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { type Option } from '@repo/ui/multiple-selector'
 import { cn } from '@repo/ui/lib/utils'
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '../custom-type-enum-chip/custom-type-enum-chip'
 
 interface SearchableSingleSelectProps {
@@ -38,6 +38,8 @@ export const SearchableSingleSelect = ({
   ariaLabel,
 }: SearchableSingleSelectProps) => {
   const [open, setOpen] = useState(false)
+  const labelId = useId()
+  const valueId = useId()
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
 
@@ -54,11 +56,16 @@ export const SearchableSingleSelect = ({
         <PopoverTrigger asChild>
           <button
             type="button"
-            aria-label={ariaLabel}
+            aria-labelledby={ariaLabel ? `${labelId} ${valueId}` : undefined}
             disabled={disabled}
             className="w-full flex text-sm text-left h-10 px-3 py-0! justify-between border bg-input rounded-md items-center cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <span className="truncate">
+            {ariaLabel && (
+              <span id={labelId} className="sr-only">
+                {ariaLabel}
+              </span>
+            )}
+            <span id={valueId} className="truncate">
               <CustomTypeEnumValue value={value} options={options} placeholder={placeholder} />
             </span>
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

@@ -11,10 +11,11 @@ import { isSafeLinkHref } from '@/lib/html/sanitize-html'
 import { SanitizedHtml } from '@/components/shared/sanitized-html/sanitized-html'
 import CsvPreview from '@/components/shared/file-preview/csv-preview'
 import { isFetchedPreviewKind, resolveFileKind, type TFetchedPreviewKind, type TPreviewFileShape } from '@/components/shared/file-preview/preview-mime'
-import { InfoCard, LoadingSpinner } from '@/components/shared/file-preview/preview-chrome'
+import { InfoCard } from '@/components/shared/file-preview/preview-chrome'
+import { LoadingSpinner } from '@/components/shared/loading/loading-spinner'
 
 // pdf.js needs the browser, so the pdf preview only loads on the client
-const PdfPreview = dynamic(() => import('@/components/shared/file-preview/pdf-preview'), { ssr: false, loading: () => <LoadingSpinner /> })
+const PdfPreview = dynamic(() => import('@/components/shared/file-preview/pdf-preview'), { ssr: false, loading: () => <LoadingSpinner label="Loading file preview" /> })
 
 export { isSafeLinkHref, SAFE_LINK_PROTOCOLS } from '@/lib/html/sanitize-html'
 
@@ -129,7 +130,7 @@ const FetchingPreview: React.FC<{ file: PreviewFile; format: FetchedFormat }> = 
 
   switch (state.status) {
     case 'loading':
-      return <LoadingSpinner />
+      return <LoadingSpinner label="Loading file preview" />
     case 'error':
       return <InfoCard tone="error" message={state.message} action={<DownloadButton file={file} />} />
     case 'pdf':

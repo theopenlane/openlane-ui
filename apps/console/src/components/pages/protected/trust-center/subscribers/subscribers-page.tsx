@@ -1,6 +1,6 @@
 'use client'
 
-import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { use, useCallback, useEffect, useId, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
@@ -32,6 +32,7 @@ import { useOpenImport } from '@/components/shared/record-import/lib/use-open-im
 const SUBSCRIBER_ORDER_BY = [{ field: SubscriberOrderField.email, direction: OrderDirection.ASC }]
 
 const SubscribersPage = () => {
+  const allowSubscribersId = useId()
   const { setCrumbs } = use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
 
@@ -117,10 +118,13 @@ const SubscribersPage = () => {
         <CardContent className="pt-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <Label className="text-sm font-medium">Allow new subscribers</Label>
+              <Label htmlFor={allowSubscribersId} className="text-sm font-medium">
+                Allow new subscribers
+              </Label>
               <p className="mt-1 text-sm text-muted-foreground">When enabled, visitors can subscribe from your trust center to receive update emails.</p>
             </div>
             <Switch
+              id={allowSubscribersId}
               checked={allowSubscribers}
               onCheckedChange={(checked) => {
                 if (!trustCenterSetting?.id) return

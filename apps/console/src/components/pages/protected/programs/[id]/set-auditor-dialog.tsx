@@ -8,8 +8,8 @@ import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { useParams } from 'next/navigation'
-import MessageBox from '@repo/ui/message-box'
 import { Label } from '@repo/ui/label'
+import { FormMessage } from '@repo/ui/form'
 import { InfoIcon } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useNotification } from '@/hooks/useNotification'
@@ -75,8 +75,6 @@ export const SetAuditorDialog = () => {
     }
   }
 
-  const errorMessages = Object.values(form.formState.errors).map((error) => error?.message) as string[]
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
@@ -97,7 +95,6 @@ export const SetAuditorDialog = () => {
           </Callout>
         </OfficialOnly>
         <div className="flex flex-col gap-4 mt-4">
-          {errorMessages.length > 0 && <MessageBox className="p-4 ml-1" message={errorMessages.join(', ')} variant="error" />}
           <div className="flex flex-col gap-2">
             <div className="flex items-center">
               <Label htmlFor="auditFirm">Firm</Label>
@@ -112,6 +109,7 @@ export const SetAuditorDialog = () => {
               />
             </div>
             <Input id="auditFirm" {...form.register('auditFirm')} placeholder="SecureSphere Compliance" />
+            <FormMessage error={form.formState.errors.auditFirm} />
           </div>
 
           <div className="flex flex-col gap-2">
@@ -120,6 +118,7 @@ export const SetAuditorDialog = () => {
               <SystemTooltip icon={<InfoIcon size={14} className="mx-1" />} content={<p>Enter the name of your primary contact at the audit firm (e.g. Amy Shields).</p>} />
             </div>
             <Input id="auditor" {...form.register('auditor')} placeholder="Amy Shields" />
+            <FormMessage error={form.formState.errors.auditor} />
           </div>
 
           <div className="flex flex-col gap-2">
@@ -128,6 +127,7 @@ export const SetAuditorDialog = () => {
               <SystemTooltip icon={<InfoIcon size={14} className="mx-1" />} content={<p>Enter the email address of your primary contact at the audit firm (e.g. amy.shields@securesphere.io).</p>} />
             </div>
             <Input id="auditorEmail" {...form.register('auditorEmail')} placeholder="amy.shields@securesphere.io" />
+            <FormMessage error={form.formState.errors.auditorEmail} />
           </div>
         </div>
 

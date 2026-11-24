@@ -490,62 +490,61 @@ const MultipleSelector = ({
         </div>
       </div>
       <div className="relative">
-        {open && (
-          <CommandList
-            className="absolute top-1 z-50 w-full rounded-md border bg-popover text-popover-foreground shadow-popover outline-hidden animate-in"
-            onMouseLeave={() => {
-              setOnScrollbar(false)
-            }}
-            onMouseEnter={() => {
-              setOnScrollbar(true)
-            }}
-            onMouseUp={() => {
-              inputRef?.current?.focus()
-            }}
-          >
-            {isLoading ? (
-              <>{loadingIndicator}</>
-            ) : (
-              <>
-                {EmptyItem()}
-                {CreatableItem()}
-                {!selectFirstItem && <CommandItem value="-" className="hidden" />}
-                {Object.entries(selectables).map(([key, dropdowns]) => (
-                  <CommandGroup key={key} heading={key} className="h-full overflow-auto">
-                    <>
-                      {dropdowns.map((option) => {
-                        return (
-                          <CommandItem
-                            key={option.value}
-                            value={option.label}
-                            disabled={option.disable}
-                            onMouseDown={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                            }}
-                            onSelect={() => {
-                              if (selected.length >= maxSelected) {
-                                onMaxSelected?.(selected.length)
-                                return
-                              }
-                              setInputValue('')
-                              const newOptions = [...selected, option]
-                              setSelected(newOptions)
-                              onChange?.(newOptions)
-                            }}
-                            className={cn('cursor-pointer', option.disable && 'cursor-default text-muted-foreground')}
-                          >
-                            {option.label}
-                          </CommandItem>
-                        )
-                      })}
-                    </>
-                  </CommandGroup>
-                ))}
-              </>
-            )}
-          </CommandList>
-        )}
+        <CommandList
+          hidden={!open}
+          className="absolute top-1 z-50 w-full rounded-md border bg-popover text-popover-foreground shadow-popover outline-hidden animate-in"
+          onMouseLeave={() => {
+            setOnScrollbar(false)
+          }}
+          onMouseEnter={() => {
+            setOnScrollbar(true)
+          }}
+          onMouseUp={() => {
+            inputRef?.current?.focus()
+          }}
+        >
+          {!open ? null : isLoading ? (
+            <>{loadingIndicator}</>
+          ) : (
+            <>
+              {EmptyItem()}
+              {CreatableItem()}
+              {!selectFirstItem && <CommandItem value="-" className="hidden" />}
+              {Object.entries(selectables).map(([key, dropdowns]) => (
+                <CommandGroup key={key} heading={key} className="h-full overflow-auto">
+                  <>
+                    {dropdowns.map((option) => {
+                      return (
+                        <CommandItem
+                          key={option.value}
+                          value={option.label}
+                          disabled={option.disable}
+                          onMouseDown={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                          }}
+                          onSelect={() => {
+                            if (selected.length >= maxSelected) {
+                              onMaxSelected?.(selected.length)
+                              return
+                            }
+                            setInputValue('')
+                            const newOptions = [...selected, option]
+                            setSelected(newOptions)
+                            onChange?.(newOptions)
+                          }}
+                          className={cn('cursor-pointer', option.disable && 'cursor-default text-muted-foreground')}
+                        >
+                          {option.label}
+                        </CommandItem>
+                      )
+                    })}
+                  </>
+                </CommandGroup>
+              ))}
+            </>
+          )}
+        </CommandList>
       </div>
     </Command>
   )

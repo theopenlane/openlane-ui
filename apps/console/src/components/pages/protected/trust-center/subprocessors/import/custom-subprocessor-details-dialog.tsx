@@ -12,6 +12,7 @@ import { DescriptionField } from '../sheet/form-fields/description-field'
 import { TagsField } from '../sheet/form-fields/tags-field'
 import { logoPreviewUrl, resolveLogo, type TCustomDetails, type TResolvedRow } from './subprocessor-import-rows'
 import { useCustomSubprocessorDetailsFormSchema } from './use-custom-subprocessor-details-form-schema'
+import { FormMessage } from '@repo/ui/form'
 
 const LOGO_PREVIEW_DEBOUNCE_MS = 400
 
@@ -65,7 +66,7 @@ export const CustomSubprocessorDetailsDialog: React.FC<TCustomSubprocessorDetail
             <div className="flex flex-col gap-2">
               <Label htmlFor="custom-subprocessor-logo">Logo URL</Label>
               <Input id="custom-subprocessor-logo" placeholder="https://example.com/logo.png" {...register('logoRemoteURL')} />
-              {errors.logoRemoteURL && <p className="text-sm text-destructive">{errors.logoRemoteURL.message}</p>}
+              <FormMessage error={errors.logoRemoteURL} />
             </div>
             <DescriptionField isEditing />
             <TagsField isEditing />

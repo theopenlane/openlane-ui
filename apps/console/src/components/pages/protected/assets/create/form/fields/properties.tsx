@@ -12,6 +12,7 @@ import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { FormMessage } from '@repo/ui/form'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -112,7 +113,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
                   value={tagValues}
                   onChange={(selectedOptions) => field.onChange(selectedOptions.map((opt) => opt.value))}
                 />
-                {formState.errors.tags && <p className="text-red-500 text-sm">{formState.errors.tags.message}</p>}
+                <FormMessage error={formState.errors.tags} />
               </div>
             )}
           />

@@ -11,7 +11,7 @@ import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
 import { Controller, useFormContext, FormProvider } from 'react-hook-form'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { ProgramProgramStatus, type UpdateProgramInput } from '@repo/codegen/src/schema'
 import { ProgramIconMapper, ProgramStatusOptions } from '@/components/shared/enum-mapper/program-enum'
 import { useNotification } from '@/hooks/useNotification'
@@ -158,7 +158,7 @@ const TimelineReadiness = () => {
                     <span>{formattedEndDate ? (dayDiff > 0 ? `${dayDiff} ${dayOrDays} (${formattedEndDate})` : formattedEndDate) : '—'}</span>
                   )}
                 </div>
-                {errors.endDate && <span className="text-xs text-destructive">{String(errors.endDate.message)}</span>}
+                <FormMessage error={errors.endDate} />
               </div>
             )}
           </div>

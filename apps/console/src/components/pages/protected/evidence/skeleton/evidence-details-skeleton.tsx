@@ -85,7 +85,7 @@ export const EvidenceDetailsSheetSkeleton = () => {
             <Skeleton width={50} height={15} className="flex items-center gap-2" />
           </div>
 
-          <Tabs variant="underline" className="px-6">
+          <Tabs panelless variant="underline" className="px-6">
             <TabsList>
               <TabsTrigger value="created" className="flex justify-center items-center">
                 <Skeleton width={100} height={10} />

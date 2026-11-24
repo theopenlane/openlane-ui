@@ -6,7 +6,8 @@ import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Card } from '@repo/ui/cardpanel'
-import { Plus, Trash2, Code, AlertCircle, CheckCircle } from 'lucide-react'
+import { Plus, Trash2, Code, CheckCircle } from 'lucide-react'
+import { FormMessage } from '@repo/ui/form'
 import type { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
 import { validateCELExpression } from '@/lib/workflow-validation'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
@@ -260,12 +261,7 @@ export const CELConditionBuilder = ({ objectType, objectTypes, initialExpression
           onChange={(e) => setRawExpression(e.target.value)}
           placeholder="Enter CEL expression (e.g., object.status == 'active' && user_id != '')"
         />
-        {!validationResult.valid && validationResult.error && (
-          <div className="flex items-center gap-2 text-xs text-destructive">
-            <AlertCircle className="h-3 w-3" />
-            {validationResult.error}
-          </div>
-        )}
+        {!validationResult.valid && <FormMessage>{validationResult.error}</FormMessage>}
         {validationResult.valid && rawExpression && rawExpression !== 'true' && (
           <div className="flex items-center gap-2 text-xs text-green-600">
             <CheckCircle className="h-3 w-3" />

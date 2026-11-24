@@ -4,7 +4,7 @@ import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FolderIcon } from 'lucide-react'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
@@ -84,6 +84,7 @@ export const EditableSelect = ({
     onFieldChange?.(value)
   }
 
+  const labelId = useId()
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
 
@@ -107,7 +108,9 @@ export const EditableSelect = ({
     <div className="grid grid-cols-[160px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
         <div className="pt-0.5">{controlIconsMap[label] ?? <FolderIcon size={16} />}</div>
-        <div className="text-sm">{label}</div>
+        <div id={labelId} className="text-sm">
+          {label}
+        </div>
       </div>
       <div ref={triggerRef} className="text-sm">
         {isEditable ? (
@@ -134,7 +137,7 @@ export const EditableSelect = ({
                     }
                   }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-labelledby={labelId}>
                     <SelectValue placeholder={`Select ${label.toLowerCase()}`}>
                       <CustomTypeEnumValue value={field.value} options={options} placeholder={`Select ${label.toLowerCase()}`} />
                     </SelectValue>

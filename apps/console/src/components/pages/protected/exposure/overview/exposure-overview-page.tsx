@@ -216,7 +216,7 @@ const ExposureOverviewPage = () => {
           actions={
             <Menu
               trigger={
-                <Button variant="secondary" size="md" className="gap-1.5">
+                <Button variant="secondary" size="md" className="gap-1.5" aria-label="Exposure settings">
                   <Settings size={14} />
                 </Button>
               }

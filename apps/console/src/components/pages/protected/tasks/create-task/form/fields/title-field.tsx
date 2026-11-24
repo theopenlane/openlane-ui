@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
@@ -24,7 +24,7 @@ const TitleField: React.FC = () => {
           <FormControl>
             <Input {...field} variant="medium" className="w-full" autoFocus />
           </FormControl>
-          {formState.errors.title && <p className="text-red-500 text-sm">{formState.errors.title.message}</p>}
+          <FormMessage error={formState.errors.title} />
         </FormItem>
       )}
     />

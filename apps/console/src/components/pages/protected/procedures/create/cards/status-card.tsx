@@ -1,12 +1,12 @@
 'use client'
 
-import React from 'react'
+import React, { useId } from 'react'
 import { ProcedureFrequency } from '@repo/codegen/src/schema.ts'
 import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Calendar, CalendarCheck2, CalendarClock, ClockArrowUp, FileStack, ScanEye, ScrollText } from 'lucide-react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { FormControl, FormField, FormItem } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormMessage } from '@repo/ui/form'
 import { type CreateProcedureFormData } from '@/components/pages/protected/procedures/create/hooks/use-form-schema.ts'
 import { formatTimeSince } from '@/utils/date'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
@@ -21,6 +21,8 @@ type TStatusCardProps = {
 }
 
 const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
+  const statusLabelId = useId()
+  const statusTriggerId = useId()
   const statusOptions = ProcedureStatusOptions
 
   const reviewFrequencyOptions = Object.values(ProcedureFrequency).map((value) => ({
@@ -44,7 +46,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
             <Binoculars size={16} />
-            <span>Status</span>
+            <span id={statusLabelId}>Status</span>
           </div>
 
           <div className="w-48">
@@ -61,7 +63,9 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                       }
                     }}
                   >
-                    <SelectTrigger className="w-full">{statusOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>
+                    <SelectTrigger id={statusTriggerId} aria-labelledby={`${statusLabelId} ${statusTriggerId}`} className="w-full">
+                      {statusOptions.find((item) => item.value === field.value)?.label}
+                    </SelectTrigger>
                     <SelectContent>
                       {statusOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
@@ -70,7 +74,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
+                  <FormMessage error={form.formState.errors.status} />
                 </>
               )}
             />
@@ -99,7 +103,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                       <SelectItem value="false">False</SelectItem>
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.approvalRequired && <p className="text-red-500 text-sm">{form.formState.errors.approvalRequired.message}</p>}
+                  <FormMessage error={form.formState.errors.approvalRequired} />
                 </>
               )}
             />
@@ -138,7 +142,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.reviewFrequency && <p className="text-red-500 text-sm">{form.formState.errors.reviewFrequency.message}</p>}
+                  <FormMessage error={form.formState.errors.reviewFrequency} />
                 </>
               )}
             />
@@ -180,7 +184,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                     />
                   </FormControl>
 
-                  {form.formState.errors.procedureKindName && <p className="text-red-500 text-sm">{form.formState.errors.procedureKindName.message}</p>}
+                  <FormMessage error={form.formState.errors.procedureKindName} />
                 </FormItem>
               )}
             />
@@ -225,7 +229,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
               render={({ field }) => (
                 <>
                   <CalendarPopover field={field} disabledFrom={new Date()} />
-                  {form.formState.errors.reviewDue && <p className="text-red-500 text-sm">{form.formState.errors.reviewDue.message}</p>}
+                  <FormMessage error={form.formState.errors.reviewDue} />
                 </>
               )}
             />

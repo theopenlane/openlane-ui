@@ -1,13 +1,7 @@
 'use client'
 
 import React from 'react'
-import { FileWarning, Loader2 } from 'lucide-react'
-
-export const LoadingSpinner: React.FC<{ label?: string }> = ({ label = 'Loading file preview' }) => (
-  <div role="status" aria-live="polite" aria-label={label} className="flex h-96 w-full items-center justify-center">
-    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden="true" />
-  </div>
-)
+import { FileWarning } from 'lucide-react'
 
 type InfoCardProps = {
   tone: 'error' | 'muted'

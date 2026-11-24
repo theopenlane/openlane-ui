@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, JSX } from 'react'
+import { useId, useState, useMemo, JSX } from 'react'
 import { Popover, PopoverTrigger, PopoverContent } from '../popover/popover'
 import { Command, CommandInput, CommandGroup, CommandItem, CommandList, CommandEmpty } from '../command'
 import { CircleFlag } from 'react-circle-flags'
@@ -29,6 +29,8 @@ const getFlag = (alpha2: string) => {
 
 export function CountryDropdown({ value = [], onChange, disabled, placeholder = 'Select countries', className, ariaLabel }: CountryDropdownProps) {
   const [search, setSearch] = useState('')
+  const labelId = useId()
+  const valueId = useId()
 
   const filtered = useMemo(() => {
     const s = search.toLowerCase()
@@ -41,14 +43,19 @@ export function CountryDropdown({ value = [], onChange, disabled, placeholder = 
     <Popover modal>
       <PopoverTrigger
         disabled={disabled}
-        aria-label={ariaLabel}
+        aria-labelledby={ariaLabel ? `${labelId} ${valueId}` : undefined}
         className={cn(
           'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           className,
         )}
       >
-        <div className="flex items-center gap-2 flex-wrap truncate max-w-[90%]">
+        {ariaLabel && (
+          <span id={labelId} className="sr-only">
+            {ariaLabel}
+          </span>
+        )}
+        <div id={valueId} className="flex items-center gap-2 flex-wrap truncate max-w-[90%]">
           {selectedCountries.length === 0 ? (
             <span className="text-muted-foreground">{placeholder}</span>
           ) : (

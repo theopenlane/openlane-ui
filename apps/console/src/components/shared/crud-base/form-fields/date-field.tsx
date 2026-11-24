@@ -1,7 +1,6 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
 import { formatDate } from '@/utils/date'
@@ -9,6 +8,8 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
+import { fieldItemLayoutClassName, fieldMessageLayoutClassName, type TFieldLayout } from './field-layout'
+import { InlineEditDisplay } from './inline-edit-display'
 
 interface DateFieldProps<TUpdateInput> {
   name: string
@@ -24,7 +25,7 @@ interface DateFieldProps<TUpdateInput> {
   tooltipContent?: string
   disableFuture?: boolean
   icon?: React.ReactNode
-  layout?: 'vertical' | 'horizontal'
+  layout?: TFieldLayout
   labelClassName?: string
   calendarButtonClassName?: string
   calendarInputClassName?: string
@@ -65,14 +66,14 @@ export const DateField = <TUpdateInput,>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn(className, layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : '')}>
+        <FormItem className={cn(className, fieldItemLayoutClassName(layout))}>
           <div className="flex items-center gap-2 shrink-0">
             {icon}
             <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>
             {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
           </div>
-          <FormControl>
-            {isFieldEditing ? (
+          {isFieldEditing ? (
+            <FormControl>
               <CalendarPopover
                 field={field}
                 disableFuture={disableFuture}
@@ -85,15 +86,16 @@ export const DateField = <TUpdateInput,>({
                   }
                 }}
               />
-            ) : (
-              <div
-                className={cn('text-sm py-2 rounded-md px-1 w-full', isEditAllowed && 'cursor-pointer hover:bg-accent', layout === 'horizontal' && 'text-right')}
-                {...activatable(isEditAllowed ? handleClick : undefined)}
-              >
-                {value ? formatDate(value) : <span className="text-muted-foreground italic">Not set</span>}
-              </div>
-            )}
-          </FormControl>
+            </FormControl>
+          ) : (
+            <InlineEditDisplay
+              className={cn('text-sm py-2 rounded-md px-1 w-full', isEditAllowed && 'cursor-pointer hover:bg-accent', layout === 'horizontal' && 'text-right')}
+              onActivate={isEditAllowed ? handleClick : undefined}
+            >
+              {value ? formatDate(value) : <span className="text-muted-foreground italic">Not set</span>}
+            </InlineEditDisplay>
+          )}
+          <FormMessage className={fieldMessageLayoutClassName(layout)} />
         </FormItem>
       )}
     />

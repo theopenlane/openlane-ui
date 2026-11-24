@@ -8,6 +8,7 @@ import { TruncatedCell } from '@repo/ui/truncated-cell'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { currentLocationPath } from '@/utils/return-to'
+import { tintedTextColor } from '@/utils/color-contrast'
 import { goToNotificationsPage, redirectToNotification } from './notification-redirect'
 import { useRouter } from 'next/navigation'
 
@@ -53,6 +54,7 @@ const BellIconContainer = () => {
 const DismissButton = () => {
   return (
     <ToastPrimitives.Close
+      aria-label="Dismiss notification"
       className="absolute right-2 top-2 rounded-md p-1 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none group-hover:opacity-100"
       onClick={(e) => e.stopPropagation()}
     >
@@ -92,7 +94,7 @@ const SingleNotificationToast = ({ data, onOpenChange, onView }: ToastItemProps)
             </TruncatedCell>
           </ToastPrimitives.Description>
         )}
-        <p className="mt-1.5 text-xs font-medium" style={{ color: BELL_COLOR }}>
+        <p className="mt-1.5 text-xs font-medium" style={{ color: tintedTextColor(BELL_COLOR) }}>
           View →
         </p>
       </div>
@@ -119,7 +121,7 @@ const BatchNotificationToast = ({ data, onOpenChange, onView }: ToastItemProps) 
       <div className="min-w-0 flex-1">
         <ToastPrimitives.Title className="text-sm font-semibold text-foreground">{count} new notifications</ToastPrimitives.Title>
         <ToastPrimitives.Description className="text-xs text-muted-foreground mt-0.5">Click to view all notifications</ToastPrimitives.Description>
-        <p className="mt-1.5 text-xs font-medium" style={{ color: BELL_COLOR }}>
+        <p className="mt-1.5 text-xs font-medium" style={{ color: tintedTextColor(BELL_COLOR) }}>
           View All →
         </p>
       </div>

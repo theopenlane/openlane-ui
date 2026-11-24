@@ -27,7 +27,7 @@ const TargetDetailsHeader: React.FC<{ view: TTargetDetailsView; onViewChange: (v
     title="Target Details"
     description="Resource context from the source system"
     action={
-      <Tabs variant="solid" value={view} onValueChange={(value) => isTargetDetailsView(value) && onViewChange(value)}>
+      <Tabs panelless variant="solid" value={view} onValueChange={(value) => isTargetDetailsView(value) && onViewChange(value)}>
         <TabsList className="w-fit">
           <TabsTrigger value="fields">Fields</TabsTrigger>
           <TabsTrigger value="json">JSON</TabsTrigger>

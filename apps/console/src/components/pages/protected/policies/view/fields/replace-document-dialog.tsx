@@ -13,6 +13,7 @@ import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 import useReplaceDocumentFormSchema, { type ReplaceDocumentFormData } from './use-replace-document-form-schema'
+import { FormMessage } from '@repo/ui/form'
 
 type Props = {
   policy: InternalPolicyByIdFragment
@@ -79,7 +80,7 @@ const ReplaceDocumentDialog: React.FC<Props> = ({ policy, open, onOpenChange }) 
               handleDeleteFile={() => setValue('file', undefined, { shouldDirty: true, shouldValidate: true })}
             />
           )}
-          {formState.errors.file && <p className="text-sm text-red-500">{formState.errors.file.message}</p>}
+          <FormMessage error={formState.errors.file} />
 
           <div className="flex flex-col gap-2">
             <Button type="submit" variant="primary" loading={isPending} disabled={isPending || !selectedFile}>

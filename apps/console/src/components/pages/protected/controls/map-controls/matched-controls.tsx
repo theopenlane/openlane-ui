@@ -87,7 +87,7 @@ const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, 
       )
     }
 
-    return <div className="text-sm italic text-neutral-500">No available controls.</div>
+    return <div className="text-sm italic text-muted-foreground">No available controls.</div>
   }, [controlData, droppedControls, expandedItems, where, subcontrolData, isLoading, title, setDroppedControls])
 
   return (
@@ -96,7 +96,7 @@ const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, 
         <div className="flex items-center justify-between mb-2  ">
           <span className="w-full">Matched controls</span>
         </div>
-        <Button type="button" className="h-8 !px-2" variant="secondary" disabled={!controlData} onClick={toggleAll}>
+        <Button type="button" className="h-8 !px-2" variant="secondary" disabled={!controlData} onClick={toggleAll} aria-label="Expand or collapse all matched controls">
           <div className="flex">
             <List size={16} />
             <ChevronsDownUp size={16} />

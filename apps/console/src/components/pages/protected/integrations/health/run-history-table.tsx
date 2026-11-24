@@ -145,7 +145,7 @@ const RunHistoryTable = ({ providerId, integrationIds, instanceLabels, operation
         }}
         pagination={pagination}
         onPaginationChange={setPagination}
-        paginationMeta={{ unknownTotalCount: true, pageInfo: data?.integrationRuns?.pageInfo, isLoading: isFetching }}
+        paginationMeta={{ unknownTotalCount: true, pageInfo: data?.integrationRuns?.pageInfo, isLoading: isPlaceholderData }}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         rowHref={(run) => integrationRunHref(providerId, run.id)}

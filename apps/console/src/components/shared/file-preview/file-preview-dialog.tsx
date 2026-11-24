@@ -7,11 +7,11 @@ import { useNotification } from '@/hooks/useNotification'
 import type { TFile } from '@/components/shared/file-table/columns'
 import dynamic from 'next/dynamic'
 import { isCsvFile, isImageFile, isPdfFile } from './preview-mime'
-import { LoadingSpinner } from './preview-chrome'
+import { LoadingSpinner } from '@/components/shared/loading/loading-spinner'
 import { usePdfBlobPreview, type TPdfPreviewState } from './use-pdf-blob-preview'
 
-const FilePreview = dynamic(() => import('./file-preview'), { ssr: false, loading: () => <LoadingSpinner /> })
-const PdfPreview = dynamic(() => import('./pdf-preview'), { ssr: false, loading: () => <LoadingSpinner /> })
+const FilePreview = dynamic(() => import('./file-preview'), { ssr: false, loading: () => <LoadingSpinner label="Loading file preview" /> })
+const PdfPreview = dynamic(() => import('./pdf-preview'), { ssr: false, loading: () => <LoadingSpinner label="Loading file preview" /> })
 
 type TFilePreviewDialogProps = {
   file: TFile | null

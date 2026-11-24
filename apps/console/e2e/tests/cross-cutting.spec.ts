@@ -24,7 +24,7 @@ test.describe('cross-cutting — theming', () => {
   test('selecting Dark theme persists across reload', async ({ page }) => {
     await page.goto('/dashboard')
     await page.getByTestId('user-menu-trigger').click()
-    await page.getByRole('button', { name: /^dark$/i }).click()
+    await page.getByRole('menuitemradio', { name: /^dark$/i }).click()
 
     await expect(page.locator('html')).toHaveClass(/dark/)
 
@@ -36,10 +36,10 @@ test.describe('cross-cutting — theming', () => {
     await page.goto('/dashboard')
     // Toggle to Dark first so the assertion isn't a no-op against the default theme (the default in-app may already be light or system)
     await page.getByTestId('user-menu-trigger').click()
-    await page.getByRole('button', { name: /^dark$/i }).click()
+    await page.getByRole('menuitemradio', { name: /^dark$/i }).click()
     await expect(page.locator('html')).toHaveClass(/dark/)
 
-    await page.getByRole('button', { name: /^light$/i }).click()
+    await page.getByRole('menuitemradio', { name: /^light$/i }).click()
     await expect(page.locator('html')).not.toHaveClass(/dark/)
 
     await page.reload()
@@ -51,7 +51,7 @@ test.describe('cross-cutting — dropdown dismissal', () => {
   test('Escape closes the user menu dropdown', async ({ page }) => {
     await page.goto('/dashboard')
     await page.getByTestId('user-menu-trigger').click()
-    const menuItem = page.getByRole('button', { name: /^user settings$/i })
+    const menuItem = page.getByRole('menuitem', { name: /^user settings$/i })
     await expect(menuItem).toBeVisible({ timeout: 10_000 })
 
     await page.keyboard.press('Escape')
@@ -246,7 +246,7 @@ freshTest.describe('cross-cutting — fresh org', () => {
 
     await page.getByTestId('user-menu-trigger').click()
     const signOutResponse = page.waitForResponse(/\/api\/auth\/signout/)
-    await page.getByRole('button', { name: /^log out$/i }).click()
+    await page.getByRole('menuitem', { name: /^log out$/i }).click()
     await signOutResponse
 
     await expect(async () => {

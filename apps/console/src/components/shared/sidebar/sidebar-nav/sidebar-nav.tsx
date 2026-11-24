@@ -40,6 +40,7 @@ const SidebarChildLink: React.FC<{ child: NavItem; anchor: TElementAnchor; pathn
     <Link
       href={child.href}
       {...anchor}
+      aria-label={secondaryExpanded ? undefined : child.title}
       data-animated-icon-trigger
       className={`group relative flex gap-2 mb-2 rounded-md *:pointer-events-none hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
         secondaryExpanded ? 'items-start min-h-8 px-2.5 py-1.5' : 'items-center justify-center h-8'
@@ -180,6 +181,7 @@ export default function SideNav({
             <NavigationGuardLink
               href={href}
               {...anchor}
+              aria-label={primaryExpanded ? undefined : item.title}
               onNavigate={(navigation) => (isExpandable ? handleSectionNavigate(item, navigation) : onToggleAction(null))}
               data-animated-icon-trigger
               className={`group relative flex items-center px-2 gap-2 h-8 *:pointer-events-none bg-transparent border border-transparent rounded-[6px] text-muted-foreground transition-all duration-500 ease-in-out hover:bg-nav hover:border-border hover:text-text-paragraph [&.is-active]:bg-nav [&.is-active]:border-border [&.is-active]:text-text-paragraph ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2 justify-start' : 'w-8 justify-center'}`}
@@ -262,7 +264,7 @@ export default function SideNav({
         <span className="text-sm font-normal leading-5">More</span>
       </Button>
     ) : (
-      <button className="btn-card p-1 text-muted-foreground hover:text-foreground bg-transparent *:pointer-events-none">
+      <button className="btn-card p-1 text-muted-foreground hover:text-foreground bg-transparent *:pointer-events-none" aria-label="More">
         <Ellipsis size={20} />
       </button>
     )
@@ -287,7 +289,7 @@ export default function SideNav({
       >
         <div className="flex flex-col items-center gap-3 w-full">
           <div className={`flex items-center justify-between w-full px-[11px] ${!primaryExpanded ? 'flex-col gap-3' : ''}`}>
-            <Link href="/dashboard" className="flex items-center justify-center relative *:pointer-events-none" {...elementAnchor('nav-logo')}>
+            <Link href="/dashboard" aria-label="Dashboard" className="flex items-center justify-center relative *:pointer-events-none" {...elementAnchor('nav-logo')}>
               {primaryExpanded ? (
                 <div className="w-[134px]">
                   <Logo width={134} />
@@ -298,7 +300,13 @@ export default function SideNav({
                 </div>
               )}
             </Link>
-            <button onClick={() => onPrimaryExpandToggle()} className="text-muted-foreground hover:text-foreground bg-unset *:pointer-events-none" {...elementAnchor('nav-primary-toggle')}>
+            <button
+              onClick={() => onPrimaryExpandToggle()}
+              aria-label={primaryExpanded ? 'Collapse navigation' : 'Expand navigation'}
+              aria-expanded={primaryExpanded}
+              className="text-muted-foreground hover:text-foreground bg-unset *:pointer-events-none"
+              {...elementAnchor('nav-primary-toggle')}
+            >
               {primaryExpanded ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
             </button>
           </div>
@@ -336,12 +344,24 @@ export default function SideNav({
               {secondaryExpanded ? (
                 <>
                   <span className="text-sm font-medium capitalize">{openPanel}</span>
-                  <button onClick={onSecondaryExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card *:pointer-events-none" {...elementAnchor('nav-secondary-toggle')}>
+                  <button
+                    onClick={onSecondaryExpandToggle}
+                    aria-label={secondaryExpanded ? 'Collapse panel' : 'Expand panel'}
+                    aria-expanded={secondaryExpanded}
+                    className="bg-transparent text-muted-foreground hover:bg-card *:pointer-events-none"
+                    {...elementAnchor('nav-secondary-toggle')}
+                  >
                     <PanelLeftClose size={16} />
                   </button>
                 </>
               ) : (
-                <button onClick={onSecondaryExpandToggle} className="bg-transparent text-muted-foreground hover:bg-card *:pointer-events-none" {...elementAnchor('nav-secondary-toggle')}>
+                <button
+                  onClick={onSecondaryExpandToggle}
+                  aria-label={secondaryExpanded ? 'Collapse panel' : 'Expand panel'}
+                  aria-expanded={secondaryExpanded}
+                  className="bg-transparent text-muted-foreground hover:bg-card *:pointer-events-none"
+                  {...elementAnchor('nav-secondary-toggle')}
+                >
                   <PanelLeftOpen size={16} />
                 </button>
               )}

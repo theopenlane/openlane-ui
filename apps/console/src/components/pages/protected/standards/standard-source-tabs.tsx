@@ -45,7 +45,7 @@ type TStandardSourceTabsProps = {
 }
 
 export const StandardSourceTabs: React.FC<TStandardSourceTabsProps> = ({ value, onValueChange }) => (
-  <Tabs value={value} onValueChange={(next) => onValueChange(toStandardSource(next))} variant="solid">
+  <Tabs panelless value={value} onValueChange={(next) => onValueChange(toStandardSource(next))} variant="solid">
     <TabsList className="w-fit" aria-label="Filter standards by source">
       {SOURCE_OPTIONS.map((option) =>
         option.tooltip ? (

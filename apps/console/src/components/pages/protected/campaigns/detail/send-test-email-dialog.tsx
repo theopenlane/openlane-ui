@@ -4,6 +4,7 @@ import React, { useId, useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
+import { FormMessage } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
 import { SendHorizontal } from 'lucide-react'
 import { useSendCampaignTestEmail } from '@/lib/graphql-hooks/campaign'
@@ -70,8 +71,8 @@ export const SendTestEmailDialog: React.FC<SendTestEmailDialogProps> = ({ campai
           </label>
           <span className="text-xs text-muted-foreground">Enter email address(es) separated by commas</span>
           <Input id={recipientsId} value={value} onChange={(e) => setValue(e.currentTarget.value)} placeholder="you@example.com" />
-          {value.trim() !== '' && hasInvalidEmail && <p className="text-xs text-red-500">Enter one or more valid email addresses.</p>}
-          {exceedsLimit && <p className="text-xs text-red-500">You can send a test email to a maximum of {MAX_TEST_RECIPIENTS} recipients.</p>}
+          {value.trim() !== '' && hasInvalidEmail && <FormMessage>Enter one or more valid email addresses.</FormMessage>}
+          {exceedsLimit && <FormMessage>You can send a test email to a maximum of {MAX_TEST_RECIPIENTS} recipients.</FormMessage>}
           {!hasInvalidEmail && !exceedsLimit && <p className="text-xs text-muted-foreground">Your email address is prefilled. Add other email addresses if needed.</p>}
         </div>
 

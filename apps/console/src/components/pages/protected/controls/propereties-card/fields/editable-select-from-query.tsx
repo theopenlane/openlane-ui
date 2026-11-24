@@ -9,7 +9,7 @@ import { type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codeg
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { cn } from '@repo/ui/lib/utils'
 import { ChevronDown, PlusIcon } from 'lucide-react'
-import { useMemo, useRef, useState } from 'react'
+import { useId, useMemo, useRef, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 
 export const EditableSelectFromQuery = ({
@@ -56,7 +56,10 @@ export const EditableSelectFromQuery = ({
     return isCategory ? (categoriesData?.controlCategories ?? []) : (subcategoriesData?.controlSubcategories ?? [])
   }, [isCategory, categoriesData, subcategoriesData])
   const initialOptions = useMemo(() => rawOptions.map((val) => ({ value: val, label: val })), [rawOptions])
-  const triggerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const fieldDomId = useId()
+  const labelId = `${fieldDomId}-label`
+  const triggerId = `${fieldDomId}-trigger`
   const popoverRef = useRef<HTMLDivElement>(null)
 
   useEscapeKey(() => {
@@ -69,7 +72,7 @@ export const EditableSelectFromQuery = ({
     }
   })
 
-  useClickOutsideWithPortal(
+  useClickOutsideWithPortal<HTMLElement>(
     () => {
       if (isActive) {
         if (isControlled) {
@@ -90,7 +93,9 @@ export const EditableSelectFromQuery = ({
       {iconAndLabelVisible && (
         <div className="flex items-start gap-2">
           <div className="pt-0.5">{icon}</div>
-          <div className="text-sm">{label}</div>
+          <div id={labelId} className="text-sm">
+            {label}
+          </div>
         </div>
       )}
 
@@ -168,10 +173,16 @@ export const EditableSelectFromQuery = ({
             return (
               <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                  <div ref={triggerRef} className="flex text-sm h-10 px-3 justify-between border bg-input rounded-md items-center cursor-pointer">
+                  <button
+                    ref={triggerRef}
+                    id={triggerId}
+                    type="button"
+                    aria-labelledby={iconAndLabelVisible ? `${labelId} ${triggerId}` : undefined}
+                    className="flex w-full text-left text-sm h-10 px-3 justify-between border bg-input rounded-md items-center cursor-pointer"
+                  >
                     <span className="truncate">{field.value || `Select ${label.toLowerCase()}`}</span>
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </div>
+                  </button>
                 </PopoverTrigger>
                 <PopoverContent className="p-0 bg-input border z-50">
                   <Command ref={popoverRef}>

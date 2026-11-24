@@ -2,6 +2,7 @@
 import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
+import { FormMessage } from '@repo/ui/form'
 
 interface Props {
   isEditing: boolean
@@ -20,7 +21,7 @@ export const TitleField = ({ isEditing }: Props) => {
       {isEditing ? (
         <>
           <Input placeholder="Document title" {...register('title')} />
-          {errors.title && <p className="text-red-500 text-sm mt-1">{String(errors.title.message)}</p>}
+          <FormMessage error={errors.title} />
         </>
       ) : (
         <p className="text-base text-muted-foreground mt-1">{watch('title') || '—'}</p>

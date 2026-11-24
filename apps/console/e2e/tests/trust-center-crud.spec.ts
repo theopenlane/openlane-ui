@@ -12,7 +12,7 @@ import {
   createTrustCenterSubprocessor,
   getDemoApi,
   getTrustCenterId,
-  readTrustCenterSecurityContact,
+  readTrustCenterSecurityContacts,
 } from '../utils/api'
 import type { Locator, Page } from '@playwright/test'
 import { slideoutMenuAction, slideoutReady } from '../utils/slideout'
@@ -657,7 +657,9 @@ test.describe('trust-center — branding publish', () => {
   test.use({ authProfile: 'demo' })
   test.beforeEach(async ({ page }) => stubDefaultDomainEnabled(page))
 
-  test('publishing branding persists the security contact on the live setting', async ({ page }) => {
+  test.afterEach(async ({ page }) => page.unrouteAll({ behavior: 'wait' }))
+
+  test('publishing branding persists the security contact on the live and preview settings', async ({ page }) => {
     test.slow()
     await openTrustCenterPage(page, '/trust-center/branding')
 
@@ -678,7 +680,7 @@ test.describe('trust-center — branding publish', () => {
       await dialog.getByRole('button', { name: /^Publish$/ }).click()
     })
 
-    await expect.poll(async () => readTrustCenterSecurityContact(await getDemoApi()), { timeout: 60_000 }).toBe(email)
+    await expect.poll(async () => readTrustCenterSecurityContacts(await getDemoApi()), { timeout: 60_000 }).toEqual({ live: email, preview: email }) // 1min
   })
 })
 

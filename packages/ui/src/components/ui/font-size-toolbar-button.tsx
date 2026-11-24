@@ -10,7 +10,7 @@ import { Minus, Plus } from 'lucide-react'
 import { KEYS } from 'platejs'
 import { useEditorPlugin, useEditorSelector } from 'platejs/react'
 
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/components/ui/popover.tsx'
+import { Popover, PopoverAnchor, PopoverContent } from '@repo/ui/components/ui/popover.tsx'
 import { cn } from '@repo/ui/lib/utils'
 
 import { ToolbarButton } from './toolbar'
@@ -69,13 +69,14 @@ export function FontSizeToolbarButton() {
 
   return (
     <div className="flex h-7 items-center gap-1 rounded-md bg-muted/60 p-0">
-      <ToolbarButton onClick={() => handleFontSizeChange(-1)}>
+      <ToolbarButton aria-label="Decrease font size" onClick={() => handleFontSizeChange(-1)}>
         <Minus />
       </ToolbarButton>
 
       <Popover open={isFocused} modal={false}>
-        <PopoverTrigger asChild>
+        <PopoverAnchor asChild>
           <input
+            aria-label="Font size"
             className={cn('h-full w-10 shrink-0 bg-transparent px-1 text-center text-sm ')}
             value={displayValue}
             onBlur={() => {
@@ -96,7 +97,7 @@ export function FontSizeToolbarButton() {
             data-plate-focus="true"
             type="text"
           />
-        </PopoverTrigger>
+        </PopoverAnchor>
         <PopoverContent className="w-10 px-px py-1" onOpenAutoFocus={(e) => e.preventDefault()}>
           {FONT_SIZES.map((size) => (
             <button
@@ -115,7 +116,7 @@ export function FontSizeToolbarButton() {
         </PopoverContent>
       </Popover>
 
-      <ToolbarButton onClick={() => handleFontSizeChange(1)}>
+      <ToolbarButton aria-label="Increase font size" onClick={() => handleFontSizeChange(1)}>
         <Plus />
       </ToolbarButton>
     </div>

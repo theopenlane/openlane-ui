@@ -436,12 +436,18 @@ export const deletePlatform = async (sess: ApiSession, id: string): Promise<void
   await gql(sess, `mutation($id: ID!){ deletePlatform(id: $id){ deletedID } }`, { id })
 }
 
-export const readTrustCenterSecurityContact = async (sess: ApiSession): Promise<string | null> => {
-  const res = await gql<{ trustCenters: { edges: Array<{ node: { setting: { securityContact: string | null } | null } }> } }>(
+interface TrustCenterSecurityContacts {
+  live: string | null
+  preview: string | null
+}
+
+export const readTrustCenterSecurityContacts = async (sess: ApiSession): Promise<TrustCenterSecurityContacts> => {
+  const res = await gql<{ trustCenters: { edges: Array<{ node: Record<'setting' | 'previewSetting', { securityContact: string | null } | null> }> } }>(
     sess,
-    `{ trustCenters(first: 1) { edges { node { setting { securityContact } } } } }`,
+    `{ trustCenters(first: 1) { edges { node { setting { securityContact } previewSetting { securityContact } } } } }`,
   )
-  return res.data?.trustCenters?.edges?.[0]?.node?.setting?.securityContact ?? null
+  const node = res.data?.trustCenters?.edges?.[0]?.node
+  return { live: node?.setting?.securityContact ?? null, preview: node?.previewSetting?.securityContact ?? null }
 }
 
 export const deleteStandard = async (sess: ApiSession, id: string): Promise<void> => {

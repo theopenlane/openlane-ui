@@ -21,6 +21,7 @@ import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form
 import { TargetSelector } from '@/components/pages/protected/workflows/wizard/components/target-selector'
 import { buildTargetKey, normalizeTargets, getTargetLabel } from '@/components/pages/protected/workflows/wizard/utils'
 import type { Target, WorkflowAction, WorkflowActionParams, WorkflowActionType, WorkflowCondition, WorkflowNodeData, WorkflowTrigger, WorkflowTriggerOperation } from '@/types/workflow'
+import { FormMessage } from '@repo/ui/form'
 
 type WorkflowEditorNode = Node<WorkflowNodeData, 'trigger' | 'condition' | 'action'>
 
@@ -412,7 +413,7 @@ export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }
                     <div className="space-y-2">
                       <Label>Action Parameters (JSON)</Label>
                       <Textarea value={paramsInput} onChange={(e) => handleParamsChange(e.target.value)} placeholder='{"key": "value"}' rows={6} />
-                      {paramsError && <p className="text-xs text-destructive">{paramsError}</p>}
+                      <FormMessage>{paramsError}</FormMessage>
                     </div>
                   )}
                 </>

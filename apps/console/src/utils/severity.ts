@@ -1,4 +1,5 @@
 import { type CSSProperties } from 'react'
+import { tintedTextColor } from '@/utils/color-contrast'
 
 export type TSeverityLevel = 'critical' | 'high' | 'medium' | 'low'
 
@@ -24,7 +25,7 @@ export const getSeverityStyle = (severity: string): CSSProperties => {
   const cssVar = getSeverityCssVar(severity)
   if (!cssVar) return {}
   return {
-    color: `var(${cssVar})`,
+    color: tintedTextColor(`var(${cssVar})`),
     backgroundColor: `color-mix(in srgb, var(${cssVar}) 10%, transparent)`,
   }
 }

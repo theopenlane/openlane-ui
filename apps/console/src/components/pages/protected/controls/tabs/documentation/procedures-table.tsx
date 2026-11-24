@@ -127,7 +127,7 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
         header: () => <span className="whitespace-nowrap">Name</span>,
         cell: ({ row }) => (
           <div className="flex flex-col gap-1">
-            <span className="text-blue-500 hover:underline whitespace-nowrap cursor-pointer" {...activatable(() => setSelectedProcedureId(row.original.id))}>
+            <span className="text-hyperlink hover:underline whitespace-nowrap cursor-pointer" {...activatable(() => setSelectedProcedureId(row.original.id))}>
               {row.original.name}
             </span>
             {inheritedFromMap.has(row.original.id) && <InheritedBadge sources={inheritedFromMap.get(row.original.id) ?? []} />}

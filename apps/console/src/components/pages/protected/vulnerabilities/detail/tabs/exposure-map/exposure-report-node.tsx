@@ -53,9 +53,9 @@ export const ExposureReportCard: React.FC<TExposureReportCardProps> = ({ report,
           <Button
             type="button"
             variant="transparent"
-            aria-label={`Show details for report ${report.externalID}`}
             className="nodrag nopan h-auto min-w-0 flex-1 justify-start overflow-hidden border-0 p-0 *:min-w-0 *:w-full text-left font-normal text-inherit hover:border-0 hover:bg-transparent"
           >
+            <span className="sr-only">Show details for </span>
             <span className="flex w-full min-w-0 flex-col">
               <span className="flex items-center gap-1.5 text-sm">
                 <StatusDot isOpen={isOpen} />

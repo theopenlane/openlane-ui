@@ -106,9 +106,7 @@ function Draggable(props: PlateElementProps) {
         <Gutter>
           <div className={cn('slate-blockToolbarWrapper', 'flex h-[1.5em]', isInColumn && 'h-4')}>
             <div className={cn('slate-blockToolbar relative w-4.5', 'pointer-events-auto mr-1 flex items-center', isInColumn && 'mr-1.5')}>
-              <Button ref={handleRef} type="button" variant="ghost" className="absolute -left-0 h-6 w-full p-0" style={{ top: `${dragButtonTop + 3}px` }} data-plate-prevent-deselect>
-                <DragHandle isDragging={isDragging} previewRef={previewRef} resetPreview={resetPreview} setPreviewTop={setPreviewTop} />
-              </Button>
+              <DragHandle handleRef={handleRef} top={dragButtonTop + 3} isDragging={isDragging} previewRef={previewRef} resetPreview={resetPreview} setPreviewTop={setPreviewTop} />
             </div>
           </div>
         </Gutter>
@@ -149,11 +147,15 @@ function Gutter({ children, className, ...props }: React.ComponentProps<'div'>) 
 }
 
 const DragHandle = React.memo(function DragHandle({
+  handleRef,
+  top,
   isDragging,
   previewRef,
   resetPreview,
   setPreviewTop,
 }: {
+  handleRef: ReturnType<typeof useDraggable>['handleRef']
+  top: number
   isDragging: boolean
   previewRef: React.RefObject<HTMLDivElement | null>
   resetPreview: () => void
@@ -165,15 +167,15 @@ const DragHandle = React.memo(function DragHandle({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div
-          className="flex size-full items-center justify-center"
-          tabIndex={0}
+        <Button
+          ref={handleRef}
+          type="button"
+          variant="ghost"
+          className="absolute -left-0 h-6 w-full p-0"
+          style={{ top: `${top}px` }}
+          data-plate-prevent-deselect
+          aria-label="Drag to move"
           onClick={() => {
-            editor.getApi(BlockSelectionPlugin).blockSelection.set(element.id as string)
-          }}
-          onKeyDown={(event) => {
-            if (event.key !== 'Enter' && event.key !== ' ') return
-            event.preventDefault()
             editor.getApi(BlockSelectionPlugin).blockSelection.set(element.id as string)
           }}
           onMouseDown={(e) => {
@@ -206,10 +208,11 @@ const DragHandle = React.memo(function DragHandle({
               setPreviewTop(0)
             }
           }}
-          role="button"
         >
-          <GripVertical className="text-muted-foreground" />
-        </div>
+          <span className="flex size-full items-center justify-center">
+            <GripVertical className="text-muted-foreground" />
+          </span>
+        </Button>
       </TooltipTrigger>
       <TooltipContent>Drag to move</TooltipContent>
     </Tooltip>

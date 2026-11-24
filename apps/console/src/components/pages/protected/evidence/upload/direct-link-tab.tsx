@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
-import { FormItem } from '@repo/ui/form'
+import { FormItem, FormMessage } from '@repo/ui/form'
 import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { type TUploadedFile } from './types/TUploadedFile'
 import DirectLinkTabSection from '@/components/shared/file-upload/direct-link-tab-section'
@@ -37,7 +37,7 @@ const DirectLinkTab: React.FC<TProps> = (props: TProps) => {
     <TabsContent value="directLink">
       <FormItem className="w-full">
         <DirectLinkTabSection setLink={setEvidenceDirectLink} handleAddProcedureLink={handleAddLink} ariaLabel={'Create evidence'} />
-        {props.form.formState.errors.url && <p className="text-red-500 text-sm">{props.form.formState.errors.url.message}</p>}
+        <FormMessage error={props.form.formState.errors.url} />
       </FormItem>
     </TabsContent>
   )

@@ -49,6 +49,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
         return (
           <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox
+              aria-label="Select all questionnaires on this page"
               checked={allSelected}
               onCheckedChange={(checked) => {
                 if (checked === 'indeterminate' || !setSelected) return
@@ -69,7 +70,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
 
         return (
           <div role="presentation" onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
+            <Checkbox aria-label={`Select ${row.original.name}`} checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
           </div>
         )
       },
@@ -233,7 +234,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
           <div role="presentation" onClick={(e) => e.stopPropagation()} className="flex justify-end">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="secondary">
+                <Button variant="secondary" aria-label="Questionnaire actions">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

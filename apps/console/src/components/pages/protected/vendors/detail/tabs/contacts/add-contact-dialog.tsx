@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { FormField, FormItem, FormLabel, FormControl, Form } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, Form, FormMessage } from '@repo/ui/form'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -186,7 +186,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
                         <FormControl>
                           <Input placeholder="e.g. John Doe" {...field} />
                         </FormControl>
-                        {form.formState.errors.fullName?.message && <p className="text-sm text-red-500">{form.formState.errors.fullName.message}</p>}
+                        <FormMessage error={form.formState.errors.fullName} />
                       </FormItem>
                     )}
                   />
@@ -200,7 +200,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
                         <FormControl>
                           <Input type="email" placeholder="e.g. john@acme.com" {...field} />
                         </FormControl>
-                        {form.formState.errors.email?.message && <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>}
+                        <FormMessage error={form.formState.errors.email} />
                       </FormItem>
                     )}
                   />
@@ -216,7 +216,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
                         <FormControl>
                           <Input placeholder="e.g. Acme Corp" {...field} />
                         </FormControl>
-                        {form.formState.errors.company?.message && <p className="text-sm text-red-500">{form.formState.errors.company.message}</p>}
+                        <FormMessage error={form.formState.errors.company} />
                       </FormItem>
                     )}
                   />
@@ -230,7 +230,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
                         <FormControl>
                           <Input placeholder="e.g. Chief Technology Officer" {...field} />
                         </FormControl>
-                        {form.formState.errors.title?.message && <p className="text-sm text-red-500">{form.formState.errors.title.message}</p>}
+                        <FormMessage error={form.formState.errors.title} />
                       </FormItem>
                     )}
                   />
@@ -246,7 +246,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
                         <FormControl>
                           <Input placeholder="e.g. 555-345-9876" {...field} />
                         </FormControl>
-                        {form.formState.errors.phoneNumber?.message && <p className="text-sm text-red-500">{form.formState.errors.phoneNumber.message}</p>}
+                        <FormMessage error={form.formState.errors.phoneNumber} />
                       </FormItem>
                     )}
                   />
@@ -271,7 +271,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
                             ))}
                           </SelectContent>
                         </Select>
-                        {form.formState.errors.status?.message && <p className="text-sm text-red-500">{form.formState.errors.status.message}</p>}
+                        <FormMessage error={form.formState.errors.status} />
                       </FormItem>
                     )}
                   />
@@ -286,7 +286,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
                       <FormControl>
                         <Input placeholder="e.g. 123 Main St, City, State" {...field} />
                       </FormControl>
-                      {form.formState.errors.address?.message && <p className="text-sm text-red-500">{form.formState.errors.address.message}</p>}
+                      <FormMessage error={form.formState.errors.address} />
                     </FormItem>
                   )}
                 />

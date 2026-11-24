@@ -23,6 +23,7 @@ import MultipleSelector from '@repo/ui/multiple-selector'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
+import { FormMessage } from '@repo/ui/form'
 import { useSession } from 'next-auth/react'
 import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/group'
 import { useQueryClient } from '@tanstack/react-query'
@@ -206,7 +207,18 @@ const GroupDetailsSheet = () => {
           ) : (
             <>
               <form onSubmit={handleSubmit(onSubmit)}>
-                {isEditing && <Controller name="groupName" control={control} render={({ field }) => <Input {...field} placeholder="Group name" />} />}
+                {isEditing && (
+                  <Controller
+                    name="groupName"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <>
+                        <Input {...field} placeholder="Group name" />
+                        <FormMessage error={fieldState.error} />
+                      </>
+                    )}
+                  />
+                )}
                 <SheetDescription>
                   {isEditing ? <Controller name="description" control={control} render={({ field }) => <Textarea {...field} placeholder="Add a description" />} /> : description}
                 </SheetDescription>

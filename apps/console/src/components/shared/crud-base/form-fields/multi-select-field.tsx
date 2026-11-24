@@ -1,8 +1,7 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
 import { useMemo, useRef } from 'react'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { useFormContext } from 'react-hook-form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
@@ -12,6 +11,8 @@ import { type InternalEditingType } from '../generic-sheet'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { cn } from '@repo/ui/lib/utils'
+import { fieldItemLayoutClassName, fieldMessageLayoutClassName, type TFieldLayout } from './field-layout'
+import { InlineEditDisplay } from './inline-edit-display'
 import { type TPersistOptions, usePersistFormField } from '../persist-form-field'
 
 interface MultiSelectFieldProps<TUpdateInput> {
@@ -28,7 +29,7 @@ interface MultiSelectFieldProps<TUpdateInput> {
   setInternalEditing: InternalEditingType
   tooltipContent?: string
   icon?: React.ReactNode
-  layout?: 'vertical' | 'horizontal'
+  layout?: TFieldLayout
   labelClassName?: string
 }
 
@@ -95,14 +96,14 @@ export const MultiSelectField = <TUpdateInput,>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : ''}>
+        <FormItem className={fieldItemLayoutClassName(layout)}>
           <div className="flex items-center gap-2 shrink-0">
             {icon}
             <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>
             {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
           </div>
-          <FormControl>
-            {shouldShowInput ? (
+          {shouldShowInput ? (
+            <FormControl>
               <div ref={triggerRef} className="w-full">
                 <MultipleSelector
                   options={options}
@@ -113,23 +114,24 @@ export const MultiSelectField = <TUpdateInput,>({
                   onChange={(selected) => field.onChange(selected.map((o) => o.value))}
                 />
               </div>
-            ) : (
-              <div
-                className={cn('flex flex-wrap gap-1 text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full min-h-9', layout === 'horizontal' && 'justify-end')}
-                {...activatable(() => isEditAllowed && setInternalEditing(name))}
-              >
-                {displayOptions.length ? (
-                  displayOptions.map((o) => (
-                    <Badge key={o.value} variant="outline" className="w-fit">
-                      {o.label}
-                    </Badge>
-                  ))
-                ) : (
-                  <span className="text-muted-foreground italic">Not set</span>
-                )}
-              </div>
-            )}
-          </FormControl>
+            </FormControl>
+          ) : (
+            <InlineEditDisplay
+              className={cn('flex flex-wrap gap-1 text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full min-h-9', layout === 'horizontal' && 'justify-end')}
+              onActivate={() => isEditAllowed && setInternalEditing(name)}
+            >
+              {displayOptions.length ? (
+                displayOptions.map((o) => (
+                  <Badge key={o.value} variant="outline" className="w-fit">
+                    {o.label}
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-muted-foreground italic">Not set</span>
+              )}
+            </InlineEditDisplay>
+          )}
+          <FormMessage className={fieldMessageLayoutClassName(layout)} />
         </FormItem>
       )}
     />

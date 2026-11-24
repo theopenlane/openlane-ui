@@ -2,5 +2,5 @@ import { loadingStyles } from './loading.styles'
 
 export const Loading = () => {
   const { loader } = loadingStyles()
-  return <section className={loader()} />
+  return <section className={loader()} aria-busy="true" />
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
-import { MessageBox } from '@repo/ui/message-box'
+import { FormMessage } from '@repo/ui/form'
 import { Logo } from '@repo/ui/logo'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
@@ -117,7 +117,7 @@ export default function PasswordResetPage() {
           </Button>
         </form>
 
-        {error && <MessageBox message={error} variant="error" className="mt-4" />}
+        <FormMessage role="alert">{error}</FormMessage>
       </div>
     </div>
   )
