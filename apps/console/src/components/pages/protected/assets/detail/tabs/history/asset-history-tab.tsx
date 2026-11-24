@@ -59,7 +59,7 @@ const AssetHistoryTab: React.FC<TAssetHistoryTabProps> = ({ asset, exposure, ven
 
   return (
     <div className="space-y-4">
-      <Tabs variant="solid" value={filter} onValueChange={(value) => isHistoryFilter(value) && setFilter(value)} className="max-w-full">
+      <Tabs panelless variant="solid" value={filter} onValueChange={(value) => isHistoryFilter(value) && setFilter(value)} className="max-w-full">
         <TabsList className="w-fit max-w-full overflow-x-auto">
           {HISTORY_FILTERS.map(({ value, label }) => (
             <TabsTrigger key={value} value={value}>

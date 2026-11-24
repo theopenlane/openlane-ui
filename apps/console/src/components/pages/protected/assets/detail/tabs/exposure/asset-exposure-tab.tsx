@@ -82,7 +82,7 @@ const AssetExposureTab: React.FC<TAssetExposureTabProps> = ({ assetId, exposure,
       <ExposureSeverityBar items={exposure.items} />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Tabs variant="solid" value={kindFilter} onValueChange={(value) => isExposureFilter(value) && setKindFilter(value)} className="max-w-full">
+        <Tabs panelless variant="solid" value={kindFilter} onValueChange={(value) => isExposureFilter(value) && setKindFilter(value)} className="max-w-full">
           <TabsList className="w-fit max-w-full overflow-x-auto">
             {EXPOSURE_FILTERS.map((kind) => (
               <TabsTrigger key={kind} value={kind}>

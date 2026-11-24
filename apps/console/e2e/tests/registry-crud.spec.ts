@@ -809,6 +809,7 @@ test.describe('registry — asset ownership by personnel (#2271)', () => {
     await page.goto(`/registry/assets/${assetId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
     const main = page.locator('main')
     await expect(page.getByRole('heading', { level: 1, name: assetName })).toBeVisible({ timeout: 60_000 })
+    await expect(page.getByRole('button', { name: 'Edit asset' })).toBeVisible({ timeout: 30_000 })
 
     await expect(responsibilityValue(main, 'Owner')).toContainText('Not set', { timeout: 30_000 })
     await setResponsibilityOption(page, main, 'Owner', person, person, 'UpdateAsset')

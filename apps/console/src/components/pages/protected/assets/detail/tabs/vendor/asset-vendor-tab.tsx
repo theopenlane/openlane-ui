@@ -63,7 +63,11 @@ const AssetVendorTab: React.FC<TAssetVendorTabProps> = ({ assetId, vendors, isPe
     <LinkRecordsDialog
       title={dialog === 'change' ? 'Change vendor' : 'Link vendor'}
       onOpenChange={closeDialog}
-      onSave={(input) => handleUpdate(input, { throwOnError: true })}
+      onSave={async (input) => {
+        await handleUpdate(input, { throwOnError: true })
+        const linkedId = input.addEntityIDs?.[0]
+        if (linkedId) setSelectedId(linkedId)
+      }}
       fields={[
         {
           key: 'entityIDs',
@@ -91,7 +95,7 @@ const AssetVendorTab: React.FC<TAssetVendorTabProps> = ({ assetId, vendors, isPe
   return (
     <div className="space-y-5">
       {vendors.length > 1 && (
-        <Tabs variant="solid" value={vendor.id} onValueChange={setSelectedId} className="max-w-full">
+        <Tabs panelless variant="solid" value={vendor.id} onValueChange={setSelectedId} className="max-w-full">
           <TabsList className="w-fit max-w-full overflow-x-auto">
             {vendors.map((option) => (
               <TabsTrigger key={option.id} value={option.id}>
