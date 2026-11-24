@@ -1,6 +1,8 @@
 import { test, expect, type Page } from '@playwright/test'
 import type Stripe from 'stripe'
 
+import type { InvoicesResponse, PaymentMethodsResponse, Subscription, SubscriptionSchedulesResponse, UpcomingInvoiceResponse } from '@/types/stripe'
+
 import { createSharedOrg, getSelf, gqlData, loginViaApi, setDefaultOrg, type ApiSession } from '../utils/api'
 import { allProducts, fetchBillingCatalog, isSwitchable, pickProducts, priceIdFor, type BillingCatalog, type CatalogProduct } from '../utils/billing-catalog'
 import { confirmDialog, intervalButton, openBilling, productAction } from '../utils/billing-page'
@@ -51,6 +53,18 @@ test.describe('billing — real Stripe sandbox', () => {
     await act()
     const response = await pending
     expect(response.status(), await response.text()).toBe(200)
+  }
+
+  const readJson = async <T>(path: string): Promise<T> => {
+    const response = await page.request.get(path)
+    expect(response.status(), await response.text()).toBe(200)
+    return (await response.json()) as T
+  }
+
+  const subscriptionIdOf = ({ subscription }: Stripe.SubscriptionSchedule): string => {
+    const id = typeof subscription === 'string' ? subscription : subscription?.id
+    if (!id) throw new Error('the schedule has no subscription')
+    return id
   }
 
   const expectRenewRefused = async (current: Stripe.SubscriptionSchedule): Promise<void> => {
@@ -119,6 +133,53 @@ test.describe('billing — real Stripe sandbox', () => {
     await expect(page.getByText('4242', { exact: true })).toBeVisible()
   })
 
+  test('the routes return every Stripe field the page reads', async () => {
+    const current = await schedule()
+    const subscriptionId = subscriptionIdOf(current)
+
+    const [listed] = await readJson<SubscriptionSchedulesResponse>('/api/stripe/schedules')
+    expect(listed).toMatchObject({
+      id: current.id,
+      status: 'active',
+      end_behavior: 'release',
+      released_subscription: null,
+      current_phase: { start_date: expect.any(Number), end_date: expect.any(Number) },
+      subscription: { id: subscriptionId, status: 'trialing' },
+    })
+    expect(listed.phases.map((phase) => phase.items.map(({ price }) => price))).toEqual(phasePriceIds(current))
+    expect(listed.phases[0]).toMatchObject({ trial: true, trial_end: expect.any(Number) })
+
+    const subscription = await readJson<Subscription>(`/api/stripe/subscription?subscription=${subscriptionId}`)
+    expect(subscription).toMatchObject({ id: subscriptionId, status: 'trialing' })
+    for (const item of subscription.items.data) {
+      expect(item).toMatchObject({ current_period_end: expect.any(Number), price: { id: expect.any(String), unit_amount: expect.any(Number), recurring: { interval: 'month' } } })
+    }
+    expect(await readJson<Subscription>('/api/stripe/subscription?')).toMatchObject({ id: subscriptionId })
+
+    const card = { brand: 'visa', last4: '4242', exp_month: expect.any(Number), exp_year: expect.any(Number) }
+    const methods = await readJson<PaymentMethodsResponse>('/api/stripe/payment-methods')
+    expect(methods).toMatchObject({ hasPaymentMethod: true, defaultPaymentMethod: { card }, paymentMethods: [{ card }] })
+
+    const products = await readJson<Array<{ id: string; prices: Array<{ id: string }> }>>('/api/stripe/products')
+    expect(products.some(({ prices }) => prices.length > 0)).toBe(true)
+  })
+
+  test('the upcoming cost matches what Stripe will bill', async () => {
+    const { id } = await schedule()
+    const expected = await stripe.invoices.createPreview({ customer: customerId, schedule: id })
+    const upcoming = await readJson<UpcomingInvoiceResponse>(`/api/stripe/upcoming-invoice?scheduleId=${id}`)
+
+    expect(upcoming).toEqual({
+      currency: expected.currency,
+      subtotal: expected.subtotal,
+      total: expected.total,
+      total_excluding_tax: expected.total_excluding_tax,
+      total_discount: 0,
+    })
+    expect(upcoming.currency).toBe('usd')
+    expect(upcoming.total).toBeGreaterThan(0)
+  })
+
   test("another customer's schedule can be neither read nor changed", async () => {
     const foreign = await createTrialCustomer(stripe, uniqueRef('e2e-foreign'), priceIdFor(product, 'month'), (id) => customers.add(id))
     const body = { scheduleId: foreign.id }
@@ -172,11 +233,16 @@ test.describe('billing — real Stripe sandbox', () => {
     expect(phases.at(-1)).not.toContain(priceIdFor(product, 'month'))
   })
 
-  test('the billing portal opens on Stripe', async () => {
-    await openBilling(page)
-    await page.getByRole('button', { name: 'View all in stripe' }).click()
-    await page.waitForURL((url) => url.hostname === 'billing.stripe.com', { timeout: 60_000, waitUntil: 'commit' }) // 1min
-  })
+  for (const [purpose, button] of [
+    ['invoices', 'View all in stripe'],
+    ['a card update', 'Manage'],
+  ] as const) {
+    test(`the billing portal opens on Stripe for ${purpose}`, async () => {
+      await openBilling(page)
+      await page.getByRole('button', { name: button, exact: true }).click()
+      await page.waitForURL((url) => url.hostname === 'billing.stripe.com', { timeout: 60_000, waitUntil: 'commit' }) // 1min
+    })
+  }
 
   test('switching to annual replaces every switchable price with its counterpart', async () => {
     const counterpart = new Map(
@@ -208,5 +274,71 @@ test.describe('billing — real Stripe sandbox', () => {
 
     await expect(page.getByText('Your trial subscription was cancelled and cannot be renewed.')).toBeVisible()
     await expectRenewRefused(cancelled)
+  })
+
+  test.describe('once paid', () => {
+    let releasedId: string
+
+    test.beforeAll(async () => {
+      const current = await schedule()
+      releasedId = current.id
+      const subscriptionId = subscriptionIdOf(current)
+      await stripe.subscriptionSchedules.update(current.id, { end_behavior: 'release' })
+      await stripe.subscriptionSchedules.release(current.id)
+      const paid = await stripe.subscriptions.update(subscriptionId, { trial_end: 'now' })
+      expect(paid.status).toBe('active')
+    })
+
+    test('the paid invoice is listed with its amount and download link', async () => {
+      const { data } = await stripe.invoices.list({ customer: customerId, status: 'paid', limit: 10 })
+      const charged = data.find((invoice) => invoice.amount_paid > 0)
+      expect(charged, 'ending the trial should have charged the card').toBeDefined()
+
+      const response = await page.request.post('/api/stripe/invoices', { data: { status: 'paid', limit: 10 } })
+      expect(response.status()).toBe(200)
+      const { invoices } = (await response.json()) as InvoicesResponse
+      expect(invoices.find(({ id }) => id === charged?.id)).toEqual({
+        id: charged?.id,
+        number: expect.any(String),
+        status: 'paid',
+        amount_paid: charged?.amount_paid,
+        amount_due: charged?.amount_due,
+        hosted_invoice_url: expect.stringContaining('https://'),
+        invoice_pdf: expect.stringContaining('https://'),
+        created: expect.any(Number),
+        due_date: null,
+      })
+
+      await openBilling(page)
+      await expect(page.getByText('Active', { exact: true })).toBeVisible()
+      await expect(page.getByRole('link', { name: `Download invoice ${charged?.number}` })).toBeVisible()
+    })
+
+    test('a change to a released schedule starts a new one', async () => {
+      const price = priceIdFor(product, 'year')
+      const response = await page.request.post('/api/stripe/schedules/update', { data: { scheduleId: releasedId, priceId: price, action: 'unsubscribe' } })
+      expect(response.status(), await response.text()).toBe(200)
+
+      const recreated = await schedule()
+      expect(recreated.id).not.toBe(releasedId)
+      expect(phasePriceIds(recreated)[0]).toContain(price)
+      expect(phasePriceIds(recreated).at(-1)).not.toContain(price)
+    })
+
+    test('cancelling and renewing from the page update Stripe', async () => {
+      const before = await schedule()
+      await openBilling(page)
+      await page.getByRole('button', { name: 'Cancel subscription', exact: true }).click()
+      await succeed('/api/stripe/schedules/cancel', () => confirmDialog(page, 'Cancel subscription?'))
+      const cancelled = await stripe.subscriptionSchedules.retrieve(before.id)
+      expect(cancelled.end_behavior).toBe('cancel')
+      expect(cancelled.phases[0].end_date).toBe(before.phases[0].end_date)
+
+      await page.getByRole('button', { name: 'Renew subscription', exact: true }).click()
+      await succeed('/api/stripe/schedules/renew', () => confirmDialog(page, 'Renew subscription?', 'Renew'))
+      const renewed = await stripe.subscriptionSchedules.retrieve(before.id)
+      expect(renewed.end_behavior).toBe('release')
+      expect(phasePriceIds(renewed)[0]).toEqual(phasePriceIds(before)[0])
+    })
   })
 })
