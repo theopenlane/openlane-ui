@@ -18,22 +18,21 @@ import { cn } from '@repo/ui/lib/utils'
 import { BasicMarksKit } from '@repo/ui/components/editor/plugins/basic-marks-kit.tsx'
 import { MentionKit } from '@repo/ui/components/editor/plugins/mention-kit.tsx'
 import { serializeCommentValue } from '@repo/ui/components/editor/plugins/mention-serialize.ts'
-import { stripDraftCommentMarks } from '@repo/ui/components/editor/comment-utils.ts'
 import { type TDiscussion, discussionPlugin, CommentEntityType } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { type DiscussionInput, useSaveDiscussion } from '@repo/ui/components/editor/use-save-discussion.ts'
 import { Editor, EditorContainer } from './editor'
-import { useInsertPolicyComment, useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/internal-policy'
+import { useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/internal-policy'
 import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateNoteInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
-import { useInsertProcedureComment, useUpdateProcedure, useUpdateProcedureComment } from 'console/src/lib/graphql-hooks/procedure'
-import { useInsertControlPlateComment, useUpdateControl, useUpdateControlComment } from 'console/src/lib/graphql-hooks/control'
-import { useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontrolComment } from 'console/src/lib/graphql-hooks/subcontrol'
-import { useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risk'
+import { useUpdateProcedure, useUpdateProcedureComment } from 'console/src/lib/graphql-hooks/procedure'
+import { useUpdateControl, useUpdateControlComment } from 'console/src/lib/graphql-hooks/control'
+import { useUpdateSubcontrol, useUpdateSubcontrolComment } from 'console/src/lib/graphql-hooks/subcontrol'
+import { useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risk'
 import { useUpdateDiscussion } from 'console/src/lib/graphql-hooks/discussion'
 import { useNotification } from 'console/src/hooks/useNotification'
 import { useHasOrgFullAccess } from 'console/src/lib/query-hooks/permissions'
 import { parseErrorMessage } from 'console/src/utils/graphQlErrorMatcher'
-import { useQueryClient } from '@tanstack/react-query'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export interface TComment {
@@ -520,7 +519,6 @@ export function CommentCreateForm({
 }) {
   const discussions = usePluginOption(discussionPlugin, 'discussions')
   const entityId = usePluginOption(discussionPlugin, 'entityId') as string
-  const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
 
   const editor = useEditorRef()
   const commentId = useCommentId()
@@ -530,126 +528,7 @@ export function CommentCreateForm({
   const [commentValue, setCommentValue] = React.useState<Value | undefined>()
   const commentContent = React.useMemo(() => (commentValue ? NodeApi.string({ children: commentValue, type: KEYS.p }) : ''), [commentValue])
   const commentEditor = useCommentEditor()
-  const { mutateAsync: insertPolicyComment } = useInsertPolicyComment()
-  const { mutateAsync: insertProcedureComment } = useInsertProcedureComment()
-  const { mutateAsync: insertControlComment } = useInsertControlPlateComment()
-  const { mutateAsync: insertSubcontrolComment } = useInsertSubcontrolPlateComment()
-  const { mutateAsync: insertRiskComment } = useInsertRiskComment()
-  const { mutateAsync: updateInternalPolicy } = useUpdateInternalPolicy()
-  const { mutateAsync: updateProcedure } = useUpdateProcedure()
-  const { mutateAsync: updateControl } = useUpdateControl()
-  const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
-  const { mutateAsync: updateRisk } = useUpdateRisk()
-  const queryClient = useQueryClient()
-
-  type EntityInputMap = {
-    Control: UpdateControlInput
-    Subcontrol: UpdateSubcontrolInput
-    Procedure: UpdateProcedureInput
-    InternalPolicy: UpdateInternalPolicyInput
-    Risk: UpdateRiskInput
-  }
-
-  type EntityIdKeyMap = {
-    Control: 'updateControlId'
-    Subcontrol: 'updateSubcontrolId'
-    Procedure: 'updateProcedureId'
-    InternalPolicy: 'updateInternalPolicyId'
-    Risk: 'updateRiskId'
-  }
-
-  type EntityType = keyof EntityInputMap
-  type EntityInput<T extends EntityType> = EntityInputMap[T]
-  type EntityIdKey<T extends EntityType> = EntityIdKeyMap[T]
-
-  type EntityUpdateFn<T extends EntityType> = (
-    args: { [K in EntityIdKey<T>]: string } & {
-      input: EntityInput<T>
-    },
-  ) => Promise<unknown>
-
-  const entityUpdateMap: { [K in EntityType]: EntityUpdateFn<K> } = {
-    Control: insertControlComment,
-    Subcontrol: insertSubcontrolComment,
-    Procedure: insertProcedureComment,
-    InternalPolicy: insertPolicyComment,
-    Risk: insertRiskComment,
-  }
-
-  const entityDescriptionUpdateMap: { [K in EntityType]: EntityUpdateFn<K> } = {
-    Control: updateControl,
-    Subcontrol: updateSubcontrol,
-    Procedure: updateProcedure,
-    InternalPolicy: updateInternalPolicy,
-    Risk: updateRisk,
-  }
-
-  const entityUpdate = getEntityUpdater(entityType)
-  const entityDescriptionUpdate = getEntityDescriptionUpdater(entityType)
-
-  function getEntityUpdater<T extends EntityType>(type: T): EntityUpdateFn<T> {
-    return entityUpdateMap[type]
-  }
-
-  function getEntityDescriptionUpdater<T extends EntityType>(type: T): EntityUpdateFn<T> {
-    return entityDescriptionUpdateMap[type]
-  }
-
-  const updateDescription = async () => {
-    const entityIdKeyMap: EntityIdKeyMap = {
-      Control: 'updateControlId',
-      Subcontrol: 'updateSubcontrolId',
-      Procedure: 'updateProcedureId',
-      InternalPolicy: 'updateInternalPolicyId',
-      Risk: 'updateRiskId',
-    }
-
-    const documentValue = stripDraftCommentMarks(editor.children)
-    const input = entityType === ObjectTypes.CONTROL || entityType === ObjectTypes.SUBCONTROL ? { descriptionJSON: documentValue } : { detailsJSON: documentValue }
-
-    await entityDescriptionUpdate({
-      [entityIdKeyMap[entityType]]: entityId,
-      input,
-    } as {
-      [K in EntityIdKey<typeof entityType>]: string
-    } & {
-      input: EntityInput<typeof entityType>
-    })
-
-    let entityUpdateKey
-    let entityDiscussionKey
-
-    switch (entityType) {
-      case ObjectTypes.CONTROL:
-        entityUpdateKey = 'controlsDiscussion'
-        entityDiscussionKey = 'controls'
-        break
-      case ObjectTypes.RISK:
-        entityUpdateKey = 'risksDiscussion'
-        entityDiscussionKey = 'risks'
-        break
-      case ObjectTypes.INTERNAL_POLICY:
-        entityUpdateKey = 'policyDiscussion'
-        entityDiscussionKey = 'internalPolicies'
-        break
-      case ObjectTypes.SUBCONTROL:
-        entityUpdateKey = 'subcontrolsDiscussion'
-        entityDiscussionKey = 'subcontrols'
-        break
-      case ObjectTypes.PROCEDURE:
-        entityUpdateKey = 'procedureDiscussion'
-        entityDiscussionKey = 'procedures'
-        break
-      default:
-        entityUpdateKey = undefined
-        entityDiscussionKey = undefined
-    }
-
-    if (entityUpdateKey && entityDiscussionKey) {
-      queryClient.invalidateQueries({ queryKey: [entityUpdateKey, entityId] }, { cancelRefetch: false })
-      queryClient.invalidateQueries({ queryKey: [entityDiscussionKey, entityId] })
-    }
-  }
+  const { addDiscussion, saveDiscussion, saveDocument } = useSaveDiscussion()
 
   React.useEffect(() => {
     if (commentEditor && focusOnMount) {
@@ -657,16 +536,8 @@ export function CommentCreateForm({
     }
   }, [commentEditor, focusOnMount])
 
-  const onAddComment = React.useCallback(async () => {
+  const onAddComment = async () => {
     if (!commentValue) return
-
-    const entityIdKeyMap: EntityIdKeyMap = {
-      Control: 'updateControlId',
-      Subcontrol: 'updateSubcontrolId',
-      Procedure: 'updateProcedureId',
-      InternalPolicy: 'updateInternalPolicyId',
-      Risk: 'updateRiskId',
-    }
 
     const text = serializeCommentValue(commentValue)
 
@@ -696,24 +567,7 @@ export function CommentCreateForm({
 
         // 🔁 Sync with backend for NEW discussion only
         if (entityId) {
-          const input: EntityInput<typeof entityType> = {
-            addDiscussion: {
-              externalID: discussionId,
-              addComment: {
-                text,
-                noteRef: commentValue[0].id! as string,
-              },
-            },
-          }
-
-          await entityUpdate({
-            [entityIdKeyMap[entityType]]: entityId,
-            input,
-          } as {
-            [K in EntityIdKey<typeof entityType>]: string
-          } & {
-            input: EntityInput<typeof entityType>
-          })
+          await addDiscussion(discussionId, commentValue)
 
           const updatedDiscussions = [...discussions, newDiscussion]
           editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
@@ -737,7 +591,7 @@ export function CommentCreateForm({
       }
 
       if (entityId) {
-        const input: EntityInput<typeof entityType> = {
+        const input: DiscussionInput = {
           updateDiscussion: {
             id: updatedDiscussion.systemId!,
             input: {
@@ -749,14 +603,7 @@ export function CommentCreateForm({
           },
         }
 
-        const entityData = (await entityUpdate({
-          [entityIdKeyMap[entityType]]: entityId,
-          input,
-        } as {
-          [K in EntityIdKey<typeof entityType>]: string
-        } & {
-          input: EntityInput<typeof entityType>
-        })) as Record<string, unknown>
+        const entityData = (await saveDiscussion(input)) as Record<string, unknown>
 
         const mutationResult = Object.values(entityData)[0]
         const entityPayload = mutationResult && Object.values(mutationResult)[0]
@@ -820,28 +667,10 @@ export function CommentCreateForm({
 
     // 🔁 Sync with backend for NEW discussion only
     if (entityId) {
-      const input: EntityInput<typeof entityType> = {
-        addDiscussion: {
-          externalID: id,
-          addComment: {
-            text,
-            noteRef: commentValue[0].id! as string,
-          },
-        },
-      }
-
-      await entityUpdate({
-        [entityIdKeyMap[entityType]]: entityId,
-        input,
-      } as {
-        [K in EntityIdKey<typeof entityType>]: string
-      } & {
-        input: EntityInput<typeof entityType>
-      })
-
-      updateDescription()
+      await addDiscussion(id, commentValue)
+      await saveDocument()
     }
-  }, [commentValue, commentEditor.tf, commentId, discussionId, discussions, editor, entityId])
+  }
 
   return (
     <div role="presentation" className={cn('flex w-full', className)} onClick={(e) => e.stopPropagation()}>

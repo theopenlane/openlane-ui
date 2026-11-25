@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useImperativeHandle, useCallback, type Ref, useRef } from 'react'
+import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import { ThemeAwareFontBackgroundColorPlugin, ThemeAwareFontColorPlugin } from '@repo/ui/components/editor/plugins/font-kit.tsx'
 import { type Value, type TElement, KEYS } from 'platejs'
@@ -10,8 +11,9 @@ import { createPlateEditor, Plate, type PlatePlugin, usePlateEditor } from 'plat
 import { detectFormat } from './usePlateEditor'
 import { type CommentEntityType, discussionPlugin } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 import { DEFAULT_EXPORT_TITLE, documentExportPlugin } from '@repo/ui/components/editor/plugins/document-export-kit.tsx'
+import { suggestionPlugin } from '@repo/ui/components/editor/plugins/suggestion-kit.tsx'
 import { getObjectDisplayName } from '@/utils/object-display-name'
-import { stripDraftCommentMarks } from '@repo/ui/components/editor/comment-utils.ts'
+import { stripUnsavedCommentMarks } from '@repo/ui/components/editor/comment-utils.ts'
 import { type GetUserProfileQuery } from '@repo/codegen/src/schema.ts'
 import { mapEntityDiscussions, type TDiscussionEntity, useDiscussionUsers } from './discussions'
 
@@ -63,7 +65,7 @@ const PlateEditor = ({
 }: TPlateEditorProps) => {
   const getPlugins = useCallback(() => EditorKitVariant[variant]({ toolbarClassName }) as PlatePlugin[], [variant, toolbarClassName])
 
-  const [initialSlateValue] = React.useState(() => (Array.isArray(initialValue) ? stripDraftCommentMarks(initialValue) : undefined))
+  const [initialSlateValue] = React.useState(() => (Array.isArray(initialValue) ? stripUnsavedCommentMarks(initialValue) : undefined))
 
   const editor = usePlateEditor({
     plugins: getPlugins(),
@@ -76,6 +78,12 @@ const PlateEditor = ({
     editor.setOption(ThemeAwareFontColorPlugin, 'theme', resolvedTheme)
     editor.setOption(ThemeAwareFontBackgroundColorPlugin, 'theme', resolvedTheme)
   }, [editor, resolvedTheme])
+
+  const { data: session } = useSession()
+  const suggestionUserId = userData?.user?.id ?? session?.user?.userId ?? null
+  useEffect(() => {
+    editor.setOption(suggestionPlugin, 'currentUserId', suggestionUserId)
+  }, [editor, suggestionUserId])
 
   const resolvedExportTitle = exportTitle?.trim() || getObjectDisplayName(entity) || DEFAULT_EXPORT_TITLE
   useEffect(() => {
@@ -105,7 +113,9 @@ const PlateEditor = ({
     editor.setOption(discussionPlugin, 'entityType', entity.__typename as CommentEntityType)
     editor.setOption(discussionPlugin, 'entityId', entity.id)
     editor.setOption(discussionPlugin, 'currentUserId', userData.user.id)
-    editor.setOption(discussionPlugin, 'discussions', discussions)
+    const savedIds = new Set(discussions.map((discussion) => discussion.id))
+    const unsavedAiDiscussions = editor.getOption(discussionPlugin, 'pendingAiDiscussions').filter((discussion) => !savedIds.has(discussion.id))
+    editor.setOption(discussionPlugin, 'discussions', [...discussions, ...unsavedAiDiscussions])
   }, [editor, entity, userData, discussions])
 
   useEffect(() => {
@@ -172,7 +182,7 @@ const PlateEditor = ({
         editor.tf.insertNodes(slateNodes, { at: [0], removeEmpty: true })
       }
 
-      onHydrate?.(stripDraftCommentMarks(editor.children as Value))
+      onHydrate?.(stripUnsavedCommentMarks(editor.children as Value))
     }
   }, [editor, initialValue, plateEditor, onHydrate])
 
@@ -188,7 +198,7 @@ const PlateEditor = ({
       readOnly={readonly}
       editor={editor}
       onChange={(data) => {
-        onChange?.(stripDraftCommentMarks(data.value))
+        onChange?.(stripUnsavedCommentMarks(data.value, editor.getOption(discussionPlugin, 'pendingAiDiscussions')))
       }}
     >
       <EditorContainer

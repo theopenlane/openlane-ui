@@ -61,7 +61,12 @@ export function BlockSuggestion({ element }: { element: TSuggestionElement }) {
 
   const isRemove = suggestionData?.type === 'remove'
 
-  return <div className={cn('pointer-events-none absolute inset-0 z-1 border-2 transition-opacity', isRemove && 'border-gray-300')} contentEditable={false} />
+  return (
+    <div
+      className={cn('pointer-events-none absolute inset-0 z-1 border-2 transition-opacity', isRemove ? 'border-red-500/30 bg-red-500/15' : 'border-emerald-500/30 bg-emerald-500/15')}
+      contentEditable={false}
+    />
+  )
 }
 
 export function BlockSuggestionCard({ idx, isLast, suggestion }: { idx: number; isLast: boolean; suggestion: ResolvedSuggestion }) {

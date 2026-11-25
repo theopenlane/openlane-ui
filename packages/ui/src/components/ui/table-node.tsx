@@ -602,7 +602,8 @@ function TableFloatingToolbar({ children, ...props }: React.ComponentProps<typeo
   const selectedCellCount = useEditorSelector((editor) => editor.getApi(TablePlugin).table.getSelectedCellIds()?.length ?? 0, [])
   const selected = useSelected()
   const collapsedInside = useEditorSelector((editor) => selected && editor.api.isCollapsed(), [selected])
-  const isFocusedLast = useFocusedLast()
+  const isAIMenuOpen = usePluginOption({ key: KEYS.aiChat }, 'open')
+  const isFocusedLast = useFocusedLast() && !isAIMenuOpen
   const [isExpandedSelectionToolbarReady, setIsExpandedSelectionToolbarReady] = React.useState(false)
   const isCollapsedToolbarOpen = isFocusedLast && collapsedInside
   const isExpandedSelectionPending = isFocusedLast && !collapsedInside && selectedCellCount > 1

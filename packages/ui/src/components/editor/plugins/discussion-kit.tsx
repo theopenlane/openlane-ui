@@ -27,6 +27,8 @@ export interface TDiscussionUser {
   hue?: number
 }
 
+export const canCommentOnEntity = ({ entityId, isCreate }: { entityId?: string; isCreate: boolean }): boolean => !!entityId && !isCreate
+
 /**
  * discussionPlugin
  *
@@ -52,6 +54,7 @@ export const discussionPlugin = createPlatePlugin({
     isCreate: false,
     users: {} as Record<string, TDiscussionUser>,
     discussions: [] as TDiscussion[],
+    pendingAiDiscussions: [] as TDiscussion[],
     showResolved: false,
     hasResolvedInDocument: false,
   },

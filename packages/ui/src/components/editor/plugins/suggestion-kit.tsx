@@ -7,8 +7,6 @@ import { toTPlatePlugin } from 'platejs/react'
 import { BlockSuggestion } from '@repo/ui/components/ui/block-suggestion.tsx'
 import { SuggestionLeaf, SuggestionLineBreak } from '@repo/ui/components/ui/suggestion-node.tsx'
 
-import { discussionPlugin } from './discussion-kit'
-
 export type SuggestionConfig = ExtendConfig<
   BaseSuggestionConfig,
   {
@@ -18,14 +16,14 @@ export type SuggestionConfig = ExtendConfig<
   }
 >
 
-export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(BaseSuggestionPlugin, ({ editor }) => ({
+export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(BaseSuggestionPlugin, {
   options: {
     activeId: null,
-    currentUserId: editor.getOption(discussionPlugin, 'currentUserId'),
+    currentUserId: null,
     hoverId: null,
     uniquePathMap: new Map(),
   },
-})).configure({
+}).configure({
   handlers: {
     // unset active suggestion when clicking outside of suggestion
     onClick: ({ api, event, setOption, type }) => {

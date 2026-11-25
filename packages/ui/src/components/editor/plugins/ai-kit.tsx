@@ -1,11 +1,12 @@
 'use client'
 
-import cloneDeep from 'lodash/cloneDeep.js'
-import { BaseAIPlugin, withAIBatch } from '@platejs/ai'
-import { AIChatPlugin, AIPlugin, applyAISuggestions, getInsertPreviewStart, streamInsertChunk, useChatChunk } from '@platejs/ai/react'
-import { ElementApi, getPluginType, KEYS, PathApi } from 'platejs'
+import { AIChatPlugin, AIPlugin } from '@platejs/ai/react'
 import { usePluginOption } from 'platejs/react'
+import { useEffect, useRef } from 'react'
 
+import { useNotification } from 'console/src/hooks/useNotification'
+
+import { applyAIEdit, beginAIInsert, renderAIInsert } from '@repo/ui/components/editor/ai-preview.ts'
 import { AILoadingBar, AIMenu } from '@repo/ui/components/ui/ai-menu.tsx'
 import { AIAnchorElement, AILeaf } from '@repo/ui/components/ui/ai-node.tsx'
 
@@ -28,67 +29,47 @@ export const aiChatPlugin = AIChatPlugin.extend({
     node: AIAnchorElement,
   },
   shortcuts: { show: { keys: 'mod+j' } },
-  useHooks: ({ editor, getOption }) => {
+  useHooks: ({ editor }) => {
     useChat()
 
+    const chat = usePluginOption(AIChatPlugin, 'chat')
     const mode = usePluginOption(AIChatPlugin, 'mode')
     const toolName = usePluginOption(AIChatPlugin, 'toolName')
-    useChatChunk({
-      onChunk: ({ chunk, isFirst, nodes, text: content }) => {
-        if (isFirst && mode === 'insert') {
-          const { startBlock, startInEmptyParagraph } = getInsertPreviewStart(editor)
+    const wasLoadingRef = useRef(false)
+    const { errorNotification } = useNotification()
+    const hasStartedInsertRef = useRef(false)
 
-          editor.getTransforms(BaseAIPlugin).ai.beginPreview({
-            originalBlocks: startInEmptyParagraph && startBlock && ElementApi.isElement(startBlock) ? [cloneDeep(startBlock)] : [],
-          })
+    const isLoading = chat.status === 'streaming' || chat.status === 'submitted'
+    const lastMessage = chat.messages?.at(-1)
+    const content = lastMessage?.role === 'assistant' ? lastMessage.parts.find((part) => part.type === 'text')?.text : undefined
 
-          editor.tf.withoutSaving(() => {
-            editor.tf.insertNodes(
-              {
-                children: [{ text: '' }],
-                type: getPluginType(editor, KEYS.aiChat),
-              },
-              {
-                at: PathApi.next(editor.selection!.focus.path.slice(0, 1)),
-              },
-            )
-          })
-          editor.setOption(AIChatPlugin, 'streaming', true)
+    useEffect(() => {
+      if (!isLoading && !wasLoadingRef.current) return
+      wasLoadingRef.current = isLoading
+
+      if (content?.trim() && toolName !== 'comment') {
+        if (mode === 'insert') {
+          if (!hasStartedInsertRef.current) {
+            hasStartedInsertRef.current = true
+            beginAIInsert(editor)
+          }
+          renderAIInsert(editor, content)
         }
 
-        if (mode === 'insert' && nodes.length > 0) {
-          editor.tf.withoutSaving(() => {
-            if (!getOption('streaming')) return
-
-            editor.tf.withScrolling(() => {
-              streamInsertChunk(editor, chunk, {
-                textProps: {
-                  [getPluginType(editor, KEYS.ai)]: true,
-                },
-              })
-            })
-          })
+        if (toolName === 'edit' && mode === 'chat' && !isLoading) {
+          if (!applyAIEdit(editor, content)) {
+            errorNotification({ title: 'AI edit failed', description: 'The answer could not be applied to the selected text. Please try again.' })
+            editor.getApi(AIChatPlugin).aiChat.hide()
+          }
         }
+      }
 
-        if (toolName === 'edit' && mode === 'chat') {
-          withAIBatch(
-            editor,
-            () => {
-              applyAISuggestions(editor, content)
-            },
-            {
-              split: isFirst,
-            },
-          )
-        }
-      },
-      onFinish: () => {
+      if (!isLoading) {
+        hasStartedInsertRef.current = false
         editor.setOption(AIChatPlugin, 'streaming', false)
-        editor.setOption(AIChatPlugin, '_blockChunks', '')
         editor.setOption(AIChatPlugin, '_blockPath', null)
-        editor.setOption(AIChatPlugin, '_mdxName', null)
-      },
-    })
+      }
+    }, [content, editor, errorNotification, isLoading, mode, toolName])
   },
 })
 
