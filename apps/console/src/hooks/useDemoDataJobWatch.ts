@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { type TDemoDataTypeKey } from '@/constants/demo-data-types'
 import { getDemoDataSeedOutcome, type TDemoDataPresence, type TDemoDataSeedOutcome } from '@/lib/graphql-hooks/demo-data'
 import { type Notification } from '@/lib/graphql-hooks/notifications'
 import { useNotificationsContext } from '@/providers/notifications-provider'
@@ -11,19 +12,27 @@ const DEMO_DATA_WAIT_MS = 10 * 60 * 1000 // 10min
 export type TDemoDataJobResult = TDemoDataSeedOutcome | 'timed-out'
 
 export type TDemoDataJob = {
+  action: 'seed' | 'delete'
   matchOutcome: (notification: Notification) => TDemoDataSeedOutcome | null
   isSettled: (presence: TDemoDataPresence) => boolean
 }
 
 export const DEMO_DATA_SEED_JOB: TDemoDataJob = {
+  action: 'seed',
   matchOutcome: getDemoDataSeedOutcome,
   isSettled: (presence) => presence.hasAll,
 }
 
-export const DEMO_DATA_DELETE_JOB: TDemoDataJob = {
-  matchOutcome: (notification) => (notification.objectType === 'delete.completed' ? 'completed' : null),
-  isSettled: (presence) => !presence.hasAny,
+const DELETE_OUTCOME_BY_TITLE: Record<string, TDemoDataSeedOutcome> = {
+  'Demo data removed': 'completed',
+  'Demo data removal failed': 'failed',
 }
+
+export const createDemoDataDeleteJob = (removing: TDemoDataTypeKey[]): TDemoDataJob => ({
+  action: 'delete',
+  matchOutcome: ({ objectType, title }) => (objectType === 'delete.completed' ? (DELETE_OUTCOME_BY_TITLE[title ?? ''] ?? null) : null),
+  isSettled: ({ counts }) => removing.length > 0 && removing.every((key) => !counts[key]),
+})
 
 type TDemoDataJobWatchOptions = {
   job: TDemoDataJob | null
