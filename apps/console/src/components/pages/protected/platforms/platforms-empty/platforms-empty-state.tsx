@@ -228,7 +228,7 @@ const BoundaryDiagram: React.FC = () => (
   </svg>
 )
 
-const LEARN_MORE_CLASSES = 'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-sm font-medium text-diagram-accent hover:underline underline-offset-4'
+const LEARN_MORE_CLASSES = 'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-sm font-medium text-hyperlink hover:underline underline-offset-4'
 
 const PLATFORMS_TOPIC = { title: 'Platforms', query: 'platforms registry system description trust boundary', prefer: 'platforms' }
 

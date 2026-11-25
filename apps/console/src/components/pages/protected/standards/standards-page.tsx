@@ -149,7 +149,7 @@ const StandardsPage = () => {
           <OfficialOnly>
             <Card className="bg-card p-10 rounded-lg shadow-sm border border-dashed flex flex-col items-center justify-center text-center min-h-[280px]">
               <p className="mb-4">Looking for a framework that’s not supported yet? Reach out with the details.</p>
-              <Button asChild variant="secondary" className="text-primary">
+              <Button asChild variant="secondary" className="text-hyperlink">
                 <a href={INFO_EMAIL}>{INFO_EMAIL_ADDRESS}</a>
               </Button>
             </Card>

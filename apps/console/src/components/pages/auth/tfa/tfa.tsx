@@ -3,7 +3,6 @@
 import { useStartTfaEnrollment, useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa-setting'
 import { useVerifyTotp, type TfaLoginTokens } from '@/lib/query-hooks/tfa'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { activatable } from '@repo/ui/lib/a11y'
 import QRCodeDialog from '@/components/pages/protected/profile/user-settings/qrcode-dialog'
 import React, { useState, useMemo, useRef } from 'react'
 import { Button } from '@repo/ui/button'
@@ -41,16 +40,18 @@ const TfaPage: React.FC<{ enrollment?: boolean }> = ({ enrollment = false }) => 
           bottomText: (
             <>
               <p className="text-sm text-text-light">Want to go back to authenticator? Click&nbsp;</p>
-              <p
-                {...activatable(() => {
+              <Button
+                type="button"
+                variant="link"
+                className="font-normal underline"
+                onClick={() => {
                   setIsSecret(false)
                   setOtpValue('')
                   resetVerification()
-                })}
-                className="text-sm underline cursor-pointer text-primary"
+                }}
               >
                 here
-              </p>
+              </Button>
               <p className="text-sm">&nbsp;to enter the app code instead.</p>
             </>
           ),
@@ -60,16 +61,18 @@ const TfaPage: React.FC<{ enrollment?: boolean }> = ({ enrollment = false }) => 
           bottomText: (
             <>
               <p className="text-sm text-text-light">Don&apos;t have access to your app? Click&nbsp;</p>
-              <p
-                {...activatable(() => {
+              <Button
+                type="button"
+                variant="link"
+                className="font-normal underline"
+                onClick={() => {
                   setIsSecret(true)
                   setOtpValue('')
                   resetVerification()
-                })}
-                className="text-sm underline cursor-pointer text-primary"
+                }}
               >
                 here
-              </p>
+              </Button>
               <p className="text-sm text-text-light">&nbsp;to enter the recovery code.</p>
             </>
           ),

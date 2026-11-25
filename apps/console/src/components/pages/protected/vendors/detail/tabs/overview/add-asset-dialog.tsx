@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
+import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FormField, FormItem, FormLabel, FormControl, Form, FormMessage } from '@repo/ui/form'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -108,9 +109,9 @@ const AddAssetDialog: React.FC<AddAssetDialogProps> = ({ vendorId, linkedAssetId
                   <FormMessage error={form.formState.errors.assetId} />
                   <p className="text-sm text-muted-foreground">
                     Don&apos;t see the system you&apos;re looking for?{' '}
-                    <button type="button" onClick={onCreateNew} className="text-primary underline hover:text-primary/80">
+                    <Button type="button" variant="link" className="font-normal underline" onClick={onCreateNew}>
                       Create a new asset
-                    </button>
+                    </Button>
                     .
                   </p>
                 </FormItem>
