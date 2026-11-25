@@ -43,7 +43,7 @@ export const SetAssetFieldsDialog: React.FC<TSetAssetFieldsDialogProps> = ({ kin
   const { enumOpts, enumCreateHandlers } = useAssetEnumOptions()
   const { successNotification, errorNotification } = useNotification()
   const isSavingRef = useRef(false)
-  const fieldProps = { isEditing: true, isEditAllowed: true, data: asset, internalEditing: null, setInternalEditing: ignoreInlineEditing }
+  const fieldProps = { isEditing: true, isEditAllowed: true, data: asset, internalEditing: null, setInternalEditing: ignoreInlineEditing, labelClassName: 'text-sm' }
 
   const handleSave = async (values: AssetFormData) => {
     if (isSavingRef.current) return

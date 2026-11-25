@@ -7,6 +7,9 @@ import { SelectField } from '@/components/shared/crud-base/form-fields/select-fi
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Link } from '@/components/shared/link/link'
+import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 import { ReadOnlyRow } from '@/components/pages/protected/exposure/detail/read-only-row'
 import AssetTagsRow from './asset-tags-row'
 import { type EnumCreateHandlers, type EnumOptions } from '../table/types'
@@ -24,18 +27,9 @@ type TAssetPropertiesCardProps = TAssetSectionProps & {
   relationships: AssetRelationships | undefined
 }
 
-const LinkList: React.FC<{ links: { id: string; label: string; href: string }[] }> = ({ links }) => (
-  <span className="flex flex-col items-end gap-1">
-    {links.map(({ id, label, href }) => (
-      <Link key={id} href={href} prefetch={false}>
-        {label}
-      </Link>
-    ))}
-  </span>
-)
-
 const AssetPropertiesCard: React.FC<TAssetPropertiesCardProps> = ({ enumOpts, enumCreateHandlers, relationships, ...sectionProps }) => {
   const { asset } = sectionProps
+  const openObjectSheet = useOpenObjectSheet()
   const fieldProps = assetRowFieldProps(sectionProps)
   const platforms = getNodes(relationships?.platforms)
   const systems = getNodes(relationships?.systemDetails)
@@ -64,12 +58,22 @@ const AssetPropertiesCard: React.FC<TAssetPropertiesCardProps> = ({ enumOpts, en
         />
         {platforms.length > 0 && (
           <ReadOnlyRow labelClassName={ASSET_ROW_LABEL_CLASS} icon={<Layers className={iconClass} />} label="Platform">
-            <LinkList links={platforms.map(({ id, name }) => ({ id, label: name, href: getHrefForObjectType('platforms', { id }) }))} />
+            <span className="flex flex-col items-end gap-1">
+              {platforms.map(({ id, name }) => (
+                <Link key={id} href={getHrefForObjectType('platforms', { id })} prefetch={false}>
+                  {name}
+                </Link>
+              ))}
+            </span>
           </ReadOnlyRow>
         )}
         {systems.length > 0 && (
           <ReadOnlyRow labelClassName={ASSET_ROW_LABEL_CLASS} icon={<Monitor className={iconClass} />} label="System">
-            <LinkList links={systems.map(({ id, systemName }) => ({ id, label: systemName, href: getHrefForObjectType('systemDetails', { id }) }))} />
+            <span className="flex flex-col items-end gap-1">
+              {systems.map(({ id, systemName }) => (
+                <ObjectSheetLink key={id} id={id} kind={ObjectAssociationNodeEnum.SYSTEM_DETAIL} label={systemName} onOpenSheet={openObjectSheet} />
+              ))}
+            </span>
           </ReadOnlyRow>
         )}
         {!!asset.categories?.length && (
