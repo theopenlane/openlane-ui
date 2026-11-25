@@ -19,7 +19,7 @@ export const CopyIconButton: React.FC<CopyIconButtonProps> = ({ value, label }) 
   }
 
   return (
-    <Button type="button" variant="icon" descriptiveTooltipText={`Copy ${label}`} onClick={handleCopy} className="-m-1.5 h-6 w-6 gap-0 p-0 duration-150 [&_svg]:size-[13px]!">
+    <Button type="button" variant="icon" descriptiveTooltipText={`Copy ${label}`} onClick={handleCopy} className="-m-1.5 h-6 w-6 shrink-0 gap-0 p-0 duration-150 [&_svg]:size-[13px]!">
       <Copy size={13} />
     </Button>
   )
