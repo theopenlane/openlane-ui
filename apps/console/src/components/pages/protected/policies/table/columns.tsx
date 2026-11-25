@@ -1,6 +1,6 @@
 import { type ColumnDef } from '@repo/ui/table-types'
-import { type Group, type InternalPolicy, InternalPolicyDocumentManagementMode, type User } from '@repo/codegen/src/schema.ts'
-import { type AuthorToken } from '@/lib/authors'
+import { type Group, type InternalPolicy, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema.ts'
+import { type AuthorMaps } from '@/lib/authors'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import React from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -19,14 +19,13 @@ import { createSelectColumn } from '@/components/shared/crud-base/columns/select
 import { formatDate } from '@/utils/date'
 
 type TPoliciesColumnsProps = {
-  userMap?: Record<string, User>
-  tokenMap?: Record<string, AuthorToken>
+  authorMaps?: AuthorMaps
   selectedPolicies: { id: string }[]
   setSelectedPolicies: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   enumOptions: CustomTypeEnumOption[]
 }
 
-export const getPoliciesColumns = ({ userMap, tokenMap, selectedPolicies, setSelectedPolicies, enumOptions }: TPoliciesColumnsProps) => {
+export const getPoliciesColumns = ({ authorMaps, selectedPolicies, setSelectedPolicies, enumOptions }: TPoliciesColumnsProps) => {
   const columns: ColumnDef<InternalPolicy>[] = [
     createSelectColumn<InternalPolicy>(selectedPolicies, setSelectedPolicies),
     {
@@ -163,7 +162,7 @@ export const getPoliciesColumns = ({ userMap, tokenMap, selectedPolicies, setSel
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} source={row.original} {...authorMaps} />,
     },
     {
       accessorKey: 'createdAt',
@@ -175,7 +174,7 @@ export const getPoliciesColumns = ({ userMap, tokenMap, selectedPolicies, setSel
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} source={row.original} {...authorMaps} />,
     },
     {
       accessorKey: 'updatedAt',

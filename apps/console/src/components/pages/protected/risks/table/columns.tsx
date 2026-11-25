@@ -1,6 +1,6 @@
 import { type ColumnDef } from '@repo/ui/table-types'
-import { type RiskRiskStatus, type RiskTableFieldsFragment, type User } from '@repo/codegen/src/schema.ts'
-import { type AuthorToken } from '@/lib/authors'
+import { type RiskRiskStatus, type RiskTableFieldsFragment } from '@repo/codegen/src/schema.ts'
+import { type AuthorMaps } from '@/lib/authors'
 import React from 'react'
 import RiskLabel from '@/components/pages/protected/risks/risk-label.tsx'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
@@ -9,15 +9,14 @@ import { createSelectColumn } from '@/components/shared/crud-base/columns/select
 import RiskResponsibilityCell from './risk-responsibility-cell'
 
 type Params = {
-  userMap: Record<string, User>
-  tokenMap?: Record<string, AuthorToken>
+  authorMaps?: AuthorMaps
   convertToReadOnly?: (value: string, depth: number) => React.ReactNode
   selectedRisks: { id: string }[]
   setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   isEditAllowed?: boolean
 }
 
-export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedRisks, setSelectedRisks, isEditAllowed = true }: Params) => {
+export const getRiskColumns = ({ authorMaps, convertToReadOnly, selectedRisks, setSelectedRisks, isEditAllowed = true }: Params) => {
   const columns: ColumnDef<RiskTableFieldsFragment>[] = [
     createSelectColumn<RiskTableFieldsFragment>(selectedRisks, setSelectedRisks),
     {
@@ -123,7 +122,7 @@ export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedR
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} source={row.original} {...authorMaps} />,
     },
     {
       accessorKey: 'createdAt',
@@ -135,7 +134,7 @@ export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedR
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} source={row.original} {...authorMaps} />,
     },
     {
       accessorKey: 'updatedAt',

@@ -76,7 +76,7 @@ const TableComponent = ({
 
   const columns = useMemo(
     () => [
-      ...getColumns({ userMap: {}, selectedItems, setSelectedItems }),
+      ...getColumns({ userMap: {}, authorMaps: {}, selectedItems, setSelectedItems }),
       createRowActionsColumn<WorkflowDefinitionsNodeNonNull>({
         actions: [
           { label: 'Edit', icon: <Pencil size={16} />, onClick: (row) => router.push(`/automation/workflows/editor?id=${row.id}`) },

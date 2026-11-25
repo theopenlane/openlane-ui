@@ -6,7 +6,7 @@ import { Button } from '@repo/ui/button'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useGetGroupNames } from '@/lib/graphql-hooks/group'
 import { useIdentityHolderOptions } from '@/lib/graphql-hooks/identity-holder'
-import { resolveAuthor } from '@/lib/authors'
+import { type AuthorSource, resolveAuthor } from '@/lib/authors'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import AssociationTimeline from '@/components/pages/protected/exposure/overview/association-timeline'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
@@ -53,8 +53,8 @@ const ExposureHistoryTab = <TOp extends string>({ entity, title, objectType, upd
   const personnelNames = useMemo(() => new Map(personnel.map((person) => [person.id, person.fullName || person.email || person.id])), [personnel])
 
   const timeline = useMemo(() => {
-    const authorName = (id: string | null | undefined) => {
-      const author = resolveAuthor(id, authorMaps)
+    const authorName = (id: string | null | undefined, source?: AuthorSource) => {
+      const author = resolveAuthor(id, authorMaps, source)
       return author.kind === 'unknown' || author.kind === 'unresolved' ? null : author.displayName
     }
     const ownershipChanges = buildOwnershipChanges(histories, updateOperation, (kind, id) => {

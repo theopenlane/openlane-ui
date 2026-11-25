@@ -13,7 +13,7 @@ import {
 import { CHANNELS_LIST_OPERATION, PICKER_SESSION_OPERATION, RESOURCE_SELECTION_OPERATION, TEST_MESSAGE_SEND_OPERATION, runIntegrationOperation, toChannelSelection } from '@/lib/integrations/flow'
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'
 import { isRecord } from '@/utils/type-guards'
-import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
+import { queryOptions, useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import { reportSSORequirementFromResponse } from '@/lib/auth/utils/session-status'
 
@@ -44,31 +44,34 @@ type DisconnectResponse = {
   details?: unknown
 }
 
+export const integrationProvidersQueryOptions = queryOptions<IntegrationProvidersResponse>({
+  queryKey: ['integrationProviders'],
+  staleTime: Infinity,
+  queryFn: async () => {
+    const res = await fetch('/api/integrations/providers', {
+      method: 'GET',
+    })
+
+    if (!res.ok) {
+      await reportSSORequirementFromResponse(res)
+
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error ?? 'Failed to fetch integration providers')
+    }
+
+    const raw: RawProvidersResponse = await res.json()
+
+    return {
+      success: raw.success,
+      providers: (raw.providers ?? []).map(normalizeDefinition),
+    }
+  },
+})
+
 export const useIntegrationProviders = () => {
   const { errorNotification } = useNotification()
 
-  const resp = useQuery<IntegrationProvidersResponse>({
-    queryKey: ['integrationProviders'],
-    queryFn: async () => {
-      const res = await fetch('/api/integrations/providers', {
-        method: 'GET',
-      })
-
-      if (!res.ok) {
-        await reportSSORequirementFromResponse(res)
-
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.error ?? 'Failed to fetch integration providers')
-      }
-
-      const raw: RawProvidersResponse = await res.json()
-
-      return {
-        success: raw.success,
-        providers: (raw.providers ?? []).map(normalizeDefinition),
-      }
-    },
-  })
+  const resp = useQuery(integrationProvidersQueryOptions)
 
   useEffect(() => {
     if (resp.isError) {

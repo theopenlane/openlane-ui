@@ -14,7 +14,7 @@ const renderRichTextCell = (value: string, convertToReadOnly?: ColumnOptions['co
   return value.includes('slate') ? convertToReadOnly?.(value) || value : <TruncatedCell>{value}</TruncatedCell>
 }
 
-export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<SystemDetailsNodeNonNull>[] => {
+export const getColumns = ({ authorMaps, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<SystemDetailsNodeNonNull>[] => {
   return [
     createSelectColumn<SystemDetailsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
@@ -65,14 +65,14 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} {...authorMaps} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" /> },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} {...authorMaps} />,
     },
   ]
 }

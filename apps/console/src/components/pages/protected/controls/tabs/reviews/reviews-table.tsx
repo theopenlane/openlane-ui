@@ -65,10 +65,10 @@ const ReviewsTable: React.FC<ReviewsTableProps> = ({ controlId, subcontrolIds })
 
   const memberIds = useMemo(() => [...new Set(reviewsNodes.flatMap((r) => [r.createdBy, r.updatedBy]).filter((id): id is string => typeof id === 'string' && id.length > 0))], [reviewsNodes])
 
-  const { userMap, tokenMap } = useAuthorMaps(memberIds)
+  const { userMap, authorMaps } = useAuthorMaps(memberIds)
 
   const columns = useMemo<ColumnDef<ReviewsNodeNonNull>[]>(() => {
-    const allCols = getColumns({ userMap, tokenMap, selectedItems: [], setSelectedItems: () => {} })
+    const allCols = getColumns({ userMap, authorMaps, selectedItems: [], setSelectedItems: () => {} })
     return allCols
       .filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
       .sort((a, b) => {
@@ -91,7 +91,7 @@ const ReviewsTable: React.FC<ReviewsTableProps> = ({ controlId, subcontrolIds })
         }
         return col
       })
-  }, [userMap, tokenMap, replace])
+  }, [userMap, authorMaps, replace])
 
   const paginationMeta = useMemo(
     () => ({

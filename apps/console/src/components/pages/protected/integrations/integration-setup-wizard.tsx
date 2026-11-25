@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { type IntegrationProvider } from '@/lib/integrations/types'
 import { GuideStepGroups, type GuideLiveValues, getProviderSetupGuide } from '@/lib/integrations/setup-guide-content'
 import { SchemaField, type FieldEntry, type FormValues, type SchemaSection, buildFieldEntries, getResolvedSchemaFields } from './schema-form'
-import ProviderIcon from './provider-icon'
+import ProviderIcon from '@/components/shared/provider-icon/provider-icon'
 
 type WizardStep = {
   prefix: string

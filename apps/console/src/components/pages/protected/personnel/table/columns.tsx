@@ -14,7 +14,7 @@ import { ResponsibilityCell } from '@/components/shared/crud-base/columns/respon
 import { formatPhoneNumber } from '@/utils/strings'
 import { EmailAliasesCell } from './email-aliases-cell'
 
-export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<IdentityHoldersNodeNonNull>[] => {
+export const getColumns = ({ userMap, authorMaps, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<IdentityHoldersNodeNonNull>[] => {
   return [
     createSelectColumn<IdentityHoldersNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
@@ -78,14 +78,14 @@ export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems 
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} source={row.original} {...authorMaps} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} source={row.original} {...authorMaps} />,
     },
   ]
 }

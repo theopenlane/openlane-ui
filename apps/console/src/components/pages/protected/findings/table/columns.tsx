@@ -1,6 +1,6 @@
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
-import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { DATE_COLUMN_SIZE, DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { SlaDueDateCell } from '@/components/shared/crud-base/columns/sla-due-date-cell'
@@ -25,7 +25,7 @@ type FindingColumnOptions = ColumnOptions & {
 
 export const getColumns = ({
   userMap,
-  tokenMap,
+  authorMaps,
   convertToReadOnly,
   selectedItems,
   setSelectedItems,
@@ -83,27 +83,27 @@ export const getColumns = ({
     {
       id: 'dueDate',
       header: 'Due Date',
-      size: 130,
+      size: DATE_COLUMN_SIZE,
       cell: ({ row }) => <SlaDueDateCell item={row.original} slaDaysByLevel={slaDaysByLevel ?? {}} />,
     },
     { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
-    { accessorKey: 'reportedAt', header: 'Reported At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
-    { accessorKey: 'eventTime', header: 'Event Time', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
-    { accessorKey: 'sourceUpdatedAt', header: 'Source Updated At', size: 140, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
-    { accessorKey: 'createdAt', header: 'Created At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
+    { accessorKey: 'reportedAt', header: 'Reported At', size: DATE_COLUMN_SIZE, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
+    { accessorKey: 'eventTime', header: 'Event Time', size: DATE_COLUMN_SIZE, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
+    { accessorKey: 'sourceUpdatedAt', header: 'Source Updated At', size: DATE_COLUMN_SIZE, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
+    { accessorKey: 'createdAt', header: 'Created At', size: DATE_COLUMN_SIZE, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     {
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} source={row.original} {...authorMaps} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" /> },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} source={row.original} {...authorMaps} />,
     },
     {
       accessorKey: 'categories',

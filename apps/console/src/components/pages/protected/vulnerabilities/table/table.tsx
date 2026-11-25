@@ -107,7 +107,7 @@ const TableComponent = ({
 
   useQueryErrorNotification({ error: queryError, description: `Failed to load ${objectName.toLowerCase()}` })
 
-  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
+  const { userMap, authorMaps, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
   const handleTrackRemediation = (row: VulnerabilitiesNodeNonNull) => {
     setTrackRemediationRow(row)
@@ -146,7 +146,7 @@ const TableComponent = ({
     () =>
       getColumns({
         userMap,
-        tokenMap,
+        authorMaps,
         convertToReadOnly,
         selectedItems,
         setSelectedItems,
@@ -156,7 +156,7 @@ const TableComponent = ({
         onDismiss: canEditVulnerability ? handleDismiss : undefined,
         slaDaysByLevel,
       }),
-    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, canCreateRemediation, canEditVulnerability, handleOpenRemediation, slaDaysByLevel],
+    [userMap, authorMaps, convertToReadOnly, selectedItems, setSelectedItems, canCreateRemediation, canEditVulnerability, handleOpenRemediation, slaDaysByLevel],
   )
 
   const createTaskInitialValues = useMemo(

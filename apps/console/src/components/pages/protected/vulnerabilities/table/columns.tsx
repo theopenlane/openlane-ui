@@ -6,7 +6,7 @@ import { createSelectColumn } from '@/components/shared/crud-base/columns/select
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
-import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { DATE_COLUMN_SIZE, DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
@@ -28,7 +28,7 @@ type VulnColumnOptions = ColumnOptions & {
 
 export const getColumns = ({
   userMap,
-  tokenMap,
+  authorMaps,
   convertToReadOnly,
   selectedItems,
   setSelectedItems,
@@ -87,7 +87,7 @@ export const getColumns = ({
     {
       id: 'dueDate',
       header: 'Due Date',
-      size: 130,
+      size: DATE_COLUMN_SIZE,
       cell: ({ row }) => <SlaDueDateCell item={row.original} slaDaysByLevel={slaDaysByLevel ?? {}} />,
     },
     { accessorKey: 'open', header: 'Open', size: 80, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
@@ -97,7 +97,7 @@ export const getColumns = ({
       size: 170,
       cell: ({ cell }) => getDismissReasonLabel(cell.getValue() as string | null | undefined),
     },
-    { accessorKey: 'dismissedAt', header: 'Dismissed At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string | null | undefined} /> },
+    { accessorKey: 'dismissedAt', header: 'Dismissed At', size: DATE_COLUMN_SIZE, cell: ({ cell }) => <DateCell value={cell.getValue() as string | null | undefined} /> },
     { accessorKey: 'blocking', header: 'Blocking', size: 90, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'production', header: 'Production', size: 100, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'validated', header: 'Validated', size: 100, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
@@ -136,22 +136,22 @@ export const getColumns = ({
     { accessorKey: 'externalURI', header: 'External URI', size: 160 },
     { accessorKey: 'summary', header: 'Summary', size: 200, cell: ({ row }) => <TruncatedCell>{row.original.summary || '-'}</TruncatedCell> },
     { accessorKey: 'description', header: 'Description', size: 200, minSize: 150, cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string) || '' },
-    { accessorKey: 'discoveredAt', header: 'Discovered At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
-    { accessorKey: 'publishedAt', header: 'Published At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
-    { accessorKey: 'sourceUpdatedAt', header: 'Source Updated At', size: 140, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
-    { accessorKey: 'createdAt', header: 'Created At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
+    { accessorKey: 'discoveredAt', header: 'Discovered At', size: DATE_COLUMN_SIZE, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
+    { accessorKey: 'publishedAt', header: 'Published At', size: DATE_COLUMN_SIZE, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
+    { accessorKey: 'sourceUpdatedAt', header: 'Source Updated At', size: DATE_COLUMN_SIZE, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
+    { accessorKey: 'createdAt', header: 'Created At', size: DATE_COLUMN_SIZE, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     {
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} source={row.original} {...authorMaps} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" /> },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} source={row.original} {...authorMaps} />,
     },
     {
       accessorKey: 'tags',

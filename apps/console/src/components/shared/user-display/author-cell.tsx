@@ -5,7 +5,8 @@ import { KeyRound } from 'lucide-react'
 import { Logo } from '@repo/ui/logo'
 import { cn } from '@repo/ui/lib/utils'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { type AuthorMaps, type ResolvedAuthor, resolveAuthor } from '@/lib/authors'
+import ProviderIcon from '@/components/shared/provider-icon/provider-icon'
+import { type AuthorMaps, type AuthorSource, type ResolvedAuthor, resolveAuthor } from '@/lib/authors'
 
 type AuthorDisplayProps = {
   author: ResolvedAuthor
@@ -24,7 +25,11 @@ export const AuthorDisplay: React.FC<AuthorDisplayProps> = ({ author, showAvatar
         return (
           showAvatar && (
             <span className={cn('flex h-6 w-6 shrink-0 items-center justify-center rounded-full border bg-card', avatarClassName)}>
-              <Logo asIcon width={14} />
+              {author.kind === 'integration' && author.provider ? (
+                <ProviderIcon providerName={author.provider.displayName} logoUrl={author.provider.logoUrl} alt="" className="h-3.5 w-3.5 object-contain" />
+              ) : (
+                <Logo asIcon width={14} />
+              )}
             </span>
           )
         )
@@ -60,13 +65,14 @@ export const AuthorDisplay: React.FC<AuthorDisplayProps> = ({ author, showAvatar
 
 type AuthorCellProps = AuthorMaps & {
   id?: string | null
+  source?: AuthorSource
   showAvatar?: boolean
   className?: string
   avatarClassName?: string
   emptyLabel?: string
 }
 
-export const AuthorCell: React.FC<AuthorCellProps> = ({ id, showAvatar, className, avatarClassName, emptyLabel, ...authorMaps }) => {
+export const AuthorCell: React.FC<AuthorCellProps> = ({ id, source, showAvatar, className, avatarClassName, emptyLabel, ...authorMaps }) => {
   if (!id && emptyLabel !== undefined) return <span className={cn('text-muted-foreground', className)}>{emptyLabel}</span>
-  return <AuthorDisplay author={resolveAuthor(id, authorMaps)} showAvatar={showAvatar} className={className} avatarClassName={avatarClassName} />
+  return <AuthorDisplay author={resolveAuthor(id, authorMaps, source)} showAvatar={showAvatar} className={className} avatarClassName={avatarClassName} />
 }

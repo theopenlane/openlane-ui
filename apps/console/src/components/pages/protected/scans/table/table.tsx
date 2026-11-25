@@ -71,9 +71,9 @@ const TableComponent = ({
 
   useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 
-  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
+  const { userMap, authorMaps, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
-  const columns = useMemo(() => getColumns({ userMap, tokenMap, selectedItems, setSelectedItems }), [userMap, tokenMap, selectedItems, setSelectedItems])
+  const columns = useMemo(() => getColumns({ userMap, authorMaps, selectedItems, setSelectedItems }), [userMap, authorMaps, selectedItems, setSelectedItems])
 
   return (
     <DataTable<ScansNodeNonNull>

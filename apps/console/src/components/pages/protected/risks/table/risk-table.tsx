@@ -104,13 +104,13 @@ const RiskTable: React.FC = () => {
     return Array.from(ids)
   }, [risks])
 
-  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
+  const { authorMaps, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
   const isEditAllowed = canEdit(permission?.roles, session)
 
   const { columns, mappedColumns } = useMemo(
-    () => getRiskColumns({ userMap, tokenMap, convertToReadOnly, selectedRisks, setSelectedRisks, isEditAllowed }),
-    [userMap, tokenMap, convertToReadOnly, selectedRisks, isEditAllowed],
+    () => getRiskColumns({ authorMaps, convertToReadOnly, selectedRisks, setSelectedRisks, isEditAllowed }),
+    [authorMaps, convertToReadOnly, selectedRisks, isEditAllowed],
   )
 
   const effectiveColumnVisibility = useSelectColumnVisibility(columnVisibility, isEditAllowed)

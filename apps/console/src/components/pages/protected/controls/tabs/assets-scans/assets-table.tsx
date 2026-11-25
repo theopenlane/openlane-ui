@@ -73,10 +73,10 @@ const AssetsTable: React.FC<AssetsTableProps> = ({ controlId }) => {
     [assetsNodes],
   )
 
-  const { userMap, tokenMap } = useAuthorMaps(memberIds)
+  const { userMap, authorMaps } = useAuthorMaps(memberIds)
 
   const columns = useMemo<ColumnDef<AssetsNodeNonNull>[]>(() => {
-    const allCols = getColumns({ userMap, tokenMap, selectedItems: [], setSelectedItems: () => {} })
+    const allCols = getColumns({ userMap, authorMaps, selectedItems: [], setSelectedItems: () => {} })
     return allCols
       .filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
       .map((col) => {
@@ -92,7 +92,7 @@ const AssetsTable: React.FC<AssetsTableProps> = ({ controlId }) => {
         }
         return col
       })
-  }, [userMap, tokenMap, replace])
+  }, [userMap, authorMaps, replace])
 
   const paginationMeta = useMemo(
     () => ({

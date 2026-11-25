@@ -12,7 +12,7 @@ type TPropertiesCardProps = {
 }
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
-  const { userMap, tokenMap } = useAuthorMaps([policy?.createdBy, policy?.updatedBy])
+  const { authorMaps } = useAuthorMaps([policy?.createdBy, policy?.updatedBy])
 
   return (
     <div className="flex flex-col gap-4 pb-4">
@@ -25,7 +25,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
 
         <div className="w-full">
           <div className="flex gap-2 cursor-not-allowed text-sm">
-            <AuthorCell id={policy?.createdBy} userMap={userMap} tokenMap={tokenMap} />
+            <AuthorCell id={policy?.createdBy} source={policy} {...authorMaps} />
           </div>
         </div>
       </div>
@@ -53,7 +53,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
 
         <div className="w-full">
           <div className="flex gap-2 cursor-not-allowed text-sm">
-            <AuthorCell id={policy?.updatedBy} userMap={userMap} tokenMap={tokenMap} />
+            <AuthorCell id={policy?.updatedBy} source={policy} {...authorMaps} />
           </div>
         </div>
       </div>

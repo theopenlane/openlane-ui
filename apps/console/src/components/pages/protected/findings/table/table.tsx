@@ -92,7 +92,7 @@ const TableComponent = ({
 
   useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 
-  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
+  const { userMap, authorMaps, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
   const handleTrackRemediation = (row: FindingsNodeNonNull) => {
     setTrackRemediationRow(row)
@@ -116,7 +116,7 @@ const TableComponent = ({
     () =>
       getColumns({
         userMap,
-        tokenMap,
+        authorMaps,
         convertToReadOnly,
         selectedItems,
         setSelectedItems,
@@ -125,7 +125,7 @@ const TableComponent = ({
         onCreateTask: handleCreateTask,
         slaDaysByLevel,
       }),
-    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, handleOpenRemediation, canCreateRemediation, slaDaysByLevel],
+    [userMap, authorMaps, convertToReadOnly, selectedItems, setSelectedItems, handleOpenRemediation, canCreateRemediation, slaDaysByLevel],
   )
 
   const createTaskInitialValues = useMemo(() => (createTaskRow ? buildFindingTaskDefaults(getFindingTitle(createTaskRow), session?.user?.userId) : undefined), [createTaskRow, session?.user?.userId])

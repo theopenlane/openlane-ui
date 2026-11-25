@@ -610,6 +610,7 @@ export interface AssetsWithFilterQuery {
         cpe: string | null
         createdAt: any
         createdBy: string | null
+        sourceDefinitionID: string | null
         updatedAt: any
         updatedBy: string | null
         criticalityName: string | null
@@ -657,6 +658,7 @@ export interface AssetQuery {
     cpe: string | null
     createdAt: any
     createdBy: string | null
+    sourceDefinitionID: string | null
     updatedAt: any
     updatedBy: string | null
     criticalityName: string | null
@@ -4047,6 +4049,7 @@ export interface FindingsWithFilterQuery {
         categories: Array<string> | null
         createdAt: any
         createdBy: string | null
+        sourceDefinitionID: string | null
         description: string | null
         displayID: string
         displayName: string | null
@@ -4666,6 +4669,7 @@ export interface IdentityHoldersWithFilterQuery {
         emailAliases: Array<string> | null
         createdAt: any
         createdBy: string | null
+        sourceDefinitionID: string | null
         department: string | null
         displayID: string
         email: string
@@ -5542,6 +5546,7 @@ export interface GetInternalPoliciesListQuery {
         updatedBy: string | null
         createdAt: any
         createdBy: string | null
+        sourceDefinitionID: string | null
         summary: string | null
         managementMode: Types.InternalPolicyDocumentManagementMode | null
         approvalRequired: boolean | null
@@ -5751,6 +5756,7 @@ export interface GetInternalPoliciesDashboardQuery {
         updatedAt: any
         createdBy: string | null
         updatedBy: string | null
+        sourceDefinitionID: string | null
       } | null
     } | null> | null
   }
@@ -8385,6 +8391,7 @@ export type RiskTableFieldsFragment = {
   updatedBy: string | null
   createdAt: any
   createdBy: string | null
+  sourceDefinitionID: string | null
   nextReviewDueAt: string | null
   residualScore: number | null
   reviewFrequency: Types.RiskFrequency | null
@@ -8477,6 +8484,7 @@ export interface GetAllRisksQuery {
         updatedBy: string | null
         createdAt: any
         createdBy: string | null
+        sourceDefinitionID: string | null
         nextReviewDueAt: string | null
         residualScore: number | null
         reviewFrequency: Types.RiskFrequency | null
@@ -11383,6 +11391,7 @@ export interface VulnerabilitiesWithFilterQuery {
         category: string | null
         createdAt: any
         createdBy: string | null
+        sourceDefinitionID: string | null
         cveID: string | null
         description: string | null
         discoveredAt: string | null

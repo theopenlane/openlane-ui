@@ -41,7 +41,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
     return ids
   }, [policy.updatedBy, policy.createdBy, historyNodes])
 
-  const { userMap, tokenMap } = useAuthorMaps(authorIds)
+  const { authorMaps } = useAuthorMaps(authorIds)
 
   const groupIds = useMemo(() => {
     const ids = new Set<string>()
@@ -99,7 +99,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
     }
   }
 
-  const currentAuthor = resolveAuthor(policy.updatedBy, { userMap, tokenMap })
+  const currentAuthor = resolveAuthor(policy.updatedBy, authorMaps, policy)
   const isExternalReference = !canViewHistory
   const isIntegration = policy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION
   const handleView = isExternalReference ? undefined : (id: string) => setSelectedHistoryId(id)
@@ -123,7 +123,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
               id={node.id}
               revision={node.revision}
               occurredAt={node.historyTime}
-              author={resolveAuthor(node.createdBy ?? node.updatedBy, { userMap, tokenMap })}
+              author={resolveAuthor(node.createdBy ?? node.updatedBy, authorMaps)}
               onView={handleView}
               onRestore={handleRestoreClick}
             />

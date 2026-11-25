@@ -6,7 +6,7 @@ import { InfoSlideOut } from '@repo/ui/info-slide-out'
 import { Button } from '@repo/ui/button'
 import { type IntegrationProvider } from '@/lib/integrations/types'
 import { GuideStepGroups, type GuideLiveValues, getProviderSetupGuide } from '@/lib/integrations/setup-guide-content'
-import ProviderIcon from './provider-icon'
+import ProviderIcon from '@/components/shared/provider-icon/provider-icon'
 
 type IntegrationSetupGuideProps = {
   provider: IntegrationProvider
