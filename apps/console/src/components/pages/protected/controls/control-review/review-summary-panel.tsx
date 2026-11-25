@@ -3,6 +3,7 @@
 import React from 'react'
 import { Panel } from '@repo/ui/panel'
 import { type ReviewQuery } from '@repo/codegen/src/schema'
+import { CopyIconButton } from '@/components/shared/copy-icon-button/copy-icon-button'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import ReviewCommentList, { hasReviewComments } from '@/components/pages/protected/reviews/common/review-comment-list'
 
@@ -38,7 +39,14 @@ const ReviewSummaryPanel: React.FC<TReviewSummaryPanelProps> = ({ review }) => {
 
       <div className="flex flex-col gap-1">
         <span className="text-sm text-muted-foreground">External ID</span>
-        <span className="text-sm">{review?.externalID || EMPTY_VALUE}</span>
+        {review?.externalID ? (
+          <div className="flex items-center gap-2">
+            <span className="min-w-0 break-all text-sm">{review.externalID}</span>
+            <CopyIconButton value={review.externalID} label="external ID" />
+          </div>
+        ) : (
+          <span className="text-sm">{EMPTY_VALUE}</span>
+        )}
       </div>
     </Panel>
   )

@@ -1,6 +1,7 @@
 'use client'
 
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
+import { CopyIconButton } from '@/components/shared/copy-icon-button/copy-icon-button'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { DateField } from '@/components/shared/crud-base/form-fields/date-field'
@@ -101,7 +102,13 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="externalID" label="External ID" {...sharedFieldProps} />
+            <TextField
+              name="externalID"
+              label="External ID"
+              {...sharedFieldProps}
+              displaySuffixAlign="start"
+              displaySuffix={data?.externalID ? <CopyIconButton value={data.externalID} label="external ID" /> : undefined}
+            />
             <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">

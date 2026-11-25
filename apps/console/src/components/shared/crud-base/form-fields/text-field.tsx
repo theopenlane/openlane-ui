@@ -37,6 +37,7 @@ interface TextFieldProps<TUpdateInput> {
   labelClassName?: string
   multiline?: boolean
   displaySuffix?: React.ReactNode
+  displaySuffixAlign?: 'start' | 'end'
   formatDisplayValue?: (value: string) => React.ReactNode
   required?: boolean
   renderEditor?: (props: { field: ControllerRenderProps<FieldValues, string>; onBlur: () => void; autoFocus: boolean }) => React.ReactNode
@@ -64,6 +65,7 @@ export const TextField = <TUpdateInput,>({
   labelClassName,
   multiline = false,
   displaySuffix,
+  displaySuffixAlign = 'end',
   formatDisplayValue,
   required = false,
   renderEditor,
@@ -211,7 +213,7 @@ export const TextField = <TUpdateInput,>({
             </FormControl>
           ) : type !== 'number' && displaySuffix ? (
             <InlineEditDisplayWithActions
-              className={displayClassName}
+              className={cn(displayClassName, displaySuffixAlign === 'start' && 'justify-start')}
               valueClassName={cn(layout === 'horizontal' && 'text-right')}
               onActivate={isEditAllowed ? handleClick : undefined}
               actions={displaySuffix}
