@@ -73,7 +73,7 @@ export default function SystemNotificationTracker({ open, onOpenChange }: System
                   </div>
 
                   {counts.hasUnread && (
-                    <button onClick={markAllAsRead} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors">
+                    <button onClick={markAllAsRead} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-hyperlink transition-colors">
                       <CheckCheck className="w-3.5 h-3.5" />
                       Mark all as read
                     </button>
@@ -105,7 +105,7 @@ export default function SystemNotificationTracker({ open, onOpenChange }: System
                 </div>
 
                 <div className="border-t p-3 flex justify-center">
-                  <Link href={NOTIFICATIONS_PAGE_HREF} onClick={() => onOpenChange(false)} className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors">
+                  <Link href={NOTIFICATIONS_PAGE_HREF} onClick={() => onOpenChange(false)} className="text-xs font-medium text-muted-foreground hover:text-hyperlink transition-colors">
                     View All
                   </Link>
                 </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { Button } from '@repo/ui/button'
 import React, { useMemo } from 'react'
 import { ChevronDown, ClipboardList, Clock, CircuitBoard, Folder, Layers, Tag } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
@@ -131,9 +131,9 @@ const EvidenceAdditionalDetails: React.FC<TEvidenceAdditionalDetailsProps> = ({
                 {field.value !== null && (
                   <p>
                     Don&apos;t want to renew this evidence?{' '}
-                    <b className="text-sm cursor-pointer text-accent-secondary" {...activatable(() => field.onChange(null))}>
+                    <Button type="button" variant="link" className="font-normal underline" onClick={() => field.onChange(null)}>
                       Clear it
-                    </b>
+                    </Button>
                   </p>
                 )}
                 <FormMessage error={form.formState.errors.renewalDate} />
