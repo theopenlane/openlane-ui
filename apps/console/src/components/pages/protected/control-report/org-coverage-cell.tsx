@@ -4,7 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { type ControlControlStatus } from '@repo/codegen/src/schema'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { CONTROL_STATUS_STYLES } from '@/components/shared/enum-mapper/control-enum'
+import { getControlStatusStyle } from '@/components/shared/enum-mapper/control-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export type OrgCoverageData = {
@@ -30,7 +30,6 @@ const OrgCoverageCell: React.FC<Props> = ({ data }) => {
   const { approvedCount, activeCount, worstStatus, orgControlRefs } = data
   const pct = (approvedCount / activeCount) * 100
   const barClass = pct === 100 ? 'coverage-bar-complete' : pct > 0 ? 'coverage-bar-partial' : 'coverage-bar-empty'
-  const statusStyle = worstStatus ? CONTROL_STATUS_STYLES[worstStatus] : null
 
   return (
     <div className="flex flex-col gap-1 min-w-0">
@@ -38,34 +37,31 @@ const OrgCoverageCell: React.FC<Props> = ({ data }) => {
         <div className={`h-full rounded-full transition-all ${barClass}`} style={{ width: `${pct}%` }} />
       </div>
       <div className="flex items-center gap-2">
-        {statusStyle && (
+        {worstStatus && (
           <TooltipProvider delayDuration={300}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full shrink-0 cursor-default" style={{ backgroundColor: statusStyle.bg, color: statusStyle.color }}>
-                  {getEnumLabel(worstStatus ?? undefined)}
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full shrink-0 cursor-default" style={getControlStatusStyle(worstStatus)}>
+                  {getEnumLabel(worstStatus)}
                 </span>
               </TooltipTrigger>
               <TooltipContent side="top" collisionPadding={64} portal>
                 <div className="text-xs min-w-[160px] max-w-[240px] space-y-1.5">
                   <p className="font-semibold mb-1">Controls by status</p>
-                  {orgControlRefs.map((ref) => {
-                    const refStyle = ref.status ? CONTROL_STATUS_STYLES[ref.status] : null
-                    return (
-                      <div key={ref.id} className="flex items-center gap-2">
-                        {refStyle ? (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full shrink-0" style={{ backgroundColor: refStyle.bg, color: refStyle.color }}>
-                            {getEnumLabel(ref.status ?? undefined)}
-                          </span>
-                        ) : (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full shrink-0 bg-muted text-muted-foreground">—</span>
-                        )}
-                        <Link href={`/controls/${ref.id}`} className="hover:underline" target="_blank" rel="noopener noreferrer">
-                          {ref.refCode}
-                        </Link>
-                      </div>
-                    )
-                  })}
+                  {orgControlRefs.map((ref) => (
+                    <div key={ref.id} className="flex items-center gap-2">
+                      {ref.status ? (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full shrink-0" style={getControlStatusStyle(ref.status)}>
+                          {getEnumLabel(ref.status)}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full shrink-0 bg-muted text-muted-foreground">—</span>
+                      )}
+                      <Link href={`/controls/${ref.id}`} className="hover:underline" target="_blank" rel="noopener noreferrer">
+                        {ref.refCode}
+                      </Link>
+                    </div>
+                  ))}
                 </div>
               </TooltipContent>
             </Tooltip>
