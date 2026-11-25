@@ -4,6 +4,7 @@ import { Badge } from '@repo/ui/badge'
 import { formatDate } from '@/utils/date'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { pluralizeWithCount } from '@/utils/strings'
+import { vendorDirectoryGroupHref } from '@/lib/directory-memberships/group-memberships'
 import type { MembershipList as MembershipListData } from '@/lib/directory-memberships/group-memberships'
 
 const GRID = 'grid grid-cols-[minmax(0,1fr)_120px_140px_140px]'
@@ -38,7 +39,7 @@ export const MembershipList = ({ memberships }: { memberships: MembershipListDat
                 )}
               >
                 <div className={cn('px-3 py-1.5 truncate', removed && 'line-through')}>
-                  {vendor && groupId ? <Link href={`/registry/vendors/${vendor.id}?tab=directory&group=${groupId}`}>{groupName}</Link> : groupName}
+                  {vendor && groupId ? <Link href={vendorDirectoryGroupHref(vendor.id, groupId)}>{groupName}</Link> : groupName}
                 </div>
                 <div className="px-3 py-1.5">
                   <Badge variant="outline">{getEnumLabel(item.role)}</Badge>

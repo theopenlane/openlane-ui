@@ -196,7 +196,7 @@ export const GET_INTEGRATION_RUN_ASSETS = gql`
 
 export const GET_INTEGRATION_RUN_CHECK_RESULTS = gql`
   ${RUN_RECORD_PAGE_INFO}
-  query GetIntegrationRunCheckResults($integrationRunId: ID!, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+  query GetIntegrationRunCheckResults($integrationRunId: ID!, $first: Int, $after: Cursor, $last: Int, $before: Cursor, $withControls: Boolean = false) {
     integrationRuns(where: { id: $integrationRunId }, first: 1) {
       edges {
         node {
@@ -208,10 +208,18 @@ export const GET_INTEGRATION_RUN_CHECK_RESULTS = gql`
             edges {
               node {
                 id
-                source
+                details
                 status
-                sourceKey
                 updatedAt
+                controls @include(if: $withControls) {
+                  edges {
+                    node {
+                      id
+                      refCode
+                      referenceFramework
+                    }
+                  }
+                }
               }
             }
           }
@@ -250,7 +258,7 @@ export const GET_INTEGRATION_RUN_CONTACTS = gql`
 
 export const GET_INTEGRATION_RUN_DIRECTORY_ACCOUNTS = gql`
   ${RUN_RECORD_PAGE_INFO}
-  query GetIntegrationRunDirectoryAccounts($integrationRunId: ID!, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+  query GetIntegrationRunDirectoryAccounts($integrationRunId: ID!, $first: Int, $after: Cursor, $last: Int, $before: Cursor, $withPersonnel: Boolean = false) {
     integrationRuns(where: { id: $integrationRunId }, first: 1) {
       edges {
         node {
@@ -267,6 +275,9 @@ export const GET_INTEGRATION_RUN_DIRECTORY_ACCOUNTS = gql`
                 externalID
                 status
                 updatedAt
+                identityHolder @include(if: $withPersonnel) {
+                  id
+                }
               }
             }
           }
@@ -306,7 +317,7 @@ export const GET_INTEGRATION_RUN_DIRECTORY_GROUPS = gql`
 
 export const GET_INTEGRATION_RUN_DIRECTORY_MEMBERSHIPS = gql`
   ${RUN_RECORD_PAGE_INFO}
-  query GetIntegrationRunDirectoryMemberships($integrationRunId: ID!, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+  query GetIntegrationRunDirectoryMemberships($integrationRunId: ID!, $first: Int, $after: Cursor, $last: Int, $before: Cursor, $withPersonnel: Boolean = false) {
     integrationRuns(where: { id: $integrationRunId }, first: 1) {
       edges {
         node {
@@ -325,6 +336,9 @@ export const GET_INTEGRATION_RUN_DIRECTORY_MEMBERSHIPS = gql`
                   id
                   displayName
                   canonicalEmail
+                  identityHolder @include(if: $withPersonnel) {
+                    id
+                  }
                 }
                 directoryGroup {
                   id
