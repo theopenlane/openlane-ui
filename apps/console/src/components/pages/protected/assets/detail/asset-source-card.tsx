@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { CalendarClock, Layers, Plug, ScanLine } from 'lucide-react'
+import { CalendarClock, Fingerprint, Layers, Plug, ScanLine } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import CopyableText from '@/components/shared/copyable-text/copyable-text'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
@@ -14,7 +14,7 @@ import { integrationDefinitionHref } from '@/lib/integrations/run-health'
 import { useSourceIntegrationProvider } from '@/lib/query-hooks/integrations'
 import { formatDateTime } from '@/utils/date'
 import { type EnumOptions } from '../table/types'
-import { assetRowFieldProps, type TAssetSectionProps } from './asset-field-props'
+import { ASSET_ROW_LABEL_CLASS, assetRowFieldProps, type TAssetSectionProps } from './asset-field-props'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 
 const iconClass = 'h-4 w-4 text-muted-foreground'
@@ -46,32 +46,31 @@ const AssetSourceCard: React.FC<TAssetSourceCardProps> = ({ enumOpts, relationsh
           {...fieldProps}
         />
         {sourcePlatform && (
-          <ReadOnlyRow icon={<Layers className={iconClass} />} label="Source platform">
+          <ReadOnlyRow labelClassName={ASSET_ROW_LABEL_CLASS} icon={<Layers className={iconClass} />} label="Source platform">
             <Link href={getHrefForObjectType('platforms', { id: sourcePlatform.id })} prefetch={false}>
               {sourcePlatform.name}
             </Link>
           </ReadOnlyRow>
         )}
         {provider && (
-          <ReadOnlyRow icon={<Plug className={iconClass} />} label="Integration">
+          <ReadOnlyRow labelClassName={ASSET_ROW_LABEL_CLASS} icon={<Plug className={iconClass} />} label="Integration">
             <Link href={integrationDefinitionHref(provider.id)} prefetch={false}>
               {provider.displayName}
             </Link>
           </ReadOnlyRow>
         )}
         {asset.observedAt && (
-          <ReadOnlyRow icon={<CalendarClock className={iconClass} />} label="Last observed">
+          <ReadOnlyRow labelClassName={ASSET_ROW_LABEL_CLASS} icon={<CalendarClock className={iconClass} />} label="Last observed">
             {formatDateTime(asset.observedAt)}
           </ReadOnlyRow>
         )}
         {(isEditingIdentifier || !sourceIdentifier) && canEdit ? (
-          <TextField name="sourceIdentifier" label="Source identifier" {...fieldProps} layout="vertical" />
+          <TextField name="sourceIdentifier" label="Source identifier" icon={<Fingerprint className={iconClass} />} {...fieldProps} />
         ) : (
           sourceIdentifier && (
-            <div className="space-y-1">
-              <span className="text-base text-muted-foreground">Source identifier</span>
+            <ReadOnlyRow labelClassName={ASSET_ROW_LABEL_CLASS} icon={<Fingerprint className={iconClass} />} label="Source identifier">
               <CopyableText value={sourceIdentifier} variant="inline" className="max-w-full font-mono text-xs" aria-label="Copy source identifier" />
-            </div>
+            </ReadOnlyRow>
           )
         )}
       </div>

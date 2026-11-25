@@ -311,3 +311,16 @@ export const DELETE_PLATFORM = gql`
     }
   }
 `
+
+export const GET_PLATFORM_OPTIONS = gql`
+  query GetPlatformOptions($where: PlatformWhereInput, $first: Int) {
+    platforms(where: $where, first: $first) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+  }
+`

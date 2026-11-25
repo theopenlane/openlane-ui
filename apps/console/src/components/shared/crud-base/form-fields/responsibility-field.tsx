@@ -133,13 +133,13 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
     setOpen(false)
     setSearchText('')
 
+    if (!isEditing) {
+      setInternalEditing(null)
+    }
+
     if (!isEditing && !isCreate && handleUpdate) {
       const payload = buildResponsibilityInlineUpdate(fieldBaseName, selectionToUse, { allowPersonnel, stringFieldName })
       await handleUpdate(payload)
-    }
-
-    if (!isEditing) {
-      setInternalEditing(null)
     }
   }
 

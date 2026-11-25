@@ -1,6 +1,7 @@
 import { type Edge } from '@xyflow/react'
 import { type AssetRelationships } from '@/lib/graphql-hooks/asset-detail'
 import { getNodes } from '@/lib/graphql-hooks/connection'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { getAssetKindLabel, getAssetTitle, type AssetDetailNode } from '../../../asset-display'
 import { FLOW_COLUMN_WIDTH, FLOW_PADDING, FLOW_ROW_HEIGHT, flowEdge, flowNode, type TFlowNode } from './relationship-flow'
 
@@ -19,14 +20,14 @@ export const buildConnections = (asset: AssetDetailNode, relationships: AssetRel
         id: `${prefix}:${node.id}`,
         x,
         y: columnTop(assets.length) + index * FLOW_ROW_HEIGHT,
-        data: { title: getAssetTitle(node), subtitle: getAssetKindLabel(node), assetId: node.id },
+        data: { title: getAssetTitle(node), subtitle: getAssetKindLabel(node), assetType: node.assetType, sheet: { id: node.id, kind: ObjectAssociationNodeEnum.ASSET } },
       }),
     )
 
   return {
     nodes: [
       ...columnNodes(incoming, 'from', 0),
-      flowNode({ id: currentId, x: FLOW_COLUMN_WIDTH, y: columnTop(1), data: { title: getAssetTitle(asset), subtitle: getAssetKindLabel(asset), isOnPath: true } }),
+      flowNode({ id: currentId, x: FLOW_COLUMN_WIDTH, y: columnTop(1), data: { title: getAssetTitle(asset), subtitle: getAssetKindLabel(asset), assetType: asset.assetType, isOnPath: true } }),
       ...columnNodes(outgoing, 'to', FLOW_COLUMN_WIDTH * 2),
     ],
     edges: [

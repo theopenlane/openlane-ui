@@ -1,54 +1,66 @@
 'use client'
 
 import React from 'react'
-import { Building2, Laptop, Layers, Monitor } from 'lucide-react'
+import { type AssetAssetType } from '@repo/codegen/src/schema'
+import { Building2, Layers, Monitor } from 'lucide-react'
 import { SearchableItemSelect, type SearchableItem } from '@/components/shared/searchable-item-select/searchable-item-select'
-import { DEFAULT_PAGINATION, MAX_CONNECTION_RESULTS } from '@/constants/pagination'
 import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
-import { useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
-import { useVendorsWithFilter, vendorDisplayName, vendorSearchWhere } from '@/lib/graphql-hooks/entity'
-import { usePlatformsWithFilter } from '@/lib/graphql-hooks/platform'
-import { useSystemDetailsWithFilter } from '@/lib/graphql-hooks/system-detail'
+import { useAssetOptions } from '@/lib/graphql-hooks/asset'
+import { useVendorOptions, vendorEntitiesWhere, vendorSearchWhere } from '@/lib/graphql-hooks/entity'
+import { usePlatformOptions } from '@/lib/graphql-hooks/platform'
+import { useSystemDetailOptions } from '@/lib/graphql-hooks/system-detail'
 import { type TLinkPickerProps } from './link-records-dialog'
-import { getAssetTitle } from '../../../asset-display'
+import { AssetTypeIcon } from '@/components/shared/enum-mapper/asset-enum'
+import { getAssetKindLabel, getAssetTitle } from '../../../asset-display'
 
-const PICKER_PAGINATION = { ...DEFAULT_PAGINATION, pageSize: MAX_CONNECTION_RESULTS, query: { first: MAX_CONNECTION_RESULTS } }
-
-type TRecordPickerProps = TLinkPickerProps & {
-  items: SearchableItem[]
+type TRecordPickerProps<TItem extends SearchableItem> = Omit<TLinkPickerProps, 'knownItems'> & {
+  knownItems?: TItem[]
+  items: TItem[]
   isSearching: boolean
   isLoading: boolean
   onSearchTextChange: (value: string) => void
-  icon: React.ReactNode
+  icon: React.ReactNode | ((item: TItem) => React.ReactNode)
+  renderItemEnd?: (item: TItem) => React.ReactNode
   placeholder: string
   multiple?: boolean
 }
 
-const RecordPicker: React.FC<TRecordPickerProps> = ({ labelId, items, isSearching, isLoading, ...props }) => (
+type TAssetItem = SearchableItem & { assetType?: AssetAssetType; assetSubtypeName?: string | null }
+
+const RecordPicker = <TItem extends SearchableItem>({ labelId, items, isSearching, isLoading, ...props }: TRecordPickerProps<TItem>) => (
   <SearchableItemSelect aria-labelledby={labelId} items={isSearching ? [] : items} isLoading={isSearching || isLoading} {...props} />
 )
 
-export const AssetPicker: React.FC<TLinkPickerProps & { excludeId: string }> = ({ excludeId, ...props }) => {
+export const AssetPicker: React.FC<Omit<TLinkPickerProps, 'knownItems'> & { excludeId: string; knownItems: TAssetItem[] }> = ({ excludeId, ...props }) => {
   const { setSearchText, debouncedTerm, getIsSearching } = useAsyncCommandSearch()
-  const { assetsNodes, isPending, isFetching } = useAssetsWithFilter({
-    where: { idNEQ: excludeId, ...(debouncedTerm ? { or: [{ nameContainsFold: debouncedTerm }, { displayNameContainsFold: debouncedTerm }] } : {}) },
-    pagination: PICKER_PAGINATION,
+  const { options, isPending, isFetching } = useAssetOptions({
+    idNEQ: excludeId,
+    ...(debouncedTerm ? { or: [{ nameContainsFold: debouncedTerm }, { displayNameContainsFold: debouncedTerm }] } : {}),
   })
-  const items = assetsNodes.map((asset) => ({ id: asset.id, name: getAssetTitle(asset) }))
+  const items: TAssetItem[] = options.map(({ assetType, assetSubtypeName, ...asset }) => ({ id: asset.id, name: getAssetTitle(asset), assetType, assetSubtypeName }))
 
   return (
-    <RecordPicker {...props} items={items} isSearching={getIsSearching(isFetching)} isLoading={isPending} onSearchTextChange={setSearchText} icon={<Laptop size={14} />} placeholder="Search assets" />
+    <RecordPicker
+      {...props}
+      items={items}
+      isSearching={getIsSearching(isFetching)}
+      isLoading={isPending}
+      onSearchTextChange={setSearchText}
+      icon={({ assetType }: TAssetItem) => assetType && <AssetTypeIcon assetType={assetType} size={14} />}
+      renderItemEnd={(item: TAssetItem) => <span className="text-xs text-muted-foreground">{getAssetKindLabel(item)}</span>}
+      placeholder="Search assets"
+    />
   )
 }
 
 export const PlatformPicker: React.FC<TLinkPickerProps> = (props) => {
   const { setSearchText, debouncedTerm, getIsSearching } = useAsyncCommandSearch()
-  const { platformsNodes, isPending, isFetching } = usePlatformsWithFilter({ where: debouncedTerm ? { nameContainsFold: debouncedTerm } : undefined, pagination: PICKER_PAGINATION })
+  const { options, isPending, isFetching } = usePlatformOptions(debouncedTerm ? { nameContainsFold: debouncedTerm } : undefined)
 
   return (
     <RecordPicker
       {...props}
-      items={platformsNodes.map(({ id, name }) => ({ id, name }))}
+      items={options.map(({ id, name }) => ({ id, name }))}
       isSearching={getIsSearching(isFetching)}
       isLoading={isPending}
       onSearchTextChange={setSearchText}
@@ -60,12 +72,12 @@ export const PlatformPicker: React.FC<TLinkPickerProps> = (props) => {
 
 export const SystemPicker: React.FC<TLinkPickerProps> = (props) => {
   const { setSearchText, debouncedTerm, getIsSearching } = useAsyncCommandSearch()
-  const { systemDetailsNodes, isPending, isFetching } = useSystemDetailsWithFilter({ where: debouncedTerm ? { systemNameContainsFold: debouncedTerm } : undefined, pagination: PICKER_PAGINATION })
+  const { options, isPending, isFetching } = useSystemDetailOptions(debouncedTerm ? { systemNameContainsFold: debouncedTerm } : undefined)
 
   return (
     <RecordPicker
       {...props}
-      items={systemDetailsNodes.map(({ id, systemName }) => ({ id, name: systemName }))}
+      items={options.map(({ id, systemName }) => ({ id, name: systemName }))}
       isSearching={getIsSearching(isFetching)}
       isLoading={isPending}
       onSearchTextChange={setSearchText}
@@ -77,8 +89,8 @@ export const SystemPicker: React.FC<TLinkPickerProps> = (props) => {
 
 export const VendorPicker: React.FC<TLinkPickerProps & { disabledIds: string[] }> = ({ disabledIds, ...props }) => {
   const { setSearchText, debouncedTerm, getIsSearching } = useAsyncCommandSearch()
-  const { vendorNodes, isPending, isFetching } = useVendorsWithFilter({ where: vendorSearchWhere(debouncedTerm), pagination: PICKER_PAGINATION })
-  const items = vendorNodes.filter(({ id }) => !disabledIds.includes(id)).map((vendor) => ({ id: vendor.id, name: vendorDisplayName(vendor) }))
+  const { vendorOptions, isPending, isFetching } = useVendorOptions({ where: vendorEntitiesWhere(vendorSearchWhere(debouncedTerm)) })
+  const items = vendorOptions.filter(({ value }) => !disabledIds.includes(value)).map(({ value, label }) => ({ id: value, name: label }))
 
   return (
     <RecordPicker

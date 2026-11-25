@@ -14,10 +14,11 @@ export const responsibilityValue = (scope: Locator, label: string): Locator =>
     .locator('xpath=../following-sibling::*[1]')
 
 const openResponsibilityPicker = async (page: Page, scope: Locator, label: string): Promise<Locator> => {
-  await responsibilityValue(scope, label).click()
-
   const search = page.getByPlaceholder(SEARCH_PLACEHOLDER)
-  await expect(search).toBeVisible({ timeout: 15_000 })
+  await expect(async () => {
+    if (!(await search.isVisible())) await responsibilityValue(scope, label).click({ timeout: 5_000 })
+    await expect(search).toBeVisible({ timeout: 3_000 })
+  }).toPass({ timeout: 60_000 })
   return search
 }
 

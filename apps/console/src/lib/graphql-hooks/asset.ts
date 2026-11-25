@@ -23,6 +23,8 @@ import {
   type GetAssetAssociationsQuery,
   type GetAssetAssociationsQueryVariables,
   type UpdateAssetInput,
+  type GetAssetOptionsQuery,
+  type GetAssetOptionsQueryVariables,
 } from '@repo/codegen/src/schema'
 import { invalidateEdgeUpdateTargets } from '@/components/shared/object-association/object-association-config'
 import { invalidatePlatformPlacement } from '@/lib/graphql-hooks/platform'
@@ -30,6 +32,8 @@ import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
+import { MAX_CONNECTION_RESULTS } from '@/constants/pagination'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 import {
   GET_ALL_ASSETS,
   CREATE_ASSET,
@@ -41,6 +45,7 @@ import {
   BULK_EDIT_ASSET,
   BULK_DELETE_ASSET,
   GET_ASSET_ASSOCIATIONS,
+  GET_ASSET_OPTIONS,
 } from '@repo/codegen/query/asset'
 
 type GetAllAssetsArgs = {
@@ -197,4 +202,14 @@ export const useGetAssetAssociations = (assetId?: string) => {
     queryFn: async () => client.request<GetAssetAssociationsQuery, GetAssetAssociationsQueryVariables>(GET_ASSET_ASSOCIATIONS, { assetId: assetId as string, ...includes }),
     enabled: !!assetId && !isAccessLoading,
   })
+}
+
+export const useAssetOptions = (where?: GetAssetOptionsQueryVariables['where']) => {
+  const { client } = useGraphQLClient()
+  const queryResult = useQuery<GetAssetOptionsQuery, unknown>({
+    queryKey: ['assets', 'options', where],
+    queryFn: async () => client.request<GetAssetOptionsQuery, GetAssetOptionsQueryVariables>(GET_ASSET_OPTIONS, { where, first: MAX_CONNECTION_RESULTS }),
+  })
+
+  return { ...queryResult, options: useMemo(() => getNodes(queryResult.data?.assets), [queryResult.data]) }
 }

@@ -1,11 +1,11 @@
-import { Box, GitBranch, Globe, Laptop, Phone, Server, type LucideIcon } from 'lucide-react'
+import { Box, CircuitBoard, FolderGit2, Globe, Phone, Server, type LucideIcon } from 'lucide-react'
 import { AssetAssetType } from '@repo/codegen/src/schema'
 
 const ASSET_TYPE_ICONS: Record<AssetAssetType, LucideIcon> = {
-  [AssetAssetType.DEVICE]: Laptop,
+  [AssetAssetType.DEVICE]: Server,
   [AssetAssetType.DOMAIN]: Globe,
-  [AssetAssetType.REPOSITORY]: GitBranch,
-  [AssetAssetType.TECHNOLOGY]: Server,
+  [AssetAssetType.REPOSITORY]: FolderGit2,
+  [AssetAssetType.TECHNOLOGY]: CircuitBoard,
   [AssetAssetType.TELEPHONE]: Phone,
 }
 

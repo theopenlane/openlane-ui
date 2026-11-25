@@ -21,7 +21,6 @@ export type TExposureItem = {
   status: string | null
   source: string | null
   sourceDefinitionID: string | null
-  environmentName: string | null
   dueDate: Date | null
   createdAt: string | null
   createdBy: string | null
@@ -51,7 +50,6 @@ export const buildExposureItems = ({ vulnerabilities = [], findings = [], risks 
         status: node.vulnerabilityStatusName ?? null,
         source: node.source?.trim() || null,
         sourceDefinitionID: node.sourceDefinitionID ?? null,
-        environmentName: node.environmentName ?? null,
         dueDate: getSlaDueDate(node, slaDaysByLevel),
         createdAt: node.createdAt ?? null,
         createdBy: node.createdBy ?? null,
@@ -71,7 +69,6 @@ export const buildExposureItems = ({ vulnerabilities = [], findings = [], risks 
         status: node.findingStatusName ?? null,
         source: node.source?.trim() || null,
         sourceDefinitionID: node.sourceDefinitionID ?? null,
-        environmentName: node.environmentName ?? null,
         dueDate: getSlaDueDate(node, slaDaysByLevel),
         createdAt: node.createdAt ?? null,
         createdBy: node.createdBy ?? null,
@@ -88,7 +85,6 @@ export const buildExposureItems = ({ vulnerabilities = [], findings = [], risks 
       status: node.status ?? null,
       source: null,
       sourceDefinitionID: node.sourceDefinitionID ?? null,
-      environmentName: node.environmentName ?? null,
       dueDate: node.dueDate ? new Date(node.dueDate) : null,
       createdAt: node.createdAt ?? null,
       createdBy: node.createdBy ?? null,

@@ -50,16 +50,17 @@ const ExposureStatusCell = ({ item }: { item: TExposureItem }) => {
 }
 
 type TGetExposureColumnsArgs = {
+  showType: boolean
   onOpenSheet: (id: string, kind: ObjectAssociationNodeEnum) => void
   resolveSource: (definitionID: string | null, fallback: string | null) => string | null
 }
 
-export const getExposureColumns = ({ onOpenSheet, resolveSource }: TGetExposureColumnsArgs): ColumnDef<TExposureItem>[] => [
-  { accessorKey: 'kind', header: 'Type', size: 140, minSize: 90, cell: ({ row }) => <ExposureTypeCell kind={row.original.kind} /> },
+export const getExposureColumns = ({ showType, onOpenSheet, resolveSource }: TGetExposureColumnsArgs): ColumnDef<TExposureItem>[] => [
+  ...(showType ? [{ accessorKey: 'kind', header: 'Type', size: 140, minSize: 90, cell: ({ row }) => <ExposureTypeCell kind={row.original.kind} /> } satisfies ColumnDef<TExposureItem>] : []),
   {
     accessorKey: 'title',
-    header: 'ID / Title',
-    size: 180,
+    header: 'Name',
+    size: 220,
     minSize: 90,
     cell: ({ row }) => (
       <div className="min-w-0">
@@ -83,7 +84,6 @@ export const getExposureColumns = ({ onOpenSheet, resolveSource }: TGetExposureC
     minSize: 90,
     cell: ({ row }) => resolveSource(row.original.sourceDefinitionID, row.original.source) ?? <span className="text-muted-foreground">-</span>,
   },
-  { accessorKey: 'environmentName', header: 'Environment', size: 125, minSize: 90, cell: ({ row }) => <CustomEnumChipCell value={row.original.environmentName} field="environment" /> },
   {
     accessorKey: 'dueDate',
     header: 'Due',

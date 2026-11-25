@@ -129,9 +129,9 @@ const AssetDetail: React.FC<TAssetDetailProps> = ({ asset, title }) => {
       new Set<TReadinessAction>([
         'view-exposure',
         'view-vendor',
-        ...(canEditAsset ? (['edit'] as const) : []),
+        ...(canEditAsset ? (['set-owner', 'set-classification', 'set-environment-scope'] as const) : []),
         ...(canMapControl ? (['map-control'] as const) : []),
-        ...(canReview ? (['mark-reviewed', 'add-review'] as const) : []),
+        ...(canReview ? (['mark-reviewed'] as const) : []),
         ...(canUploadEvidence ? (['upload-evidence'] as const) : []),
       ]),
     [canEditAsset, canMapControl, canReview, canUploadEvidence],
@@ -144,8 +144,7 @@ const AssetDetail: React.FC<TAssetDetailProps> = ({ asset, title }) => {
   }
 
   const handleReadinessAction = (action: TReadinessAction) => {
-    if (action === 'edit') startEditing()
-    else if (action === 'view-exposure') tabs.onTabChange('exposure')
+    if (action === 'view-exposure') tabs.onTabChange('exposure')
     else if (action === 'view-vendor') tabs.onTabChange('vendor')
     else setDialog(action)
   }

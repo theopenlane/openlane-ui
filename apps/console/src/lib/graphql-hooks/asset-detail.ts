@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { subDays, subYears } from 'date-fns'
+import { subYears } from 'date-fns'
 import { type InfiniteData, useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import {
   AssetOrderField,
@@ -7,9 +7,6 @@ import {
   OrderDirection,
   ReviewOrderField,
   RiskRiskStatus,
-  ScanOrderField,
-  ScanScanStatus,
-  ScanScanType,
   type AssetWhereInput,
   type EvidenceWhereInput,
   type FindingWhereInput,
@@ -19,8 +16,6 @@ import {
   type GetAssetReadinessEvidenceQueryVariables,
   type GetAssetReadinessReviewsQuery,
   type GetAssetReadinessReviewsQueryVariables,
-  type GetAssetReadinessScansQuery,
-  type GetAssetReadinessScansQueryVariables,
   type GetAssetRelationshipsQuery,
   type GetAssetRelationshipsQueryVariables,
   type GetAssetRisksQuery,
@@ -44,7 +39,6 @@ import {
   GET_ASSET_FINDINGS,
   GET_ASSET_READINESS_EVIDENCE,
   GET_ASSET_READINESS_REVIEWS,
-  GET_ASSET_READINESS_SCANS,
   GET_ASSET_RELATIONSHIPS,
   GET_ASSET_RISKS,
   GET_ASSET_TOPOLOGY_PLATFORMS,
@@ -270,13 +264,10 @@ export const useVendorAssets = ({ where, pagination }: TUseVendorAssetsArgs) => 
 }
 
 const READINESS_REVIEW_ORDER = [{ field: ReviewOrderField.created_at, direction: OrderDirection.DESC }]
-const READINESS_SCAN_ORDER = [{ field: ScanOrderField.created_at, direction: OrderDirection.DESC }]
 export const READINESS_REVIEW_YEARS = 1
-export const READINESS_SCAN_DAYS = 90
 
 export const useAssetReadinessReviews = (assetId: string) => {
   const { client } = useGraphQLClient()
-  const linkedToAsset = [{ id: assetId }]
 
   return useModuleGatedQuery({
     objectType: ObjectTypes.REVIEW,
@@ -284,37 +275,8 @@ export const useAssetReadinessReviews = (assetId: string) => {
     queryFn: async () => {
       const reviewedAtGTE = subYears(new Date(), READINESS_REVIEW_YEARS).toISOString()
       return client.request<GetAssetReadinessReviewsQuery, GetAssetReadinessReviewsQueryVariables>(GET_ASSET_READINESS_REVIEWS, {
-        assetReviewWhere: { reviewedAtGTE, hasAssetsWith: linkedToAsset },
-        accessReviewWhere: {
-          reviewedAtGTE,
-          and: [
-            { or: [{ hasAssetsWith: linkedToAsset }, { hasEntitiesWith: [{ hasAssetsWith: linkedToAsset }] }] },
-            { or: [{ titleContainsFold: 'access review' }, { categoryContainsFold: 'access' }] },
-          ],
-        },
+        where: { reviewedAtGTE, hasAssetsWith: [{ id: assetId }] },
         orderBy: READINESS_REVIEW_ORDER,
-        first: READINESS_REVIEW_LIMIT,
-      })
-    },
-  })
-}
-
-export const useAssetReadinessScans = (assetId: string) => {
-  const { client } = useGraphQLClient()
-
-  return useModuleGatedQuery({
-    objectType: ObjectTypes.SCAN,
-    queryKey: ['scans', 'asset-readiness', assetId],
-    queryFn: async () => {
-      const cutoff = subDays(new Date(), READINESS_SCAN_DAYS).toISOString()
-      return client.request<GetAssetReadinessScansQuery, GetAssetReadinessScansQueryVariables>(GET_ASSET_READINESS_SCANS, {
-        where: {
-          hasAssetsWith: [{ id: assetId }],
-          status: ScanScanStatus.COMPLETED,
-          scanType: ScanScanType.VULNERABILITY,
-          or: [{ scanDateGTE: cutoff }, { scanDateIsNil: true, createdAtGTE: cutoff }],
-        },
-        orderBy: READINESS_SCAN_ORDER,
         first: READINESS_REVIEW_LIMIT,
       })
     },

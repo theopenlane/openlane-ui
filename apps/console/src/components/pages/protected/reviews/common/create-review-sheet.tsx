@@ -20,11 +20,10 @@ interface CreateReviewSheetProps {
   riskId?: string
   controlId?: string
   programId?: string
-  assetId?: string
   onClose: () => void
 }
 
-const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId, controlId, programId, assetId, onClose }) => {
+const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId, controlId, programId, onClose }) => {
   const { form } = useFormSchema()
   const plateEditorHelper = usePlateEditor()
   const stagedFilesRef = useRef<File[]>([])
@@ -81,7 +80,7 @@ const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId,
           entityIDs: mergeSeedId(entityIDs, entityId),
           riskIDs: mergeSeedId(riskIDs, riskId),
           taskIDs,
-          assetIDs: mergeSeedId(assetIDs, assetId),
+          assetIDs,
           programIDs: mergeSeedId(programIDs, programId),
         },
         true,

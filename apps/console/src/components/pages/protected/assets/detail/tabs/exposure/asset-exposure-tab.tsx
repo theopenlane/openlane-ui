@@ -38,7 +38,8 @@ const AssetExposureTab: React.FC<TAssetExposureTabProps> = ({ assetId, exposure,
   const filtered = useAssetExposure(assetId, filters)
   useQueryErrorNotification({ error: filtered.error, description: 'Failed to load exposure' })
 
-  const columns = useMemo(() => getExposureColumns({ onOpenSheet: openObjectSheet, resolveSource }), [openObjectSheet, resolveSource])
+  const showType = kindFilter === ALL_KINDS
+  const columns = useMemo(() => getExposureColumns({ showType, onOpenSheet: openObjectSheet, resolveSource }), [showType, openObjectSheet, resolveSource])
   const itemsFor = (kind: TExposureFilter) => (kind === ALL_KINDS ? filtered.items : filtered.items.filter((item) => item.kind === kind))
   const rows = itemsFor(kindFilter)
   const openCount = exposure.items.filter((item) => item.isOpen).length
@@ -98,7 +99,7 @@ const AssetExposureTab: React.FC<TAssetExposureTabProps> = ({ assetId, exposure,
           </label>
           <Input
             icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
-            placeholder="Search by ID or title"
+            placeholder="Search by name or ID"
             aria-label="Search exposure"
             value={searchText}
             onChange={(event) => setSearchText(event.currentTarget.value)}

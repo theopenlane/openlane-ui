@@ -6,17 +6,20 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ReviewReviewStatus } from '@repo/codegen/src/schema'
 import EvidenceCreateSheet from '@/components/pages/protected/evidence/evidence-create-sheet'
 import { type TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData'
-import CreateReviewSheet from '@/components/pages/protected/reviews/common/create-review-sheet'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetAssetAssociations } from '@/lib/graphql-hooks/asset'
 import { getNodes } from '@/lib/graphql-hooks/connection'
 import { useCreateReview } from '@/lib/graphql-hooks/review'
 import { isImpersonation } from '@/lib/authz/utils'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
+import { SUPPORT_DISPLAY_NAME, UNKNOWN_AUTHOR_LABEL } from '@/lib/authors'
+import { formatDate } from '@/utils/date'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { getAssetTitle, type AssetDetailNode } from '../asset-display'
 import { SetAssetAssociationDialog } from '../set-asset-association-dialog'
 import { type TAssetDialog } from './asset-quick-actions'
+import { isAssetFieldsDialog, SetAssetFieldsDialog } from './set-asset-fields-dialog'
 import { type TExposureItem } from './tabs/exposure/exposure-items'
 import { LinkExposureDialog } from './tabs/exposure/link-exposure-dialog'
 
@@ -32,6 +35,7 @@ type TAssetDialogsProps = {
 
 const AssetDialogs: React.FC<TAssetDialogsProps> = ({ asset, exposure, dialog, onClose }) => {
   const { data: session } = useSession()
+  const { data: userData } = useGetCurrentUser(session?.user?.userId)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createReview, isPending: isCreatingReview } = useCreateReview()
   const { data: associationsData } = useGetAssetAssociations(asset.id)
@@ -66,9 +70,23 @@ const AssetDialogs: React.FC<TAssetDialogsProps> = ({ asset, exposure, dialog, o
     if (isMarkingReviewedRef.current) return
     isMarkingReviewedRef.current = true
     const now = new Date().toISOString()
-    const reviewerID = isImpersonation(session) ? undefined : session?.user?.userId
+    const isSupport = isImpersonation(session)
+    const reviewerID = isSupport ? undefined : session?.user?.userId
+    const reviewerName = isSupport ? SUPPORT_DISPLAY_NAME : userData?.user?.displayName || session?.user?.email || UNKNOWN_AUTHOR_LABEL
     try {
-      await createReview({ input: { title: `Asset review: ${title}`, status: ReviewReviewStatus.COMPLETED, reviewedAt: now, reviewerID, assetIDs: [asset.id] } })
+      await createReview({
+        input: {
+          title: `Asset review: ${title}`,
+          category: 'Asset Review',
+          summary: `Asset reviewed by ${reviewerName} on ${formatDate(now)}`,
+          status: ReviewReviewStatus.COMPLETED,
+          reviewedAt: now,
+          reviewerID,
+          environmentName: asset.environmentName || undefined,
+          scopeName: asset.scopeName || undefined,
+          assetIDs: [asset.id],
+        },
+      })
       successNotification({ title: 'Asset marked as reviewed' })
       onClose()
     } catch (error) {
@@ -112,7 +130,7 @@ const AssetDialogs: React.FC<TAssetDialogsProps> = ({ asset, exposure, dialog, o
         }
         confirmationText="Mark Reviewed"
       />
-      {dialog === 'add-review' && <CreateReviewSheet assetId={asset.id} onClose={onClose} />}
+      {dialog && isAssetFieldsDialog(dialog) && <SetAssetFieldsDialog key={dialog} kind={dialog} asset={asset} onClose={onClose} />}
     </>
   )
 }

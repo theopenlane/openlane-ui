@@ -475,7 +475,6 @@ export const GET_ASSET_VULNERABILITIES = gql`
           vulnerabilityStatusName
           source
           sourceDefinitionID
-          environmentName
           remediationSLA
           discoveredAt
           createdAt
@@ -507,7 +506,6 @@ export const GET_ASSET_FINDINGS = gql`
           findingStatusName
           source
           sourceDefinitionID
-          environmentName
           remediationSLA
           reportedAt
           createdAt
@@ -534,7 +532,6 @@ export const GET_ASSET_RISKS = gql`
           impact
           status
           sourceDefinitionID
-          environmentName
           dueDate
           createdAt
           createdBy
@@ -571,6 +568,7 @@ export const GET_ASSET_VENDORS = gql`
             nextReviewAt
             hasSoc2
             soc2PeriodEnd
+            lastReviewedAt
             logoFile {
               base64
             }
@@ -615,40 +613,12 @@ export const GET_VENDOR_ASSETS = gql`
 `
 
 export const GET_ASSET_READINESS_REVIEWS = gql`
-  query GetAssetReadinessReviews($assetReviewWhere: ReviewWhereInput, $accessReviewWhere: ReviewWhereInput, $orderBy: [ReviewOrder!], $first: Int) {
-    assetReviews: reviews(where: $assetReviewWhere, orderBy: $orderBy, first: $first) {
+  query GetAssetReadinessReviews($where: ReviewWhereInput, $orderBy: [ReviewOrder!], $first: Int) {
+    reviews(where: $where, orderBy: $orderBy, first: $first) {
       edges {
         node {
           id
-          title
           reviewedAt
-          createdAt
-        }
-      }
-    }
-    accessReviews: reviews(where: $accessReviewWhere, orderBy: $orderBy, first: $first) {
-      edges {
-        node {
-          id
-          title
-          reviewedAt
-          createdAt
-        }
-      }
-    }
-  }
-`
-
-export const GET_ASSET_READINESS_SCANS = gql`
-  query GetAssetReadinessScans($where: ScanWhereInput, $orderBy: [ScanOrder!], $first: Int) {
-    scans(where: $where, orderBy: $orderBy, first: $first) {
-      edges {
-        node {
-          id
-          target
-          scanType
-          scanDate
-          createdAt
         }
       }
     }
@@ -704,6 +674,22 @@ export const GET_ASSET_READINESS_EVIDENCE = gql`
         node {
           id
           refCode
+        }
+      }
+    }
+  }
+`
+
+export const GET_ASSET_OPTIONS = gql`
+  query GetAssetOptions($where: AssetWhereInput, $first: Int) {
+    assets(where: $where, first: $first) {
+      edges {
+        node {
+          id
+          name
+          displayName
+          assetType
+          assetSubtypeName
         }
       }
     }

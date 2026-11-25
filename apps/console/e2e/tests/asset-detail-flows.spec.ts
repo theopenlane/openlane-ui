@@ -1,16 +1,22 @@
 import type { Page, Request } from '@playwright/test'
 
 import { test, expect, type AuthProfile } from '../fixtures/auth'
-import { createAsset, createRisk, createVendor, getOwnerApi, gqlData, type ApiSession } from '../utils/api'
+import { createAsset, createRisk, createVendor, getOwnerApi, gql, gqlData, type ApiSession } from '../utils/api'
 import { expectMutationOk, toast, waitForMutation } from '../utils/mutations'
 import { uniqueName } from '../utils/unique'
 
 type MutationInput = Record<string, unknown>
 
 let ownerApi: ApiSession
+const createdVendorIds: string[] = []
 
 test.beforeAll(async () => {
   ownerApi = await getOwnerApi()
+})
+
+test.afterAll(async () => {
+  if (createdVendorIds.length === 0) return
+  await gql(ownerApi, `mutation($ids: [ID!]!){ deleteBulkEntity(ids: $ids){ deletedIDs } }`, { ids: createdVendorIds })
 })
 
 const openAsset = async (page: Page, id: string, name: string, tab?: string): Promise<void> => {
@@ -24,7 +30,7 @@ const pickRecord = async (page: Page, dialogName: string, fieldLabel: string, re
     .getByRole('combobox', { name: fieldLabel, exact: true })
     .click({ position: { x: 4, y: 4 } })
   await page.getByPlaceholder('Search...').fill(recordName)
-  await page.getByRole('option', { name: recordName, exact: true }).click({ timeout: 30_000 })
+  await page.getByRole('option').filter({ hasText: recordName }).first().click({ timeout: 30_000 })
 }
 
 const saveDialog = async (page: Page, dialogName: string, operationName: string): Promise<MutationInput> => {
@@ -52,6 +58,8 @@ test('vendors can be linked, changed and unlinked, and the changed vendor stays 
     createVendor(ownerApi, secondName, secondName),
     createVendor(ownerApi, replacementName, replacementName),
   ])
+
+  createdVendorIds.push(firstId, secondId, replacementId)
 
   await openAsset(page, assetId, assetName, 'vendor')
   await expect(page.getByText('No vendor linked')).toBeVisible({ timeout: 30_000 })
@@ -187,10 +195,14 @@ for (const { profile, quickActions } of READ_ONLY_PROFILES) {
       await openAsset(page, assetId, assetName)
       const main = page.locator('main')
       await expect(main.getByText('Audit Readiness')).toBeVisible({ timeout: 30_000 })
-      await expect(main.getByText('No vulnerability scan in the last 90 days')).toBeVisible({ timeout: 30_000 })
+      await expect(main.getByText('Not reviewed in the last year')).toBeVisible({ timeout: 30_000 })
       await expect(main.getByRole('button', { name: 'Customize tabs' })).toBeVisible()
 
-      for (const action of quickActions) await expect(main.getByRole('button', { name: action, exact: true }).first()).toBeVisible({ timeout: 30_000 })
+      await expect(async () => {
+        await page.reload({ waitUntil: 'domcontentloaded' })
+        await expect(main.getByText('Audit Readiness')).toBeVisible({ timeout: 30_000 })
+        for (const action of quickActions) await expect(main.getByRole('button', { name: action, exact: true }).first()).toBeVisible({ timeout: 5_000 })
+      }).toPass({ timeout: 60_000 })
       for (const action of ['Upload Evidence', 'Map Control', 'Link Exposure', 'Mark Reviewed'].filter((name) => !quickActions.includes(name))) {
         await expect(main.getByRole('button', { name: action, exact: true })).toHaveCount(0)
       }

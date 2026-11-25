@@ -2,6 +2,8 @@ import { type UpdateAssetInput } from '@repo/codegen/src/schema'
 import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { type AssetDetailNode } from '../asset-display'
 
+export const ASSET_ROW_LABEL_CLASS = 'text-sm text-muted-foreground'
+
 export type TAssetSectionProps = {
   asset: AssetDetailNode
   isEditing: boolean
@@ -24,5 +26,5 @@ export const assetFieldProps = ({ asset, isEditing, canEdit, internalEditing, se
 export const assetRowFieldProps = (props: TAssetSectionProps) => ({
   ...assetFieldProps(props),
   layout: 'horizontal' as const,
-  labelClassName: 'text-muted-foreground',
+  labelClassName: ASSET_ROW_LABEL_CLASS,
 })

@@ -9,7 +9,7 @@ import { ReadOnlyRichText } from '@/components/pages/protected/exposure/detail/r
 import { ReadOnlyRow } from '@/components/pages/protected/exposure/detail/read-only-row'
 import DescriptionField from '../../../create/form/fields/description-field'
 import { type EnumCreateHandlers, type EnumOptions } from '../../../table/types'
-import { assetRowFieldProps, type TAssetSectionProps } from '../../asset-field-props'
+import { ASSET_ROW_LABEL_CLASS, assetRowFieldProps, type TAssetSectionProps } from '../../asset-field-props'
 import AuditReadinessCard from './audit-readiness-card'
 import { type TReadinessAction, type TReadinessCheck } from './readiness-checks'
 
@@ -50,7 +50,13 @@ const AssetOverviewTab: React.FC<TAssetOverviewTabProps> = ({ enumOpts, enumCrea
             <SelectField name="securityTierName" label="Security tier" options={enumOpts.securityTierOptions} onCreateOption={enumCreateHandlers.securityTierName} {...fieldProps} />
             <SelectField name="encryptionStatusName" label="Encryption status" options={enumOpts.encryptionStatusOptions} onCreateOption={enumCreateHandlers.encryptionStatusName} {...fieldProps} />
             <SelectField name="accessModelName" label="Access model" options={enumOpts.accessModelOptions} onCreateOption={enumCreateHandlers.accessModelName} {...fieldProps} />
-            {isEditing ? <CheckboxField name="containsPii" label="Contains PII" {...fieldProps} /> : <ReadOnlyRow label="Contains PII">{asset.containsPii ? 'Yes' : 'No'}</ReadOnlyRow>}
+            {isEditing ? (
+              <CheckboxField name="containsPii" label="Contains PII" {...fieldProps} />
+            ) : (
+              <ReadOnlyRow labelClassName={ASSET_ROW_LABEL_CLASS} label="Contains PII">
+                {asset.containsPii ? 'Yes' : 'No'}
+              </ReadOnlyRow>
+            )}
           </div>
         </Card>
         <Card className="rounded-xl p-4">

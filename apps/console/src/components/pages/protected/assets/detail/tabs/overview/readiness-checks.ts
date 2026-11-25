@@ -1,15 +1,15 @@
 import { addYears, subYears } from 'date-fns'
 import { type TAssetDialog } from '../../asset-quick-actions'
 import { type AssetDetailNode } from '../../../asset-display'
-import { READINESS_REVIEW_YEARS, READINESS_SCAN_DAYS, type AssetVendorNode } from '@/lib/graphql-hooks/asset-detail'
-import { type GetAssetReadinessEvidenceQuery, type GetAssetReadinessReviewsQuery, type GetAssetReadinessScansQuery } from '@repo/codegen/src/schema'
+import { READINESS_REVIEW_YEARS, type AssetVendorNode } from '@/lib/graphql-hooks/asset-detail'
+import { type GetAssetReadinessEvidenceQuery, type GetAssetReadinessReviewsQuery } from '@repo/codegen/src/schema'
 import { getNodes } from '@/lib/graphql-hooks/connection'
 import { vendorDisplayName } from '@/lib/graphql-hooks/entity'
 import { formatDate } from '@/utils/date'
 import { formatList, formatTruncatedList, pluralizeWithCount } from '@/utils/strings'
 import { isExposurePastDue, type TExposureItem } from '../exposure/exposure-items'
 
-export type TReadinessAction = Exclude<TAssetDialog, 'link-exposure'> | 'edit' | 'view-exposure' | 'view-vendor'
+export type TReadinessAction = Exclude<TAssetDialog, 'link-exposure'> | 'view-exposure' | 'view-vendor'
 
 export type TReadinessCheck = {
   key: string
@@ -28,7 +28,6 @@ type TReadinessSources = {
   exposure: TReadinessSource<TExposureItem[]>
   vendors: TReadinessSource<AssetVendorNode[]>
   reviews: TReadinessSource<GetAssetReadinessReviewsQuery>
-  scans: TReadinessSource<GetAssetReadinessScansQuery>
   evidence: TReadinessSource<GetAssetReadinessEvidenceQuery>
   now: Date
 }
@@ -43,8 +42,6 @@ const fromSource = <TData>(base: TReadinessCheckBase, source: TReadinessSource<T
   return [{ ...base, ...build(source.data) }]
 }
 
-const EDIT_ACTION = { type: 'edit', label: 'Edit' } as const
-
 const latestBy = <T>(items: T[], date: (item: T) => string | null | undefined): { item: T; at: Date } | null =>
   items.reduce<{ item: T; at: Date } | null>((latest, item) => {
     const value = date(item)
@@ -55,7 +52,7 @@ const latestBy = <T>(items: T[], date: (item: T) => string | null | undefined): 
 
 const format = (date: Date) => formatDate(date.toISOString())
 
-const missingFieldsCheck = (key: string, label: string, fields: { label: string; value: string | null | undefined }[]): TReadinessCheck => {
+const missingFieldsCheck = (key: string, label: string, action: TReadinessAction, fields: { label: string; value: string | null | undefined }[]): TReadinessCheck => {
   const missing = fields.filter(({ value }) => !value?.trim()).map((field) => field.label)
   return {
     key,
@@ -63,14 +60,14 @@ const missingFieldsCheck = (key: string, label: string, fields: { label: string;
     label,
     state: stateFor(missing.length === 0),
     detail: missing.length === 0 ? fields.map(({ value }) => value).join(', ') : `Missing ${formatList(missing, 'conjunction')}`,
-    action: missing.length === 0 ? undefined : EDIT_ACTION,
+    action: missing.length === 0 ? undefined : { type: action, label: 'Set' },
   }
 }
 
 const INVENTORY_VERIFIED: TReadinessCheckBase = { key: 'inventory-verified', group: 'inventory', label: 'Inventory verified' }
 
 const inventoryVerified = (asset: AssetDetailNode, reviews: GetAssetReadinessReviewsQuery | undefined, now: Date): Omit<TReadinessCheck, keyof TReadinessCheckBase> => {
-  const review = latestBy(getNodes(reviews?.assetReviews), (node) => node.reviewedAt)
+  const review = latestBy(getNodes(reviews?.reviews), (node) => node.reviewedAt)
   const observed = asset.observedAt ? new Date(asset.observedAt) : null
   const verifiedAt = review && (!observed || review.at > observed) ? review.at : observed
   const passed = !!verifiedAt && verifiedAt > subYears(now, READINESS_REVIEW_YEARS)
@@ -84,20 +81,6 @@ const inventoryVerified = (asset: AssetDetailNode, reviews: GetAssetReadinessRev
 const inventoryVerifiedChecks = (asset: AssetDetailNode, reviews: TReadinessSource<GetAssetReadinessReviewsQuery>, now: Date): TReadinessCheck[] => {
   if (asset.observedAt || reviews.data) return [{ ...INVENTORY_VERIFIED, ...inventoryVerified(asset, reviews.data, now) }]
   return fromSource(INVENTORY_VERIFIED, reviews, (data) => inventoryVerified(asset, data, now))
-}
-
-const accessReviewed = (reviews: GetAssetReadinessReviewsQuery): Omit<TReadinessCheck, keyof TReadinessCheckBase> => {
-  const review = latestBy(getNodes(reviews.accessReviews), (node) => node.reviewedAt)
-  return {
-    state: stateFor(!!review),
-    detail: review ? `${review.item.title} completed ${format(review.at)}` : 'No access review in the last year',
-    action: review ? undefined : { type: 'add-review', label: 'Add Review' },
-  }
-}
-
-const scanned = (scans: GetAssetReadinessScansQuery): Omit<TReadinessCheck, keyof TReadinessCheckBase> => {
-  const scan = latestBy(getNodes(scans.scans), (node) => node.scanDate ?? node.createdAt)
-  return { state: stateFor(!!scan), detail: scan ? `Last scan ${format(scan.at)}` : `No vulnerability scan in the last ${READINESS_SCAN_DAYS} days` }
 }
 
 const exposureWithinSla = (exposure: TExposureItem[]): Omit<TReadinessCheck, keyof TReadinessCheckBase> => {
@@ -134,42 +117,37 @@ const evidenceCurrent = (evidence: GetAssetReadinessEvidenceQuery): Omit<TReadin
 }
 
 const providerAssured = (vendors: AssetVendorNode[], now: Date): Omit<TReadinessCheck, keyof TReadinessCheckBase> => {
-  const problems = vendors.flatMap((vendor) => {
-    const name = vendorDisplayName(vendor)
-    if (!vendor.hasSoc2) return [`${name} has no SOC 2 on file`]
-    if (!vendor.soc2PeriodEnd) return [`${name} SOC 2 has no period end`]
-    const periodEnd = new Date(vendor.soc2PeriodEnd)
-    return addYears(periodEnd, 1) < now ? [`${name} SOC 2 period ended ${format(periodEnd)}`] : []
-  })
+  const reviewedSince = subYears(now, READINESS_REVIEW_YEARS)
+  const problems = vendors
+    .filter(({ hasSoc2, lastReviewedAt }) => !hasSoc2 && !(lastReviewedAt && new Date(lastReviewedAt) > reviewedSince))
+    .map((vendor) => `${vendorDisplayName(vendor)} has no SOC 2 on file or review in the last year`)
   return {
     state: stateFor(problems.length === 0),
-    detail: problems.length > 0 ? problems.join(' · ') : `${formatList(vendors.map(vendorDisplayName), 'conjunction')} SOC 2 current`,
+    detail: problems.length > 0 ? problems.join(' · ') : `${formatList(vendors.map(vendorDisplayName), 'conjunction')} assured by SOC 2 or a review in the last year`,
     action: problems.length > 0 ? { type: 'view-vendor', label: 'View Vendor' } : undefined,
   }
 }
 
-export const buildReadinessChecks = ({ asset, ownerLabel, exposure, vendors, reviews, scans, evidence, now }: TReadinessSources): TReadinessCheck[] => [
+export const buildReadinessChecks = ({ asset, ownerLabel, exposure, vendors, reviews, evidence, now }: TReadinessSources): TReadinessCheck[] => [
   {
     key: 'owner',
     group: 'inventory',
     label: 'Owner assigned',
     state: stateFor(!!ownerLabel),
     detail: ownerLabel ?? 'No owner',
-    action: ownerLabel ? undefined : EDIT_ACTION,
+    action: ownerLabel ? undefined : { type: 'set-owner', label: 'Set' },
   },
-  missingFieldsCheck('classified', 'Classified and protected', [
+  missingFieldsCheck('classified', 'Classified and protected', 'set-classification', [
     { label: 'data classification', value: asset.assetDataClassificationName },
     { label: 'security tier', value: asset.securityTierName },
     { label: 'encryption status', value: asset.encryptionStatusName },
     { label: 'access model', value: asset.accessModelName },
   ]),
-  missingFieldsCheck('environment-scope', 'Environment and scope set', [
+  missingFieldsCheck('environment-scope', 'Environment and scope set', 'set-environment-scope', [
     { label: 'environment', value: asset.environmentName },
     { label: 'scope', value: asset.scopeName },
   ]),
   ...inventoryVerifiedChecks(asset, reviews, now),
-  ...fromSource({ key: 'access-reviewed', group: 'operating', label: 'Access reviewed' }, reviews, accessReviewed),
-  ...fromSource({ key: 'scanning', group: 'operating', label: 'Vulnerability scanning' }, scans, scanned),
   ...fromSource({ key: 'exposure-sla', group: 'operating', label: 'Exposure within SLA' }, exposure, exposureWithinSla),
   ...fromSource({ key: 'evidence', group: 'operating', label: 'Evidence current' }, evidence, evidenceCurrent),
   ...(vendors.data?.length === 0 ? [] : fromSource({ key: 'provider-assurance', group: 'operating', label: 'Provider assurance' }, vendors, (data) => providerAssured(data, now))),

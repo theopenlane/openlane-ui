@@ -21,13 +21,15 @@ import { useSaveAssetConnections } from './use-save-asset-connections'
 import SystemDetailsCard from './system-details-card'
 import { buildTopology, TOPOLOGY_COLUMNS } from './topology-model'
 
+type TConnectedAsset = Pick<AssetDetailNode, 'id' | 'name' | 'displayName' | 'assetType' | 'assetSubtypeName'>
+
 type TAssetRelationshipsTabProps = {
   asset: AssetDetailNode
   canEdit: boolean
   handleUpdate: (input: UpdateAssetInput, options?: TPersistOptions) => Promise<void>
 }
 
-const toAssetItem = (asset: { id: string; name: string; displayName?: string | null }) => ({ id: asset.id, name: getAssetTitle(asset) })
+const toAssetItem = ({ assetType, assetSubtypeName, ...asset }: TConnectedAsset) => ({ id: asset.id, name: getAssetTitle(asset), assetType, assetSubtypeName })
 
 const AssetRelationshipsTab: React.FC<TAssetRelationshipsTabProps> = ({ asset, canEdit, handleUpdate }) => {
   const [isConnectionsView, setIsConnectionsView] = useState(false)

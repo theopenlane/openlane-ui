@@ -10,7 +10,9 @@ import { cn } from '@repo/ui/lib/utils'
 import { INTERACTIVE_NODE_STYLE, STATIC_FLOW_HANDLE_CLASS, STATIC_FLOW_PROPS } from '@/components/shared/static-flow/static-flow'
 import { Link } from '@/components/shared/link/link'
 import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
-import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { type ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { AssetTypeIcon } from '@/components/shared/enum-mapper/asset-enum'
+import { type AssetAssetType } from '@repo/codegen/src/schema'
 import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 import { pluralizeWithCount } from '@/utils/strings'
 
@@ -24,7 +26,8 @@ type TFlowNodeData = {
   title: string
   subtitle?: string
   href?: string
-  assetId?: string
+  sheet?: { id: string; kind: ObjectAssociationNodeEnum }
+  assetType?: AssetAssetType
   isCurrent?: boolean
   isOnPath?: boolean
   isOverflow?: boolean
@@ -36,10 +39,10 @@ export type TFlowNode = Node<TFlowNodeData, 'relationship'>
 
 const RelationshipNode = ({ data }: NodeProps<TFlowNode>) => {
   const openObjectSheet = useOpenObjectSheet()
-  const { title, subtitle, href, assetId, isCurrent, isOnPath, isOverflow, connectionCount, onShowConnections } = data
+  const { title, subtitle, href, sheet, assetType, isCurrent, isOnPath, isOverflow, connectionCount, onShowConnections } = data
 
-  const label = assetId ? (
-    <ObjectSheetLink id={assetId} kind={ObjectAssociationNodeEnum.ASSET} label={title} onOpenSheet={openObjectSheet} />
+  const label = sheet ? (
+    <ObjectSheetLink id={sheet.id} kind={sheet.kind} label={title} onOpenSheet={openObjectSheet} />
   ) : href ? (
     <Link href={href} prefetch={false}>
       {title}
@@ -60,8 +63,9 @@ const RelationshipNode = ({ data }: NodeProps<TFlowNode>) => {
           isOverflow && 'border-dashed bg-transparent',
         )}
       >
-        <div className="truncate text-sm font-medium" title={title}>
-          {label}
+        <div className="flex min-w-0 items-center gap-1.5 text-sm font-medium" title={title}>
+          {assetType && <AssetTypeIcon assetType={assetType} size={14} className="shrink-0 text-muted-foreground" />}
+          <span className="truncate">{label}</span>
         </div>
         {subtitle && <div className="truncate text-xs text-muted-foreground">{subtitle}</div>}
         {isCurrent && (

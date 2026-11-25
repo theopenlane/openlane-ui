@@ -19,14 +19,29 @@ import {
   type PlatformLinkedVendorFieldsFragment,
   type PlatformDiagramFileFieldsFragment,
   type UpdatePlatformInput,
+  type GetPlatformOptionsQuery,
+  type GetPlatformOptionsQueryVariables,
 } from '@repo/codegen/src/schema'
 
 import { type QueryKey } from '@tanstack/react-query'
 import { type RequestDocument } from 'graphql-request'
 import { type TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_PLATFORMS, CREATE_PLATFORM, UPDATE_PLATFORM, DELETE_PLATFORM, PLATFORM, PLATFORM_ASSETS, PLATFORM_VENDORS, PLATFORM_DIAGRAMS } from '@repo/codegen/query/platform'
+import { MAX_CONNECTION_RESULTS } from '@/constants/pagination'
+import {
+  GET_ALL_PLATFORMS,
+  CREATE_PLATFORM,
+  UPDATE_PLATFORM,
+  DELETE_PLATFORM,
+  PLATFORM,
+  PLATFORM_ASSETS,
+  PLATFORM_VENDORS,
+  PLATFORM_DIAGRAMS,
+  GET_PLATFORM_OPTIONS,
+} from '@repo/codegen/query/platform'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { getNodes } from './connection'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
 
 export const DIAGRAM_TYPES = ['architecture', 'data-flow', 'trust-boundary'] as const
 
@@ -209,4 +224,16 @@ export const useRemovePlatformDiagram = (platformId: string) => {
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: platformDiagramsKey(platformId) }),
   })
+}
+
+export const usePlatformOptions = (where?: GetPlatformOptionsQueryVariables['where']) => {
+  const hasPlatformAccess = useHasObjectType(ObjectTypes.PLATFORM)
+  const { client } = useGraphQLClient()
+  const queryResult = useQuery<GetPlatformOptionsQuery, unknown>({
+    queryKey: ['platforms', 'options', where],
+    queryFn: async () => client.request<GetPlatformOptionsQuery, GetPlatformOptionsQueryVariables>(GET_PLATFORM_OPTIONS, { where, first: MAX_CONNECTION_RESULTS }),
+    enabled: hasPlatformAccess,
+  })
+
+  return { ...queryResult, options: useMemo(() => getNodes(queryResult.data?.platforms), [queryResult.data]) }
 }

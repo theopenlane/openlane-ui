@@ -5,8 +5,9 @@ import { ClipboardCheck, Link2, Shield, Upload } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import QuickActionsBar, { type QuickActionItem } from '@/components/shared/crud-base/quick-actions/quick-actions-bar'
 import MenuItem from '@/components/shared/menu/menu-item'
+import { type TAssetFieldsDialog } from './set-asset-fields-dialog'
 
-export type TAssetDialog = 'upload-evidence' | 'map-control' | 'link-exposure' | 'mark-reviewed' | 'add-review'
+export type TAssetDialog = 'upload-evidence' | 'map-control' | 'link-exposure' | 'mark-reviewed' | TAssetFieldsDialog
 
 type TAssetQuickActionsProps = {
   canUploadEvidence: boolean

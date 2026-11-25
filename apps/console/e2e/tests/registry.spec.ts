@@ -54,6 +54,7 @@ test.describe('registry — vendor create wizard', () => {
     await dialog.getByRole('button', { name: /^create$/i }).click()
 
     await expect(dialog).toBeHidden({ timeout: 30_000 })
+    await page.getByPlaceholder(/^Search$/).fill(name)
     await expect(page.getByRole('cell').filter({ hasText: name }).first()).toBeVisible({ timeout: 15_000 })
   })
 
@@ -71,6 +72,7 @@ test.describe('registry — vendor create wizard', () => {
     await dialog.getByRole('button', { name: /^create$/i }).click()
     await expect(dialog).toBeHidden({ timeout: 30_000 })
 
+    await page.getByPlaceholder(/^Search$/).fill(name)
     await page.getByRole('cell').filter({ hasText: name }).first().click()
 
     await page.waitForURL(/\/registry\/vendors\/[^/]+(\?|$)/, { timeout: 15_000 })

@@ -72,11 +72,11 @@ export const bulkEditFieldSchema = z.object({
 
 export type AssetFormData = z.infer<typeof formSchema>
 
-const useFormSchema = () => {
+const useFormSchema = (defaultValues: Partial<AssetFormData> = {}) => {
   return {
     form: useForm<AssetFormData>({
       resolver: zodResolver(formSchema) as Resolver<AssetFormData>,
-      defaultValues: {},
+      defaultValues,
     }),
   }
 }

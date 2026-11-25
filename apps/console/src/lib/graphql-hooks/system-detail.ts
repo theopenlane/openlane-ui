@@ -1,4 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query'
+import { invalidatePlatformPlacement } from '@/lib/graphql-hooks/platform'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type SystemDetailsWithFilterQuery,
@@ -17,9 +19,13 @@ import {
   type UpdateBulkSystemDetailMutationVariables,
   type DeleteBulkSystemDetailMutation,
   type DeleteBulkSystemDetailMutationVariables,
+  type GetSystemDetailOptionsQuery,
+  type GetSystemDetailOptionsQueryVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
+import { MAX_CONNECTION_RESULTS } from '@/constants/pagination'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 import {
   GET_ALL_SYSTEM_DETAILS,
   CREATE_SYSTEM_DETAIL,
@@ -29,6 +35,7 @@ import {
   CREATE_CSV_BULK_SYSTEM_DETAIL,
   BULK_EDIT_SYSTEM_DETAIL,
   BULK_DELETE_SYSTEM_DETAIL,
+  GET_SYSTEM_DETAIL_OPTIONS,
 } from '@repo/codegen/query/system-detail'
 
 type GetAllSystemDetailsArgs = {
@@ -41,6 +48,11 @@ type GetAllSystemDetailsArgs = {
 export type SystemDetailsNode = NonNullable<NonNullable<NonNullable<SystemDetailsWithFilterQuery['systemDetails']>['edges']>[number]>['node']
 
 export type SystemDetailsNodeNonNull = NonNullable<SystemDetailsNode>
+
+const invalidateSystemDetails = (queryClient: QueryClient) => {
+  queryClient.invalidateQueries({ queryKey: ['systemDetails'] })
+  queryClient.invalidateQueries({ queryKey: ['assets'] })
+}
 
 export const useSystemDetailsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllSystemDetailsArgs) => {
   const { client } = useGraphQLClient()
@@ -76,8 +88,10 @@ export const useUpdateSystemDetail = () => {
   const queryClient = useQueryClient()
   return useMutation<UpdateSystemDetailMutation, unknown, UpdateSystemDetailMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_SYSTEM_DETAIL, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['systemDetails'] })
+    onSuccess: (_, { input }) => {
+      invalidateSystemDetails(queryClient)
+      const platformIds = [...(input.addPlatformIDs ?? []), ...(input.removePlatformIDs ?? [])]
+      if (platformIds.length > 0) invalidatePlatformPlacement(platformIds, queryClient)
     },
   })
 }
@@ -88,7 +102,7 @@ export const useDeleteSystemDetail = () => {
   return useMutation<DeleteSystemDetailMutation, unknown, DeleteSystemDetailMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_SYSTEM_DETAIL, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['systemDetails'] })
+      invalidateSystemDetails(queryClient)
     },
   })
 }
@@ -119,8 +133,10 @@ export const useBulkEditSystemDetail = () => {
   const { client, queryClient } = useGraphQLClient()
   return useMutation<UpdateBulkSystemDetailMutation, unknown, UpdateBulkSystemDetailMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_EDIT_SYSTEM_DETAIL, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['systemDetails'] })
+    onSuccess: (_, { input }) => {
+      invalidateSystemDetails(queryClient)
+      const platformIds = [...(input.addPlatformIDs ?? []), ...(input.removePlatformIDs ?? [])]
+      if (platformIds.length > 0) invalidatePlatformPlacement(platformIds, queryClient)
     },
   })
 }
@@ -130,7 +146,17 @@ export const useBulkDeleteSystemDetail = () => {
   return useMutation<DeleteBulkSystemDetailMutation, unknown, DeleteBulkSystemDetailMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_DELETE_SYSTEM_DETAIL, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['systemDetails'] })
+      invalidateSystemDetails(queryClient)
     },
   })
+}
+
+export const useSystemDetailOptions = (where?: GetSystemDetailOptionsQueryVariables['where']) => {
+  const { client } = useGraphQLClient()
+  const queryResult = useQuery<GetSystemDetailOptionsQuery, unknown>({
+    queryKey: ['systemDetails', 'options', where],
+    queryFn: async () => client.request<GetSystemDetailOptionsQuery, GetSystemDetailOptionsQueryVariables>(GET_SYSTEM_DETAIL_OPTIONS, { where, first: MAX_CONNECTION_RESULTS }),
+  })
+
+  return { ...queryResult, options: useMemo(() => getNodes(queryResult.data?.systemDetails), [queryResult.data]) }
 }

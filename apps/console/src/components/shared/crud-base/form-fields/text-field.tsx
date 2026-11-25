@@ -85,11 +85,11 @@ export const TextField = <TUpdateInput,>({
       return
     }
 
+    setInternalEditing(null)
+
     if (handleUpdate) {
       await persistField(name, newValue, (options) => handleUpdate({ [name]: newValue } as unknown as TUpdateInput, options))
     }
-
-    setInternalEditing(null)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -109,11 +109,11 @@ export const TextField = <TUpdateInput,>({
       return
     }
 
+    setInternalEditing(null)
+
     if (handleUpdate) {
       await persistField(name, newValue, (options) => handleUpdate({ [name]: newValue } as unknown as TUpdateInput, options))
     }
-
-    setInternalEditing(null)
   }
 
   const handleClick = () => {
@@ -143,7 +143,7 @@ export const TextField = <TUpdateInput,>({
     }
 
     if (type === 'currency') {
-      return formatCurrency(value)
+      return value ? formatCurrency(value) : notSet
     }
 
     if (type === 'link') {

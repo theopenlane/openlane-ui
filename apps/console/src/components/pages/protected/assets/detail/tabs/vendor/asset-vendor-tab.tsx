@@ -1,10 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import NextLink from 'next/link'
-import { ArrowRight, Link2, X } from 'lucide-react'
-import { Button, buttonStyles } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
+import { Link2, X } from 'lucide-react'
+import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
@@ -22,7 +20,9 @@ import { vendorDisplayName } from '@/lib/graphql-hooks/entity'
 import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import { formatDate } from '@/utils/date'
 import { formatList } from '@/utils/strings'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { DetailRow } from '../../detail-row'
+import { OpenObjectButton } from '../../open-object-button'
 import LinkRecordsDialog from '../relationships/link-records-dialog'
 import { VendorPicker } from '../relationships/relationship-pickers'
 import VendorAssetsTable from './vendor-assets-table'
@@ -115,17 +115,14 @@ const AssetVendorTab: React.FC<TAssetVendorTabProps> = ({ assetId, vendors, isPe
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <NextLink href={`/registry/vendors/${vendor.id}`} prefetch={false} className={cn(buttonStyles({ variant: 'secondary' }).base(), 'shrink-0')}>
-            Open vendor
-            <ArrowRight size={16} aria-hidden />
-          </NextLink>
+          <OpenObjectButton id={vendor.id} kind={ObjectAssociationNodeEnum.ENTITY} label="Open vendor" />
           {canEdit && (
             <>
               <Button type="button" variant="secondary" onClick={() => setDialog('change')}>
                 Change vendor
               </Button>
               {linkButton}
-              <Button type="button" variant="secondary" className="size-8 p-0" icon={<X size={16} />} descriptiveTooltipText="Unlink vendor" onClick={() => setDialog('unlink')} />
+              <Button type="button" variant="secondary" size="icon-sm" icon={<X size={16} />} descriptiveTooltipText="Unlink vendor" onClick={() => setDialog('unlink')} />
             </>
           )}
         </div>

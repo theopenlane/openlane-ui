@@ -8,12 +8,12 @@ import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Link } from '@/components/shared/link/link'
 import { ReadOnlyRow } from '@/components/pages/protected/exposure/detail/read-only-row'
-import Properties from '../create/form/fields/properties'
+import AssetTagsRow from './asset-tags-row'
 import { type EnumCreateHandlers, type EnumOptions } from '../table/types'
 import { type AssetRelationships } from '@/lib/graphql-hooks/asset-detail'
 import { getNodes } from '@/lib/graphql-hooks/connection'
 import { formatDate } from '@/utils/date'
-import { assetRowFieldProps, type TAssetSectionProps } from './asset-field-props'
+import { ASSET_ROW_LABEL_CLASS, assetRowFieldProps, type TAssetSectionProps } from './asset-field-props'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 
 const iconClass = 'h-4 w-4 text-muted-foreground'
@@ -35,7 +35,7 @@ const LinkList: React.FC<{ links: { id: string; label: string; href: string }[] 
 )
 
 const AssetPropertiesCard: React.FC<TAssetPropertiesCardProps> = ({ enumOpts, enumCreateHandlers, relationships, ...sectionProps }) => {
-  const { asset, isEditing, canEdit, internalEditing, setInternalEditing, handleUpdate } = sectionProps
+  const { asset } = sectionProps
   const fieldProps = assetRowFieldProps(sectionProps)
   const platforms = getNodes(relationships?.platforms)
   const systems = getNodes(relationships?.systemDetails)
@@ -63,28 +63,28 @@ const AssetPropertiesCard: React.FC<TAssetPropertiesCardProps> = ({ enumOpts, en
           {...fieldProps}
         />
         {platforms.length > 0 && (
-          <ReadOnlyRow icon={<Layers className={iconClass} />} label="Platform">
+          <ReadOnlyRow labelClassName={ASSET_ROW_LABEL_CLASS} icon={<Layers className={iconClass} />} label="Platform">
             <LinkList links={platforms.map(({ id, name }) => ({ id, label: name, href: getHrefForObjectType('platforms', { id }) }))} />
           </ReadOnlyRow>
         )}
         {systems.length > 0 && (
-          <ReadOnlyRow icon={<Monitor className={iconClass} />} label="System">
+          <ReadOnlyRow labelClassName={ASSET_ROW_LABEL_CLASS} icon={<Monitor className={iconClass} />} label="System">
             <LinkList links={systems.map(({ id, systemName }) => ({ id, label: systemName, href: getHrefForObjectType('systemDetails', { id }) }))} />
           </ReadOnlyRow>
         )}
         {!!asset.categories?.length && (
-          <ReadOnlyRow icon={<Tags className={iconClass} />} label="Categories">
+          <ReadOnlyRow labelClassName={ASSET_ROW_LABEL_CLASS} icon={<Tags className={iconClass} />} label="Categories">
             {asset.categories.join(', ')}
           </ReadOnlyRow>
         )}
         <TextField name="website" label="Website" type="link" icon={<Globe className={iconClass} />} {...fieldProps} />
-        <Properties isEditing={isEditing} isEditAllowed={canEdit} data={asset} internalEditing={internalEditing} setInternalEditing={setInternalEditing} handleUpdateField={handleUpdate} />
-        <ReadOnlyRow icon={<CalendarDays className={iconClass} />} label="Created">
+        <ReadOnlyRow labelClassName={ASSET_ROW_LABEL_CLASS} icon={<CalendarDays className={iconClass} />} label="Created">
           {formatDate(asset.createdAt)}
         </ReadOnlyRow>
-        <ReadOnlyRow icon={<CalendarDays className={iconClass} />} label="Updated">
+        <ReadOnlyRow labelClassName={ASSET_ROW_LABEL_CLASS} icon={<CalendarDays className={iconClass} />} label="Updated">
           {formatDate(asset.updatedAt)}
         </ReadOnlyRow>
+        <AssetTagsRow {...sectionProps} />
       </div>
     </Card>
   )

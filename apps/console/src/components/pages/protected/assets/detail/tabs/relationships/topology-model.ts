@@ -4,6 +4,7 @@ import { getNodes } from '@/lib/graphql-hooks/connection'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { pluralizeWithCount } from '@/utils/strings'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { getAssetKindLabel, getAssetTitle, type AssetDetailNode } from '../../../asset-display'
 import { FLOW_CURRENT_ROW_HEIGHT, FLOW_COLUMN_WIDTH, FLOW_PADDING, FLOW_ROW_HEIGHT, flowEdge, flowNode, type TFlowNode } from './relationship-flow'
 
@@ -48,7 +49,8 @@ export const buildTopology = ({ asset, platforms, systems, connectionCount, onSh
     return y
   }
 
-  const placeCurrentAsset = () => placeLeaf(assetNodeId, { title: getAssetTitle(asset), subtitle: getAssetKindLabel(asset), isCurrent: true, isOnPath: true, connectionCount, onShowConnections })
+  const placeCurrentAsset = () =>
+    placeLeaf(assetNodeId, { title: getAssetTitle(asset), subtitle: getAssetKindLabel(asset), assetType: asset.assetType, isCurrent: true, isOnPath: true, connectionCount, onShowConnections })
 
   const placeSystem = (system: AssetTopologySystem) => {
     const systemNodeId = `system:${system.id}`
@@ -62,7 +64,10 @@ export const buildTopology = ({ asset, platforms, systems, connectionCount, onSh
     const start = cursor
     const leafYs = listed.map((node) => {
       const leafId = `asset:${node.id}`
-      const y = node.id === asset.id ? placeCurrentAsset() : placeLeaf(leafId, { title: getAssetTitle(node), subtitle: getAssetKindLabel(node), assetId: node.id })
+      const y =
+        node.id === asset.id
+          ? placeCurrentAsset()
+          : placeLeaf(leafId, { title: getAssetTitle(node), subtitle: getAssetKindLabel(node), assetType: node.assetType, sheet: { id: node.id, kind: ObjectAssociationNodeEnum.ASSET } })
       edges.push(flowEdge({ source: systemNodeId, target: leafId, isOnPath: node.id === asset.id }))
       return y
     })
@@ -73,7 +78,7 @@ export const buildTopology = ({ asset, platforms, systems, connectionCount, onSh
     const hidden = system.assets.totalCount - listed.length - (containsAsset && !isListed ? 1 : 0)
     if (hidden > 0) {
       const overflowId = `overflow:${system.id}`
-      leafYs.push(placeLeaf(overflowId, { title: `+${pluralizeWithCount(hidden, 'more asset')}`, href: getHrefForObjectType('systemDetails', { id: system.id }), isOverflow: true }))
+      leafYs.push(placeLeaf(overflowId, { title: `+${pluralizeWithCount(hidden, 'more asset')}`, sheet: { id: system.id, kind: ObjectAssociationNodeEnum.SYSTEM_DETAIL }, isOverflow: true }))
       edges.push(flowEdge({ source: systemNodeId, target: overflowId }))
     }
 
@@ -83,7 +88,7 @@ export const buildTopology = ({ asset, platforms, systems, connectionCount, onSh
     place(systemNodeId, COLUMN_X.system, y, {
       title: system.systemName,
       subtitle: system.sensitivityLevel ? `${getEnumLabel(system.sensitivityLevel)} sensitivity` : undefined,
-      href: getHrefForObjectType('systemDetails', { id: system.id }),
+      sheet: { id: system.id, kind: ObjectAssociationNodeEnum.SYSTEM_DETAIL },
       isOnPath: containsAsset,
     })
     return y

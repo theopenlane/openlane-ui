@@ -1,11 +1,14 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { ChevronDown, ChevronUp, CircleCheck, CircleHelp, TriangleAlert, type LucideIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import { cn } from '@repo/ui/lib/utils'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
+import { useOrganization } from '@/hooks/useOrganization'
+import { createOrgPersistedStore, parseStringRecord, useOrgPersistedState } from '@/lib/storage/org-persisted-store'
+import { isOneOf } from '@/utils/type-guards'
 import { type TReadinessAction, type TReadinessCheck } from './readiness-checks'
 
 const GROUPS = [
@@ -18,6 +21,17 @@ const STATE_ICONS = {
   attention: { icon: TriangleAlert, className: 'text-warning', barClassName: 'bg-warning', label: 'Needs attention' },
   unavailable: { icon: CircleHelp, className: 'text-muted-foreground', barClassName: 'bg-muted-foreground/40', label: 'Could not be checked' },
 } satisfies Record<TReadinessCheck['state'], { icon: LucideIcon; className: string; barClassName: string; label: string }>
+
+type TCardState = 'expanded' | 'collapsed'
+type TExpandPreference = Partial<Record<'complete' | 'incomplete', TCardState>>
+
+const isCardState = isOneOf<TCardState>(['expanded', 'collapsed'])
+const NO_PREFERENCE: TExpandPreference = {}
+const EXPAND_PREFERENCE_STORE = createOrgPersistedStore<TExpandPreference>(
+  'asset-audit-readiness',
+  (raw) => parseStringRecord(raw, isCardState),
+  () => NO_PREFERENCE,
+)
 
 const BAR_STATES: TReadinessCheck['state'][] = ['ready', 'attention', 'unavailable']
 
@@ -50,7 +64,10 @@ const ReadinessRow: React.FC<{ check: TReadinessCheck; canAct: boolean; onAction
 }
 
 const AuditReadinessCard: React.FC<TAuditReadinessCardProps> = ({ checks, isLoading, availableActions, onAction }) => {
-  const [isExpanded, setIsExpanded] = useState(true)
+  const { currentOrgId } = useOrganization()
+  const { value: preference, setValue: setPreference } = useOrgPersistedState(EXPAND_PREFERENCE_STORE, currentOrgId)
+  const preferenceKey = countPassed(checks) === checks.length ? 'complete' : 'incomplete'
+  const isExpanded = (preference[preferenceKey] ?? (preferenceKey === 'complete' ? 'collapsed' : 'expanded')) === 'expanded'
 
   if (isLoading) {
     return (
@@ -80,7 +97,7 @@ const AuditReadinessCard: React.FC<TAuditReadinessCardProps> = ({ checks, isLoad
             icon={isExpanded ? <ChevronUp /> : <ChevronDown />}
             aria-expanded={isExpanded}
             descriptiveTooltipText={isExpanded ? 'Collapse audit readiness' : 'Expand audit readiness'}
-            onClick={() => setIsExpanded((current) => !current)}
+            onClick={() => setPreference({ ...preference, [preferenceKey]: isExpanded ? 'collapsed' : 'expanded' })}
           />
         </div>
       </div>

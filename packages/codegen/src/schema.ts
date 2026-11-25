@@ -895,7 +895,6 @@ export interface GetAssetVulnerabilitiesQuery {
         vulnerabilityStatusName: string | null
         source: string | null
         sourceDefinitionID: string | null
-        environmentName: string | null
         remediationSLA: number | null
         discoveredAt: string | null
         createdAt: any
@@ -928,7 +927,6 @@ export interface GetAssetFindingsQuery {
         findingStatusName: string | null
         source: string | null
         sourceDefinitionID: string | null
-        environmentName: string | null
         remediationSLA: number | null
         reportedAt: string | null
         createdAt: any
@@ -956,7 +954,6 @@ export interface GetAssetRisksQuery {
         impact: Types.RiskRiskImpact | null
         status: Types.RiskRiskStatus | null
         sourceDefinitionID: string | null
-        environmentName: string | null
         dueDate: string | null
         createdAt: any
         createdBy: string | null
@@ -993,6 +990,7 @@ export interface GetAssetVendorsQuery {
           nextReviewAt: string | null
           hasSoc2: boolean | null
           soc2PeriodEnd: string | null
+          lastReviewedAt: string | null
           createdAt: any
           createdBy: string | null
           sourceDefinitionID: string | null
@@ -1034,25 +1032,13 @@ export interface GetVendorAssetsQuery {
 }
 
 export type GetAssetReadinessReviewsQueryVariables = Exact<{
-  assetReviewWhere?: Types.ReviewWhereInput | null | undefined
-  accessReviewWhere?: Types.ReviewWhereInput | null | undefined
+  where?: Types.ReviewWhereInput | null | undefined
   orderBy?: Array<Types.ReviewOrder> | Types.ReviewOrder | null | undefined
   first?: number | null | undefined
 }>
 
 export interface GetAssetReadinessReviewsQuery {
-  assetReviews: { edges: Array<{ node: { id: string; title: string; reviewedAt: string | null; createdAt: any } | null } | null> | null }
-  accessReviews: { edges: Array<{ node: { id: string; title: string; reviewedAt: string | null; createdAt: any } | null } | null> | null }
-}
-
-export type GetAssetReadinessScansQueryVariables = Exact<{
-  where?: Types.ScanWhereInput | null | undefined
-  orderBy?: Array<Types.ScanOrder> | Types.ScanOrder | null | undefined
-  first?: number | null | undefined
-}>
-
-export interface GetAssetReadinessScansQuery {
-  scans: { edges: Array<{ node: { id: string; target: string; scanType: Types.ScanScanType; scanDate: string | null; createdAt: any } | null } | null> | null }
+  reviews: { edges: Array<{ node: { id: string; reviewedAt: string | null } | null } | null> | null }
 }
 
 export type GetAssetReadinessEvidenceQueryVariables = Exact<{
@@ -1072,6 +1058,15 @@ export interface GetAssetReadinessEvidenceQuery {
   linkedSubcontrols: { totalCount: number }
   missingSubcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string } | null } | null> | null }
   staleSubcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string } | null } | null> | null }
+}
+
+export type GetAssetOptionsQueryVariables = Exact<{
+  where?: Types.AssetWhereInput | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface GetAssetOptionsQuery {
+  assets: { edges: Array<{ node: { id: string; name: string; displayName: string | null; assetType: Types.AssetAssetType; assetSubtypeName: string | null } | null } | null> | null }
 }
 
 export type CampaignTargetsWithFilterQueryVariables = Exact<{
@@ -7287,6 +7282,15 @@ export interface DeletePlatformMutation {
   deletePlatform: { deletedID: string }
 }
 
+export type GetPlatformOptionsQueryVariables = Exact<{
+  where?: Types.PlatformWhereInput | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface GetPlatformOptionsQuery {
+  platforms: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+}
+
 export type CreateProcedureMutationVariables = Exact<{
   input: Types.CreateProcedureInput
 }>
@@ -10100,6 +10104,15 @@ export type UpdateBulkSystemDetailMutationVariables = Exact<{
 
 export interface UpdateBulkSystemDetailMutation {
   updateBulkSystemDetail: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
+}
+
+export type GetSystemDetailOptionsQueryVariables = Exact<{
+  where?: Types.SystemDetailWhereInput | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface GetSystemDetailOptionsQuery {
+  systemDetails: { edges: Array<{ node: { id: string; systemName: string } | null } | null> | null }
 }
 
 export type GetTagsQueryVariables = Exact<{ [key: string]: never }>
