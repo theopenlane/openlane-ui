@@ -3,7 +3,7 @@ import dedent from 'dedent'
 import type { SlateEditor } from 'platejs'
 import type { ChatMessage } from '@repo/ui/components/editor/use-chat.ts'
 
-import { addSelection, buildStructuredPrompt, formatTextFromMessages, getMarkdownWithSelection, isMultiBlocks } from './utils'
+import { addSelection, buildStructuredPrompt, formatTextFromMessages, getMarkdownWithSelection, getSpannedMarkdown, isMultiBlocks, isSpanningBlocks } from './utils'
 
 export function getChooseToolPrompt({ messages }: { messages: ChatMessage[] }) {
   return buildStructuredPrompt({
@@ -219,8 +219,8 @@ export function getGeneratePrompt(editor: SlateEditor, { messages }: { messages:
 
 export function getEditPrompt(editor: SlateEditor, { isSelecting, messages }: { isSelecting: boolean; messages: ChatMessage[] }) {
   if (!isSelecting) throw new Error('Edit tool is only available when selecting')
-  if (isMultiBlocks(editor)) {
-    const selectingMarkdown = getMarkdownWithSelection(editor)
+  if (isSpanningBlocks(editor)) {
+    const selectingMarkdown = getSpannedMarkdown(editor)
 
     return buildStructuredPrompt({
       backgroundData: selectingMarkdown,

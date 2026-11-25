@@ -6,6 +6,7 @@ import type { PlateElementProps, RenderNodeWrapper } from 'platejs/react'
 
 import { getDraftCommentKey } from '@platejs/comment'
 import { CommentPlugin } from '@platejs/comment/react'
+import { getTransientSuggestionKey } from '@platejs/suggestion'
 import { SuggestionPlugin } from '@platejs/suggestion/react'
 import { CheckIcon, MessageSquareTextIcon, MessagesSquareIcon, PencilLineIcon, RotateCcwIcon } from 'lucide-react'
 import { type AnyPluginConfig, type NodeEntry, type Path, type TCommentText, type TElement, type TSuggestionText, PathApi, TextApi } from 'platejs'
@@ -33,7 +34,7 @@ export const BlockDiscussion: RenderNodeWrapper<AnyPluginConfig> = (props) => {
 
   const commentNodes = [...commentsApi.nodes({ at: blockPath })]
 
-  const suggestionNodes = [...editor.getApi(SuggestionPlugin).suggestion.nodes({ at: blockPath })]
+  const suggestionNodes = [...editor.getApi(SuggestionPlugin).suggestion.nodes({ at: blockPath })].filter(([node]) => !node[getTransientSuggestionKey()])
 
   if (commentNodes.length === 0 && suggestionNodes.length === 0 && !draftCommentNode) {
     return

@@ -215,3 +215,7 @@ export const isMultiBlocks = (editor: SlateEditor) => {
 
 /** Get markdown with selection markers */
 export const getMarkdownWithSelection = (editor: SlateEditor) => removeEscapeSelection(editor, getMarkdown(editor, { type: 'block' }))
+
+export const isSpanningBlocks = (editor: SlateEditor) => isMultiBlocks(editor) || editor.api.blocks({ mode: 'lowest' }).length > 1
+
+export const getSpannedMarkdown = (editor: SlateEditor) => serializeMd(editor, { value: isMultiBlocks(editor) ? editor.api.blocks({ mode: 'highest' }).map(([node]) => node) : editor.api.fragment() })

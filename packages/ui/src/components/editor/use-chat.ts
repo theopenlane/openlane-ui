@@ -10,9 +10,11 @@ import { KEYS, NodeApi, nanoid, TextApi, type TNode } from 'platejs'
 import { useEditorRef, usePluginOption } from 'platejs/react'
 import * as React from 'react'
 
+import { useNotification } from 'console/src/hooks/useNotification'
+
 import { aiChatPlugin } from './plugins/ai-kit'
 
-import { discussionPlugin } from './plugins/discussion-kit'
+import { canCommentOnEntity, discussionPlugin, type TDiscussion } from './plugins/discussion-kit'
 
 export type ToolName = 'comment' | 'edit' | 'generate'
 
@@ -34,8 +36,18 @@ export type Chat = UseChatHelpers<ChatMessage>
 
 export type ChatMessage = UIMessage<{}, MessageDataPart>
 
+const chatErrorMessage = ({ message }: Error): string => {
+  try {
+    const { error } = JSON.parse(message) as { error?: string }
+    return error ?? message
+  } catch {
+    return message
+  }
+}
+
 export const useChat = (): Chat => {
   const editor = useEditorRef()
+  const { errorNotification } = useNotification()
   const options = usePluginOption(aiChatPlugin, 'chatOptions')
 
   const chat = useBaseChat<ChatMessage>({
@@ -43,7 +55,13 @@ export const useChat = (): Chat => {
 
     transport: new DefaultChatTransport({
       api: options.api || '/api/ai/command',
+      body: () => ({ canComment: canCommentOnEntity(editor.getOptions(discussionPlugin)) }),
     }),
+
+    onError(error) {
+      errorNotification({ title: 'AI request failed', description: chatErrorMessage(error) })
+      editor.getApi(AIChatPlugin).aiChat.hide()
+    },
 
     onData(data) {
       if (data.type === 'data-toolName') {
@@ -63,7 +81,8 @@ export const useChat = (): Chat => {
         if (!comment) return
 
         const range = aiCommentToRange(editor, comment)
-        if (!range) return
+        const currentUserId = editor.getOption(discussionPlugin, 'currentUserId')
+        if (!range || !currentUserId) return
 
         const discussions = editor.getOption(discussionPlugin, 'discussions') || []
 
@@ -71,14 +90,14 @@ export const useChat = (): Chat => {
 
         const newComment = {
           id: nanoid(),
-          contentRich: [{ children: [{ text: comment.comment }], type: 'p' }],
+          contentRich: [{ id: nanoid(), children: [{ text: comment.comment }], type: KEYS.p }],
           createdAt: new Date(),
           discussionId,
           isEdited: false,
-          userId: editor.getOption(discussionPlugin, 'currentUserId'),
+          userId: currentUserId,
         }
 
-        const newDiscussion = {
+        const newDiscussion: TDiscussion = {
           id: discussionId,
           comments: [newComment],
           createdAt: new Date(),
@@ -86,11 +105,11 @@ export const useChat = (): Chat => {
             .map((node: TNode) => NodeApi.string(node))
             .join('\n'),
           isResolved: false,
-          userId: editor.getOption(discussionPlugin, 'currentUserId'),
+          userId: currentUserId,
         }
 
-        // @ts-ignore – PlateJS typing is incorrect here
         editor.setOption(discussionPlugin, 'discussions', [...discussions, newDiscussion])
+        editor.setOption(discussionPlugin, 'pendingAiDiscussions', [...editor.getOption(discussionPlugin, 'pendingAiDiscussions'), newDiscussion])
 
         editor.tf.withMerging(() => {
           editor.tf.setNodes(

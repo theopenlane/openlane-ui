@@ -2,23 +2,33 @@
 
 import * as React from 'react'
 
-import { AIChatPlugin, AIPlugin, useEditorChat, useLastAssistantMessage } from '@platejs/ai/react'
+import cloneDeep from 'lodash/cloneDeep.js'
+
+import { withAIBatch } from '@platejs/ai'
+import { AIChatPlugin, AIPlugin, acceptAISuggestions, useEditorChat, useLastAssistantMessage } from '@platejs/ai/react'
 import { getTransientCommentKey } from '@platejs/comment'
 import { BlockSelectionPlugin, useIsSelecting } from '@platejs/selection/react'
 import { getTransientSuggestionKey } from '@platejs/suggestion'
 import { Command as CommandPrimitive } from 'cmdk'
 import { Album, BadgeHelp, BookOpenCheck, Check, CornerUpLeft, FeatherIcon, ListEnd, ListMinus, ListPlus, Loader2Icon, PauseIcon, PenLine, SmileIcon, Wand, X } from 'lucide-react'
-import { type NodeEntry, type SlateEditor, isHotkey, KEYS, NodeApi, TextApi } from 'platejs'
+import { type Descendant, type NodeEntry, type SlateEditor, type TRange, ElementApi, isHotkey, KEYS, NodeApi, PathApi, TextApi } from 'platejs'
 import { useEditorPlugin, useFocusedLast, useHotkeys, usePluginOption } from 'platejs/react'
 import { type PlateEditor, useEditorRef } from 'platejs/react'
 
 import { Button } from '@repo/ui/components/ui/button.tsx'
+import { Button as ActionButton } from '@repo/ui/button'
 import { Command, CommandGroup, CommandItem, CommandList } from '@repo/ui/command'
 import { Popover, PopoverAnchor, PopoverContent } from '@repo/ui/components/ui/popover.tsx'
 import { cn } from '@repo/ui/lib/utils'
 import { commentPlugin } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
 
+import { discussionPlugin, type TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
+import { useSaveDiscussion } from '@repo/ui/components/editor/use-save-discussion.ts'
+import { useNotification } from 'console/src/hooks/useNotification'
+import { parseErrorMessage } from 'console/src/utils/graphQlErrorMatcher'
+
 import { AIChatEditor } from './ai-chat-editor'
+import { useCanComment } from './comment-toolbar-button'
 
 export function AIMenu() {
   const { api, editor } = useEditorPlugin(AIChatPlugin)
@@ -37,32 +47,22 @@ export function AIMenu() {
 
   const { messages, status } = chat
   const [anchorElement, setAnchorElement] = React.useState<HTMLElement | null>(null)
+  const anchor = React.useMemo(() => anchorElement && createBlockAnchor(editor, anchorElement), [anchorElement, editor])
+  const [isEditAnchored, setIsEditAnchored] = React.useState(false)
 
   const content = useLastAssistantMessage()?.parts.find((part) => part.type === 'text')?.text
 
   React.useEffect(() => {
     if (!streaming) return
 
-    const anchorEntry = api.aiChat.node({ anchor: true })
+    const anchorTimer = setTimeout(() => {
+      const anchorEntry = api.aiChat.node({ anchor: true })
+      const dom = anchorEntry && editor.api.toDOMNode(anchorEntry[0])
+      if (dom) setAnchorElement(dom)
+    }, 0)
 
-    if (anchorEntry) {
-      const dom = editor.api.toDOMNode(anchorEntry[0])
-      if (dom) {
-        setAnchorElement(dom)
-        return
-      }
-    }
-
-    // @ts-ignore – PlateJS typing is incorrect here
-    const fallback = editor.getApi(BlockSelectionPlugin).blockSelection.getNodes({ selectionFallback: true, sort: true }).at(-1) ?? editor.api.blocks().at(-1)
-
-    if (!fallback) return
-
-    const dom = editor.api.toDOMNode(fallback[0])
-    if (dom) {
-      setAnchorElement(dom)
-    }
-  }, [streaming])
+    return () => clearTimeout(anchorTimer)
+  }, [api.aiChat, editor, streaming])
 
   const setOpen = (open: boolean) => {
     if (open) {
@@ -108,25 +108,48 @@ export function AIMenu() {
   })
 
   const isLoading = status === 'streaming' || status === 'submitted'
+  const isEditing = toolName === 'edit' && mode === 'chat'
 
   React.useEffect(() => {
-    if (toolName === 'edit' && mode === 'chat' && !isLoading) {
-      let anchorNode = editor.api.node({
+    if (!isEditing || isLoading) {
+      setIsEditAnchored(false)
+      return
+    }
+
+    let anchorTimer: ReturnType<typeof setTimeout>
+
+    const anchorToResult = () => {
+      const suggestionEntry = editor.api.node({
         at: [],
         reverse: true,
         match: (n) => !!n[KEYS.suggestion] && !!n[getTransientSuggestionKey()],
       })
-
-      if (!anchorNode) {
-        // @ts-ignore – PlateJS typing is incorrect here
-        anchorNode = editor.getApi(BlockSelectionPlugin).blockSelection.getNodes({ selectionFallback: true, sort: true }).at(-1)
+      const anchorPath = suggestionEntry?.[1] ?? editor.getApi(BlockSelectionPlugin).blockSelection.getNodes({ selectionFallback: true, sort: true }).at(-1)?.[1]
+      const block = anchorPath && editor.api.block({ at: anchorPath, highest: true })
+      const dom = block && editor.api.toDOMNode(block[0])
+      if (block && !dom) {
+        anchorTimer = setTimeout(anchorToResult, 16)
+        return
       }
 
-      if (!anchorNode) return
-
-      const block = editor.api.block({ at: anchorNode[1] })
-      setAnchorElement(editor.api.toDOMNode(block![0]!)!)
+      if (dom) {
+        scrollMenuIntoView(dom)
+        setAnchorElement(dom)
+      }
+      setIsEditAnchored(true)
     }
+
+    anchorTimer = setTimeout(anchorToResult, 0)
+
+    return () => clearTimeout(anchorTimer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading])
+
+  React.useEffect(() => {
+    if (isLoading || mode !== 'insert' || !messages?.length) return
+
+    const scrollTimer = setTimeout(() => anchor && scrollMenuIntoView(anchor.getElement()), 100)
+    return () => clearTimeout(scrollTimer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading])
 
@@ -134,16 +157,16 @@ export function AIMenu() {
 
   if (toolName === 'comment') return null
 
-  if (toolName === 'edit' && mode === 'chat' && isLoading) return null
+  if (isEditing && !isEditAnchored) return null
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverAnchor virtualRef={{ current: anchorElement! }} />
+      <PopoverAnchor virtualRef={{ current: anchor! }} />
 
       <PopoverContent
         className="border-none bg-transparent p-0 shadow-none"
         style={{
-          width: anchorElement?.offsetWidth,
+          width: anchor?.getWidth(),
         }}
         onEscapeKeyDown={(e) => {
           e.preventDefault()
@@ -209,6 +232,77 @@ const AICommentIcon = () => (
     <path d="M17.8 20.817l-2.172 1.138a.392 .392 0 0 1 -.568 -.41l.415 -2.411l-1.757 -1.707a.389 .389 0 0 1 .217 -.665l2.428 -.352l1.086 -2.193a.392 .392 0 0 1 .702 0l1.086 2.193l2.428 .352a.39 .39 0 0 1 .217 .665l-1.757 1.707l.414 2.41a.39 .39 0 0 1 -.567 .411l-2.172 -1.138z" />
   </svg>
 )
+
+const TABLE_PART_TYPES: string[] = [KEYS.tr, KEYS.td, KEYS.th]
+
+const getSharedBlockPath = (editor: PlateEditor, { anchor, focus }: TRange) =>
+  [...NodeApi.levels(editor, PathApi.common(anchor.path, focus.path), { reverse: true })].find(
+    ([node, path]) => path.length > 0 && ElementApi.isElement(node) && editor.api.isBlock(node) && !TABLE_PART_TYPES.includes(node.type),
+  )?.[1]
+
+const insertSuggestionBelow = (editor: PlateEditor) => {
+  const { chatNodes, chatSelection } = editor.getOptions(AIChatPlugin)
+  const selectedBlocks = editor.getApi(BlockSelectionPlugin).blockSelection.getNodes()
+  const isBlockSelection = selectedBlocks.length > 0 || !chatSelection
+  const sourcePath = isBlockSelection ? selectedBlocks[0]?.[1] : getSharedBlockPath(editor, chatSelection)
+  const parent = sourcePath && NodeApi.parent(editor, sourcePath)
+  const selectedNodes = new Set<Descendant>(selectedBlocks.map(([block]) => block))
+  const suggestedBlocks = parent?.children.filter((block) => selectedNodes.has(block) || [...NodeApi.nodes(block)].some(([node]) => getTransientSuggestionKey() in node)) ?? []
+
+  editor.getTransforms(AIPlugin).ai.undo()
+
+  const lastBlockPath = isBlockSelection ? editor.api.node({ at: [], id: chatNodes.at(-1)?.id as string })?.[1] : sourcePath
+
+  if (suggestedBlocks.length > 0 && lastBlockPath) {
+    const insertPath = PathApi.next(lastBlockPath)
+    const countSiblings = () => NodeApi.parent(editor, insertPath)?.children.length ?? 0
+    const siblingCount = countSiblings()
+
+    withAIBatch(
+      editor,
+      () => {
+        editor.tf.insertNodes(cloneDeep(suggestedBlocks), { at: insertPath })
+        acceptAISuggestions(editor)
+      },
+      { split: true },
+    )
+
+    const insertedIds = Array.from({ length: countSiblings() - siblingCount }, (_, index) => editor.api.node([...insertPath.slice(0, -1), insertPath[insertPath.length - 1] + index])?.[0].id as string)
+    editor.getApi(BlockSelectionPlugin).blockSelection.set(insertedIds)
+  }
+
+  editor.getApi(AIChatPlugin).aiChat.hide({ focus: false })
+}
+
+const createBlockAnchor = (editor: PlateEditor, element: HTMLElement) => {
+  const block = editor.api.toSlateNode(element)
+  let current = element
+
+  const getElement = () => {
+    if (!current.isConnected && block) {
+      const blockEntry = editor.api.node({ at: [], match: (node) => node === block }) ?? editor.api.node({ at: [], id: block.id as string, reverse: true })
+      current = (blockEntry && editor.api.toDOMNode(blockEntry[0])) ?? current
+    }
+    return current
+  }
+
+  return {
+    contextElement: editor.api.toDOMNode(editor) ?? element,
+    getBoundingClientRect: () => getElement().getBoundingClientRect(),
+    getElement,
+    getWidth: () => getElement().offsetWidth,
+  }
+}
+
+const MENU_SPACE_PX = 260
+
+const scrollMenuIntoView = (element: HTMLElement) => {
+  if (window.innerHeight - element.getBoundingClientRect().bottom >= MENU_SPACE_PX) return
+
+  element.style.scrollMarginBottom = `${MENU_SPACE_PX}px`
+  element.scrollIntoView({ block: 'end' })
+  element.style.scrollMarginBottom = ''
+}
 
 const aiChatItems = {
   accept: {
@@ -345,6 +439,8 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     label: 'Insert below',
     value: 'insertBelow',
     onSelect: ({ aiEditor, editor }) => {
+      if (editor.getOption(AIChatPlugin, 'toolName') === 'edit') return insertSuggestionBelow(editor)
+
       /** Format: 'none' Fix insert table */
       void editor.getTransforms(AIChatPlugin).aiChat.insertBelow(aiEditor, { format: 'none' })
     },
@@ -462,6 +558,7 @@ export const AIMenuItems = ({ input, setInput, setValue }: { input: string; setI
   const { messages } = usePluginOption(AIChatPlugin, 'chat')
   const aiEditor = usePluginOption(AIChatPlugin, 'aiEditor')!
   const isSelecting = useIsSelecting()
+  const canComment = useCanComment()
 
   const menuState = React.useMemo(() => {
     if (messages && messages.length > 0) {
@@ -472,10 +569,8 @@ export const AIMenuItems = ({ input, setInput, setValue }: { input: string; setI
   }, [isSelecting, messages])
 
   const menuGroups = React.useMemo(() => {
-    const items = menuStateItems[menuState]
-
-    return items
-  }, [menuState])
+    return menuStateItems[menuState].map((group) => ({ ...group, items: group.items.filter((item) => canComment || item !== aiChatItems.comment) }))
+  }, [canComment, menuState])
 
   React.useEffect(() => {
     if (menuGroups.length > 0 && menuGroups[0].items.length > 0) {
@@ -524,18 +619,52 @@ export function AILoadingBar() {
 
   const isLoading = status === 'streaming' || status === 'submitted'
 
-  const handleComments = (type: 'accept' | 'reject') => {
-    if (type === 'accept') {
-      editor.tf.unsetNodes([getTransientCommentKey()], {
-        at: [],
-        match: (n) => TextApi.isText(n) && !!n[KEYS.comment],
-      })
-    }
+  const { addDiscussion, saveDocument } = useSaveDiscussion()
+  const { errorNotification } = useNotification()
+  const pendingDiscussions = usePluginOption(discussionPlugin, 'pendingAiDiscussions')
+  const [isSavingComments, setIsSavingComments] = React.useState(false)
+  const [hasUnsavedMarks, setHasUnsavedMarks] = React.useState(false)
+  const isSavingCommentsRef = React.useRef(false)
 
-    if (type === 'reject') {
-      editor.getTransforms(commentPlugin).comment.unsetMark({ transient: true })
-    }
+  const setPendingDiscussions = (discussions: TDiscussion[]) => editor.setOption(discussionPlugin, 'pendingAiDiscussions', discussions)
 
+  const clearTransientMarks = () => editor.tf.unsetNodes([getTransientCommentKey()], { at: [], match: (n) => TextApi.isText(n) && !!n[getTransientCommentKey()] })
+
+  const acceptComments = async () => {
+    if (isSavingCommentsRef.current) return
+
+    api.aiChat.hide({ focus: false })
+    isSavingCommentsRef.current = true
+    setIsSavingComments(true)
+    try {
+      for (const discussion of pendingDiscussions) {
+        await addDiscussion(discussion.id, discussion.comments[0].contentRich)
+        setPendingDiscussions(editor.getOption(discussionPlugin, 'pendingAiDiscussions').filter(({ id }) => id !== discussion.id))
+        setHasUnsavedMarks(true)
+      }
+
+      clearTransientMarks()
+      await saveDocument()
+      setHasUnsavedMarks(false)
+    } catch (error) {
+      errorNotification({ title: 'Failed to save AI comments', description: parseErrorMessage(error) })
+    } finally {
+      isSavingCommentsRef.current = false
+      setIsSavingComments(false)
+    }
+  }
+
+  const rejectComments = () => {
+    const rejectedIds = new Set(pendingDiscussions.map((discussion) => discussion.id))
+
+    rejectedIds.forEach((id) => editor.getTransforms(commentPlugin).comment.unsetMark({ id }))
+    clearTransientMarks()
+    editor.setOption(
+      discussionPlugin,
+      'discussions',
+      editor.getOption(discussionPlugin, 'discussions').filter((discussion) => !rejectedIds.has(discussion.id)),
+    )
+    setPendingDiscussions([])
     api.aiChat.hide()
   }
 
@@ -561,26 +690,16 @@ export function AILoadingBar() {
     )
   }
 
-  if (toolName === 'comment' && status === 'ready') {
+  if (pendingDiscussions.length > 0 || hasUnsavedMarks) {
     return (
-      <div
-        className={cn(
-          '-translate-x-1/2 absolute bottom-4 left-1/2 z-50 flex flex-col items-center gap-0 rounded-xl border border-border/50 bg-popover p-1 text-muted-foreground text-sm shadow-xl backdrop-blur-sm',
-          'p-3',
-        )}
-      >
-        {/* Header with controls */}
-        <div className="flex w-full items-center justify-between gap-3">
-          <div className="flex items-center gap-5">
-            <Button size="sm" disabled={isLoading} onClick={() => handleComments('accept')}>
-              Accept
-            </Button>
+      <div className="-translate-x-1/2 fixed bottom-4 left-1/2 z-50 flex items-center gap-3 rounded-xl border border-border/50 bg-popover p-3 shadow-xl">
+        <ActionButton disabled={isSavingComments} loading={isSavingComments} onClick={() => void acceptComments()}>
+          Accept
+        </ActionButton>
 
-            <Button size="sm" disabled={isLoading} onClick={() => handleComments('reject')}>
-              Reject
-            </Button>
-          </div>
-        </div>
+        <ActionButton variant="secondary" disabled={isSavingComments || pendingDiscussions.length === 0} onClick={rejectComments}>
+          Reject
+        </ActionButton>
       </div>
     )
   }

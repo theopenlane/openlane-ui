@@ -6,7 +6,7 @@ import { MessageSquareCheckIcon, MessageSquareTextIcon } from 'lucide-react'
 import { useEditorRef, usePluginOption } from 'platejs/react'
 
 import { commentPlugin } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
-import { discussionPlugin } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
+import { canCommentOnEntity, discussionPlugin } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { ToolbarButton } from './toolbar'
 
@@ -14,7 +14,7 @@ export const useCanComment = (): boolean => {
   const entityId = usePluginOption(discussionPlugin, 'entityId')
   const isCreate = usePluginOption(discussionPlugin, 'isCreate')
 
-  return !!entityId && !isCreate
+  return canCommentOnEntity({ entityId, isCreate })
 }
 
 export function CommentToolbarButton() {

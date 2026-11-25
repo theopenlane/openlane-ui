@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'AI service is not configured' }, { status: 503 })
   }
 
-  const { ctx, messages: messagesRaw = [] } = await req.json()
+  const { canComment, ctx, messages: messagesRaw = [] } = await req.json()
 
   if (!ctx) {
     return NextResponse.json({ error: 'Missing ctx' }, { status: 400 })
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
         let toolName = toolNameParam
 
         if (!toolName) {
-          const toolOptions: ToolName[] = isSelecting ? ['generate', 'edit', 'comment'] : ['generate', 'comment']
+          const toolOptions: ToolName[] = ['generate', ...(isSelecting ? (['edit'] as const) : []), ...(canComment ? (['comment'] as const) : [])]
           const { output: AIToolName } = await generateText({
             model: selectedModel,
             output: Output.choice({ options: toolOptions }),
