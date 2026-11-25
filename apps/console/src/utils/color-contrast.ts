@@ -27,3 +27,8 @@ export const isLightColor = (color: string): boolean => {
 }
 
 export const tintedTextColor = (color: string): string => `color-mix(in srgb, ${color} 45%, var(--foreground))`
+
+export const tintedSurfaceStyle = (color: string): { backgroundColor: string; color: string } => ({
+  backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`,
+  color: tintedTextColor(color),
+})

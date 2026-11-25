@@ -1,5 +1,5 @@
 import { ControlControlStatus } from '@repo/codegen/src/schema'
-import { ORG_COVERAGE_SEVERITY_ORDER } from '@/components/shared/enum-mapper/control-enum'
+import { getOrgCoverageSeverityRank } from '@/components/shared/enum-mapper/control-enum'
 import { type ControlReportItem } from '@/lib/graphql-hooks/control'
 import { type OrgCoverageData } from './org-coverage-cell'
 
@@ -21,12 +21,9 @@ export const deriveOrgCoverage = (related?: RelatedControlItem[] | null): OrgCov
   const approvedCount = active.filter((r) => r.status === ControlControlStatus.APPROVED).length
 
   let worstStatus: ControlControlStatus | null = null
-  let worstIdx = ORG_COVERAGE_SEVERITY_ORDER.length
-  for (const r of active) {
-    const idx = r.status ? ORG_COVERAGE_SEVERITY_ORDER.indexOf(r.status) : -1
-    if (idx !== -1 && idx < worstIdx) {
-      worstIdx = idx
-      worstStatus = ORG_COVERAGE_SEVERITY_ORDER[idx]
+  for (const { status } of active) {
+    if (status && (!worstStatus || getOrgCoverageSeverityRank(status) < getOrgCoverageSeverityRank(worstStatus))) {
+      worstStatus = status
     }
   }
 

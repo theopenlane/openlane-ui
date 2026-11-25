@@ -4,8 +4,8 @@ import { deriveOrgCoverage, getFrameworkRelatedControls, getOrgRelatedControls, 
 
 /**
  * Drives the control report's org-coverage column and its gap filters. A related control counts as org-owned
- * when it has no referenceFramework or that framework is 'CUSTOM', and worstStatus takes the earliest entry
- * in ORG_COVERAGE_SEVERITY_ORDER.
+ * when it has no referenceFramework or that framework is 'CUSTOM', and worstStatus takes the lowest
+ * getOrgCoverageSeverityRank.
  */
 
 const related = (over: Partial<RelatedControlItem> = {}): RelatedControlItem =>
