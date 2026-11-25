@@ -5154,6 +5154,7 @@ export type GetIntegrationRunCheckResultsQueryVariables = Exact<{
   after?: any
   last?: number | null | undefined
   before?: any
+  withControls?: boolean | null | undefined
 }>
 
 export interface GetIntegrationRunCheckResultsQuery {
@@ -5163,7 +5164,15 @@ export interface GetIntegrationRunCheckResultsQuery {
         id: string
         checkResults: {
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
-          edges: Array<{ node: { id: string; source: string; status: Types.CheckResultCheckStatus; sourceKey: string | null; updatedAt: any } | null } | null> | null
+          edges: Array<{
+            node: {
+              id: string
+              details: string | null
+              status: Types.CheckResultCheckStatus
+              updatedAt: any
+              controls?: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null } | null } | null> | null }
+            } | null
+          } | null> | null
         }
       } | null
     } | null> | null
@@ -5198,6 +5207,7 @@ export type GetIntegrationRunDirectoryAccountsQueryVariables = Exact<{
   after?: any
   last?: number | null | undefined
   before?: any
+  withPersonnel?: boolean | null | undefined
 }>
 
 export interface GetIntegrationRunDirectoryAccountsQuery {
@@ -5208,7 +5218,15 @@ export interface GetIntegrationRunDirectoryAccountsQuery {
         directoryAccounts: {
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{
-            node: { id: string; displayName: string | null; canonicalEmail: string | null; externalID: string; status: Types.DirectoryAccountDirectoryAccountStatus; updatedAt: any } | null
+            node: {
+              id: string
+              displayName: string | null
+              canonicalEmail: string | null
+              externalID: string
+              status: Types.DirectoryAccountDirectoryAccountStatus
+              updatedAt: any
+              identityHolder?: { id: string } | null
+            } | null
           } | null> | null
         }
       } | null
@@ -5246,6 +5264,7 @@ export type GetIntegrationRunDirectoryMembershipsQueryVariables = Exact<{
   after?: any
   last?: number | null | undefined
   before?: any
+  withPersonnel?: boolean | null | undefined
 }>
 
 export interface GetIntegrationRunDirectoryMembershipsQuery {
@@ -5261,7 +5280,7 @@ export interface GetIntegrationRunDirectoryMembershipsQuery {
               displayID: string
               role: Types.DirectoryMembershipDirectoryMembershipRole | null
               updatedAt: any
-              directoryAccount: { id: string; displayName: string | null; canonicalEmail: string | null }
+              directoryAccount: { id: string; displayName: string | null; canonicalEmail: string | null; identityHolder?: { id: string } | null }
               directoryGroup: { id: string; displayName: string | null }
             } | null
           } | null> | null
