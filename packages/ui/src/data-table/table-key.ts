@@ -78,6 +78,7 @@ export enum AdditionalTableKeyEnum {
   CONTROL_ASSETS = 'control-assets',
   CONTROL_SCANS = 'control-scans',
   CONTROL_FINDINGS = 'control-findings',
+  CONTROL_CHECK_RESULTS = 'control-check-results',
   CONTROL_RISKS = 'control-risks',
   CONTROL_REVIEWS = 'control-reviews',
   EXPOSURE_ATTENTION = 'exposure-attention',
@@ -93,6 +94,7 @@ export enum AdditionalTableKeyEnum {
   CONTROL_EVIDENCE = 'control-evidence',
   AUDITOR_DASHBOARD_CONTROLS = 'auditor-dashboard-controls',
   INTEGRATION_RUNS = 'integration-runs',
+  INTEGRATION_RUN_CHECK_RESULTS = 'integration-run-check-results',
   INTEGRATION_RUN_RECORDS = 'integration-run-records',
 }
 

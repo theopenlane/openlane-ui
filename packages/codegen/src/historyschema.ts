@@ -1236,6 +1236,8 @@ export type CheckResultsWithFilterQueryVariables = Exact<{
   after?: any
   last?: number | null | undefined
   before?: any
+  findingsLimit?: number | null | undefined
+  includeFindings?: boolean
 }>
 
 export interface CheckResultsWithFilterQuery {
@@ -1250,14 +1252,27 @@ export interface CheckResultsWithFilterQuery {
         id: string
         integrationID: string | null
         lastObservedAt: string | null
+        managedBy: string | null
         parentExternalID: string | null
         source: string
+        sourceDefinitionID: string | null
+        status: Types.CheckResultCheckStatus
+        tags: Array<string> | null
         updatedAt: any
         updatedBy: string | null
+        findings?: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string; externalID: string | null } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
   }
+}
+
+export type CheckResultsCountQueryVariables = Exact<{
+  where?: Types.CheckResultWhereInput | null | undefined
+}>
+
+export interface CheckResultsCountQuery {
+  checkResults: { totalCount: number }
 }
 
 export type CheckResultQueryVariables = Exact<{
@@ -5397,6 +5412,7 @@ export type GetIntegrationRunCheckResultsQueryVariables = Exact<{
   after?: any
   last?: number | null | undefined
   before?: any
+  withControls?: boolean | null | undefined
 }>
 
 export interface GetIntegrationRunCheckResultsQuery {
@@ -5406,7 +5422,15 @@ export interface GetIntegrationRunCheckResultsQuery {
         id: string
         checkResults: {
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
-          edges: Array<{ node: { id: string; source: string; status: Types.CheckResultCheckStatus; sourceKey: string | null; updatedAt: any } | null } | null> | null
+          edges: Array<{
+            node: {
+              id: string
+              details: string | null
+              status: Types.CheckResultCheckStatus
+              updatedAt: any
+              controls?: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null } | null } | null> | null }
+            } | null
+          } | null> | null
         }
       } | null
     } | null> | null
@@ -5441,6 +5465,7 @@ export type GetIntegrationRunDirectoryAccountsQueryVariables = Exact<{
   after?: any
   last?: number | null | undefined
   before?: any
+  withPersonnel?: boolean | null | undefined
 }>
 
 export interface GetIntegrationRunDirectoryAccountsQuery {
@@ -5451,7 +5476,15 @@ export interface GetIntegrationRunDirectoryAccountsQuery {
         directoryAccounts: {
           pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
           edges: Array<{
-            node: { id: string; displayName: string | null; canonicalEmail: string | null; externalID: string; status: Types.DirectoryAccountDirectoryAccountStatus; updatedAt: any } | null
+            node: {
+              id: string
+              displayName: string | null
+              canonicalEmail: string | null
+              externalID: string
+              status: Types.DirectoryAccountDirectoryAccountStatus
+              updatedAt: any
+              identityHolder?: { id: string } | null
+            } | null
           } | null> | null
         }
       } | null
@@ -5489,6 +5522,7 @@ export type GetIntegrationRunDirectoryMembershipsQueryVariables = Exact<{
   after?: any
   last?: number | null | undefined
   before?: any
+  withPersonnel?: boolean | null | undefined
 }>
 
 export interface GetIntegrationRunDirectoryMembershipsQuery {
@@ -5504,7 +5538,7 @@ export interface GetIntegrationRunDirectoryMembershipsQuery {
               displayID: string
               role: Types.DirectoryMembershipDirectoryMembershipRole | null
               updatedAt: any
-              directoryAccount: { id: string; displayName: string | null; canonicalEmail: string | null }
+              directoryAccount: { id: string; displayName: string | null; canonicalEmail: string | null; identityHolder?: { id: string } | null }
               directoryGroup: { id: string; displayName: string | null }
             } | null
           } | null> | null

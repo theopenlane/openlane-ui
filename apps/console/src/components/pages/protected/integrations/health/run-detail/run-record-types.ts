@@ -13,6 +13,7 @@ import {
   type GetIntegrationRunProceduresQuery,
   type GetIntegrationRunRisksQuery,
   type GetIntegrationRunVulnerabilitiesQuery,
+  type CheckResultCheckStatus,
   type PageInfo,
 } from '@repo/codegen/src/schema'
 import {
@@ -30,9 +31,11 @@ import {
   GET_INTEGRATION_RUN_RISKS,
   GET_INTEGRATION_RUN_VULNERABILITIES,
 } from '@repo/codegen/query/integration-health'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { type TPageInfo, type TPaginationQuery } from '@repo/ui/pagination-types'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum'
+import { type RelatedControlEdge } from '@/components/shared/crud-base/columns/related-controls-cell'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilities/vulnerability-display'
 import { getNodes, type Edge } from '@/lib/graphql-hooks/connection'
@@ -45,46 +48,82 @@ export type TRunRecordRow = {
   detail: string
   status: string
   updatedAt?: string | null
+  sheetId?: string | null
 }
 
-type TRunRecordPage = {
-  rows: TRunRecordRow[]
+export type TRunCheckRow = {
+  id: string
+  details: string
+  status: CheckResultCheckStatus
+  controlEdges?: RelatedControlEdge[] | null
+  updatedAt?: string | null
+}
+
+type TRunRecordPage<TRow> = {
+  rows: TRow[]
   pageInfo?: TPageInfo
 }
 
-type TRunRecordVariables = { integrationRunId: string } & TPaginationQuery
+type TGatedEdge = {
+  objectType: ObjectTypes
+  variable: 'withControls' | 'withPersonnel'
+}
+
+type TRunRecordVariables = { integrationRunId: string } & TPaginationQuery & Partial<Record<TGatedEdge['variable'], boolean>>
 
 type TRunRecordKey = {
   [K in keyof TIntegrationRunDetail]: TIntegrationRunDetail[K] extends { totalCount: number } ? K : never
 }[keyof TIntegrationRunDetail]
 
-export type TRunRecordType = {
+export type TRunRecordSource<TRow> = {
   key: TRunRecordKey
   label: string
-  sheetKind?: ObjectAssociationNodeEnum
-  fetchPage: (client: GraphQLClient, variables: TRunRecordVariables) => Promise<TRunRecordPage>
+  gatedEdge?: TGatedEdge
+  fetchPage: (client: GraphQLClient, variables: TRunRecordVariables) => Promise<TRunRecordPage<TRow>>
 }
+
+export type TRunObjectType = TRunRecordSource<TRunRecordRow> & {
+  layout: 'object'
+  sheetKind?: ObjectAssociationNodeEnum
+  linksToVendorDirectory?: boolean
+}
+
+export type TRunCheckType = TRunRecordSource<TRunCheckRow> & { layout: 'check' }
+
+export type TRunRecordType = TRunObjectType | TRunCheckType
 
 export const runRecordCount = (run: TIntegrationRunDetail, type: TRunRecordType): number => run[type.key].totalCount
 
 type TRecordConnection<TNode> = { pageInfo: PageInfo; edges?: Array<Edge<TNode>> | null }
 
-type TRunRecordDefinition<TQuery, TNode> = Omit<TRunRecordType, 'fetchPage'> & {
+type TRunRecordQuery<TQuery, TNode, TRow> = {
   document: string
   connection: (data: TQuery) => TRecordConnection<TNode> | undefined
-  toRow: (node: TNode) => TRunRecordRow
+  toRow: (node: TNode) => TRow
 }
 
-const defineRunRecordType = <TQuery, TNode>({ document, connection, toRow, ...type }: TRunRecordDefinition<TQuery, TNode>): TRunRecordType => ({
-  ...type,
-  fetchPage: async (client, variables) => {
+const createFetchPage =
+  <TQuery, TNode, TRow>({ document, connection, toRow }: TRunRecordQuery<TQuery, TNode, TRow>): TRunRecordSource<TRow>['fetchPage'] =>
+  async (client, variables) => {
     const records = connection(await client.request<TQuery>(document, variables))
 
     return { rows: getNodes(records).map(toRow), pageInfo: records?.pageInfo }
-  },
+  }
+
+const defineRunRecordType = <TQuery, TNode>({
+  document,
+  connection,
+  toRow,
+  ...type
+}: Omit<TRunObjectType, 'fetchPage' | 'layout'> & TRunRecordQuery<TQuery, TNode, TRunRecordRow>): TRunObjectType => ({
+  ...type,
+  layout: 'object',
+  fetchPage: createFetchPage({ document, connection, toRow }),
 })
 
 const statusLabel = (status?: string | null): string => (status ? getEnumLabel(status) : '-')
+
+const PERSONNEL_EDGE: TGatedEdge = { objectType: ObjectTypes.IDENTITY_HOLDER, variable: 'withPersonnel' }
 
 const firstRun = <TNode>(data: { integrationRuns: { edges?: Array<Edge<TNode>> | null } }): TNode | undefined => getNodes(data.integrationRuns)[0]
 
@@ -128,10 +167,13 @@ export const RUN_RECORD_TYPES: TRunRecordType[] = [
   defineRunRecordType({
     key: 'directoryAccounts',
     label: 'Directory Accounts',
+    sheetKind: ObjectAssociationNodeEnum.IDENTITY_HOLDER,
+    gatedEdge: PERSONNEL_EDGE,
     document: GET_INTEGRATION_RUN_DIRECTORY_ACCOUNTS,
     connection: (data: GetIntegrationRunDirectoryAccountsQuery) => firstRun(data)?.directoryAccounts,
     toRow: (account) => ({
       id: account.id,
+      sheetId: account.identityHolder?.id ?? null,
       name: account.displayName || account.canonicalEmail || account.externalID,
       detail: account.canonicalEmail || account.externalID,
       status: statusLabel(account.status),
@@ -141,6 +183,7 @@ export const RUN_RECORD_TYPES: TRunRecordType[] = [
   defineRunRecordType({
     key: 'directoryGroups',
     label: 'Directory Groups',
+    linksToVendorDirectory: true,
     document: GET_INTEGRATION_RUN_DIRECTORY_GROUPS,
     connection: (data: GetIntegrationRunDirectoryGroupsQuery) => firstRun(data)?.directoryGroups,
     toRow: (group) => ({
@@ -154,10 +197,13 @@ export const RUN_RECORD_TYPES: TRunRecordType[] = [
   defineRunRecordType({
     key: 'directoryMemberships',
     label: 'Directory Memberships',
+    sheetKind: ObjectAssociationNodeEnum.IDENTITY_HOLDER,
+    gatedEdge: PERSONNEL_EDGE,
     document: GET_INTEGRATION_RUN_DIRECTORY_MEMBERSHIPS,
     connection: (data: GetIntegrationRunDirectoryMembershipsQuery) => firstRun(data)?.directoryMemberships,
     toRow: (membership) => ({
       id: membership.id,
+      sheetId: membership.directoryAccount.identityHolder?.id ?? null,
       name: membership.directoryAccount.displayName || membership.directoryAccount.canonicalEmail || membership.displayID,
       detail: membership.directoryGroup.displayName || '-',
       status: statusLabel(membership.role),
@@ -211,11 +257,21 @@ export const RUN_RECORD_TYPES: TRunRecordType[] = [
     connection: (data: GetIntegrationRunActionPlansQuery) => firstRun(data)?.actionPlans,
     toRow: (plan) => ({ id: plan.id, name: plan.name, detail: plan.externalID || '-', status: statusLabel(plan.status), updatedAt: plan.updatedAt }),
   }),
-  defineRunRecordType({
+  {
     key: 'checkResults',
     label: 'Check Results',
-    document: GET_INTEGRATION_RUN_CHECK_RESULTS,
-    connection: (data: GetIntegrationRunCheckResultsQuery) => firstRun(data)?.checkResults,
-    toRow: (check) => ({ id: check.id, name: check.sourceKey || check.source, detail: check.source, status: statusLabel(check.status), updatedAt: check.updatedAt }),
-  }),
+    layout: 'check',
+    gatedEdge: { objectType: ObjectTypes.CONTROL, variable: 'withControls' },
+    fetchPage: createFetchPage({
+      document: GET_INTEGRATION_RUN_CHECK_RESULTS,
+      connection: (data: GetIntegrationRunCheckResultsQuery) => firstRun(data)?.checkResults,
+      toRow: (check) => ({
+        id: check.id,
+        details: check.details || '-',
+        status: check.status,
+        controlEdges: check.controls?.edges,
+        updatedAt: check.updatedAt,
+      }),
+    }),
+  },
 ]

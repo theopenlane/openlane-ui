@@ -92,3 +92,5 @@ export const buildMembershipList = (connection: MembershipConnection | null | un
   items.sort(compareMemberships)
   return { items, totalCount: connection.totalCount }
 }
+
+export const vendorDirectoryGroupHref = (vendorId: string, groupId: string): string => `/registry/vendors/${vendorId}?tab=directory&group=${groupId}`

@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type CheckResultsWithFilterQuery,
+  type CheckResultsCountQuery,
+  type CheckResultsCountQueryVariables,
   type CheckResultsWithFilterQueryVariables,
   type CreateCheckResultMutation,
   type CreateCheckResultMutationVariables,
@@ -19,9 +21,11 @@ import {
   type DeleteBulkCheckResultMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
+import { getNodes } from '@/lib/graphql-hooks/connection'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_CHECK_RESULTS,
+  GET_CHECK_RESULTS_COUNT,
   CREATE_CHECK_RESULT,
   UPDATE_CHECK_RESULT,
   DELETE_CHECK_RESULT,
@@ -31,33 +35,38 @@ import {
   BULK_DELETE_CHECK_RESULT,
 } from '@repo/codegen/query/check-result'
 
+export type CheckResultIncludeVars = Pick<CheckResultsWithFilterQueryVariables, 'includeFindings'>
+
 type GetAllCheckResultsArgs = {
   where?: CheckResultsWithFilterQueryVariables['where']
   orderBy?: CheckResultsWithFilterQueryVariables['orderBy']
   pagination?: TPagination
   enabled?: boolean
+  includeVars?: CheckResultIncludeVars
 }
 
-export type CheckResultsNode = NonNullable<NonNullable<NonNullable<CheckResultsWithFilterQuery['checkResults']>['edges']>[number]>['node']
+export type CheckResultsNode = NonNullable<NonNullable<NonNullable<CheckResultsWithFilterQuery['checkResults']['edges']>[number]>['node']>
 
-export type CheckResultsNodeNonNull = NonNullable<CheckResultsNode>
-
-export const useCheckResultsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllCheckResultsArgs) => {
+export const useCheckResultsWithFilter = ({ where, orderBy, pagination, enabled = true, includeVars }: GetAllCheckResultsArgs) => {
   const { client } = useGraphQLClient()
-  const queryResult = useQuery<CheckResultsWithFilterQuery, unknown>({
-    queryKey: ['checkResults', where, orderBy, pagination?.page, pagination?.pageSize],
-    queryFn: async (): Promise<CheckResultsWithFilterQuery> => {
-      const result = await client.request<CheckResultsWithFilterQuery>(GET_ALL_CHECK_RESULTS, { where, orderBy, ...pagination?.query })
-      return result
-    },
+  const queryResult = useQuery<CheckResultsWithFilterQuery>({
+    queryKey: ['checkResults', where, orderBy, pagination?.page, pagination?.pageSize, includeVars],
+    queryFn: () => client.request<CheckResultsWithFilterQuery, CheckResultsWithFilterQueryVariables>(GET_ALL_CHECK_RESULTS, { where, orderBy, ...includeVars, ...pagination?.query }),
     enabled,
   })
 
-  const edges = queryResult.data?.checkResults?.edges ?? []
-
-  const checkResultsNodes: CheckResultsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as CheckResultsNodeNonNull)
+  const checkResultsNodes = getNodes(queryResult.data?.checkResults)
 
   return { ...queryResult, checkResultsNodes }
+}
+
+export const useCheckResultsCount = (where: CheckResultsCountQueryVariables['where'], enabled = true) => {
+  const { client } = useGraphQLClient()
+  return useQuery<CheckResultsCountQuery>({
+    queryKey: ['checkResults', 'count', where],
+    queryFn: () => client.request<CheckResultsCountQuery, CheckResultsCountQueryVariables>(GET_CHECK_RESULTS_COUNT, { where }),
+    enabled,
+  })
 }
 
 export const useCreateCheckResult = () => {

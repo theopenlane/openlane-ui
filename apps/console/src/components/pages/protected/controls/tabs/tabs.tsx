@@ -12,6 +12,9 @@ import ActivityTab from '@/components/pages/protected/controls/tabs/activity/act
 import AssetsScansTab from '@/components/pages/protected/controls/tabs/assets-scans/assets-scans-tab'
 import FindingsRisksTab from '@/components/pages/protected/controls/tabs/findings-risks/findings-risks-tab'
 import ReviewsTab from '@/components/pages/protected/controls/tabs/reviews/reviews-tab'
+import ChecksTab from '@/components/pages/protected/controls/tabs/checks/checks-tab'
+import { useCheckFilters } from '@/components/pages/protected/controls/tabs/checks/use-check-filters'
+import { useCheckResultsCount } from '@/lib/graphql-hooks/check-result'
 import DetailTabs from '@/components/shared/detail-tabs/detail-tabs'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
 import { useDetailTabs, type TDetailTab } from '@/components/shared/detail-tabs/use-detail-tabs'
@@ -41,7 +44,7 @@ type SubcontrolTabsProps = {
 }
 
 type TabsProps = ControlTabsProps | SubcontrolTabsProps
-type ControlTabValue = 'implementation' | 'evidence' | 'linked-controls' | 'guidance' | 'documentation' | 'assets-scans' | 'findings-risks' | 'reviews' | 'activity'
+type ControlTabValue = 'implementation' | 'evidence' | 'linked-controls' | 'guidance' | 'documentation' | 'assets-scans' | 'findings-risks' | 'checks' | 'reviews' | 'activity'
 
 const CONTROL_TABS: TDetailTab<ControlTabValue>[] = [
   { value: 'implementation', label: 'Implementations' },
@@ -51,6 +54,7 @@ const CONTROL_TABS: TDetailTab<ControlTabValue>[] = [
   { value: 'documentation', label: 'Documentation' },
   { value: 'assets-scans', label: 'Assets + Scans' },
   { value: 'findings-risks', label: 'Findings + Risks' },
+  { value: 'checks', label: 'Checks' },
   { value: 'reviews', label: 'Reviews' },
   { value: 'activity', label: 'Activity' },
 ]
@@ -111,6 +115,11 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
   const hasAssetsScans = associationCount('assets', 'scans') > 0
   const hasFindingsRisks = associationCount('findings', 'risks', 'vulnerabilities') > 0
   const hasReviews = associationCount('reviews') > 0
+  const checkFilters = useCheckFilters()
+  const checksCountWhere = useMemo(() => ({ hasControlsWith: [{ id: control?.id ?? '' }] }), [control?.id])
+  const checksCount = useCheckResultsCount(checksCountWhere, !isSubcontrol && Boolean(control?.id))
+  const isChecksCountResolving = !isSubcontrol && (checksCount.isPending || checksCount.isPlaceholderData)
+  const hasChecks = !isSubcontrol && !checksCount.isPlaceholderData && (checksCount.data?.checkResults.totalCount ?? 0) > 0
 
   const { hasData: hasImplementationData, isLoading: isImplementationDataLoading } = useHasImplementationData({ publicRepresentation: props.data?.publicRepresentation })
 
@@ -120,17 +129,18 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
     if (!hasAssetsScans) empty.add('assets-scans')
     if (!hasFindingsRisks) empty.add('findings-risks')
     if (!hasReviews) empty.add('reviews')
+    if (!hasChecks) empty.add('checks')
     // hiding it while the queries are still in flight would flash the tab away and move the default tab
     if (!hasImplementationData && !isImplementationDataLoading) empty.add('implementation')
     return empty
-  }, [hasGuidanceData, hasAssetsScans, hasFindingsRisks, hasReviews, hasImplementationData, isImplementationDataLoading])
+  }, [hasGuidanceData, hasAssetsScans, hasFindingsRisks, hasReviews, hasChecks, hasImplementationData, isImplementationDataLoading])
 
   const tabs = useDetailTabs({
     page: 'control',
     tabs: CONTROL_TABS,
     defaultTab: 'implementation',
     unavailableTabs: emptyTabs,
-    isResolving: isAssociationsLoading || isImplementationDataLoading,
+    isResolving: isAssociationsLoading || isImplementationDataLoading || isChecksCountResolving,
   })
 
   const evidenceFormData = useMemo<TFormEvidenceData>(() => {
@@ -213,6 +223,12 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
       {hasFindingsRisks && (
         <TabsContent value="findings-risks" className="space-y-6">
           <FindingsRisksTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
+        </TabsContent>
+      )}
+
+      {hasChecks && control && (
+        <TabsContent value="checks" className="space-y-6">
+          <ChecksTab controlId={control.id} filtersState={checkFilters} />
         </TabsContent>
       )}
 
