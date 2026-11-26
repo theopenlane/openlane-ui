@@ -1,12 +1,17 @@
 import type { Page, Request } from '@playwright/test'
 
+import { FULL_CATALOG } from '@/lib/billing/product-catalog'
+import { SWITCH_CANCELED_REASON, intervalSwitchBlockedReason } from '@/lib/billing/interval-switch'
+import type { OpenlaneProductsResponse } from '@/types/stripe'
 import { formatDate } from '@/utils/date'
 
 import { test, expect } from '../fixtures/auth'
-import { FULL_CATALOG, fetchBillingCatalog, pickProducts, priceIdFor, type BillingCatalog, type CatalogProduct } from '../utils/billing-catalog'
+import { fetchBillingCatalog, pickProducts, priceIdFor, type BillingCatalog, type CatalogProduct } from '../utils/billing-catalog'
 import { FAKE_SCHEDULE_ID, VISA, fakeInvoice, installBillingFake, type BillingFake, type BillingScenario } from '../utils/billing-fake'
-import { BILLING_PATH, confirmDialog, intervalButton, openBilling, productAction } from '../utils/billing-page'
+import { BILLING_PATH, confirmDialog, disabledReason, intervalButton, openBilling, productAction } from '../utils/billing-page'
 import { toast } from '../utils/mutations'
+
+const PRICE_OUTSIDE_CATALOG = 'price_e2e_not_in_catalog'
 
 const TEN_DAYS_SECONDS = 10 * 24 * 60 * 60 // 10 days
 
@@ -204,6 +209,39 @@ test.describe('billing — subscription state', () => {
       await expect(productAction(page, secondary, 'Unsubscribe')).toBeEnabled()
     })
 
+    test('a private module the org already has is listed and can be removed', async ({ page }) => {
+      const [owned, notOwned] = pickProducts(
+        fullCatalog.modules.filter((module) => module.audience !== 'public'),
+        2,
+        'private modules',
+      )
+      await open(page, { priceIds: [priceIdFor(primary, 'month'), priceIdFor(owned, 'month')] })
+      await expect(page.getByText(VISA.last4, { exact: true })).toBeVisible()
+
+      await expect(productAction(page, notOwned, 'Subscribe')).toHaveCount(0)
+      const removed = await bodyOfRequest(page, '/api/stripe/schedules/update', async () => {
+        await productAction(page, owned, 'Unsubscribe').click()
+        await confirmDialog(page, `Remove ${owned.display_name}?`, 'Confirm')
+      })
+      expect(removed).toEqual({ scheduleId: FAKE_SCHEDULE_ID, priceId: priceIdFor(owned, 'month'), quantity: 1, action: 'unsubscribe' })
+      await expect(productAction(page, owned, 'Renew')).toBeVisible()
+    })
+
+    test('a product without a Stripe price is not offered', async ({ page }) => {
+      await page.route('**/v1/products**', async (route) => {
+        const response = await route.fetch()
+        const json = (await response.json()) as OpenlaneProductsResponse
+        const unpriced = Object.values(json.modules ?? {}).find((module) => module.lookup_key === secondary.lookup_key)
+        if (unpriced) unpriced.billing.prices = unpriced.billing.prices.map((price) => ({ ...price, price_id: undefined }))
+        await route.fulfill({ response, json })
+      })
+      await open(page)
+
+      await expect(productAction(page, primary, 'Unsubscribe')).toBeVisible()
+      await expect(productAction(page, secondary, 'Subscribe')).toHaveCount(0)
+      await page.unrouteAll({ behavior: 'wait' })
+    })
+
     test('a rejected change surfaces the reason', async ({ page }) => {
       await open(page, { failures: { 'schedules/update': 'This price is not available for purchase' } })
       await expect(page.getByText(VISA.last4, { exact: true })).toBeVisible()
@@ -219,15 +257,17 @@ test.describe('billing — subscription state', () => {
       ['month', 'year', 'Annual (15% off)', 'Switch to annual billing?'],
       ['year', 'month', 'Monthly', 'Switch to monthly billing?'],
     ] as const) {
-      test(`switching from ${from} to ${to} sends only the target interval`, async ({ page }) => {
+      test(`switching from ${from} to ${to} sends only the target interval and refreshes the upcoming cost`, async ({ page }) => {
         await open(page, { interval: from })
 
         const body = await bodyOfRequest(page, '/api/stripe/schedules/switch', async () => {
           await intervalButton(page, label).click()
           await confirmDialog(page, title, 'Confirm')
         })
+        const costRefetched = page.waitForRequest((request) => new URL(request.url()).pathname === '/api/stripe/upcoming-invoice')
 
         expect(body).toEqual({ scheduleId: FAKE_SCHEDULE_ID, interval: to })
+        await costRefetched
         await expect(toast(page, 'Interval switched')).toBeVisible()
         await expect(intervalButton(page, label)).toHaveAttribute('aria-pressed', 'true')
       })
@@ -238,7 +278,38 @@ test.describe('billing — subscription state', () => {
       await intervalButton(page, 'Annual (15% off)').click()
       await confirmDialog(page, 'Switch to annual billing?', 'Confirm')
       await expect(toast(page, 'Switch failed')).toBeVisible()
+      await expect(toast(page, 'Failed to switch payment schedule')).toBeVisible()
       await expect(intervalButton(page, 'Monthly')).toHaveAttribute('aria-pressed', 'true')
+    })
+
+    test('an item outside the catalog blocks the switch, says why and sends nothing', async ({ page }) => {
+      const switches: Request[] = []
+      page.on('request', (request) => {
+        if (request.url().endsWith('/api/stripe/schedules/switch')) switches.push(request)
+      })
+      await open(page, { priceIds: [priceIdFor(primary, 'month'), PRICE_OUTSIDE_CATALOG] })
+
+      const annual = intervalButton(page, 'Annual (15% off)')
+      await expect(annual).toBeDisabled()
+      const reason = intervalSwitchBlockedReason({ swaps: [], unswitchableProducts: [], unknownPriceIds: [PRICE_OUTSIDE_CATALOG] }, 'year')
+      await expect(await disabledReason(page, annual)).toHaveText(reason ?? '')
+      expect(switches).toHaveLength(0)
+    })
+
+    test('during a trial the confirmation says the trial continues', async ({ page }) => {
+      const switches: Request[] = []
+      page.on('request', (request) => {
+        if (request.url().endsWith('/api/stripe/schedules/switch')) switches.push(request)
+      })
+      await open(page, { status: 'trialing', trial: true })
+
+      await intervalButton(page, 'Annual (15% off)').click()
+      const dialog = page.getByRole('alertdialog', { name: 'Switch to annual billing?' })
+      await expect(dialog).toContainText('The change applies now. Your trial continues, and your first annual charge is made when it ends.')
+      await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()
+
+      await expect(intervalButton(page, 'Monthly')).toHaveAttribute('aria-pressed', 'true')
+      expect(switches).toHaveLength(0)
     })
   })
 
@@ -252,6 +323,8 @@ test.describe('billing — subscription state', () => {
       expect(cancelled).toEqual({ scheduleId: FAKE_SCHEDULE_ID })
       await expect(toast(page, 'Subscription cancelled')).toBeVisible()
       await expect(intervalButton(page, 'Annual (15% off)')).toBeDisabled()
+      await expect(await disabledReason(page, intervalButton(page, 'Annual (15% off)'))).toHaveText(SWITCH_CANCELED_REASON)
+      await page.mouse.move(0, 0)
       await expect(productAction(page, secondary, 'Subscribe')).toBeDisabled()
 
       await page.getByRole('button', { name: 'Renew subscription', exact: true }).click()

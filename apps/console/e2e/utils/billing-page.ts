@@ -23,3 +23,8 @@ export const productAction = (page: Page, { display_name }: CatalogProduct, acti
     .getByRole('button', { name: action, exact: true })
 
 export const intervalButton = (page: Page, name: string): Locator => page.getByRole('group', { name: 'Billing interval' }).getByRole('button', { name })
+
+export const disabledReason = async (page: Page, control: Locator): Promise<Locator> => {
+  await control.locator('..').hover()
+  return page.getByRole('tooltip').first()
+}

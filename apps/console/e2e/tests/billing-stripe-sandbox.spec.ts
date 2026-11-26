@@ -2,9 +2,10 @@ import { test, expect, type Page } from '@playwright/test'
 import type Stripe from 'stripe'
 
 import type { InvoicesResponse, PaymentMethodsResponse, Subscription, SubscriptionSchedulesResponse, UpcomingInvoiceResponse } from '@/types/stripe'
+import { FULL_CATALOG } from '@/lib/billing/product-catalog'
 
 import { createSharedOrg, getSelf, gqlData, loginViaApi, setDefaultOrg, type ApiSession } from '../utils/api'
-import { FULL_CATALOG, fetchBillingCatalog, pickProducts, priceIdFor, switchedPrice, type BillingCatalog, type CatalogProduct } from '../utils/billing-catalog'
+import { fetchBillingCatalog, pickProducts, priceIdFor, switchedPrice, type BillingCatalog, type CatalogProduct } from '../utils/billing-catalog'
 import { confirmDialog, intervalButton, openBilling, productAction } from '../utils/billing-page'
 import { PASSWORD } from '../utils/constants'
 import { loginViaForm } from '../utils/login'
@@ -106,7 +107,7 @@ test.describe('billing — real Stripe sandbox', () => {
     await attachTestCard(stripe, customerId)
 
     const subscribed = new Set(phasePriceIds(await schedule()).flat())
-    const available = [...catalog.modules, ...catalog.addons].filter((candidate) => !candidate.billing.prices.some(({ price_id }) => subscribed.has(price_id)))
+    const available = [...catalog.modules, ...catalog.addons].filter((candidate) => !candidate.billing.prices.some(({ price_id }) => !!price_id && subscribed.has(price_id)))
     ;[product] = pickProducts(available, 1, 'unsubscribed products')
 
     page = await browser.newPage({ baseURL: test.info().project.use.baseURL })
@@ -243,6 +244,13 @@ test.describe('billing — real Stripe sandbox', () => {
       await page.waitForURL((url) => url.hostname === 'billing.stripe.com', { timeout: 60_000, waitUntil: 'commit' }) // 1min
     })
   }
+
+  test('the switch refuses an unknown interval and leaves Stripe untouched', async () => {
+    const before = await schedule()
+    const response = await page.request.post('/api/stripe/schedules/switch', { data: { scheduleId: before.id, interval: 'decade' } })
+    expect(response.status()).toBe(400)
+    expect(phasePriceIds(await schedule())).toEqual(phasePriceIds(before))
+  })
 
   test('switching to annual replaces every switchable price with its counterpart', async () => {
     const fullCatalog = await fetchBillingCatalog(FULL_CATALOG)

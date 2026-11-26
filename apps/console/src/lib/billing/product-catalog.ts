@@ -1,4 +1,3 @@
-import { openlaneAPIUrl } from '@repo/dally/auth'
 import { type Addon, type BillingInterval, type Module, type OpenlaneProductsResponse } from '@/types/stripe'
 
 export type TCatalogAudience = {
@@ -9,14 +8,6 @@ export type TCatalogAudience = {
 export const PURCHASABLE_CATALOG: TCatalogAudience = { includeBeta: true }
 
 export const FULL_CATALOG: TCatalogAudience = { includeBeta: true, includePrivate: true }
-
-export const productCatalogUrl = ({ includeBeta = false, includePrivate = false }: TCatalogAudience = {}): string => {
-  const params = new URLSearchParams()
-  if (includeBeta) params.set('include_beta', 'true')
-  if (includePrivate) params.set('include_private', 'true')
-  const query = params.toString()
-  return `${openlaneAPIUrl}/v1/products${query ? `?${query}` : ''}`
-}
 
 export const catalogProducts = (catalog: OpenlaneProductsResponse): (Module | Addon)[] => [...Object.values(catalog.modules ?? {}), ...Object.values(catalog.addons ?? {})]
 

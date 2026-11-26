@@ -1,7 +1,8 @@
 import 'server-only'
 import { type OpenlaneProductsResponse } from '@/types/stripe'
 import { coreFetch } from '@/lib/server/core-fetch'
-import { productCatalogUrl, type TCatalogAudience } from '@/lib/billing/product-catalog'
+import { type TCatalogAudience } from '@/lib/billing/product-catalog'
+import { productCatalogUrl } from '@/lib/billing/product-catalog-url'
 
 export const fetchCatalog = async (audience: TCatalogAudience): Promise<OpenlaneProductsResponse> => {
   const res = await coreFetch(productCatalogUrl(audience), { cache: 'no-store' })

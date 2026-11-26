@@ -72,9 +72,11 @@ type TSwitchableSchedule = {
 
 export const SWITCH_UNAVAILABLE_REASON = "This subscription's billing interval can't be changed here. Contact support to change it."
 
+export const SWITCH_CANCELED_REASON = 'Renew your subscription to change its billing interval.'
+
 export const scheduleSwitchBlockedReason = (schedule: TSwitchableSchedule | null | undefined): string | null => {
   if (!schedule || schedule.status !== 'active' || !schedule.current_phase) return SWITCH_UNAVAILABLE_REASON
-  if (schedule.end_behavior === 'cancel') return 'Renew your subscription to change its billing interval.'
+  if (schedule.end_behavior === 'cancel') return SWITCH_CANCELED_REASON
   return null
 }
 

@@ -1,4 +1,5 @@
 import type { Addon, Module, OpenlaneProductsResponse } from '@/types/stripe'
+import type { TCatalogAudience } from '@/lib/billing/product-catalog'
 
 import { API_BASE } from './constants'
 
@@ -13,11 +14,7 @@ export interface BillingCatalog {
 
 const BASE_MODULE_NAME = 'Base Module'
 
-export type CatalogAudience = { includeBeta?: boolean; includePrivate?: boolean }
-
-export const FULL_CATALOG: CatalogAudience = { includeBeta: true, includePrivate: true }
-
-export const fetchBillingCatalog = async ({ includeBeta = false, includePrivate = false }: CatalogAudience = {}): Promise<BillingCatalog> => {
+export const fetchBillingCatalog = async ({ includeBeta = false, includePrivate = false }: TCatalogAudience = {}): Promise<BillingCatalog> => {
   const params = new URLSearchParams()
   if (includeBeta) params.set('include_beta', 'true')
   if (includePrivate) params.set('include_private', 'true')

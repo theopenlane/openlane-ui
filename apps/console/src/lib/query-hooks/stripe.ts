@@ -8,7 +8,8 @@ import {
   type SubscriptionSchedulesResponse,
   type UpcomingInvoiceResponse,
 } from '@/types/stripe'
-import { productCatalogUrl, type TCatalogAudience } from '@/lib/billing/product-catalog'
+import { type TCatalogAudience } from '@/lib/billing/product-catalog'
+import { productCatalogUrl } from '@/lib/billing/product-catalog-url'
 import { type QueryClient, queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { fromUnixTime } from 'date-fns'
 import type Stripe from 'stripe'
