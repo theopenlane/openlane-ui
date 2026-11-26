@@ -1,6 +1,5 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { FileUp, InfoIcon, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
@@ -140,9 +139,9 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
                     {field.value !== null && (
                       <p>
                         Don&apos;t want to renew this evidence?{' '}
-                        <b className="text-sm cursor-pointer text-primary" {...activatable(() => field.onChange(null))}>
+                        <Button type="button" variant="link" className="font-normal underline" onClick={() => field.onChange(null)}>
                           Clear it
-                        </b>
+                        </Button>
                       </p>
                     )}
                     <FormMessage error={form.formState.errors.renewalDate} />

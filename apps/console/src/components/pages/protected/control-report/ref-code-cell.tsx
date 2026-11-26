@@ -5,7 +5,7 @@ import { Link } from '@/components/shared/link/link'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { cn } from '@repo/ui/lib/utils'
 import { type ControlControlStatus } from '@repo/codegen/src/schema'
-import { CONTROL_STATUS_STYLES } from '@/components/shared/enum-mapper/control-enum'
+import { getControlStatusStyle } from '@/components/shared/enum-mapper/control-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type RefCodeCellProps = {
@@ -16,16 +16,14 @@ type RefCodeCellProps = {
 }
 
 const RefCodeCell: React.FC<RefCodeCellProps> = ({ href, refCode, status, className }) => {
-  const statusStyle = status ? CONTROL_STATUS_STYLES[status] : null
-
   return (
     <div role="presentation" className={cn('min-w-0 text-sm font-medium', className)} onClick={(e) => e.stopPropagation()}>
       <TruncatedCell portal tooltipContent={refCode}>
         <Link href={href}>{refCode}</Link>
       </TruncatedCell>
-      {statusStyle && (
-        <span className="mt-1 block w-fit max-w-full truncate rounded-full px-1.5 py-0.5 text-[10px]" style={{ backgroundColor: statusStyle.bg, color: statusStyle.color }}>
-          {getEnumLabel(status ?? undefined)}
+      {status && (
+        <span className="mt-1 block w-fit max-w-full truncate rounded-full px-1.5 py-0.5 text-[10px]" style={getControlStatusStyle(status)}>
+          {getEnumLabel(status)}
         </span>
       )}
     </div>

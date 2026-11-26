@@ -194,13 +194,9 @@ export const EmailTemplatesTab: React.FC = () => {
                       <span>·</span>
                       <span>By {authorName}</span>
                       <span>·</span>
-                      <button
-                        type="button"
-                        className="cursor-pointer text-primary underline-offset-2 hover:underline"
-                        onClick={() => setLinkedCampaignsTemplate({ id: template.id, name: template.name })}
-                      >
+                      <Button type="button" variant="link" className="text-xs font-normal" onClick={() => setLinkedCampaignsTemplate({ id: template.id, name: template.name })}>
                         Used in {campaignsCount} {campaignsCount === 1 ? 'campaign' : 'campaigns'}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">

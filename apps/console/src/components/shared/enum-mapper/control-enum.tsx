@@ -23,7 +23,7 @@ import {
 } from 'lucide-react'
 import { type ControlControlSource, ControlControlStatus, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
 import { getEnumLabel } from './common-enum'
-import { tintedTextColor } from '@/utils/color-contrast'
+import { tintedSurfaceStyle } from '@/utils/color-contrast'
 
 export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> = {
   [ControlControlStatus.DRAFT]: <FilePenLine height={16} width={16} className="text-draft" />,
@@ -45,30 +45,33 @@ export const ControlImplementationIconMap: Record<ControlImplementationDocumentS
   [ControlImplementationDocumentStatus.PUBLISHED]: <Archive size={16} />,
 }
 
-export const ORG_COVERAGE_SEVERITY_ORDER: ControlControlStatus[] = [
-  ControlControlStatus.CHANGES_REQUESTED,
-  ControlControlStatus.NEEDS_APPROVAL,
-  ControlControlStatus.PREPARING,
-  ControlControlStatus.NOT_IMPLEMENTED,
-  ControlControlStatus.APPROVED,
-]
+const UNKNOWN_ORG_COVERAGE_SEVERITY_RANK = 5
 
-export const CONTROL_STATUS_STYLES: Partial<Record<ControlControlStatus, { bg: string; color: string }>> = {
-  [ControlControlStatus.CHANGES_REQUESTED]: { bg: 'color-mix(in srgb, var(--color-changes-requested) 15%, transparent)', color: tintedTextColor('var(--color-changes-requested)') },
-  [ControlControlStatus.NEEDS_APPROVAL]: { bg: 'color-mix(in srgb, var(--color-needs-approval) 15%, transparent)', color: tintedTextColor('var(--color-needs-approval)') },
-  [ControlControlStatus.PREPARING]: { bg: 'color-mix(in srgb, var(--color-preparing) 15%, transparent)', color: tintedTextColor('var(--color-preparing)') },
-  [ControlControlStatus.NOT_IMPLEMENTED]: { bg: 'color-mix(in srgb, var(--color-not-implemented) 15%, transparent)', color: tintedTextColor('var(--color-not-implemented)') },
-  [ControlControlStatus.APPROVED]: { bg: 'color-mix(in srgb, var(--color-approved) 15%, transparent)', color: tintedTextColor('var(--color-approved)') },
+const ORG_COVERAGE_SEVERITY_RANK: Record<ControlControlStatus, number> = {
+  [ControlControlStatus.CHANGES_REQUESTED]: 0,
+  [ControlControlStatus.NEEDS_APPROVAL]: 1,
+  [ControlControlStatus.PREPARING]: 2,
+  [ControlControlStatus.NOT_IMPLEMENTED]: 3,
+  [ControlControlStatus.DRAFT]: 4,
+  [ControlControlStatus.APPROVED]: 6,
+  [ControlControlStatus.ARCHIVED]: 7,
+  [ControlControlStatus.NOT_APPLICABLE]: 7,
 }
 
-export const ControlStatusOrder: ControlControlStatus[] = [
-  ControlControlStatus.NOT_IMPLEMENTED,
-  ControlControlStatus.PREPARING,
-  ControlControlStatus.NEEDS_APPROVAL,
-  ControlControlStatus.CHANGES_REQUESTED,
-  ControlControlStatus.APPROVED,
-  ControlControlStatus.ARCHIVED,
-]
+export const getOrgCoverageSeverityRank = (status: ControlControlStatus): number => ORG_COVERAGE_SEVERITY_RANK[status] ?? UNKNOWN_ORG_COVERAGE_SEVERITY_RANK
+
+const CONTROL_STATUS_COLORS: Record<ControlControlStatus, string> = {
+  [ControlControlStatus.DRAFT]: 'var(--color-draft)',
+  [ControlControlStatus.CHANGES_REQUESTED]: 'var(--color-changes-requested)',
+  [ControlControlStatus.NEEDS_APPROVAL]: 'var(--color-needs-approval)',
+  [ControlControlStatus.PREPARING]: 'var(--color-preparing)',
+  [ControlControlStatus.NOT_IMPLEMENTED]: 'var(--color-not-implemented)',
+  [ControlControlStatus.APPROVED]: 'var(--color-approved)',
+  [ControlControlStatus.ARCHIVED]: 'var(--color-archived)',
+  [ControlControlStatus.NOT_APPLICABLE]: 'var(--color-preparing)',
+}
+
+export const getControlStatusStyle = (status: ControlControlStatus) => tintedSurfaceStyle(CONTROL_STATUS_COLORS[status] ?? 'var(--muted-foreground)')
 
 // Tooltip explanations for control statuses
 export const ControlStatusTooltips: Record<ControlControlStatus, string> = {

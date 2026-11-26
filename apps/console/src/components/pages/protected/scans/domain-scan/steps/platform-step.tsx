@@ -2,6 +2,7 @@
 
 import React, { useId } from 'react'
 import { Badge } from '@repo/ui/badge'
+import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Separator } from '@repo/ui/separator'
 import { EditableTextarea, Textarea } from '@repo/ui/textarea'
@@ -84,9 +85,9 @@ export const PlatformStep = ({
         </SectionCard>
 
         {perSystemCandidates.length > 0 ? (
-          <button type="button" className="px-1 text-sm text-primary underline decoration-dotted" onClick={() => setMode('per-system')}>
+          <Button type="button" variant="link" className="whitespace-normal px-1 text-left font-normal underline" onClick={() => setMode('per-system')}>
             Split these results into multiple platforms
-          </button>
+          </Button>
         ) : null}
       </div>
     )
@@ -96,10 +97,9 @@ export const PlatformStep = ({
     <div className="space-y-3">
       <p className="px-1 text-sm text-muted-foreground">
         Creating one platform per detected system.{' '}
-        <button type="button" className="text-primary underline decoration-dotted" onClick={() => setMode('single')}>
-          Switch back to a single platform for {hostname}
-        </button>
-        .
+        <Button type="button" variant="link" className="wrap-anywhere whitespace-normal text-left font-normal underline" onClick={() => setMode('single')}>
+          Switch back to a single platform for {hostname}.
+        </Button>
       </p>
 
       <SectionCard title="Platforms" count={perSystemCandidates.length} description="One platform will be created per selected system. Names and descriptions are editable.">

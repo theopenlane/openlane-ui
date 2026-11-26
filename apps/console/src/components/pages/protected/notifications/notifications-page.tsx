@@ -114,7 +114,7 @@ const NotificationsPage = () => {
 
         <div className="flex items-center gap-4">
           {unreadCount > 0 && (
-            <button onClick={markAllAsRead} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors">
+            <button onClick={markAllAsRead} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-hyperlink transition-colors">
               <CheckCheck className="w-3.5 h-3.5" />
               Mark all as read
             </button>

@@ -1,4 +1,6 @@
 import { activatable } from '@repo/ui/lib/a11y'
+import { cn } from '@repo/ui/lib/utils'
+import { LINK_CLASS_NAME } from '@/components/shared/link/link'
 import React, { useState } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useGetFirstFiveEvidencesByStatus } from '@/lib/graphql-hooks/evidence.ts'
@@ -85,7 +87,7 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
           <span className="font-medium">Browse by filter</span>
         </div>
         <div className="w-full border-b">
-          <button type="button" onClick={handleClick} className="text-primary size-fit pl-3 pb-2 hover:underline flex items-center gap-1 cursor-pointer">
+          <button type="button" onClick={handleClick} className={cn(LINK_CLASS_NAME, 'size-fit pl-3 pb-2 flex items-center gap-1 cursor-pointer')}>
             {evidenceData.name}
           </button>
         </div>
