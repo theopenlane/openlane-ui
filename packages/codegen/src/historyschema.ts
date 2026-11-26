@@ -774,6 +774,16 @@ export interface AssetsWithFilterQuery {
   }
 }
 
+export type GetAssetIdsQueryVariables = Exact<{
+  where?: Types.AssetWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetAssetIdsQuery {
+  assets: { edges: Array<{ node: { id: string } | null } | null> | null; pageInfo: { endCursor: any; hasNextPage: boolean } }
+}
+
 export type AssetQueryVariables = Exact<{
   assetId: string
 }>

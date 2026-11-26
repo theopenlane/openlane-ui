@@ -71,6 +71,22 @@ export const GET_ALL_ASSETS = gql`
   }
 `
 
+export const GET_ASSET_IDS = gql`
+  query GetAssetIds($where: AssetWhereInput, $first: Int, $after: Cursor) {
+    assets(where: $where, first: $first, after: $after) {
+      edges {
+        node {
+          id
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`
+
 export const ASSET = gql`
   query Asset($assetId: ID!) {
     asset(id: $assetId) {

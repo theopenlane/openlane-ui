@@ -21,8 +21,12 @@ import {
   type DeleteBulkAssetMutation,
   type DeleteBulkAssetMutationVariables,
   type GetAssetAssociationsQuery,
+  type GetAssetIdsQuery,
+  type GetAssetIdsQueryVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
+import { MAX_CONNECTION_RESULTS } from '@/constants/pagination'
+import { fetchAllConnectionNodes } from './fetch-all-connection-nodes'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_ASSETS,
@@ -35,6 +39,7 @@ import {
   BULK_EDIT_ASSET,
   BULK_DELETE_ASSET,
   GET_ASSET_ASSOCIATIONS,
+  GET_ASSET_IDS,
 } from '@repo/codegen/query/asset'
 
 type GetAllAssetsArgs = {
@@ -62,6 +67,17 @@ export const useAssetsWithFilter = ({ where, orderBy, pagination, enabled = true
   const assetsNodes: AssetsNodeNonNull[] = useMemo(() => (queryResult.data?.assets?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node as AssetsNodeNonNull] : [])), [queryResult.data])
 
   return { ...queryResult, assetsNodes }
+}
+
+export const useFetchAssetIds = () => {
+  const { client } = useGraphQLClient()
+  return async (where: GetAssetIdsQueryVariables['where']): Promise<string[]> => {
+    const assets = await fetchAllConnectionNodes(async (after) => {
+      const data = await client.request<GetAssetIdsQuery, GetAssetIdsQueryVariables>(GET_ASSET_IDS, { where, first: MAX_CONNECTION_RESULTS, after })
+      return data.assets
+    })
+    return assets.map((asset) => asset.id)
+  }
 }
 
 export const useCreateAsset = () => {

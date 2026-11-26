@@ -19,7 +19,7 @@ import { VULNERABILITY_ASSIGNEE } from '../../../vulnerability-responsibilities'
 import { buildRemediationTaskDefaults } from '../../../vulnerability-display'
 import { ExposureAssetEnvironmentPopover } from './exposure-asset-environment-popover'
 
-export type TSelectedReport = { id: string; isOpen: boolean; externalOwnerID?: string | null; hasAssetEnvironment: boolean }
+export type TSelectedReport = { id: string; isOpen: boolean; externalOwnerID?: string | null; hasAsset: boolean; hasAssetEnvironment: boolean }
 
 type TExposureBulkActionsProps = {
   selected: TSelectedReport[]

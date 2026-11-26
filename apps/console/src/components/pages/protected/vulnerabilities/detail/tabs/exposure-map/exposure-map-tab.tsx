@@ -65,6 +65,7 @@ const ExposureMapTab: React.FC<TExposureMapTabProps> = ({ vulnerability, canEdit
         id: row.report.id,
         isOpen: row.isOpen,
         externalOwnerID: row.report.externalOwnerID,
+        hasAsset: !!previous?.hasAsset || !!row.asset,
         hasAssetEnvironment: !!previous?.hasAssetEnvironment || !!row.asset?.environmentName?.trim(),
       })
     })
