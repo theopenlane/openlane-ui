@@ -6550,6 +6550,14 @@ export interface GetAllOrganizationsQuery {
   }
 }
 
+export type GetOrganizationPaymentMethodsQueryVariables = Exact<{ [key: string]: never }>
+
+export interface GetOrganizationPaymentMethodsQuery {
+  organizations: {
+    edges: Array<{ node: { id: string; setting: { paymentMethodAdded: boolean } | null; orgSubscriptions: Array<{ stripeSubscriptionStatus: string | null }> | null } | null } | null> | null
+  }
+}
+
 export type GetOrganizationNameByIdQueryVariables = Exact<{
   organizationId: string
 }>

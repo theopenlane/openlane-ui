@@ -7,6 +7,7 @@ import {
   GET_SINGLE_ORGANIZATION_MEMBERS,
   GET_INVITES,
   GET_ORGANIZATION_BILLING,
+  GET_ORGANIZATION_PAYMENT_METHODS,
   GET_ORGANIZATION_SETTING,
   GET_ORGANIZATION_DOMAINS,
   GET_BILLING_EMAIL,
@@ -28,6 +29,7 @@ import {
   type GetInvitesQuery,
   type GetOrganizationBillingQuery,
   type GetOrganizationBillingQueryVariables,
+  type GetOrganizationPaymentMethodsQuery,
   type GetOrganizationSettingQuery,
   type GetOrganizationSettingQueryVariables,
   type GetOrganizationDomainsQuery,
@@ -169,6 +171,22 @@ export const useGetBillingBanner = (organizationId: string | undefined) => {
     queryKey: ['organizationBilling', 'banner', organizationId],
     queryFn: async () => client.request(GET_ORGANIZATION_BILLING_BANNER, { organizationId }),
     enabled: !!organizationId,
+  })
+}
+
+export const useGetOrganizationPaymentMethods = ({ enabled }: { enabled: boolean }) => {
+  const { client } = useGraphQLClient()
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user?.userId
+  const organizationId = sessionData?.user?.activeOrganizationId
+
+  return useQuery<GetOrganizationPaymentMethodsQuery>({
+    queryKey: ['organizationPaymentMethods', userId, organizationId],
+    queryFn: async () => client.request(GET_ORGANIZATION_PAYMENT_METHODS),
+    enabled: enabled && !!userId && !!organizationId,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    placeholderData: undefined,
   })
 }
 

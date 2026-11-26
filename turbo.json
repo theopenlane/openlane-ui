@@ -56,6 +56,7 @@
 
         // Billing Settings
         "STRIPE_SECRET_KEY",
+        "NEXT_PUBLIC_PAYMENT_METHOD_BYPASS_EMAIL_DOMAINS",
 
         // Pirsch Analytics for trust center
         "PIRSCH_SECRET",
