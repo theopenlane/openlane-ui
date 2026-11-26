@@ -1,92 +1,78 @@
 import { billingResourceNotFound, withBillingCustomer } from '@/lib/server/billing-customer'
-import { getStripe, retrieveCustomerSchedule } from '@/lib/stripe'
-import { fetchCatalogPrices, isSameCatalogProduct } from '@/lib/server/product-catalog'
+import { getStripe, priceIdOf, retrieveCustomerSchedule, stripeErrorDetails } from '@/lib/stripe'
+import { fetchCatalog } from '@/lib/server/fetch-catalog'
+import { toPhaseParams } from '@/lib/server/schedule-phase'
+import { FULL_CATALOG } from '@/lib/billing/product-catalog'
+import {
+  BILLING_INTERVALS,
+  intervalSwitchBlockedReason,
+  isCurrentOrFuturePhase,
+  planIntervalSwitch,
+  scheduleSwitchBlockedReason,
+  SWITCH_UNAVAILABLE_REASON,
+  switchingPriceIds,
+} from '@/lib/billing/interval-switch'
 import { NextResponse } from 'next/server'
-import type Stripe from 'stripe'
+import Stripe from 'stripe'
+import { z } from 'zod'
 
-interface Swap {
-  from: string
-  to: string
-}
+const switchIntervalBody = z.object({
+  scheduleId: z.string().min(1),
+  interval: z.enum(BILLING_INTERVALS),
+})
 
-interface RequestBody {
-  scheduleId: string
-  swaps: Swap[]
-}
+const conflict = (error: string) => NextResponse.json({ error }, { status: 409 })
 
 export const POST = withBillingCustomer(async (customerId, req) => {
+  const body = switchIntervalBody.safeParse(await req.json().catch(() => null))
+
+  if (!body.success) {
+    return NextResponse.json({ error: 'scheduleId and an interval of "month" or "year" are required' }, { status: 400 })
+  }
+
+  const { scheduleId, interval } = body.data
+
   try {
-    const { scheduleId, swaps } = (await req.json()) as RequestBody
-
-    if (!scheduleId || !Array.isArray(swaps) || swaps.length === 0) {
-      return NextResponse.json({ error: 'scheduleId and swaps[] are required' }, { status: 400 })
-    }
-
-    const catalog = await fetchCatalogPrices()
-    if (!swaps.every((swap) => isSameCatalogProduct(catalog, swap.from, swap.to))) {
-      return NextResponse.json({ error: 'Each swap must stay within the same product' }, { status: 400 })
-    }
-
-    const schedule = await retrieveCustomerSchedule(scheduleId, customerId)
+    const [schedule, catalog] = await Promise.all([retrieveCustomerSchedule(scheduleId, customerId), fetchCatalog(FULL_CATALOG)])
     if (!schedule) {
       return billingResourceNotFound()
     }
 
+    const scheduleBlockedReason = scheduleSwitchBlockedReason(schedule)
     const currentPhase = schedule.current_phase
-    if (!currentPhase) {
-      return NextResponse.json({ error: 'Schedule has no current_phase' }, { status: 400 })
+    if (scheduleBlockedReason || !currentPhase) {
+      return conflict(scheduleBlockedReason ?? SWITCH_UNAVAILABLE_REASON)
     }
 
-    const phases: Stripe.SubscriptionScheduleUpdateParams.Phase[] = schedule.phases.map((phase) => {
-      const normalized: Stripe.SubscriptionScheduleUpdateParams.Phase = {
-        start_date: phase.start_date,
-        end_date: phase.end_date,
-        currency: phase.currency,
-        proration_behavior: phase.proration_behavior ?? 'create_prorations',
-        add_invoice_items: (phase.add_invoice_items ?? []).map(
-          (item) =>
-            ({
-              price: typeof item.price === 'string' ? item.price : item.price.id,
-              quantity: item.quantity,
-              discounts: (item.discounts ?? []).map((d) => ({
-                coupon: typeof d.coupon === 'string' ? d.coupon : (d.coupon?.id ?? undefined),
-              })),
-            }) as Stripe.SubscriptionScheduleUpdateParams.Phase.AddInvoiceItem,
-        ),
-        items: phase.items.map((i) => ({
-          price: typeof i.price === 'string' ? i.price : i.price.id,
-          quantity: i.quantity,
-        })),
-      }
+    const plan = planIntervalSwitch(
+      catalog,
+      switchingPriceIds(
+        schedule.phases.map((phase) => ({ start_date: phase.start_date, items: phase.items.map((item) => ({ price: priceIdOf(item.price) })) })),
+        currentPhase,
+      ),
+      interval,
+    )
 
-      if (phase.trial_end) {
-        normalized.trial_end = phase.trial_end
-      }
-
-      return normalized
-    })
-
-    const map: Record<string, string> = Object.fromEntries(swaps.map((s) => [s.from, s.to]))
-
-    for (let i = 0; i < phases.length; i++) {
-      phases[i].items = phases[i].items?.map((it) => {
-        if (!it.price) {
-          throw new Error('Phase item has no price id')
-        }
-        return {
-          ...it,
-          price: map[it.price] ?? it.price,
-        }
-      })
+    const blockedReason = intervalSwitchBlockedReason(plan, interval)
+    if (blockedReason) {
+      console.warn('[billing] interval switch blocked', { scheduleId, interval, unswitchableProducts: plan.unswitchableProducts, unknownPriceIds: plan.unknownPriceIds })
+      return conflict(blockedReason)
     }
 
-    const updated = await getStripe().subscriptionSchedules.update(scheduleId, {
-      phases,
-    })
+    const swapTargets = new Map(plan.swaps.map(({ from, to }) => [from, to]))
 
-    return NextResponse.json({ scheduleId, swaps, phases, updated })
+    const phases = schedule.phases.map((phase) => (isCurrentOrFuturePhase(phase, currentPhase) ? toPhaseParams(phase, (priceId) => swapTargets.get(priceId) ?? priceId) : toPhaseParams(phase)))
+
+    const updated = await getStripe().subscriptionSchedules.update(scheduleId, { phases })
+
+    return NextResponse.json({ scheduleId, interval, swaps: plan.swaps, updated })
   } catch (err: unknown) {
-    console.error('Failed to switch payment schedule', err)
-    return NextResponse.json({ error: 'Failed to switch payment schedule' }, { status: 500 })
+    console.error('[billing] Failed to switch billing interval', { scheduleId, interval, ...stripeErrorDetails(err) })
+
+    if (err instanceof Stripe.errors.StripeInvalidRequestError) {
+      return conflict("Your subscription couldn't be switched. Contact support to change your billing interval.")
+    }
+
+    return NextResponse.json({ error: 'Failed to switch billing interval. Please try again later.' }, { status: 500 })
   }
 })

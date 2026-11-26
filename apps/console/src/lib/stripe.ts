@@ -16,6 +16,13 @@ export const getStripe = (): Stripe => {
   return client
 }
 
+export const priceIdOf = (price: string | Stripe.Price | Stripe.DeletedPrice): string => (typeof price === 'string' ? price : price.id)
+
+export const stripeErrorDetails = (err: unknown) =>
+  err instanceof Stripe.errors.StripeError
+    ? { error: err.message, type: err.type, code: err.code, statusCode: err.statusCode, requestId: err.requestId }
+    : { error: err instanceof Error ? err.message : String(err) }
+
 const nullIfMissing = (err: Error) => {
   if (err instanceof Stripe.errors.StripeInvalidRequestError && err.code === 'resource_missing') {
     return null

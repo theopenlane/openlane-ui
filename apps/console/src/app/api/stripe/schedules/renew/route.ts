@@ -1,5 +1,5 @@
 import { billingResourceNotFound, withBillingCustomer } from '@/lib/server/billing-customer'
-import { getStripe, retrieveCustomerSchedule, retrieveCustomerSubscription } from '@/lib/stripe'
+import { getStripe, priceIdOf, retrieveCustomerSchedule, retrieveCustomerSubscription } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 
@@ -37,7 +37,7 @@ export const POST = withBillingCustomer(async (customerId, req) => {
       phases: [
         ...schedule.phases.map((p) => ({
           items: p.items.map((i) => ({
-            price: i.price as string,
+            price: priceIdOf(i.price),
             quantity: i.quantity ?? 1,
           })),
           start_date: p.start_date,

@@ -1,5 +1,6 @@
 'use client'
-import { type Price } from '@/types/stripe'
+import { type Addon, type BillingInterval, type BillingPrice, type Module } from '@/types/stripe'
+import { priceForInterval } from '@/lib/billing/product-catalog'
 import { useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { formatDate } from '@/utils/date'
@@ -7,28 +8,16 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Box, InfoIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { Card } from '@repo/ui/cardpanel'
 import { Link } from '@/components/shared/link/link'
 
-type Product = {
-  product_id: string
-  display_name: string
-  description?: string
-  marketing_description?: string
-  billing: {
-    prices: {
-      price_id: string
-      interval: 'day' | 'week' | 'month' | 'year' | null
-      unit_amount: number
-    }[]
-  }
-}
+const ONLY_ACTIVE_MODULE_REASON = 'You only have one module enabled, you cannot cancel this module. You either need to cancel your subscription or add another module first.'
 
 interface ProductCardProps {
-  product: Product
-  currentInterval: 'day' | 'week' | 'month' | 'year' | null
-  activePriceIds: Set<string | Price>
+  product: Module | Addon
+  currentInterval: BillingInterval | null
+  activePriceIds: ReadonlySet<string>
   endingPriceIds: Set<string>
   nextPhaseStart: Date | null
   updating: boolean
@@ -38,7 +27,7 @@ interface ProductCardProps {
   isSubscriptionCanceled: boolean
 }
 
-export function ProductCard({
+export const ProductCard = ({
   product,
   currentInterval,
   activePriceIds,
@@ -49,18 +38,19 @@ export function ProductCard({
   onUnsubscribe,
   isOnlyActiveModule,
   isSubscriptionCanceled,
-}: ProductCardProps) {
+}: ProductCardProps) => {
   const [confirmSubscribeOpen, setConfirmSubscribeOpen] = useState(false)
   const [confirmUnsubscribeOpen, setConfirmUnsubscribeOpen] = useState(false)
   const [confirmRenewOpen, setConfirmRenewOpen] = useState(false)
 
-  const priceForCurrentInterval = product.billing.prices.find((pr) => pr.interval === currentInterval)
-  if (!priceForCurrentInterval) return null
+  const priceForCurrentInterval = priceForInterval(product, currentInterval)
+  const priceId = priceForCurrentInterval?.price_id
+  if (!priceForCurrentInterval || !priceId) return null
 
-  const alreadySubscribed = activePriceIds.has(priceForCurrentInterval.price_id)
-  const endingSoon = endingPriceIds.has(priceForCurrentInterval.price_id)
+  const alreadySubscribed = activePriceIds.has(priceId)
+  const endingSoon = endingPriceIds.has(priceId)
 
-  function renderPriceOptions(prices: Product['billing']['prices']) {
+  const renderPriceOptions = (prices: BillingPrice[]) => {
     const monthly = prices.find((pr) => pr.interval === 'month')
     const yearly = prices.find((pr) => pr.interval === 'year')
 
@@ -110,22 +100,11 @@ export function ProductCard({
                       Renew
                     </Button>
                   ) : (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span>
-                            <Button className="h-8 p-2" variant="destructive" disabled={updating || isOnlyActiveModule || isSubscriptionCanceled} onClick={() => setConfirmUnsubscribeOpen(true)}>
-                              Unsubscribe
-                            </Button>
-                          </span>
-                        </TooltipTrigger>
-                        {isOnlyActiveModule && (
-                          <TooltipContent side="top" className="max-w-xs">
-                            You only have one module enabled, you cannot cancel this module. You either need to cancel your subscription or add another module first.
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
-                    </TooltipProvider>
+                    <DisabledReasonTooltip side="top" reason={isOnlyActiveModule ? ONLY_ACTIVE_MODULE_REASON : null}>
+                      <Button className="h-8 p-2" variant="destructive" disabled={updating || isOnlyActiveModule || isSubscriptionCanceled} onClick={() => setConfirmUnsubscribeOpen(true)}>
+                        Unsubscribe
+                      </Button>
+                    </DisabledReasonTooltip>
                   )
                 ) : (
                   <Button variant="secondary" className="h-8 p-2" disabled={updating || isSubscriptionCanceled} onClick={() => setConfirmSubscribeOpen(true)}>
@@ -151,7 +130,7 @@ export function ProductCard({
         onOpenChange={setConfirmRenewOpen}
         onConfirm={() => {
           setConfirmRenewOpen(false)
-          onSubscribe(priceForCurrentInterval.price_id)
+          onSubscribe(priceId)
         }}
         title={`Renew ${product.display_name}?`}
         description={
@@ -172,7 +151,7 @@ export function ProductCard({
         onOpenChange={setConfirmSubscribeOpen}
         onConfirm={() => {
           setConfirmSubscribeOpen(false)
-          onSubscribe(priceForCurrentInterval.price_id)
+          onSubscribe(priceId)
         }}
         title={`Add ${product.display_name}?`}
         description={
@@ -197,7 +176,7 @@ export function ProductCard({
         onOpenChange={setConfirmUnsubscribeOpen}
         onConfirm={() => {
           setConfirmUnsubscribeOpen(false)
-          onUnsubscribe(priceForCurrentInterval.price_id)
+          onUnsubscribe(priceId)
         }}
         title={`Remove ${product.display_name}?`}
         description={

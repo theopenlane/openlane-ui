@@ -4,7 +4,9 @@ import React, { useEffect, useMemo } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
 import { useOpenlaneProductsQuery, usePaymentMethodsQuery, useSchedulesQuery, useSubscriptionQuery, useUpdateScheduleMutation, useUpcomingInvoiceQuery } from '@/lib/query-hooks/stripe'
-import { type Price, type SubscriptionItem } from '@/types/stripe'
+import { type Addon, type BillingInterval, type Module, type SubscriptionItem } from '@/types/stripe'
+import { isBillingInterval } from '@/lib/billing/interval-switch'
+import { FULL_CATALOG, isBaseModule, isProductActive } from '@/lib/billing/product-catalog'
 import { ProductCard } from './product-card'
 import { useNotification } from '@/hooks/useNotification'
 import { useSearchParams } from 'next/navigation'
@@ -21,7 +23,7 @@ const PricingPlan = () => {
 
   const stripeCustomerId = billingData?.organization.stripeCustomerID
 
-  const { data: openlaneProducts, isLoading: productsLoading } = useOpenlaneProductsQuery()
+  const { data: openlaneProducts, isLoading: productsLoading } = useOpenlaneProductsQuery(FULL_CATALOG)
   const { data: schedules = [], isLoading: schedulesLoading } = useSchedulesQuery(stripeCustomerId)
   const { mutateAsync: updateSchedule, isPending: updating } = useUpdateScheduleMutation()
 
@@ -45,15 +47,13 @@ const PricingPlan = () => {
   const pageLoading = productsLoading || schedulesLoading || subscriptionLoading || invoiceLoading
 
   const activePriceIds = useMemo(() => {
-    if (!subscription) return new Set<string | Price>()
-    const items: SubscriptionItem[] = subscription.items?.data || []
-    return new Set<string | Price>(items.map((item) => item.price?.id || item.price))
+    const items: SubscriptionItem[] = subscription?.items?.data || []
+    return new Set(items.flatMap((item) => (item.price?.id ? [item.price.id] : [])))
   }, [subscription])
 
-  const currentInterval = useMemo((): 'month' | 'year' | null => {
+  const currentInterval = useMemo((): BillingInterval | null => {
     const interval = subscription?.items?.data?.[0]?.price?.recurring?.interval
-    if (interval === 'month' || interval === 'year') return interval
-    return null
+    return interval && isBillingInterval(interval) ? interval : null
   }, [subscription])
 
   const nextOrCurrentPhase = schedules?.[0]?.phases?.[1] || schedules?.[0]?.phases?.[0] || null
@@ -83,20 +83,17 @@ const PricingPlan = () => {
 
   const isSubscriptionCanceled = schedules[0]?.end_behavior === 'cancel'
 
-  const modules = Object.values(openlaneProducts?.modules || {})
-  const modulesWithoutBase = modules.filter((m) => m.display_name !== 'Base Module')
+  const isListed = (product: Module | Addon) => product.audience === 'public' || isProductActive(product, currentInterval, activePriceIds)
+
+  const modulesWithoutBase = useMemo(() => Object.values(openlaneProducts?.modules || {}).filter((m) => !isBaseModule(m)), [openlaneProducts])
 
   const nextPhaseModulesNumber = useMemo(() => {
     if (!nextOrCurrentPhase || !currentInterval) return 0
 
-    return modulesWithoutBase.filter((m) => {
-      const priceForInterval = m.billing.prices.find((p) => p.interval === currentInterval)
-      if (!priceForInterval) return false
-      return nextPhaseActivePriceIds.has(priceForInterval.price_id)
-    }).length
+    return modulesWithoutBase.filter((m) => isProductActive(m, currentInterval, nextPhaseActivePriceIds)).length
   }, [modulesWithoutBase, nextOrCurrentPhase, nextPhaseActivePriceIds, currentInterval])
 
-  const addons = Object.values(openlaneProducts?.addons || {})
+  const addons = Object.values(openlaneProducts?.addons || {}).filter(isListed)
 
   const handleSubscribe = async (priceId: string) => {
     if (!paymentData?.hasPaymentMethod) {
@@ -167,6 +164,8 @@ const PricingPlan = () => {
 
       <div className="max-w-[1000px] ml-14">
         <BillingSummary
+          catalog={openlaneProducts}
+          subscriptionId={subscriptionId}
           activePriceIds={activePriceIds}
           stripeCustomerId={stripeCustomerId}
           nextPhaseStart={nextPhaseStart}
@@ -187,7 +186,7 @@ const PricingPlan = () => {
                 </div>
               ) : (
                 <div className="flex flex-col mt-4 w-full">
-                  {modulesWithoutBase.map((p) => (
+                  {modulesWithoutBase.filter(isListed).map((p) => (
                     <ProductCard
                       key={p.product_id}
                       product={p}

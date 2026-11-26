@@ -1,4 +1,5 @@
 import type { Addon, Module, OpenlaneProductsResponse } from '@/types/stripe'
+import type { TCatalogAudience } from '@/lib/billing/product-catalog'
 
 import { API_BASE } from './constants'
 
@@ -13,8 +14,11 @@ export interface BillingCatalog {
 
 const BASE_MODULE_NAME = 'Base Module'
 
-export const fetchBillingCatalog = async (): Promise<BillingCatalog> => {
-  const res = await fetch(`${API_BASE}/v1/products`)
+export const fetchBillingCatalog = async ({ includeBeta = false, includePrivate = false }: TCatalogAudience = {}): Promise<BillingCatalog> => {
+  const params = new URLSearchParams()
+  if (includeBeta) params.set('include_beta', 'true')
+  if (includePrivate) params.set('include_private', 'true')
+  const res = await fetch(`${API_BASE}/v1/products${params.size ? `?${params}` : ''}`)
   if (!res.ok) throw new Error(`GET /v1/products failed: ${res.status}`)
 
   const { modules, addons } = (await res.json()) as OpenlaneProductsResponse
@@ -29,14 +33,19 @@ export const fetchBillingCatalog = async (): Promise<BillingCatalog> => {
 
 export const allProducts = ({ base, modules, addons }: BillingCatalog): CatalogProduct[] => [...(base ? [base] : []), ...modules, ...addons]
 
-const findPrice = (product: CatalogProduct, interval: BillingInterval) => product.billing.prices.find((price) => price.interval === interval)
+const findPrice = (product: CatalogProduct, interval: BillingInterval) => product.billing.prices.find((price) => price.interval === interval && !!price.price_id)
 
 export const isSwitchable = (product: CatalogProduct): boolean => !!findPrice(product, 'month') && !!findPrice(product, 'year')
 
 export const priceIdFor = (product: CatalogProduct, interval: BillingInterval): string => {
-  const price = findPrice(product, interval)
-  if (!price) throw new Error(`${product.display_name} has no ${interval} price in core's catalog`)
-  return price.price_id
+  const priceId = findPrice(product, interval)?.price_id
+  if (!priceId) throw new Error(`${product.display_name} has no ${interval} price in core's catalog`)
+  return priceId
+}
+
+export const switchedPrice = (catalog: BillingCatalog, priceId: string, target: BillingInterval): string => {
+  const owner = allProducts(catalog).find((product) => product.billing.prices.some((price) => price.price_id === priceId))
+  return owner && isSwitchable(owner) ? priceIdFor(owner, target) : priceId
 }
 
 export const pickProducts = (products: CatalogProduct[], count: number, kind: string): CatalogProduct[] => {

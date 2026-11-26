@@ -1,12 +1,7 @@
 import { billingResourceNotFound, withBillingCustomer } from '@/lib/server/billing-customer'
-import { getStripe, retrieveCustomerSchedule, retrieveCustomerSubscription } from '@/lib/stripe'
+import { getStripe, priceIdOf, retrieveCustomerSchedule, retrieveCustomerSubscription } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-
-const asPriceId = (price: string | Stripe.Price | Stripe.DeletedPrice): string => {
-  if (typeof price === 'string') return price
-  return price.id
-}
 
 const asPriceUnitAmount = (price: string | Stripe.Price | Stripe.DeletedPrice): number | null => {
   if (typeof price === 'string') return null
@@ -93,7 +88,7 @@ const computeSubtotalCents = async (phase: Stripe.SubscriptionSchedule.Phase): P
   const missingPriceIds = new Set<string>()
 
   for (const item of phaseItems) {
-    const priceId = asPriceId(item.price)
+    const priceId = priceIdOf(item.price)
     const inlineUnitAmount = asPriceUnitAmount(item.price)
 
     if (inlineUnitAmount === null) {
@@ -117,7 +112,7 @@ const computeSubtotalCents = async (phase: Stripe.SubscriptionSchedule.Phase): P
   }
 
   return phaseItems.reduce((sum, item) => {
-    const priceId = asPriceId(item.price)
+    const priceId = priceIdOf(item.price)
     const quantity = item.quantity ?? 1
     return sum + (unitAmountByPriceId.get(priceId) ?? 0) * quantity
   }, 0)

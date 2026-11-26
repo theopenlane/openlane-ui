@@ -1,4 +1,5 @@
 import {
+  type BillingInterval,
   type Invoice,
   type InvoicesResponse,
   type OpenlaneProductsResponse,
@@ -7,10 +8,15 @@ import {
   type SubscriptionSchedulesResponse,
   type UpcomingInvoiceResponse,
 } from '@/types/stripe'
-import { openlaneAPIUrl } from '@repo/dally/auth'
-import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { type TCatalogAudience } from '@/lib/billing/product-catalog'
+import { productCatalogUrl } from '@/lib/billing/product-catalog-url'
+import { type QueryClient, queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { fromUnixTime } from 'date-fns'
 import type Stripe from 'stripe'
+
+const BILLING_STATE_QUERY_KEYS = [['stripe-schedules'], ['stripe-subscription'], ['stripe-upcoming-invoice'], ['stripe-invoices']] as const
+
+export const invalidateBillingQueries = (queryClient: QueryClient) => Promise.all(BILLING_STATE_QUERY_KEYS.map((queryKey) => queryClient.invalidateQueries({ queryKey })))
 
 const schedulesQueryOptions = (customerId?: string | null) =>
   queryOptions({
@@ -64,7 +70,7 @@ export function useUpcomingInvoiceQuery({ customerId, scheduleId, subscriptionId
 
       const res = await fetch(`/api/stripe/upcoming-invoice?${params.toString()}`)
       if (!res.ok) {
-        const error = await res.json().catch(() => ({}))
+        const error = (await res.json().catch(() => ({}))) as { error?: string }
         throw new Error(error.error || 'Failed to fetch upcoming invoice')
       }
       return res.json() as Promise<UpcomingInvoiceResponse | null>
@@ -83,16 +89,12 @@ export function useUpdateScheduleMutation() {
         body: JSON.stringify({ scheduleId, priceId, quantity, action }),
       })
       if (!res.ok) {
-        const error = await res.json().catch(() => ({}))
+        const error = (await res.json().catch(() => ({}))) as { error?: string }
         throw new Error(error.error || 'Failed to update schedule')
       }
       return res.json()
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['stripe-schedules'],
-      })
-    },
+    onSuccess: () => invalidateBillingQueries(queryClient),
   })
 }
 
@@ -100,21 +102,19 @@ export function useSwitchIntervalMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ scheduleId, swaps }: { scheduleId: string; swaps: { from: string; to: string }[] }) => {
+    mutationFn: async ({ scheduleId, interval }: { scheduleId: string; interval: BillingInterval }) => {
       const res = await fetch('/api/stripe/schedules/switch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scheduleId, swaps }),
+        body: JSON.stringify({ scheduleId, interval }),
       })
-      const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        throw data // throw full object, not just message
+        const error = (await res.json().catch(() => ({}))) as { error?: string }
+        throw new Error(error.error || 'Unable to switch billing interval.')
       }
-      return data
+      return res.json()
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] })
-    },
+    onSuccess: () => invalidateBillingQueries(queryClient),
   })
 }
 
@@ -129,12 +129,12 @@ export function useCancelSubscriptionMutation() {
         body: JSON.stringify({ scheduleId }),
       })
       if (!res.ok) {
-        const error = await res.json().catch(() => ({}))
+        const error = (await res.json().catch(() => ({}))) as { error?: string }
         throw new Error(error.error || 'Failed to cancel subscription')
       }
       return res.json()
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] }),
+    onSuccess: () => invalidateBillingQueries(queryClient),
   })
 }
 
@@ -149,20 +149,20 @@ export function useRenewSubscriptionMutation() {
         body: JSON.stringify({ scheduleId }),
       })
       if (!res.ok) {
-        const error = await res.json().catch(() => ({}))
+        const error = (await res.json().catch(() => ({}))) as { error?: string }
         throw new Error(error.error || 'Failed to renew subscription')
       }
       return res.json()
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] }),
+    onSuccess: () => invalidateBillingQueries(queryClient),
   })
 }
 
-export function useOpenlaneProductsQuery(includeBeta: boolean = false) {
+export function useOpenlaneProductsQuery({ includeBeta = false, includePrivate = false }: TCatalogAudience = {}) {
   return useQuery<OpenlaneProductsResponse>({
-    queryKey: ['products', includeBeta],
+    queryKey: ['products', includeBeta, includePrivate],
     queryFn: async () => {
-      const res = await fetch(`${openlaneAPIUrl}/v1/products${includeBeta ? '?include_beta=true' : ''}`, {
+      const res = await fetch(productCatalogUrl({ includeBeta, includePrivate }), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -170,7 +170,7 @@ export function useOpenlaneProductsQuery(includeBeta: boolean = false) {
       })
 
       if (!res.ok) {
-        const error = await res.json().catch(() => ({}))
+        const error = (await res.json().catch(() => ({}))) as { error?: string }
         throw new Error(error.error || 'Failed to fetch Openlane products')
       }
 
@@ -212,7 +212,7 @@ export function usePaymentMethodsQuery(customerId?: string | null) {
 
       const res = await fetch('/api/stripe/payment-methods')
       if (!res.ok) {
-        const error = await res.json().catch(() => ({}))
+        const error = (await res.json().catch(() => ({}))) as { error?: string }
         throw new Error(error.error || 'Failed to fetch payment methods')
       }
 
@@ -242,7 +242,7 @@ const invoicesQueryOptions = ({ customerId, status, limit = DEFAULT_INVOICE_LIMI
       })
 
       if (!res.ok) {
-        const error = await res.json().catch(() => ({}))
+        const error = (await res.json().catch(() => ({}))) as { error?: string }
         throw new Error(error.error || 'Failed to fetch invoices')
       }
 

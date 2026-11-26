@@ -1,6 +1,7 @@
 import { billingResourceNotFound, withBillingCustomer } from '@/lib/server/billing-customer'
-import { getStripe, retrieveCustomerSchedule } from '@/lib/stripe'
-import { fetchCatalogPrices } from '@/lib/server/product-catalog'
+import { getStripe, priceIdOf, retrieveCustomerSchedule } from '@/lib/stripe'
+import { fetchCatalog } from '@/lib/server/fetch-catalog'
+import { catalogPriceIds, PURCHASABLE_CATALOG } from '@/lib/billing/product-catalog'
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 
@@ -25,13 +26,16 @@ export const POST = withBillingCustomer(async (customerId, req) => {
       return NextResponse.json({ error: 'quantity must be a positive whole number' }, { status: 400 })
     }
 
-    if (action === 'subscribe' && !(await fetchCatalogPrices()).has(priceId)) {
-      return NextResponse.json({ error: 'This price is not available for purchase' }, { status: 400 })
-    }
-
     let schedule = await retrieveCustomerSchedule(scheduleId, customerId)
     if (!schedule) {
       return billingResourceNotFound()
+    }
+
+    const currentPhaseStart = schedule.current_phase?.start_date
+    const onCurrentPhase = schedule.phases.some((phase) => phase.start_date === currentPhaseStart && phase.items.some((item) => priceIdOf(item.price) === priceId))
+
+    if (action === 'subscribe' && !onCurrentPhase && !catalogPriceIds(await fetchCatalog(PURCHASABLE_CATALOG)).has(priceId)) {
+      return NextResponse.json({ error: 'This price is not available for purchase' }, { status: 400 })
     }
 
     const newPrice = (await getStripe().prices.retrieve(priceId)) as Stripe.Price
@@ -68,7 +72,7 @@ export const POST = withBillingCustomer(async (customerId, req) => {
         proration_behavior: phase.proration_behavior ?? 'create_prorations',
         add_invoice_items: (phase.add_invoice_items as Stripe.SubscriptionScheduleUpdateParams.Phase.AddInvoiceItem[]) ?? [],
         items: phase.items.map((i) => ({
-          price: typeof i.price === 'string' ? i.price : i.price.id,
+          price: priceIdOf(i.price),
           quantity: i.quantity,
         })),
       }
