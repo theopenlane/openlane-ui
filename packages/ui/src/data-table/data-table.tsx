@@ -50,7 +50,7 @@ import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
 import { cn } from '../../lib/utils'
 import { TableKeyValue } from '../data-table/table-key.ts'
-import { isPinnedColumnId, reconcileColumnOrder, sortPinnedColumns } from './pinned-columns'
+import { isPinnedColumnId, reconcileColumnOrder, SELECT_COLUMN_ID, sortPinnedColumns } from './pinned-columns'
 export { TruncatedCell } from './truncated-cell'
 
 type CustomColumnDef<TData extends RowData> = ColumnDef<TData> & {
@@ -171,6 +171,14 @@ export function getInitialColumnOrder(tableKey: TableKeyValue): string[] {
   return []
 }
 
+const STICKY_SELECT_HEADER_CLASS = 'left-0 z-20'
+
+const STICKY_SELECT_CELL_CLASS = [
+  'sticky left-0 z-1',
+  'before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:hidden before:bg-(--surface,var(--color-secondary)) group-data-[scrolled-x]/data-table:before:block',
+  'after:pointer-events-none after:absolute after:inset-0 after:-z-1 after:hidden after:bg-card after:opacity-0 after:transition-opacity after:duration-500 group-hover:after:opacity-100 group-data-[scrolled-x]/data-table:after:block',
+]
+
 const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
 const cssVarKey = (id: string) => id.replace(/[^a-zA-Z0-9_-]/g, '')
 
@@ -260,6 +268,7 @@ interface SortableHeaderCellProps<TData extends RowData> {
 
 function SortableHeaderCell<TData extends RowData>({ header, sortField, sorting, handleSortChange, isLastHeader }: SortableHeaderCellProps<TData>) {
   const isDragDisabled = isPinnedColumnId(header.column.id)
+  const isSelectColumn = header.column.id === SELECT_COLUMN_ID
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: header.column.id, disabled: isDragDisabled })
   const columnCssKey = cssVarKey(header.column.id)
   const columnWidth = `var(--col-${columnCssKey})`
@@ -268,7 +277,7 @@ function SortableHeaderCell<TData extends RowData>({ header, sortField, sorting,
   const columnLabel = typeof header.column.columnDef.header === 'string' ? header.column.columnDef.header : (sortField?.label ?? header.column.id)
 
   const style: CSSProperties = {
-    position: 'relative',
+    position: isSelectColumn ? 'sticky' : 'relative',
     width: columnWidth,
     minWidth: columnWidth,
     transform: CSS.Translate.toString(transform),
@@ -277,7 +286,7 @@ function SortableHeaderCell<TData extends RowData>({ header, sortField, sorting,
   }
 
   return (
-    <TableHead variant="data" className="[&_svg]:shrink-0" ref={setNodeRef} style={style} aria-sort={ariaSort}>
+    <TableHead variant="data" className={cn('[&_svg]:shrink-0', isSelectColumn && STICKY_SELECT_HEADER_CLASS)} ref={setNodeRef} style={style} aria-sort={ariaSort}>
       {header.isPlaceholder ? null : (
         <div className="flex items-center gap-1">
           <div
@@ -620,6 +629,12 @@ export function DataTable<TData extends RowData>({
 
   const columnSizingInfo = table.state.columnResizing
 
+  const leftFadeOffset =
+    table
+      .getVisibleLeafColumns()
+      .find((column) => column.id === SELECT_COLUMN_ID)
+      ?.getSize() ?? 0
+
   const columnSizeVars = useMemo(() => {
     const vars: Record<string, string> = {}
     table.getAllLeafColumns().forEach((column) => {
@@ -734,11 +749,14 @@ export function DataTable<TData extends RowData>({
             </div>
           )}
 
-          <div className={cn(isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300', 'relative overflow-x-auto')}>
+          <div
+            data-scrolled-x={showLeftFade || undefined}
+            className={cn(isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300', 'group/data-table relative overflow-x-auto')}
+          >
             {showLeftFade && (
               <div
-                className="absolute left-0 top-5 w-6 bg-gradient-to-r from-border to-transparent pointer-events-none z-10"
-                style={{ bottom: horizontalScrollbarHeight ? `${horizontalScrollbarHeight}px` : '0' }}
+                className="absolute top-5 w-6 bg-gradient-to-r from-border to-transparent pointer-events-none z-10"
+                style={{ left: leftFadeOffset, bottom: horizontalScrollbarHeight ? `${horizontalScrollbarHeight}px` : '0' }}
               />
             )}
             {showRightFade && (
@@ -929,7 +947,7 @@ const DataRowContent = memo(function DataRowContent<TData extends RowData>({ row
             <TableCell
               variant="data"
               key={cell.id}
-              className={cn('truncate [&_svg]:shrink-0', (cell.column.columnDef.meta as CustomColumnDef<TData>['meta'])?.className)}
+              className={cn('truncate [&_svg]:shrink-0', cell.column.id === SELECT_COLUMN_ID && STICKY_SELECT_CELL_CLASS, (cell.column.columnDef.meta as CustomColumnDef<TData>['meta'])?.className)}
               style={{ width: widthVar, minWidth: widthVar, maxWidth: widthVar }}
             >
               {flexRender(cell.column.columnDef.cell, cell.getContext())}

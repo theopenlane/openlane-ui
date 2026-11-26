@@ -1,5 +1,6 @@
 'use client'
 
+import { SELECT_COLUMN_ID } from '@repo/ui/pinned-columns'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { type AllGroupsPaginatedFieldsFragment, type InviteInviteStatus, type InviteRole } from '@repo/codegen/src/schema.ts'
 import { InviteActions } from '../actions/invite-actions'
@@ -125,7 +126,7 @@ export const InvitesColumns = () => {
 export const groupTableForInvitesColumns = ({ allGroups, selectedGroups, setSelectedGroups }: TGroupTableForInvitesColumns) => {
   const columns: ColumnDef<AllGroupsPaginatedFieldsFragment>[] = [
     {
-      id: 'check',
+      id: SELECT_COLUMN_ID,
       header: () => {
         const isAllGroupsSelected = allGroups.length > 0 && allGroups.every((group) => selectedGroups.some((selectedGroup) => selectedGroup.id === group.id))
         const handleSelectAll = (checked: boolean) => {
