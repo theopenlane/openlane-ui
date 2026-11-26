@@ -1409,6 +1409,174 @@ export interface DeleteControlImplementationMutation {
   deleteControlImplementation: { deletedID: string }
 }
 
+export type ControlImplementationSummaryFieldsFragment = {
+  id: string
+  status: Types.ControlImplementationDocumentStatus | null
+  implementationDate: any
+  verified: boolean | null
+  verificationDate: any
+  tags: Array<string> | null
+  createdAt: any
+  createdBy: string | null
+  updatedAt: any
+  updatedBy: string | null
+  controls: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null } | null } | null> | null }
+  subcontrols: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null; controlID: string } | null } | null> | null }
+}
+
+export type ControlImplementationsWithFilterQueryVariables = Exact<{
+  where?: Types.ControlImplementationWhereInput | null | undefined
+  orderBy?: Array<Types.ControlImplementationOrder> | Types.ControlImplementationOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface ControlImplementationsWithFilterQuery {
+  controlImplementations: {
+    totalCount: number
+    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        status: Types.ControlImplementationDocumentStatus | null
+        implementationDate: any
+        verified: boolean | null
+        verificationDate: any
+        tags: Array<string> | null
+        createdAt: any
+        createdBy: string | null
+        updatedAt: any
+        updatedBy: string | null
+        controls: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null } | null } | null> | null }
+        subcontrols: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null; controlID: string } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+}
+
+export type ControlImplementationQueryVariables = Exact<{
+  controlImplementationId: string
+}>
+
+export interface ControlImplementationQuery {
+  controlImplementation: {
+    details: string | null
+    id: string
+    status: Types.ControlImplementationDocumentStatus | null
+    implementationDate: any
+    verified: boolean | null
+    verificationDate: any
+    tags: Array<string> | null
+    createdAt: any
+    createdBy: string | null
+    updatedAt: any
+    updatedBy: string | null
+    controls: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null } | null } | null> | null }
+    subcontrols: { edges: Array<{ node: { id: string; refCode: string; referenceFramework: string | null; controlID: string } | null } | null> | null }
+  }
+}
+
+export type GetControlImplementationAssociationsQueryVariables = Exact<{
+  controlImplementationId: string
+}>
+
+export interface GetControlImplementationAssociationsQuery {
+  controlImplementation: {
+    id: string
+    controls: {
+      totalCount: number
+      edges: Array<{ node: { __typename: 'Control'; id: string; refCode: string; description: string | null; referenceFramework: string | null; displayID: string } | null } | null> | null
+    }
+    subcontrols: {
+      totalCount: number
+      edges: Array<{
+        node: { __typename: 'Subcontrol'; id: string; refCode: string; description: string | null; referenceFramework: string | null; displayID: string; control: { id: string } } | null
+      } | null> | null
+    }
+    tasks: { totalCount: number; edges: Array<{ node: { __typename: 'Task'; id: string; title: string; displayID: string; details: string | null } | null } | null> | null }
+  }
+}
+
+export type ControlImplementationReferenceFieldsFragment = {
+  id: string
+  controls: { edges: Array<{ node: { refCode: string; referenceFramework: string | null } | null } | null> | null }
+  subcontrols: { edges: Array<{ node: { refCode: string; referenceFramework: string | null } | null } | null> | null }
+}
+
+export type GetControlImplementationLinkedControlsQueryVariables = Exact<{
+  controlImplementationId: string
+}>
+
+export interface GetControlImplementationLinkedControlsQuery {
+  controlImplementation: {
+    id: string
+    controls: {
+      totalCount: number
+      edges: Array<{
+        node: {
+          id: string
+          refCode: string
+          title: string | null
+          status: Types.ControlControlStatus | null
+          referenceFramework: string | null
+          controlImplementations: {
+            totalCount: number
+            edges: Array<{
+              node: {
+                id: string
+                controls: { edges: Array<{ node: { refCode: string; referenceFramework: string | null } | null } | null> | null }
+                subcontrols: { edges: Array<{ node: { refCode: string; referenceFramework: string | null } | null } | null> | null }
+              } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+    subcontrols: {
+      totalCount: number
+      edges: Array<{
+        node: {
+          id: string
+          refCode: string
+          title: string | null
+          status: Types.SubcontrolControlStatus | null
+          referenceFramework: string | null
+          control: { id: string; refCode: string; title: string | null; referenceFramework: string | null }
+          controlImplementations: {
+            totalCount: number
+            edges: Array<{
+              node: {
+                id: string
+                controls: { edges: Array<{ node: { refCode: string; referenceFramework: string | null } | null } | null> | null }
+                subcontrols: { edges: Array<{ node: { refCode: string; referenceFramework: string | null } | null } | null> | null }
+              } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type UpdateBulkControlImplementationMutationVariables = Exact<{
+  ids: Array<string> | string
+  input: Types.UpdateControlImplementationInput
+}>
+
+export interface UpdateBulkControlImplementationMutation {
+  updateBulkControlImplementation: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
+}
+
+export type DeleteBulkControlImplementationMutationVariables = Exact<{
+  ids: Array<string> | string
+}>
+
+export interface DeleteBulkControlImplementationMutation {
+  deleteBulkControlImplementation: { deletedIDs: Array<string>; notDeletedIDs: Array<string>; error: string | null }
+}
+
 export type ControlObjectiveFieldsFragment = {
   id: string
   name: string
@@ -2467,6 +2635,23 @@ export type ControlActivityQueryVariables = Exact<{
 
 export interface ControlActivityQuery {
   controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; title: string | null; createdAt: any } | null } | null> | null }
+}
+
+export type ControlSuggestionCandidateFieldsFragment = { id: string; refCode: string; title: string | null; description: string | null; referenceFramework: string | null }
+
+export type GetControlSuggestionCandidatesQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+  orderBy?: Array<Types.ControlOrder> | Types.ControlOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetControlSuggestionCandidatesQuery {
+  controls: {
+    totalCount: number
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{ node: { id: string; refCode: string; title: string | null; description: string | null; referenceFramework: string | null } | null } | null> | null
+  }
 }
 
 export type CustomTypeEnumFieldsFragment = { id: string; name: string; color: string | null; objectType: string; description: string | null; field: string; systemOwned: boolean | null }
@@ -6028,6 +6213,34 @@ export interface DeleteMappedControlMutation {
   deleteMappedControl: { deletedID: string }
 }
 
+export type SuggestionMappedControlFieldsFragment = { id: string; refCode: string; title: string | null; referenceFramework: string | null }
+
+export type SuggestionMappedSubcontrolFieldsFragment = { id: string; refCode: string; title: string | null; referenceFramework: string | null; control: { id: string } }
+
+export type GetControlSuggestionMappingsQueryVariables = Exact<{
+  where?: Types.MappedControlWhereInput | null | undefined
+  controlWhere?: Types.ControlWhereInput | null | undefined
+  subcontrolWhere?: Types.SubcontrolWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetControlSuggestionMappingsQuery {
+  mappedControls: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        mappingType: Types.MappedControlMappingType
+        fromControls: { edges: Array<{ node: { id: string; refCode: string; title: string | null; referenceFramework: string | null } | null } | null> | null }
+        toControls: { edges: Array<{ node: { id: string; refCode: string; title: string | null; referenceFramework: string | null } | null } | null> | null }
+        fromSubcontrols: { edges: Array<{ node: { id: string; refCode: string; title: string | null; referenceFramework: string | null; control: { id: string } } | null } | null> | null }
+        toSubcontrols: { edges: Array<{ node: { id: string; refCode: string; title: string | null; referenceFramework: string | null; control: { id: string } } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+}
+
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: string
   input: Types.UpdateOrgMembershipInput
@@ -9542,6 +9755,23 @@ export interface InsertSubcontrolPlateCommentMutation {
         } | null> | null
       }
     }
+  }
+}
+
+export type SubcontrolSuggestionCandidateFieldsFragment = { id: string; refCode: string; title: string | null; description: string | null; referenceFramework: string | null; control: { id: string } }
+
+export type GetSubcontrolSuggestionCandidatesQueryVariables = Exact<{
+  where?: Types.SubcontrolWhereInput | null | undefined
+  orderBy?: Array<Types.SubcontrolOrder> | Types.SubcontrolOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetSubcontrolSuggestionCandidatesQuery {
+  subcontrols: {
+    totalCount: number
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{ node: { id: string; refCode: string; title: string | null; description: string | null; referenceFramework: string | null; control: { id: string } } | null } | null> | null
   }
 }
 

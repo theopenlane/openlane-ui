@@ -40,7 +40,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   entityType: ObjectTypes
   displayName?: string
   displayNamePlural?: string
-  handleExport: () => void
+  handleExport?: () => void
   filterFields?: FilterField[] | undefined
   quickFilters?: TQuickFilter[]
   onFilterChange?: (filters: TWhereInput | null) => void
@@ -90,6 +90,8 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
   const openImport = useOpenImport()
   const importRoute = getImportRoute(props.entityType)
   const canImport = importRoute ? canImportWith(importRoute.permission, props.permission?.roles, session ?? null) : false
+
+  const hasMenuItems = mergeAvailable || (!!importRoute && canImport) || !!props.handleExport
 
   const openCreateSheet = () => {
     if (props.createMode?.type === 'full-page') {
@@ -214,39 +216,41 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
               </>
             ) : (
               <>
-                <Menu
-                  closeOnSelect={true}
-                  triggerAnchor={tableActionAnchor(props.entityType, 'actions-menu')}
-                  content={(close) => (
-                    <>
-                      {mergeAvailable && (
-                        <MenuItem
-                          {...tableActionAnchor(props.entityType, 'merge-records')}
-                          icon={<ArrowRightLeft size={16} strokeWidth={2} />}
-                          onSelect={() => {
-                            setMergeModeActive(true)
-                            close()
-                          }}
-                        >
-                          Merge records
-                        </MenuItem>
-                      )}
-                      {importRoute && canImport && (
-                        <MenuItem
-                          {...tableActionAnchor(props.entityType, 'bulk-upload')}
-                          icon={<Upload size={16} strokeWidth={2} />}
-                          onSelect={() => {
-                            close()
-                            openImport(importRoute)
-                          }}
-                        >
-                          Bulk Upload
-                        </MenuItem>
-                      )}
-                      <ExportMenuItem onExport={props.handleExport} onSelected={close} anchor={tableActionAnchor(props.entityType, 'export')} />
-                    </>
-                  )}
-                />
+                {hasMenuItems && (
+                  <Menu
+                    closeOnSelect={true}
+                    triggerAnchor={tableActionAnchor(props.entityType, 'actions-menu')}
+                    content={(close) => (
+                      <>
+                        {mergeAvailable && (
+                          <MenuItem
+                            {...tableActionAnchor(props.entityType, 'merge-records')}
+                            icon={<ArrowRightLeft size={16} strokeWidth={2} />}
+                            onSelect={() => {
+                              setMergeModeActive(true)
+                              close()
+                            }}
+                          >
+                            Merge records
+                          </MenuItem>
+                        )}
+                        {importRoute && canImport && (
+                          <MenuItem
+                            {...tableActionAnchor(props.entityType, 'bulk-upload')}
+                            icon={<Upload size={16} strokeWidth={2} />}
+                            onSelect={() => {
+                              close()
+                              openImport(importRoute)
+                            }}
+                          >
+                            Bulk Upload
+                          </MenuItem>
+                        )}
+                        {props.handleExport && <ExportMenuItem onExport={props.handleExport} onSelected={close} anchor={tableActionAnchor(props.entityType, 'export')} />}
+                      </>
+                    )}
+                  />
+                )}
 
                 {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                   <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={props.storageKey} />

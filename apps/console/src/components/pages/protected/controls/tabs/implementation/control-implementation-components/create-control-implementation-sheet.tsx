@@ -4,7 +4,7 @@ import { Sheet, SheetContent } from '@repo/ui/sheet'
 import React, { useEffect, useId, useMemo, useState } from 'react'
 import { CreateControlImplementationForm } from './form/create-control-implementation-form'
 import { ControlImplementationDocumentStatus, type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
-import useFormSchema from './form/use-form-schema'
+import useFormSchema, { type TFormData } from './form/use-form-schema'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useRetainedWhileOpen } from '@/hooks/useRetainedWhileOpen'
 import { useDeleteControlImplementation } from '@/lib/graphql-hooks/control-implementation'
@@ -17,9 +17,12 @@ type CreateControlImplementationSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   editData?: ControlImplementationFieldsFragment | null
+  createDefaults?: Partial<TFormData>
+  showControlPicker?: boolean
+  onCreated?: (id: string) => void
 }
 
-const CreateControlImplementationSheet: React.FC<CreateControlImplementationSheetProps> = ({ open, onOpenChange, editData }) => {
+const CreateControlImplementationSheet: React.FC<CreateControlImplementationSheetProps> = ({ open, onOpenChange, editData, createDefaults, showControlPicker, onCreated }) => {
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const formId = useId()
   const { form } = useFormSchema()
@@ -28,6 +31,7 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
   const { mutateAsync: deleteImplementation } = useDeleteControlImplementation()
 
   const openedWith = useRetainedWhileOpen(open, editData)
+  const createdWith = useRetainedWhileOpen(open, createDefaults)
 
   const normalizedValues = useMemo(() => {
     return openedWith
@@ -48,9 +52,10 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
       form.reset({
         implementationDate: new Date(),
         status: ControlImplementationDocumentStatus.DRAFT,
+        ...createdWith,
       })
     }
-  }, [open, form, normalizedValues])
+  }, [open, form, normalizedValues, createdWith])
 
   const handleClose = () => {
     if (isDirty) {
@@ -69,6 +74,11 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
     await deleteImplementation({ deleteControlImplementationId: implementationId })
     successNotification({ title: 'Control Implementation deleted' })
     onOpenChange(false)
+  }
+
+  const handleSuccess = (createdId?: string) => {
+    onOpenChange(false)
+    if (createdId) onCreated?.(createdId)
   }
 
   const isEditing = !!editData
@@ -105,7 +115,14 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
             />
           }
         >
-          <CreateControlImplementationForm formId={formId} form={form} onSuccess={() => onOpenChange(false)} defaultValues={normalizedValues} />
+          <CreateControlImplementationForm
+            formId={formId}
+            form={form}
+            onSuccess={handleSuccess}
+            defaultValues={normalizedValues}
+            createDefaults={createdWith ?? undefined}
+            showControlPicker={showControlPicker}
+          />
         </SheetContent>
       </Sheet>
       <CancelDialog isOpen={showCancelDialog} onConfirm={handleConfirmClose} onCancel={() => setShowCancelDialog(false)} />

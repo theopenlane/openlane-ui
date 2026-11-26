@@ -1217,3 +1217,32 @@ export const GET_CONTROL_ACTIVITY = gql`
     }
   }
 `
+
+export const CONTROL_SUGGESTION_CANDIDATE_FIELDS = gql`
+  fragment ControlSuggestionCandidateFields on Control {
+    id
+    refCode
+    title
+    description
+    referenceFramework
+  }
+`
+
+export const GET_CONTROL_SUGGESTION_CANDIDATES = gql`
+  ${CONTROL_SUGGESTION_CANDIDATE_FIELDS}
+
+  query GetControlSuggestionCandidates($where: ControlWhereInput, $orderBy: [ControlOrder!] = [{ field: ref_code, direction: ASC }], $first: Int, $after: Cursor) {
+    controls(where: $where, orderBy: $orderBy, first: $first, after: $after) {
+      totalCount
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          ...ControlSuggestionCandidateFields
+        }
+      }
+    }
+  }
+`

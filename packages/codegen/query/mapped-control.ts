@@ -160,3 +160,72 @@ export const DELETE_MAPPED_CONTROL = gql`
     }
   }
 `
+
+export const SUGGESTION_MAPPED_CONTROL_FIELDS = gql`
+  fragment SuggestionMappedControlFields on Control {
+    id
+    refCode
+    title
+    referenceFramework
+  }
+`
+
+export const SUGGESTION_MAPPED_SUBCONTROL_FIELDS = gql`
+  fragment SuggestionMappedSubcontrolFields on Subcontrol {
+    id
+    refCode
+    title
+    referenceFramework
+    control {
+      id
+    }
+  }
+`
+
+export const GET_CONTROL_SUGGESTION_MAPPINGS = gql`
+  ${SUGGESTION_MAPPED_CONTROL_FIELDS}
+  ${SUGGESTION_MAPPED_SUBCONTROL_FIELDS}
+
+  query GetControlSuggestionMappings($where: MappedControlWhereInput, $controlWhere: ControlWhereInput, $subcontrolWhere: SubcontrolWhereInput, $first: Int, $after: Cursor) {
+    mappedControls(where: $where, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          mappingType
+          fromControls(where: $controlWhere) {
+            edges {
+              node {
+                ...SuggestionMappedControlFields
+              }
+            }
+          }
+          toControls(where: $controlWhere) {
+            edges {
+              node {
+                ...SuggestionMappedControlFields
+              }
+            }
+          }
+          fromSubcontrols(where: $subcontrolWhere) {
+            edges {
+              node {
+                ...SuggestionMappedSubcontrolFields
+              }
+            }
+          }
+          toSubcontrols(where: $subcontrolWhere) {
+            edges {
+              node {
+                ...SuggestionMappedSubcontrolFields
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`

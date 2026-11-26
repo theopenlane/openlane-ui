@@ -1,3 +1,4 @@
+import { controlImplementationHref } from './control-implementation'
 import { pluralizeTypeName } from './strings'
 
 export type NormalizedObject = {
@@ -41,6 +42,7 @@ const SIMPLE_ROUTES: Record<string, (id: string) => string> = {
   findings: (id) => `/exposure/findings/${id}`,
   remediations: (id) => `/exposure/remediations?id=${id}`,
   reviews: (id) => `/exposure/reviews?id=${id}`,
+  controlImplementations: controlImplementationHref,
   vulnerabilities: (id) => `/exposure/vulnerabilities/${id}`,
 }
 
@@ -59,8 +61,6 @@ export const getHrefForObjectType = (kind: string, row?: NormalizedObject): stri
       return `/controls/${controlId}/${row.id}`
     case 'controlObjectives':
       return controlId ? `/controls/${controlId}?controlObjectiveId=${row.id}` : `?controlObjectiveId=${row.id}`
-    case 'controlImplementations':
-      return controlId ? `/controls/${controlId}?controlImplementationId=${row.id}` : `?controlImplementationId=${row.id}`
     default:
       return ''
   }

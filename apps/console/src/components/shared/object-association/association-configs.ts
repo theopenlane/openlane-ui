@@ -305,6 +305,32 @@ const remediationInitialDataKeys = {
 }
 const remediationAssociationKeys = ['controlIDs', 'subcontrolIDs', 'findingIDs', 'vulnerabilityIDs'] as const satisfies readonly (keyof typeof remediationInitialDataKeys)[]
 
+export const LINKABLE_CONTROL_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL]
+const controlImplementationAllowedObjectTypes = [...LINKABLE_CONTROL_TYPES, ObjectTypeObjects.TASK]
+const controlImplementationInitialDataKeys = {
+  controlIDs: 'controls',
+  subcontrolIDs: 'subcontrols',
+  taskIDs: 'tasks',
+}
+const controlImplementationAssociationKeys = ['controlIDs', 'subcontrolIDs', 'taskIDs'] as const satisfies readonly (keyof typeof controlImplementationInitialDataKeys)[]
+
+export const CONTROL_IMPLEMENTATION_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
+  entityType: 'controlImplementation',
+  dataRootField: 'controlImplementation',
+  queryKeyPrefix: 'controlImplementations',
+  allowedObjectTypes: controlImplementationAllowedObjectTypes,
+  initialDataKeys: controlImplementationInitialDataKeys,
+  associationKeys: controlImplementationAssociationKeys,
+  sectionMappings: [SECTION_MAPPINGS.controls, SECTION_MAPPINGS.subcontrols, SECTION_MAPPINGS.tasks],
+  dialogConfig: {
+    dataRootField: 'controlImplementation',
+    invalidateQueryKey: 'controlImplementations',
+    successMessage: 'Control implementation updated',
+    allowedObjectTypes: controlImplementationAllowedObjectTypes,
+    initialDataKeys: controlImplementationInitialDataKeys,
+  },
+})
+
 export const REMEDIATION_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'remediation',
   dataRootField: 'remediation',

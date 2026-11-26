@@ -11,6 +11,9 @@ export const controlImplementationSchema = z.object({
   status: z.enum(ControlImplementationDocumentStatus).optional(),
   implementationDate: z.date().nullable().optional(),
   controlIDs: z.array(z.string()).optional(),
+  subcontrolIDs: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
+  verified: z.boolean().optional(),
 })
 
 export type TFormData = z.infer<typeof controlImplementationSchema> & { id?: string; revision?: string }

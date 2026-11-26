@@ -14,16 +14,23 @@ type ControlImplementationFieldsProps = {
   detailsInitialValue?: TFormData['details']
 }
 
-export const ControlImplementationFields = ({ form, detailsInitialValue }: ControlImplementationFieldsProps) => {
-  const { control } = form
+export const ControlImplementationDetailsField = ({ form, detailsInitialValue }: ControlImplementationFieldsProps) => {
   const hydrate = usePlateHydration(form)
 
   return (
+    <div className="flex flex-col gap-2">
+      <Label>Details</Label>
+      <Controller control={form.control} name="details" render={({ field }) => <PlateEditor initialValue={detailsInitialValue} onChange={field.onChange} onHydrate={hydrate('details')} />} />
+    </div>
+  )
+}
+
+export const ControlImplementationFields = ({ form, detailsInitialValue }: ControlImplementationFieldsProps) => {
+  const { control } = form
+
+  return (
     <div className="@container p-4 border rounded-lg space-y-4">
-      <div className="flex flex-col gap-2">
-        <Label>Details</Label>
-        <Controller control={control} name="details" render={({ field }) => <PlateEditor initialValue={detailsInitialValue} onChange={field.onChange} onHydrate={hydrate('details')} />} />
-      </div>
+      <ControlImplementationDetailsField form={form} detailsInitialValue={detailsInitialValue} />
 
       <div className="grid grid-cols-1 @md:grid-cols-2 gap-4 border-t pt-4">
         <div className="flex flex-col gap-2">

@@ -37,6 +37,7 @@ export const searchTypeIcons: Record<string, React.ElementType> = {
   Group: UsersRoundIcon,
   Subcontrol: Settings2,
   ControlObjectives: Settings2,
+  ControlImplementation: Settings2,
   Organization: UsersRoundIcon,
   Vulnerability: Bug,
   Finding: FileSearch,

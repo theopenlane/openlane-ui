@@ -271,7 +271,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
         allowedObjectTypes={[ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.SCAN, ObjectTypeObjects.TASK]}
         defaultSelectedObject={ObjectTypeObjects.TASK}
       />
-      <CreateControlImplementationSheet open={showCreateImplementationSheet} onOpenChange={setShowCreateImplementationSheet} />
+      <CreateControlImplementationSheet open={showCreateImplementationSheet} onOpenChange={setShowCreateImplementationSheet} createDefaults={taskInitialData} />
       <CreateControlObjectiveSheet open={showCreateObjectiveSheet} onOpenChange={setShowCreateObjectiveSheet} />
       {showPublicRepresentationDialog && <PublicRepresentationDialog open onOpenChange={setShowPublicRepresentationDialog} controlId={controlId} subcontrolId={subcontrolId} />}
       {isAuditor && <CreateControlReviewSheet open={showCreateReviewSheet} onOpenChange={setShowCreateReviewSheet} controlId={controlId} subcontrolId={subcontrolId} />}

@@ -40,6 +40,10 @@ export const controlSystemInstruction =
 
 export const policySystemInstruction = process.env.POLICY_SYSTEM_INSTRUCTION?.trimEnd() ?? ''
 
+export const controlSuggestionsInstruction =
+  process.env.CONTROL_SUGGESTIONS_INSTRUCTION?.trimEnd() ||
+  'You match a control implementation to the compliance controls it satisfies. Pick only candidates whose requirement the implementation details directly satisfy, best match first. Pick none when nothing clearly matches.'
+
 const policyFrameworkInstruction = (frameworks: string[]) => {
   if (frameworks.length === 0) return ''
   const single = frameworks.length === 1

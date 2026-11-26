@@ -1,9 +1,11 @@
 import { Archive, CalendarClock, CircleDot, FileCheck2, FilePen, GitFork, Link, MessageCircle, ScanEye, Settings2, ShieldCheck, Stamp, Tag, UsersRound, Wrench, type LucideIcon } from 'lucide-react'
-import { InternalPolicyDocumentManagementMode, InternalPolicyDocumentStatus, ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
+import { type ControlImplementationDocumentStatus, InternalPolicyDocumentManagementMode, InternalPolicyDocumentStatus, ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
-export const DocumentIconMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, React.ReactNode> = {
+type TDocumentStatus = InternalPolicyDocumentStatus | ProcedureDocumentStatus | ControlImplementationDocumentStatus
+
+export const DocumentIconMapper: Record<TDocumentStatus, React.ReactNode> = {
   [InternalPolicyDocumentStatus.APPROVED]: <Stamp height={16} width={16} className="text-approved" />,
   [InternalPolicyDocumentStatus.DRAFT]: <FilePen height={16} width={16} className="text-draft" />,
   [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: <ScanEye height={16} width={16} className="text-needs-approval" />,
@@ -12,7 +14,7 @@ export const DocumentIconMapper: Record<InternalPolicyDocumentStatus | Procedure
   [InternalPolicyDocumentStatus.PENDING]: <Wrench height={16} width={16} className="text-pending" />,
 }
 
-const DocumentStatusColorMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, string> = {
+const DocumentStatusColorMapper: Record<TDocumentStatus, string> = {
   [InternalPolicyDocumentStatus.DRAFT]: 'text-document-draft bg-document-draft-muted border-document-draft-border',
   [InternalPolicyDocumentStatus.APPROVED]: 'text-document-approved bg-document-approved-muted border-document-approved-border',
   [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: 'text-document-needs-approval bg-document-needs-approval-muted border-document-needs-approval-border',
@@ -21,15 +23,17 @@ const DocumentStatusColorMapper: Record<InternalPolicyDocumentStatus | Procedure
   [InternalPolicyDocumentStatus.PENDING]: 'text-document-pending bg-document-pending-muted border-document-pending-border',
 }
 
-export function DocumentStatusBadge({ status }: { status: InternalPolicyDocumentStatus | ProcedureDocumentStatus }) {
+export const getDocumentStatusClassName = (status: TDocumentStatus) => DocumentStatusColorMapper[status] ?? ''
+
+export function DocumentStatusBadge({ status }: { status: TDocumentStatus }) {
   return (
-    <Badge variant="outline" className={`flex items-center text-center gap-2 ${DocumentStatusColorMapper[status]}`}>
+    <Badge variant="outline" className={`flex items-center text-center gap-2 ${getDocumentStatusClassName(status)}`}>
       {getEnumLabel(status)}
     </Badge>
   )
 }
 
-export const DocumentStatusTooltips: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, string> = {
+export const DocumentStatusTooltips: Record<TDocumentStatus, string> = {
   [InternalPolicyDocumentStatus.APPROVED]: 'The document has been approved by the a user, it needs to be published to be used within the program.',
   [InternalPolicyDocumentStatus.DRAFT]: 'The document is a draft and has not been approved.',
   [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: 'The document needs approval from the approver group.',

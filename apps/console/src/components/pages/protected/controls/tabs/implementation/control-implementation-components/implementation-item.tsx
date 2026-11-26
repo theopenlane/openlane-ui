@@ -6,6 +6,8 @@ import { type ControlImplementationFieldsFragment } from '@repo/codegen/src/sche
 import { ControlImplementationCard } from './control-implementation-card'
 import Menu from '@/components/shared/menu/menu'
 import { Button } from '@repo/ui/button'
+import { Link } from '@/components/shared/link/link'
+import { controlImplementationHref } from '@/utils/control-implementation'
 import { LinkControlsModal } from './link-controls-modal'
 
 type Props = {
@@ -24,8 +26,9 @@ export const ImplementationItem: React.FC<Props> = ({ node, canEdit, onEdit, onM
 
   return (
     <div className="space-y-4">
-      {canEdit && (
-        <div className="flex items-center justify-end">
+      <div className="flex items-center justify-between gap-2">
+        <Link href={controlImplementationHref(node.id)}>View implementation</Link>
+        {canEdit && (
           <Menu
             closeOnSelect
             trigger={
@@ -75,8 +78,8 @@ export const ImplementationItem: React.FC<Props> = ({ node, canEdit, onEdit, onM
               </>
             )}
           />
-        </div>
-      )}
+        )}
+      </div>
       <ControlImplementationCard
         obj={node}
         actions={
