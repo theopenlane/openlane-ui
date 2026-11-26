@@ -14,7 +14,7 @@ import { useCreateReview } from '@/lib/graphql-hooks/review'
 import { isImpersonation } from '@/lib/authz/utils'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { SUPPORT_DISPLAY_NAME, UNKNOWN_AUTHOR_LABEL } from '@/lib/authors'
-import { formatDate } from '@/utils/date'
+import { formatDate, formatMonthYear } from '@/utils/date'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { getAssetTitle, type AssetDetailNode } from '../asset-display'
 import { SetAssetAssociationDialog } from '../set-asset-association-dialog'
@@ -76,7 +76,7 @@ const AssetDialogs: React.FC<TAssetDialogsProps> = ({ asset, exposure, dialog, o
     try {
       await createReview({
         input: {
-          title: `Asset review: ${title}`,
+          title: `Asset review: ${title} [${formatMonthYear(now)}]`,
           category: 'Asset Review',
           summary: `Asset reviewed by ${reviewerName} on ${formatDate(now)}`,
           status: ReviewReviewStatus.COMPLETED,

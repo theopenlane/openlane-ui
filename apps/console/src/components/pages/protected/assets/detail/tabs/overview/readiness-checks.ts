@@ -1,15 +1,16 @@
 import { addYears, subYears } from 'date-fns'
 import { type TAssetDialog } from '../../asset-quick-actions'
+import { type TAssetFieldsDialog } from '../../set-asset-fields-dialog'
 import { type AssetDetailNode } from '../../../asset-display'
 import { READINESS_REVIEW_YEARS, type AssetVendorNode } from '@/lib/graphql-hooks/asset-detail'
-import { type GetAssetReadinessEvidenceQuery, type GetAssetReadinessReviewsQuery } from '@repo/codegen/src/schema'
+import { type GetAssetReadinessReviewsQuery } from '@repo/codegen/src/schema'
 import { getNodes } from '@/lib/graphql-hooks/connection'
 import { vendorDisplayName } from '@/lib/graphql-hooks/entity'
 import { formatDate } from '@/utils/date'
-import { formatList, formatTruncatedList, pluralizeWithCount } from '@/utils/strings'
+import { formatList } from '@/utils/strings'
 import { isExposurePastDue, type TExposureItem } from '../exposure/exposure-items'
 
-export type TReadinessAction = Exclude<TAssetDialog, 'link-exposure'> | 'view-exposure' | 'view-vendor'
+export type TReadinessAction = Extract<TAssetDialog, 'mark-reviewed' | TAssetFieldsDialog> | 'view-exposure' | 'view-vendor'
 
 export type TReadinessCheck = {
   key: string
@@ -28,7 +29,6 @@ type TReadinessSources = {
   exposure: TReadinessSource<TExposureItem[]>
   vendors: TReadinessSource<AssetVendorNode[]>
   reviews: TReadinessSource<GetAssetReadinessReviewsQuery>
-  evidence: TReadinessSource<GetAssetReadinessEvidenceQuery>
   now: Date
 }
 
@@ -95,27 +95,6 @@ const exposureWithinSla = (exposure: TExposureItem[]): Omit<TReadinessCheck, key
   }
 }
 
-type TRefCodeConnection = GetAssetReadinessEvidenceQuery['missingControls']
-
-const refCodes = (...connections: TRefCodeConnection[]) => {
-  const codes = connections.flatMap((connection) => getNodes(connection).map(({ refCode }) => refCode))
-  const total = connections.reduce((sum, { totalCount }) => sum + totalCount, 0)
-  return { total, label: formatTruncatedList(codes, total, codes.length) }
-}
-
-const evidenceCurrent = (evidence: GetAssetReadinessEvidenceQuery): Omit<TReadinessCheck, keyof TReadinessCheckBase> => {
-  const linkedCount = evidence.linkedControls.totalCount + evidence.linkedSubcontrols.totalCount
-  if (linkedCount === 0) return { state: 'attention', detail: 'No controls mapped', action: { type: 'map-control', label: 'Map Control' } }
-  const missing = refCodes(evidence.missingControls, evidence.missingSubcontrols)
-  const stale = refCodes(evidence.staleControls, evidence.staleSubcontrols)
-  const problems = [...(missing.total > 0 ? [`${missing.label} without approved evidence`] : []), ...(stale.total > 0 ? [`${stale.label} due for renewal`] : [])]
-  return {
-    state: stateFor(problems.length === 0),
-    detail: problems.length > 0 ? problems.join(' · ') : `${pluralizeWithCount(linkedCount, 'control')} with approved evidence`,
-    action: problems.length > 0 ? { type: 'upload-evidence', label: 'Upload' } : undefined,
-  }
-}
-
 const providerAssured = (vendors: AssetVendorNode[], now: Date): Omit<TReadinessCheck, keyof TReadinessCheckBase> => {
   const reviewedSince = subYears(now, READINESS_REVIEW_YEARS)
   const problems = vendors
@@ -128,7 +107,7 @@ const providerAssured = (vendors: AssetVendorNode[], now: Date): Omit<TReadiness
   }
 }
 
-export const buildReadinessChecks = ({ asset, ownerLabel, exposure, vendors, reviews, evidence, now }: TReadinessSources): TReadinessCheck[] => [
+export const buildReadinessChecks = ({ asset, ownerLabel, exposure, vendors, reviews, now }: TReadinessSources): TReadinessCheck[] => [
   {
     key: 'owner',
     group: 'inventory',
@@ -149,6 +128,5 @@ export const buildReadinessChecks = ({ asset, ownerLabel, exposure, vendors, rev
   ]),
   ...inventoryVerifiedChecks(asset, reviews, now),
   ...fromSource({ key: 'exposure-sla', group: 'operating', label: 'Exposure within SLA' }, exposure, exposureWithinSla),
-  ...fromSource({ key: 'evidence', group: 'operating', label: 'Evidence current' }, evidence, evidenceCurrent),
   ...(vendors.data?.length === 0 ? [] : fromSource({ key: 'provider-assurance', group: 'operating', label: 'Provider assurance' }, vendors, (data) => providerAssured(data, now))),
 ]

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAssetReadinessEvidence, useAssetReadinessReviews, type useAssetVendors } from '@/lib/graphql-hooks/asset-detail'
+import { useAssetReadinessReviews, type useAssetVendors } from '@/lib/graphql-hooks/asset-detail'
 import { getAssetOwner, type AssetDetailNode } from '../../../asset-display'
 import { type TAssetExposure } from '../exposure/use-asset-exposure'
 import { buildReadinessChecks } from './readiness-checks'
@@ -13,7 +13,6 @@ type TUseAssetReadinessArgs = {
 export const useAssetReadiness = ({ asset, exposure, vendors }: TUseAssetReadinessArgs) => {
   const [now] = useState(() => new Date())
   const reviews = useAssetReadinessReviews(asset.id)
-  const evidence = useAssetReadinessEvidence(asset.id)
   const isExposureUnknown = !!exposure.error || exposure.isTruncated
   const isVendorsUnknown = vendors.isError || vendors.totalCount > vendors.vendors.length
 
@@ -23,9 +22,8 @@ export const useAssetReadiness = ({ asset, exposure, vendors }: TUseAssetReadine
     exposure: { hasAccess: exposure.hasAnyAccess, isError: isExposureUnknown, data: isExposureUnknown ? undefined : exposure.items },
     vendors: { hasAccess: vendors.hasAccess, isError: isVendorsUnknown, data: isVendorsUnknown ? undefined : vendors.vendors },
     reviews,
-    evidence,
     now,
   })
 
-  return { checks, isLoading: exposure.isPending || (vendors.hasAccess && vendors.isPending) || reviews.isLoading || evidence.isLoading }
+  return { checks, isLoading: exposure.isPending || (vendors.hasAccess && vendors.isPending) || reviews.isLoading }
 }

@@ -965,6 +965,7 @@ export interface GetAssetRisksQuery {
 
 export type GetAssetVendorsQueryVariables = Exact<{
   assetId: string
+  where?: Types.EntityWhereInput | null | undefined
   first?: number | null | undefined
 }>
 
@@ -1039,25 +1040,6 @@ export type GetAssetReadinessReviewsQueryVariables = Exact<{
 
 export interface GetAssetReadinessReviewsQuery {
   reviews: { edges: Array<{ node: { id: string; reviewedAt: string | null } | null } | null> | null }
-}
-
-export type GetAssetReadinessEvidenceQueryVariables = Exact<{
-  linkedWhere?: Types.ControlWhereInput | null | undefined
-  missingWhere?: Types.ControlWhereInput | null | undefined
-  staleWhere?: Types.ControlWhereInput | null | undefined
-  linkedSubcontrolWhere?: Types.SubcontrolWhereInput | null | undefined
-  missingSubcontrolWhere?: Types.SubcontrolWhereInput | null | undefined
-  staleSubcontrolWhere?: Types.SubcontrolWhereInput | null | undefined
-  first?: number | null | undefined
-}>
-
-export interface GetAssetReadinessEvidenceQuery {
-  linkedControls: { totalCount: number }
-  missingControls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string } | null } | null> | null }
-  staleControls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string } | null } | null> | null }
-  linkedSubcontrols: { totalCount: number }
-  missingSubcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string } | null } | null> | null }
-  staleSubcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string } | null } | null> | null }
 }
 
 export type GetAssetOptionsQueryVariables = Exact<{

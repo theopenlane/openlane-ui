@@ -546,10 +546,10 @@ export const GET_ASSET_RISKS = gql`
 `
 
 export const GET_ASSET_VENDORS = gql`
-  query GetAssetVendors($assetId: ID!, $first: Int) {
+  query GetAssetVendors($assetId: ID!, $where: EntityWhereInput, $first: Int) {
     asset(id: $assetId) {
       id
-      entities(first: $first) {
+      entities(where: $where, first: $first) {
         totalCount
         edges {
           node {
@@ -619,61 +619,6 @@ export const GET_ASSET_READINESS_REVIEWS = gql`
         node {
           id
           reviewedAt
-        }
-      }
-    }
-  }
-`
-
-export const GET_ASSET_READINESS_EVIDENCE = gql`
-  query GetAssetReadinessEvidence(
-    $linkedWhere: ControlWhereInput
-    $missingWhere: ControlWhereInput
-    $staleWhere: ControlWhereInput
-    $linkedSubcontrolWhere: SubcontrolWhereInput
-    $missingSubcontrolWhere: SubcontrolWhereInput
-    $staleSubcontrolWhere: SubcontrolWhereInput
-    $first: Int
-  ) {
-    linkedControls: controls(where: $linkedWhere) {
-      totalCount
-    }
-    missingControls: controls(where: $missingWhere, first: $first) {
-      totalCount
-      edges {
-        node {
-          id
-          refCode
-        }
-      }
-    }
-    staleControls: controls(where: $staleWhere, first: $first) {
-      totalCount
-      edges {
-        node {
-          id
-          refCode
-        }
-      }
-    }
-    linkedSubcontrols: subcontrols(where: $linkedSubcontrolWhere) {
-      totalCount
-    }
-    missingSubcontrols: subcontrols(where: $missingSubcontrolWhere, first: $first) {
-      totalCount
-      edges {
-        node {
-          id
-          refCode
-        }
-      }
-    }
-    staleSubcontrols: subcontrols(where: $staleSubcontrolWhere, first: $first) {
-      totalCount
-      edges {
-        node {
-          id
-          refCode
         }
       }
     }

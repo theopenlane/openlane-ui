@@ -130,11 +130,9 @@ const AssetDetail: React.FC<TAssetDetailProps> = ({ asset, title }) => {
         'view-exposure',
         'view-vendor',
         ...(canEditAsset ? (['set-owner', 'set-classification', 'set-environment-scope'] as const) : []),
-        ...(canMapControl ? (['map-control'] as const) : []),
         ...(canReview ? (['mark-reviewed'] as const) : []),
-        ...(canUploadEvidence ? (['upload-evidence'] as const) : []),
       ]),
-    [canEditAsset, canMapControl, canReview, canUploadEvidence],
+    [canEditAsset, canReview],
   )
 
   const startEditing = () => {

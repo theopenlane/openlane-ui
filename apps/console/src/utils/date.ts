@@ -28,6 +28,16 @@ const formatDate = (date: string | null | undefined, empty?: string): string => 
 
 export { formatDate }
 
+const formatMonthYear = (date: string | null | undefined, empty?: string): string => {
+  if (!date || !isValid(new Date(date))) {
+    return dateFallback(empty)
+  }
+
+  return format(new Date(date), 'MMMM yyyy')
+}
+
+export { formatMonthYear }
+
 const isPastDate = (date: string | null | undefined): boolean => {
   if (!date || date === '' || !isValid(new Date(date))) {
     return false

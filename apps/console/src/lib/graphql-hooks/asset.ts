@@ -82,9 +82,6 @@ const invalidateAssetUpdate = (input: UpdateAssetInput, queryClient: QueryClient
   const platformIds = [...(input.addPlatformIDs ?? []), ...(input.removePlatformIDs ?? [])]
   if (platformIds.length > 0) invalidatePlatformPlacement(platformIds, queryClient)
   if (input.addSystemDetailIDs?.length || input.removeSystemDetailIDs?.length) queryClient.invalidateQueries({ queryKey: ['systemDetails'] })
-  if (input.addControlIDs || input.removeControlIDs || input.addSubcontrolIDs || input.removeSubcontrolIDs) {
-    queryClient.invalidateQueries({ queryKey: ['evidences', 'asset-readiness'] })
-  }
 }
 
 export const useCreateAsset = () => {

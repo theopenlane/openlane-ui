@@ -3,17 +3,14 @@ import { subYears } from 'date-fns'
 import { type InfiniteData, useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import {
   AssetOrderField,
-  EvidenceEvidenceStatus,
   OrderDirection,
   ReviewOrderField,
+  ReviewReviewStatus,
   RiskRiskStatus,
   type AssetWhereInput,
-  type EvidenceWhereInput,
   type FindingWhereInput,
   type GetAssetFindingsQuery,
   type GetAssetFindingsQueryVariables,
-  type GetAssetReadinessEvidenceQuery,
-  type GetAssetReadinessEvidenceQueryVariables,
   type GetAssetReadinessReviewsQuery,
   type GetAssetReadinessReviewsQueryVariables,
   type GetAssetRelationshipsQuery,
@@ -37,7 +34,6 @@ import { AssetHistoryOrderField, OrderDirection as HistoryOrderDirection, type G
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import {
   GET_ASSET_FINDINGS,
-  GET_ASSET_READINESS_EVIDENCE,
   GET_ASSET_READINESS_REVIEWS,
   GET_ASSET_RELATIONSHIPS,
   GET_ASSET_RISKS,
@@ -52,6 +48,7 @@ import { MAX_CONNECTION_RESULTS } from '@/constants/pagination'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useHistoryGraphQLClient } from '@/hooks/useHistoryGraphQLClient'
 import { getNodes } from '@/lib/graphql-hooks/connection'
+import { VENDOR_ENTITY_TYPE_WHERE } from '@/lib/graphql-hooks/entity'
 import { fetchAllConnectionNodes } from '@/lib/graphql-hooks/fetch-all-connection-nodes'
 import { useModuleGatedQuery } from '@/lib/graphql-hooks/use-module-gated-query'
 import { useObjectTypeAccess } from '@/lib/subscription-plan/hooks/use-module-access'
@@ -61,12 +58,10 @@ const TOPOLOGY_PLATFORM_LIMIT = 10
 const TOPOLOGY_SYSTEM_LIMIT = 10
 const TOPOLOGY_ASSET_LIMIT = 6
 const READINESS_REVIEW_LIMIT = 20
-const READINESS_CONTROL_PREVIEW = 3
 const HISTORY_PAGE_SIZE = 50
 export const ASSET_EXPOSURE_LIMIT = 1000
 
 export const CLOSED_RISK_STATUSES = [RiskRiskStatus.CLOSED, RiskRiskStatus.ARCHIVED, RiskRiskStatus.MITIGATED, RiskRiskStatus.TRANSFERRED, RiskRiskStatus.ACCEPTED]
-const CURRENT_EVIDENCE_STATUSES = [EvidenceEvidenceStatus.AUDITOR_APPROVED, EvidenceEvidenceStatus.READY_FOR_AUDITOR]
 
 export type AssetRelationships = NonNullable<GetAssetRelationshipsQuery['asset']>
 export type AssetSystemNode = NonNullable<NonNullable<NonNullable<NonNullable<AssetRelationships['systemDetails']>['edges']>[number]>['node']>
@@ -232,7 +227,7 @@ export const useAssetVendors = (assetId: string) => {
   const { hasAccess } = useObjectTypeAccess(ObjectTypes.ENTITY)
   const queryResult = useQuery<GetAssetVendorsQuery, unknown>({
     queryKey: ['entities', 'asset', assetId],
-    queryFn: async () => client.request<GetAssetVendorsQuery, GetAssetVendorsQueryVariables>(GET_ASSET_VENDORS, { assetId, first: MAX_CONNECTION_RESULTS }),
+    queryFn: async () => client.request<GetAssetVendorsQuery, GetAssetVendorsQueryVariables>(GET_ASSET_VENDORS, { assetId, where: VENDOR_ENTITY_TYPE_WHERE, first: MAX_CONNECTION_RESULTS }),
     enabled: hasAccess,
     placeholderData: undefined,
   })
@@ -275,49 +270,11 @@ export const useAssetReadinessReviews = (assetId: string) => {
     queryFn: async () => {
       const reviewedAtGTE = subYears(new Date(), READINESS_REVIEW_YEARS).toISOString()
       return client.request<GetAssetReadinessReviewsQuery, GetAssetReadinessReviewsQueryVariables>(GET_ASSET_READINESS_REVIEWS, {
-        where: { reviewedAtGTE, hasAssetsWith: [{ id: assetId }] },
+        where: { status: ReviewReviewStatus.COMPLETED, reviewedAtGTE, hasAssetsWith: [{ id: assetId }] },
         orderBy: READINESS_REVIEW_ORDER,
         first: READINESS_REVIEW_LIMIT,
       })
     },
-  })
-}
-
-const readinessEvidenceWheres = (assetId: string) => {
-  const now = new Date().toISOString()
-  const linked = { hasAssetsWith: [{ id: assetId }] }
-  const freshEvidence: EvidenceWhereInput = { statusIn: CURRENT_EVIDENCE_STATUSES, or: [{ renewalDateIsNil: true }, { renewalDateGTE: now }] }
-  const approvedEvidence: EvidenceWhereInput = { statusIn: [...CURRENT_EVIDENCE_STATUSES, EvidenceEvidenceStatus.NEEDS_RENEWAL] }
-
-  return {
-    linked,
-    missing: { ...linked, not: { hasEvidenceWith: [approvedEvidence] } },
-    stale: { ...linked, hasEvidenceWith: [approvedEvidence], not: { hasEvidenceWith: [freshEvidence] } },
-  }
-}
-
-export const useAssetReadinessEvidence = (assetId: string) => {
-  const { client } = useGraphQLClient()
-  const { hasAccess: hasControlAccess } = useObjectTypeAccess(ObjectTypes.CONTROL)
-  const { hasAccess: hasSubcontrolAccess } = useObjectTypeAccess(ObjectTypes.SUBCONTROL)
-
-  return useModuleGatedQuery({
-    objectType: ObjectTypes.EVIDENCE,
-    queryKey: ['evidences', 'asset-readiness', assetId],
-    queryFn: async () => {
-      const { linked, missing, stale } = readinessEvidenceWheres(assetId)
-      return client.request<GetAssetReadinessEvidenceQuery, GetAssetReadinessEvidenceQueryVariables>(GET_ASSET_READINESS_EVIDENCE, {
-        linkedWhere: linked,
-        missingWhere: missing,
-        staleWhere: stale,
-        linkedSubcontrolWhere: linked,
-        missingSubcontrolWhere: missing,
-        staleSubcontrolWhere: stale,
-        first: READINESS_CONTROL_PREVIEW,
-      })
-    },
-    enabled: hasControlAccess && hasSubcontrolAccess,
-    staleTime: 0,
   })
 }
 

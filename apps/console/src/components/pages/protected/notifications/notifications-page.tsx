@@ -12,7 +12,8 @@ import { useGetAllExports } from '@/lib/graphql-hooks/export'
 import { Bell, CheckCheck, Inbox, Stamp, Radar, FileDown, AtSign, FolderSync, ClipboardList, type LucideIcon, ArrowDownToLine, ListChecks, Plug, Share2 } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { Button } from '@repo/ui/button'
-import { isToday, isYesterday, format, startOfDay } from 'date-fns'
+import { isToday, isYesterday } from 'date-fns'
+import { formatMonthYear } from '@/utils/date'
 import { toHumanLabel } from '@/utils/strings'
 
 const PAGE_SIZE = 20
@@ -38,7 +39,7 @@ const getDateGroupLabel = (dateStr: string | null | undefined): string => {
   const date = new Date(dateStr)
   if (isToday(date)) return 'Today'
   if (isYesterday(date)) return 'Yesterday'
-  return format(startOfDay(date), 'MMMM yyyy')
+  return formatMonthYear(dateStr)
 }
 
 const groupByDate = <T extends { createdAt?: string | null }>(items: T[]): { label: string; items: T[] }[] => {
