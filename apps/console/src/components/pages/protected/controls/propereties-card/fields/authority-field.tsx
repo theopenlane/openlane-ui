@@ -51,7 +51,7 @@ export const AuthorityField = ({
   const editing = isEditAllowed && (isEditing || editingField === editingKey)
 
   return (
-    <div className="grid grid-cols-[160px_1fr] items-start gap-x-3 border-b border-border pb-3">
+    <div className="grid grid-cols-[160px_1fr] items-start gap-x-3 narrow-rail:rail-row-stacked border-b border-border pb-3">
       <div className="flex items-start gap-2">
         <div className="pt-0.5">{icon}</div>
         {tooltip ? (

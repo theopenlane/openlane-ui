@@ -325,7 +325,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
         ) : null}
         {data?.__typename === 'Control' && data.aliases?.length ? <Property value={data.aliases.join(', ')} label="Alias" /> : null}
 
-        <div className={`flex justify-between items-start ${isEditing || editingField === 'tags' ? 'flex-col items-start' : ''}`}>
+        <div className={`flex justify-between items-start narrow-rail:rail-row-stacked ${isEditing || editingField === 'tags' ? 'flex-col items-start' : ''}`}>
           <div className="min-w-40">
             <div className="grid grid-cols-[1fr_auto] items-center gap-2">
               <div className="flex gap-2 items-center">

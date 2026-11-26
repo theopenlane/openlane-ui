@@ -200,7 +200,7 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
           {isEditing && (
             <>
               <div className="flex items-center gap-2 shrink-0 mb-4 mt-2">
-                <h3 className="text-lg font-medium pr-20">Review</h3>
+                <h3 className="text-lg font-medium pr-20 narrow-rail:pr-0">Review</h3>
                 <CheckboxField name="reviewRequired" label="Review Required?" {...sharedFieldProps} />
               </div>
             </>
@@ -216,7 +216,7 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
 
           {!isEditing && reviewRequired && (
             <>
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-4 narrow-rail:rail-row-stacked">
                 <div className="flex items-center gap-2 shrink-0">
                   <CalendarDays className={iconClass} />
                   <span className="text-base text-muted-foreground">Last Reviewed</span>
@@ -224,7 +224,7 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
                 <span className="text-sm py-2 px-1">{formatDate(data?.lastReviewedAt)}</span>
               </div>
 
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-4 narrow-rail:rail-row-stacked">
                 <div className="flex items-center gap-2 shrink-0">
                   <CalendarDays className={iconClass} />
                   <span className="text-base text-muted-foreground">Mitigated At</span>
@@ -238,7 +238,7 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
 
           <SelectField name="scopeName" label="Scope" icon={<Radio className={iconClass} />} options={scopeOptions} onCreateOption={createScope} {...sharedFieldProps} />
 
-          <div className={`flex ${isEditing || internalEditing === 'tags' ? 'flex-col gap-2' : 'items-center justify-between gap-4'}`}>
+          <div className={`flex ${isEditing || internalEditing === 'tags' ? 'flex-col gap-2' : 'items-center justify-between gap-4 narrow-rail:rail-row-stacked'}`}>
             <div className="flex items-center gap-2 shrink-0">
               <Tag className={iconClass} />
               <span className="text-base text-muted-foreground">Tags</span>

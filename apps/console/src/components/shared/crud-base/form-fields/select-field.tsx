@@ -130,7 +130,7 @@ export const SelectField = <TUpdateInput,>({
             </FormControl>
           ) : (
             <InlineEditDisplay
-              className={cn('text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full', layout === 'horizontal' && 'flex justify-end')}
+              className={cn('text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full', layout === 'horizontal' && 'flex justify-end narrow-rail:justify-start')}
               onActivate={() => {
                 if (isEditAllowed) {
                   setInternalEditing(name)

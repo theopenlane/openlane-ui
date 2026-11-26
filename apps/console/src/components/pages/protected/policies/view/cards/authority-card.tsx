@@ -55,7 +55,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
     const showEditable = editAllowed && (isEditing || editingField === editingKey)
 
     return (
-      <div className="flex items-center border-b border-border pb-3">
+      <div className="flex items-center border-b border-border pb-3 narrow-rail:rail-row-stacked">
         <div className={`flex gap-2 min-w-40 items-center ${inputClassName ?? ''} `}>
           {icon}
           <TooltipProvider>

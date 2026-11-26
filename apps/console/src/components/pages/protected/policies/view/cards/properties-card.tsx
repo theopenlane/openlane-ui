@@ -104,7 +104,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
   return (
     <div className="flex flex-col gap-4 pb-4">
       {/* Status Required */}
-      <div className="flex items-center gap-1 border-b border-border pb-3">
+      <div className="flex items-center gap-1 border-b border-border pb-3 narrow-rail:rail-row-stacked">
         <div className="flex gap-2 min-w-40 items-center">
           <Binoculars size={16} />
           <TooltipProvider>
@@ -185,7 +185,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
 
       {/* Management Mode (only when a Word file is attached or already in external reference) */}
       {showManagementMode && (
-        <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className="flex items-center gap-1 border-b border-border pb-3 narrow-rail:rail-row-stacked">
           <div className="flex gap-2 min-w-40 items-center">
             <FileText size={16} />
             <TooltipProvider>
@@ -210,7 +210,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
       )}
 
       {/* Version */}
-      <div className="flex items-center gap-1 border-b border-border pb-3">
+      <div className="flex items-center gap-1 border-b border-border pb-3 narrow-rail:rail-row-stacked">
         <div className="flex gap-2 min-w-40 items-center">
           <FileStack size={16} />
           <TooltipProvider>
@@ -284,7 +284,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
       </div>
 
       {/* Policy Type */}
-      <div className="flex items-center gap-1 border-b border-border pb-3">
+      <div className="flex items-center gap-1 border-b border-border pb-3 narrow-rail:rail-row-stacked">
         <div className="flex gap-2 min-w-40 items-center">
           <ScrollText size={16} />
           <TooltipProvider>
@@ -358,7 +358,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
       </div>
 
       {/* Review Date */}
-      <div className="flex items-center gap-1 border-b border-border pb-3">
+      <div className="flex items-center gap-1 border-b border-border pb-3 narrow-rail:rail-row-stacked">
         <div className="flex gap-2 min-w-40 items-center">
           <Calendar size={16} />
           <TooltipProvider>

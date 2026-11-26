@@ -318,7 +318,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Vendors - ${vendor.displayName || vendor.name}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} slideOpen={isEditing} minWidth={430} collapsedContentClassName="pr-6">
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} slideOpen={isEditing} initialWidth={430} collapsedContentClassName="pr-6">
             {mainContent}
           </SlideBarLayout>
         </form>

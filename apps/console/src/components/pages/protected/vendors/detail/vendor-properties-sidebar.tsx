@@ -147,7 +147,7 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
 
           <TextField name="nextReviewAt" label="Next Review Date" icon={<CalendarDays className={iconClass} />} type="date" {...sharedFieldProps} />
 
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 narrow-rail:rail-row-stacked">
             <div className="flex items-center gap-2 shrink-0">
               <CalendarDays className={iconClass} />
               <span className="text-base text-muted-foreground">Last Updated</span>
@@ -155,7 +155,7 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
             <span className="text-sm py-2 px-1">{formatDate(data?.updatedAt)}</span>
           </div>
 
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 narrow-rail:rail-row-stacked">
             <div className="flex items-center gap-2 shrink-0">
               <CalendarDays className={iconClass} />
               <span className="text-base text-muted-foreground">Last Reviewed</span>
@@ -165,7 +165,7 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
 
           <TextField name="statusPageURL" label="Status Page" icon={<Globe className={iconClass} />} type="link" {...sharedFieldProps} />
 
-          <div className={`flex ${isEditing || tagsEditing ? 'flex-col gap-2' : 'items-center justify-between gap-4'}`}>
+          <div className={`flex ${isEditing || tagsEditing ? 'flex-col gap-2' : 'items-center justify-between gap-4 narrow-rail:rail-row-stacked'}`}>
             <div className="flex items-center gap-2 shrink-0">
               <Tag className={iconClass} />
               <span className="text-base text-muted-foreground">Tags</span>

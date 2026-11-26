@@ -110,7 +110,7 @@ const PersonnelPropertiesSidebar: React.FC<PersonnelPropertiesSidebarProps> = ({
           handleUpdate={(input) => handleUpdate(input as UpdateIdentityHolderInput)}
         />
 
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 narrow-rail:rail-row-stacked">
           <div className="flex items-center gap-2 shrink-0">
             <CalendarDays className={iconClass} />
             <span className="text-base text-muted-foreground">Last Updated</span>
@@ -118,7 +118,7 @@ const PersonnelPropertiesSidebar: React.FC<PersonnelPropertiesSidebarProps> = ({
           <span className="text-sm py-2 px-1">{formatDate(data?.updatedAt)}</span>
         </div>
 
-        <div className={`flex ${isEditing || internalEditing === 'tags' ? 'flex-col gap-2' : 'items-center justify-between gap-4'}`}>
+        <div className={`flex ${isEditing || internalEditing === 'tags' ? 'flex-col gap-2' : 'items-center justify-between gap-4 narrow-rail:rail-row-stacked'}`}>
           <div className="flex items-center gap-2 shrink-0">
             <Tag className={iconClass} />
             <span className="text-base text-muted-foreground">Tags</span>

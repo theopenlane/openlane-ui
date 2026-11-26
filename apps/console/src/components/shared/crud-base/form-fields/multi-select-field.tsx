@@ -117,7 +117,7 @@ export const MultiSelectField = <TUpdateInput,>({
             </FormControl>
           ) : (
             <InlineEditDisplay
-              className={cn('flex flex-wrap gap-1 text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full min-h-9', layout === 'horizontal' && 'justify-end')}
+              className={cn('flex flex-wrap gap-1 text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full min-h-9', layout === 'horizontal' && 'justify-end narrow-rail:justify-start')}
               onActivate={() => isEditAllowed && setInternalEditing(name)}
             >
               {displayOptions.length ? (

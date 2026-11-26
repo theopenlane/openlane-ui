@@ -281,7 +281,10 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                 </div>
               ) : (
                 <div
-                  className={cn('flex min-w-0 items-center gap-2 rounded-md px-1 py-2 text-sm cursor-pointer hover:bg-accent w-full', layout === 'horizontal' && 'justify-end')}
+                  className={cn(
+                    'flex min-w-0 items-center gap-2 rounded-md px-1 py-2 text-sm cursor-pointer hover:bg-accent w-full',
+                    layout === 'horizontal' && 'justify-end narrow-rail:justify-start',
+                  )}
                   {...activatable(isEditAllowed ? handleClick : undefined)}
                 >
                   {currentValue ? <ResponsibilitySelectionLabel selection={currentValue} /> : <span className="text-muted-foreground italic">Not set</span>}

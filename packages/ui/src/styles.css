@@ -5,6 +5,14 @@
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant narrow-rail (@container details-rail (width < 22.5rem));
+
+@utility rail-row-stacked {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.25rem;
+}
 @source "../../../packages/ui/src/**/*.{js,ts,jsx,tsx}";
 @source inline("border-controls border-subcontrols border-controlObjectives border-policies border-procedures border-programs border-tasks border-risks border-evidences border-groups border-scans border-campaigns border-assets border-entities border-identityHolders border-reviews border-findings border-remediations border-vulnerabilities border-actionPlans");
 @source inline("bg-input bg-accent border-border text-foreground text-btn-primary-text font-normal font-medium font-semibold text-xs text-sm text-base text-lg text-2xl leading-normal leading-snug tracking-tight");

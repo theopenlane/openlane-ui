@@ -224,7 +224,7 @@ const FindingDetailPage: React.FC<TFindingDetailPageProps> = ({ findingId }) => 
           slideOpen={isEditing}
           open={railOverride?.tab === tabs.activeTab ? railOverride.open : true}
           onOpenChange={(open) => setRailOverride({ tab: tabs.activeTab, open })}
-          minWidth={430}
+          initialWidth={430}
           collapsedContentClassName="pr-6"
         >
           <div className="space-y-6 px-2">

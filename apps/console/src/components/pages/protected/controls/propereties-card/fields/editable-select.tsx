@@ -105,7 +105,7 @@ export const EditableSelect = ({
   const isEditable = isEditAllowed && (isEditing || isActive)
 
   return (
-    <div className="grid grid-cols-[160px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+    <div className="grid grid-cols-[160px_1fr] items-start gap-x-3 narrow-rail:rail-row-stacked border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
         <div className="pt-0.5">{controlIconsMap[label] ?? <FolderIcon size={16} />}</div>
         <div id={labelId} className="text-sm">

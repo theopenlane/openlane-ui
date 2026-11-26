@@ -10,7 +10,7 @@ type TSlideBarLayoutProps = {
   slideOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
-  minWidth?: number
+  initialWidth?: number
   collapsedContentClassName?: string
 }
 
@@ -21,8 +21,11 @@ type TSlideBarContext = {
 }
 
 const MAX_RATIO = 0.9
+const MIN_WIDTH = 300
 const DEFAULT_WIDTH = 400
 const FLOATING_MARGIN = 24
+
+const clampWidth = (width: number) => Math.max(MIN_WIDTH, Math.min(width, window.innerWidth * MAX_RATIO))
 
 function setBodyUserSelect(value: string) {
   document.body.style.userSelect = value
@@ -54,7 +57,16 @@ export const InlineSlideBarToggle = () => {
   return <SlideBarToggleButton open={false} onClick={slideBar.toggle} />
 }
 
-const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarContent, children, slideOpen, open: openProp, onOpenChange, minWidth = 400, collapsedContentClassName }) => {
+const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
+  sidebarTitle,
+  sidebarContent,
+  children,
+  slideOpen,
+  open: openProp,
+  onOpenChange,
+  initialWidth = DEFAULT_WIDTH,
+  collapsedContentClassName,
+}) => {
   const [internalOpen, setInternalOpen] = useState<boolean>(true)
   const isControlled = openProp !== undefined
   const open = isControlled ? openProp : internalOpen
@@ -70,7 +82,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
     [isControlled],
   )
   const [inlineToggleCount, setInlineToggleCount] = useState(0)
-  const [width, setWidth] = useState<number>(minWidth || DEFAULT_WIDTH)
+  const [width, setWidth] = useState<number>(initialWidth)
   const resizingRef = useRef(false)
   const resizeTargetRef = useRef<HTMLDivElement>(null)
   const railRef = useRef<HTMLDivElement>(null)
@@ -91,21 +103,13 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
 
   const slideBarContext = useMemo(() => ({ open, toggle, registerInlineToggle }), [open, toggle, registerInlineToggle])
 
-  const minWidthRef = useRef(minWidth)
-  useEffect(() => {
-    minWidthRef.current = minWidth
-  }, [minWidth])
-
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!resizingRef.current) {
         return
       }
 
-      const newWidth = resizeOriginXRef.current - e.clientX
-      if (newWidth > minWidthRef.current && newWidth < window.innerWidth * MAX_RATIO) {
-        setWidth(newWidth)
-      }
+      setWidth(clampWidth(resizeOriginXRef.current - e.clientX))
     }
 
     const handleMouseUp = () => {
@@ -183,7 +187,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
 
           <div ref={resizeTargetRef} className="absolute left-0 top-0 h-full w-1 cursor-col-resize" />
 
-          <div className="p-4 space-y-6 overflow-y-auto h-[calc(100%-64px)]">{sidebarContent}</div>
+          <div className="@container/details-rail p-4 space-y-6 overflow-y-auto h-[calc(100%-64px)]">{sidebarContent}</div>
         </div>
       </div>
     </SlideBarContext>

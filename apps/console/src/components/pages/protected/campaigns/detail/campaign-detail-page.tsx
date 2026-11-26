@@ -382,12 +382,12 @@ const CampaignDetailPage: React.FC = () => {
       <div className="rounded-md border border-border bg-card p-4">
         <h3 className="text-sm font-semibold mb-3">Properties</h3>
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 narrow-rail:rail-row-stacked">
             <span className="text-sm text-muted-foreground">Type</span>
             <span className="text-sm">{campaignTypeLabel}</span>
           </div>
           {isQuestionnaireCampaign ? (
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-4 narrow-rail:rail-row-stacked">
               <span className="text-sm text-muted-foreground">Email Template</span>
               <span className="text-sm py-2 px-1">{emailTemplateLabel ?? 'System template'}</span>
             </div>
@@ -406,12 +406,12 @@ const CampaignDetailPage: React.FC = () => {
               </div>
             </div>
           )}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 narrow-rail:rail-row-stacked">
             <span className="text-sm text-muted-foreground">Created</span>
             <span className="text-sm py-2 px-1">{campaign.createdAt ? formatDate(campaign.createdAt as string) : '—'}</span>
           </div>
           {campaign.completedAt && (
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-4 narrow-rail:rail-row-stacked">
               <span className="text-sm text-muted-foreground">Completed</span>
               <span className="text-sm py-2 px-1">{formatDate(campaign.completedAt as string)}</span>
             </div>
@@ -598,7 +598,7 @@ const CampaignDetailPage: React.FC = () => {
 
   return (
     <FormProvider {...form}>
-      <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} minWidth={350}>
+      <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} initialWidth={400}>
         {mainContent}
       </SlideBarLayout>
       <SendTestEmailDialog campaignId={campaignId} open={testDialogOpen} onOpenChange={setTestDialogOpen} />

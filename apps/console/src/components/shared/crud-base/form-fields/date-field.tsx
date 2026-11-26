@@ -89,7 +89,7 @@ export const DateField = <TUpdateInput,>({
             </FormControl>
           ) : (
             <InlineEditDisplay
-              className={cn('text-sm py-2 rounded-md px-1 w-full', isEditAllowed && 'cursor-pointer hover:bg-accent', layout === 'horizontal' && 'text-right')}
+              className={cn('text-sm py-2 rounded-md px-1 w-full', isEditAllowed && 'cursor-pointer hover:bg-accent', layout === 'horizontal' && 'text-right narrow-rail:text-left')}
               onActivate={isEditAllowed ? handleClick : undefined}
             >
               {value ? formatDate(value) : <span className="text-muted-foreground italic">Not set</span>}

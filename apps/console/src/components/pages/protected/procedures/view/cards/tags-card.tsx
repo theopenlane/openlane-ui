@@ -78,7 +78,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAl
   )
 
   return (
-    <div className={`flex justify-between items-start ${isEditing || internalEditing ? 'flex-col items-start' : ''}`}>
+    <div className={`flex justify-between items-start narrow-rail:rail-row-stacked ${isEditing || internalEditing ? 'flex-col items-start' : ''}`}>
       <div className="min-w-40">
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">

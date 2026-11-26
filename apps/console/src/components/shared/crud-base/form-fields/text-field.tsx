@@ -131,7 +131,7 @@ export const TextField = <TUpdateInput,>({
   const displayClassName = cn(
     'text-sm py-2 rounded-md px-1 w-full min-w-0 wrap-break-word',
     isEditAllowed ? 'cursor-pointer hover:bg-accent' : 'cursor-not-allowed',
-    layout === 'horizontal' && 'text-right',
+    layout === 'horizontal' && 'text-right narrow-rail:text-left',
     multiline && 'whitespace-pre-wrap',
   )
 
@@ -212,7 +212,7 @@ export const TextField = <TUpdateInput,>({
           ) : type !== 'number' && displaySuffix ? (
             <InlineEditDisplayWithActions
               className={displayClassName}
-              valueClassName={cn(layout === 'horizontal' && 'text-right')}
+              valueClassName={cn(layout === 'horizontal' && 'text-right narrow-rail:text-left')}
               onActivate={isEditAllowed ? handleClick : undefined}
               actions={displaySuffix}
             >

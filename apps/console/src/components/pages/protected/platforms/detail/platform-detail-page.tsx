@@ -224,10 +224,10 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
     return (
       <div className="flex flex-col items-start gap-1 text-sm">
         <span className="text-muted-foreground shrink-0">{label}</span>
-        <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
           {icon}
-          <span>{name || email}</span>
-          {name && email && <span className="text-muted-foreground text-xs">({email})</span>}
+          <span className="min-w-0 wrap-anywhere">{name || email}</span>
+          {name && email && <span className="min-w-0 wrap-anywhere text-muted-foreground text-xs">({email})</span>}
           {email && (
             <button
               type="button"
@@ -496,7 +496,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout sidebarTitle="Details" sidebarContent={ownershipSidebar} slideOpen={isEditing} minWidth={420} collapsedContentClassName="pr-6">
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={ownershipSidebar} slideOpen={isEditing} initialWidth={420} collapsedContentClassName="pr-6">
             {mainContent}
           </SlideBarLayout>
         </form>

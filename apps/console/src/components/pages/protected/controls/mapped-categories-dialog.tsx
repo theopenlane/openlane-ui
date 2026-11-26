@@ -123,7 +123,7 @@ const MappedCategoriesDialog = ({ onClose, onSave }: TMappedCategoriesDialogProp
 
   return (
     <>
-      <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+      <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 narrow-rail:rail-row-stacked border-b border-border pb-3 last:border-b-0">
         <div className="flex items-start gap-2">
           <FolderIcon size={16} className="min-w-4 pt-0.5" />
           <div className="text-sm">Mapped categories</div>

@@ -431,7 +431,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Internal Policies - ${policy.name}`}</title>
       <Form {...form}>
         <form onSubmit={handleFormSubmit}>
-          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} slideOpen={isEditing} minWidth={430}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} slideOpen={isEditing} initialWidth={430}>
             {mainContent}
           </SlideBarLayout>
         </form>

@@ -17,7 +17,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
   return (
     <div className="flex flex-col gap-4 pb-4">
       {/* Created By */}
-      <div className="flex justify-between items-center border-b border-border pb-3">
+      <div className="flex justify-between items-center border-b border-border pb-3 narrow-rail:rail-row-stacked">
         <div className="flex gap-2 min-w-40 items-center">
           <UserRoundCheck size={16} />
           <span className="text-sm">Created By</span>
@@ -31,7 +31,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
       </div>
 
       {/* Created At */}
-      <div className="flex justify-between items-center border-b border-border pb-3">
+      <div className="flex justify-between items-center border-b border-border pb-3 narrow-rail:rail-row-stacked">
         <div className="flex gap-2 min-w-40 items-center">
           <CalendarCheck2 size={16} />
           <span className="text-sm">Created At</span>
@@ -45,7 +45,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
       </div>
 
       {/* Updated By */}
-      <div className="flex justify-between items-center border-b border-border pb-3">
+      <div className="flex justify-between items-center border-b border-border pb-3 narrow-rail:rail-row-stacked">
         <div className="flex gap-2 min-w-40 items-center">
           <UserRoundPen size={16} />
           <span className="text-sm">Updated By</span>
@@ -59,7 +59,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
       </div>
 
       {/* Updated At */}
-      <div className="flex justify-between items-center border-b border-border pb-3">
+      <div className="flex justify-between items-center border-b border-border pb-3 narrow-rail:rail-row-stacked">
         <div className="flex gap-2 min-w-40 items-center">
           <CalendarClock size={16} />
           <span className="text-sm">Updated At</span>
