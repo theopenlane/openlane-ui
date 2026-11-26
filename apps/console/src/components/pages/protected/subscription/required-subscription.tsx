@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { type PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { featureUtil } from '@/lib/subscription-plan/plans.ts'
 import { useOpenlaneProductsQuery } from '@/lib/query-hooks/stripe.ts'
+import { PURCHASABLE_CATALOG } from '@/lib/billing/product-catalog'
 
 type TRequiredSubscriptionProps = {
   module: PlanEnum | PlanEnum[]
@@ -13,7 +14,7 @@ type TRequiredSubscriptionProps = {
 
 const RequiredSubscription: React.FC<TRequiredSubscriptionProps> = ({ module }: TRequiredSubscriptionProps) => {
   const router = useRouter()
-  const { data: openlaneProducts } = useOpenlaneProductsQuery(true)
+  const { data: openlaneProducts } = useOpenlaneProductsQuery(PURCHASABLE_CATALOG)
   const modules = featureUtil.toModules(module)
   const moduleLabel = modules.map((m) => featureUtil.getPlanName(m)).join(' or ')
   const moduleNoun = modules.length > 1 ? 'modules' : 'module'

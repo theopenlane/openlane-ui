@@ -1,12 +1,14 @@
 import type Stripe from 'stripe'
 
 //PRODUCTS
-type BillingPrice = {
-  interval: 'month' | 'year'
+export type BillingInterval = 'month' | 'year'
+
+export type BillingPrice = {
+  interval: BillingInterval
   unit_amount: number
   nickname: string
   lookup_key: string
-  price_id: string
+  price_id?: string
   metadata?: Record<string, string>
 }
 

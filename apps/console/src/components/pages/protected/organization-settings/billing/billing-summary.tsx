@@ -1,38 +1,31 @@
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
-import { useOpenlaneProductsQuery, useOutstandingInvoiceDueDateQuery, useSchedulesQuery, useSwitchIntervalMutation, useUpcomingInvoiceQuery } from '@/lib/query-hooks/stripe'
+import { useOutstandingInvoiceDueDateQuery, useSchedulesQuery, useUpcomingInvoiceQuery } from '@/lib/query-hooks/stripe'
 import { type OrgSubscription } from '@repo/codegen/src/schema'
 import React, { useCallback, useMemo, useState } from 'react'
 import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
-import { type Price, type SchedulePhase, type SchedulePhaseItem, type SubscriptionItem } from '@/types/stripe'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { useNotification } from '@/hooks/useNotification'
+import { type BillingInterval, type OpenlaneProductsResponse, type SchedulePhase, type SchedulePhaseItem, type SubscriptionItem } from '@/types/stripe'
 import { Badge } from '@repo/ui/badge'
 import { formatDate } from '@/utils/date'
-import { billingIntervalStyles } from './billing-settings.styles'
-
-type BillingInterval = 'month' | 'year'
+import { isBaseModule, isProductActive } from '@/lib/billing/product-catalog'
+import BillingIntervalSwitch from './billing-interval-switch'
 
 type Props = {
+  catalog: OpenlaneProductsResponse | undefined
   stripeCustomerId: string | null | undefined
-  activePriceIds: Set<string | Price>
+  subscriptionId: string | undefined
+  activePriceIds: ReadonlySet<string>
   nextPhaseStart: Date | null
   currentInterval: BillingInterval | null
   stripeStatus: string | null
 }
 
-const BILLING_INTERVALS: readonly { value: BillingInterval; label: string }[] = [
-  { value: 'month', label: 'Monthly' },
-  { value: 'year', label: 'Annual (15% off)' },
-]
-
-const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, currentInterval, stripeStatus }: Props) => {
-  const { toggle, option } = billingIntervalStyles()
+const BillingSummary = ({ catalog, stripeCustomerId, subscriptionId, activePriceIds, nextPhaseStart, currentInterval, stripeStatus }: Props) => {
   const { currentOrgId } = useOrganization()
   const { data } = useGetOrganizationBilling(currentOrgId)
   const { data: schedules = [] } = useSchedulesQuery(stripeCustomerId)
-  const scheduleId = schedules[0]?.id
-  const subscriptionId = schedules[0]?.subscription?.id
+  const schedule = schedules[0]
+  const scheduleId = schedule?.id
   const { data: upcomingInvoice } = useUpcomingInvoiceQuery({
     customerId: stripeCustomerId,
     scheduleId,
@@ -42,61 +35,21 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
   const { expiresAt, active, stripeSubscriptionStatus, trialExpiresAt } = subscription
   // stripe is the source of truth, the org record only catches up once its webhook lands
   const status = stripeStatus ?? stripeSubscriptionStatus
-  const { mutateAsync: switchInterval, isPending: updating } = useSwitchIntervalMutation()
-  const [confirmSwitchOpen, setConfirmSwitchOpen] = useState(false)
   const trialExpirationDate = trialExpiresAt ? parseISO(trialExpiresAt) : null
   const [now] = useState(() => new Date())
   const trialEnded = trialExpirationDate ? isBefore(trialExpirationDate, now) : false
-  const { errorNotification, successNotification } = useNotification()
-  const { data: openlaneProducts } = useOpenlaneProductsQuery()
 
-  const isSubscriptionCanceled = schedules[0]?.end_behavior === 'cancel'
-
-  const modules = useMemo(() => Object.values(openlaneProducts?.modules || {}), [openlaneProducts])
-  const addons = useMemo(() => Object.values(openlaneProducts?.addons || {}), [openlaneProducts])
-  const modulesWithoutBase = useMemo(() => modules.filter((m) => m.display_name !== 'Base Module'), [modules])
-
-  const activeAddons = useMemo(() => {
-    return addons.filter((a) => {
-      const priceForInterval = a.billing.prices.find((p) => p.interval === currentInterval)
-      return priceForInterval && activePriceIds.has(priceForInterval.price_id)
-    })
-  }, [addons, currentInterval, activePriceIds])
-
-  type Product = {
-    billing: {
-      prices: {
-        interval: BillingInterval
-        price_id: string
-      }[]
-    }
-  }
-
-  const buildSwaps = useCallback((modules: Product[], addons: Product[], currentInterval: BillingInterval) => {
-    const allProducts = [...modules, ...addons]
-
-    return allProducts
-      .map((p) => {
-        const monthly = p.billing.prices.find((pr) => pr.interval === 'month')
-        const yearly = p.billing.prices.find((pr) => pr.interval === 'year')
-
-        if (!monthly || !yearly) return null
-
-        return currentInterval === 'month' ? { from: monthly.price_id, to: yearly.price_id } : { from: yearly.price_id, to: monthly.price_id }
-      })
-      .filter((swap): swap is { from: string; to: string } => swap !== null)
-  }, [])
-
-  const swaps = useMemo(() => {
-    if (!currentInterval) return []
-    return buildSwaps(modules, addons, currentInterval)
-  }, [modules, addons, currentInterval, buildSwaps])
+  const activeModules = useMemo(
+    () => Object.values(catalog?.modules ?? {}).filter((m) => !isBaseModule(m) && isProductActive(m, currentInterval, activePriceIds)),
+    [catalog, currentInterval, activePriceIds],
+  )
+  const activeAddons = useMemo(() => Object.values(catalog?.addons ?? {}).filter((a) => isProductActive(a, currentInterval, activePriceIds)), [catalog, currentInterval, activePriceIds])
 
   const calcPhaseCost = (phase: SchedulePhase): number => {
     if (!phase?.items) return 0
     return (
       phase.items.reduce((sum: number, item: SchedulePhaseItem) => {
-        const price = (schedules[0]?.subscription?.items?.data || []).find((subItem: SubscriptionItem) => subItem.price?.id === item.price)?.price
+        const price = (schedule?.subscription?.items?.data || []).find((subItem: SubscriptionItem) => subItem.price?.id === item.price)?.price
 
         const unitAmount = price?.unit_amount ?? 0
         return sum + unitAmount
@@ -104,7 +57,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
     )
   }
 
-  const nextPhase = schedules?.[0]?.phases?.[1] ?? null
+  const nextPhase = schedule?.phases?.[1] ?? null
 
   const fallbackFutureCost = calcPhaseCost(nextPhase)
   const currency = upcomingInvoice?.currency?.toUpperCase() || 'USD'
@@ -188,22 +141,6 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
     }
   }, [expiresAt, status, trialExpiresAt, trialEnded, now])
 
-  const handleSwitchInterval = async () => {
-    try {
-      await switchInterval({ scheduleId: schedules[0].id, swaps })
-      successNotification({
-        title: 'Interval switched',
-        description: 'Your billing interval has been updated.',
-      })
-    } catch (err) {
-      const error = err instanceof Error ? err.message : 'Unable to switch billing interval.'
-      errorNotification({
-        title: 'Switch failed',
-        description: error,
-      })
-    }
-  }
-
   return (
     <>
       <h2 id="summary" className="text-2xl mb-2">
@@ -242,23 +179,16 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
             </div>
           )}
         </div>
-        {/* Switch billing interval */}
-
         {/* Active Modules */}
-        {modulesWithoutBase.length > 0 && (
+        {activeModules.length > 0 && (
           <div className="flex gap-2 items-center p-4 pt-5 border-b">
             <p className="font-medium text-base w-28">Modules:</p>
             <div className="flex flex-wrap gap-2 mt-1">
-              {modulesWithoutBase
-                .filter((m) => {
-                  const priceForInterval = m.billing.prices.find((p) => p.interval === currentInterval)
-                  return priceForInterval && activePriceIds.has(priceForInterval.price_id)
-                })
-                .map((m) => (
-                  <Badge key={m.product_id} variant="outline">
-                    {m.display_name}
-                  </Badge>
-                ))}
+              {activeModules.map((m) => (
+                <Badge key={m.product_id} variant="outline">
+                  {m.display_name}
+                </Badge>
+              ))}
             </div>
           </div>
         )}
@@ -278,52 +208,8 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
             <span className="text-sm text-muted-foreground">None</span>
           )}
         </div>
-        <div className="flex gap-3 items-center p-4 pt-5">
-          <span className="font-medium text-base w-28">Billing interval</span>
-          <div className={toggle()} role="group" aria-label="Billing interval">
-            {BILLING_INTERVALS.map(({ value, label }) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={currentInterval === value}
-                disabled={updating || isSubscriptionCanceled || currentInterval === value}
-                onClick={() => setConfirmSwitchOpen(true)}
-                className={option({ active: currentInterval === value })}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <BillingIntervalSwitch catalog={catalog} schedules={schedules} currentInterval={currentInterval} isTrialing={status === 'trialing'} />
       </div>
-      <ConfirmationDialog
-        open={confirmSwitchOpen}
-        onOpenChange={setConfirmSwitchOpen}
-        onConfirm={() => {
-          setConfirmSwitchOpen(false)
-          handleSwitchInterval()
-        }}
-        title={currentInterval === 'month' ? 'Switch to annual billing?' : 'Switch to monthly billing?'}
-        description={
-          currentInterval === 'month' ? (
-            <span className="block space-y-2">
-              <span className="block">
-                Your subscription will switch from <strong>monthly</strong> to <strong>annual</strong> billing.
-              </span>
-              <span className="block">The change takes effect at the end of your current billing period.</span>
-            </span>
-          ) : (
-            <span className="block space-y-2">
-              <span className="block">
-                Your subscription will switch from <strong>annual</strong> to <strong>monthly</strong> billing.
-              </span>
-              <span className="block">The change takes effect at the end of your current billing period.</span>
-            </span>
-          )
-        }
-        confirmationText="Confirm"
-        confirmationTextVariant="success"
-      />
     </>
   )
 }

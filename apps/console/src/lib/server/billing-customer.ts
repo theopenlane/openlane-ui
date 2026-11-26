@@ -37,9 +37,25 @@ const resolveBillingCustomer = async (): Promise<string | NextResponse> => {
   return data.organization.stripeCustomerID || errorResponse('This organization has no billing account', 404)
 }
 
+const logFailedRequest = async (req: Request, res: Response, customerId: string | null) => {
+  const handlerRejected = !!customerId && res.status >= 400 && res.status < 500
+  const accessCheckFailed = !customerId && res.status >= 500
+  if (!handlerRejected && !accessCheckFailed) return
+
+  const body = (await res
+    .clone()
+    .json()
+    .catch(() => null)) as { error?: string } | null
+  const log = accessCheckFailed ? console.error : console.warn
+
+  log('[billing] request failed', { method: req.method, path: new URL(req.url).pathname, status: res.status, error: body?.error, customerId })
+}
+
 export const withBillingCustomer =
   (handler: TBillingHandler) =>
   async (req: Request): Promise<Response> => {
     const customer = await resolveBillingCustomer()
-    return typeof customer === 'string' ? handler(customer, req) : customer
+    const res = typeof customer === 'string' ? await handler(customer, req) : customer
+    await logFailedRequest(req, res, typeof customer === 'string' ? customer : null)
+    return res
   }
