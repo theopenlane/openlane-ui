@@ -34263,6 +34263,7 @@ export interface OrgMembership extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   events: EventConnection
   id: Scalars['ID']['output']
+  isDeleted?: Maybe<Scalars['Boolean']['output']>
   organization: Organization
   organizationID: Scalars['ID']['output']
   role: OrgMembershipRole
@@ -34429,6 +34430,7 @@ export interface OrgMembershipWhereInput {
   idIn?: InputMaybe<Array<Scalars['ID']['input']>>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  includeDeleted?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<OrgMembershipWhereInput>
   or?: InputMaybe<Array<OrgMembershipWhereInput>>
   organizationID?: InputMaybe<Scalars['String']['input']>

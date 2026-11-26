@@ -6207,6 +6207,7 @@ export interface OrgMembershipsQuery {
     edges: Array<{
       node: {
         id: string
+        isDeleted: boolean | null
         createdAt: any
         role: Types.OrgMembershipRole
         additionalRoles: Array<string> | null

@@ -38,6 +38,7 @@ export const GET_ORG_MEMBERSHIPS = gql`
       edges {
         node {
           id
+          isDeleted
           createdAt
           role
           additionalRoles
