@@ -16,7 +16,7 @@ import type {
 
 import type { GetOrganizationBillingQuery } from '@repo/codegen/src/schema'
 
-import type { BillingInterval } from './billing-catalog'
+import { switchedPrice, type BillingCatalog, type BillingInterval } from './billing-catalog'
 
 const PERIOD_SECONDS = 14 * 24 * 60 * 60 // 14 days
 const UNIT_AMOUNT = 45_000
@@ -50,6 +50,7 @@ type ScheduleAction = 'cancel' | 'renew' | 'update' | 'switch'
 type Endpoint = `schedules/${ScheduleAction}` | 'create-portal-session' | 'invoices'
 
 export interface BillingScenario {
+  catalog: BillingCatalog
   priceIds: string[]
   interval?: BillingInterval
   status?: Subscription['status']
@@ -141,13 +142,11 @@ export const installBillingFake = async (page: Page, scenario: BillingScenario):
       else unsubscribe(priceId)
     },
     switch: (route) => {
-      const { swaps } = route.request().postDataJSON() as { swaps: Array<{ from: string; to: string }> }
-      const targets = new Map(swaps.map(({ from, to }) => [from, to]))
-      const nextInterval: BillingInterval = interval === 'month' ? 'year' : 'month'
+      const { interval: target } = route.request().postDataJSON() as { interval: BillingInterval }
       for (const phase of schedule.phases) {
-        phase.items = phase.items.map((item) => ({ ...item, price: targets.get(item.price) ?? item.price }))
+        phase.items = phase.items.map((item) => ({ ...item, price: switchedPrice(scenario.catalog, item.price, target) }))
       }
-      subscription.items.data = subscription.items.data.map(({ price }) => subscriptionItem(targets.get(price.id) ?? price.id, nextInterval))
+      subscription.items.data = subscription.items.data.map(({ price }) => subscriptionItem(switchedPrice(scenario.catalog, price.id, target), target))
     },
   }
 

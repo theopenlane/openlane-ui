@@ -3,7 +3,7 @@ import type { Page, Request } from '@playwright/test'
 import { formatDate } from '@/utils/date'
 
 import { test, expect } from '../fixtures/auth'
-import { allProducts, fetchBillingCatalog, isSwitchable, pickProducts, priceIdFor, type BillingCatalog, type CatalogProduct } from '../utils/billing-catalog'
+import { FULL_CATALOG, fetchBillingCatalog, pickProducts, priceIdFor, type BillingCatalog, type CatalogProduct } from '../utils/billing-catalog'
 import { FAKE_SCHEDULE_ID, VISA, fakeInvoice, installBillingFake, type BillingFake, type BillingScenario } from '../utils/billing-fake'
 import { BILLING_PATH, confirmDialog, intervalButton, openBilling, productAction } from '../utils/billing-page'
 import { toast } from '../utils/mutations'
@@ -67,17 +67,18 @@ test.describe('billing — access control', () => {
 
 test.describe('billing — subscription state', () => {
   let catalog: BillingCatalog
+  let fullCatalog: BillingCatalog
   let primary: CatalogProduct
   let secondary: CatalogProduct
   let fake: BillingFake | undefined
 
   const open = async (page: Page, scenario: Partial<BillingScenario> = {}): Promise<BillingFake> => {
-    fake = await openFakeBilling(page, { priceIds: [priceIdFor(primary, scenario.interval ?? 'month')], ...scenario })
+    fake = await openFakeBilling(page, { catalog: fullCatalog, priceIds: [priceIdFor(primary, scenario.interval ?? 'month')], ...scenario })
     return fake
   }
 
   test.beforeAll(async () => {
-    catalog = await fetchBillingCatalog()
+    ;[catalog, fullCatalog] = await Promise.all([fetchBillingCatalog(), fetchBillingCatalog(FULL_CATALOG)])
     ;[primary, secondary] = pickProducts(catalog.modules, 2, 'modules')
   })
 
@@ -218,20 +219,15 @@ test.describe('billing — subscription state', () => {
       ['month', 'year', 'Annual (15% off)', 'Switch to annual billing?'],
       ['year', 'month', 'Monthly', 'Switch to monthly billing?'],
     ] as const) {
-      test(`switching from ${from} to ${to} swaps every catalog product with both prices`, async ({ page }) => {
+      test(`switching from ${from} to ${to} sends only the target interval`, async ({ page }) => {
         await open(page, { interval: from })
-        const expected = allProducts(catalog)
-          .filter(isSwitchable)
-          .map((product) => ({ from: priceIdFor(product, from), to: priceIdFor(product, to) }))
 
-        const body = (await bodyOfRequest(page, '/api/stripe/schedules/switch', async () => {
+        const body = await bodyOfRequest(page, '/api/stripe/schedules/switch', async () => {
           await intervalButton(page, label).click()
           await confirmDialog(page, title, 'Confirm')
-        })) as { scheduleId: string; swaps: typeof expected }
+        })
 
-        expect(body.scheduleId).toBe(FAKE_SCHEDULE_ID)
-        expect(body.swaps).toHaveLength(expected.length)
-        expect(body.swaps).toEqual(expect.arrayContaining(expected))
+        expect(body).toEqual({ scheduleId: FAKE_SCHEDULE_ID, interval: to })
         await expect(toast(page, 'Interval switched')).toBeVisible()
         await expect(intervalButton(page, label)).toHaveAttribute('aria-pressed', 'true')
       })

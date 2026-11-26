@@ -4,7 +4,7 @@ import type Stripe from 'stripe'
 import type { InvoicesResponse, PaymentMethodsResponse, Subscription, SubscriptionSchedulesResponse, UpcomingInvoiceResponse } from '@/types/stripe'
 
 import { createSharedOrg, getSelf, gqlData, loginViaApi, setDefaultOrg, type ApiSession } from '../utils/api'
-import { allProducts, fetchBillingCatalog, isSwitchable, pickProducts, priceIdFor, type BillingCatalog, type CatalogProduct } from '../utils/billing-catalog'
+import { FULL_CATALOG, fetchBillingCatalog, pickProducts, priceIdFor, switchedPrice, type BillingCatalog, type CatalogProduct } from '../utils/billing-catalog'
 import { confirmDialog, intervalButton, openBilling, productAction } from '../utils/billing-page'
 import { PASSWORD } from '../utils/constants'
 import { loginViaForm } from '../utils/login'
@@ -193,7 +193,7 @@ test.describe('billing — real Stripe sandbox', () => {
       await page.request.post('/api/stripe/schedules/cancel', { data: body }),
       await page.request.post('/api/stripe/schedules/renew', { data: body }),
       await page.request.post('/api/stripe/schedules/update', { data: { ...body, priceId: price, action: 'unsubscribe' } }),
-      await page.request.post('/api/stripe/schedules/switch', { data: { ...body, swaps: [{ from: price, to: priceIdFor(product, 'year') }] } }),
+      await page.request.post('/api/stripe/schedules/switch', { data: { ...body, interval: 'year' } }),
     ]
     for (const response of responses) {
       expect(response.status(), response.url()).toBe(404)
@@ -245,18 +245,14 @@ test.describe('billing — real Stripe sandbox', () => {
   }
 
   test('switching to annual replaces every switchable price with its counterpart', async () => {
-    const counterpart = new Map(
-      allProducts(catalog)
-        .filter(isSwitchable)
-        .map((candidate) => [priceIdFor(candidate, 'month'), priceIdFor(candidate, 'year')]),
-    )
+    const fullCatalog = await fetchBillingCatalog(FULL_CATALOG)
     const before = phasePriceIds(await schedule())
 
     await openBilling(page)
     await intervalButton(page, 'Annual (15% off)').click()
     await succeed('/api/stripe/schedules/switch', () => confirmDialog(page, 'Switch to annual billing?'))
 
-    expect(phasePriceIds(await schedule())).toEqual(before.map((prices) => prices.map((price) => counterpart.get(price) ?? price)))
+    expect(phasePriceIds(await schedule())).toEqual(before.map((prices) => prices.map((price) => switchedPrice(fullCatalog, price, 'year'))))
   })
 
   test('a cancelled trial keeps its end date and cannot be renewed', async () => {
