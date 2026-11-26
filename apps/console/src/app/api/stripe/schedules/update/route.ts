@@ -31,9 +31,10 @@ export const POST = withBillingCustomer(async (customerId, req) => {
       return billingResourceNotFound()
     }
 
-    const alreadyOnSchedule = schedule.phases.some((phase) => phase.items.some((item) => priceIdOf(item.price) === priceId))
+    const currentPhaseStart = schedule.current_phase?.start_date
+    const onCurrentPhase = schedule.phases.some((phase) => phase.start_date === currentPhaseStart && phase.items.some((item) => priceIdOf(item.price) === priceId))
 
-    if (action === 'subscribe' && !alreadyOnSchedule && !catalogPriceIds(await fetchCatalog(PURCHASABLE_CATALOG)).has(priceId)) {
+    if (action === 'subscribe' && !onCurrentPhase && !catalogPriceIds(await fetchCatalog(PURCHASABLE_CATALOG)).has(priceId)) {
       return NextResponse.json({ error: 'This price is not available for purchase' }, { status: 400 })
     }
 
