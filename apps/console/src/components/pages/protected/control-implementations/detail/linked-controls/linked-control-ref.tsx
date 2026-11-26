@@ -1,4 +1,4 @@
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { ControlHoverCard } from '@/components/shared/control-tooltip/control-tooltip'
 import { Link } from '@/components/shared/link/link'
 import { type TLinkedControlRow } from './linked-control-groups'
 
@@ -10,9 +10,13 @@ type TLinkedControlRefProps = {
 
 export const LinkedControlRef = ({ row }: TLinkedControlRefProps) =>
   row.href ? (
-    <Link href={row.href} className="shrink-0 whitespace-nowrap">
-      {row.refCode}
-    </Link>
+    <ControlHoverCard id={row.id} isSubcontrol={row.isSubcontrol}>
+      <Link href={row.href} className="shrink-0 whitespace-nowrap">
+        {row.refCode}
+      </Link>
+    </ControlHoverCard>
   ) : (
-    <SystemTooltip icon={<span className="shrink-0 cursor-default whitespace-nowrap text-muted-foreground">{row.refCode}</span>} content={NOT_LINKED_REASON} side="top" portal />
+    <ControlHoverCard id={row.id} isSubcontrol={row.isSubcontrol} header={NOT_LINKED_REASON}>
+      <span className="shrink-0 cursor-default whitespace-nowrap text-muted-foreground">{row.refCode}</span>
+    </ControlHoverCard>
   )

@@ -75,9 +75,11 @@ export const LinkedControlsMap = ({ groups, showOthers }: TLinkedControlsMapProp
       <div className="space-y-2 bg-[radial-gradient(var(--color-border)_1px,transparent_1px)] bg-size-[16px_16px] px-4 py-3">
         {groups.map(({ framework, rows }) => (
           <div key={framework} className="flex" role="group" aria-label={framework || CUSTOM_STANDARD_FILTER_VALUE}>
-            <div className="flex w-30 shrink-0 items-center">
-              <StandardChip referenceFramework={framework} />
-              <div className="flex-1 border-t" aria-hidden />
+            <div className="relative flex w-40 shrink-0 items-center">
+              <div className="absolute inset-x-0 top-1/2 border-t" aria-hidden />
+              <div className="relative flex min-w-0 max-w-full pr-2">
+                <StandardChip referenceFramework={framework} className="min-w-0 max-w-full shrink [&>:first-child]:shrink-0" truncate />
+              </div>
             </div>
             <FrameworkConnectors rows={rows} />
             <div className="min-w-0 flex-1">

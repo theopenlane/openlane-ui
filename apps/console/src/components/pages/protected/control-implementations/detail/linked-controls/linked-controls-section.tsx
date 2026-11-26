@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { aiEnabled } from '@repo/dally/ai'
 import { List, Network } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
@@ -8,21 +8,18 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 import { LINKABLE_CONTROL_TYPES } from '@/components/shared/object-association/association-configs'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
-import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { useControlImplementationLinkedControls } from '@/lib/graphql-hooks/control-implementation'
-import { MAX_SUGGESTION_CANDIDATES } from '@/lib/control-suggestions/schema'
 import { htmlToText } from '@/lib/html/html-to-text'
-import { useSuggestControls } from '@/lib/query-hooks/use-suggest-controls'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useControlSuggestions } from '@/lib/query-hooks/use-suggest-controls'
 import { useOrgPersistedState } from '@/lib/storage/org-persisted-store'
 import { SetControlImplementationAssociationDialog } from '../../set-control-implementation-association-dialog'
 import { buildFrameworkGroups, getLinkedControlCounts, hasOtherImplementations } from './linked-control-groups'
 import { LinkedControlsEmptyState } from './linked-controls-empty-state'
 import { LinkedControlsList } from './linked-controls-list'
 import { LinkedControlsMap } from './linked-controls-map'
-import { SuggestedControls } from './suggested-controls'
+import { SuggestionsPanel } from './suggestions-panel'
 import { isLinkedControlsView, linkedControlsViewStore } from './linked-controls-view-store'
 
 type TLinkedControlsSectionProps = {
@@ -40,30 +37,16 @@ const LinkedControlsSection: React.FC<TLinkedControlsSectionProps> = ({ controlI
   const implementation = data?.controlImplementation
   const groups = useMemo(() => (implementation ? buildFrameworkGroups(implementation) : []), [implementation])
   const linkedIds = useMemo(() => new Set(groups.flatMap(({ rows }) => rows.filter(({ href }) => href).map(({ id }) => id))), [groups])
-  const { errorNotification, infoNotification } = useNotification()
-  const isSuggestingRef = useRef(false)
   const detailsText = useMemo(() => htmlToText(details ?? '').trim(), [details])
-  const { mutateAsync: suggestControls, data: suggested, variables: suggestedFrom, isPending: isSuggesting, reset: dismissSuggestions } = useSuggestControls()
-  const suggestions = suggestedFrom === detailsText ? (suggested?.controls ?? []).filter(({ id }) => !linkedIds.has(id)) : []
-  const canSuggest = aiEnabled && !!detailsText
-
-  const handleSuggest = async () => {
-    if (isSuggestingRef.current) return
-    isSuggestingRef.current = true
-    try {
-      const { controls, isPartial } = await suggestControls(detailsText)
-      if (controls.length === 0) {
-        infoNotification({
-          title: 'No matching controls',
-          description: isPartial ? `None of the first ${MAX_SUGGESTION_CANDIDATES} controls clearly match these details.` : 'No controls in your organization clearly match these details.',
-        })
-      }
-    } catch (error) {
-      errorNotification({ title: 'Failed to suggest controls', description: parseErrorMessage(error) })
-    } finally {
-      isSuggestingRef.current = false
-    }
-  }
+  const canSuggest = canEdit && aiEnabled && !!detailsText
+  const [requestedDetails, setRequestedDetails] = useState<string | null>(null)
+  const showSuggestions = canSuggest && requestedDetails === detailsText
+  const {
+    data: suggestions,
+    error: suggestionsError,
+    isFetching: isSuggesting,
+    refetch: retrySuggestions,
+  } = useControlSuggestions({ controlImplementationId, details: detailsText, enabled: showSuggestions })
 
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false)
   const showOthers = hasOtherImplementations(groups)
@@ -83,7 +66,12 @@ const LinkedControlsSection: React.FC<TLinkedControlsSectionProps> = ({ controlI
       {groups.length === 0 ? (
         <section className="space-y-4">
           <h2 className="text-lg font-semibold">Controls</h2>
-          <LinkedControlsEmptyState onLinkControls={() => setIsLinkDialogOpen(true)} canEdit={canEdit} onSuggest={canSuggest ? handleSuggest : undefined} isSuggesting={isSuggesting} />
+          <LinkedControlsEmptyState
+            onLinkControls={() => setIsLinkDialogOpen(true)}
+            canEdit={canEdit}
+            onSuggest={canSuggest ? () => setRequestedDetails(detailsText) : undefined}
+            isSuggesting={isSuggesting}
+          />
         </section>
       ) : (
         <Tabs
@@ -126,7 +114,18 @@ const LinkedControlsSection: React.FC<TLinkedControlsSectionProps> = ({ controlI
         </Tabs>
       )}
       <div className="mt-4" aria-live="polite">
-        {canEdit && suggestions.length > 0 && <SuggestedControls controlImplementationId={controlImplementationId} suggestions={suggestions} onDismiss={dismissSuggestions} />}
+        {showSuggestions && (
+          <SuggestionsPanel
+            controlImplementationId={controlImplementationId}
+            suggestions={suggestions}
+            error={suggestionsError}
+            isFetching={isSuggesting}
+            linkedIds={linkedIds}
+            onRetry={() => retrySuggestions()}
+            onDismiss={() => setRequestedDetails(null)}
+            onLinkControls={() => setIsLinkDialogOpen(true)}
+          />
+        )}
       </div>
       {canEdit && (
         <SetControlImplementationAssociationDialog

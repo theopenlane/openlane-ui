@@ -499,3 +499,35 @@ export const INSERT_SUBCONTROL_PLATE_COMMENT = gql`
     }
   }
 `
+
+export const SUBCONTROL_SUGGESTION_CANDIDATE_FIELDS = gql`
+  fragment SubcontrolSuggestionCandidateFields on Subcontrol {
+    id
+    refCode
+    title
+    description
+    referenceFramework
+    control {
+      id
+    }
+  }
+`
+
+export const GET_SUBCONTROL_SUGGESTION_CANDIDATES = gql`
+  ${SUBCONTROL_SUGGESTION_CANDIDATE_FIELDS}
+
+  query GetSubcontrolSuggestionCandidates($where: SubcontrolWhereInput, $orderBy: [SubcontrolOrder!] = [{ field: ref_code, direction: ASC }], $first: Int, $after: Cursor) {
+    subcontrols(where: $where, orderBy: $orderBy, first: $first, after: $after) {
+      totalCount
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          ...SubcontrolSuggestionCandidateFields
+        }
+      }
+    }
+  }
+`

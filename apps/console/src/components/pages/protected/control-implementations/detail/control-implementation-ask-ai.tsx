@@ -3,6 +3,7 @@ import { useSession } from 'next-auth/react'
 import AIChat from '@/components/shared/ai-suggetions/chat'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { getNodes } from '@/lib/graphql-hooks/connection'
+import { htmlToText } from '@/lib/html/html-to-text'
 import { type ControlImplementationDetailNode } from '@/lib/graphql-hooks/control-implementation'
 
 type TControlImplementationAskAIProps = {
@@ -27,7 +28,7 @@ const ControlImplementationAskAI: React.FC<TControlImplementationAskAIProps> = (
         user: { name: userData?.user?.displayName },
         background: `Control implementation details for the provided request, use this information to answer the user's question or provide suggestions: ${JSON.stringify({
           name: title,
-          details: implementation.details,
+          details: htmlToText(implementation.details ?? '').trim(),
           status: implementation.status,
           verified: !!implementation.verified,
           implementationDate: implementation.implementationDate,

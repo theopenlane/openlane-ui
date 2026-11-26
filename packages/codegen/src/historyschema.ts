@@ -2757,6 +2757,23 @@ export interface ControlActivityQuery {
   controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; title: string | null; createdAt: any } | null } | null> | null }
 }
 
+export type ControlSuggestionCandidateFieldsFragment = { id: string; refCode: string; title: string | null; description: string | null; referenceFramework: string | null }
+
+export type GetControlSuggestionCandidatesQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+  orderBy?: Array<Types.ControlOrder> | Types.ControlOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetControlSuggestionCandidatesQuery {
+  controls: {
+    totalCount: number
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{ node: { id: string; refCode: string; title: string | null; description: string | null; referenceFramework: string | null } | null } | null> | null
+  }
+}
+
 export type CustomTypeEnumFieldsFragment = { id: string; name: string; color: string | null; objectType: string; description: string | null; field: string; systemOwned: boolean | null }
 
 export type GetCustomTypeEnumsQueryVariables = Exact<{
@@ -6297,6 +6314,34 @@ export interface DeleteMappedControlMutation {
   deleteMappedControl: { deletedID: string }
 }
 
+export type SuggestionMappedControlFieldsFragment = { id: string; refCode: string; title: string | null; referenceFramework: string | null }
+
+export type SuggestionMappedSubcontrolFieldsFragment = { id: string; refCode: string; title: string | null; referenceFramework: string | null; control: { id: string } }
+
+export type GetControlSuggestionMappingsQueryVariables = Exact<{
+  where?: Types.MappedControlWhereInput | null | undefined
+  controlWhere?: Types.ControlWhereInput | null | undefined
+  subcontrolWhere?: Types.SubcontrolWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetControlSuggestionMappingsQuery {
+  mappedControls: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        mappingType: Types.MappedControlMappingType
+        fromControls: { edges: Array<{ node: { id: string; refCode: string; title: string | null; referenceFramework: string | null } | null } | null> | null }
+        toControls: { edges: Array<{ node: { id: string; refCode: string; title: string | null; referenceFramework: string | null } | null } | null> | null }
+        fromSubcontrols: { edges: Array<{ node: { id: string; refCode: string; title: string | null; referenceFramework: string | null; control: { id: string } } | null } | null> | null }
+        toSubcontrols: { edges: Array<{ node: { id: string; refCode: string; title: string | null; referenceFramework: string | null; control: { id: string } } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+}
+
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: string
   input: Types.UpdateOrgMembershipInput
@@ -9811,6 +9856,23 @@ export interface InsertSubcontrolPlateCommentMutation {
         } | null> | null
       }
     }
+  }
+}
+
+export type SubcontrolSuggestionCandidateFieldsFragment = { id: string; refCode: string; title: string | null; description: string | null; referenceFramework: string | null; control: { id: string } }
+
+export type GetSubcontrolSuggestionCandidatesQueryVariables = Exact<{
+  where?: Types.SubcontrolWhereInput | null | undefined
+  orderBy?: Array<Types.SubcontrolOrder> | Types.SubcontrolOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetSubcontrolSuggestionCandidatesQuery {
+  subcontrols: {
+    totalCount: number
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{ node: { id: string; refCode: string; title: string | null; description: string | null; referenceFramework: string | null; control: { id: string } } | null } | null> | null
   }
 }
 

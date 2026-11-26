@@ -1,17 +1,11 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Badge } from '@repo/ui/badge'
 import Drag from '@/assets/Drag'
-import { PencilLine, Plus, XIcon } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { SlidersHorizontal, FileText, Folder, FolderPlus, ExternalLink } from 'lucide-react'
+import { Plus, XIcon } from 'lucide-react'
 import NextLink from 'next/link'
-import { Link } from '@/components/shared/link/link'
-import { useGetControlMinifiedById } from '@/lib/graphql-hooks/control'
-import { useGetSubcontrolMinifiedById } from '@/lib/graphql-hooks/subcontrol'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { ControlHoverCard } from '@/components/shared/control-tooltip/control-tooltip'
 import { type MapControl } from '@/types'
 import { StandardsColorSpan, StandardsHexagon } from '@/components/shared/standards-color-mapper/standards-color-mapper'
-import StandardChip from '../../../standards/shared/standard-chip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export interface ControlChipProps {
@@ -53,8 +47,6 @@ const ControlChip: React.FC<ControlChipProps> = ({
   canAdd,
   onAdd,
 }) => {
-  const [tooltipOpen, setTooltipOpen] = useState(false)
-
   const baseClasses = 'bg-secondary flex gap-1 items-center'
   const dragClass = draggable ? 'cursor-grab' : ''
   const borderClass = selected ? 'ring-1' : 'border-border'
@@ -119,85 +111,10 @@ const ControlChip: React.FC<ControlChipProps> = ({
   )
 
   return (
-    <TooltipProvider delayDuration={300}>
-      <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger asChild>{href && !disableHref && clickable ? <NextLink href={href}>{renderedBadge()}</NextLink> : <div>{renderedBadge()}</div>}</TooltipTrigger>
-        {tooltipOpen && (
-          <TooltipContent side="top" collisionPadding={64} portal>
-            <ControlTooltipContent control={control} disableHref={disableHref} forceHref={forceHref} />
-          </TooltipContent>
-        )}
-      </Tooltip>
-    </TooltipProvider>
+    <ControlHoverCard id={control.id} isSubcontrol={control.__typename === ObjectTypes.SUBCONTROL} disableHref={disableHref} forceHref={forceHref}>
+      {href && !disableHref && clickable ? <NextLink href={href}>{renderedBadge()}</NextLink> : <div>{renderedBadge()}</div>}
+    </ControlHoverCard>
   )
 }
 
 export default React.memo(ControlChip)
-
-const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['control']>; disableHref?: boolean; forceHref?: string }> = ({ control, disableHref, forceHref }) => {
-  const { convertToReadOnly } = usePlateEditor()
-
-  const { data: ctrlData, isLoading: ctrlLoading } = useGetControlMinifiedById(control.__typename === ObjectTypes.CONTROL ? control.id : undefined)
-  const { data: subData, isLoading: subLoading } = useGetSubcontrolMinifiedById(control.__typename === ObjectTypes.SUBCONTROL ? control.id : undefined)
-
-  const loading = ctrlLoading || subLoading
-  const details = ctrlData?.control || subData?.subcontrol
-
-  const nameHref = forceHref || (control.__typename === ObjectTypes.CONTROL ? `/controls/${ctrlData?.control.id}` : `/controls/${subData?.subcontrol.control.id}/${subData?.subcontrol.id}`)
-
-  const standardHref = control.__typename === ObjectTypes.SUBCONTROL ? `/standards/${subData?.subcontrol?.control?.standardID}` : `/standards/${ctrlData?.control.standardID}`
-
-  if (loading) return <p className="text-xs">Loading details…</p>
-  if (!details) return <p className="text-xs">No details available.</p>
-
-  return (
-    <div className="bg-background-secondary p-3 rounded-md text-xs min-w-[240px] max-w-[320px]">
-      <div className="grid grid-cols-[auto_1fr] gap-y-2">
-        <div className="flex items-center gap-1 border-b pb-2">
-          <SlidersHorizontal size={12} />
-          <span className="font-medium">Name</span>
-        </div>
-        <div className="w-full border-b">
-          {disableHref ? (
-            <span className="pl-3">{details.title ? `${details.refCode} ${details.title}` : details.refCode}</span>
-          ) : (
-            <Link href={nameHref} newTab className="size-fit pl-3">
-              {details.title ? `${details.refCode} ${details.title}` : details.refCode}
-            </Link>
-          )}
-        </div>
-
-        <div className="flex items-center gap-1 border-b pb-2">
-          <FileText size={12} />
-          <span className="font-medium">Standard</span>
-        </div>
-        <div className="flex items-center gap-1 border-b pb-2">
-          <NextLink href={standardHref} className="size-fit hover:underline flex items-center gap-1" target="_blank" rel="noopener">
-            <StandardChip referenceFramework={details.referenceFramework ?? ''} />
-            {details.referenceFramework && <ExternalLink size={12} />}
-          </NextLink>
-        </div>
-
-        <div className="flex items-center gap-1 border-b pb-2">
-          <Folder size={12} />
-          <span className="font-medium">Category</span>
-        </div>
-        <span className="flex pl-3 gap-1 border-b pb-2">{details.category || '-'}</span>
-
-        <div className="flex items-center gap-1 border-b pb-2">
-          <FolderPlus size={12} />
-          <span className="font-medium">Subcategory</span>
-        </div>
-        <span className="flex pl-3 gap-1 border-b pb-2">{details.subcategory || '-'}</span>
-      </div>
-
-      <div className="flex flex-col pt-2 max-w-full">
-        <div className="flex items-center gap-1">
-          <PencilLine size={12} />
-          <span className="font-medium">Description</span>
-        </div>
-        <div className="line-clamp-4 text-justify break-words">{convertToReadOnly(details.description || '')}</div>
-      </div>
-    </div>
-  )
-}
