@@ -11,10 +11,10 @@ import { type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Callout } from '@/components/shared/callout/callout'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
-import { useCreateAsset, type AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
+import { useCreateAsset, useFetchAssetIds, type AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { pluralizeWithCount } from '@/utils/strings'
+import { pluralize, pluralizeWithCount } from '@/utils/strings'
 import { type TSelectedReport } from './exposure-bulk-actions'
 import { exposureAssetLabel } from '../../../../exposure/detail/exposure-asset-label'
 import { useExposureAssetEnvironment } from './use-exposure-asset-environment'
@@ -35,7 +35,7 @@ const resolveEnvironment = (choice: string, picked: ReadonlyMap<string, TPickedA
   return environments.size === 1 ? { environmentName: [...environments][0] } : {}
 }
 
-const environmentNote = (choice: string, picked: ReadonlyMap<string, TPickedAsset>, reports: TSelectedReport[]): string | null => {
+const environmentNote = (choice: string, picked: ReadonlyMap<string, TPickedAsset>, assetEnvironmentShadows: boolean): string | null => {
   if (choice === ENVIRONMENT_FROM_ASSET) {
     const environments = pickedEnvironments(picked)
     if (environments.size > 1) return 'The picked assets have different environments, so report environments stay unchanged.'
@@ -43,8 +43,7 @@ const environmentNote = (choice: string, picked: ReadonlyMap<string, TPickedAsse
     return null
   }
   if (choice === ENVIRONMENT_KEEP) return null
-  const shadowed = reports.filter((report) => report.hasAssetEnvironment).length + (pickedEnvironments(picked).size > 0 ? 1 : 0)
-  return shadowed > 0 ? "The map groups a report by its linked asset's environment first, so reports linked to an asset with an environment stay under that environment." : null
+  return assetEnvironmentShadows ? "The map groups a report by its linked asset's environment first, so reports linked to an asset with an environment stay under that environment." : null
 }
 
 const RowCheckbox: React.FC<{ checked: boolean }> = ({ checked }) => <Checkbox checked={checked} tabIndex={-1} aria-hidden className="pointer-events-none" />
@@ -62,6 +61,7 @@ const AssetEnvironmentPanel: React.FC<TPanelProps> = ({ reports, onApply, onClos
   const [isApplying, setIsApplying] = useState(false)
   const { errorNotification } = useNotification()
   const { mutateAsync: createAsset } = useCreateAsset()
+  const fetchAssetIds = useFetchAssetIds()
   const data = useExposureAssetEnvironment(reports)
 
   const togglePicked = (asset: TPickedAsset) =>
@@ -72,12 +72,15 @@ const AssetEnvironmentPanel: React.FC<TPanelProps> = ({ reports, onApply, onClos
       return next
     })
 
-  const hasAssets = picked.size > 0 || createOwnerAsset
+  const pickedCount = picked.size + (createOwnerAsset ? 1 : 0)
+  const hasAssets = pickedCount > 0
   const effectiveChoice = !hasAssets && environmentChoice === ENVIRONMENT_FROM_ASSET ? ENVIRONMENT_KEEP : environmentChoice
   const environmentInput = resolveEnvironment(effectiveChoice, picked)
-  const note = environmentNote(effectiveChoice, picked, reports)
+  const assetEnvironmentShadows = hasAssets ? pickedEnvironments(picked).size > 0 : reports.some((report) => report.hasAssetEnvironment)
+  const note = environmentNote(effectiveChoice, picked, assetEnvironmentShadows)
   const hasChange = hasAssets || !!environmentInput.environmentName
   const reportCount = pluralizeWithCount(reports.length, 'report')
+  const replacesLinkedAssets = hasAssets && reports.some((report) => report.hasAsset)
 
   const renderAssetRow = (asset: AssetsNodeNonNull) => (
     <CommandItem key={asset.id} value={asset.id} onSelect={() => togglePicked(asset)} className="flex items-center gap-2">
@@ -95,14 +98,20 @@ const AssetEnvironmentPanel: React.FC<TPanelProps> = ({ reports, onApply, onClos
     return id
   }
 
+  const replaceAssetsInput = async (assetIds: ReadonlySet<string>): Promise<Pick<UpdateVulnerabilityInput, 'addAssetIDs' | 'removeAssetIDs'>> => {
+    const linkedIds = await fetchAssetIds({ hasVulnerabilitiesWith: [{ idIn: reports.map((report) => report.id) }] })
+    const removeAssetIDs = linkedIds.filter((id) => !assetIds.has(id))
+    return { addAssetIDs: [...assetIds], ...(removeAssetIDs.length ? { removeAssetIDs } : {}) }
+  }
+
   const handleApply = async () => {
     setIsApplying(true)
     try {
       const assetIds = new Set(picked.keys())
       if (createOwnerAsset && data.owner) assetIds.add(await createOwnerAssetId(data.owner))
-      if (await onApply({ ...(assetIds.size ? { addAssetIDs: [...assetIds] } : {}), ...environmentInput })) onClose()
+      if (await onApply({ ...(assetIds.size ? await replaceAssetsInput(assetIds) : {}), ...environmentInput })) onClose()
     } catch (error) {
-      errorNotification({ title: 'Failed to create asset', description: parseErrorMessage(error) })
+      errorNotification({ title: 'Failed to set asset', description: parseErrorMessage(error) })
     } finally {
       setIsApplying(false)
     }
@@ -153,6 +162,7 @@ const AssetEnvironmentPanel: React.FC<TPanelProps> = ({ reports, onApply, onClos
             </SelectContent>
           </Select>
         </div>
+        {replacesLinkedAssets && <Callout variant="plain">Replaces the assets currently linked to the selected reports.</Callout>}
         {note && <Callout variant="plain">{note}</Callout>}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={onClose}>
@@ -160,7 +170,7 @@ const AssetEnvironmentPanel: React.FC<TPanelProps> = ({ reports, onApply, onClos
           </Button>
           <DisabledReasonTooltip reason={hasChange ? undefined : 'Pick an asset or an environment.'}>
             <Button type="button" disabled={!hasChange || isApplying} onClick={handleApply}>
-              {isApplying ? 'Applying…' : hasAssets ? `Link to ${reportCount}` : `Apply to ${reportCount}`}
+              {isApplying ? 'Applying…' : hasAssets ? `Set ${pluralize(pickedCount, 'asset')} on ${reportCount}` : `Apply to ${reportCount}`}
             </Button>
           </DisabledReasonTooltip>
         </div>
@@ -185,7 +195,7 @@ export const ExposureAssetEnvironmentPopover: React.FC<TExposureAssetEnvironment
           Set asset / environment
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-[380px] max-w-[calc(100vw-2rem)] p-0">
+      <PopoverContent side="top" align="start" className="w-[380px] max-w-[calc(100vw-2rem)] p-0">
         <AssetEnvironmentPanel reports={reports} onApply={onApply} onClose={() => setOpen(false)} />
       </PopoverContent>
     </Popover>
