@@ -2562,20 +2562,143 @@ export interface DeleteDemoDataMutation {
   deleteDemoData: { accepted: boolean }
 }
 
-export type GetDemoDataPresenceQueryVariables = Exact<{
+export type GetDemoDataTypeCountsQueryVariables = Exact<{
   sourceKey: string
+  withPrograms?: boolean
+  withControls?: boolean
+  withEvidences?: boolean
+  withInternalPolicies?: boolean
+  withProcedures?: boolean
+  withPlatforms?: boolean
+  withSystemDetails?: boolean
+  withAssets?: boolean
+  withEntities?: boolean
+  withIdentityHolders?: boolean
+  withContacts?: boolean
+  withRisks?: boolean
+  withFindings?: boolean
+  withVulnerabilities?: boolean
+  withRemediations?: boolean
+  withActionPlans?: boolean
+  withReviews?: boolean
+  withTasks?: boolean
+  withAssessments?: boolean
+  withCampaigns?: boolean
+  withEmailTemplates?: boolean
+  withCustomTypeEnums?: boolean
+  withGroups?: boolean
 }>
 
-export interface GetDemoDataPresenceQuery {
-  programs: { totalCount: number }
-  controls: { totalCount: number }
-  internalPolicies: { totalCount: number }
-  procedures: { totalCount: number }
-  risks: { totalCount: number }
-  entities: { totalCount: number }
-  assets: { totalCount: number }
-  evidences: { totalCount: number }
-  tasks: { totalCount: number }
+export interface GetDemoDataTypeCountsQuery {
+  programs?: { totalCount: number }
+  controls?: { totalCount: number }
+  evidences?: { totalCount: number }
+  internalPolicies?: { totalCount: number }
+  procedures?: { totalCount: number }
+  platforms?: { totalCount: number }
+  systemDetails?: { totalCount: number }
+  assets?: { totalCount: number }
+  entities?: { totalCount: number }
+  identityHolders?: { totalCount: number }
+  contacts?: { totalCount: number }
+  risks?: { totalCount: number }
+  findings?: { totalCount: number }
+  vulnerabilities?: { totalCount: number }
+  remediations?: { totalCount: number }
+  actionPlans?: { totalCount: number }
+  reviews?: { totalCount: number }
+  tasks?: { totalCount: number }
+  assessments?: { totalCount: number }
+  campaigns?: { totalCount: number }
+  emailTemplates?: { totalCount: number }
+  customTypeEnums?: { totalCount: number }
+  groups?: { totalCount: number }
+}
+
+export type GetDemoDataCompliancePreviewQueryVariables = Exact<{
+  sourceKey: string
+  first: number
+  withPrograms?: boolean
+  withControls?: boolean
+  withEvidences?: boolean
+  withInternalPolicies?: boolean
+  withProcedures?: boolean
+}>
+
+export interface GetDemoDataCompliancePreviewQuery {
+  programs?: { edges: Array<{ node: { id: string; name: string; detail: Types.ProgramProgramStatus } | null } | null> | null }
+  controls?: { edges: Array<{ node: { id: string; refCode: string; title: string | null; detail: Types.ControlControlStatus | null } | null } | null> | null }
+  evidences?: { edges: Array<{ node: { id: string; name: string; detail: Types.EvidenceEvidenceStatus | null } | null } | null> | null }
+  internalPolicies?: { edges: Array<{ node: { id: string; name: string; detail: Types.InternalPolicyDocumentStatus | null } | null } | null> | null }
+  procedures?: { edges: Array<{ node: { id: string; name: string; detail: Types.ProcedureDocumentStatus | null } | null } | null> | null }
+}
+
+export type GetDemoDataRegistryPreviewQueryVariables = Exact<{
+  sourceKey: string
+  first: number
+  withPlatforms?: boolean
+  withSystemDetails?: boolean
+  withAssets?: boolean
+  withEntities?: boolean
+  withIdentityHolders?: boolean
+  withContacts?: boolean
+}>
+
+export interface GetDemoDataRegistryPreviewQuery {
+  platforms?: { edges: Array<{ node: { id: string; name: string; detail: Types.PlatformPlatformStatus } | null } | null> | null }
+  systemDetails?: { edges: Array<{ node: { id: string; name: string; detail: Types.SystemDetailSystemSensitivityLevel | null } | null } | null> | null }
+  assets?: { edges: Array<{ node: { id: string; displayName: string | null; name: string; detail: Types.AssetAssetType } | null } | null> | null }
+  entities?: { edges: Array<{ node: { id: string; displayName: string | null; name: string | null; detail: Types.EntityEntityStatus | null } | null } | null> | null }
+  identityHolders?: { edges: Array<{ node: { id: string; fullName: string; detail: Types.IdentityHolderUserStatus } | null } | null> | null }
+  contacts?: { edges: Array<{ node: { id: string; fullName: string | null; detail: string | null } | null } | null> | null }
+}
+
+export type GetDemoDataExposurePreviewQueryVariables = Exact<{
+  sourceKey: string
+  first: number
+  withRisks?: boolean
+  withFindings?: boolean
+  withVulnerabilities?: boolean
+  withRemediations?: boolean
+  withActionPlans?: boolean
+  withReviews?: boolean
+}>
+
+export interface GetDemoDataExposurePreviewQuery {
+  risks?: { edges: Array<{ node: { id: string; name: string; detail: Types.RiskRiskStatus | null } | null } | null> | null }
+  findings?: { edges: Array<{ node: { id: string; displayName: string | null; externalID: string | null; detail: string | null } | null } | null> | null }
+  vulnerabilities?: { edges: Array<{ node: { id: string; cveID: string | null; displayName: string | null; externalID: string; detail: string | null } | null } | null> | null }
+  remediations?: { edges: Array<{ node: { id: string; title: string | null; externalID: string | null; detail: string | null } | null } | null> | null }
+  actionPlans?: { edges: Array<{ node: { id: string; title: string; name: string; detail: Types.ActionPlanDocumentStatus | null } | null } | null> | null }
+  reviews?: { edges: Array<{ node: { id: string; title: string; externalID: string | null; detail: Types.ReviewReviewStatus | null } | null } | null> | null }
+}
+
+export type GetDemoDataAutomationPreviewQueryVariables = Exact<{
+  sourceKey: string
+  first: number
+  withTasks?: boolean
+  withAssessments?: boolean
+  withCampaigns?: boolean
+  withEmailTemplates?: boolean
+}>
+
+export interface GetDemoDataAutomationPreviewQuery {
+  tasks?: { edges: Array<{ node: { id: string; title: string; detail: Types.TaskTaskStatus } | null } | null> | null }
+  assessments?: { edges: Array<{ node: { id: string; name: string; detail: Types.AssessmentAssessmentType } | null } | null> | null }
+  campaigns?: { edges: Array<{ node: { id: string; name: string; detail: Types.CampaignCampaignStatus } | null } | null> | null }
+  emailTemplates?: { edges: Array<{ node: { id: string; name: string; detail: string | null } | null } | null> | null }
+}
+
+export type GetDemoDataOrganizationSettingsPreviewQueryVariables = Exact<{
+  sourceKey: string
+  first: number
+  withCustomTypeEnums?: boolean
+  withGroups?: boolean
+}>
+
+export interface GetDemoDataOrganizationSettingsPreviewQuery {
+  customTypeEnums?: { edges: Array<{ node: { id: string; name: string; field: string; detail: string } | null } | null> | null }
+  groups?: { edges: Array<{ node: { id: string; displayName: string; name: string; detail: string | null } | null } | null> | null }
 }
 
 export type DirectoryAccountsWithFilterQueryVariables = Exact<{
