@@ -3,8 +3,9 @@
 import { OrderDirection, type OrgMembership, OrgMembershipOrderField, type OrgMembershipRole, type OrgMembershipWhereInput, type User, UserAuthProvider } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Copy, Info, KeyRoundIcon } from 'lucide-react'
+import { Copy, Info, KeyRoundIcon, MoreHorizontal } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { type ColumnDef } from '@repo/ui/table-types'
@@ -13,6 +14,7 @@ import { useCopyToClipboard, useDebounce } from '@uidotdev/usehooks'
 import { useSession } from 'next-auth/react'
 import { Badge } from '@repo/ui/badge'
 import { useSelectColumn } from '@/components/shared/crud-base/columns/select-column'
+import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { MemberActions } from './actions/member-actions'
 import { MembersBulkActions } from './actions/members-bulk-actions'
 import { AdditionalRolesCell } from '@/components/shared/organization-roles/additional-roles-cell'
@@ -64,9 +66,11 @@ export const MembersTable = () => {
   ])
 
   const whereFilters: OrgMembershipWhereInput = useMemo(() => {
+    const conditions = filters?.and ?? []
     const filtersWithSearch = {
       ...filters,
-      and: [...(filters?.and ?? []), ...(debouncedSearch.trim() ? [{ hasUserWith: [{ displayNameContainsFold: debouncedSearch }] }] : [])],
+      includeDeleted: conditions.some((condition) => condition.includeDeleted === true),
+      and: [...conditions.filter((condition) => condition.includeDeleted === undefined), ...(debouncedSearch.trim() ? [{ hasUserWith: [{ displayNameContainsFold: debouncedSearch }] }] : [])],
     }
 
     const result = whereGenerator<OrgMembershipWhereInput>(filtersWithSearch, mapMembersFilterKey)
@@ -91,10 +95,10 @@ export const MembersTable = () => {
   const { canManageMembers } = useOrgMemberPermissions()
   const currentUserId = sessionData?.user?.userId
 
-  const isMemberSelectable = useCallback((member: OrgMembership) => !!currentUserId && member.user?.id !== currentUserId, [currentUserId])
-  const selectColumn = useSelectColumn<OrgMembership>(selectedIds, setSelectedIds, isMemberSelectable)
+  const canSelectMember = useCallback((member: OrgMembership) => !member.isDeleted && !!currentUserId && member.user?.id !== currentUserId, [currentUserId])
+  const selectColumn = useSelectColumn<OrgMembership>(selectedIds, setSelectedIds, canSelectMember)
 
-  const selectedMembers = useMemo(() => members.filter((m) => selectedIds.some((s) => s.id === m.id)), [members, selectedIds])
+  const selectedMembers = useMemo(() => members.filter((member) => canSelectMember(member) && selectedIds.some((selected) => selected.id === member.id)), [members, selectedIds, canSelectMember])
 
   useEffect(() => {
     setSelectedIds([])
@@ -161,17 +165,31 @@ export const MembersTable = () => {
   const actionsColumn: ColumnDef<OrgMembership> = {
     id: 'actions',
     header: '',
-    cell: ({ cell }) => (
-      <MemberActions
-        memberName={cell.row.original.user?.displayName}
-        memberId={cell.row.original.id}
-        memberUserId={cell.row.original.user?.id}
-        memberRole={cell.row.original.role}
-        additionalRoles={cell.row.original.additionalRoles}
-        memberSSOExempt={cell.row.original.ssoExempt ?? false}
-        memberTFAEnforced={cell.row.original.tfaEnforced ?? false}
-      />
-    ),
+    cell: ({ row }) => {
+      const member = row.original
+
+      if (member.isDeleted) {
+        return (
+          <DisabledReasonTooltip reason="User is no longer a member of this organization">
+            <Button type="button" variant="secondary" aria-label="Member actions" className="-mr-2" aria-disabled>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DisabledReasonTooltip>
+        )
+      }
+
+      return (
+        <MemberActions
+          memberName={member.user?.displayName}
+          memberId={member.id}
+          memberUserId={member.user?.id}
+          memberRole={member.role}
+          additionalRoles={member.additionalRoles}
+          memberSSOExempt={member.ssoExempt ?? false}
+          memberTFAEnforced={member.tfaEnforced ?? false}
+        />
+      )
+    },
     size: 80,
   }
 

@@ -6053,6 +6053,7 @@ export interface OrgMembershipsQuery {
     edges: Array<{
       node: {
         id: string
+        isDeleted: boolean | null
         createdAt: any
         role: Types.OrgMembershipRole
         additionalRoles: Array<string> | null
@@ -8916,6 +8917,88 @@ export interface SearchQuery {
     templates: { edges: Array<{ node: { id: string; name: string } | null } | null> | null } | null
     evidences: { edges: Array<{ node: { id: string; name: string } | null } | null> | null } | null
   } | null
+}
+
+export type ShareLinksWithFilterQueryVariables = Exact<{
+  where?: Types.ShareLinkWhereInput | null | undefined
+  orderBy?: Array<Types.ShareLinkOrder> | Types.ShareLinkOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface ShareLinksWithFilterQuery {
+  shareLinks: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        createdAt: any
+        createdBy: string | null
+        expiresAt: any
+        id: string
+        landingPage: boolean | null
+        maxUses: number | null
+        name: string | null
+        requireSession: boolean | null
+        revokedAt: any
+        updatedAt: any
+        updatedBy: string | null
+        updatedByImpersonator: string | null
+        url: string | null
+        useCount: number
+      } | null
+    } | null> | null
+    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type ShareLinkQueryVariables = Exact<{
+  shareLinkId: string
+}>
+
+export interface ShareLinkQuery {
+  shareLink: {
+    createdAt: any
+    createdBy: string | null
+    expiresAt: any
+    id: string
+    landingPage: boolean | null
+    maxUses: number | null
+    name: string | null
+    requireSession: boolean | null
+    revokedAt: any
+    updatedAt: any
+    updatedBy: string | null
+    updatedByImpersonator: string | null
+    url: string | null
+    useCount: number
+  }
+}
+
+export type CreateShareLinkMutationVariables = Exact<{
+  input: Types.CreateShareLinkInput
+}>
+
+export interface CreateShareLinkMutation {
+  createShareLink: { shareLink: { id: string } }
+}
+
+export type UpdateShareLinkMutationVariables = Exact<{
+  updateShareLinkId: string
+  input: Types.UpdateShareLinkInput
+}>
+
+export interface UpdateShareLinkMutation {
+  updateShareLink: { shareLink: { id: string } }
+}
+
+export type DeleteShareLinkMutationVariables = Exact<{
+  deleteShareLinkId: string
+}>
+
+export interface DeleteShareLinkMutation {
+  deleteShareLink: { deletedID: string }
 }
 
 export type SlaDefinitionsWithFilterQueryVariables = Exact<{

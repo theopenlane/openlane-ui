@@ -1,3 +1,4 @@
+import { History } from 'lucide-react'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { InvitesFilterIcons, MembersFilterIcons } from '@/components/shared/enum-mapper/members-enum'
 import { defineFilterFields } from '@/types'
@@ -35,6 +36,7 @@ export const MEMBERS_FILTER_FIELDS = defineFilterFields<OrgMembershipWhereInput,
     icon: MembersFilterIcons.Role,
     options: enumToOptions(OrgMembershipRole),
   },
+  { key: 'includeDeleted', label: 'Include previous members', type: 'boolean', icon: History },
 ])
 
 export type TMemberFilterKey = (typeof MEMBERS_FILTER_FIELDS)[number]['key']
