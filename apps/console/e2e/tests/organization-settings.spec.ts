@@ -83,16 +83,18 @@ test.describe('organization-settings — custom data (owner)', () => {
     await page.getByRole('tab', { name: 'Custom Enums' }).click()
     await expect(page.getByPlaceholder('Search enums...')).toBeVisible({ timeout: 15_000 })
 
-    const groupSelect = page.getByRole('combobox').filter({ hasText: 'environments' })
-    await expect(groupSelect).toBeVisible({ timeout: 10_000 })
+    const groupSelect = page.getByRole('button', { name: /^Enum type/ })
+    await expect(groupSelect).toHaveText(/Environments/, { timeout: 10_000 })
     await groupSelect.click()
 
     const listbox = page.getByRole('listbox')
     await expect(listbox).toBeVisible({ timeout: 10_000 })
-    await expect(listbox.getByRole('option', { name: 'all enums' })).toBeVisible()
-    await listbox.getByRole('option', { name: 'scopes' }).click()
+    await expect(listbox.getByRole('option').first()).toHaveText('All Enums')
+    await page.getByPlaceholder('Search...').fill('scop')
+    await expect(listbox.getByRole('option')).toHaveCount(1)
+    await listbox.getByRole('option', { name: 'Scopes' }).click()
 
-    await expect(page.getByRole('combobox').filter({ hasText: 'scopes' })).toBeVisible({ timeout: 10_000 })
+    await expect(groupSelect).toHaveText(/Scopes/, { timeout: 10_000 })
   })
 
   test('Custom Enums: the column-visibility menu lists toggleable columns', async ({ page }) => {

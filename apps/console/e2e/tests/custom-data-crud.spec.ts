@@ -224,14 +224,16 @@ test.describe('custom data — custom enums', () => {
       await page.getByPlaceholder('Search enums...').fill(name)
       await expect(rowFor(page, name)).toBeVisible({ timeout: 20_000 })
 
-      await page.getByRole('combobox').filter({ hasText: 'environments' }).click()
-      await page.getByRole('listbox').getByRole('option', { name: 'scopes' }).click()
+      const groupSelect = page.getByRole('button', { name: /^Enum type/ })
+      await expect(groupSelect).toHaveText(/Environments/)
+      await groupSelect.click()
+      await page.getByRole('listbox').getByRole('option', { name: 'Scopes' }).click()
 
-      await expect(page.getByRole('combobox').filter({ hasText: 'scopes' })).toBeVisible({ timeout: 15_000 })
+      await expect(groupSelect).toHaveText(/Scopes/, { timeout: 15_000 })
       await expect(rowFor(page, name)).toHaveCount(0, { timeout: 20_000 })
 
-      await page.getByRole('combobox').filter({ hasText: 'scopes' }).click()
-      await page.getByRole('listbox').getByRole('option', { name: 'environments' }).click()
+      await groupSelect.click()
+      await page.getByRole('listbox').getByRole('option', { name: 'Environments' }).click()
 
       await expect(rowFor(page, name)).toBeVisible({ timeout: 20_000 })
     } finally {
