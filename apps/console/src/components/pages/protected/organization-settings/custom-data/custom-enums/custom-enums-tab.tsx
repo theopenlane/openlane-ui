@@ -2,19 +2,20 @@
 
 import React, { type FC, useState, useMemo, useCallback, useEffect } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { SquarePlus, LoaderCircle, Search as SearchIcon, LayoutGrid } from 'lucide-react'
+import { Check, SquarePlus, LoaderCircle, Search as SearchIcon } from 'lucide-react'
 
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { type Option } from '@repo/ui/multiple-selector'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
+import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { CUSTOM_ENUMS_SORT_FIELDS, useGetCustomEnumColumns } from './custom-enums-table-config'
 import { CreateEnumSheet } from './create-enum-sheet'
-import { ENUM_GROUP_MAP, ENUM_GROUPS, getEnumFilter } from './custom-enums-config'
+import { DEFAULT_ENUM_GROUP, ENUM_GROUP_MAP, ENUM_GROUP_OPTIONS, getEnumFilter } from './custom-enums-config'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useCustomTypeEnumsPaginated, useDeleteCustomTypeEnum, useShadowedSystemEnumIds } from '@/lib/graphql-hooks/custom-type-enum'
 import { useNotification } from '@/hooks/useNotification'
@@ -40,6 +41,17 @@ const DEFAULT_ENUM_COLUMN_VISIBILITY: VisibilityState = {
   updatedAt: false,
 }
 
+const renderEnumGroupOption = ({ value, label }: Option, isSelected?: boolean) => {
+  const { icon: Icon } = ENUM_GROUP_MAP[value]
+  return (
+    <span className="flex w-full min-w-0 items-center gap-2">
+      <Icon size={16} className="shrink-0 text-muted-foreground" />
+      <span className="truncate">{label}</span>
+      {isSelected && <Check size={16} className="ml-auto shrink-0" />}
+    </span>
+  )
+}
+
 const CustomEnumsTab: FC = () => {
   const { push } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
@@ -55,7 +67,7 @@ const CustomEnumsTab: FC = () => {
     },
   ])
 
-  const [filter, setFilter] = useState<string>(ENUM_GROUPS[1])
+  const [filter, setFilter] = useState<string>(DEFAULT_ENUM_GROUP)
   const [searchValue, setSearchValue] = useState('')
   const debouncedSearch = useDebounce(searchValue, 300)
 
@@ -130,38 +142,20 @@ const CustomEnumsTab: FC = () => {
     canEditEnum,
   })
 
-  const FilterIcon = ENUM_GROUP_MAP[filter]?.icon || LayoutGrid
-
   return (
     <>
       <div className="flex flex-col gap-4 mb-4 w-full">
         <div className="flex items-center justify-between gap-3 w-full">
-          <div className="flex items-center gap-3">
-            <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="h-9 w-[300px] bg-card capitalize">
-                <SelectValue>
-                  <div className="flex items-center gap-2">
-                    <FilterIcon size={16} className="text-muted-foreground" />
-                    <span>{filter.split('_').join(' ').toLowerCase()}</span>
-                  </div>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {ENUM_GROUPS.map((groupKey) => {
-                  const config = ENUM_GROUP_MAP[groupKey]
-                  const Icon = config.icon
-                  return (
-                    <SelectItem key={groupKey} value={groupKey} className="capitalize">
-                      <div className="flex items-center gap-2">
-                        <Icon size={16} className="text-muted-foreground" />
-                        <span>{config.label.toLowerCase()}</span>
-                      </div>
-                    </SelectItem>
-                  )
-                })}
-              </SelectContent>
-            </Select>
-          </div>
+          <SearchableSingleSelect
+            className="w-[300px]"
+            ariaLabel="Enum type"
+            triggerClassName="h-9 bg-card"
+            value={filter}
+            options={ENUM_GROUP_OPTIONS}
+            onChange={setFilter}
+            renderOption={renderEnumGroupOption}
+            substringSearch
+          />
 
           <div className="flex items-center gap-3">
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.CUSTOM_ENUMS} />
