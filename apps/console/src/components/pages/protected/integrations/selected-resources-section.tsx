@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { FileText, X } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { TruncatedCell } from '@repo/ui/truncated-cell'
+import { Button } from '@theopenlane/ui/button'
+import { TruncatedCell } from '@theopenlane/ui/truncated-cell'
 import { type IntegrationSelectedResource } from '@/lib/integrations/types'
 import { pluralizeWithCount } from '@/utils/strings'
 

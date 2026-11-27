@@ -2,8 +2,8 @@
 
 import React, { useId, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type CollapsibleSectionProps = {
   label: string

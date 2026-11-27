@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { TabsContent } from '@repo/ui/tabs'
+import { TabsContent } from '@theopenlane/ui/tabs'
 import type { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import ImplementationTab, { useHasImplementationData } from '@/components/pages/protected/controls/tabs/implementation/implementation-tab'
 import EvidenceTab from '@/components/pages/protected/controls/tabs/evidence/evidence-tab'

@@ -1,10 +1,10 @@
 'use client'
 
 import React from 'react'
-import { type ColumnDef } from '@repo/ui/table-types'
-import { Checkbox } from '@repo/ui/checkbox'
-import { SELECT_COLUMN_ID } from '@repo/ui/pinned-columns'
-import { CountryDropdown } from '@repo/ui/country-dropdown'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { SELECT_COLUMN_ID } from '@theopenlane/ui/pinned-columns'
+import { CountryDropdown } from '@theopenlane/ui/country-dropdown'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { VendorLogo } from '@/components/shared/vendor-logo/vendor-logo'
@@ -13,7 +13,7 @@ import { type TVendorSubprocessorCandidate } from '@/lib/graphql-hooks/subproces
 import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import { type TVendorSubprocessorTarget, vendorSubprocessorName } from '@/components/pages/protected/trust-center/shared/vendor-subprocessor'
 import { type TListingEdit, type TVendorRow } from './vendor-subprocessor-rows'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 const LISTED_REASON = 'Already listed on your Trust Center.'
 

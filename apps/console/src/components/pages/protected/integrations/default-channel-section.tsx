@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Hash } from 'lucide-react'
-import { TruncatedCell } from '@repo/ui/truncated-cell'
+import { TruncatedCell } from '@theopenlane/ui/truncated-cell'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { type IntegrationChannelTarget } from '@/lib/integrations/types'
 import { findChannelItem, useChannelItems } from './use-channel-items'

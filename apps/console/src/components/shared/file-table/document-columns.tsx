@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { Check, X, Download, Eye, Trash2 } from 'lucide-react'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createRowActionsColumn } from '@/components/shared/crud-base/columns/row-actions-column'

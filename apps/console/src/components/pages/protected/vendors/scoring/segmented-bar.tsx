@@ -1,5 +1,5 @@
 import React from 'react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export type TBarSegment = { key: string; share: number; color: string; dimmed?: boolean }
 

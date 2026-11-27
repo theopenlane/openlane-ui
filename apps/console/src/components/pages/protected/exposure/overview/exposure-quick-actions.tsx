@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
+import { Card, CardContent, CardTitle } from '@theopenlane/ui/cardpanel'
 import { Bug, FileSearch, Wrench, ClipboardCheck, ListOrdered } from 'lucide-react'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'

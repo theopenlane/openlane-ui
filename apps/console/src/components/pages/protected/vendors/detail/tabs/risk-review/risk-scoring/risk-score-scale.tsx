@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { riskRatingBands, VENDOR_RISK_RATING_SEVERITY, type TVendorRiskRating } from '@/lib/vendor-risk-rating'
 import { useVendorRiskThresholds } from '@/lib/graphql-hooks/vendor-scoring-config'

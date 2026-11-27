@@ -1,16 +1,16 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/cardpanel'
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
-import { Checkbox } from '@repo/ui/checkbox'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Textarea } from '@repo/ui/textarea'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@theopenlane/ui/cardpanel'
+import { Input } from '@theopenlane/ui/input'
+import { Label } from '@theopenlane/ui/label'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
+import { Textarea } from '@theopenlane/ui/textarea'
 import { toHumanLabel } from '@/utils/strings'
 import { WizardActionType, WEBHOOK_METHOD_OPTIONS } from '../../types'
 import { FlowSummary } from '../components/flow-summary'
 import { TargetSelector } from '../components/target-selector'
 import type { ApprovalTiming } from '../types'
 import type { WizardState } from '../hooks/use-wizard-state'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 type ConfigureStepProps = {
   state: WizardState

@@ -2,9 +2,9 @@
 
 import { createPlatePlugin } from 'platejs/react'
 
-import { FloatingToolbar } from '@repo/ui/components/ui/floating-toolbar.tsx'
-import { CommentToolbarButton, useCanComment } from '@repo/ui/components/ui/comment-toolbar-button.tsx'
-import { ToolbarGroup } from '@repo/ui/components/ui/toolbar.tsx'
+import { FloatingToolbar } from '@theopenlane/ui/components/ui/floating-toolbar.tsx'
+import { CommentToolbarButton, useCanComment } from '@theopenlane/ui/components/ui/comment-toolbar-button.tsx'
+import { ToolbarGroup } from '@theopenlane/ui/components/ui/toolbar.tsx'
 
 const ReadOnlyFloatingCommentToolbar = () => {
   const canComment = useCanComment()

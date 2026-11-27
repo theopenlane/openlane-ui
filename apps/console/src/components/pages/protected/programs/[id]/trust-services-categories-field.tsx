@@ -2,9 +2,9 @@
 
 import React, { useMemo } from 'react'
 
-import { Badge } from '@repo/ui/badge'
-import { Label } from '@repo/ui/label'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { Badge } from '@theopenlane/ui/badge'
+import { Label } from '@theopenlane/ui/label'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 
 import { programFrameworkControlsWhere } from '@/constants/standards'
 import { sortTrustServicesCategories } from '@/constants/trust-services-categories'

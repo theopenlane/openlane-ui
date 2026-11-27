@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { type Row } from '@repo/ui/table-types'
+import { type Row } from '@theopenlane/ui/table-types'
 import { type InternalPolicy } from '@repo/codegen/src/schema'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import Link from 'next/link'
 
 type Props = {

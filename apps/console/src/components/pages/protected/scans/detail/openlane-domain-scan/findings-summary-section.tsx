@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import CopyableText from '@/components/shared/copyable-text/copyable-text'
 import CountBadge from '@/components/shared/count-badge/count-badge'
 import { getComplianceDocumentLabel, PostureStatus, PostureStatusIcon } from '@/components/shared/enum-mapper/scan-enum'

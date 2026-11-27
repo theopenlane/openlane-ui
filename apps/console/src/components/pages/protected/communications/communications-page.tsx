@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import React from 'react'
 import { EmailTemplatesTab } from './email-templates/email-templates-tab'

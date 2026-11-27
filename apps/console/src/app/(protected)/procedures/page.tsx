@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import { ProceduresTable } from '@/components/pages/protected/procedures/table/procedures-table.tsx'
 import { type Metadata } from 'next'
 

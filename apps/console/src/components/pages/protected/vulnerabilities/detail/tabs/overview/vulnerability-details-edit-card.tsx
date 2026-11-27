@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/cardpanel'
+import { Card, CardContent, CardHeader, CardTitle } from '@theopenlane/ui/cardpanel'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'

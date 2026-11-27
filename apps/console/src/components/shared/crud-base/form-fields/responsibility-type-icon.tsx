@@ -1,5 +1,5 @@
 import { User, Users, IdCardLanyard, Type } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { type ResponsibilityChoice } from './responsibility-field-utils'
 
 const ICONS = {

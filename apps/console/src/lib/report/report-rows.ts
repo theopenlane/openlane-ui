@@ -1,5 +1,5 @@
 import type { TReportEdge, TReportFieldKind } from '@repo/codegen/src/report-schema.generated'
-import type { TPagination } from '@repo/ui/pagination-types'
+import type { TPagination } from '@theopenlane/ui/pagination-types'
 import { htmlToText } from '@/lib/html/html-to-text'
 import { formatDateTime } from '@/utils/date'
 import { sliceByPagination } from '@/utils/pagination'

@@ -8,7 +8,7 @@ import { type TEvidenceFilterKey } from '@/components/pages/protected/evidence/t
 import { ControlControlStatus, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
 import { EVIDENCE_REQUESTED_OR_MISSING_STATUSES } from '@/lib/enums/evidence'
 import { useRouter } from 'next/navigation'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
 import DashboardOverviewCard, { type TDashboardOverviewStat } from './DashboardOverviewCard'
 import { useOpenOverdueTasks } from './use-open-overdue-tasks'

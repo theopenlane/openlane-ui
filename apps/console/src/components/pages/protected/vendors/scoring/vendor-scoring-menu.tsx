@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { PanelTop, Settings, SlidersHorizontal } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import Menu from '@/components/shared/menu/menu'
 import { MenuActionItem } from '@/components/shared/menu/menu-action-item'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'

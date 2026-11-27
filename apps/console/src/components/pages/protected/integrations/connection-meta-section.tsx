@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Check, Copy } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { type IntegrationMetaEntry } from '@/lib/integrations/types'
 import { useNotification } from '@/hooks/useNotification'
 

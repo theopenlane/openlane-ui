@@ -2,10 +2,10 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Prism from 'prismjs'
-import 'prismjs/components/prism-markup'
-import 'prismjs/components/prism-json'
-import 'prismjs/components/prism-markdown'
-import 'prismjs/components/prism-graphql'
+import 'prismjs/components/prism-markup.js'
+import 'prismjs/components/prism-json.js'
+import 'prismjs/components/prism-markdown.js'
+import 'prismjs/components/prism-graphql.js'
 import { Check, Copy } from 'lucide-react'
 import { cn } from '../../lib/utils'
 

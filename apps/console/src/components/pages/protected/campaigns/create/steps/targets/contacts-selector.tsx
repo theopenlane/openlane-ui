@@ -12,7 +12,7 @@ import { SelectedTargetsPreview } from './selected-targets-preview'
 import { ALL_FILTER_VALUE, PICKER_PAGINATION, getRecipientDisplayName, mergeTargets, removeTarget, toggleTarget, type CampaignTargetEntry } from './target-entry'
 import { normalizeEmail } from '@/lib/validators'
 import { sliceByPagination } from '@/utils/pagination'
-import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
+import { type TPagination, type TPaginationMeta } from '@theopenlane/ui/pagination-types'
 
 const ANY_VENDOR = 'ANY_VENDOR'
 

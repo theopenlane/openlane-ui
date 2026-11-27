@@ -8,10 +8,10 @@ import { EraserIcon } from 'lucide-react'
 import { KEYS } from 'platejs'
 import { useEditorRef, useEditorSelector } from 'platejs/react'
 
-import { buttonVariants } from '@repo/ui/components/ui/button.tsx'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { cn } from '@repo/ui/lib/utils'
+import { buttonVariants } from '@theopenlane/ui/components/ui/button.tsx'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/components/ui/dropdown-menu.tsx'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 import { ToolbarButton, ToolbarMenuGroup } from '../ui/toolbar'
 

@@ -1,4 +1,4 @@
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { ArrowRight, Layers, Wrench, Zap } from 'lucide-react'
 import { toHumanLabel } from '@/utils/strings'
 import { TRIGGER_OPERATION_OPTIONS } from '@/lib/workflow-templates'

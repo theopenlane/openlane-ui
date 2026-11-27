@@ -1,11 +1,11 @@
 'use client'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@theopenlane/ui/dialog'
 import { PlusCircle } from 'lucide-react'
 import CreateTaskForm, { type TCreateTaskFormHandle } from '@/components/pages/protected/tasks/create-task/form/create-task-form'
 import type { CreateTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
 import React, { useRef, useState } from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { type TAssociationItem } from '@/components/shared/object-association/association-items'

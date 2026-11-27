@@ -1,6 +1,6 @@
 'use client'
 
-import { isRegisteredLanguage } from '@repo/ui/components/editor/lowlight-registry.ts'
+import { isRegisteredLanguage } from '@theopenlane/ui/components/editor/lowlight-registry.ts'
 import * as React from 'react'
 
 import { formatCodeBlock, isLangSupported } from '@platejs/code-block'
@@ -9,10 +9,10 @@ import { type TCodeBlockElement, type TCodeSyntaxLeaf, NodeApi } from 'platejs'
 import { type PlateElementProps, type PlateLeafProps, PlateElement, PlateLeaf } from 'platejs/react'
 import { useEditorRef, useElement, useReadOnly } from 'platejs/react'
 
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { Button } from '@repo/ui/components/ui/button.tsx'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/components/ui/popover.tsx'
-import { cn } from '@repo/ui/lib/utils'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
+import { Button } from '@theopenlane/ui/components/ui/button.tsx'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/components/ui/popover.tsx'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
   const { editor, element } = props

@@ -1,5 +1,5 @@
 import type { TReportEdge, TReportEntity } from '@repo/codegen/src/report-schema.generated'
-import type { TPaginationQuery } from '@repo/ui/pagination-types'
+import type { TPaginationQuery } from '@theopenlane/ui/pagination-types'
 import { mergeWhere } from '@/lib/merge-where'
 import { excludeSystemOwnedWhere } from './report-filters'
 import { buildPath, PATH_SEPARATOR, type TReportColumn, type TReportOrder } from './report-schema'

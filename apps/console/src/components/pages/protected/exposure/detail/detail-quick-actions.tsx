@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { CheckCircle2, Link2, Wrench } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
 import QuickActionsBar, { type QuickActionItem } from '@/components/shared/crud-base/quick-actions/quick-actions-bar'

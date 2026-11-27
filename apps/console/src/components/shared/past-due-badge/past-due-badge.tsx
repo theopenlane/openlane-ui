@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { cn } from '@repo/ui/lib/utils'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
 import { getVulnerabilityDueDate } from '@/utils/vulnerability-due-date'
 

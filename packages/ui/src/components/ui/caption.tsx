@@ -8,8 +8,8 @@ import { Caption as CaptionPrimitive, CaptionTextarea as CaptionTextareaPrimitiv
 import { createPrimitiveComponent } from 'platejs/react'
 import { cva } from 'class-variance-authority'
 
-import { Button } from '@repo/ui/components/ui/button.tsx'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/components/ui/button.tsx'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 const captionVariants = cva('max-w-full', {
   defaultVariants: {

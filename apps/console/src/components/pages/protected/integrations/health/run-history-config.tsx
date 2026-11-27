@@ -1,6 +1,6 @@
 import React from 'react'
-import { type ColumnDef, type VisibilityState } from '@repo/ui/table-types'
-import { TruncatedCell } from '@repo/ui/truncated-cell'
+import { type ColumnDef, type VisibilityState } from '@theopenlane/ui/table-types'
+import { TruncatedCell } from '@theopenlane/ui/truncated-cell'
 import { IntegrationRunIntegrationRunStatus, IntegrationRunIntegrationRunType, IntegrationRunOrderField, type IntegrationRunWhereInput } from '@repo/codegen/src/schema'
 import { defineFilterFields } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
@@ -18,7 +18,7 @@ import {
   type TRunMetricKey,
   type TRunMetrics,
 } from '@/lib/integrations/run-health'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { MS_PER_DAY, formatDateTime, formatDurationMs, hourStartIso } from '@/utils/date'
 import { RunErrorText } from './health-controls'
 import { RunStatusBadge } from './run-status-badge'

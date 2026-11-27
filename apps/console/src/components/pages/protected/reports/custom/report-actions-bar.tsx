@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Bookmark, FolderOpen, Play, Share2, X } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 import type { TSavedReportRef } from '@/lib/graphql-hooks/report'

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Check, X, PencilIcon } from 'lucide-react'
-import { Checkbox } from '@repo/ui/checkbox'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 import type { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import type { EditVendorFormData } from '../../../hooks/use-form-schema'

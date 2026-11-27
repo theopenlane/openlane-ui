@@ -1,5 +1,5 @@
-import { activatable } from '@repo/ui/lib/a11y'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { activatable } from '@theopenlane/ui/lib/a11y'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { type LucideIcon } from 'lucide-react'
 
 type SuggestedActionCardProps = {

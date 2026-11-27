@@ -2,8 +2,8 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { DropdownMenuItem } from '@repo/ui/dropdown-menu'
-import { cn } from '@repo/ui/lib/utils'
+import { DropdownMenuItem } from '@theopenlane/ui/dropdown-menu'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { type TElementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 export type TMenuAction = {

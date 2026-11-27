@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { MoreHorizontal } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Button } from '@theopenlane/ui/button'
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
 import { type TDetailTabsState } from './use-detail-tabs'
 
 type TCustomizeTabsMenuProps<T extends string> = {

@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useId } from 'react'
-import { CountryDropdown } from '@repo/ui/country-dropdown'
-import { Label } from '@repo/ui/label'
+import { CountryDropdown } from '@theopenlane/ui/country-dropdown'
+import { Label } from '@theopenlane/ui/label'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 

@@ -22,7 +22,7 @@ import { type UseComboboxInputResult, useComboboxInput, useHTMLInputCursorState 
 import { cva } from 'class-variance-authority'
 import { useComposedRef, useEditorRef } from 'platejs/react'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type FilterFn = (item: { value: string; group?: string; keywords?: string[]; label?: string }, search: string) => boolean
 

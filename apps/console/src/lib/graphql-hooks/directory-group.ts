@@ -13,7 +13,7 @@ import {
   type DirectoryGroupQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { GET_ALL_DIRECTORY_GROUPS, CREATE_DIRECTORY_GROUP, UPDATE_DIRECTORY_GROUP, DELETE_DIRECTORY_GROUP, DIRECTORY_GROUP } from '@repo/codegen/query/directory-group'
 
 type GetAllDirectoryGroupsArgs = {

@@ -3,7 +3,7 @@
 import React from 'react'
 import NextLink from 'next/link'
 import { Calendar, ExternalLink, FileText } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { formatDate } from '@/utils/date'
 import { questionnaireHref } from '../questionnaire-source'
 import { type TCampaignQuestionnaire } from './campaign-questionnaire'

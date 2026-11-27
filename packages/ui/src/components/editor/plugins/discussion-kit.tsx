@@ -1,11 +1,11 @@
 'use client'
 
 import { useLayoutEffect } from 'react'
-import type { TComment } from '@repo/ui/components/ui/comment.tsx'
+import type { TComment } from '@theopenlane/ui/components/ui/comment.tsx'
 import { getCommentKeyId, getCommentKeys, getDraftCommentKey } from '@platejs/comment'
 import { createPlatePlugin, usePluginOption } from 'platejs/react'
-import { commentPlugin } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
-import { BlockDiscussion } from '@repo/ui/components/ui/block-discussion.tsx'
+import { commentPlugin } from '@theopenlane/ui/components/editor/plugins/comment-kit.tsx'
+import { BlockDiscussion } from '@theopenlane/ui/components/ui/block-discussion.tsx'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export interface TDiscussion {

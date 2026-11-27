@@ -11,9 +11,9 @@ import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { type FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
 import { type SlaDaysByLevel } from '@/lib/sla'
-import { Button } from '@repo/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { Button } from '@theopenlane/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { ListTodo, MoreHorizontal, ShieldCheck } from 'lucide-react'
 
 type FindingColumnOptions = ColumnOptions & {

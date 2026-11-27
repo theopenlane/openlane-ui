@@ -2,8 +2,8 @@
 
 import React, { useMemo } from 'react'
 import Link from 'next/link'
-import { Card } from '@repo/ui/cardpanel'
-import { cn } from '@repo/ui/lib/utils'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { cn } from '@theopenlane/ui/lib/utils'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { operationRunsWhere, useIntegrationRunSummaries } from '@/lib/graphql-hooks/integration-run'
 import { RUN_STRIP_LENGTH, integrationRunHref, runDurationMs, runOutcome, summarizeRunError, type TIntegrationRunSummary } from '@/lib/integrations/run-health'

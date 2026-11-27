@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from 'react'
 import * as LabelPrimitive from '@radix-ui/react-label'
 import { Slot } from '@radix-ui/react-slot'
@@ -6,6 +8,7 @@ import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, UseF
 import { cn } from '../../lib/utils'
 import { Label } from '../label/label'
 import { formStyles } from './form.styles'
+import { FormItemContext, useFormItemLabelId } from './form-item-context'
 
 const { formItem, formLabelRequired, formDescription, formMessage } = formStyles()
 
@@ -48,19 +51,6 @@ const useFormField = () => {
     formMessageId: `${id}-form-item-message`,
     ...fieldState,
   }
-}
-
-type FormItemContextValue = {
-  id: string
-  hasLabel?: boolean
-  setHasLabel?: (hasLabel: boolean) => void
-}
-
-const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue)
-
-const useFormItemLabelId = (): string | undefined => {
-  const { id, hasLabel } = React.useContext(FormItemContext)
-  return id && hasLabel ? `${id}-form-item-label` : undefined
 }
 
 const FormItem = ({ className, ref, ...props }: React.HTMLAttributes<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }) => {

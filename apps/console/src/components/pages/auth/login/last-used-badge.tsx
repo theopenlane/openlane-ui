@@ -1,6 +1,6 @@
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { type UserAuthProvider } from '@repo/codegen/src/schema'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type LastUsedBadgeProps = {
   provider: UserAuthProvider

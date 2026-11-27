@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { DropdownMenuItem } from '@repo/ui/dropdown-menu'
+import { DropdownMenuItem } from '@theopenlane/ui/dropdown-menu'
 import { FileTextIcon, PenLine, Sparkles } from 'lucide-react'
 import { useCreateUploadInternalPolicy, useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'

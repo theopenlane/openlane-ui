@@ -3,7 +3,7 @@ import { RISK_STAKEHOLDER, RISK_DELEGATE } from '@/components/pages/protected/ri
 import { z } from 'zod'
 import { EvidenceFrequency } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { type Option } from '@repo/ui/multiple-selector'
+import { type Option } from '@theopenlane/ui/multiple-selector'
 import { InternalPolicyStatusOptions, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-enum'

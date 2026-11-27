@@ -1,9 +1,9 @@
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
-import { Input } from '@repo/ui/input'
+import { Input } from '@theopenlane/ui/input'
 import clsx from 'clsx'
 import { BadgeCheck, CircleX, Hourglass } from 'lucide-react'
 import React from 'react'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 const BLOCKED_DOMAINS = ['theopenlane.net', 'example.com', 'example.net', 'example.org', 'localhost']
 

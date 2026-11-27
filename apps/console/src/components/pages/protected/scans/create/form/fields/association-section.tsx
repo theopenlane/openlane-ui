@@ -3,7 +3,7 @@
 import { getVulnerabilityTitle } from '@/components/pages/protected/vulnerabilities/vulnerability-display'
 import { useMemo } from 'react'
 import { useGetScanAssociations } from '@/lib/graphql-hooks/scan'
-import { Panel, PanelHeader } from '@repo/ui/panel'
+import { Panel, PanelHeader } from '@theopenlane/ui/panel'
 import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion'
 import { type Section } from '@/components/shared/object-association/types/object-association-types'
 

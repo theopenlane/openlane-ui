@@ -1,13 +1,13 @@
 'use client'
 
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@theopenlane/ui/form'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
 import { formatDate } from '@/utils/date'
-import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { CalendarPopover } from '@theopenlane/ui/calendar-popover'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { fieldItemLayoutClassName, fieldMessageLayoutClassName, type TFieldLayout } from './field-layout'
 import { InlineEditDisplay } from './inline-edit-display'
 

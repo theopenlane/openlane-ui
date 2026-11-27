@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
@@ -9,7 +9,7 @@ import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { RelatedControlsCell } from '@/components/shared/crud-base/columns/related-controls-cell'
 import { ReviewStatusIconLabel } from '@/components/shared/enum-mapper/review-enum'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 import { type ReviewReviewStatus } from '@repo/codegen/src/schema'
 
 export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ReviewsNodeNonNull>[] => {

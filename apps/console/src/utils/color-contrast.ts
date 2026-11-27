@@ -1,4 +1,4 @@
-import { contrastRatio, parseCssColor, relativeLuminance } from '@repo/ui/components/editor/plugins/font-contrast.ts'
+import { contrastRatio, parseCssColor, relativeLuminance } from '@theopenlane/ui/components/editor/plugins/font-contrast.ts'
 
 export const WHITE_HEX = '#ffffff'
 const BLACK_HEX = '#000000'

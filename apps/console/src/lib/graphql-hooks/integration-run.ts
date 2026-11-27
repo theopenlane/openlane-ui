@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { useQueries, useQuery, type UseQueryResult } from '@tanstack/react-query'
 import { type GraphQLClient } from 'graphql-request'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import {
   IntegrationRunIntegrationRunStatus,
   IntegrationRunOrderField,

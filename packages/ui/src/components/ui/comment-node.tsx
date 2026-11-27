@@ -8,8 +8,8 @@ import type { PlateLeafProps } from 'platejs/react'
 import { getDraftCommentKey } from '@platejs/comment'
 import { PlateLeaf, useEditorPlugin, usePluginOption } from 'platejs/react'
 
-import { cn } from '@repo/ui/lib/utils'
-import { commentPlugin, getCommentLeafIds } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { commentPlugin, getCommentLeafIds } from '@theopenlane/ui/components/editor/plugins/comment-kit.tsx'
 
 export function CommentLeaf(props: PlateLeafProps<TCommentText>) {
   const { children, leaf } = props

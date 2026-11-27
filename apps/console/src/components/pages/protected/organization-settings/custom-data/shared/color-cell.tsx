@@ -2,8 +2,8 @@
 
 import { Pencil } from 'lucide-react'
 import { useState } from 'react'
-import { Button } from '@repo/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
+import { Button } from '@theopenlane/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
 import { ColorInput } from '@/components/shared/color-input/color-input'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'

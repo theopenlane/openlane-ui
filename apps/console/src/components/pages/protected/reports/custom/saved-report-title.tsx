@@ -2,8 +2,8 @@
 
 import React, { useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Input } from '@repo/ui/input'
-import { TruncatedCell } from '@repo/ui/truncated-cell'
+import { Input } from '@theopenlane/ui/input'
+import { TruncatedCell } from '@theopenlane/ui/truncated-cell'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useNotification } from '@/hooks/useNotification'
 import { invalidateReportQueries, useUpdateReport, type TSavedReportRef } from '@/lib/graphql-hooks/report'

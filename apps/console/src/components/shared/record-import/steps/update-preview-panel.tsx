@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 import { RotateCw } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
+import { Button } from '@theopenlane/ui/button'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@theopenlane/ui/table'
 import { Callout } from '@/components/shared/callout/callout'
 import { StatusLine } from '@/components/shared/status-line/status-line'
 import { formatTruncatedList, pluralizeWithCount, toLowerLabel } from '@/utils/strings'

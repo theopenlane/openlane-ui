@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { Callout } from '@/components/shared/callout/callout'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'

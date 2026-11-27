@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Link as LinkIcon } from 'lucide-react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { PostureStatus, PostureStatusIcon } from '@/components/shared/enum-mapper/scan-enum'
 import Github from '@/assets/Github'
 import Linkedin from '@/assets/Linkedin'

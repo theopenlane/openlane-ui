@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useCallback, useMemo, useState } from 'react'
-import { type VisibilityState } from '@repo/ui/table-types'
-import { DataTable } from '@repo/ui/data-table'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { type VisibilityState } from '@theopenlane/ui/table-types'
+import { DataTable } from '@theopenlane/ui/data-table'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { CampaignTargetOrderField, OrderDirection, type CampaignTargetWhereInput } from '@repo/codegen/src/schema'
 import { useCampaignTargetsWithCampaign } from '@/lib/graphql-hooks/campaign-target'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'

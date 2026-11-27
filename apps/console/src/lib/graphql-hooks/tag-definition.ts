@@ -1,7 +1,7 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { type Option } from '@repo/ui/multiple-selector'
+import { type Option } from '@theopenlane/ui/multiple-selector'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 
 import {
   type GetTagsQuery,

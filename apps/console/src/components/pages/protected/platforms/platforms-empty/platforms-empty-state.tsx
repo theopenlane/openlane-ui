@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { BookOpen, SquarePlus } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { DocsLink } from '@/components/shared/docs-help/docs-link'
 import { PLATFORM_DOCS_URL } from '@/constants/docs'
 

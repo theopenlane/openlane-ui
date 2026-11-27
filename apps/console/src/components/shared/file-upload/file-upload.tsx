@@ -2,7 +2,7 @@
 import React, { useCallback, useState } from 'react'
 import { CircleCheck, File, FileUp } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { formatFileSize } from '@/utils/strings'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'

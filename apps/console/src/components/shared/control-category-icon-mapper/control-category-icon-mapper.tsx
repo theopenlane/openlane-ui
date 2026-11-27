@@ -1,5 +1,5 @@
 import { createElement } from 'react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import {
   type LucideIcon,
   Scale,

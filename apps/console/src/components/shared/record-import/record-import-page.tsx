@@ -3,7 +3,7 @@
 import React from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { readReturnTo } from '@/utils/return-to'
 import { RecordImportFlow } from './record-import-flow'
 import { ImportPageGate, type TImportRoles } from './import-page-gate'

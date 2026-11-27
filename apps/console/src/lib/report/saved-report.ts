@@ -1,6 +1,6 @@
 import { ReportReportVisibility, type ReportWhereInput } from '@repo/codegen/src/schema'
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
-import type { TPaginationQuery } from '@repo/ui/pagination-types'
+import type { TPaginationQuery } from '@theopenlane/ui/pagination-types'
 import { EXPORT_PAGE_SIZE } from '@/constants/pagination'
 import { isRecord } from '@/utils/type-guards'
 import { toHumanLabel } from '@/utils/strings'

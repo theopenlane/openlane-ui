@@ -1,6 +1,6 @@
 import React, { createContext, use, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { PanelRight, PanelRightClose } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { MAIN_SCROLLBAR_HEIGHT_VAR, TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 
 type TSlideBarLayoutProps = {

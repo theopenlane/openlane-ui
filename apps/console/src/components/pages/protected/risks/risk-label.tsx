@@ -1,14 +1,14 @@
 import { SquareArrowDown, SquareArrowRight, SquareArrowUpRight, SquareArrowUp, ArrowRightLeft, Wrench, ShieldCheck, Ban } from 'lucide-react'
 
 import { RiskRiskDecision, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { RiskIconMapper } from '@/components/shared/enum-mapper/risk-enum'
 import React, { useRef } from 'react'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { type EditRisksFormData } from './view/hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import { type Metadata } from 'next'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import ScanPage from '@/components/pages/protected/scans/table/page'
 
 export const metadata: Metadata = {

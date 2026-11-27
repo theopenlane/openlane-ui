@@ -11,7 +11,7 @@ import { decodeQuestionnaireToken } from '@/lib/questionnaire-token'
 import { useQuestionnaire, useSubmitQuestionnaire, useResendQuestionnaireLink } from '@/lib/query-hooks/questionnaire'
 import { attachSurveyProgressText } from '@/components/shared/survey/survey-progress-text'
 import { CircleCheckBig, MailCheck } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { recaptchaSiteKey } from '@repo/dally/auth'
 
 interface QuestionnairePageProps {

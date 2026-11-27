@@ -6,7 +6,7 @@ import { type BaseCommentConfig, BaseCommentPlugin, getCommentKeyId, getCommentK
 import { isSlateString } from 'platejs'
 import { toTPlatePlugin } from 'platejs/react'
 
-import { CommentLeaf } from '@repo/ui/components/ui/comment-node.tsx'
+import { CommentLeaf } from '@theopenlane/ui/components/ui/comment-node.tsx'
 
 export const getCommentLeafIds = (leaf: TCommentText, shownIds: ReadonlySet<string>): { visibleIds: string[]; currentId: string | undefined } => {
   const draftKey = getDraftCommentKey()

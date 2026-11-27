@@ -1,5 +1,5 @@
 import GroupsCard from '@/components/pages/protected/groups/components/groups-cards.tsx'
-import InfiniteScroll from '@repo/ui/infinite-scroll'
+import InfiniteScroll from '@theopenlane/ui/infinite-scroll'
 import React, { useEffect } from 'react'
 import { useGetAllGroupsInfinite } from '@/lib/graphql-hooks/group'
 import { type GroupOrder, type GroupWhereInput } from '@repo/codegen/src/schema.ts'

@@ -1,7 +1,7 @@
 'use client'
 
 import { Link } from '@/components/shared/link/link'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { EXPAND_ROW_COLUMN_SIZE, ExpandRowButton } from '@/components/shared/crud-base/columns/expand-row-button'
 import { CampaignStatusLabel } from '@/components/shared/enum-mapper/campaign-enum'

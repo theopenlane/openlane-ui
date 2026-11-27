@@ -1,13 +1,13 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { activatable } from '@theopenlane/ui/lib/a11y'
+import { FormField, FormItem, FormLabel, FormControl } from '@theopenlane/ui/form'
 import { useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { InfoIcon, User, Users, Type, Check, X, ChevronDown } from 'lucide-react'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
 import { useMemo, useRef, useState } from 'react'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
@@ -26,7 +26,7 @@ import {
 } from './responsibility-field-utils'
 import { PersonnelOptionItem } from './personnel-option-item'
 import { ResponsibilitySelectionLabel } from './responsibility-type-icon'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { fieldItemLayoutClassName, type TFieldLayout } from './field-layout'
 
 interface ResponsibilityFieldProps {

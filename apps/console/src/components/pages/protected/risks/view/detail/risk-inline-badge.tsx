@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
-import { Badge } from '@repo/ui/badge'
-import { cn } from '@repo/ui/lib/utils'
+import { Badge } from '@theopenlane/ui/badge'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { type RiskRiskStatus, type UpdateRiskInput } from '@repo/codegen/src/schema'
 import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import RiskLabel from '../../risk-label'

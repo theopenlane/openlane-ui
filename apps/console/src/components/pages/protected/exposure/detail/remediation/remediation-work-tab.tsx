@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 import { Link2, Plus } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
+import { Button } from '@theopenlane/ui/button'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@theopenlane/ui/table'
 import { type ActionPlan, type Group, type IdentityHolder, type Remediation, type Task, type User } from '@repo/codegen/src/schema'
 import { type Connection, getNodes } from '@/lib/graphql-hooks/connection'
 import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'

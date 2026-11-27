@@ -1,12 +1,12 @@
 'use client'
 
 import React from 'react'
-import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Button } from '@theopenlane/ui/button'
 import { CheckCheck, SearchIcon, ShieldOff } from 'lucide-react'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { type WhereCondition } from '@/types'
 import { ndaRequestsFilterFields } from './table-config'
 

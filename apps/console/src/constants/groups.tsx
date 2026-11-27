@@ -1,8 +1,8 @@
 import { OBJECT_TYPE_PERMISSIONS_CONFIG, type TypesWithPermissions } from '@repo/codegen/src/type-names'
 import { REPORT_ENTITIES } from '@repo/codegen/src/report-schema.generated'
 import { excludeSystemOwnedWhere } from '@/lib/report/report-filters'
-import { Checkbox } from '@repo/ui/checkbox'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { type GroupPermissionWhereInput } from '@repo/codegen/src/schema'
 
 export type TableDataItem = {

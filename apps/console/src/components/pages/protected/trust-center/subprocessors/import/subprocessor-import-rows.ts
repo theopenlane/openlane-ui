@@ -1,4 +1,4 @@
-import { resolveCountryCode } from '@repo/ui/country-list'
+import { resolveCountryCode } from '@theopenlane/ui/country-list'
 import { type CreateSubprocessorInput, type CreateTrustCenterSubprocessorInput } from '@repo/codegen/src/schema'
 import { splitListCell } from '@/components/shared/record-import/lib/validate-cells'
 import { type TImportRecord } from '@/components/shared/record-import/lib/types'

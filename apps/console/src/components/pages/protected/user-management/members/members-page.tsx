@@ -1,7 +1,7 @@
 'use client'
 
 import { pageStyles } from './page.styles'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import { useState, use, useEffect } from 'react'
 import { MembersTable } from './members-table'
 import { useGetInvites } from '@/lib/graphql-hooks/organization'

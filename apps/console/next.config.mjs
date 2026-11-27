@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ['@repo/dally', '@repo/ui', '@repo/codegen', 'survey-core', 'survey-react-ui'],
+  transpilePackages: ['@repo/dally', '@theopenlane/ui', '@repo/codegen', 'survey-core', 'survey-react-ui'],
   experimental: {
     useTypeScriptCli: true,
   },

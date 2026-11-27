@@ -2,9 +2,9 @@
 
 import React, { useMemo } from 'react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
-import { Panel } from '@repo/ui/panel'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
+import { Panel } from '@theopenlane/ui/panel'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
 import { ChevronDown, Download, Eye, FileText } from 'lucide-react'
 import { type EvidenceWhereInput } from '@repo/codegen/src/schema'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'

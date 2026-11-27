@@ -1,10 +1,10 @@
 import React, { useRef } from 'react'
-import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Button } from '@theopenlane/ui/button'
 import { Plus, Trash2 } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 type DomainListEditorProps = {
   domains: string[]

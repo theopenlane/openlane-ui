@@ -25,7 +25,9 @@ This monorepo is run on [Bun](https://bun.sh/) and built using
 - `@repo/codegen`: Generated graphQL functions to make requests to
   the Openlane graphql api. See the [README](packages/codegen/README.md) for
   details.
-- `@repo/ui`: UI component library shared by our applications
+- `@theopenlane/ui`: UI component library shared by our applications, also
+  published to npm. See [RELEASING](packages/ui/RELEASING.md) for how to
+  release it.
 - `@repo/dally`: DAL library for sharing common patterns and functionality in
   our other apps
 - `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next`

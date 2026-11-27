@@ -2,10 +2,10 @@
 
 import React, { useMemo } from 'react'
 import { X } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Button } from '@theopenlane/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import type { TReportEntity, TReportOperator } from '@repo/codegen/src/report-schema.generated'
-import type { Option } from '@repo/ui/multiple-selector'
+import type { Option } from '@theopenlane/ui/multiple-selector'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { filterableFields, filterOperators, filterPath, negatedRelatedOperator, operatorLabel, type TFilterRecord, type TReportFilter, type TReportFilterField } from '@/lib/report/report-filters'
 import { isListChain, labelledFields, type TReportCombinator } from '@/lib/report/report-schema'

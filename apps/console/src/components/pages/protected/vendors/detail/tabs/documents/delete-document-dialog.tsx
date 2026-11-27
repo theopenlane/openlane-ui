@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'

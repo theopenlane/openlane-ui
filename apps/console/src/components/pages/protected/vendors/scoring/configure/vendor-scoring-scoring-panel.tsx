@@ -1,12 +1,12 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
-import { Badge } from '@repo/ui/badge'
-import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@theopenlane/ui/table'
+import { Badge } from '@theopenlane/ui/badge'
+import { RadioGroup, RadioGroupItem } from '@theopenlane/ui/radio-group'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { VendorScoringConfigVendorScoringMode } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Callout } from '@/components/shared/callout/callout'
@@ -15,7 +15,7 @@ import { vendorRiskRatingColor, type TVendorRiskRating } from '@/lib/vendor-risk
 import { SCORING_MODE_COPY, SCORING_MODE_ORDER } from '../vendor-scoring-copy'
 import { SegmentedBar } from '../segmented-bar'
 import { isOneOf } from '@/utils/type-guards'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 const isScoringMode = isOneOf(SCORING_MODE_ORDER)
 

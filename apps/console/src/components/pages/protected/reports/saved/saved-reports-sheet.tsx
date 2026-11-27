@@ -2,9 +2,9 @@
 
 import React, { useMemo } from 'react'
 import { FileText, LoaderCircle, Search as SearchIcon } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Sheet, SheetContent, SheetDescription } from '@repo/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Sheet, SheetContent, SheetDescription } from '@theopenlane/ui/sheet'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'

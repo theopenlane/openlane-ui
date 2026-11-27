@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { AssetInputGroup } from './asset-input-group'
 import { useFormContext } from 'react-hook-form'
 import { type BrandFormValues } from '../brand-schema'

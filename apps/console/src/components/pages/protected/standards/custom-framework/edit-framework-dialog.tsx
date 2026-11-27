@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from 'react'
 import { useWatch } from 'react-hook-form'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@theopenlane/ui/form'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { type GetStandardDetailsQuery, type UpdateStandardInput } from '@repo/codegen/src/schema'
 import { orClear, omit, passthrough, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { useNotification } from '@/hooks/useNotification'

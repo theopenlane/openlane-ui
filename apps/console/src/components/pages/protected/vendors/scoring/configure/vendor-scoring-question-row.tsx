@@ -2,9 +2,9 @@
 
 import React from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Switch } from '@repo/ui/switch'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { Switch } from '@theopenlane/ui/switch'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { useVendorRiskScoreQuestionUsage } from '@/lib/graphql-hooks/vendor-risk-score'
 import { questionOrigin, type TDraftQuestion } from '@/lib/vendor-scoring-config'

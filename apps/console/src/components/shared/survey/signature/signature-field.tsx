@@ -11,9 +11,9 @@ import {
   TYPED_SIGNATURE_MESSAGES,
   type TSignatureFieldView,
 } from '@theopenlane/surveyjs-components/survey'
-import { Button } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Button } from '@theopenlane/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 
 const TypedSignaturePreview = ({ typedPreview, signerName, canChange, regenerate }: TSignatureFieldView) => {
   switch (typedPreview.kind) {

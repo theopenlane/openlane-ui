@@ -1,6 +1,6 @@
 import React from 'react'
-import { Card } from '@repo/ui/cardpanel'
-import { Badge } from '@repo/ui/badge'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { Badge } from '@theopenlane/ui/badge'
 import { CheckCircleIcon, Settings2, SettingsIcon } from 'lucide-react'
 import { formatDateSince } from '@/utils/date'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'

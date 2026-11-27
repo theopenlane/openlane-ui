@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable } from '@theopenlane/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { useGetAllSubscribers } from '@/lib/graphql-hooks/subscriber'
 import { exportableSubscriberColumns, subscribersColumns } from '@/components/pages/protected/organization-settings/subscribers/table/columns.tsx'
@@ -12,7 +12,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 
 export const SubscribersTable = () => {
   const [filters, setFilters] = useState<SubscriberWhereInput | null>(null)

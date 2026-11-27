@@ -2,13 +2,13 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Label } from '@repo/ui/label'
-import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
-import { cn } from '@repo/ui/lib/utils'
+import { Label } from '@theopenlane/ui/label'
+import { RadioGroup, RadioGroupItem } from '@theopenlane/ui/radio-group'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { sortByOrder } from '@/lib/onboarding-questions/build-schema'
 import { type OnboardingQuestion, type OnboardingQuestionOption } from '@/lib/onboarding-questions/types'
 import { QuestionDescription, QuestionLabel } from '../question-label'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 const DEFAULT_BOOLEAN_OPTIONS: OnboardingQuestionOption[] = [
   { value: 'true', label: 'Yes', hidden: false },

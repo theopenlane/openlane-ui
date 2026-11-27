@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
-import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/popover'
+import { Avatar, AvatarFallback, AvatarImage } from '@theopenlane/ui/avatar'
+import { Popover, PopoverTrigger, PopoverContent } from '@theopenlane/ui/popover'
 
 interface AvatarListData {
   id: string

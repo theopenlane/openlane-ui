@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import ColorCell from './color-cell'
 
 const COLOR_COLUMN_WIDTH = 160

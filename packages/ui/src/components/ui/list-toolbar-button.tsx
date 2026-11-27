@@ -7,7 +7,7 @@ import { useIndentTodoToolBarButton, useIndentTodoToolBarButtonState } from '@pl
 import { List, ListOrdered, ListTodoIcon } from 'lucide-react'
 import { useEditorRef, useEditorSelector } from 'platejs/react'
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/components/ui/dropdown-menu.tsx'
 
 import { ToolbarButton, ToolbarSplitButton, ToolbarSplitButtonPrimary, ToolbarSplitButtonSecondary } from './toolbar'
 

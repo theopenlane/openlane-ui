@@ -3,7 +3,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Bug, ListChecks, Laptop, Building2, FileSearch, Settings2 } from 'lucide-react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { useGetScanAssociations } from '@/lib/graphql-hooks/scan'
 

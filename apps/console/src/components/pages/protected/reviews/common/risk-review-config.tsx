@@ -1,7 +1,7 @@
 import { defineFilterFields } from '@/types'
 import React from 'react'
-import { type ColumnDef, type VisibilityState } from '@repo/ui/table-types'
-import { Badge } from '@repo/ui/badge'
+import { type ColumnDef, type VisibilityState } from '@theopenlane/ui/table-types'
+import { Badge } from '@theopenlane/ui/badge'
 import { type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { formatDate } from '@/utils/date'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
@@ -10,7 +10,7 @@ import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapp
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ReviewStatusIconLabel } from '@/components/shared/enum-mapper/review-enum'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 import { EntityVendorTier, type ReviewReviewStatus, type ReviewWhereInput } from '@repo/codegen/src/schema'
 
 const TIER_COLORS: Record<string, string> = {

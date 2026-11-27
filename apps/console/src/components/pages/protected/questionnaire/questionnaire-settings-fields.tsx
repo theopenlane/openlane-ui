@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import type { AssessmentAssessmentType } from '@repo/codegen/src/schema'
-import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { Label } from '@repo/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { CalendarPopover } from '@theopenlane/ui/calendar-popover'
+import { Label } from '@theopenlane/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { ASSESSMENT_TYPE_OPTIONS, CUSTOM_DUE_DATE_DURATION, DURATION_OPTIONS, type TQuestionnaireEditorAction, type TQuestionnaireEditorState } from './questionnaire-editor-state'
 
 type TQuestionnaireSettingsFieldsProps = {

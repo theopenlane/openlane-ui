@@ -9,7 +9,7 @@ import {
   type CreateWorkflowDefinitionMutation,
   OrderDirection,
 } from '@repo/codegen/src/schema'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
 import { type WorkflowDefinitionsNodeNonNull } from '@/lib/graphql-hooks/workflow-definition'
 

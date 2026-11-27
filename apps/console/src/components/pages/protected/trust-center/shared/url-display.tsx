@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@repo/ui/button'
-import { Label } from '@repo/ui/label'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { Label } from '@theopenlane/ui/label'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { Copy, ExternalLink } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 

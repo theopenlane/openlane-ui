@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { GET_FILES } from '@repo/codegen/query/file'
 import { type GetFilesQuery, type FileOrder, type FileWhereInput } from '@repo/codegen/src/schema'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { type TPagination, type TPaginationQuery } from '@repo/ui/pagination-types'
+import { type TPagination, type TPaginationQuery } from '@theopenlane/ui/pagination-types'
 
 type TGetFilesProps = {
   pagination?: TPagination

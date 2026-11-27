@@ -1,8 +1,8 @@
 'use client'
 
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
-import { Card, CardDescription, CardTitle } from '@repo/ui/cardpanel'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
+import { Card, CardDescription, CardTitle } from '@theopenlane/ui/cardpanel'
 import { FileTextIcon, LinkIcon, LoaderCircle, SquarePenIcon, UploadIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'

@@ -36,7 +36,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { withPartialData } from '@/lib/graphql-partial-data'
-import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
+import { type TPagination, type TPaginationMeta } from '@theopenlane/ui/pagination-types'
 import { getNodes } from '@/lib/graphql-hooks/connection'
 import {
   GET_ALL_IDENTITY_HOLDERS,

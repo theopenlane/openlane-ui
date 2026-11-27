@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import { type Metadata } from 'next'
 import CustomDataPage from '@/components/pages/protected/organization-settings/custom-data/custom-data-page'
 

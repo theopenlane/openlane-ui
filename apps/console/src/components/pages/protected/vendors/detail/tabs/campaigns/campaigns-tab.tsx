@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/cardpanel'
-import { Badge } from '@repo/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@theopenlane/ui/cardpanel'
+import { Badge } from '@theopenlane/ui/badge'
 import type { GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
 
 interface CampaignsTabProps {

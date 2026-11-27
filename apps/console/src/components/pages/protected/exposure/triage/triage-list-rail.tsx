@@ -2,9 +2,9 @@
 
 import React from 'react'
 import { Search } from 'lucide-react'
-import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
+import { Input } from '@theopenlane/ui/input'
+import { Button } from '@theopenlane/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { getSeverityStyle } from '@/utils/severity'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import { LoadingSpinner } from '@/components/shared/loading/loading-spinner'

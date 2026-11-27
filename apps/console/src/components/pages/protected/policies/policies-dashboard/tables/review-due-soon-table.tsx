@@ -2,9 +2,9 @@
 
 import React, { useMemo } from 'react'
 import Link from 'next/link'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable } from '@theopenlane/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -12,8 +12,8 @@ import { formatDate } from '@/utils/date'
 import { addDays } from 'date-fns'
 import { InternalPolicyOrderField, type InternalPolicyWhereInput, OrderDirection, type Organization } from '@repo/codegen/src/schema'
 import { wherePoliciesDashboard } from '../dashboard-config'
-import { Button } from '@repo/ui/button'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { Button } from '@theopenlane/ui/button'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 
 const now = new Date()
 const dueSoonLimit = addDays(now, 7)

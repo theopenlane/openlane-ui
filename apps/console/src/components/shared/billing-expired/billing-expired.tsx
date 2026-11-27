@@ -1,6 +1,6 @@
 'use client'
 import { ArrowLeftRight } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { SUPPORT_URL } from '@/constants'

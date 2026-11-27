@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Sheet, SheetContent } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@theopenlane/ui/sheet'
 import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { useNotification } from '@/hooks/useNotification'
 import ControlChip from '../controls/map-controls/shared/control-chip'

@@ -1,7 +1,7 @@
 import Skeleton from '@/components/shared/skeleton/skeleton'
-import { Button } from '@repo/ui/button'
-import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Button } from '@theopenlane/ui/button'
+import { Card, CardContent, CardTitle } from '@theopenlane/ui/cardpanel'
+import { Tabs, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 
 export const ProgramsPageSkeleton = () => (
   <div className="flex flex-col gap-7">

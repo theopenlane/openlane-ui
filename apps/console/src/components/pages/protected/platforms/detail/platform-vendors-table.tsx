@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { Building2 } from 'lucide-react'
 import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import ViewVendorSheet from '@/components/pages/protected/vendors/view-vendor-sheet'

@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import { Checkbox } from '@repo/ui/checkbox'
-import { cn } from '@repo/ui/lib/utils'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@theopenlane/ui/table'
 import { type SlaDefinitionsNodeNonNull } from '@/lib/graphql-hooks/sla-definition'
 import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 import { pluralizeWithCount } from '@/utils/strings'

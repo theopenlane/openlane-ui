@@ -1,8 +1,8 @@
 'use client'
 
 import ObjectAssociation from '@/components/shared/object-association/object-association'
-import { Button } from '@repo/ui/button'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@theopenlane/ui/dialog'
 import React, { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'

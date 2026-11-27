@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { RadarChart } from '@repo/ui/radar-chart'
-import { Card } from '@repo/ui/cardpanel'
+import { RadarChart } from '@theopenlane/ui/radar-chart'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { explainParsedCvssVector, getCvssRadarData, getCvssSeverityBand, parseCvssVector } from '@/utils/cvss-vector'
 import { getSeverityCssVar } from '@/utils/severity'
 import { isProvidedScore } from './score-meta'

@@ -1,5 +1,5 @@
 'use client'
-import { Panel, PanelHeader } from '@repo/ui/panel'
+import { Panel, PanelHeader } from '@theopenlane/ui/panel'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
 import { useCurrentUserRole } from '@/lib/graphql-hooks/member'
 import { TransferOwnership } from './transfer-ownership'

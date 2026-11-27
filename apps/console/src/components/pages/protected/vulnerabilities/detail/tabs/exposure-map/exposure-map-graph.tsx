@@ -3,7 +3,7 @@
 import React, { useMemo, useSyncExternalStore } from 'react'
 import { Background, Handle, Position, ReactFlow, type Edge, type Node, type NodeProps } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { type SlaDefinitionsNodeNonNull } from '@/lib/graphql-hooks/sla-definition'
 import { getVulnerabilityDueDate } from '@/utils/vulnerability-due-date'
 import { formatDate } from '@/utils/date'

@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
-import { cn } from '@repo/ui/lib/utils'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { Badge } from '@theopenlane/ui/badge'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
 import { ControlChipList } from '@/components/shared/crud-base/columns/related-controls-cell'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'

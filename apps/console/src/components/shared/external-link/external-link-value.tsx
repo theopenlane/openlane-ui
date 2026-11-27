@@ -2,7 +2,7 @@
 
 import { type ReactNode } from 'react'
 import { Link } from '@/components/shared/link/link'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { formatUrlForDisplay, normalizeHref } from '@/utils/normalizeUrl'
 
 interface ExternalLinkValueProps {

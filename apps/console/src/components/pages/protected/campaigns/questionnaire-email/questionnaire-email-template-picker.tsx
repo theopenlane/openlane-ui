@@ -2,9 +2,9 @@
 
 import React from 'react'
 import { Lock, Pencil } from 'lucide-react'
-import { Select, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { EmailTemplateSelectContent } from '../shared/email-template-select-content'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
 import { EmailTemplateType } from '@/lib/email-template-type'
 import { InlineEmailTemplateCreator, type InlineEmailTemplateDraft } from '@/components/pages/protected/communications/email-templates/inline-email-template-creator'

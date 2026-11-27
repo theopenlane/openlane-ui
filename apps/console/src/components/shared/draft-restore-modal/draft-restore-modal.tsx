@@ -1,8 +1,8 @@
 'use client'
 
 import { useMemo } from 'react'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 import { FileClock } from 'lucide-react'
 import { formatTimeSince } from '@/utils/date.ts'
 

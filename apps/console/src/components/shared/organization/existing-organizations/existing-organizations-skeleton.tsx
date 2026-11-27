@@ -1,6 +1,6 @@
 import React from 'react'
-import { Panel, PanelHeader } from '@repo/ui/panel'
-import { cn } from '@repo/ui/lib/utils'
+import { Panel, PanelHeader } from '@theopenlane/ui/panel'
+import { cn } from '@theopenlane/ui/lib/utils'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { existingOrganizationsStyles } from './existing-organizations.styles'
 

@@ -53,7 +53,7 @@ import {
   type RiskActivityQuery,
   type RiskActivityQueryVariables,
 } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { useMemo } from 'react'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useEntityComments } from '@/lib/graphql-hooks/entity-comments'

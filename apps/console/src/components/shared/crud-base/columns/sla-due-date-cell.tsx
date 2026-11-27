@@ -1,7 +1,7 @@
 import { isSlaPastDue, type SlaDaysByLevel } from '@/lib/sla'
 import { formatDate } from '@/utils/date'
 import { getSlaDueDate, type TVulnerabilityDueDateSource } from '@/utils/vulnerability-due-date'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type SlaDueDateCellProps = {
   item: TVulnerabilityDueDateSource & { open?: boolean | null }

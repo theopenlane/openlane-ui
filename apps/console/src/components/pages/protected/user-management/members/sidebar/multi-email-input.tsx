@@ -1,8 +1,8 @@
 import { type KeyboardEvent, useEffect, useMemo, useState } from 'react'
 import { type Tag } from 'emblor'
-import { TagInput } from '@repo/ui/tag-input'
+import { TagInput } from '@theopenlane/ui/tag-input'
 import { dedupeEmails, isDuplicateEmail, isValidEmail } from '@/lib/validators'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 type TMultiEmailInputProps = {
   value: string[]

@@ -2,7 +2,7 @@
 
 import React, { useCallback, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Form } from '@repo/ui/form'
+import { Form } from '@theopenlane/ui/form'
 import { StepperSheet, type StepperStep } from '@/components/shared/stepper-sheet/stepper-sheet'
 import { QuestionnaireStep } from './steps/questionnaire-step'
 import { TargetsStep } from './steps/targets-step'

@@ -5,7 +5,7 @@ import type { TElement, TTableCellElement, TTableElement } from 'platejs'
 import { BaseTablePlugin } from '@platejs/table'
 import { SlateElement, type SlateElementProps } from 'platejs/static'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export function TableElementStatic({ children, ...props }: SlateElementProps<TTableElement>) {
   const { disableMarginLeft } = props.editor.getOptions(BaseTablePlugin)

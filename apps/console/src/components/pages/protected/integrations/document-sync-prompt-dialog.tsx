@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react'
 import { FolderSync, Star } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Switch } from '@repo/ui/switch'
+import { Button } from '@theopenlane/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Switch } from '@theopenlane/ui/switch'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { PRIMARY_DOCUMENT_FIELD, saveIntegrationConfiguration } from '@/lib/integrations/flow'

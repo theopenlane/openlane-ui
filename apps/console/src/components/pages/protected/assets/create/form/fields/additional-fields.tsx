@@ -9,7 +9,7 @@ import { type FieldValues } from 'react-hook-form'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@theopenlane/ui/cardpanel'
 
 interface AdditionalFieldsProps {
   isEditing: boolean

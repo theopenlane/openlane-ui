@@ -2,9 +2,9 @@
 
 import React from 'react'
 import { type UseFormReturn } from 'react-hook-form'
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
-import { Input } from '@repo/ui/input'
-import { Textarea } from '@repo/ui/textarea'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@theopenlane/ui/form'
+import { Input } from '@theopenlane/ui/input'
+import { Textarea } from '@theopenlane/ui/textarea'
 import { type CampaignFormData } from '../hooks/use-campaign-form-schema'
 import { QuestionnaireSelector } from './questionnaire/questionnaire-selector'
 

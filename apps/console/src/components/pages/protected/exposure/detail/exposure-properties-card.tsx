@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { BadgeCheck, CircleUser, Flag, Layers, Radio, ShieldOff, UserRoundCheck, UserRoundSearch } from 'lucide-react'
 import { type FieldValues } from 'react-hook-form'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { type UpdateFindingInput, type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { type ResponsibilityTarget } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'

@@ -1,7 +1,7 @@
 import React, { useRef } from 'react'
 import { RotateCcw } from 'lucide-react'
 import { useSession } from 'next-auth/react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useUpdateDiscussion } from '@/lib/graphql-hooks/discussion'
 import { useNotification } from '@/hooks/useNotification'
 import { useHasOrgFullAccess } from '@/lib/query-hooks/permissions'

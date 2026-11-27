@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { CircleCheck } from 'lucide-react'
 
 interface ModeOptionProps {

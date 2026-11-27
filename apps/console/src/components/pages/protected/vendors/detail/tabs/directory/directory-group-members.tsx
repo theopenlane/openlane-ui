@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useDirectoryGroupMembers } from '@/lib/graphql-hooks/vendor-directory'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { StatusLine } from '@/components/shared/status-line/status-line'

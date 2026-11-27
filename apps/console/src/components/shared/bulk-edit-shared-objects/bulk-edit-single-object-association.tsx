@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Input } from '@repo/ui/input'
+import { Input } from '@theopenlane/ui/input'
 import {
   extractTableRows,
   generateWhere,
@@ -15,7 +15,7 @@ import { useQuery } from '@tanstack/react-query'
 import ObjectAssociationTable from '@/components/shared/object-association/object-association-table'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useSession } from 'next-auth/react'
 

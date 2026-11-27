@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Select, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Select, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { EmailTemplateSelectContent } from '../shared/email-template-select-content'
-import { Button } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { EmailTemplateType } from '@/lib/email-template-type'
 import { initialQuestionnaireEmailPickerState, QuestionnaireEmailTemplatePicker, type QuestionnaireEmailPickerState } from '../questionnaire-email/questionnaire-email-template-picker'
 

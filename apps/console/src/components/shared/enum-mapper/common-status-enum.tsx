@@ -1,6 +1,6 @@
 import React from 'react'
 import { Circle, CircleCheck, CircleOff, ScanEye, Timer } from 'lucide-react'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type RemediationRemediationStatus, type ReviewReviewStatus, TaskTaskStatus } from '@repo/codegen/src/schema'
 

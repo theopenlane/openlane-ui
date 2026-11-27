@@ -2,12 +2,12 @@
 import React, { useId } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
-import { Input } from '@repo/ui/input'
-import { Textarea } from '@repo/ui/textarea'
+import { Input } from '@theopenlane/ui/input'
+import { Textarea } from '@theopenlane/ui/textarea'
 import { DateSelect } from '../../shared/form-fields/date-select'
 import StandardSelect from '../../shared/form-fields/standard-select'
 import { PROGRAM_KIND } from '../../shared/program-kind'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 const AdvancedSetupStep2 = ({ defaultFramework }: { defaultFramework?: string }) => {
   const {

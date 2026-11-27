@@ -1,4 +1,4 @@
-import { type ColumnDef, type RowData, type VisibilityState } from '@repo/ui/table-types'
+import { type ColumnDef, type RowData, type VisibilityState } from '@theopenlane/ui/table-types'
 import { isColumnVisible } from './is-column-visible'
 
 export const getExportFields = <T extends RowData>(columns: ColumnDef<T>[], visibility: VisibilityState, baseFields: string[] = []): string[] => {

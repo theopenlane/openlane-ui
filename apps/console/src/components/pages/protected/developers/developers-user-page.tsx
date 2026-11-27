@@ -4,7 +4,7 @@ import React, { use, useEffect, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import { PersonalAccessTokenTable } from './table/personal-access-tokens-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 
 const PAGE_CONFIG = [
   {

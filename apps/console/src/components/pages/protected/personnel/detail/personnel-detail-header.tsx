@@ -2,8 +2,8 @@
 
 import React, { useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
-import { Badge } from '@repo/ui/badge'
+import { Input } from '@theopenlane/ui/input'
+import { Badge } from '@theopenlane/ui/badge'
 import { User } from 'lucide-react'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { IdentityHolderUserStatus, type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'

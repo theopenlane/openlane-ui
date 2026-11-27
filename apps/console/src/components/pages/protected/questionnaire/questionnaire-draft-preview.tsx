@@ -2,7 +2,7 @@
 
 import { useEffect, use } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import { Callout } from '@/components/shared/callout/callout'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { StatusLine } from '@/components/shared/status-line/status-line'

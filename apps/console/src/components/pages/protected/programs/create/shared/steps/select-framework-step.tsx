@@ -1,7 +1,7 @@
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import StandardSelect from '../form-fields/standard-select'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 const SelectFrameworkStep = ({ required = false, defaultFramework }: { required?: boolean; defaultFramework?: string }) => {
   const {

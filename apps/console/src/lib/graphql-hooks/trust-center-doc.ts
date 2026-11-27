@@ -17,7 +17,7 @@ import {
   type UpdateTrustCenterDocMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import {
   UPDATE_TRUST_CENTER_DOC,
   GET_ALL_TRUST_CENTER_DOCS,

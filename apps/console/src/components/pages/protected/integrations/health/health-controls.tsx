@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Activity, Settings } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { type TRunErrorSummary } from '@/lib/integrations/run-health'
 
 type THealthCheckButtonProps = {

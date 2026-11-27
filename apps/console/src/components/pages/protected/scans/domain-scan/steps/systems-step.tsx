@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
 import { SectionCard } from '../components/section-card'
 import { EmptyState } from '../components/empty-state'
 import { SystemCandidateCard } from '../components/system-candidate-card'

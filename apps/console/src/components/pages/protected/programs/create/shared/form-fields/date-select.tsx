@@ -1,5 +1,5 @@
-import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { FormControl, FormField, FormItem } from '@repo/ui/form'
+import { CalendarPopover } from '@theopenlane/ui/calendar-popover'
+import { FormControl, FormField, FormItem } from '@theopenlane/ui/form'
 import { useFormContext } from 'react-hook-form'
 
 export const DateSelect = ({ name }: { name: string }) => {

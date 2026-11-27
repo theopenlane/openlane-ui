@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 import { Trash2 } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Label } from '@repo/ui/label'
+import { Button } from '@theopenlane/ui/button'
+import { Label } from '@theopenlane/ui/label'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { imageAcceptedFileTypes, imageAcceptedFileTypesShort } from '@/components/shared/file-upload/file-upload-config'
 import { STANDARD_ICON_HEIGHT, STANDARD_ICON_WIDTH, StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'

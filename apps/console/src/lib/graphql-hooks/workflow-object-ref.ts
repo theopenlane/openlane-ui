@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { type WorkflowObjectRefsWithFilterQuery, type WorkflowObjectRefsWithFilterQueryVariables, type WorkflowObjectRefQuery, type WorkflowObjectRefQueryVariables } from '@repo/codegen/src/schema'
 
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { GET_ALL_WORKFLOW_OBJECT_REFS, WORKFLOW_OBJECT_REF } from '@repo/codegen/query/workflow-object-ref'
 
 type GetAllWorkflowObjectRefsArgs = {

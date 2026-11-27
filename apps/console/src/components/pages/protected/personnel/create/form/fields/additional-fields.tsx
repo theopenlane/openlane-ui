@@ -10,7 +10,7 @@ import { UserStatusLabel } from '@/components/shared/enum-mapper/user-status-enu
 import { formatPhoneNumber } from '@/utils/strings'
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
 import { EmailAliasesField } from '../../../email-aliases-field'
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@theopenlane/ui/cardpanel'
 
 interface AdditionalFieldsProps {
   isEditing: boolean

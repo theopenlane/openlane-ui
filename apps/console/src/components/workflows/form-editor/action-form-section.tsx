@@ -1,18 +1,18 @@
 'use client'
 
 import { Plus, Trash2 } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/cardpanel'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
-import { Textarea } from '@repo/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Switch } from '@repo/ui/switch'
-import { Separator } from '@repo/ui/separator'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@theopenlane/ui/cardpanel'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Label } from '@theopenlane/ui/label'
+import { Textarea } from '@theopenlane/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
+import { Switch } from '@theopenlane/ui/switch'
+import { Separator } from '@theopenlane/ui/separator'
 import { TargetSelector } from '@/components/pages/protected/workflows/wizard/components/target-selector'
 import { getTargetLabel } from '@/components/pages/protected/workflows/wizard/utils'
 import type { Target, UpdateWorkflowAction, UpdateWorkflowActionParam, WebhookMethod, WorkflowAction, WorkflowActionType } from '@/types/workflow'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 const ACTION_TYPE_OPTIONS: Array<{ label: string; value: WorkflowActionType }> = [
   { label: 'Request Approval', value: 'REQUEST_APPROVAL' },

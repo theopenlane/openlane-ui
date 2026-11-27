@@ -2,9 +2,9 @@
 
 import React, { useMemo, useState } from 'react'
 import { Building2, Plus, Trash2 } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import { Button } from '@theopenlane/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
 import { type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
 import { useUpdateContact } from '@/lib/graphql-hooks/contact'
 import { useVendorsWithFilter, vendorDisplayName, vendorSearchWhere } from '@/lib/graphql-hooks/entity'

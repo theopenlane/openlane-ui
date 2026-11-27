@@ -1,10 +1,10 @@
 'use client'
 
 import React from 'react'
-import { Card } from '@repo/ui/cardpanel'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { cn } from '@repo/ui/lib/utils'
-import { activatable } from '@repo/ui/lib/a11y'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 
 type TSelectableStatCardProps = {
   children: React.ReactNode

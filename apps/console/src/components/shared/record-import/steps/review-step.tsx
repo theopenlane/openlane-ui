@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react'
 import { CalendarCheck, EyeOff, ListChecks, Pencil } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { RecordPreviewTable } from '@/components/shared/record-preview/record-preview-table'
 import { formatList, pluralizeWithCount, toLowerLabel } from '@/utils/strings'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'

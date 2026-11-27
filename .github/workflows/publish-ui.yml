@@ -1,0 +1,124 @@
+name: Publish @theopenlane/ui
+
+on:
+  push:
+    tags:
+      - 'ui-v*'
+  pull_request:
+    paths:
+      - 'packages/ui/**'
+      - 'bun.lock'
+      - 'package.json'
+      - '.github/workflows/publish-ui.yml'
+
+concurrency:
+  group: publish-ui-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: package.json
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+
+      - run: bun install --frozen-lockfile
+
+      - name: Build package
+        run: bun run --cwd packages/ui build:package
+
+      - name: Check package contents
+        run: npm pack --dry-run
+        working-directory: packages/ui/dist
+
+  build:
+    if: startsWith(github.ref, 'refs/tags/ui-v')
+    runs-on: ubuntu-latest
+    outputs:
+      dist_tag: ${{ steps.version.outputs.dist_tag }}
+    steps:
+      - name: Resolve version
+        id: version
+        run: |
+          version="${GITHUB_REF_NAME#ui-v}"
+          if ! echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+            echo "Tag ${GITHUB_REF_NAME} is not ui-v<semver>" >&2
+            exit 1
+          fi
+          case "$version" in
+            *-*) dist_tag=next ;;
+            *) dist_tag=latest ;;
+          esac
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+          echo "dist_tag=$dist_tag" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: package.json
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - run: bun install --frozen-lockfile
+
+      - name: Build package
+        run: bun run --cwd packages/ui build:package
+        env:
+          UI_VERSION: ${{ steps.version.outputs.value }}
+
+      - name: Check package contents
+        run: npm pack --dry-run
+        working-directory: packages/ui/dist
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ui-package
+          path: packages/ui/dist
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: ui-package
+          path: dist
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Publish
+        run: |
+          npm install -g npm@11.21.3
+          npm publish --provenance --access public --tag "${{ needs.build.outputs.dist_tag }}"
+        working-directory: dist

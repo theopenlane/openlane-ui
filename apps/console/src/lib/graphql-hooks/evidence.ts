@@ -65,7 +65,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { PROGRAM_SUBMITTED_EVIDENCE_COUNT_KEY } from '@/lib/graphql-hooks/program'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useObjectTypeAccess } from '@/lib/subscription-plan/hooks/use-module-access'
 

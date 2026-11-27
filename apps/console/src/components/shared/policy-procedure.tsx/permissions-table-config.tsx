@@ -1,12 +1,12 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { MoreHorizontal, Trash2 } from 'lucide-react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Button } from '@repo/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
+import { Button } from '@theopenlane/ui/button'
 import { Avatar } from '@/components/shared/avatar/avatar' // adjust if path differs
 import { useState } from 'react'
 import { type Group as TGroup } from './assign-permissions-table-config'
 import { type Group, type User } from '@repo/codegen/src/schema'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 
 export const useGroupColumns = ({ onRemoveGroup }: { onRemoveGroup: (group: TGroup) => void }) => {
   const [activeRow, setActiveRow] = useState<string | null>(null)

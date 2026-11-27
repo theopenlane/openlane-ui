@@ -6,7 +6,7 @@ import { type ICreatorOptions } from 'survey-creator-core'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { createSurveyCreator } from '@/components/shared/survey/survey-creator'
 import { useNotification } from '@/hooks/useNotification'
-import { Panel } from '@repo/ui/panel'
+import { Panel } from '@theopenlane/ui/panel'
 import { useRouter } from 'next/navigation'
 
 import '@/styles/questionnaire/custom.css'

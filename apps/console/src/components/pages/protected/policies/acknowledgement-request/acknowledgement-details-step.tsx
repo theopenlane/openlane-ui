@@ -1,9 +1,9 @@
 'use client'
 
 import { type UseFormReturn } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
-import { Textarea } from '@repo/ui/textarea'
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
+import { Input } from '@theopenlane/ui/input'
+import { Textarea } from '@theopenlane/ui/textarea'
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@theopenlane/ui/form'
 import { Callout } from '@/components/shared/callout/callout'
 import { AcknowledgementPolicySelect } from './acknowledgement-policy-select'
 import { ACKNOWLEDGEMENT_SECTION_TITLE_CLASS, AcknowledgementSection, AcknowledgementSections } from './acknowledgement-section'

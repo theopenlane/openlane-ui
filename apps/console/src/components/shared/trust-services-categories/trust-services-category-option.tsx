@@ -3,9 +3,9 @@
 import React, { useId } from 'react'
 import { Lock } from 'lucide-react'
 
-import { Badge } from '@repo/ui/badge'
-import { Checkbox } from '@repo/ui/checkbox'
-import { cn } from '@repo/ui/lib/utils'
+import { Badge } from '@theopenlane/ui/badge'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 import { type TTrustServicesCategory } from '@/constants/trust-services-categories'
 

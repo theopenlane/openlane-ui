@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { ExternalLink } from 'lucide-react'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ScanTypeIconMapper, ScanStatusBadge } from '@/components/shared/enum-mapper/scan-enum'

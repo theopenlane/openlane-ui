@@ -1,8 +1,8 @@
 'use client'
 import { useFormContext } from 'react-hook-form'
-import { Label } from '@repo/ui/label'
-import { Textarea } from '@repo/ui/textarea'
-import { FormMessage } from '@repo/ui/form'
+import { Label } from '@theopenlane/ui/label'
+import { Textarea } from '@theopenlane/ui/textarea'
+import { FormMessage } from '@theopenlane/ui/form'
 
 export const DescriptionField = () => {
   const {

@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'

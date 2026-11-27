@@ -1,5 +1,5 @@
 'use client'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import { OrganizationNameForm } from '@/components/pages/protected/organization-settings/general-settings/organization-name-form'
 import { pageStyles } from './page.styles'
 import { OrganizationManagement } from '@/components/pages/protected/organization-settings/general-settings/organization-management'

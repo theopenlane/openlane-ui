@@ -1,7 +1,7 @@
 'use client'
 
 import React, { memo, useId, useMemo } from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import { OrderDirection } from '@repo/codegen/src/schema'
 import { labelledOrderFields, type TReportSort } from '@/lib/report/report-schema'

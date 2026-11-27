@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { SelectContent, SelectItem } from '@repo/ui/select'
+import { SelectContent, SelectItem } from '@theopenlane/ui/select'
 
 interface EmailTemplateSelectContentProps {
   options: Array<{ label: string; value: string }>

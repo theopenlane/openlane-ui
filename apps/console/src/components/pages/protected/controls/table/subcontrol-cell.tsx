@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { RelatedControlChip } from '../shared/related-control-chip'
-import { type Row } from '@repo/ui/table-types'
+import { type Row } from '@theopenlane/ui/table-types'
 import { type ControlListFieldsFragment } from '@repo/codegen/src/schema'
 
 type Props = {

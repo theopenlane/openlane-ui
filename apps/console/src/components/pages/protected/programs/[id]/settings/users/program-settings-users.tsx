@@ -2,12 +2,12 @@
 
 import React, { use, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Button } from '@repo/ui/button'
-import { DataTable } from '@repo/ui/data-table'
+import { Button } from '@theopenlane/ui/button'
+import { DataTable } from '@theopenlane/ui/data-table'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { EllipsisVertical } from 'lucide-react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { type ColumnDef, type Row } from '@repo/ui/table-types'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
+import { type ColumnDef, type Row } from '@theopenlane/ui/table-types'
 import { useGetProgramBasicInfo, useGetProgramMembers, useUpdateProgram, useUpdateProgramMembership } from '@/lib/graphql-hooks/program'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { ProgramMembershipRole, ProgramProgramStatus, type User } from '@repo/codegen/src/schema'
@@ -15,14 +15,14 @@ import { ProgramSettingsAssignUserDialog } from './program-settings-assign-user-
 import { useQueryClient } from '@tanstack/react-query'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { EditGroupRoleDialog } from '../program-settings-edit-role-dialog' // You can reuse for users
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { useSession } from 'next-auth/react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type MemberRow = {

@@ -10,7 +10,7 @@ import { allQuestionsForStep, buildOnboardingDefaultValues, buildOnboardingSchem
 import { COMPANY_DOMAINS_KEY, COMPANY_NAME_KEY } from '@/lib/onboarding-questions/question-keys'
 import { type OnboardingCard, type OnboardingStep } from '@/lib/onboarding-questions/types'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Logo } from '@repo/ui/logo'
+import { Logo } from '@theopenlane/ui/logo'
 import { Loader2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useEffect, useMemo, useRef, useState } from 'react'

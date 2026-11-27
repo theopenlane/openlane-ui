@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Sheet, SheetContent } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@theopenlane/ui/sheet'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import ControlReviewSheetBody from './control-review-sheet-body'
 

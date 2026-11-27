@@ -1,6 +1,6 @@
 'use client'
 import React, { Suspense, use, useEffect } from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import PricingPlan from '@/components/pages/protected/organization-settings/billing/pricing-plan'
 import { useOrganization } from '@/hooks/useOrganization'
 import BillingPageSkeleton from '@/components/pages/protected/organization-settings/billing/skeleton/billing-page-skeleton'

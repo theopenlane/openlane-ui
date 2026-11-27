@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { useElementSize } from '@/hooks/useElementSize'
 import { InfoCard } from '@/components/shared/file-preview/preview-chrome'
 import { LoadingSpinner } from '@/components/shared/loading/loading-spinner'

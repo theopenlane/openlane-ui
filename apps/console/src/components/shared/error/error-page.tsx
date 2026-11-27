@@ -1,5 +1,5 @@
 import { useRouter } from 'next/navigation'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { CircleArrowLeft } from 'lucide-react'
 import React from 'react'
 import Path from '@/assets/Path.tsx'

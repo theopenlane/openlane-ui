@@ -2,10 +2,10 @@
 
 import { type UseFormReturn } from 'react-hook-form'
 import { ClipboardList, ExternalLink } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { startOfToday } from 'date-fns'
-import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
+import { CalendarPopover } from '@theopenlane/ui/calendar-popover'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@theopenlane/ui/form'
 import { Callout } from '@/components/shared/callout/callout'
 import ObjectsChip from '@/components/shared/objects-chip/objects-chip'
 import { ReadOnlyField } from '@/components/shared/read-only-field/read-only-field'

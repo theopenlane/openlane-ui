@@ -1,5 +1,5 @@
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import React from 'react'
 
 const TagChip = ({ tag }: { tag: string }) => {

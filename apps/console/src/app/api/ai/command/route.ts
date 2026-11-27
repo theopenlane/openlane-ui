@@ -4,9 +4,9 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { createSlateEditor, nanoid, type SlateEditor } from 'platejs'
-import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
-import type { ChatMessage, ToolName } from '@repo/ui/components/editor/use-chat.ts'
-import { markdownJoinerTransform } from '@repo/ui/lib/markdown-joiner-transform'
+import { BaseEditorKit } from '@theopenlane/ui/components/editor/editor-base-kit.tsx'
+import type { ChatMessage, ToolName } from '@theopenlane/ui/components/editor/use-chat.ts'
+import { markdownJoinerTransform } from '@theopenlane/ui/lib/markdown-joiner-transform'
 import { z } from 'zod'
 
 import { getChooseToolPrompt, getCommentPrompt, getEditPrompt, getGeneratePrompt } from './prompts'

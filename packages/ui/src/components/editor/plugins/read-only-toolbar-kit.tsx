@@ -4,10 +4,10 @@ import { useContext } from 'react'
 import { createPortal } from 'react-dom'
 import { createPlatePlugin } from 'platejs/react'
 
-import { Toolbar } from '@repo/ui/components/ui/toolbar.tsx'
-import { ReadOnlyToolbarButtons } from '@repo/ui/components/ui/readonly-toolbar-buttons.tsx'
-import { ReadOnlyToolbarPortalContext } from '@repo/ui/components/editor/read-only-toolbar-portal.ts'
-import { cn } from '@repo/ui/lib/utils'
+import { Toolbar } from '@theopenlane/ui/components/ui/toolbar.tsx'
+import { ReadOnlyToolbarButtons } from '@theopenlane/ui/components/ui/readonly-toolbar-buttons.tsx'
+import { ReadOnlyToolbarPortalContext } from '@theopenlane/ui/components/editor/read-only-toolbar-portal.ts'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type ReadOnlyToolbarKitOptions = {
   className?: string

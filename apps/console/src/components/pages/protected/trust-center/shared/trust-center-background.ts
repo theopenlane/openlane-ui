@@ -1,5 +1,5 @@
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
-import { parseCssColor } from '@repo/ui/components/editor/plugins/font-contrast.ts'
+import { parseCssColor } from '@theopenlane/ui/components/editor/plugins/font-contrast.ts'
 import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { WHITE_HEX } from '@/utils/color-contrast'
 

@@ -9,9 +9,9 @@ import { cva } from 'class-variance-authority'
 import { Link, Trash2Icon } from 'lucide-react'
 import { useEditorRef, useEditorSelector, useElement, useReadOnly, useRemoveNodeButton, useSelected } from 'platejs/react'
 
-import { Button, buttonVariants } from '@repo/ui/components/ui/button.tsx'
-import { Popover, PopoverAnchor, PopoverContent } from '@repo/ui/components/ui/popover.tsx'
-import { Separator } from '@repo/ui/components/ui/separator.tsx'
+import { Button, buttonVariants } from '@theopenlane/ui/components/ui/button.tsx'
+import { Popover, PopoverAnchor, PopoverContent } from '@theopenlane/ui/components/ui/popover.tsx'
+import { Separator } from '@theopenlane/ui/components/ui/separator.tsx'
 
 import { CaptionButton } from './caption'
 

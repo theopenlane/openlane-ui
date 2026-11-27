@@ -11,7 +11,7 @@ import {
   ExportExportType,
   OrderDirection,
 } from '@repo/codegen/src/schema'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
 import { type ContactsNodeNonNull } from '@/lib/graphql-hooks/contact'
 import { type ContactFormData } from '../hooks/use-form-schema'

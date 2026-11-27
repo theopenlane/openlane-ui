@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { type ContactsNodeNonNull } from '@/lib/graphql-hooks/contact'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { UserStatusLabel } from '@/components/shared/enum-mapper/user-status-enum'

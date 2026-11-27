@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { useIsOfficialDeployment } from '@repo/ui/lib/official-deployment'
+import { useIsOfficialDeployment } from '@theopenlane/ui/lib/official-deployment'
 import CustomerQuoteSection from '../customer-quote-section/customer-quote-section'
 import { CUSTOMER_QUOTES } from './auth-marketing-panel-config'
 

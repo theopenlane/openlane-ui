@@ -1,6 +1,6 @@
 import Skeleton from '@/components/shared/skeleton/skeleton'
-import { Card } from '@repo/ui/cardpanel'
-import { Separator } from '@repo/ui/separator'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { Separator } from '@theopenlane/ui/separator'
 
 const ProgramCardSkeleton = () => (
   <Card className="p-6 gap-6 flex flex-col">

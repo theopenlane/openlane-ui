@@ -19,7 +19,7 @@ import {
   type CreateBulkCampaignTargetMutationVariables,
 } from '@repo/codegen/src/schema'
 
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { getNodes } from '@/lib/graphql-hooks/connection'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'

@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { findCustomTypeEnumOption, useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumOptionChip } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 

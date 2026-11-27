@@ -59,7 +59,7 @@ import {
 import { skipToken, useMutation, useQuery, type QueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { useMemo } from 'react'
 import { getNodes } from './connection'
 import { CURRENT_USER_ORGANIZATIONS_QUERY_ROOT, invalidateCurrentUserOrganizations, invalidateMembershipQueries } from './membership-cache'

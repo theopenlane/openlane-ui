@@ -1,5 +1,5 @@
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { type questionOrigin } from '@/lib/vendor-scoring-config'
 
 type TBadgeOrigin = Exclude<ReturnType<typeof questionOrigin>, 'default'>

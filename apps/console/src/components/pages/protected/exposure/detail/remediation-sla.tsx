@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { CircleAlert, CircleDashed } from 'lucide-react'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
 import { getVulnerabilityDueDate, type TVulnerabilityDueDateSource } from '@/utils/vulnerability-due-date'
 import { formatDate } from '@/utils/date'

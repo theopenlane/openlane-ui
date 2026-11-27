@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@repo/ui/button'
-import { FormMessage } from '@repo/ui/form'
+import { Button } from '@theopenlane/ui/button'
+import { FormMessage } from '@theopenlane/ui/form'
 import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
 import { getSSORedirect } from '@/lib/auth/utils/get-sso-redirect'
 import { getCookie } from '@/lib/auth/utils/getCookie'

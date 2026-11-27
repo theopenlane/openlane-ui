@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 
 type TIntegrationNotFoundProps = {
   message: string

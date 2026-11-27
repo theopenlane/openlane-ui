@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { ArrowRight, InfoIcon } from 'lucide-react'
-import { InfoSlideOut } from '@repo/ui/info-slide-out'
-import { Button } from '@repo/ui/button'
+import { InfoSlideOut } from '@theopenlane/ui/info-slide-out'
+import { Button } from '@theopenlane/ui/button'
 import { type IntegrationProvider } from '@/lib/integrations/types'
 import { GuideStepGroups, type GuideLiveValues, getProviderSetupGuide } from '@/lib/integrations/setup-guide-content'
 import ProviderIcon from './provider-icon'

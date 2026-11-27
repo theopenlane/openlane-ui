@@ -1,6 +1,6 @@
 'use client'
-import { PageHeading } from '@repo/ui/page-heading'
-import { Tabs, TabsContent } from '@repo/ui/tabs'
+import { PageHeading } from '@theopenlane/ui/page-heading'
+import { Tabs, TabsContent } from '@theopenlane/ui/tabs'
 import React, { use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import IntegrationsToolbar from './integrations-toolbar'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'

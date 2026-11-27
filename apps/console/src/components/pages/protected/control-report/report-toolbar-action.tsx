@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { HIDE_BELOW_1400, ICON_ONLY_BELOW_1400 } from '@/constants/toolbar'
 
 type ReportToolbarActionProps = {

@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
-import { Card, CardContent } from '@repo/ui/cardpanel'
-import { Separator } from '@repo/ui/separator'
+import { Badge } from '@theopenlane/ui/badge'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
+import { Separator } from '@theopenlane/ui/separator'
 import CopyableText from '@/components/shared/copyable-text/copyable-text'
 import { pluralizeWithCount } from '@/utils/strings'
 import { OverviewSection } from '../../../exposure/detail/overview-section'

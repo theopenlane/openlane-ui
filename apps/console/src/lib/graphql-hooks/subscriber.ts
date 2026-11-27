@@ -12,7 +12,7 @@ import {
   type CreateBulkCsvSubscriberMutation,
   type CreateBulkCsvSubscriberMutationVariables,
 } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useMemo } from 'react'
 

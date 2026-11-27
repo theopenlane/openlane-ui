@@ -7,7 +7,7 @@ import { SelectField } from '@/components/shared/crud-base/form-fields/select-fi
 import { type ContactQuery, type ContactUserStatus, type UpdateContactInput } from '@repo/codegen/src/schema'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { type EnumOptions } from '../../../table/types'
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@theopenlane/ui/cardpanel'
 import { AddressAutocompleteInput } from '@/components/shared/address-autocomplete-input/address-autocomplete-input'
 import { formatPlaceAddress } from '@/hooks/usePlacesAutocomplete'
 import { formatPhoneNumber } from '@/utils/strings'

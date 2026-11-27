@@ -1,6 +1,6 @@
 import WorkflowWizardPage from '@/components/pages/protected/workflows/workflow-wizard-page'
 import { type Metadata } from 'next'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 
 export const metadata: Metadata = {
   title: 'Workflow Wizard',

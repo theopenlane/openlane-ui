@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react'
 import Link from 'next/link'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { ChevronsLeftRightEllipsis, Pencil, PencilLine, Zap } from 'lucide-react'
 import { MappingIconMapper } from '@/components/shared/enum-mapper/map-control-enum'
 import { MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { CalendarClock, Eye, Factory, Gauge, LockOpen, Tag, Tags } from 'lucide-react'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { type UpdateFindingInput } from '@repo/codegen/src/schema'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'

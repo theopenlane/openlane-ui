@@ -7,7 +7,7 @@ import { type CursorData, type CursorOverlayState, useCursorOverlay } from '@pla
 import { RangeApi } from 'platejs'
 import { usePluginOption } from 'platejs/react'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export function CursorOverlay() {
   const { cursors } = useCursorOverlay()

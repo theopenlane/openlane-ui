@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { CountryDropdown } from '@repo/ui/country-dropdown'
+import { CountryDropdown } from '@theopenlane/ui/country-dropdown'
 import { SubprocessorListingDefaults } from '@/components/pages/protected/trust-center/shared/subprocessor-listing-defaults'
 import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { type TSubprocessorImportState } from './use-subprocessor-import'

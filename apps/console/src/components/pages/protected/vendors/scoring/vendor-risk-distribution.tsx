@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Button } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { useVendorRiskRatingCounts } from '@/lib/graphql-hooks/entity'
 import { useOrganization } from '@/hooks/useOrganization'
 import { getFiltersUpdatedEvent, loadFilters, saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage'
@@ -12,7 +12,7 @@ import { isVendorRiskRating, VendorRiskRating, vendorRiskRatingColor, type TVend
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type VendorRiskRatingCountsQuery } from '@repo/codegen/src/schema'
 import Skeleton from '@/components/shared/skeleton/skeleton'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { tableKey } from '../table/types'
 import { SegmentedBar } from './segmented-bar'
 

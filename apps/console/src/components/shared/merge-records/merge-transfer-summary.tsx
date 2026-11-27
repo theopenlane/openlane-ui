@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { Loader2 } from 'lucide-react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import type { MergeEdgeTransferCount } from './types'

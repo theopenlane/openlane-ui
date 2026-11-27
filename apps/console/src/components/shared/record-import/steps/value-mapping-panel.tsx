@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { pluralizeWithCount } from '@/utils/strings'
 import type { TColumnCellCheck } from '../lib/validate-cells'

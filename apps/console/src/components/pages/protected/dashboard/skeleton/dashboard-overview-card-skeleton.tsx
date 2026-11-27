@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
+import { Card, CardContent, CardTitle } from '@theopenlane/ui/cardpanel'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
 

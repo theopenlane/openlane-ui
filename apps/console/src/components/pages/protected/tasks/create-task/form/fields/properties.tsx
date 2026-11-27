@@ -5,9 +5,9 @@ import { useFormContext, Controller } from 'react-hook-form'
 import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { BookText, CalendarCheck2, Circle, CircleUser, Folder, Tag, UserRoundPen } from 'lucide-react'
 
-import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
-import { CalendarPopover } from '@repo/ui/calendar-popover'
-import MultipleSelector from '@repo/ui/multiple-selector'
+import { Select, SelectTrigger, SelectContent, SelectItem } from '@theopenlane/ui/select'
+import { CalendarPopover } from '@theopenlane/ui/calendar-popover'
+import MultipleSelector from '@theopenlane/ui/multiple-selector'
 import { formatDate } from '@/utils/date'
 import { type TaskQuery, type TaskTaskStatus, type UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useOrganizationMemberOptions } from '@/lib/graphql-hooks/organization'
@@ -25,7 +25,7 @@ import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 type PropertiesProps = {
   isEditing: boolean

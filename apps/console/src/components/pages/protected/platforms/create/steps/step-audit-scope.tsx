@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
-import { Switch } from '@repo/ui/switch'
+import { FormField, FormItem, FormLabel, FormControl } from '@theopenlane/ui/form'
+import { Switch } from '@theopenlane/ui/switch'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { type EditPlatformFormData } from '../../hooks/use-form-schema'

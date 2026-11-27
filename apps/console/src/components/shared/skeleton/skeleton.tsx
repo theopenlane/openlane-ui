@@ -1,5 +1,5 @@
 import React from 'react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 interface TSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string

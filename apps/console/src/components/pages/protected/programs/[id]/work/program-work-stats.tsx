@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { LayoutList } from 'lucide-react'
-import { CardContent } from '@repo/ui/cardpanel'
+import { CardContent } from '@theopenlane/ui/cardpanel'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { SelectableStatCard } from '@/components/shared/selectable-stat-card/selectable-stat-card'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum'

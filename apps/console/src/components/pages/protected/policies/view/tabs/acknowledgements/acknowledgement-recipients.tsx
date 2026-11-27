@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import { Download } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { EXCLUDE_TEST_RESPONSES, useAssessmentJsonconfig } from '@/lib/graphql-hooks/assessment'
 import { useCanSendQuestionnaire } from '@/lib/authz/use-can-send-questionnaire'
 import { DeliveryTab } from '@/components/pages/protected/questionnaire/delivery-tab/delivery-tab'

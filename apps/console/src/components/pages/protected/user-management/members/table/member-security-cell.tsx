@@ -1,8 +1,8 @@
 'use client'
 
 import { ShieldCheck, ShieldOff } from 'lucide-react'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { Badge } from '@repo/ui/badge'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
+import { Badge } from '@theopenlane/ui/badge'
 
 export const MEMBER_SECURITY_COLUMN_SIZE = 145
 

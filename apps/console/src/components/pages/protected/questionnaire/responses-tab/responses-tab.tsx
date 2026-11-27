@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
-import { Input } from '@repo/ui/input'
-import Pagination from '@repo/ui/pagination'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@theopenlane/ui/table'
+import { Input } from '@theopenlane/ui/input'
+import Pagination from '@theopenlane/ui/pagination'
 import { Search } from 'lucide-react'
 import { extractQuestions } from './extract-questions'
 import { renderAnswer } from '../utils/render-answer'

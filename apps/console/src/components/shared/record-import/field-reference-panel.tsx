@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react'
 import { toLowerLabel } from '@/utils/strings'
 import { Download } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { RecordPreviewTable } from '@/components/shared/record-preview/record-preview-table'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { downloadFile } from '@/utils/downloadFile'

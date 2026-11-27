@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { ImportFlowLayout } from '@/components/shared/record-import/import-flow-layout'
 import { ImportSourceStep } from '@/components/shared/record-import/import-source-step'

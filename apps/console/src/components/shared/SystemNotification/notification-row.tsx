@@ -1,7 +1,7 @@
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import { formatTimeSince } from '@/utils/date'
-import { cn } from '@repo/ui/lib/utils'
-import { TruncatedCell } from '@repo/ui/truncated-cell'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { TruncatedCell } from '@theopenlane/ui/truncated-cell'
 import React from 'react'
 
 import { ShieldCheck, Fingerprint, AlertTriangle, FileCheck, NotebookPen, AlertCircleIcon, ListChecks, ScrollText } from 'lucide-react'

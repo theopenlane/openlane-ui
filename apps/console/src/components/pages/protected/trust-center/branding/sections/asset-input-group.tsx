@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import FileUpload from '@/components/shared/file-upload/file-upload'
-import { Label } from '@repo/ui/label'
+import { Label } from '@theopenlane/ui/label'
 import UrlInput from '../../shared/url-input'
 import { Eye } from 'lucide-react'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'

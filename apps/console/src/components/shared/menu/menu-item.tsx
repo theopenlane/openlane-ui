@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
-import { Button, type ButtonProps } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
+import { Button, type ButtonProps } from '@theopenlane/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type MenuItemProps = Omit<ButtonProps, 'variant' | 'onClick' | 'icon' | 'children'> & {
   icon?: React.ReactNode

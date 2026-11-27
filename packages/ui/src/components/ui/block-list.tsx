@@ -8,8 +8,8 @@ import { isOrderedList } from '@platejs/list'
 import { useTodoListElement, useTodoListElementState } from '@platejs/list/react'
 import { type PlateElementProps, type RenderNodeWrapper, useReadOnly } from 'platejs/react'
 
-import { Checkbox } from '@repo/ui/components/ui/checkbox.tsx'
-import { cn } from '@repo/ui/lib/utils'
+import { Checkbox } from '@theopenlane/ui/components/ui/checkbox.tsx'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 const config: Record<
   string,

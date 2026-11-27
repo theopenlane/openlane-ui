@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useCallback, useMemo, useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
 import { QRCodeSVG } from 'qrcode.react'
-import { Button } from '@repo/ui/button'
-import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
+import { Button } from '@theopenlane/ui/button'
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@theopenlane/ui/input-otp'
 import { useNotification } from '@/hooks/useNotification'
 import { Copy } from 'lucide-react'
 import { useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa-setting'

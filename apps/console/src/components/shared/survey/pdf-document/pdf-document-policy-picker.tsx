@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum'
 import { SearchableItemSelect } from '@/components/shared/searchable-item-select/searchable-item-select'
 import { StatusLine } from '@/components/shared/status-line/status-line'

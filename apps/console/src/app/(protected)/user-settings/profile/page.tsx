@@ -1,4 +1,4 @@
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import type { Metadata } from 'next/types'
 import { pageStyles } from './page.styles'
 import ProfilePage from '@/components/pages/protected/profile/user-settings/profile-page'

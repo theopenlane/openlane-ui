@@ -41,7 +41,7 @@ import {
 import { startOfDay, subDays } from 'date-fns'
 import { STATS_WINDOW_DAYS } from '@/constants/stats'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { chunk, mapWithConcurrency } from '@/utils/async'
 
 const NDA_REQUEST_EMAIL_LOOKUP_CHUNK_SIZE = 50

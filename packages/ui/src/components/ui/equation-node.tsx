@@ -11,9 +11,9 @@ import { BlockSelectionPlugin } from '@platejs/selection/react'
 import { CornerDownLeftIcon, RadicalIcon } from 'lucide-react'
 import { createPrimitiveComponent, PlateElement, useEditorRef, useEditorSelector, useElement, useReadOnly, useSelected } from 'platejs/react'
 
-import { Button } from '@repo/ui/components/ui/button.tsx'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/components/ui/popover.tsx'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/components/ui/button.tsx'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/components/ui/popover.tsx'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export function EquationElement(props: PlateElementProps<TEquationElement>) {
   const selected = useSelected()

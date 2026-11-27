@@ -1,8 +1,8 @@
 'use client'
 import { useFormContext } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
-import { FormMessage } from '@repo/ui/form'
+import { Input } from '@theopenlane/ui/input'
+import { Label } from '@theopenlane/ui/label'
+import { FormMessage } from '@theopenlane/ui/form'
 
 interface Props {
   isEditing: boolean

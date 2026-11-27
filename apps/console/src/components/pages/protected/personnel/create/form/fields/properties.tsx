@@ -4,7 +4,7 @@ import React, { useMemo, useRef } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Tag } from 'lucide-react'
-import MultipleSelector from '@repo/ui/multiple-selector'
+import MultipleSelector from '@theopenlane/ui/multiple-selector'
 import { type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
 import { type EditPersonnelFormData } from '../../../hooks/use-form-schema'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
@@ -13,7 +13,7 @@ import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hov
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 type PropertiesProps = {
   isEditing: boolean

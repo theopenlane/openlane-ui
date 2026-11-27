@@ -1,5 +1,5 @@
-import { type ColumnDef } from '@repo/ui/table-types'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'

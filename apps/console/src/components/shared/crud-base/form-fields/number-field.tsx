@@ -1,10 +1,10 @@
 'use client'
 
 import { type FieldValues, useFormContext } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
+import { Input } from '@theopenlane/ui/input'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@theopenlane/ui/form'
 import { type InternalEditingType } from '../generic-sheet'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { InlineEditDisplay } from './inline-edit-display'
 

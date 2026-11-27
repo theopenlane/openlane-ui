@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Link2, Paperclip, Replace, Trash2 } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { pdfAcceptedFileTypes, pdfAcceptedFileTypesShort } from '@/components/shared/file-upload/file-upload-config'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'
