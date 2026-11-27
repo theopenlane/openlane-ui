@@ -9,7 +9,6 @@ const SSO_LOGIN_PATH = '/v1/sso/login'
 interface SSOLoginRequest {
   organization_id?: string
   email?: string
-  is_test?: boolean
 }
 
 const resolveOrganizationId = async ({ organization_id, email }: SSOLoginRequest): Promise<string | null> => {
@@ -19,8 +18,6 @@ const resolveOrganizationId = async ({ organization_id, email }: SSOLoginRequest
 
   return typeof email === 'string' && isValidEmail(email) ? resolveSSOOrganizationId(email) : null
 }
-
-// is_test cookie is for sso being tested before enforcement
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,7 +32,6 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       body: JSON.stringify({
         organization_id: organizationId,
-        ...(body.is_test !== undefined && { is_test: body.is_test }),
       }),
     })
 

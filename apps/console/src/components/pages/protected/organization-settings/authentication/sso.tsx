@@ -511,15 +511,8 @@ const SSOPage = () => {
     setIsTestingSSO(true)
 
     try {
-      const response = await fetch('/api/auth/sso', {
+      const response = await fetch('/api/auth/sso/test', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          organization_id: currentOrgId,
-          is_test: true,
-        }),
       })
 
       const data = await response.json()
