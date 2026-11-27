@@ -22,9 +22,10 @@ import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import type { WhereCondition } from '@/types'
-import { reviewHistoryColumns, isHighRiskTier, mappedReviewColumns, DEFAULT_VISIBILITY, REVIEW_FILTER_FIELDS, TIER_OPTIONS } from '@/components/pages/protected/reviews/common/risk-review-config'
+import { reviewerSearchWhere, isHighRiskTier, mappedReviewColumns, DEFAULT_VISIBILITY, REVIEW_FILTER_FIELDS, TIER_OPTIONS } from '@/components/pages/protected/reviews/common/risk-review-config'
 import VendorReviewSheet from './vendor-review/vendor-review-sheet'
 import { useHasRecentReview } from '@/components/pages/protected/reviews/hooks/use-has-recent-review'
+import { useReviewHistoryColumns } from '@/components/pages/protected/reviews/hooks/use-review-history-columns'
 import { Callout } from '@/components/shared/callout/callout'
 import { RiskScoringPanel } from './risk-scoring/risk-scoring-panel'
 import { vendorDisplayName } from '@/lib/graphql-hooks/entity'
@@ -47,12 +48,13 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
   const [filterWhere, setFilterWhere] = useState<WhereCondition | null>(null)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const searchFields = debouncedSearch ? { or: [{ titleContainsFold: debouncedSearch }, { reporterContainsFold: debouncedSearch }] } : {}
+  const searchFields = debouncedSearch ? { or: [{ titleContainsFold: debouncedSearch }, ...reviewerSearchWhere(debouncedSearch)] } : {}
 
   const { reviewsNodes, isLoading } = useReviewsWithFilter({
     where: { hasEntitiesWith: [{ id: vendor.id }], ...filterWhere, ...searchFields },
     enabled: filterWhere !== null,
   })
+  const reviewHistoryColumns = useReviewHistoryColumns(reviewsNodes)
 
   const selectedReview = selectedRow ? (reviewsNodes.find((reviewNode) => reviewNode.id === selectedRow.id) ?? selectedRow) : null
   const isHighRisk = isHighRiskTier(vendor.tier)

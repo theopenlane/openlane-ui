@@ -17,12 +17,13 @@ import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import type { WhereCondition } from '@/types'
-import { reviewHistoryColumns, isHighRiskTier, mappedReviewColumns, DEFAULT_VISIBILITY, REVIEW_FILTER_FIELDS } from '@/components/pages/protected/reviews/common/risk-review-config'
+import { reviewerSearchWhere, isHighRiskTier, mappedReviewColumns, DEFAULT_VISIBILITY, REVIEW_FILTER_FIELDS } from '@/components/pages/protected/reviews/common/risk-review-config'
 import CreateReviewSheet from '@/components/pages/protected/reviews/common/create-review-sheet'
 import ReviewDetailSheet from '@/components/pages/protected/reviews/common/review-detail-sheet'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { RiskLikelihoodOptions } from '@/components/shared/enum-mapper/risk-enum'
 import { riskLikelihoodStyle } from '../../../../risk-label'
+import { useReviewHistoryColumns } from '@/components/pages/protected/reviews/hooks/use-review-history-columns'
 import { Callout } from '@/components/shared/callout/callout'
 
 const iconClass = 'h-4 w-4 text-muted-foreground'
@@ -44,12 +45,13 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ risk, handleUpdateField, 
   const [filterWhere, setFilterWhere] = useState<WhereCondition | null>(null)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const searchFields = debouncedSearch ? { or: [{ titleContainsFold: debouncedSearch }, { summaryContainsFold: debouncedSearch }, { reporterContainsFold: debouncedSearch }] } : {}
+  const searchFields = debouncedSearch ? { or: [{ titleContainsFold: debouncedSearch }, { summaryContainsFold: debouncedSearch }, ...reviewerSearchWhere(debouncedSearch)] } : {}
 
   const { reviewsNodes, isLoading } = useReviewsWithFilter({
     where: { hasRisksWith: [{ id: risk.id }], ...filterWhere, ...searchFields },
     enabled: filterWhere !== null,
   })
+  const reviewHistoryColumns = useReviewHistoryColumns(reviewsNodes)
 
   const isOverdue = risk.nextReviewDueAt && Date.parse(risk.nextReviewDueAt) < now
   const isHighRisk = isHighRiskTier(risk.impact)
