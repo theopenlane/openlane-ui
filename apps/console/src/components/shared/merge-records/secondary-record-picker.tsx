@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { Button } from '@repo/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
+import { Button } from '@theopenlane/ui/button'
 import { ChevronsUpDown } from 'lucide-react'
 import type { MergeSearchHookResult } from './types'
 import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'

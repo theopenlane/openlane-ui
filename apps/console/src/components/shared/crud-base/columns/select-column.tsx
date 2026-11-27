@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
-import { type ColumnDef, type Row } from '@repo/ui/table-types'
-import { Checkbox } from '@repo/ui/checkbox'
-import { SELECT_COLUMN_ID } from '@repo/ui/pinned-columns'
+import { type ColumnDef, type Row } from '@theopenlane/ui/table-types'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { SELECT_COLUMN_ID } from '@theopenlane/ui/pinned-columns'
 import React from 'react'
 
 function buildSelectColumn<T extends { id: string }>(

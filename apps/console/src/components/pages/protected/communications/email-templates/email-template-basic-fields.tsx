@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useId } from 'react'
-import { Input } from '@repo/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Input } from '@theopenlane/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { isEmailTemplateType, type EmailTemplateType } from '@/lib/email-template-type'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 

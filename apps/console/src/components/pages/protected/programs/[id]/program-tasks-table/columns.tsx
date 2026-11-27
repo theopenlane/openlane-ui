@@ -1,7 +1,7 @@
 'use client'
-import { Checkbox } from '@repo/ui/checkbox'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 import React from 'react'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { type SelectedItem } from '../shared/program-settings-import-controls-shared-props'
 
 type TGetColumnsForImportControlsDialogFrameworkProps = {

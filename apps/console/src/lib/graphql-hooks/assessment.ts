@@ -67,7 +67,7 @@ import {
   type GetAssessmentPickerOptionsQuery,
   type GetAssessmentPickerOptionsQueryVariables,
 } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { getSurveyPolicySources } from '@/components/shared/survey/pdf-document/survey-policy-sources'
 import { getNodes } from '@/lib/graphql-hooks/connection'
 import { fetchAllConnectionNodes } from '@/lib/graphql-hooks/fetch-all-connection-nodes'

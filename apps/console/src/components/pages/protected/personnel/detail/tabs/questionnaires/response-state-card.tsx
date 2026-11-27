@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { Send } from 'lucide-react'
 import { Callout } from '@/components/shared/callout/callout'
 

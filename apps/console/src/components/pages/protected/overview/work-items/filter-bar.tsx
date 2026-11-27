@@ -1,6 +1,6 @@
 import React from 'react'
-import { Button } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { GROUP_BY_OPTIONS, type FilterKey, type GroupBy, type WorkItemFilter } from './types'
 
 type FilterBarProps = {

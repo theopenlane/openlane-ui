@@ -28,7 +28,7 @@ import {
 
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { invalidateCreateEdgeTargets, invalidateEdgeUpdateTargets } from '@/components/shared/object-association/object-association-config'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import {
   GET_ALL_REVIEWS,
   CREATE_REVIEW,

@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { type User } from '@repo/codegen/src/schema'
 import { type TasksWithFilterNode } from '@/lib/graphql-hooks/task'
 import { type AuthorToken } from '@/lib/authors'
@@ -13,7 +13,7 @@ import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 
 type ColumnOptions = {
   userMap: Record<string, User>

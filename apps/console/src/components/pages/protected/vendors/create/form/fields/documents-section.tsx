@@ -7,7 +7,7 @@ import { toFileUploadArgs, type StagedUpload } from '@/components/shared/documen
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
 import { type FileWhereInput, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'

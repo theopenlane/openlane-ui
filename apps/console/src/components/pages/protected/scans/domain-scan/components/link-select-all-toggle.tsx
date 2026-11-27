@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { getLinkedIds, setAllLinked, type LinkMap } from '../selection-utils'
 
 type LinkSelectAllToggleProps = {

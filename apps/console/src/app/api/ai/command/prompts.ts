@@ -1,7 +1,7 @@
 import { getMarkdown } from '@platejs/ai'
 import dedent from 'dedent'
 import type { SlateEditor } from 'platejs'
-import type { ChatMessage } from '@repo/ui/components/editor/use-chat.ts'
+import type { ChatMessage } from '@theopenlane/ui/components/editor/use-chat.ts'
 
 import { addSelection, buildStructuredPrompt, formatTextFromMessages, getMarkdownWithSelection, isMultiBlocks } from './utils'
 

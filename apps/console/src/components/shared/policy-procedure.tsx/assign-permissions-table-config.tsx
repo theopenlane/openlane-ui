@@ -1,6 +1,6 @@
 import { type GetAllGroupsQuery } from '@repo/codegen/src/schema'
-import { Checkbox } from '@repo/ui/checkbox'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 
 type GroupEdge = NonNullable<NonNullable<GetAllGroupsQuery['groups']>['edges']>[number]
 

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Check } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 

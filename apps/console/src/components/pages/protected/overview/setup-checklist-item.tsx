@@ -2,10 +2,10 @@
 
 import React, { useId } from 'react'
 import { Check } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { TruncatedCell } from '@repo/ui/data-table'
-import { activatable } from '@repo/ui/lib/a11y'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
+import { activatable } from '@theopenlane/ui/lib/a11y'
+import { cn } from '@theopenlane/ui/lib/utils'
 import type { SetupChecklistItem, SetupChecklistItemStatus } from '@/hooks/useSetupChecklist'
 import { elementAnchor } from '@/components/shared/element-anchor/element-anchor'
 

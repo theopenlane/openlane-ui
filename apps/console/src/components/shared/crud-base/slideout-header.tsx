@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import { SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
+import { SheetTitle } from '@theopenlane/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { ArrowLeft, ArrowRightLeft, Ellipsis, LinkIcon, Pencil, Trash2, X } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
 import { MenuActionItem, orderMenuActions } from '@/components/shared/menu/menu-action-item'

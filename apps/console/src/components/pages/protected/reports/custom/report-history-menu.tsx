@@ -2,8 +2,8 @@
 
 import React, { memo } from 'react'
 import { History } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Button } from '@theopenlane/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
 import type { TReportQueryConfig } from '@/lib/report/report-config'
 import type { TReportHistoryOption } from './use-report-history'
 

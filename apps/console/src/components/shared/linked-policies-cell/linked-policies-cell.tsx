@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { Badge } from '@repo/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Badge } from '@theopenlane/ui/badge'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 
 type Policy = { id: string; name: string }
 

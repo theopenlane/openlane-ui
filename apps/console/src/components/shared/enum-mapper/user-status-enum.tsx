@@ -1,8 +1,8 @@
 import React from 'react'
 import { CircleHelp, UserLock, UserRoundCheck, UserRoundMinus, UserRoundPlus, UserRoundX } from 'lucide-react'
 import { type ContactUserStatus, IdentityHolderUserStatus } from '@repo/codegen/src/schema'
-import { Badge } from '@repo/ui/badge'
-import { cn } from '@repo/ui/lib/utils'
+import { Badge } from '@theopenlane/ui/badge'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type UserStatus = IdentityHolderUserStatus | ContactUserStatus

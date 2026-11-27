@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Sheet, SheetContent } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@theopenlane/ui/sheet'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { usePreviewEmailTemplateHtml } from '@/lib/graphql-hooks/email-template'
 import { EmailTemplatePreview } from './email-template-preview'

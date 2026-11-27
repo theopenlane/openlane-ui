@@ -1,8 +1,8 @@
 'use client'
 
 import { ArrowRight, Zap } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Card } from '@repo/ui/cardpanel'
+import { Button } from '@theopenlane/ui/button'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { DynamicStep } from '@/components/pages/protected/onboarding/dynamic-step'
 import OnboardingCardProgress from '@/components/pages/protected/onboarding/onboarding-card-progress'
 import { type OnboardingStep } from '@/lib/onboarding-questions/types'

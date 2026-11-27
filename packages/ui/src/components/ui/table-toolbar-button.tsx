@@ -1,6 +1,6 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import * as React from 'react'
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
@@ -19,8 +19,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '@repo/ui/components/ui/dropdown-menu.tsx'
-import { cn } from '@repo/ui/lib/utils'
+} from '@theopenlane/ui/components/ui/dropdown-menu.tsx'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 import { ToolbarButton } from './toolbar'
 

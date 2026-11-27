@@ -2,7 +2,7 @@
 
 import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { type WhereCondition } from '@/types'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useSmartRouter } from '@/hooks/useSmartRouter'

@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
+import { Input } from '@theopenlane/ui/input'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@theopenlane/ui/form'
 
 export const RemediationSlaField: React.FC = () => {
   const { control } = useFormContext<{ remediationSLA?: number }>()

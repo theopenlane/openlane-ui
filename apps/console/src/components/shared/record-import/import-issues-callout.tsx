@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { Callout } from '@/components/shared/callout/callout'
 import { pluralizeWithCount } from '@/utils/strings'
 import type { TImportIssue } from './lib/types'

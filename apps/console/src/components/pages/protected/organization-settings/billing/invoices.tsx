@@ -3,7 +3,7 @@
 import { useInvoicesQuery } from '@/lib/query-hooks/stripe'
 import React from 'react'
 import { formatDate } from '@/utils/date'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { type Invoice } from '@/types/stripe'
 import { DownloadIcon } from 'lucide-react'
 import { InvoiceRowSkeleton } from './skeleton/billing-page-skeleton'

@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 import { ArrowRight, FileSpreadsheet, Scissors, Sparkles, X } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Badge } from '@repo/ui/badge'
+import { Button } from '@theopenlane/ui/button'
+import { Badge } from '@theopenlane/ui/badge'
 import { Callout } from '@/components/shared/callout/callout'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import FileUpload from '@/components/shared/file-upload/file-upload'

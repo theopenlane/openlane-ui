@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { OPERATION_HEALTH_META } from '@/lib/integrations/run-health'
 import { formatTimeSince } from '@/utils/date'

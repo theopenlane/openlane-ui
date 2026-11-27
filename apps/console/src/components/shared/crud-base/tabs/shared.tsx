@@ -1,13 +1,13 @@
 'use client'
 
 import React from 'react'
-import { type ColumnDef } from '@repo/ui/table-types'
-import { DataTable } from '@repo/ui/data-table'
-import { Input } from '@repo/ui/input'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
+import { DataTable } from '@theopenlane/ui/data-table'
+import { Input } from '@theopenlane/ui/input'
 import { LoaderCircle, SearchIcon } from 'lucide-react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import type { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
-import { type TableKeyValue } from '@repo/ui/table-key'
+import type { TPagination, TPaginationMeta } from '@theopenlane/ui/pagination-types'
+import { type TableKeyValue } from '@theopenlane/ui/table-key'
 import type { FilterField, WhereCondition } from '@/types'
 
 export { mergeWhere } from '@/lib/merge-where'

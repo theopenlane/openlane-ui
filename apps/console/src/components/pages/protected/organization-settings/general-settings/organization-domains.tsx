@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { Pencil } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useOrganization } from '@/hooks/useOrganization'

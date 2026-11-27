@@ -1,5 +1,5 @@
-import { Button } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { BookUp, Eye, RotateCcw } from 'lucide-react'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import UrlDisplay from '../../shared/url-display'

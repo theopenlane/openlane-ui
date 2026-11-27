@@ -5,13 +5,13 @@ import { useVerifyTotp, type TfaLoginTokens } from '@/lib/query-hooks/tfa'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import QRCodeDialog from '@/components/pages/protected/profile/user-settings/qrcode-dialog'
 import React, { useState, useMemo, useRef } from 'react'
-import { Button } from '@repo/ui/button'
-import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
+import { Button } from '@theopenlane/ui/button'
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@theopenlane/ui/input-otp'
 import { useNotification } from '@/hooks/useNotification'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { buildLoginRedirect, sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 const TfaPage: React.FC<{ enrollment?: boolean }> = ({ enrollment = false }) => {
   const [otpValue, setOtpValue] = useState('')

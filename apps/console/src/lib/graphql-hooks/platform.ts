@@ -23,7 +23,7 @@ import {
 
 import { type QueryKey } from '@tanstack/react-query'
 import { type RequestDocument } from 'graphql-request'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { GET_ALL_PLATFORMS, CREATE_PLATFORM, UPDATE_PLATFORM, DELETE_PLATFORM, PLATFORM, PLATFORM_ASSETS, PLATFORM_VENDORS, PLATFORM_DIAGRAMS } from '@repo/codegen/query/platform'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { getNodes } from './connection'

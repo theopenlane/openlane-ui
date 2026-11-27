@@ -1,5 +1,5 @@
 import { ControlControlStatus, ControlOrderField, EvidenceEvidenceStatus, OrderDirection, ReviewReviewStatus, type ControlWhereInput } from '@repo/codegen/src/schema'
-import { type SortCondition } from '@repo/ui/data-table'
+import { type SortCondition } from '@theopenlane/ui/data-table'
 import { FileCheck2 } from 'lucide-react'
 import { defineFilterFields, type WhereCondition } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'

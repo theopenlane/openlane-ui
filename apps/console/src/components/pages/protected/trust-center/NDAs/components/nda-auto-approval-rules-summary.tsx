@@ -1,4 +1,4 @@
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { summarizeAutoApprovalRules, type AutoApprovalRules } from '../auto-approval-rules'
 
 type NdaAutoApprovalRulesSummaryProps = {

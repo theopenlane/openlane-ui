@@ -1,9 +1,9 @@
 'use client'
 
 import { Controller, type UseFormReturn } from 'react-hook-form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Label } from '@repo/ui/label'
-import { CalendarPopover } from '@repo/ui/calendar-popover'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
+import { Label } from '@theopenlane/ui/label'
+import { CalendarPopover } from '@theopenlane/ui/calendar-popover'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import { ControlImplementationStatusOptions } from '@/components/shared/enum-mapper/control-enum'

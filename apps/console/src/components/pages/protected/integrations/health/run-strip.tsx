@@ -2,8 +2,8 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/tooltip'
-import { cn } from '@repo/ui/lib/utils'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@theopenlane/ui/tooltip'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { RUN_STRIP_LENGTH, integrationRunHref, runDurationMs, runOutcomeMeta, summarizeRunError, type TIntegrationRunSummary } from '@/lib/integrations/run-health'
 import { formatDateTime, formatDurationMs } from '@/utils/date'
 import { RunErrorText } from './health-controls'

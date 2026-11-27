@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo } from 'react'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable } from '@theopenlane/ui/data-table'
 import { type SystemDetailOrderField, type SystemDetailWhereInput } from '@repo/codegen/src/schema'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { type SystemDetailsNodeNonNull, useSystemDetailsWithFilter } from '@/lib/graphql-hooks/system-detail'

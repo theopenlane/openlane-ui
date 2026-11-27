@@ -8,13 +8,13 @@ import { CopilotPlugin } from '@platejs/ai/react'
 import { Check, ChevronsUpDown, ExternalLinkIcon, Eye, EyeOff, Settings, Wand2Icon } from 'lucide-react'
 import { useEditorRef } from 'platejs/react'
 
-import { Button } from '@repo/ui/components/ui/button.tsx'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/components/ui/dialog.tsx'
-import { Input } from '@repo/ui/components/ui/input.tsx'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/components/ui/popover.tsx'
-import { cn } from '@repo/ui/lib/utils'
-import { aiChatPlugin } from '@repo/ui/components/editor/plugins/ai-kit.tsx'
+import { Button } from '@theopenlane/ui/components/ui/button.tsx'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@theopenlane/ui/components/ui/dialog.tsx'
+import { Input } from '@theopenlane/ui/components/ui/input.tsx'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/components/ui/popover.tsx'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { aiChatPlugin } from '@theopenlane/ui/components/editor/plugins/ai-kit.tsx'
 
 interface Model {
   label: string

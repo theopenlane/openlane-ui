@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { Presentation, Table, type LucideIcon } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { type TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import { useOrganization } from '@/hooks/useOrganization'
 import { getOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'

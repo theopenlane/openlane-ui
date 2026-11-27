@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { Controller, useFormContext } from 'react-hook-form'
 import { type BrandFormValues } from '../brand-schema'
 import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
@@ -9,7 +9,7 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 interface BrandingTextSectionProps {
   isReadOnly: boolean

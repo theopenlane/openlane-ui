@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { TabsContent } from '@repo/ui/tabs'
-import { ReadOnlyToolbarPortalContext } from '@repo/ui/components/editor/read-only-toolbar-portal.ts'
+import { TabsContent } from '@theopenlane/ui/tabs'
+import { ReadOnlyToolbarPortalContext } from '@theopenlane/ui/components/editor/read-only-toolbar-portal.ts'
 import { type GetInternalPolicyAssociationsByIdQuery, type InternalPolicyByIdFragment, type PolicyDiscussionFieldsFragment } from '@repo/codegen/src/schema'
 import DetailTabs from '@/components/shared/detail-tabs/detail-tabs'
 import { type TDetailTab, useDetailTabs } from '@/components/shared/detail-tabs/use-detail-tabs'

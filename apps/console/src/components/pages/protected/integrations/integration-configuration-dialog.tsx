@@ -2,9 +2,9 @@
 
 import React, { useEffect, useId, useMemo, useState } from 'react'
 import { FormProvider } from 'react-hook-form'
-import { Sheet, SheetContent, SheetDescription, SheetHeader } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetDescription, SheetHeader } from '@theopenlane/ui/sheet'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { type IntegrationProvider, type IntegrationSchemaNode } from '@/lib/integrations/types'

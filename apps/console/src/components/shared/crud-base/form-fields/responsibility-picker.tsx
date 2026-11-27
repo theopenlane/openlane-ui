@@ -1,10 +1,10 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import { useMemo, useState } from 'react'
 import { User, Users, Type, Check, X } from 'lucide-react'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
@@ -13,7 +13,7 @@ import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { type ResponsibilitySelection, getCustomValueError, getCustomValueLabel, getResponsibilitySearchPlaceholder } from './responsibility-field-utils'
 import { PersonnelOptionItem } from './personnel-option-item'
 import { ResponsibilitySelectionLabel } from './responsibility-type-icon'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 interface ResponsibilityPickerProps {
   allowPersonnel?: boolean

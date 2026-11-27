@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useOfficialDeploymentStatus } from '@repo/ui/lib/official-deployment'
+import { useOfficialDeploymentStatus } from '@theopenlane/ui/lib/official-deployment'
 
 const HUBSPOT_PORTAL_ID = process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID
 const HUBSPOT_SCRIPT_ID = 'hs-script-loader'

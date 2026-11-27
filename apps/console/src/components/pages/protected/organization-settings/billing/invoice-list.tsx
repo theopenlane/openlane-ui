@@ -1,6 +1,6 @@
 import React from 'react'
-import { Card } from '@repo/ui/cardpanel'
-import { cn } from '@repo/ui/lib/utils'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type InvoiceDivProps = React.HTMLAttributes<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }
 

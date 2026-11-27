@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { DataTable } from '@repo/ui/data-table'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { DataTable } from '@theopenlane/ui/data-table'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
@@ -12,7 +12,7 @@ import { type TDocumentFile, getFilesColumns } from './document-files-table-conf
 import FilePreviewDialog from '@/components/shared/file-preview/file-preview-dialog'
 import { getTrustCenterDocAttachedFile } from '../trust-center-doc-file'
 import { DocumentUploadDialog } from './document-upload-dialog'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 
 type TDocumentFiles = {
   documentId: string

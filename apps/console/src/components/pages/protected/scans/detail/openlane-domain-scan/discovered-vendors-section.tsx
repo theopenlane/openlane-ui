@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 import { Building2, ChevronRight } from 'lucide-react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
-import { Badge } from '@repo/ui/badge'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
+import { Badge } from '@theopenlane/ui/badge'
 import CountBadge from '@/components/shared/count-badge/count-badge'
 import { buildVendorLogoProxyUrl, toVendorLogoHost } from '@/lib/vendor-logo'
 import { getVendors, type ScanMetadata } from './scan-metadata'

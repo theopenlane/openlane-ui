@@ -1,5 +1,5 @@
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { parseCvssVector } from '@/utils/cvss-vector'
 
 export const isProvidedScore = (value?: number | null): value is number => typeof value === 'number' && value > 0

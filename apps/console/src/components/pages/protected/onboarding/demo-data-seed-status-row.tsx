@@ -1,5 +1,5 @@
 import { CircleAlert, CircleCheck, Database, Loader2, type LucideIcon } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { type TDemoDataSeedStatus } from '@/components/pages/protected/onboarding/hooks/use-demo-data-seed-status'
 
 const STATUS_COPY: Record<TDemoDataSeedStatus, { icon: LucideIcon; iconClassName: string; title: string; description: string }> = {

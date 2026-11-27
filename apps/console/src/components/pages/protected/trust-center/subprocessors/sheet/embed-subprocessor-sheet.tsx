@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { Sheet, SheetContent } from '@repo/ui/sheet'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { Button } from '@repo/ui/button'
+import { Sheet, SheetContent } from '@theopenlane/ui/sheet'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
+import { Button } from '@theopenlane/ui/button'
 import { Copy } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'

@@ -1,5 +1,5 @@
 import { type LucideIcon } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export const ACKNOWLEDGEMENT_SECTION_TITLE_CLASS = 'text-base font-medium'
 

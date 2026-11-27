@@ -1,6 +1,6 @@
 import React from 'react'
 import { SquareArrowOutUpRight } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 
 type DocsLinkTooltipProps = {
   href: string

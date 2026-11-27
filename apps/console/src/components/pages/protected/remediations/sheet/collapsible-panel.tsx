@@ -3,8 +3,8 @@
 import React from 'react'
 import { ChevronDown } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
-import { Panel } from '@repo/ui/panel'
-import { Button } from '@repo/ui/button'
+import { Panel } from '@theopenlane/ui/panel'
+import { Button } from '@theopenlane/ui/button'
 
 type TCollapsiblePanelProps = {
   title: string

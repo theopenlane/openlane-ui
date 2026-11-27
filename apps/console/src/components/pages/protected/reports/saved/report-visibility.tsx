@@ -3,7 +3,7 @@
 import React from 'react'
 import { Building2, Lock, type LucideIcon, Users } from 'lucide-react'
 import { ReportReportVisibility } from '@repo/codegen/src/schema'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { reportVisibilityOf } from '@/lib/report/saved-report'
 

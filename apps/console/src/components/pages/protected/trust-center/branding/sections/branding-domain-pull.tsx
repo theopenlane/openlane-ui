@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
 import { CircleCheck, Clock, Wand } from 'lucide-react'
 import { type BrandFormValues } from '../brand-schema'
 import SectionWarning from '../section-warning'

@@ -3,7 +3,7 @@
 import { BlockSelectionPlugin } from '@platejs/selection/react'
 import { getPluginTypes, KEYS } from 'platejs'
 
-import { BlockSelection } from '@repo/ui/components/ui/block-selection.tsx'
+import { BlockSelection } from '@theopenlane/ui/components/ui/block-selection.tsx'
 
 export const BlockSelectionKit = [
   BlockSelectionPlugin.configure(({ editor }) => ({

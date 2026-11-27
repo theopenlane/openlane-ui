@@ -1,7 +1,7 @@
 import { type EvidenceWhereInput } from '@repo/codegen/src/schema'
 import { defineFilterFields } from '@/types'
 import React from 'react'
-import type { ColumnDef } from '@repo/ui/table-types'
+import type { ColumnDef } from '@theopenlane/ui/table-types'
 import { formatDateSince } from '@/utils/date'
 import { EvidenceStatusIconLabel, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import type { EvidenceEvidenceStatus, User } from '@repo/codegen/src/schema.ts'

@@ -1,9 +1,9 @@
 'use client'
 
-import { Sheet, SheetContent, SheetDescription } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetDescription } from '@theopenlane/ui/sheet'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { useMemo, useState } from 'react'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable } from '@theopenlane/ui/data-table'
 import { AssignPermissionsDialog } from './assign-permission-dialog'
 import { useParams, usePathname } from 'next/navigation'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'
@@ -11,10 +11,10 @@ import { useGroupColumns } from './permissions-table-config'
 import { type Group } from './assign-permissions-table-config'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { useUpdateProcedure } from '@/lib/graphql-hooks/procedure'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 
 export function ManagePermissionSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const pathname = usePathname()

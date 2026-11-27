@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { RecordPreviewTable } from '@/components/shared/record-preview/record-preview-table'
 import { toHumanLabel } from '@/utils/strings'
 import { type TRunRecordFailure } from '@/lib/integrations/run-health'

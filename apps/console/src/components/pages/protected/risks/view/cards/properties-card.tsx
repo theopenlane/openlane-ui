@@ -7,9 +7,9 @@ import { Controller, type UseFormReturn } from 'react-hook-form'
 import { type EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import RiskLabel from '@/components/pages/protected/risks/risk-label'
 import useEscapeKey from '@/hooks/useEscapeKey'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditRisksFormData>

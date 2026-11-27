@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useGetGroupNames } from '@/lib/graphql-hooks/group'
 import { useIdentityHolderOptions } from '@/lib/graphql-hooks/identity-holder'

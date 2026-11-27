@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react'
 import { Link } from '@/components/shared/link/link'
-import { CardContent } from '@repo/ui/cardpanel'
+import { CardContent } from '@theopenlane/ui/cardpanel'
 import { TriangleAlert } from 'lucide-react'
 import { PartyPopperIcon, type AnimatedIconHandle } from '@theopenlane/animated-icons'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'

@@ -1,5 +1,5 @@
-import { Button } from '@repo/ui/button'
-import { Card, CardDescription, CardTitle } from '@repo/ui/cardpanel'
+import { Button } from '@theopenlane/ui/button'
+import { Card, CardDescription, CardTitle } from '@theopenlane/ui/cardpanel'
 import { LayersIcon, LibraryIcon, SquarePenIcon, UploadIcon } from 'lucide-react'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { controlsFromStandardsImportRoute, IMPORT_ROUTES } from '@/components/shared/record-import/lib/import-routes'

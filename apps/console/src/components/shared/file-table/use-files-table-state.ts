@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { hashKey } from '@tanstack/react-query'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type TableKeyValue } from '@repo/ui/table-key'
+import { type TableKeyValue } from '@theopenlane/ui/table-key'
 import { FileOrderField, OrderDirection, type FileWhereInput, type GetFilesQuery } from '@repo/codegen/src/schema'
 import { useGetFiles } from '@/lib/graphql-hooks/file'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'

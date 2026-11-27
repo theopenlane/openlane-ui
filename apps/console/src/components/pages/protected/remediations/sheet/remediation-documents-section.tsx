@@ -2,8 +2,8 @@
 
 import React, { useCallback, useMemo } from 'react'
 import { type UseFormReturn, useWatch } from 'react-hook-form'
-import { Panel } from '@repo/ui/panel'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { Panel } from '@theopenlane/ui/panel'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { FileOrderField, OrderDirection, type FileWhereInput } from '@repo/codegen/src/schema'
 import { DocumentsSection } from '@/components/shared/documents-section/documents-section'
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'

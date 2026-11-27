@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { Card } from '@repo/ui/cardpanel'
-import { cn } from '@repo/ui/lib/utils'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
 import { type TWorkItem } from './work-item'

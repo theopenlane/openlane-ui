@@ -1,6 +1,6 @@
 import { useId, type ComponentProps, type ReactNode } from 'react'
-import { Switch } from '@repo/ui/switch'
-import { cn } from '@repo/ui/lib/utils'
+import { Switch } from '@theopenlane/ui/switch'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 
 type NdaSwitchRowProps = Pick<ComponentProps<typeof Switch>, 'checked' | 'onCheckedChange' | 'disabled'> & {

@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { useOfficialDeploymentStatus } from '@repo/ui/lib/official-deployment'
+import { useOfficialDeploymentStatus } from '@theopenlane/ui/lib/official-deployment'
 
 type OfficialOnlyProps = {
   children: React.ReactNode

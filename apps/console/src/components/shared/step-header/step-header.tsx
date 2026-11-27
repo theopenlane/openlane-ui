@@ -1,8 +1,8 @@
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React from 'react'
 import StepIndicator from '@/components/shared/step-indicator/step-indicator'
 import { type Stepper, type Step } from '@stepperize/react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 interface StepHeaderProps<T extends readonly Step[] = readonly Step[]> {
   stepper: Stepper<T>

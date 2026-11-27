@@ -1,6 +1,6 @@
 import React from 'react'
 import { ExternalLink } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 import { isValidUrl } from '@/utils/normalizeUrl'
 import { OverviewSection } from './overview-section'

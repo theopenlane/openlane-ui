@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { devrevChatEnabled } from '@repo/dally/auth'
-import { useIsOfficialDeployment } from '@repo/ui/lib/official-deployment'
+import { useIsOfficialDeployment } from '@theopenlane/ui/lib/official-deployment'
 import AnnouncementBanner from './announcement-banner'
 import { hasAnnouncement } from '@/lib/announcement-banner'
 import { useElementHeight } from '@/hooks/useElementHeight'

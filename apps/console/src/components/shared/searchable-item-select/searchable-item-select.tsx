@@ -2,13 +2,13 @@
 
 import React, { useId, useMemo, useState } from 'react'
 import { Check, X } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { onActivateKeyDown } from '@repo/ui/lib/a11y'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/tooltip'
-import { cn } from '@repo/ui/lib/utils'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { onActivateKeyDown } from '@theopenlane/ui/lib/a11y'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@theopenlane/ui/tooltip'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export type SearchableItem = { id: string; name: string }
 

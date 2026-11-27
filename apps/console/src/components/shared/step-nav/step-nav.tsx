@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { StepBadge } from '@/components/shared/step-badge/step-badge'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type TStepNavStep = { id: string; label: string }
 

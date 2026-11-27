@@ -4,8 +4,8 @@ import React, { useMemo, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 
-import { Button } from '@repo/ui/button'
-import { Sheet, SheetContent, SheetDescription, SheetTrigger } from '@repo/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
+import { Sheet, SheetContent, SheetDescription, SheetTrigger } from '@theopenlane/ui/sheet'
 
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'

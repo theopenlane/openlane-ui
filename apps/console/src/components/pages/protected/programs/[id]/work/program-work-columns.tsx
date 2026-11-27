@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { type ColumnDef } from '@repo/ui/table-types'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 import { type TWorkItem } from './work-item'

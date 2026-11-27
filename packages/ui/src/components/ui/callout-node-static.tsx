@@ -4,7 +4,7 @@ import type { SlateElementProps } from 'platejs/static'
 
 import { SlateElement } from 'platejs/static'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export function CalloutElementStatic({ children, className, ...props }: SlateElementProps) {
   return (

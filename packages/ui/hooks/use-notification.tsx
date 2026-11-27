@@ -1,4 +1,4 @@
-import { useToast } from '@repo/ui/use-toast'
+import { useToast } from '@theopenlane/ui/use-toast'
 import type React from 'react'
 import { useCallback } from 'react'
 

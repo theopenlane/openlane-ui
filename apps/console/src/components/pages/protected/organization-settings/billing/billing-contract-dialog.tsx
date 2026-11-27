@@ -1,8 +1,8 @@
 'use client'
 import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@theopenlane/ui/dialog'
+import { Input } from '@theopenlane/ui/input'
+import { Label } from '@theopenlane/ui/label'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
@@ -11,7 +11,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { type PlaceAddress } from '@/hooks/usePlacesAutocomplete'
 import { AddressAutocompleteInput } from '@/components/shared/address-autocomplete-input/address-autocomplete-input'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 
 const emptyAddress: PlaceAddress = {
   line1: '',

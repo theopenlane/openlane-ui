@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Image from 'next/image'
-import { Checkbox } from '@repo/ui/checkbox'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 import { ImageOff } from 'lucide-react'
 import { Callout } from '@/components/shared/callout/callout'
 import type { TEmailBrandingReview, TEmailBrandingSuggestion } from './email-template-branding'

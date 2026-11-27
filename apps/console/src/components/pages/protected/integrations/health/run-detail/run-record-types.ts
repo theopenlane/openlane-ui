@@ -32,7 +32,7 @@ import {
   GET_INTEGRATION_RUN_VULNERABILITIES,
 } from '@repo/codegen/query/integration-health'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { type TPageInfo, type TPaginationQuery } from '@repo/ui/pagination-types'
+import { type TPageInfo, type TPaginationQuery } from '@theopenlane/ui/pagination-types'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum'
 import { type RelatedControlEdge } from '@/components/shared/crud-base/columns/related-controls-cell'

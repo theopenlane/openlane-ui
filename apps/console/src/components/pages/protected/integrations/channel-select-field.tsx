@@ -2,7 +2,7 @@
 
 import React, { useId } from 'react'
 import { Hash } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { Callout } from '@/components/shared/callout/callout'
 import { SearchableItemSelect } from '@/components/shared/searchable-item-select/searchable-item-select'
 import { type TChannelItems } from './use-channel-items'

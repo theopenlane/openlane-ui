@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useEffect, useRef } from 'react'
 import { TPagination, TPaginationMeta } from '../pagination/types.ts'
 

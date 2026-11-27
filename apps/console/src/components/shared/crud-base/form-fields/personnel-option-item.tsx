@@ -1,8 +1,8 @@
 'use client'
 
 import { Check, IdCardLanyard, User } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
-import { CommandItem } from '@repo/ui/command'
+import { Badge } from '@theopenlane/ui/badge'
+import { CommandItem } from '@theopenlane/ui/command'
 import { type PersonnelOption } from '@/lib/graphql-hooks/identity-holder'
 
 interface PersonnelOptionItemProps {

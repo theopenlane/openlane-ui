@@ -1,7 +1,7 @@
 import React from 'react'
 import { HelpCircle } from 'lucide-react'
-import { Label } from '@repo/ui/label'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Label } from '@theopenlane/ui/label'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { type OnboardingQuestion } from '@/lib/onboarding-questions/types'
 
 export const HelpTooltip: React.FC<{ text: string }> = ({ text }) => (

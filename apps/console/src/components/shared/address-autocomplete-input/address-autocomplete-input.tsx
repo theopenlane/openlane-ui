@@ -2,8 +2,8 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { MapPin } from 'lucide-react'
-import { Input } from '@repo/ui/input'
-import { activatable } from '@repo/ui/lib/a11y'
+import { Input } from '@theopenlane/ui/input'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import useClickOutside from '@/hooks/useClickOutside'
 import { type PlaceAddress, usePlacesAutocomplete } from '@/hooks/usePlacesAutocomplete'
 

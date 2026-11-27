@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Link, LINK_CLASS_NAME } from '@/components/shared/link/link'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { type ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { isModifiedClick } from '@/utils/mouse-event'

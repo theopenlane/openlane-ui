@@ -1,5 +1,5 @@
 import React from 'react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { type TRunMetrics } from '@/lib/integrations/run-health'
 
 type TMetricSegment = { key: string; label: string; value: number; className: string }

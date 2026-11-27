@@ -16,7 +16,7 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
   ContextMenuTrigger,
-} from '@repo/ui/components/ui/context-menu.tsx'
+} from '@theopenlane/ui/components/ui/context-menu.tsx'
 import { useIsTouchDevice } from '../../../hooks/use-is-touch-device.ts'
 
 type Value = 'askAI' | null

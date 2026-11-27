@@ -1,5 +1,5 @@
 // components/Rectangle.tsx
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import React from 'react'
 
 export function Rectangle({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {

@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl } from '@theopenlane/ui/form'
 import { Laptop, Building2 } from 'lucide-react'
 import { SearchableItemSelect } from '@/components/shared/searchable-item-select/searchable-item-select'
 import { useAssetsWithFilter } from '@/lib/graphql-hooks/asset'

@@ -18,8 +18,8 @@ import {
   type UpdateReportMutation,
   type UpdateReportMutationVariables,
 } from '@repo/codegen/src/schema'
-import { type SortCondition } from '@repo/ui/data-table'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type SortCondition } from '@theopenlane/ui/data-table'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { getNodes } from './connection'
 

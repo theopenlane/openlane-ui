@@ -1,4 +1,4 @@
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 
 interface DisabledReasonTooltipProps {
   reason?: string | null

@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Panel } from '@repo/ui/panel'
-import { cn } from '@repo/ui/lib/utils'
+import { Panel } from '@theopenlane/ui/panel'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { type Group } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Avatar } from '@/components/shared/avatar/avatar'

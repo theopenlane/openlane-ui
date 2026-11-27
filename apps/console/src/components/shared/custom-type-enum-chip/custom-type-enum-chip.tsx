@@ -1,7 +1,7 @@
 import { type CustomTypeEnumOption, findCustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { Badge } from '@repo/ui/badge'
-import { TruncatedCell } from '@repo/ui/truncated-cell'
+import { Badge } from '@theopenlane/ui/badge'
+import { TruncatedCell } from '@theopenlane/ui/truncated-cell'
 import React from 'react'
 
 const CSS_COLOR_PATTERN = /^(#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})|(rgb|hsl)a?\([^;{}()]*\)|[a-z]+)$/i

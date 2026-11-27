@@ -1,5 +1,5 @@
 import { RemediationRemediationStatus } from '@repo/codegen/src/schema'
-import { SelectContent, SelectItem } from '@repo/ui/select'
+import { SelectContent, SelectItem } from '@theopenlane/ui/select'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { CommonStatusIconLabel } from '@/components/shared/enum-mapper/common-status-enum'
 

@@ -1,10 +1,10 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { PostureStatusIcon, PostureStatusIconMapper } from '@/components/shared/enum-mapper/scan-enum'
 import { getEmailAuthRows, getWellKnownRows, type PostureRow, type ScanMetadata } from './scan-metadata'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 type Props = {
   metadata: ScanMetadata | null
 }

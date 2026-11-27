@@ -1,5 +1,5 @@
 import { type User } from '@repo/codegen/src/schema'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 import { UserCell } from './user-cell'
 import { Users, IdCardLanyard } from 'lucide-react'
 

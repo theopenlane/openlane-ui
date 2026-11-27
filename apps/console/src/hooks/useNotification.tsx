@@ -1,5 +1,5 @@
 import { type GqlError } from '@/types'
-import { toast } from '@repo/ui/use-toast'
+import { toast } from '@theopenlane/ui/use-toast'
 import type React from 'react'
 import { useCallback } from 'react'
 

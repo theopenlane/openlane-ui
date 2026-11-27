@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 import { TargetsStep } from '../create/steps/targets-step'
 import { toCampaignTargetInputs, toEmailKeys, type CampaignTargetEntry, type TargetTab } from '../create/steps/targets/target-entry'
 import { useCreateBulkCampaignTarget } from '@/lib/graphql-hooks/campaign-target'

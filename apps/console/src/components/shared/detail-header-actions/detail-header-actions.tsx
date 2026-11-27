@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { PencilIcon, Sparkles } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
 import { InlineSlideBarToggle } from '@/components/shared/slide-bar/slide-bar'

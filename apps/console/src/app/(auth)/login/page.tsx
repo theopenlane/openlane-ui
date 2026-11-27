@@ -2,7 +2,7 @@ import React, { Suspense } from 'react'
 import { LoginPage } from '@/components/pages/auth/login/login'
 import AuthMarketingPanel from '@/components/shared/auth-marketing-panel/auth-marketing-panel'
 import { type Metadata } from 'next'
-import { Logo } from '@repo/ui/logo'
+import { Logo } from '@theopenlane/ui/logo'
 
 export const metadata: Metadata = {
   title: 'Login',

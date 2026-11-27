@@ -2,7 +2,7 @@
 
 import { BlockMenuPlugin } from '@platejs/selection/react'
 
-import { BlockContextMenu } from '@repo/ui/components/ui/block-context-menu.tsx'
+import { BlockContextMenu } from '@theopenlane/ui/components/ui/block-context-menu.tsx'
 
 import { BlockSelectionKit } from './block-selection-kit'
 

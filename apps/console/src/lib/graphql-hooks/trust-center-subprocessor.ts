@@ -30,7 +30,7 @@ import {
 } from '@repo/codegen/src/schema'
 
 import { useQuery, useMutation, type QueryClient } from '@tanstack/react-query'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { useCallback } from 'react'
 import { invalidateCustomTypeEnumsForName } from '@/lib/graphql-hooks/custom-type-enum'
 import { fetchAllConnectionNodes } from './fetch-all-connection-nodes'

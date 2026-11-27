@@ -1,7 +1,7 @@
 'use client'
 
 import { useNotification } from '@/hooks/useNotification'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { Copy, LayoutTemplate, X } from 'lucide-react'
 import React, { useState } from 'react'
 import DeleteTaskDialog from '../../dialog/delete-task-dialog'

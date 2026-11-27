@@ -2,9 +2,9 @@
 
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { useDroppable } from '@dnd-kit/core'
-import InfiniteScroll from '@repo/ui/infinite-scroll'
-import { Card } from '@repo/ui/cardpanel'
-import { cn } from '@repo/ui/lib/utils'
+import InfiniteScroll from '@theopenlane/ui/infinite-scroll'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { type TaskTaskStatus, type TaskWhereInput } from '@repo/codegen/src/schema'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useTasksWithFilterInfinite } from '@/lib/graphql-hooks/task'

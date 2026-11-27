@@ -38,7 +38,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { FindingHistoryOrderField, OrderDirection, type GetFindingHistoriesQuery, type GetFindingHistoriesQueryVariables } from '@repo/codegen/src/historyschema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import {
   GET_ALL_FINDINGS,
   CREATE_FINDING,

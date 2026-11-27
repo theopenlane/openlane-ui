@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import ScrollableTabsList from './scrollable-tabs-list'
 import CustomizeTabsMenu from './customize-tabs-menu'
 import { type TDetailTabsState } from './use-detail-tabs'

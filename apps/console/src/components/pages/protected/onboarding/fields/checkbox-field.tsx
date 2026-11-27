@@ -2,11 +2,11 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Checkbox } from '@repo/ui/checkbox'
-import { Label } from '@repo/ui/label'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { Label } from '@theopenlane/ui/label'
 import { type OnboardingQuestion } from '@/lib/onboarding-questions/types'
 import { QuestionDescription, QuestionLabel } from '../question-label'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 export const CheckboxField: React.FC<{ question: OnboardingQuestion }> = ({ question }) => {
   const { setValue, watch, formState } = useFormContext()

@@ -5,9 +5,9 @@ import { GripVertical } from 'lucide-react'
 import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, type Announcements, type DragEndEvent, type UniqueIdentifier } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Button } from '@repo/ui/button'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@theopenlane/ui/table'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export type TRecordPreviewReorder = {
   rowIds: string[]

@@ -3,7 +3,7 @@
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { X } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { type ContactFormData } from '../../../hooks/use-form-schema'
 import { useVendorSuggestions } from '../../../hooks/use-vendor-suggestions'
 import { Callout } from '@/components/shared/callout/callout'

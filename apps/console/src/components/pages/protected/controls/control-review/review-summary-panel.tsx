@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Panel } from '@repo/ui/panel'
+import { Panel } from '@theopenlane/ui/panel'
 import { type ReviewQuery } from '@repo/codegen/src/schema'
 import { CopyIconButton } from '@/components/shared/copy-icon-button/copy-icon-button'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'

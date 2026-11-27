@@ -1,15 +1,15 @@
 'use client'
 
 import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { acceptedFileTypes, acceptedFileTypesShort, maxFileSizeInMb } from '@/components/shared/file-upload/file-upload-config'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'
 import { getExistingFileIds, getNewFiles } from '@/components/shared/file-upload/file-selection'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
 import ExistingFilesTable from '@/components/shared/file-upload/existing-files-table'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type DocumentsCreateSectionProps = {
   onFilesChange: (files: File[]) => void

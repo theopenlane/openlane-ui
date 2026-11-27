@@ -1,5 +1,5 @@
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { OPERATION_HEALTH_META, runOutcomeMeta, type TIntegrationRun, type TOperationHealthState } from '@/lib/integrations/run-health'
 
 export const RunStatusBadge = ({ run }: { run: Pick<TIntegrationRun, 'status' | 'error'> }) => {

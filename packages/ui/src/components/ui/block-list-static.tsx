@@ -6,7 +6,7 @@ import type { SlateRenderElementProps } from 'platejs/static'
 import { isOrderedList } from '@platejs/list'
 import { CheckIcon } from 'lucide-react'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 const config: Record<
   string,

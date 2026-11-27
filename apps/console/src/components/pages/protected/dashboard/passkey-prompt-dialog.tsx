@@ -4,7 +4,7 @@ import { PASSKEY_PROMPT_COOKIE } from '@/lib/auth/constants'
 import { getCookie } from '@/lib/auth/utils/getCookie'
 import { useCreatePasskey } from '@/hooks/usePasskey'
 import { useGetPasskeys } from '@/lib/graphql-hooks/passkey'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 

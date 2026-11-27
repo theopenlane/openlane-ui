@@ -2,15 +2,15 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import type { Node } from '@xyflow/react'
-import { Sheet, SheetContent } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
-import { Textarea } from '@repo/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Badge } from '@repo/ui/badge'
-import { Switch } from '@repo/ui/switch'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { Sheet, SheetContent } from '@theopenlane/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Label } from '@theopenlane/ui/label'
+import { Textarea } from '@theopenlane/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
+import { Badge } from '@theopenlane/ui/badge'
+import { Switch } from '@theopenlane/ui/switch'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { TRIGGER_OPERATION_OPTIONS } from '@/lib/workflow-templates'
 import type { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
 import { toHumanLabel } from '@/utils/strings'
@@ -21,7 +21,7 @@ import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form
 import { TargetSelector } from '@/components/pages/protected/workflows/wizard/components/target-selector'
 import { buildTargetKey, normalizeTargets, getTargetLabel } from '@/components/pages/protected/workflows/wizard/utils'
 import type { Target, WorkflowAction, WorkflowActionParams, WorkflowActionType, WorkflowCondition, WorkflowNodeData, WorkflowTrigger, WorkflowTriggerOperation } from '@/types/workflow'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 type WorkflowEditorNode = Node<WorkflowNodeData, 'trigger' | 'condition' | 'action'>
 

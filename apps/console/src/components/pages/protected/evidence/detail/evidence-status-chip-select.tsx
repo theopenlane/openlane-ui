@@ -2,9 +2,9 @@
 
 import React from 'react'
 import { type EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
-import { Badge, badgeVariants } from '@repo/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { cn } from '@repo/ui/lib/utils'
+import { Badge, badgeVariants } from '@theopenlane/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@theopenlane/ui/select'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { EvidenceStatusBadge, EvidenceStatusOptions, getEvidenceStatusStyle } from '@/components/shared/enum-mapper/evidence-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 

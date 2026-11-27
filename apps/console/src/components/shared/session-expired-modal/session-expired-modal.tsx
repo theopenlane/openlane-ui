@@ -1,8 +1,8 @@
 'use client'
 
 import { usePathname, useSearchParams } from 'next/navigation'
-import { Dialog, DialogContent } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 import { Timer } from 'lucide-react'
 import { useCallback, useEffect, useRef } from 'react'
 import { addHours, differenceInMilliseconds } from 'date-fns'

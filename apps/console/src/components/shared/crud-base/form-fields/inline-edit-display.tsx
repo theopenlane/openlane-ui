@@ -1,9 +1,9 @@
 'use client'
 
 import { type MouseEvent, type ReactNode } from 'react'
-import { activatable } from '@repo/ui/lib/a11y'
-import { useFormField } from '@repo/ui/form'
-import { cn } from '@repo/ui/lib/utils'
+import { activatable } from '@theopenlane/ui/lib/a11y'
+import { useFormField } from '@theopenlane/ui/form'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 interface InlineEditDisplayProps {
   onActivate?: () => void

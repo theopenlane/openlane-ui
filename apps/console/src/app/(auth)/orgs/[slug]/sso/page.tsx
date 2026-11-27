@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Button } from '@repo/ui/button'
-import { Logo } from '@repo/ui/logo'
-import { FormMessage } from '@repo/ui/form'
+import { Button } from '@theopenlane/ui/button'
+import { Logo } from '@theopenlane/ui/logo'
+import { FormMessage } from '@theopenlane/ui/form'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { SUPPORT_URL } from '@/constants'

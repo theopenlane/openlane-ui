@@ -2,8 +2,8 @@
 import React, { useId } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
-import { Input } from '@repo/ui/input'
-import { FormMessage } from '@repo/ui/form'
+import { Input } from '@theopenlane/ui/input'
+import { FormMessage } from '@theopenlane/ui/form'
 
 const AdvancedSetupStep3 = () => {
   const {

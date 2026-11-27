@@ -1,4 +1,4 @@
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import AddComment from '@/components/shared/comments/AddComment'
 import CommentList from '@/components/shared/comments/CommentList'
 import { type TCommentData } from '@/components/shared/comments/types/TCommentData'

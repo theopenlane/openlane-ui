@@ -2,9 +2,9 @@
 
 import React, { useId, useRef, useState } from 'react'
 import { Send } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Checkbox } from '@repo/ui/checkbox'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { providerSupportsDefaultChannel } from '@/lib/integrations/flow'

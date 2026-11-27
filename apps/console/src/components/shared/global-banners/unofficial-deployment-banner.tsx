@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useIsOfficialDeployment } from '@repo/ui/lib/official-deployment'
+import { useIsOfficialDeployment } from '@theopenlane/ui/lib/official-deployment'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { BOTTOM_BANNER_HEIGHT_VAR, SIDEBAR_WIDTH_VAR } from '@/constants/layout'
 

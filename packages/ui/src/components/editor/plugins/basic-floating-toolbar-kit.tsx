@@ -2,8 +2,8 @@
 
 import { createPlatePlugin } from 'platejs/react'
 
-import { FloatingToolbar } from '@repo/ui/components/ui/floating-toolbar.tsx'
-import { BasicFloatingToolbarButtons } from '@repo/ui/components/ui/basic-floating-toolbar-buttons.tsx'
+import { FloatingToolbar } from '@theopenlane/ui/components/ui/floating-toolbar.tsx'
+import { BasicFloatingToolbarButtons } from '@theopenlane/ui/components/ui/basic-floating-toolbar-buttons.tsx'
 
 export const BasicFloatingToolbarKit = [
   createPlatePlugin({

@@ -1,5 +1,5 @@
-import { Badge } from '@repo/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Badge } from '@theopenlane/ui/badge'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { EvidenceStatusBadge } from '@/components/shared/enum-mapper/evidence-enum'
 import { type EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
 

@@ -22,7 +22,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { getNodes } from '@/lib/graphql-hooks/connection'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import {
   GET_ALL_CHECK_RESULTS,
   GET_CHECK_RESULTS_COUNT,

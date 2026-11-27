@@ -1,6 +1,6 @@
 import React, { useId } from 'react'
-import { Button } from '@repo/ui/button'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { Button } from '@theopenlane/ui/button'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 
 export type TIntegrationFilterChip<TValue extends string> = {
   value: TValue

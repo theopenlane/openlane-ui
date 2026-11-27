@@ -2,9 +2,9 @@
 
 import React, { useMemo } from 'react'
 import { ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown, List, Plus, SearchIcon } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Tabs, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import { type VendorRiskScoreVendorScoringCategory } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'

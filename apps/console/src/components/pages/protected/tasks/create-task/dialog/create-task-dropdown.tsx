@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Button } from '@repo/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
+import { Button } from '@theopenlane/ui/button'
 import { FilePlus, LayoutTemplate, PlusCircle } from 'lucide-react'
 import { CreateTaskDialog } from './create-task-dialog'
 import CreateTaskFromTemplateDialog from './create-task-from-template-dialog'

@@ -3,7 +3,7 @@ import React from 'react'
 import { useNotification } from '@/hooks/useNotification'
 
 import { useDeleteTask } from '@/lib/graphql-hooks/task'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type DeleteTaskDialogProps = {

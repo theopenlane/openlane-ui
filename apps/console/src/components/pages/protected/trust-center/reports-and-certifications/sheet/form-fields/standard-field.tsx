@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
-import { Label } from '@repo/ui/label'
+import { Label } from '@theopenlane/ui/label'
 import { Check } from 'lucide-react'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { cn } from '@repo/ui/lib/utils'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 
 interface Props {

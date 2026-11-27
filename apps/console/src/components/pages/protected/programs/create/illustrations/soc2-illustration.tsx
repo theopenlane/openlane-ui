@@ -1,7 +1,7 @@
 import React from 'react'
 import { ShieldCheck } from 'lucide-react'
 import { Rectangle } from './shadow-rectangle'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 
 const Soc2Illustration = () => {
   return (

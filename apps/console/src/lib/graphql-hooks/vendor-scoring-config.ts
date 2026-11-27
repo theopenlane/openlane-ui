@@ -21,7 +21,7 @@ import {
   type VendorScoringConfigConnection,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import {
   GET_ALL_VENDOR_SCORING_CONFIGS,
   GET_ORGANIZATION_VENDOR_SCORING_CONFIG,

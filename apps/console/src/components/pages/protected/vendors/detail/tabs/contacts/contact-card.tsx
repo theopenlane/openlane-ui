@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { CopyIconButton } from '@/components/shared/copy-icon-button/copy-icon-button'
 import { type GetContactsQuery } from '@repo/codegen/src/schema'
 import { UserStatusBadge } from '@/components/shared/enum-mapper/user-status-enum'

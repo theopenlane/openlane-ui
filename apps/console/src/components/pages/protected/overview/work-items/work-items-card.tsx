@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardContent, CardDescription, CardTitle } from '@repo/ui/cardpanel'
+import { Card, CardContent, CardDescription, CardTitle } from '@theopenlane/ui/cardpanel'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
 
 const WORK_ITEM_SKELETON_ROW_COUNT = 4

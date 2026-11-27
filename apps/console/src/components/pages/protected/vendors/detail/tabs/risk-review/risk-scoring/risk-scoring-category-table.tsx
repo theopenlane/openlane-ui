@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { DataTable } from '@repo/ui/data-table'
-import { type ColumnDef, type Row } from '@repo/ui/table-types'
+import { DataTable } from '@theopenlane/ui/data-table'
+import { type ColumnDef, type Row } from '@theopenlane/ui/table-types'
 import { ExpandAllRowsButton, ExpandRowButton } from '@/components/shared/crud-base/columns/expand-row-button'
 import { pluralizeWithCount } from '@/utils/strings'
 import { RiskScoringQuestionsTable } from './risk-scoring-questions-table'

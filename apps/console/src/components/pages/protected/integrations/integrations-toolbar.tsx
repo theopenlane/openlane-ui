@@ -1,5 +1,5 @@
-import { Input } from '@repo/ui/input'
-import { TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Input } from '@theopenlane/ui/input'
+import { TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import { Search } from 'lucide-react'
 import React from 'react'
 import { INTEGRATIONS_TABS } from '@/lib/integrations/types'

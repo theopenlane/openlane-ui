@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { LinearBar } from '@/components/shared/linear-bar/linear-bar'
 
 type OnboardingCardProgressProps = {

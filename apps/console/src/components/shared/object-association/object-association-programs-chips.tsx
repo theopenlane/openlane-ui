@@ -1,6 +1,6 @@
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React from 'react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import ObjectsChip from '../objects-chip/objects-chip'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { useRouter } from 'next/navigation'

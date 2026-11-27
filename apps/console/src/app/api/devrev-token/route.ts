@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth/auth'
 import { type NextRequest, NextResponse } from 'next/server'
-import { isOfficialHost } from '@repo/ui/lib/official-deployment'
+import { isOfficialHost } from '@theopenlane/ui/lib/official-deployment'
 
 export async function GET(req: NextRequest) {
   if (!isOfficialHost(req.nextUrl.hostname)) {

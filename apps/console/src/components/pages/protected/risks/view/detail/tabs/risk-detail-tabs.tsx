@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { TabsContent } from '@repo/ui/tabs'
+import { TabsContent } from '@theopenlane/ui/tabs'
 import DetailTabs from '@/components/shared/detail-tabs/detail-tabs'
 import { useDetailTabs, type TDetailTab } from '@/components/shared/detail-tabs/use-detail-tabs'
 import OverviewTab from './overview/overview-tab'

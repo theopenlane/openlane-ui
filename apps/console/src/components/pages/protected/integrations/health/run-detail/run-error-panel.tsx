@@ -2,9 +2,9 @@
 
 import React from 'react'
 import { CircleX, Copy, TriangleAlert } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Card } from '@repo/ui/cardpanel'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { useCopyWithNotification } from '@/hooks/useCopyWithNotification'
 import { runOutcome, summarizeRunError, type TIntegrationRunSummary } from '@/lib/integrations/run-health'
 import { HttpStatusChip } from '../health-controls'

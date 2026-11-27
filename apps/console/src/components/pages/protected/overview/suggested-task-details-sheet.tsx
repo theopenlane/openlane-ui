@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import { Sheet, SheetContent } from '@repo/ui/sheet'
-import { Badge } from '@repo/ui/badge'
-import { Card } from '@repo/ui/cardpanel'
+import { Sheet, SheetContent } from '@theopenlane/ui/sheet'
+import { Badge } from '@theopenlane/ui/badge'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { Callout } from '@/components/shared/callout/callout'
 import { Check, ArrowUpRight } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'

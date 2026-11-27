@@ -1,6 +1,6 @@
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
-import { Button } from '@repo/ui/button'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Button } from '@theopenlane/ui/button'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { useQueryClient } from '@tanstack/react-query'
 import { Check, Copy, RefreshCcw } from 'lucide-react'
 import React from 'react'

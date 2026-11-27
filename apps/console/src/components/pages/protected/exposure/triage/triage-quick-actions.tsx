@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { ArrowLeft, ArrowRight, ShieldCheck, ShieldOff, Clock } from 'lucide-react'
 import { ResponsibilityPicker } from '@/components/shared/crud-base/form-fields/responsibility-picker'
 import { type ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'

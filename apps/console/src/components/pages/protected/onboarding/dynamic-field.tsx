@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Input } from '@theopenlane/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { sortByOrder } from '@/lib/onboarding-questions/build-schema'
 import { type OnboardingQuestion } from '@/lib/onboarding-questions/types'
 import { BooleanField } from './fields/boolean-field'
@@ -11,7 +11,7 @@ import { CheckboxField } from './fields/checkbox-field'
 import { MultiInputField } from './fields/multi-input-field'
 import { MultiselectField } from './fields/multiselect-field'
 import { QuestionDescription, QuestionLabel } from './question-label'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 export const DynamicQuestionField: React.FC<{ question: OnboardingQuestion }> = ({ question }) => {
   const {

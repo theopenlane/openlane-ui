@@ -2,8 +2,8 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { Button } from '@repo/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
 import { type EntityQuery } from '@repo/codegen/src/schema'
 import { Callout } from '@/components/shared/callout/callout'
 import { StatusLine } from '@/components/shared/status-line/status-line'

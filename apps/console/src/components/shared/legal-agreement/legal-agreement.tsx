@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import OfficialOnly from '@/components/shared/official-only/official-only'
 

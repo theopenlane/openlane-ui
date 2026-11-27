@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { useNotification } from '@/hooks/useNotification'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'

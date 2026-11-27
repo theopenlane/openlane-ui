@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Checkbox } from '@repo/ui/checkbox'
-import { Separator } from '@repo/ui/separator'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { Separator } from '@theopenlane/ui/separator'
 
 export type TReportFieldOption = {
   path: string

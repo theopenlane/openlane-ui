@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Copy } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useCopyWithNotification } from '@/hooks/useCopyWithNotification'
 
 type CopyIconButtonProps = {

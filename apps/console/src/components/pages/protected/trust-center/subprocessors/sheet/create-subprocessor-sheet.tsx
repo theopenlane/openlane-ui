@@ -5,7 +5,7 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Sheet, SheetContent, SheetTrigger } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetTrigger } from '@theopenlane/ui/sheet'
 
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useRef } from 'react'
-import { Sheet, SheetContent, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetTitle } from '@theopenlane/ui/sheet'
 import { useRemediation } from '@/lib/graphql-hooks/remediation'
 import { useRetainedWhileOpen } from '@/hooks/useRetainedWhileOpen'
 import { GenericDetailsSheetSkeleton } from '@/components/shared/crud-base/skeleton/details-sheet-skeleton'

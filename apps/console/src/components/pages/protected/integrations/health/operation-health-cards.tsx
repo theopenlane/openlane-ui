@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
-import { Card } from '@repo/ui/cardpanel'
-import { cn } from '@repo/ui/lib/utils'
+import { Badge } from '@theopenlane/ui/badge'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { cn } from '@theopenlane/ui/lib/utils'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { OPERATION_HEALTH_META, runOutcome, type TOperationHealth } from '@/lib/integrations/run-health'
 import { formatTimeSince } from '@/utils/date'

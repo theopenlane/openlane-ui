@@ -2,9 +2,9 @@
 
 import React, { useMemo } from 'react'
 import { LoaderCircle, SearchIcon } from 'lucide-react'
-import { Input } from '@repo/ui/input'
-import { TableKeyEnum } from '@repo/ui/table-key'
-import { type VisibilityState } from '@repo/ui/table-types'
+import { Input } from '@theopenlane/ui/input'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
+import { type VisibilityState } from '@theopenlane/ui/table-types'
 import { type WhereCondition } from '@/types'
 import { type TTableViewMode } from '@/hooks/use-org-table-state'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'

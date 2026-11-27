@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Select, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { type RemediationRemediationStatus } from '@repo/codegen/src/schema'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { RemediationStatusIconLabel, RemediationStatusSelectContent } from '@/components/shared/enum-mapper/remediation-enum'

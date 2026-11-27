@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
 import { Ellipsis } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { type TElementAnchor } from '@/components/shared/element-anchor/element-anchor'
 
 interface MenuProps {

@@ -13,7 +13,7 @@ import {
   type WorkflowDefinitionQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { GET_ALL_WORKFLOW_DEFINITIONS, CREATE_WORKFLOW_DEFINITION, UPDATE_WORKFLOW_DEFINITION, DELETE_WORKFLOW_DEFINITION, WORKFLOW_DEFINITION } from '@repo/codegen/query/workflow-definition'
 
 type GetAllWorkflowDefinitionsArgs = {

@@ -38,7 +38,7 @@ import { fetchAllConnectionNodes } from './fetch-all-connection-nodes'
 import { getNodes } from './connection'
 import { vendorEntitiesWhere } from './entity'
 
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 
 const VENDOR_SUBPROCESSOR_CANDIDATES_KEY = ['entities', 'subprocessorCandidates'] as const
 

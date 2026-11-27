@@ -1,5 +1,5 @@
 import React from 'react'
-import { TruncatedCell } from '@repo/ui/truncated-cell'
+import { TruncatedCell } from '@theopenlane/ui/truncated-cell'
 import { LinearBar } from '@/components/shared/linear-bar/linear-bar'
 import { formatScoreValue, type TRiskScoringCategory } from './risk-scoring-utils'
 

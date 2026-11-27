@@ -1,5 +1,5 @@
 import React from 'react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { CVSS_SEVERITY_BANDS, getCvssSeverityBand } from '@/utils/cvss-vector'
 import { getSeverityCssVar } from '@/utils/severity'
 import { SectionLabel } from './section-label'

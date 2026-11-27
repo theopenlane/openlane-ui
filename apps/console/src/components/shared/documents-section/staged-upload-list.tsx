@@ -2,9 +2,9 @@
 
 import React from 'react'
 import { Trash2 } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Label } from '@theopenlane/ui/label'
 import { formatFileSize } from '@/utils/strings'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { useCreatableEnumOptions, FILE_CATEGORY_ENUM } from '@/lib/graphql-hooks/custom-type-enum'

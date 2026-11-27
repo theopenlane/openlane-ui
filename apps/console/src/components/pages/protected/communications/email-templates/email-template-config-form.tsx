@@ -8,8 +8,8 @@ import type { ArrayFieldItemTemplateProps, ErrorTransformer, FieldErrorProps, Ob
 import { customizeValidator } from '@rjsf/validator-ajv8'
 import Ajv2020 from 'ajv/dist/2020'
 import { ChevronDown, ChevronUp, Copy, Plus, RotateCcw, Trash2, X } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { FormMessage } from '@repo/ui/form'
+import { Button } from '@theopenlane/ui/button'
+import { FormMessage } from '@theopenlane/ui/form'
 import { toHumanLabel } from '@/utils/strings'
 import { isFieldAtDefault, resetFieldsToDefault } from './email-template-defaults'
 

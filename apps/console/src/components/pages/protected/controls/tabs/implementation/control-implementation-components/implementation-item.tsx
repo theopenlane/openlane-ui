@@ -5,7 +5,7 @@ import { CheckCircle2, Link2Off, MoreHorizontal, Pencil, Trash2 } from 'lucide-r
 import { type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import { ControlImplementationCard } from './control-implementation-card'
 import Menu from '@/components/shared/menu/menu'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { LinkControlsModal } from './link-controls-modal'
 
 type Props = {

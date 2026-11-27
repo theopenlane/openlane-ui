@@ -2,8 +2,8 @@
 
 import React, { useMemo } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Checkbox } from '@repo/ui/checkbox'
+import { Button } from '@theopenlane/ui/button'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 import type { TReportEdge } from '@repo/codegen/src/report-schema.generated'
 import { buildPath, edgeChainPath, getEdgeFields, getRelatedEdges, labelledEdges, labelledSchemaFields, MAX_EDGE_DEPTH, pathLabel, pathSegments } from '@/lib/report/report-schema'
 import ReportFieldList, { type TReportFieldOption } from './report-field-list'

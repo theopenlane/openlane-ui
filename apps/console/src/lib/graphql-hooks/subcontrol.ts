@@ -46,7 +46,7 @@ import {
   type GetExistingSubcontrolsForOrganizationQuery,
 } from '@repo/codegen/src/schema'
 import { useEffect, useMemo } from 'react'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import {
   type GetSubcontrolCommentsQuery,
   type GetSubcontrolCommentsQueryVariables,

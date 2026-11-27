@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react'
 import { ExternalLink } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useGetVulnerabilityAssociations } from '@/lib/graphql-hooks/vulnerability'
 import { ResponsibilitySelectionLabel } from '@/components/shared/crud-base/form-fields/responsibility-type-icon'
 import { type ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'

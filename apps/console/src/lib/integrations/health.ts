@@ -1,5 +1,5 @@
 import { IntegrationIntegrationStatus } from '@repo/codegen/src/schema'
-import { type BadgeProps } from '@repo/ui/badge'
+import { type BadgeProps } from '@theopenlane/ui/badge'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatList } from '@/utils/strings'
 import { type IntegrationHealth, type IntegrationHealthFilter, type IntegrationNode } from './types'

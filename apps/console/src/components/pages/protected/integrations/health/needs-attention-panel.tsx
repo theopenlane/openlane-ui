@@ -2,8 +2,8 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
 import { Callout } from '@/components/shared/callout/callout'
 import { isOperableIntegration } from '@/lib/integrations/health'
 import { integrationRunHref, runOutcome, summarizeRunError, type TOperationHealth } from '@/lib/integrations/run-health'

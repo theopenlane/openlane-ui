@@ -2,8 +2,8 @@
 
 import React, { useMemo, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum'
 import { ReadOnlyField } from '@/components/shared/read-only-field/read-only-field'
 import { SeverityChip } from '@/components/shared/severity/severity-chip'

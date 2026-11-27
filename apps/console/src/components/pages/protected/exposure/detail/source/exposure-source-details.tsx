@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { ExternalLink } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import CopyableText from '@/components/shared/copyable-text/copyable-text'
 import { toValidHref } from '@/utils/normalizeUrl'
 import { getExposureSourceRows, type TExposureSourceFields, type TSourceDetailRow, useExposureSource } from './use-exposure-source'

@@ -2,9 +2,9 @@
 
 import { type Ref, useMemo, useRef, useState } from 'react'
 import { Check, ChevronDown, Plus, X } from 'lucide-react'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { cn } from '@repo/ui/lib/utils'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { type CustomTypeEnumOption, findCustomTypeEnumOption, useCustomTypeEnumsStatus } from '@/lib/graphql-hooks/custom-type-enum'
 import { useNotification } from '@/hooks/useNotification'

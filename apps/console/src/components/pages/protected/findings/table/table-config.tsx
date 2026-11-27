@@ -11,7 +11,7 @@ import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { FindingAssociationSection } from '../create/form/fields/association-section'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
 
 export const formId = 'edit' + ObjectNames.FINDING

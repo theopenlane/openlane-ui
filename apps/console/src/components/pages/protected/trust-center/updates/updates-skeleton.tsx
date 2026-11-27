@@ -1,5 +1,5 @@
 import Skeleton from '@/components/shared/skeleton/skeleton'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 
 const PLACEHOLDER_COUNT = 3
 

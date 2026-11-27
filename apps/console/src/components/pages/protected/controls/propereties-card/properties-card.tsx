@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useCallback, useEffect, useState } from 'react'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { CircleUser, CircleArrowRight, Tag, Building2 } from 'lucide-react'
 import { ControlControlSource, type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 
 import { type Entity, type Group } from '@repo/codegen/src/schema'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import MultipleSelector, { type Option } from '@theopenlane/ui/multiple-selector'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { GLOBAL_ENUM_FIELD, useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'

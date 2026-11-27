@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import { Badge } from '@repo/ui/badge'
-import { Label } from '@repo/ui/label'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import { Badge } from '@theopenlane/ui/badge'
+import { Label } from '@theopenlane/ui/label'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
 import { X, KeyRound } from 'lucide-react'
 import type { User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -11,7 +11,7 @@ import { useAsyncCommandSearch } from '@/hooks/useAsyncCommandSearch'
 import { useGetAllGroups, type GroupsNode } from '@/lib/graphql-hooks/group'
 import type { TargetSelectorProps } from '../types'
 import { buildTargetKey, formatResolverLabel } from '../utils'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 const ResolverIcon = () => {
   return (

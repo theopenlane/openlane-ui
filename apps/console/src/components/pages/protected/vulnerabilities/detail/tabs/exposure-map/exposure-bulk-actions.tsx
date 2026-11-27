@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import AcceptRiskDialog from '@/components/pages/protected/exposure/triage/accept-risk-dialog'

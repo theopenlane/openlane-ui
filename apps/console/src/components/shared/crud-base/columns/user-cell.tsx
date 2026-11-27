@@ -1,5 +1,5 @@
 import { Avatar, type AvatarEntityLike } from '@/components/shared/avatar/avatar'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 
 type UserCellProps = {
   user: AvatarEntityLike | undefined

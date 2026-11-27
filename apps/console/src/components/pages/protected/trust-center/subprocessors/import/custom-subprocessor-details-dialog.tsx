@@ -3,16 +3,16 @@
 import React, { useEffect } from 'react'
 import { FormProvider, useWatch } from 'react-hook-form'
 import { useDebounce } from '@uidotdev/usehooks'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Label } from '@theopenlane/ui/label'
 import { VendorLogo } from '@/components/shared/vendor-logo/vendor-logo'
 import { DescriptionField } from '../sheet/form-fields/description-field'
 import { TagsField } from '../sheet/form-fields/tags-field'
 import { logoPreviewUrl, resolveLogo, type TCustomDetails, type TResolvedRow } from './subprocessor-import-rows'
 import { useCustomSubprocessorDetailsFormSchema } from './use-custom-subprocessor-details-form-schema'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 const LOGO_PREVIEW_DEBOUNCE_MS = 400
 

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { SlidersHorizontal, X } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useOrganizationVendorScoringConfig } from '@/lib/graphql-hooks/vendor-scoring-config'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { VendorRiskDistribution } from './vendor-risk-distribution'

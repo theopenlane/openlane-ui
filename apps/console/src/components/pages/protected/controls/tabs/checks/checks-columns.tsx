@@ -1,6 +1,6 @@
 import React from 'react'
-import { type ColumnDef, type VisibilityState } from '@repo/ui/table-types'
-import { TruncatedCell } from '@repo/ui/truncated-cell'
+import { type ColumnDef, type VisibilityState } from '@theopenlane/ui/table-types'
+import { TruncatedCell } from '@theopenlane/ui/truncated-cell'
 import { CheckResultOrderField } from '@repo/codegen/src/schema'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'

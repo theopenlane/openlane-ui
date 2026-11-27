@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-tooltip/disabled-reason-tooltip'
 import { SaveButton } from '@/components/shared/save-button/save-button'

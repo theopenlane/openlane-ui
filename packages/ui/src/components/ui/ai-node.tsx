@@ -3,7 +3,7 @@
 import { AIChatPlugin } from '@platejs/ai/react'
 import { type PlateElementProps, type PlateTextProps, PlateElement, PlateText, usePluginOption } from 'platejs/react'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export function AILeaf(props: PlateTextProps) {
   const streaming = usePluginOption(AIChatPlugin, 'streaming')

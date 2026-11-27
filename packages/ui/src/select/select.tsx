@@ -1,9 +1,11 @@
+'use client'
+
 import * as React from 'react'
 import * as SelectPrimitive from '@radix-ui/react-select'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { selectStyles, type SelectVariants } from './select.styles'
-import { useFormItemLabelId } from '../form/form'
+import { useFormItemLabelId } from '../form/form-item-context'
 
 const Select = SelectPrimitive.Root
 const SelectGroup = SelectPrimitive.Group

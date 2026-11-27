@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { ONBOARDING_FOOTER_HEIGHT_VAR } from '@/constants/layout'
 import { useElementHeight } from '@/hooks/useElementHeight'
 import { useDashboardContentOffset } from '@/providers/DashboardContentOffsetContext'

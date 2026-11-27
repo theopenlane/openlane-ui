@@ -5,7 +5,7 @@ import * as React from 'react'
 import { useAIChatEditor } from '@platejs/ai/react'
 import { usePlateEditor } from 'platejs/react'
 
-import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
+import { BaseEditorKit } from '@theopenlane/ui/components/editor/editor-base-kit.tsx'
 
 import { EditorStatic } from './editor-static'
 

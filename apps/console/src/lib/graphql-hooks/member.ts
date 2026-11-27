@@ -21,7 +21,7 @@ import {
   type OrgMembershipsExportQueryVariables,
   OrgMembershipRole,
 } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { EXPORT_PAGE_SIZE } from '@/constants/pagination'
 import { fetchAllConnectionNodes } from '@/lib/graphql-hooks/fetch-all-connection-nodes'
 

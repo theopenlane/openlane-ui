@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { Copy, Check } from 'lucide-react'
-import { InfoSlideOut } from '@repo/ui/info-slide-out'
+import { InfoSlideOut } from '@theopenlane/ui/info-slide-out'
 import { Callout } from '@/components/shared/callout/callout'
 import { SSO_PROVIDER_LOGOS, SSO_PROVIDER_NAMES } from '@/components/shared/enum-mapper/sso-provider-enum'
 import { type OrganizationSettingSsoProvider } from '@repo/codegen/src/schema'

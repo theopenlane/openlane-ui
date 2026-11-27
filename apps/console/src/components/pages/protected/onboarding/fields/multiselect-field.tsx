@@ -2,15 +2,15 @@
 
 import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
-import { Checkbox } from '@repo/ui/checkbox'
-import { Label } from '@repo/ui/label'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Button } from '@theopenlane/ui/button'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { Label } from '@theopenlane/ui/label'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { sortByOrder } from '@/lib/onboarding-questions/build-schema'
 import { type OnboardingQuestion } from '@/lib/onboarding-questions/types'
 import { QuestionDescription, QuestionLabel } from '../question-label'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 const COLLAPSED_VISIBLE_COUNT = 5
 const OTHER_OPTION_VALUE = 'other'

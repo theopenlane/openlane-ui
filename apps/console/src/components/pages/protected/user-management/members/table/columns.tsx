@@ -1,6 +1,6 @@
 'use client'
 
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { type AllGroupsPaginatedFieldsFragment, type InviteInviteStatus, type InviteRole } from '@repo/codegen/src/schema.ts'
 import { InviteActions } from '../actions/invite-actions'
 import { formatDateSince } from '@/utils/date'
@@ -8,8 +8,8 @@ import { InvitationIconMapper } from '@/components/shared/enum-mapper/invitation
 import { UserRoleIconMapper } from '@/components/shared/enum-mapper/user-role-enum'
 import { GlobeIcon, LockIcon, StarsIcon, Copy } from 'lucide-react'
 import React from 'react'
-import { Checkbox } from '@repo/ui/checkbox'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 import { pageStyles } from '../page.styles'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useNotification } from '@/hooks/useNotification'

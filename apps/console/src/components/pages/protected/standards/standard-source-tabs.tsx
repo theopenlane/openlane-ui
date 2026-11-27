@@ -3,8 +3,8 @@
 import React, { useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tabs, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { type StandardWhereInput } from '@repo/codegen/src/schema'
 import { CUSTOM_STANDARDS_WHERE, OPENLANE_STANDARDS_WHERE } from './custom-framework/custom-framework'
 

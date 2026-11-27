@@ -2,7 +2,7 @@
 
 import React, { memo, useMemo, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { Input } from '@repo/ui/input'
+import { Input } from '@theopenlane/ui/input'
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import { RELATED_RECORD_LIMIT } from '@/lib/report/build-report-query'
 import { edgeChainPath, labelledEdges } from '@/lib/report/report-schema'

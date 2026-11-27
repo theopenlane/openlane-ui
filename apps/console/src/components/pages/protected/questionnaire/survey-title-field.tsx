@@ -1,7 +1,7 @@
 import { useCallback, useId, useSyncExternalStore } from 'react'
 import type { SurveyCreator } from 'survey-creator-react'
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
+import { Input } from '@theopenlane/ui/input'
+import { Label } from '@theopenlane/ui/label'
 
 export const surveyTitleOr = (creator: SurveyCreator, fallback: string): string => creator.survey.title?.trim() || fallback
 

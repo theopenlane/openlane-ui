@@ -2,9 +2,9 @@
 
 import React, { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
-import { Textarea } from '@repo/ui/textarea'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
+import { Input } from '@theopenlane/ui/input'
+import { Textarea } from '@theopenlane/ui/textarea'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@theopenlane/ui/form'
 import { Callout } from '@/components/shared/callout/callout'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import ProgramTypeSelect from '../../shared/form-fields/program-select'

@@ -1,14 +1,14 @@
 'use client'
 
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@theopenlane/ui/form'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { type InternalEditingType } from '../generic-sheet'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { fieldItemLayoutClassName, fieldMessageLayoutClassName, type TFieldLayout } from './field-layout'
 import { InlineEditDisplay } from './inline-edit-display'
 

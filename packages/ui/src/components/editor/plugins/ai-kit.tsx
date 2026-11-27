@@ -6,14 +6,14 @@ import { AIChatPlugin, AIPlugin, applyAISuggestions, getInsertPreviewStart, stre
 import { ElementApi, getPluginType, KEYS, PathApi } from 'platejs'
 import { usePluginOption } from 'platejs/react'
 
-import { AILoadingBar, AIMenu } from '@repo/ui/components/ui/ai-menu.tsx'
-import { AIAnchorElement, AILeaf } from '@repo/ui/components/ui/ai-node.tsx'
+import { AILoadingBar, AIMenu } from '@theopenlane/ui/components/ui/ai-menu.tsx'
+import { AIAnchorElement, AILeaf } from '@theopenlane/ui/components/ui/ai-node.tsx'
 
 import { useChat } from '../use-chat'
 import { CursorOverlayKit } from './cursor-overlay-kit'
 import { MarkdownKit } from './markdown-kit'
 import { SuggestionPlugin } from '@platejs/suggestion/react'
-import { SuggestionLeaf } from '@repo/ui/components/ui/suggestion-node.tsx'
+import { SuggestionLeaf } from '@theopenlane/ui/components/ui/suggestion-node.tsx'
 
 export const aiChatPlugin = AIChatPlugin.extend({
   options: {

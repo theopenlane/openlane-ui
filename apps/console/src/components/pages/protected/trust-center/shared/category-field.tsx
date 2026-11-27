@@ -5,9 +5,9 @@ import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-e
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import type { ObjectTypes } from '@repo/codegen/src/type-names'
 import { categoryEnumWhere } from './category-options'
-import { Label } from '@repo/ui/label'
+import { Label } from '@theopenlane/ui/label'
 import { Controller, useFormContext } from 'react-hook-form'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 interface CategoryFieldProps {
   objectType: ObjectTypes

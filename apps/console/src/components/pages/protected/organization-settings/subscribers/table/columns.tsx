@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { SubscriberActions } from '@/components/pages/protected/organization-settings/subscribers/actions/subscriber-actions.tsx'
 import { type GetAllSubscribersQuery } from '@repo/codegen/src/schema'
 import EmailCell from '@/components/pages/protected/organization-settings/subscribers/table/email-cell.tsx'

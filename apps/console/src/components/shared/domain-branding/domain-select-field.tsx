@@ -1,10 +1,10 @@
 'use client'
 
 import { Link } from '@/components/shared/link/link'
-import { Label } from '@repo/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { cn } from '@repo/ui/lib/utils'
+import { Label } from '@theopenlane/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 const ORGANIZATION_SETTINGS_HREF = '/organization-settings/general-settings'
 const MANAGE_DOMAINS_TOOLTIP = 'Update the domains available in Organization Settings.'

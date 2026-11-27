@@ -10,7 +10,7 @@ import {
   type UpdateActionPlanMutation,
   OrderDirection,
 } from '@repo/codegen/src/schema'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
 import { type ActionPlansNodeNonNull } from '@/lib/graphql-hooks/action-plan'
 import { type ActionPlanFormData } from '../hooks/use-form-schema'

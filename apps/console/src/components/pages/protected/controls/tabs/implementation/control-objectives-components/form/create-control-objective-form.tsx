@@ -2,9 +2,9 @@
 
 import React from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Label } from '@repo/ui/label'
+import { Input } from '@theopenlane/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
+import { Label } from '@theopenlane/ui/label'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { useCreateControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { type UpdateControlObjectiveInput } from '@repo/codegen/src/schema'
@@ -20,7 +20,7 @@ import { VersionBump } from '@/lib/enums/revision-enum'
 import { ControlObjectiveSourceOptions, ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { Callout } from '@/components/shared/callout/callout'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 const versionBumpOptions = enumToOptions(VersionBump)
 

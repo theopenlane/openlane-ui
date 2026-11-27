@@ -3,9 +3,9 @@
 import { BoldRules, CodeRules, HighlightRules, ItalicRules, MarkComboRules, StrikethroughRules, SubscriptRules, SuperscriptRules, UnderlineRules } from '@platejs/basic-nodes'
 import { BoldPlugin, CodePlugin, HighlightPlugin, ItalicPlugin, KbdPlugin, StrikethroughPlugin, SubscriptPlugin, SuperscriptPlugin, UnderlinePlugin } from '@platejs/basic-nodes/react'
 
-import { CodeLeaf } from '@repo/ui/components/ui/code-node.tsx'
-import { HighlightLeaf } from '@repo/ui/components/ui/highlight-node.tsx'
-import { KbdLeaf } from '@repo/ui/components/ui/kbd-node.tsx'
+import { CodeLeaf } from '@theopenlane/ui/components/ui/code-node.tsx'
+import { HighlightLeaf } from '@theopenlane/ui/components/ui/highlight-node.tsx'
+import { KbdLeaf } from '@theopenlane/ui/components/ui/kbd-node.tsx'
 
 export const BasicMarksKit = [
   BoldPlugin.configure({

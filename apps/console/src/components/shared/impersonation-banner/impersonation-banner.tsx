@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useSession } from 'next-auth/react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useSignOut } from '@/hooks/useSignOut'
 import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'

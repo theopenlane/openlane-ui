@@ -2,9 +2,9 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
-import { Input } from '@repo/ui/input'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@theopenlane/ui/form'
+import { Input } from '@theopenlane/ui/input'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { type EditTaskFormData } from '../../../hooks/use-form-schema'
 

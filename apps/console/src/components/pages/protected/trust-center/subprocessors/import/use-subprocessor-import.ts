@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { resolveCountryCode } from '@repo/ui/country-list'
+import { resolveCountryCode } from '@theopenlane/ui/country-list'
 import { buildMappedImport, type TImportPlan } from '@/components/shared/record-import/lib/build-mapped-import'
 import { type TImportIssue, type TParsedDelimitedFile } from '@/components/shared/record-import/lib/types'
 import { describeRows } from '@/components/shared/record-import/lib/validate-mapping'

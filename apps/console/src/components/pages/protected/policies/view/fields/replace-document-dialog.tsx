@@ -2,8 +2,8 @@
 
 import React, { useEffect } from 'react'
 import { useWatch } from 'react-hook-form'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
 import { externalReferenceAcceptedFileTypes, externalReferenceAcceptedFileTypesShort } from '@/components/shared/file-upload/file-upload-config'
@@ -13,7 +13,7 @@ import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 import useReplaceDocumentFormSchema, { type ReplaceDocumentFormData } from './use-replace-document-form-schema'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 type Props = {
   policy: InternalPolicyByIdFragment

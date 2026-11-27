@@ -1,5 +1,5 @@
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type TagsCellProps = {
   tags: string[] | null | undefined

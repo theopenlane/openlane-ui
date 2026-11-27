@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/cardpanel'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@theopenlane/ui/cardpanel'
+import { Tabs, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 import { formatDateTime } from '@/utils/date'
 import { toUpperSnakeCase } from '@/utils/strings'

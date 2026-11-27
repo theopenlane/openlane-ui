@@ -1,7 +1,7 @@
 'use client'
 
 import React, { memo, useMemo, useState } from 'react'
-import { Input } from '@repo/ui/input'
+import { Input } from '@theopenlane/ui/input'
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import { labelledFields } from '@/lib/report/report-schema'
 import ReportPanel from './report-panel'

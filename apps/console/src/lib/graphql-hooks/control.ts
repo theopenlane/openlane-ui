@@ -111,7 +111,7 @@ import {
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { getNodes } from '@/lib/graphql-hooks/connection'
 import { useModuleGatedQuery } from '@/lib/graphql-hooks/use-module-gated-query'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { ExportTooLargeError, fetchAllConnectionNodes } from '@/lib/graphql-hooks/fetch-all-connection-nodes'
 import { useCallback, useEffect, useMemo } from 'react'

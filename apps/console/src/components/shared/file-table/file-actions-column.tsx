@@ -2,9 +2,9 @@
 
 import React from 'react'
 import { Download, Eye } from 'lucide-react'
-import { activatable } from '@repo/ui/lib/a11y'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
-import type { ColumnDef } from '@repo/ui/table-types'
+import { activatable } from '@theopenlane/ui/lib/a11y'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
+import type { ColumnDef } from '@theopenlane/ui/table-types'
 import { fileDownload } from '@/components/shared/lib/export'
 import { canOpenFilePreviewDialog } from '@/components/shared/file-preview/preview-mime'
 import { useNotification } from '@/hooks/useNotification'

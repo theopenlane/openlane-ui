@@ -26,8 +26,8 @@ import {
 import { KEYS } from 'platejs'
 import { useEditorRef, useSelectionFragmentProp } from 'platejs/react'
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
-import { getBlockType, setBlockType } from '@repo/ui/components/editor/transforms.ts'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioItem, DropdownMenuTrigger } from '@theopenlane/ui/components/ui/dropdown-menu.tsx'
+import { getBlockType, setBlockType } from '@theopenlane/ui/components/editor/transforms.ts'
 
 import { ToolbarButton, ToolbarMenuGroup } from './toolbar'
 

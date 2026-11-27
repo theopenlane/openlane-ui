@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { ChevronDown } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
+import { Button } from '@theopenlane/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
 import { ExposureSourceDetails } from './exposure-source-details'
 import { type TExposureSourceFields, type TSourceDetailRow } from './use-exposure-source'
 

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useId } from 'react'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import { DATE_ORDER_LABELS, DATE_ORDER_SHORT_LABELS, DATE_ORDERS, type TDateOrder } from '@/utils/loose-date'
 
 type TDateOrderToggleProps = {

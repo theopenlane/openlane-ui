@@ -1,7 +1,7 @@
 import React from 'react'
 import NextLink from 'next/link'
 import { ExternalLink } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export const LINK_CLASS_NAME = 'text-hyperlink hover:underline'
 

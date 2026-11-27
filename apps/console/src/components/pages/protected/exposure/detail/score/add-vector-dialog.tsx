@@ -2,13 +2,13 @@
 
 import React, { useId, useState } from 'react'
 import { Plus } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Label } from '@theopenlane/ui/label'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@theopenlane/ui/dialog'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CVSS_VECTOR_ERROR, explainCvssVector, parseCvssVector } from '@/utils/cvss-vector'
-import { FormMessage } from '@repo/ui/form'
+import { FormMessage } from '@theopenlane/ui/form'
 
 type TAddVectorDialogProps = {
   onSave: (vector: string) => Promise<boolean>
