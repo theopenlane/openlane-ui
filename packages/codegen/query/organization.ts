@@ -31,6 +31,24 @@ export const GET_ALL_ORGANIZATIONS = gql`
   }
 `
 
+export const GET_ORGANIZATION_PAYMENT_METHODS = gql`
+  query GetOrganizationPaymentMethods {
+    organizations {
+      edges {
+        node {
+          id
+          setting {
+            paymentMethodAdded
+          }
+          orgSubscriptions {
+            stripeSubscriptionStatus
+          }
+        }
+      }
+    }
+  }
+`
+
 export const GET_ORGANIZATION_NAME_BY_ID = gql`
   query GetOrganizationNameByID($organizationId: ID!) {
     organization(id: $organizationId) {

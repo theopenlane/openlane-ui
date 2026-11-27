@@ -35,4 +35,9 @@ export const announcementBannerLinkLabel = process.env.NEXT_PUBLIC_ANNOUNCEMENT_
 
 export const cname = process.env.NEXT_PUBLIC_CUSTOMDOMAIN_CNAME
 
+export const paymentMethodBypassEmailDomains = (process.env.NEXT_PUBLIC_PAYMENT_METHOD_BYPASS_EMAIL_DOMAINS ?? 'theopenlane.io')
+  .split(',')
+  .map((domain) => domain.trim().toLowerCase())
+  .filter(Boolean)
+
 export const stripeSecretKey = process.env.STRIPE_SECRET_KEY
