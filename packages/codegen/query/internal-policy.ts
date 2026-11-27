@@ -246,6 +246,8 @@ export const GET_INTERNAL_POLICY_DETAILS_BY_ID = gql`
 export const GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID = gql`
   query GetInternalPolicyAssociationsById($internalPolicyId: ID!) {
     internalPolicy(id: $internalPolicyId) {
+      id
+      name
       procedures {
         edges {
           node {

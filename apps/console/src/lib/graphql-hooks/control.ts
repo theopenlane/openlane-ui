@@ -378,7 +378,7 @@ export const useCreateControl = () => {
 export const useControlSelect = ({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
-  const { data, isLoading, error } = useQuery<GetControlSelectOptionsQuery>({
+  const { data, isLoading, isFetching, error } = useQuery<GetControlSelectOptionsQuery>({
     queryKey: ['controls', where, 'select'],
     queryFn: async () => {
       return client.request<GetControlSelectOptionsQuery, GetControlSelectOptionsQueryVariables>(GET_CONTROL_SELECT_OPTIONS, { where })
@@ -397,6 +397,7 @@ export const useControlSelect = ({ where, enabled = true }: { where?: ControlWhe
   return {
     controlOptions,
     isLoading,
+    isFetching,
     error,
     data,
   }

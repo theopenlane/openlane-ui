@@ -305,6 +305,8 @@ export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
 export const GET_IDENTITY_HOLDER_ASSOCIATIONS = gql`
   query GetIdentityHolderAssociations($identityHolderId: ID!) {
     identityHolder(id: $identityHolderId) {
+      id
+      fullName
       assets {
         edges {
           node {

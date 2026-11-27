@@ -140,7 +140,7 @@ test.describe('bulk edit — assigning tasks to a program (ISS-2980)', () => {
     await dialog.getByRole('combobox').first().click()
     await page.getByRole('option', { name: 'Associate Programs', exact: true }).click()
 
-    await dialog.getByPlaceholder('Search programs').fill(programName)
+    await dialog.getByPlaceholder(/^Search by/).fill(programName)
     const programRow = dialog.getByRole('row').filter({ hasText: programName }).first()
     await expect(programRow).toBeVisible({ timeout: 30_000 })
     await programRow.getByRole('checkbox').first().check()

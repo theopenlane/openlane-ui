@@ -1,141 +1,54 @@
 'use client'
 
-import ObjectAssociation from '@/components/shared/object-association/object-association'
-import { Button } from '@repo/ui/button'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import React, { useState } from 'react'
+import { useMemo } from 'react'
 import { useParams } from 'next/navigation'
+import { Button } from '@repo/ui/button'
+import { type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { AssociateObjectsDialog } from '@/components/shared/object-association/picker/associate-objects-dialog'
+import { type TAssociationUpdateInput } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { getEdgeIds, getEdgeNodes } from '@/components/shared/object-association/utils'
+import { getObjectDisplayName } from '@/utils/object-display-name'
+import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementation'
-import { useNotification } from '@/hooks/useNotification'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
-interface Props {
-  initialData: TObjectAssociationMap
-  updateControlImplementationId: string
+const ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL]
+
+type TLinkControlsModalProps = {
+  controlImplementation: ControlImplementationFieldsFragment
   open?: boolean
   onOpenChange?: (open: boolean) => void
-  hideTrigger?: boolean
-  trigger?: React.ReactNode
 }
 
-export function LinkControlsModal({ initialData, updateControlImplementationId, open, onOpenChange, hideTrigger, trigger }: Props) {
+export const LinkControlsModal = ({ controlImplementation, open: controlledOpen, onOpenChange }: TLinkControlsModalProps) => {
   const { subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
-  const isSubcontrol = !!subcontrolId
-
-  const [internalOpen, setInternalOpen] = useState(false)
-  const [saveEnabled, setSaveEnabled] = useState(false)
-  const [associations, setAssociations] = useState(initialData)
-  const [isSaving, setIsSaving] = useState(false)
-
-  const isControlled = typeof open === 'boolean'
-  const dialogOpen = isControlled ? open : internalOpen
-  const setDialogOpen = (nextOpen: boolean) => {
-    if (!isControlled) {
-      setInternalOpen(nextOpen)
-    }
-    onOpenChange?.(nextOpen)
-  }
-
-  const { successNotification, errorNotification } = useNotification()
+  const [open, setOpen, isControlled] = useControllableOpen({ open: controlledOpen, onOpenChange })
   const { mutateAsync: update } = useUpdateControlImplementation()
 
-  const getAssociationDiffs = (initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } => {
-    const added: TObjectAssociationMap = {}
-    const removed: TObjectAssociationMap = {}
+  const initialData = useMemo(
+    () => ({
+      controlIDs: getEdgeIds(controlImplementation.controls?.edges),
+      subcontrolIDs: getEdgeIds(controlImplementation.subcontrols?.edges),
+    }),
+    [controlImplementation],
+  )
 
-    const allKeys = new Set([...Object.keys(initial), ...Object.keys(current)])
-
-    for (const key of allKeys) {
-      const initialSet = new Set(initial[key] ?? [])
-      const currentSet = new Set(current[key] ?? [])
-
-      const addedItems = [...currentSet].filter((id) => !initialSet.has(id))
-      const removedItems = [...initialSet].filter((id) => !currentSet.has(id))
-
-      if (addedItems.length > 0) added[key] = addedItems
-      if (removedItems.length > 0) removed[key] = removedItems
-    }
-
-    return { added, removed }
-  }
-
-  const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
-
-  const onSave = async () => {
-    setIsSaving(true)
-    try {
-      const { added, removed } = getAssociationDiffs(initialData, associations)
-
-      const associationInputs = {
-        ...Object.entries(added).reduce(
-          (acc, [key, ids]) => {
-            if (ids && ids.length > 0) acc[buildMutationKey('add', key)] = ids
-            return acc
-          },
-          {} as Record<string, string[]>,
-        ),
-
-        ...Object.entries(removed).reduce(
-          (acc, [key, ids]) => {
-            if (ids && ids.length > 0) acc[buildMutationKey('remove', key)] = ids
-            return acc
-          },
-          {} as Record<string, string[]>,
-        ),
-      }
-
-      await update({
-        updateControlImplementationId,
-        input: associationInputs,
-      })
-
-      successNotification({ title: 'Associations updated successfully.' })
-      setDialogOpen(false)
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  const handleDialogChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      setAssociations(initialData)
-      setSaveEnabled(false)
-    }
-    setDialogOpen(isOpen)
+  const handleSave = async (input: TAssociationUpdateInput<keyof typeof initialData>) => {
+    await update({ updateControlImplementationId: controlImplementation.id, input })
   }
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={handleDialogChange}>
-      {!hideTrigger && <DialogTrigger asChild>{trigger ?? <Button className="h-8 px-2!">Set Association</Button>}</DialogTrigger>}
-      <DialogContent className="max-w-2xl p-6 space-y-4">
-        <DialogHeader>
-          <DialogTitle>Associate Related Objects</DialogTitle>
-        </DialogHeader>
-
-        <ObjectAssociation
-          defaultSelectedObject={isSubcontrol ? ObjectTypeObjects.SUB_CONTROL : ObjectTypeObjects.CONTROL}
-          onIdChange={(updatedMap) => {
-            setAssociations(updatedMap)
-            setSaveEnabled(true)
-          }}
-          initialData={initialData}
-          allowedObjectTypes={[ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL]}
-        />
-        <DialogFooter>
-          <SaveButton disabled={!saveEnabled || isSaving} onClick={onSave} isSaving={isSaving} />
-          <CancelButton onClick={() => setDialogOpen(false)}></CancelButton>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <AssociateObjectsDialog
+      sourceType={ObjectTypeObjects.CONTROL_IMPLEMENTATION}
+      sourceName={getObjectDisplayName(getEdgeNodes(controlImplementation.controls?.edges)[0])}
+      initialData={initialData}
+      allowedObjectTypes={ALLOWED_OBJECT_TYPES}
+      defaultSelectedObject={subcontrolId ? ObjectTypeObjects.SUB_CONTROL : ObjectTypeObjects.CONTROL}
+      successMessage="Associations updated successfully."
+      onSave={handleSave}
+      trigger={isControlled ? undefined : <Button className="h-8 px-2!">Set Association</Button>}
+      open={open}
+      onOpenChange={setOpen}
+    />
   )
 }

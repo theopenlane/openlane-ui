@@ -87,16 +87,7 @@ export const ImplementationItem: React.FC<Props> = ({ node, canEdit, onEdit, onM
           ) : undefined
         }
       />
-      <LinkControlsModal
-        updateControlImplementationId={node.id}
-        hideTrigger
-        open={associationsOpen}
-        onOpenChange={setAssociationsOpen}
-        initialData={{
-          controlIDs: node.controls?.edges?.flatMap((edge) => edge?.node?.id || []),
-          subcontrolIDs: node.subcontrols?.edges?.flatMap((edge) => edge?.node?.id || []),
-        }}
-      />
+      <LinkControlsModal controlImplementation={node} open={associationsOpen} onOpenChange={setAssociationsOpen} />
     </div>
   )
 }

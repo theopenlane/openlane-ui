@@ -197,7 +197,7 @@ describe('generateWhere', () => {
     expect(result).toEqual({
       systemOwned: false,
       isTrustCenterControl: false,
-      or: [{ refCodeContainsFold: 'test' }, { descriptionContainsFold: 'test' }],
+      or: [{ refCodeContainsFold: 'test' }, { titleContainsFold: 'test' }, { descriptionContainsFold: 'test' }],
     })
   })
 

@@ -79,20 +79,7 @@ const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'c
         {detailsOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         Details
       </button>
-      {detailsOpen && (
-        <ControlImplementationCard
-          obj={node}
-          actions={
-            <LinkControlsModal
-              updateControlImplementationId={node.id}
-              initialData={{
-                controlIDs: node.controls?.edges?.flatMap((edge) => edge?.node?.id || []),
-                subcontrolIDs: node.subcontrols?.edges?.flatMap((edge) => edge?.node?.id || []),
-              }}
-            />
-          }
-        />
-      )}
+      {detailsOpen && <ControlImplementationCard obj={node} actions={<LinkControlsModal controlImplementation={node} />} />}
     </div>
   ) : null
 

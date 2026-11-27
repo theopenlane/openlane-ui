@@ -6,6 +6,7 @@ import {
   extractTableRows,
   generateWhere,
   getPagination,
+  getSearchPlaceholder,
   OBJECT_QUERY_CONFIG,
   type ObjectTypeObjects,
   type QueryResponse,
@@ -50,7 +51,7 @@ export const BulkEditSingleObjectAssociation: React.FC<Props> = ({ objectType, o
 
   return (
     <div className="space-y-2">
-      <Input onChange={(e) => setSearchValue(e.target.value)} value={searchValue} placeholder={config.placeholder} className="h-10 w-full" />
+      <Input onChange={(e) => setSearchValue(e.target.value)} value={searchValue} placeholder={getSearchPlaceholder(objectType)} className="h-10 w-full" />
       <ObjectAssociationTable
         isLoading={isLoading}
         onPaginationChange={setPagination}

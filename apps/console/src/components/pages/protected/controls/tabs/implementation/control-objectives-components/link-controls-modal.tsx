@@ -1,171 +1,71 @@
 'use client'
 
-import ObjectAssociation from '@/components/shared/object-association/object-association'
-import { Button } from '@repo/ui/button'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useMemo, useState } from 'react'
-import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
-import { useNotification } from '@/hooks/useNotification'
-import { useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
-import { type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { Button } from '@repo/ui/button'
+import { type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { AssociateObjectsDialog } from '@/components/shared/object-association/picker/associate-objects-dialog'
+import { type TAssociationUpdateInput } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { getEdgeIds } from '@/components/shared/object-association/utils'
+import { useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
+import { getObjectDisplayName } from '@/utils/object-display-name'
 
-type LinkControlsModalProps = {
+const ALLOWED_OBJECT_TYPES = [
+  ObjectTypeObjects.PROGRAM,
+  ObjectTypeObjects.EVIDENCE,
+  ObjectTypeObjects.CONTROL,
+  ObjectTypeObjects.SUB_CONTROL,
+  ObjectTypeObjects.INTERNAL_POLICY,
+  ObjectTypeObjects.PROCEDURE,
+  ObjectTypeObjects.RISK,
+  ObjectTypeObjects.TASK,
+]
+
+type TLinkControlsModalProps = {
   controlObjectiveData: ControlObjectiveFieldsFragment
   'aria-label'?: string
 }
 
-export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabel }: LinkControlsModalProps) {
-  const params = useParams()
-  const isSubcontrol: string | undefined = params.subcontrolId as string
-
+export const LinkControlsModal = ({ controlObjectiveData, 'aria-label': ariaLabel }: TLinkControlsModalProps) => {
+  const { subcontrolId } = useParams<{ subcontrolId?: string }>()
+  const [open, setOpen] = useState(false)
   const { mutateAsync: updateControlObjective } = useUpdateControlObjective()
 
-  const [isSaving, setIsSaving] = useState(false)
-  const [open, setOpen] = useState(false)
-  const [saveEnabled, setSaveEnabled] = useState(false)
-
-  const { errorNotification, successNotification } = useNotification()
-
-  const initialData: TObjectAssociationMap = useMemo(
+  const initialData = useMemo(
     () => ({
-      controlIDs: controlObjectiveData.controls?.edges?.flatMap((edge) => edge?.node?.id || []),
-      subcontrolIDs: controlObjectiveData.subcontrols?.edges?.flatMap((edge) => edge?.node?.id || []),
-      programIDs: controlObjectiveData.programs?.edges?.flatMap((edge) => edge?.node?.id || []),
-      evidenceIDs: controlObjectiveData.evidence?.edges?.flatMap((edge) => edge?.node?.id || []),
-      internalPolicyIDs: controlObjectiveData.internalPolicies?.edges?.flatMap((edge) => edge?.node?.id || []),
-      procedureIDs: controlObjectiveData.procedures?.edges?.flatMap((edge) => edge?.node?.id || []),
-      riskIDs: controlObjectiveData.risks?.edges?.flatMap((edge) => edge?.node?.id || []),
-      taskIDs: controlObjectiveData.tasks?.edges?.flatMap((edge) => edge?.node?.id || []),
+      controlIDs: getEdgeIds(controlObjectiveData.controls?.edges),
+      subcontrolIDs: getEdgeIds(controlObjectiveData.subcontrols?.edges),
+      programIDs: getEdgeIds(controlObjectiveData.programs?.edges),
+      evidenceIDs: getEdgeIds(controlObjectiveData.evidence?.edges),
+      internalPolicyIDs: getEdgeIds(controlObjectiveData.internalPolicies?.edges),
+      procedureIDs: getEdgeIds(controlObjectiveData.procedures?.edges),
+      riskIDs: getEdgeIds(controlObjectiveData.risks?.edges),
+      taskIDs: getEdgeIds(controlObjectiveData.tasks?.edges),
     }),
     [controlObjectiveData],
   )
 
-  const [associations, setAssociations] = useState<TObjectAssociationMap>(initialData)
-
-  function getAssociationDiffs(initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } {
-    const added: TObjectAssociationMap = {}
-    const removed: TObjectAssociationMap = {}
-
-    const allKeys = new Set([...Object.keys(initial), ...Object.keys(current)])
-
-    for (const key of allKeys) {
-      const initialSet = new Set(initial[key] ?? [])
-      const currentSet = new Set(current[key] ?? [])
-
-      const addedItems = [...currentSet].filter((id) => !initialSet.has(id))
-      const removedItems = [...initialSet].filter((id) => !currentSet.has(id))
-
-      if (addedItems.length > 0) {
-        added[key] = addedItems
-      }
-      if (removedItems.length > 0) {
-        removed[key] = removedItems
-      }
-    }
-
-    return { added, removed }
-  }
-
-  const onSave = async () => {
-    setIsSaving(true)
-    try {
-      const { added, removed } = getAssociationDiffs(initialData, associations)
-
-      const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
-
-      const associationInputs = {
-        ...Object.entries(added).reduce(
-          (acc, [key, ids]) => {
-            if (ids && ids.length > 0) {
-              acc[buildMutationKey('add', key)] = ids
-            }
-            return acc
-          },
-          {} as Record<string, string[]>,
-        ),
-
-        ...Object.entries(removed).reduce(
-          (acc, [key, ids]) => {
-            if (ids && ids.length > 0) {
-              acc[buildMutationKey('remove', key)] = ids
-            }
-            return acc
-          },
-          {} as Record<string, string[]>,
-        ),
-      }
-
-      if (Object.keys(associationInputs).length === 0) {
-        setOpen(false)
-        return
-      }
-
-      await updateControlObjective({
-        updateControlObjectiveId: controlObjectiveData.id ?? '',
-        input: associationInputs,
-      })
-
-      successNotification({ title: 'Control Objective updated' })
-      setOpen(false)
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  const handleDialogChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      setAssociations(initialData)
-      setSaveEnabled(false)
-    }
-    setOpen(isOpen)
+  const handleSave = async (input: TAssociationUpdateInput<keyof typeof initialData>) => {
+    await updateControlObjective({ updateControlObjectiveId: controlObjectiveData.id, input })
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogTrigger asChild>
+    <AssociateObjectsDialog
+      sourceType={ObjectTypeObjects.CONTROL_OBJECTIVE}
+      sourceName={getObjectDisplayName(controlObjectiveData)}
+      initialData={initialData}
+      allowedObjectTypes={ALLOWED_OBJECT_TYPES}
+      defaultSelectedObject={subcontrolId ? ObjectTypeObjects.SUB_CONTROL : ObjectTypeObjects.CONTROL}
+      successMessage="Control Objective updated"
+      onSave={handleSave}
+      trigger={
         <Button disabled={controlObjectiveData.status === ControlObjectiveObjectiveStatus.ARCHIVED} className="h-8" aria-label={ariaLabel}>
           Set Associations
         </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl p-6 space-y-4">
-        <DialogHeader>
-          <DialogTitle>Associate Related Objects</DialogTitle>
-        </DialogHeader>
-
-        <ObjectAssociation
-          defaultSelectedObject={isSubcontrol ? ObjectTypeObjects.SUB_CONTROL : ObjectTypeObjects.CONTROL}
-          onIdChange={(updatedMap) => {
-            setAssociations(updatedMap)
-            setSaveEnabled(true)
-          }}
-          initialData={initialData}
-          allowedObjectTypes={[
-            ObjectTypeObjects.PROGRAM,
-            ObjectTypeObjects.EVIDENCE,
-            ObjectTypeObjects.CONTROL,
-            ObjectTypeObjects.SUB_CONTROL,
-            ObjectTypeObjects.INTERNAL_POLICY,
-            ObjectTypeObjects.PROCEDURE,
-            ObjectTypeObjects.RISK,
-            ObjectTypeObjects.TASK,
-          ]}
-        />
-        <DialogFooter>
-          <SaveButton onClick={onSave} disabled={!saveEnabled || isSaving} isSaving={isSaving} />
-          <CancelButton onClick={() => setOpen(false)}></CancelButton>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      }
+      open={open}
+      onOpenChange={setOpen}
+    />
   )
 }

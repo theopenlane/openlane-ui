@@ -131,6 +131,8 @@ export const GET_SUBCONTROL_BY_ID = gql`
 export const GET_SUBCONTROL_ASSOCIATIONS_BY_ID = gql`
   query GetSubcontrolAssociationsById($subcontrolId: ID!) {
     subcontrol(id: $subcontrolId) {
+      id
+      refCode
       internalPolicies {
         totalCount
         edges {

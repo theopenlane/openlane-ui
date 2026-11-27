@@ -254,6 +254,8 @@ export const BULK_DELETE_FINDING = gql`
 export const GET_FINDING_ASSOCIATIONS = gql`
   query GetFindingAssociations($findingId: ID!) {
     finding(id: $findingId) {
+      displayName
+      externalID
       id
       controls {
         edges {
