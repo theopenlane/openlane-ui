@@ -5,6 +5,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { type ControlContext, type OrganizationContext, type ConversationMessage, useAISuggestions, type UserContext, type PolicyContext } from '@/hooks/useGetAISuggestions.tsx'
 import ReactMarkdown from 'react-markdown'
+import { aiEnabled } from '@repo/dally/ai'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -35,7 +36,7 @@ interface AIChatProps {
 const MAX_CHAT_HISTORY = 10
 const CHAT_STORAGE_KEY_PREFIX = 'chat-history'
 
-const AIChat: React.FC<AIChatProps> = ({ open, onOpenChange, providedContext, contextKey, object }) => {
+const AIChatDialog: React.FC<AIChatProps> = ({ open, onOpenChange, providedContext, contextKey, object }) => {
   const [aiPrompt, setAiPrompt] = useState('')
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([])
   const [isCopied, setIsCopied] = useState(false)
@@ -272,5 +273,7 @@ const AIChat: React.FC<AIChatProps> = ({ open, onOpenChange, providedContext, co
     </Dialog>
   )
 }
+
+const AIChat: React.FC<AIChatProps> = (props) => (aiEnabled ? <AIChatDialog {...props} /> : null)
 
 export default AIChat

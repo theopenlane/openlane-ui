@@ -8,6 +8,7 @@ import { useCreateUploadInternalPolicy, useUpdateInternalPolicy } from '@/lib/gr
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { wordTokens } from '@/utils/strings'
+import { aiEnabled } from '@repo/dally/ai'
 
 export type PolicyTemplate = { name: string; downloadUrl: string; size?: number }
 
@@ -64,10 +65,12 @@ export function CreatePolicyMenuItems({ policyName, template, mapControlId, onCr
 
   return (
     <>
-      <DropdownMenuItem className="flex items-center gap-2" onSelect={() => router.push(createHref(true))}>
-        <Sparkles size={14} />
-        Create with AI
-      </DropdownMenuItem>
+      {aiEnabled && (
+        <DropdownMenuItem className="flex items-center gap-2" onSelect={() => router.push(createHref(true))}>
+          <Sparkles size={14} />
+          Create with AI
+        </DropdownMenuItem>
+      )}
       {template && (
         <DropdownMenuItem className="flex items-center gap-2" onSelect={() => onCreateFromTemplate(template)}>
           <FileTextIcon size={14} />
