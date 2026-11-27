@@ -12,7 +12,7 @@ import { CopyIcon, SquarePlus } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useWatch } from 'react-hook-form'
 import { associationsInput, omit, orClear, useDirtyInput, type TFieldMappers } from '@/hooks/useDirtyInput'
 import { usePathname } from 'next/navigation'
@@ -20,12 +20,14 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { useCreateAPIToken, useCreatePersonalAccessToken, useUpdateApiToken, useUpdatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
 import { ScopesSelector } from '@/components/shared/scopes-selector/scopes-selector'
-import { type Organization, type OrganizationSetting, type UpdateApiTokenInput, type UpdatePersonalAccessTokenInput } from '@repo/codegen/src/schema'
-import { Avatar } from '@/components/shared/avatar/avatar'
+import { type OrganizationSetting, type UpdateApiTokenInput, type UpdatePersonalAccessTokenInput } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import useFormSchema, { tokenFormValuesFrom, type TokenFormData } from './hooks/use-form-schema'
 import { useSSOAuthorize } from './hooks/sso'
+import { usePaymentMethodRequirement } from './hooks/use-payment-method-requirement'
+import { PaymentMethodCallout } from './payment-method-callout'
+import { TokenOrganizationOption } from './token-organization-option'
 import { Callout } from '@/components/shared/callout/callout'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
@@ -97,7 +99,8 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
 
   const { data: orgSettingData } = useGetOrganizationSetting(currentOrgId || '')
   const currentSetting = orgSettingData?.organization?.setting as OrganizationSetting | undefined
-  const filteredOrgs = orgs.filter((org) => org?.node?.personalOrg === false) || []
+  const filteredOrgs = orgs.flatMap((org) => (org?.node?.personalOrg === false ? [org.node] : []))
+  const { organizationsWithoutPaymentMethod, isCurrentOrgMissingPaymentMethod, isLoadingPaymentMethods } = usePaymentMethodRequirement({ enabled: open })
 
   const [step, setStep] = useState<STEP>(STEP.CREATE)
   const [confirmationChecked, setConfirmationChecked] = useState<boolean>(false)
@@ -292,19 +295,20 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      {Object.entries(filteredOrgs).map(([, value]) => (
-                        <DropdownMenuCheckboxItem
-                          key={value?.node?.id}
-                          checked={field?.value?.includes(value?.node?.id ?? '')}
-                          onCheckedChange={(checked) => {
-                            const newValue = checked ? [...(field?.value ?? []), value?.node?.id] : field?.value?.filter((id) => id !== value?.node?.id)
-                            field.onChange(newValue)
-                          }}
-                        >
-                          {value?.node && <Avatar entity={value.node as Organization} />}
-                          {value?.node?.name}
-                        </DropdownMenuCheckboxItem>
-                      ))}
+                      {filteredOrgs.map((node) => {
+                        const selectedIds = field.value ?? []
+
+                        return (
+                          <TokenOrganizationOption
+                            key={node.id}
+                            organization={node}
+                            checked={selectedIds.includes(node.id)}
+                            isMissingPaymentMethod={organizationsWithoutPaymentMethod.has(node.id)}
+                            isLoadingPaymentMethods={isLoadingPaymentMethods}
+                            onCheckedChange={(checked) => field.onChange(checked ? [...selectedIds, node.id] : selectedIds.filter((id) => id !== node.id))}
+                          />
+                        )
+                      })}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </FormControl>
@@ -408,6 +412,7 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
                   formId="token-form"
                   onCancel={requestClose}
                   isPending={isSubmitting}
+                  disabled={isCurrentOrgMissingPaymentMethod || isLoadingPaymentMethods}
                   saveLabel={isEditMode ? 'Save' : 'Create Token'}
                   savingLabel={isEditMode ? 'Saving...' : 'Creating...'}
                   secondaryActions={
@@ -422,6 +427,7 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
             />
           }
         >
+          {isCurrentOrgMissingPaymentMethod && <PaymentMethodCallout isEditMode={isEditMode} />}
           {renderForm()}
         </SheetContent>
       )}

@@ -9,6 +9,7 @@ import { DisabledReasonTooltip } from '@/components/shared/disabled-reason-toolt
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { MenuActionItem, orderMenuActions, type TMenuAction } from '@/components/shared/menu/menu-action-item'
 import { type TElementAnchor } from '@/components/shared/element-anchor/element-anchor'
+import { aiEnabled } from '@repo/dally/ai'
 
 type TDetailHeaderActionsProps = {
   isEditing?: boolean
@@ -28,7 +29,7 @@ const isMenuAction = (action: TMenuAction | false | undefined): action is TMenuA
 const DetailHeaderActions: React.FC<TDetailHeaderActionsProps> = ({ isEditing = false, onCancel, isSaving, onEdit, editLabel, editDisabledReason, onAskAI, actions, menuActions = [], menuAnchor }) => {
   const items = orderMenuActions(menuActions.filter(isMenuAction))
 
-  const askAIButton = onAskAI && (
+  const askAIButton = aiEnabled && onAskAI && (
     <Button type="button" variant="secondary" onClick={onAskAI} icon={<Sparkles size={16} />} iconPosition="left">
       Ask AI
     </Button>

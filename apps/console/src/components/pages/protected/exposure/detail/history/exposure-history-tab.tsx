@@ -3,15 +3,12 @@
 import React, { useMemo } from 'react'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { Button } from '@repo/ui/button'
-import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
-import { useGetGroupNames } from '@/lib/graphql-hooks/group'
-import { useIdentityHolderOptions } from '@/lib/graphql-hooks/identity-holder'
-import { resolveAuthor } from '@/lib/authors'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import AssociationTimeline from '@/components/pages/protected/exposure/overview/association-timeline'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { formatList, pluralizeWithCount, toHumanLabel } from '@/utils/strings'
-import { buildOwnershipChanges, historyReferencedIds, type TOwnershipHistoryNode } from './history-events'
+import { type TOwnershipHistoryNode } from './history-events'
+import { useOwnershipHistory } from './use-ownership-history'
 import { buildExposureTimeline, hiddenEdgeCounts, historyEdgeAuthorIds, type TExposureHistoryEdges, type TExposureHistoryEntity, type TExposureMilestone } from './timeline-model'
 
 type TExposureHistoryTabProps<TOp extends string> = {
@@ -42,28 +39,18 @@ const ExposureHistoryTab = <TOp extends string>({ entity, title, objectType, upd
   const { histories, hasNextPage, isFetchingNextPage, fetchNextPage } = history
   useQueryErrorNotification({ error: edges.error ?? history.error, description: `Failed to load ${entityName} history` })
 
-  const { userIds, groupIds, personnelIds } = useMemo(() => historyReferencedIds(histories), [histories])
   const edgeAuthorIds = useMemo(() => historyEdgeAuthorIds(edges.data), [edges.data])
-  const { authorMaps } = useAuthorMaps(edges.isPending || history.isPending ? [] : [...userIds, ...edgeAuthorIds, entity.createdBy])
-  const groupWhere = useMemo(() => ({ idIn: groupIds }), [groupIds])
-  const { groups } = useGetGroupNames({ where: groupWhere, enabled: groupIds.length > 0 })
-  const groupNames = useMemo(() => new Map(groups.map((group) => [group.id, group.displayName || group.name])), [groups])
-  const personnelWhere = useMemo(() => ({ idIn: personnelIds }), [personnelIds])
-  const { nodes: personnel } = useIdentityHolderOptions({ where: personnelWhere, enabled: personnelIds.length > 0 })
-  const personnelNames = useMemo(() => new Map(personnel.map((person) => [person.id, person.fullName || person.email || person.id])), [personnel])
+  const { authorName, ownershipChanges } = useOwnershipHistory({
+    histories,
+    updateOperation,
+    authorIds: [...edgeAuthorIds, entity.createdBy],
+    isPending: edges.isPending || history.isPending,
+  })
 
-  const timeline = useMemo(() => {
-    const authorName = (id: string | null | undefined) => {
-      const author = resolveAuthor(id, authorMaps)
-      return author.kind === 'unknown' || author.kind === 'unresolved' ? null : author.displayName
-    }
-    const ownershipChanges = buildOwnershipChanges(histories, updateOperation, (kind, id) => {
-      if (kind === 'group') return groupNames.get(id) ?? 'a group'
-      if (kind === 'personnel') return personnelNames.get(id) ?? 'a person'
-      return authorName(id) ?? 'a user'
-    })
-    return buildExposureTimeline({ edges: edges.data, ownershipChanges, milestones, entity, title, objectType, entityName, resolveAuthor: authorName })
-  }, [edges.data, histories, updateOperation, milestones, entity, title, objectType, entityName, authorMaps, groupNames, personnelNames])
+  const timeline = useMemo(
+    () => buildExposureTimeline({ edges: edges.data, ownershipChanges, milestones, entity, title, objectType, entityName, resolveAuthor: authorName }),
+    [edges.data, ownershipChanges, milestones, entity, title, objectType, entityName, authorName],
+  )
 
   const hidden = hiddenEdgeCounts(edges.data)
 

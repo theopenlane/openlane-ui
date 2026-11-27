@@ -3,6 +3,7 @@
 import React, { useMemo, useSyncExternalStore } from 'react'
 import { Background, Handle, Position, ReactFlow, type Edge, type Node, type NodeProps } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
+import { INTERACTIVE_NODE_STYLE, STATIC_FLOW_HANDLE_CLASS, STATIC_FLOW_PROPS } from '@/components/shared/static-flow/static-flow'
 import { cn } from '@repo/ui/lib/utils'
 import { type SlaDefinitionsNodeNonNull } from '@/lib/graphql-hooks/sla-definition'
 import { getVulnerabilityDueDate } from '@/utils/vulnerability-due-date'
@@ -45,7 +46,6 @@ const usePrefersReducedMotion = () =>
 const ExposureNode = ({ data }: NodeProps<TExposureNode>) => {
   const openObjectSheet = useOpenObjectSheet()
   const assetId = data.kind === 'asset' ? data.assetId : null
-  const handleClass = '!h-1 !w-1 !min-w-0 !border-0 !bg-transparent'
   const body =
     data.kind === 'environment' ? (
       <EnvironmentChip environment={data.title} />
@@ -62,16 +62,14 @@ const ExposureNode = ({ data }: NodeProps<TExposureNode>) => {
 
   return (
     <>
-      {data.kind !== 'environment' && <Handle type="target" position={Position.Left} className={handleClass} isConnectable={false} />}
+      {data.kind !== 'environment' && <Handle type="target" position={Position.Left} className={STATIC_FLOW_HANDLE_CLASS} isConnectable={false} />}
       {body}
-      {data.kind !== 'asset' && data.kind !== 'owner' && <Handle type="source" position={Position.Right} className={handleClass} isConnectable={false} />}
+      {data.kind !== 'asset' && data.kind !== 'owner' && <Handle type="source" position={Position.Right} className={STATIC_FLOW_HANDLE_CLASS} isConnectable={false} />}
     </>
   )
 }
 
 const NODE_TYPES = { exposure: ExposureNode }
-
-const INTERACTIVE_NODE_STYLE: React.CSSProperties = { pointerEvents: 'all' }
 
 const average = (values: number[]) => values.reduce((total, value) => total + value, 0) / values.length
 
@@ -216,25 +214,7 @@ const ExposureMapGraph: React.FC<TExposureMapGraphProps> = ({ groups, slaDefinit
             ))}
           </div>
           <div style={{ height }} className="w-full">
-            <ReactFlow<TExposureNode, Edge>
-              nodes={nodes}
-              edges={edges}
-              nodeTypes={NODE_TYPES}
-              fitView={false}
-              defaultViewport={{ x: 12, y: 8, zoom: 1 }}
-              nodesDraggable={false}
-              nodesConnectable={false}
-              elementsSelectable={false}
-              zoomOnScroll={false}
-              zoomOnPinch={false}
-              zoomOnDoubleClick={false}
-              panOnScroll={false}
-              panOnDrag={false}
-              nodesFocusable={false}
-              edgesFocusable={false}
-              preventScrolling={false}
-              proOptions={{ hideAttribution: true }}
-            >
+            <ReactFlow<TExposureNode, Edge> {...STATIC_FLOW_PROPS} nodes={nodes} edges={edges} nodeTypes={NODE_TYPES} defaultViewport={{ x: 12, y: 8, zoom: 1 }}>
               <Background gap={24} size={0} />
             </ReactFlow>
           </div>

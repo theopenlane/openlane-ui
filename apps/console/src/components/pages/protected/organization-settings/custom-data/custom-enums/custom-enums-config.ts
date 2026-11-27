@@ -1,4 +1,5 @@
 import { type CustomTypeEnumWhereInput } from '@repo/codegen/src/schema'
+import { compareNatural } from '@/lib/sort'
 import { FILE_CATEGORY_ENUM, GLOBAL_ENUM_FIELD, GLOBAL_ENUM_OBJECT_TYPE } from '@/lib/graphql-hooks/custom-type-enum'
 import {
   Drill,
@@ -44,9 +45,13 @@ export const toApiObjectType = (objectType: string) => (objectType === GLOBAL_EN
 
 export const fromApiObjectType = (objectType?: string | null) => objectType || GLOBAL_ENUM_GROUP
 
+const ALL_ENUMS_GROUP = 'All Enums'
+
+export const DEFAULT_ENUM_GROUP = 'Environments'
+
 export const ENUM_GROUP_MAP: Record<string, EnumGroupConfig> = {
-  'All Enums': {
-    label: 'All Enums',
+  [ALL_ENUMS_GROUP]: {
+    label: ALL_ENUMS_GROUP,
     icon: Eye,
   },
   Environments: {
@@ -195,13 +200,17 @@ export const ENUM_GROUP_MAP: Record<string, EnumGroupConfig> = {
   },
 }
 
-export const ENUM_GROUPS = Object.keys(ENUM_GROUP_MAP)
+const TYPED_ENUM_GROUPS = Object.keys(ENUM_GROUP_MAP)
+  .filter((group) => group !== ALL_ENUMS_GROUP)
+  .sort(compareNatural)
+
+export const ENUM_GROUP_OPTIONS = [ALL_ENUMS_GROUP, ...TYPED_ENUM_GROUPS].map((value) => ({ value, label: ENUM_GROUP_MAP[value].label }))
 
 export const getEnumFilter = (view: string, search: string): CustomTypeEnumWhereInput => {
   const filter: CustomTypeEnumWhereInput = { nameContainsFold: search }
   const config = ENUM_GROUP_MAP[view]
 
-  if (!config || view === 'All Enums') return filter
+  if (!config || view === ALL_ENUMS_GROUP) return filter
 
   if (config.objectType) filter.objectType = toApiObjectType(config.objectType)
   if (config.field) filter.field = config.field

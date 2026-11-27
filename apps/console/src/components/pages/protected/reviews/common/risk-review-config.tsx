@@ -5,13 +5,14 @@ import { Badge } from '@repo/ui/badge'
 import { type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { formatDate } from '@/utils/date'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ReviewStatusIconLabel } from '@/components/shared/enum-mapper/review-enum'
 import { TruncatedCell } from '@repo/ui/data-table'
-import { EntityVendorTier, type ReviewReviewStatus, type ReviewWhereInput } from '@repo/codegen/src/schema'
+import { EntityVendorTier, type ReviewReviewStatus, type ReviewWhereInput, type User } from '@repo/codegen/src/schema'
 
 const TIER_COLORS: Record<string, string> = {
   critical: 'bg-rose-500/16 text-rose-400 border-rose-500/24',
@@ -49,7 +50,9 @@ export const REVIEW_FILTER_FIELDS = defineFilterFields<ReviewWhereInput>()([
   { key: 'sourceContainsFold', label: 'Source', type: 'text', icon: FilterIcons.Source },
 ])
 
-export const reviewHistoryColumns: ColumnDef<ReviewsNodeNonNull>[] = [
+export const reviewerSearchWhere = (term: string): ReviewWhereInput[] => [{ reporterContainsFold: term }, { hasReviewerWith: [{ displayNameContainsFold: term }] }]
+
+export const getReviewHistoryColumns = (userMap: Record<string, User>): ColumnDef<ReviewsNodeNonNull>[] => [
   {
     accessorKey: 'title',
     header: 'Title',
@@ -60,15 +63,7 @@ export const reviewHistoryColumns: ColumnDef<ReviewsNodeNonNull>[] = [
     accessorKey: 'reporter',
     header: 'Reviewer',
     size: 200,
-    cell: ({ row }) =>
-      row.original.reporter ? (
-        <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center text-xs font-medium">{row.original.reporter.charAt(0)}</div>
-          <span>{row.original.reporter}</span>
-        </div>
-      ) : (
-        <span className="text-sm">—</span>
-      ),
+    cell: ({ row: { original: review } }) => <ResponsibilityCell userMap={userMap} user={review.reviewerID ? userMap[review.reviewerID] : undefined} stringValue={review.reporter} />,
   },
   {
     accessorKey: 'reviewedAt',
@@ -126,4 +121,4 @@ export const reviewHistoryColumns: ColumnDef<ReviewsNodeNonNull>[] = [
   },
 ]
 
-export const mappedReviewColumns = getMappedColumns(reviewHistoryColumns)
+export const mappedReviewColumns = getMappedColumns(getReviewHistoryColumns({}))

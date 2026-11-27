@@ -92,7 +92,7 @@ export const WORKFLOW_ADDON_FIELDS = ['hasPendingWorkflow', 'hasWorkflowHistory'
 // Edge types to exclude from associations
 export const EXCLUDED_ASSOCIATIONS = ['groups', 'editors', 'viewers', 'blockedGroups', 'user', 'owner', 'organization']
 
-export const EXCLUDED_CRUD_TYPES = ['DirectoryMembership', 'IntegrationRun', 'AssessmentPolicy', 'Report', 'ReportMembership']
+export const EXCLUDED_CRUD_TYPES = ['DirectoryMembership', 'IntegrationRun', 'AssessmentPolicy', 'Report', 'ReportMembership', 'ShareLinkAccessEvent']
 
 const excludedTypeNames = new Set(EXCLUDED_TYPES.map((name) => name.toLowerCase()))
 const excludedCrudTypeNames = new Set([...EXCLUDED_TYPES, ...EXCLUDED_CRUD_TYPES].map((name) => name.toLowerCase()))

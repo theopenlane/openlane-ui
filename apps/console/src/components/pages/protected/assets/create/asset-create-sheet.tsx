@@ -3,17 +3,15 @@
 import React from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import useFormSchema from '../hooks/use-form-schema'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { useAssetEnumOptions } from '../hooks/use-asset-enum-options'
 import { useCreateAsset } from '@/lib/graphql-hooks/asset'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { getFieldsToRender } from '../table/table-config'
 import { type AssetSheetConfig, type AssetFieldProps, objectType } from '../table/types'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
-import { AssetAssetType, AssetSourceType, type CreateAssetInput } from '@repo/codegen/src/schema'
+import { type CreateAssetInput } from '@repo/codegen/src/schema'
 import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { useCreatableEnumOptions, GLOBAL_ENUM_FIELD } from '@/lib/graphql-hooks/custom-type-enum'
-import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { ASSET_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 
@@ -39,43 +37,7 @@ const AssetCreateSheet: React.FC<AssetCreateSheetProps> = ({ onClose, defaultEnt
     },
   }
 
-  const { enumOptions: accessModelOptions, onCreateOption: createAccessModel } = useCreatableEnumOptions({ field: GLOBAL_ENUM_FIELD.accessModel })
-  const { enumOptions: assetDataClassificationOptions, onCreateOption: createDataClassification } = useCreatableEnumOptions({ objectType: 'asset', field: 'dataClassification' })
-  const { enumOptions: assetSubtypeOptions, onCreateOption: createSubtype } = useCreatableEnumOptions({ objectType: 'asset', field: 'subtype' })
-  const { enumOptions: criticalityOptions, onCreateOption: createCriticality } = useCreatableEnumOptions({ field: GLOBAL_ENUM_FIELD.criticality })
-  const { enumOptions: encryptionStatusOptions, onCreateOption: createEncryptionStatus } = useCreatableEnumOptions({ field: GLOBAL_ENUM_FIELD.encryptionStatus })
-  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
-  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
-  const { enumOptions: securityTierOptions, onCreateOption: createSecurityTier } = useCreatableEnumOptions({ field: GLOBAL_ENUM_FIELD.securityTier })
-  const tagOptions = useGetTags()
-
-  const assetSourceTypeOptions = Object.values(AssetSourceType).map((value) => ({ value, label: getEnumLabel(value as string) }))
-  const assetTypeOptions = Object.values(AssetAssetType).map((value) => ({ value, label: getEnumLabel(value as string) }))
-
-  const enumOpts = {
-    assetTypeOptions,
-    accessModelOptions,
-    assetDataClassificationOptions,
-    assetSubtypeOptions,
-    assetSourceTypeOptions,
-    criticalityOptions,
-    encryptionStatusOptions,
-    environmentOptions,
-    scopeOptions,
-    securityTierOptions,
-    tagOptions: tagOptions.tagOptions,
-  }
-
-  const enumCreateHandlers = {
-    accessModelName: createAccessModel,
-    assetDataClassificationName: createDataClassification,
-    assetSubtypeName: createSubtype,
-    criticalityName: createCriticality,
-    encryptionStatusName: createEncryptionStatus,
-    environmentName: createEnvironment,
-    scopeName: createScope,
-    securityTierName: createSecurityTier,
-  }
+  const { enumOpts, enumCreateHandlers } = useAssetEnumOptions()
 
   const sheetConfig: AssetSheetConfig = {
     objectType,

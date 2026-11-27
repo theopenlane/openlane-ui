@@ -114,12 +114,14 @@ export const useVendorsWithFilter = ({ where, orderBy, pagination, enabled }: Ge
   return { ...rest, vendorNodes: entitiesNodes }
 }
 
-export const useVendorOptions = ({ first = 100, enabled = true }: { first?: number; enabled?: boolean } = {}) => {
+type TUseVendorOptionsArgs = { where?: EntityWhereInput; first?: number; enabled?: boolean }
+
+export const useVendorOptions = ({ where = VENDOR_WITH_CONTACTS_WHERE, first = 100, enabled = true }: TUseVendorOptionsArgs = {}) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<EntityOptionsResult, unknown>({
-    queryKey: ['entities', 'options', VENDOR_WITH_CONTACTS_WHERE, first],
-    queryFn: () => client.request<EntityOptionsResult>(GET_ENTITY_OPTIONS, { where: VENDOR_WITH_CONTACTS_WHERE, first }),
+    queryKey: ['entities', 'options', where, first],
+    queryFn: () => client.request<EntityOptionsResult>(GET_ENTITY_OPTIONS, { where, first }),
     enabled,
   })
 

@@ -144,3 +144,16 @@ export const BULK_EDIT_SYSTEM_DETAIL = gql`
     }
   }
 `
+
+export const GET_SYSTEM_DETAIL_OPTIONS = gql`
+  query GetSystemDetailOptions($where: SystemDetailWhereInput, $first: Int) {
+    systemDetails(where: $where, first: $first) {
+      edges {
+        node {
+          id
+          systemName
+        }
+      }
+    }
+  }
+`

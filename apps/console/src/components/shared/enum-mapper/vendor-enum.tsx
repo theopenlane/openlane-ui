@@ -16,15 +16,15 @@ export const VendorStatusIconMapper: Record<EntityEntityStatus, React.ReactNode>
 }
 
 const VendorStatusColorMapper: Record<EntityEntityStatus, string> = {
-  [EntityEntityStatus.DRAFT]: 'text-vendor-draft bg-vendor-draft-muted border-vendor-draft-border',
-  [EntityEntityStatus.UNDER_REVIEW]: 'text-vendor-under-review bg-vendor-under-review-muted border-vendor-under-review-border',
-  [EntityEntityStatus.APPROVED]: 'text-vendor-approved bg-vendor-approved-muted border-vendor-approved-border',
-  [EntityEntityStatus.RESTRICTED]: 'text-vendor-restricted bg-vendor-restricted-muted border-vendor-restricted-border',
-  [EntityEntityStatus.REJECTED]: 'text-vendor-rejected bg-vendor-rejected-muted border-vendor-rejected-border',
-  [EntityEntityStatus.ACTIVE]: 'text-vendor-active bg-vendor-active-muted border-vendor-active-border',
-  [EntityEntityStatus.SUSPENDED]: 'text-vendor-suspended bg-vendor-suspended-muted border-vendor-suspended-border',
-  [EntityEntityStatus.OFFBOARDING]: 'text-vendor-offboarding bg-vendor-offboarding-muted border-vendor-offboarding-border',
-  [EntityEntityStatus.TERMINATED]: 'text-vendor-terminated bg-vendor-terminated-muted border-vendor-terminated-border',
+  [EntityEntityStatus.DRAFT]: 'text-vendor-draft-text bg-vendor-draft-muted border-vendor-draft-border',
+  [EntityEntityStatus.UNDER_REVIEW]: 'text-vendor-under-review-text bg-vendor-under-review-muted border-vendor-under-review-border',
+  [EntityEntityStatus.APPROVED]: 'text-vendor-approved-text bg-vendor-approved-muted border-vendor-approved-border',
+  [EntityEntityStatus.RESTRICTED]: 'text-vendor-restricted-text bg-vendor-restricted-muted border-vendor-restricted-border',
+  [EntityEntityStatus.REJECTED]: 'text-vendor-rejected-text bg-vendor-rejected-muted border-vendor-rejected-border',
+  [EntityEntityStatus.ACTIVE]: 'text-vendor-active-text bg-vendor-active-muted border-vendor-active-border',
+  [EntityEntityStatus.SUSPENDED]: 'text-vendor-suspended-text bg-vendor-suspended-muted border-vendor-suspended-border',
+  [EntityEntityStatus.OFFBOARDING]: 'text-vendor-offboarding-text bg-vendor-offboarding-muted border-vendor-offboarding-border',
+  [EntityEntityStatus.TERMINATED]: 'text-vendor-terminated-text bg-vendor-terminated-muted border-vendor-terminated-border',
 }
 
 export function VendorStatusBadge({ status }: { status: EntityEntityStatus }) {

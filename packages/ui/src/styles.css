@@ -579,6 +579,15 @@
   --color-info-text: color-mix(in srgb, var(--color-info) 45%, var(--foreground));
   --color-warning-text: color-mix(in srgb, var(--color-warning) 45%, var(--foreground));
   --color-destructive-text: color-mix(in srgb, var(--destructive) 45%, var(--foreground));
+  --color-vendor-draft-text: color-mix(in srgb, var(--color-vendor-draft) 45%, var(--foreground));
+  --color-vendor-under-review-text: color-mix(in srgb, var(--color-vendor-under-review) 45%, var(--foreground));
+  --color-vendor-approved-text: color-mix(in srgb, var(--color-vendor-approved) 45%, var(--foreground));
+  --color-vendor-restricted-text: color-mix(in srgb, var(--color-vendor-restricted) 45%, var(--foreground));
+  --color-vendor-rejected-text: color-mix(in srgb, var(--color-vendor-rejected) 45%, var(--foreground));
+  --color-vendor-active-text: color-mix(in srgb, var(--color-vendor-active) 45%, var(--foreground));
+  --color-vendor-suspended-text: color-mix(in srgb, var(--color-vendor-suspended) 45%, var(--foreground));
+  --color-vendor-offboarding-text: color-mix(in srgb, var(--color-vendor-offboarding) 45%, var(--foreground));
+  --color-vendor-terminated-text: color-mix(in srgb, var(--color-vendor-terminated) 45%, var(--foreground));
   --color-primary-text: color-mix(in srgb, var(--primary) 45%, var(--foreground));
   --color-standard-masvs: #9d9d9d;
   --color-standard-ccpa: #003162;
@@ -601,7 +610,7 @@
   --color-evidences: #93c5fd;
   --color-scans: #f472b6;
   --color-reviews: #818cf8;
-  --color-findings: #f87171;
+  --color-findings: #f59e0b;
   --color-vulnerabilities: #f45b50;
   --color-campaigns: #fb923c;
   --color-assets: #38bdf8;

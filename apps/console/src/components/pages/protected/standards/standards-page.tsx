@@ -25,6 +25,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
+import { usePlugSupportWidget } from '@/hooks/usePlugSupportWidget'
 import { tableActionAnchor } from '@/components/shared/element-anchor/element-anchor'
 import { StandardCatalogCard } from './standard-catalog-card'
 import { CUSTOM_FRAMEWORK_CREATE_HREF, STANDARDS_CATALOG_HREF, isCustomStandard, standardHref, standardLogoSrc } from './custom-framework/custom-framework'
@@ -45,6 +46,7 @@ const StandardsPage = () => {
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRoles()
   const canCreateFramework = hasPermission(permission?.roles, AccessEnum.CanCreateStandard, session)
+  const openSupportMessage = usePlugSupportWidget('create_conversation')
 
   useEffect(() => {
     setRecommendedFrameworks(getOnboardingFrameworks(currentOrgId))
@@ -149,9 +151,15 @@ const StandardsPage = () => {
           <OfficialOnly>
             <Card className="bg-card p-10 rounded-lg shadow-sm border border-dashed flex flex-col items-center justify-center text-center min-h-[280px]">
               <p className="mb-4">Looking for a framework that’s not supported yet? Reach out with the details.</p>
-              <Button asChild variant="secondary" className="text-hyperlink">
-                <a href={INFO_EMAIL}>{INFO_EMAIL_ADDRESS}</a>
-              </Button>
+              {openSupportMessage ? (
+                <Button type="button" variant="secondary" onClick={openSupportMessage}>
+                  Send us a message
+                </Button>
+              ) : (
+                <Button asChild variant="secondary">
+                  <a href={INFO_EMAIL}>{INFO_EMAIL_ADDRESS}</a>
+                </Button>
+              )}
             </Card>
           </OfficialOnly>
         </div>

@@ -14,6 +14,12 @@ type TObjectSheetLinkProps = {
   onOpenSheet: (id: string, kind: ObjectAssociationNodeEnum) => void
 }
 
+export const openOnPlainClick = (open: () => void) => (event: React.MouseEvent<HTMLAnchorElement>) => {
+  if (isModifiedClick(event)) return
+  event.preventDefault()
+  open()
+}
+
 const ObjectSheetLink: React.FC<TObjectSheetLinkProps> = ({ id, kind, label, onOpenSheet }) => {
   const href = getHrefForObjectType(kind, { id })
 
@@ -25,17 +31,8 @@ const ObjectSheetLink: React.FC<TObjectSheetLinkProps> = ({ id, kind, label, onO
     )
   }
 
-  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (isModifiedClick(event)) {
-      return
-    }
-
-    event.preventDefault()
-    onOpenSheet(id, kind)
-  }
-
   return (
-    <Link href={href} prefetch={false} onClick={handleClick}>
+    <Link href={href} prefetch={false} onClick={openOnPlainClick(() => onOpenSheet(id, kind))}>
       {label}
     </Link>
   )

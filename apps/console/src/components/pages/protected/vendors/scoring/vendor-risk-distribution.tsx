@@ -14,7 +14,7 @@ import { type VendorRiskRatingCountsQuery } from '@repo/codegen/src/schema'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { tableKey } from '../table/types'
-import { SegmentedBar } from './segmented-bar'
+import { SegmentedBar } from '@/components/shared/segmented-bar/segmented-bar'
 
 const NOT_SCORED = 'NOT_SCORED'
 const OTHER = 'OTHER'
