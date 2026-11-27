@@ -349,6 +349,8 @@ export const GET_CONTROL_BY_ID = gql`
 export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
   query GetControlAssociationsById($controlId: ID!) {
     control(id: $controlId) {
+      id
+      refCode
       internalPolicies {
         edges {
           node {

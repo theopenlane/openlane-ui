@@ -6,29 +6,14 @@ import ControlImplementationDetailsSheet from '@/components/pages/protected/cont
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import {
-  extractTableRows,
-  generateWhere,
-  getPagination,
-  OBJECT_QUERY_CONFIG,
-  ObjectTypeObjects,
-  type QueryResponse,
-  type TableRow,
-} from '@/components/shared/object-association/object-association-config'
-import { useQuery } from '@tanstack/react-query'
+import { getSearchPlaceholder, OBJECT_QUERY_CONFIG, ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import ObjectAssociationTable from '@/components/shared/object-association/object-association-table'
 import ObjectAssociationPlaceholder from '@/components/shared/object-association/object-association-placeholder'
-import { useVirtualPagination } from '@/components/shared/object-association/use-virtual-pagination'
-import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { useAssociationRows } from '@/components/shared/object-association/use-association-rows'
 import { type TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type TPagination } from '@repo/ui/pagination-types'
 import Pagination from '@repo/ui/pagination'
-import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useSession } from 'next-auth/react'
 import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
-
-const initialPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } }
 
 type Props = {
   onIdChange: (updatedMap: TObjectAssociationMap, refCodes: Partial<Record<string, string[]>>) => void
@@ -39,12 +24,10 @@ type Props = {
 }
 
 const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCodeInitialData, defaultSelectedObject }: Props) => {
-  const { client } = useGraphQLClient()
   const { hasObjectType } = useModuleAccess()
   const objectTypeLabelId = useId()
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(defaultSelectedObject || null)
   const [searchValue, setSearchValue] = useState('')
-  const [pagination, setPagination] = useState<TPagination>(initialPagination)
   const debouncedSearchValue = useDebounce(searchValue, 300)
   const [activeSheet, setActiveSheet] = useState<{ id: string; type: ObjectTypeObjects } | null>(null)
 
@@ -54,58 +37,21 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
   )
 
   const isSelectedObjectAllowed = !!selectedObject && selectableObjectTypes.includes(selectedObject)
-  const selectedConfig = isSelectedObjectAllowed && selectedObject ? OBJECT_QUERY_CONFIG[selectedObject] : null
-  const selectedQuery = selectedConfig?.queryDocument || ''
-  const objectKey = selectedConfig?.responseObjectKey
-  const inputName = selectedConfig?.inputName
-  const inputPlaceholder = selectedConfig?.placeholder
-  const { data: sessionData } = useSession()
-  const currentOrg = sessionData?.user.activeOrganizationId
+  const activeObject = isSelectedObjectAllowed ? selectedObject : null
+  const linkedIds = activeObject ? (initialData?.[OBJECT_QUERY_CONFIG[activeObject].inputName] ?? []) : []
 
-  const pinnedIds = useMemo<string[]>(() => (inputName && initialData ? (initialData[inputName] ?? []) : []), [inputName, initialData])
-  const pinnedActive = pinnedIds.length > 0 && debouncedSearchValue === ''
-  const pinnedIdsKey = useMemo(() => [...pinnedIds].sort().join(','), [pinnedIds])
-
-  const baseWhere = generateWhere(selectedObject, debouncedSearchValue, currentOrg)
-  const mainWhere = pinnedActive ? { ...baseWhere, idNotIn: pinnedIds } : baseWhere
-  const pinnedWhere = pinnedActive ? { ...generateWhere(selectedObject, '', currentOrg), idIn: pinnedIds } : null
-
-  const { data, isLoading, isFetching } = useQuery<QueryResponse>({
-    queryKey: [objectKey, 'objectAssociation', 'main', mainWhere, selectedConfig?.defaultOrderBy, pagination.page, pagination.pageSize, pinnedIdsKey],
-    queryFn: async () => client.request(selectedQuery, { where: mainWhere, orderBy: selectedConfig?.defaultOrderBy, ...pagination?.query }),
-    enabled: !!selectedQuery,
+  const { rows, isLoading, pagination, totalPages, handlePageChange, handlePageSizeChange } = useAssociationRows({
+    objectType: activeObject,
+    search: debouncedSearchValue,
+    linkedIds,
+    pageSize: 5,
   })
-
-  const { data: pinnedData, isLoading: isPinnedLoading } = useQuery<QueryResponse>({
-    queryKey: [objectKey, 'objectAssociation', 'pinned', selectedConfig?.defaultOrderBy, pinnedIdsKey, currentOrg],
-    queryFn: async () => client.request(selectedQuery, { where: pinnedWhere, orderBy: selectedConfig?.defaultOrderBy, first: pinnedIds.length }),
-    enabled: !!selectedQuery && pinnedActive,
-  })
-
-  useEffect(() => {
-    setPagination(initialPagination)
-  }, [debouncedSearchValue, selectedObject])
 
   useEffect(() => {
     if (selectedObject && !isSelectedObjectAllowed) {
       setSelectedObject(null)
     }
   }, [selectedObject, isSelectedObjectAllowed])
-
-  const mainMeta = objectKey && !isLoading && !isFetching ? getPagination(objectKey, data) : undefined
-
-  const tableData = useMemo<TableRow[]>(() => extractTableRows(objectKey, data, inputName), [data, objectKey, inputName])
-  const pinnedRows = useMemo<TableRow[]>(() => (pinnedActive ? extractTableRows(objectKey, pinnedData, inputName) : []), [pinnedActive, pinnedData, objectKey, inputName])
-
-  const { pageData, totalPages, handlePageChange, handlePageSizeChange } = useVirtualPagination({
-    pinnedActive,
-    pinnedRows,
-    tableData,
-    pageInfo: mainMeta?.pageInfo,
-    totalCount: mainMeta?.totalCount,
-    pagination,
-    setPagination,
-  })
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(event.target.value)
@@ -122,7 +68,6 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
           <Select
             onValueChange={(val: ObjectTypeObjects) => {
               setSelectedObject(val)
-              setPagination(initialPagination)
               setSearchValue('')
             }}
           >
@@ -144,19 +89,18 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
         </div>
         <div className="flex flex-col gap-2">
           <Label>Search</Label>
-          <Input disabled={!selectedQuery} onChange={handleSearchChange} value={searchValue} placeholder={inputPlaceholder ? `${inputPlaceholder}` : 'Select object first'} className="h-10 w-full" />
+          <Input
+            disabled={!activeObject}
+            onChange={handleSearchChange}
+            value={searchValue}
+            placeholder={activeObject ? getSearchPlaceholder(activeObject) : 'Select object first'}
+            className="h-10 w-full"
+          />
         </div>
       </div>
       {isSelectedObjectAllowed ? (
         <>
-          <ObjectAssociationTable
-            isLoading={isLoading || isPinnedLoading}
-            data={pageData}
-            onIDsChange={onIdChange}
-            initialData={initialData}
-            refCodeInitialData={refCodeInitialData}
-            onRowClick={handleRowClick}
-          />
+          <ObjectAssociationTable isLoading={isLoading} data={rows} onIDsChange={onIdChange} initialData={initialData} refCodeInitialData={refCodeInitialData} onRowClick={handleRowClick} />
           <Pagination currentPage={pagination.page} totalPages={totalPages} pageSize={pagination.pageSize} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} />
         </>
       ) : (

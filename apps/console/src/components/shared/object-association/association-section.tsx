@@ -36,9 +36,10 @@ export type AssociationConnection = {
   totalCount?: number
 }
 
-export type AssociationsRoot<TSectionKey extends string = string> = Partial<Record<TSectionKey, AssociationConnection | undefined>> & {
-  id?: string
-}
+export type AssociationsRoot<TSectionKey extends string = string> = Partial<Record<TSectionKey, AssociationConnection | undefined>> &
+  TObjectNameSource & {
+    id?: string
+  }
 
 export type AssociationsData<TRootField extends string = string, TSectionKey extends string = string> = Partial<Record<TRootField, AssociationsRoot<TSectionKey> | undefined>>
 
@@ -186,7 +187,7 @@ export const AssociationSection = <TConfig extends AssociationEntityConfig>({
     <Panel className="mt-5 gap-3">
       <div className="flex items-center justify-between">
         <PanelHeader heading="Associated Objects" noBorder />
-        {isEditAllowed && entityId && <SetAssociationDialog config={config.dialogConfig} associationsData={associationsData} onUpdate={onUpdateEntity} />}
+        {isEditAllowed && entityId && <SetAssociationDialog config={config.dialogConfig} associationsData={associationsData} onUpdate={onUpdateEntity} objectName={getObjectDisplayName(data)} />}
       </div>
       <p className="text-sm text-muted-foreground">{`This shows objects directly associated with ${entityName}. This does not include objects linked by inheritance`}</p>
       {hasSections && <AssociatedObjectsAccordion sections={sections} toggleAll={false} removable={isEditAllowed} onRemove={handleRemoveAssociation} />}

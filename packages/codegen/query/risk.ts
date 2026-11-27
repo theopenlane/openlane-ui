@@ -411,6 +411,8 @@ export const GET_RISK_ASSOCIATIONS_TIMELINE = gql`
 export const GET_RISK_ASSOCIATIONS = gql`
   query GetRiskAssociations($riskId: ID!) {
     risk(id: $riskId) {
+      id
+      name
       controls {
         totalCount
         edges {

@@ -196,6 +196,8 @@ export const PROCEDURE_BY_ID = gql`
 export const GET_PROCEDURE_ASSOCIATIONS_BY_ID = gql`
   query GetProcedureAssociationsById($procedureId: ID!) {
     procedure(id: $procedureId) {
+      id
+      name
       risks {
         edges {
           node {

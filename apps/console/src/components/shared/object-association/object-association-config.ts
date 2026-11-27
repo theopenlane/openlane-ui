@@ -1,7 +1,7 @@
 import { type Section, type TConnectionLike } from '@/components/shared/object-association/types/object-association-types'
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
 import { GET_ALL_CAMPAIGNS } from '@repo/codegen/query/campaign'
-import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
+import { GET_ASSOCIATION_PICKER_CONTROLS, GET_ASSOCIATION_PICKER_SUBCONTROLS } from '@repo/codegen/query/association-picker'
 import { GET_ALL_CONTROL_IMPLEMENTATIONS } from '@repo/codegen/query/control-implementation'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
 import { GET_ALL_ENTITIES } from '@repo/codegen/query/entity'
@@ -16,9 +16,9 @@ import { GET_ALL_REMEDIATIONS } from '@repo/codegen/query/remediation'
 import { GET_ALL_REVIEWS } from '@repo/codegen/query/review'
 import { GET_ALL_VULNERABILITIES } from '@repo/codegen/query/vulnerability'
 import { getObjectDisplayName } from '@/utils/object-display-name'
+import { formatList, toHumanLabel, toLowerLabel } from '@/utils/strings'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
 import { GET_ALL_SCANS } from '@repo/codegen/query/scan'
-import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
 import { EXCLUDE_TEMPLATES_WHERE } from '@/lib/graphql-hooks/task-where'
 import { TASKS_WITH_FILTER } from '@repo/codegen/query/task'
 import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
@@ -89,6 +89,7 @@ import {
   VulnerabilityOrderField,
   ActionPlanOrderField,
 } from '@repo/codegen/src/schema'
+import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { type useQueryClient } from '@tanstack/react-query'
 import { type RequestDocument } from 'graphql-request'
@@ -102,14 +103,14 @@ import {
   type CampaignsWithFilterQuery,
   type GetAllControlImplementationsQuery,
   type GetAllControlObjectivesQuery,
-  type GetAllControlsQuery,
+  type GetAssociationPickerControlsQuery,
   type GetAllEvidencesQuery,
   type GetAllGroupsQuery,
   type GetAllInternalPoliciesQuery,
   type GetAllProceduresWithDetailsQuery,
   type GetAllProgramsQuery,
   type GetAllRisksQuery,
-  type GetAllSubcontrolsQuery,
+  type GetAssociationPickerSubcontrolsQuery,
   type EntitiesWithFilterQuery,
   type FindingsWithFilterQuery,
   type IdentityHoldersWithFilterQuery,
@@ -138,9 +139,9 @@ import type {
 
 export type QueryResponse =
   | ActionPlansWithFilterQuery
-  | GetAllControlsQuery
+  | GetAssociationPickerControlsQuery
   | GetAllControlImplementationsQuery
-  | GetAllSubcontrolsQuery
+  | GetAssociationPickerSubcontrolsQuery
   | GetAllControlObjectivesQuery
   | GetAllProgramsQuery
   | TasksWithFilterQuery
@@ -319,7 +320,7 @@ type ObjectQueryConfig = {
   responseObjectKey: AllObjectQueriesDataKey
   queryDocument: RequestDocument
   inputName: string
-  placeholder: string
+  sectionKey: AssociationSectionKey
   defaultOrderBy?: Array<{ field: string; direction: OrderDirection }>
 }
 
@@ -328,7 +329,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.ACTION_PLAN,
     responseObjectKey: 'actionPlans',
     inputName: 'actionPlanIDs',
-    placeholder: 'Search action plans',
+    sectionKey: 'actionPlans',
     queryDocument: GET_ALL_ACTION_PLANS,
     defaultOrderBy: [{ field: ActionPlanOrderField.title, direction: OrderDirection.ASC }],
   },
@@ -336,15 +337,15 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.CONTROL,
     responseObjectKey: 'controls',
     inputName: 'controlIDs',
-    placeholder: 'Search controls',
-    queryDocument: GET_ALL_CONTROLS,
+    sectionKey: 'controls',
+    queryDocument: GET_ASSOCIATION_PICKER_CONTROLS,
     defaultOrderBy: [{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: {
     objectType: ObjectTypes.CONTROL_IMPLEMENTATION,
     responseObjectKey: 'controlImplementations',
     inputName: 'controlImplementationIDs',
-    placeholder: 'Search control implementations',
+    sectionKey: 'controlImplementations',
     queryDocument: GET_ALL_CONTROL_IMPLEMENTATIONS,
     defaultOrderBy: [{ field: ControlImplementationOrderField.created_at, direction: OrderDirection.DESC }],
   },
@@ -352,15 +353,15 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.SUBCONTROL,
     responseObjectKey: 'subcontrols',
     inputName: 'subcontrolIDs',
-    placeholder: 'Search subcontrols',
-    queryDocument: GET_ALL_SUBCONTROLS,
+    sectionKey: 'subcontrols',
+    queryDocument: GET_ASSOCIATION_PICKER_SUBCONTROLS,
     defaultOrderBy: [{ field: SubcontrolOrderField.ref_code, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.CONTROL_OBJECTIVE]: {
     objectType: ObjectTypes.CONTROL_OBJECTIVE,
     responseObjectKey: 'controlObjectives',
     inputName: 'controlObjectiveIDs',
-    placeholder: 'Search control objectives',
+    sectionKey: 'controlObjectives',
     queryDocument: GET_ALL_CONTROL_OBJECTIVES,
     defaultOrderBy: [{ field: ControlObjectiveOrderField.name, direction: OrderDirection.ASC }],
   },
@@ -368,7 +369,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.PROGRAM,
     responseObjectKey: 'programs',
     inputName: 'programIDs',
-    placeholder: 'Search programs',
+    sectionKey: 'programs',
     queryDocument: GET_ALL_PROGRAMS,
     defaultOrderBy: [{ field: ProgramOrderField.name, direction: OrderDirection.ASC }],
   },
@@ -376,7 +377,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.TASK,
     responseObjectKey: 'tasks',
     inputName: 'taskIDs',
-    placeholder: 'Search tasks',
+    sectionKey: 'tasks',
     queryDocument: TASKS_WITH_FILTER,
     defaultOrderBy: [{ field: TaskOrderField.title, direction: OrderDirection.ASC }],
   },
@@ -384,7 +385,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.EVIDENCE,
     responseObjectKey: 'evidences',
     inputName: 'evidenceIDs',
-    placeholder: 'Search evidence',
+    sectionKey: 'evidences',
     queryDocument: GET_ALL_EVIDENCES,
     defaultOrderBy: [{ field: EvidenceOrderField.name, direction: OrderDirection.ASC }],
   },
@@ -392,7 +393,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.GROUP,
     responseObjectKey: 'groups',
     inputName: 'groupIDs',
-    placeholder: 'Search groups',
+    sectionKey: 'groups',
     queryDocument: GET_ALL_GROUPS,
     defaultOrderBy: [{ field: GroupOrderField.name, direction: OrderDirection.ASC }],
   },
@@ -400,7 +401,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.INTERNAL_POLICY,
     responseObjectKey: 'internalPolicies',
     inputName: 'internalPolicyIDs',
-    placeholder: 'Search internal policies',
+    sectionKey: 'policies',
     queryDocument: GET_ALL_INTERNAL_POLICIES,
     defaultOrderBy: [{ field: InternalPolicyOrderField.name, direction: OrderDirection.ASC }],
   },
@@ -408,7 +409,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.PROCEDURE,
     responseObjectKey: 'procedures',
     inputName: 'procedureIDs',
-    placeholder: 'Search procedures',
+    sectionKey: 'procedures',
     queryDocument: GET_ALL_PROCEDURES,
     defaultOrderBy: [{ field: ProcedureOrderField.name, direction: OrderDirection.ASC }],
   },
@@ -416,7 +417,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.RISK,
     responseObjectKey: 'risks',
     inputName: 'riskIDs',
-    placeholder: 'Search risks',
+    sectionKey: 'risks',
     queryDocument: GET_ALL_RISKS,
     defaultOrderBy: [{ field: RiskOrderField.name, direction: OrderDirection.ASC }],
   },
@@ -424,7 +425,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.SCAN,
     responseObjectKey: 'scans',
     inputName: 'scanIDs',
-    placeholder: 'Search scans',
+    sectionKey: 'scans',
     queryDocument: GET_ALL_SCANS,
     defaultOrderBy: [{ field: ScanOrderField.created_at, direction: OrderDirection.DESC }],
   },
@@ -432,7 +433,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.CAMPAIGN,
     responseObjectKey: 'campaigns',
     inputName: 'campaignIDs',
-    placeholder: 'Search campaigns',
+    sectionKey: 'campaigns',
     queryDocument: GET_ALL_CAMPAIGNS,
     defaultOrderBy: [{ field: CampaignOrderField.name, direction: OrderDirection.ASC }],
   },
@@ -440,7 +441,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.ASSET,
     responseObjectKey: 'assets',
     inputName: 'assetIDs',
-    placeholder: 'Search assets',
+    sectionKey: 'assets',
     queryDocument: GET_ALL_ASSETS,
     defaultOrderBy: [{ field: AssetOrderField.name, direction: OrderDirection.ASC }],
   },
@@ -448,7 +449,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.ENTITY,
     responseObjectKey: 'entities',
     inputName: 'entityIDs',
-    placeholder: 'Search vendors',
+    sectionKey: 'entities',
     queryDocument: GET_ALL_ENTITIES,
     defaultOrderBy: [{ field: EntityOrderField.name, direction: OrderDirection.ASC }],
   },
@@ -456,7 +457,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.FINDING,
     responseObjectKey: 'findings',
     inputName: 'findingIDs',
-    placeholder: 'Search findings',
+    sectionKey: 'findings',
     queryDocument: GET_ALL_FINDINGS,
     defaultOrderBy: [{ field: FindingOrderField.external_id, direction: OrderDirection.ASC }],
   },
@@ -464,7 +465,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.IDENTITY_HOLDER,
     responseObjectKey: 'identityHolders',
     inputName: 'identityHolderIDs',
-    placeholder: 'Search personnel',
+    sectionKey: 'identityHolders',
     queryDocument: GET_ALL_IDENTITY_HOLDERS,
     defaultOrderBy: [{ field: IdentityHolderOrderField.full_name, direction: OrderDirection.ASC }],
   },
@@ -472,7 +473,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.REMEDIATION,
     responseObjectKey: 'remediations',
     inputName: 'remediationIDs',
-    placeholder: 'Search remediations',
+    sectionKey: 'remediations',
     queryDocument: GET_ALL_REMEDIATIONS,
     defaultOrderBy: [{ field: RemediationOrderField.title, direction: OrderDirection.ASC }],
   },
@@ -480,7 +481,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.REVIEW,
     responseObjectKey: 'reviews',
     inputName: 'reviewIDs',
-    placeholder: 'Search reviews',
+    sectionKey: 'reviews',
     queryDocument: GET_ALL_REVIEWS,
     defaultOrderBy: [{ field: ReviewOrderField.title, direction: OrderDirection.ASC }],
   },
@@ -488,7 +489,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     objectType: ObjectTypes.VULNERABILITY,
     responseObjectKey: 'vulnerabilities',
     inputName: 'vulnerabilityIDs',
-    placeholder: 'Search vulnerabilities',
+    sectionKey: 'vulnerabilities',
     queryDocument: GET_ALL_VULNERABILITIES,
     defaultOrderBy: [{ field: VulnerabilityOrderField.cve_id, direction: OrderDirection.ASC }],
   },
@@ -529,7 +530,7 @@ export function getPagination(objectKey: QueryResponseMapKey | undefined, data: 
       return { pageInfo: typed.actionPlans?.pageInfo, totalCount: typed.actionPlans?.totalCount }
     }
     case 'controls': {
-      const typed = data as GetAllControlsQuery
+      const typed = data as GetAssociationPickerControlsQuery
       return { pageInfo: typed.controls.pageInfo, totalCount: typed.controls.totalCount }
     }
     case 'controlImplementations': {
@@ -537,7 +538,7 @@ export function getPagination(objectKey: QueryResponseMapKey | undefined, data: 
       return { pageInfo: typed.controlImplementations.pageInfo, totalCount: typed.controlImplementations.totalCount }
     }
     case 'subcontrols': {
-      const typed = data as GetAllSubcontrolsQuery
+      const typed = data as GetAssociationPickerSubcontrolsQuery
       return { pageInfo: typed.subcontrols.pageInfo, totalCount: typed.subcontrols.totalCount }
     }
     case 'controlObjectives': {
@@ -619,6 +620,22 @@ export type TableRow = {
   inputName?: string
   refCode?: string
   referenceFramework?: string | null
+  title?: string | null
+  category?: string | null
+  subcontrolCount?: number
+  parentRefCode?: string | null
+  assetType?: string | null
+  environmentName?: string | null
+}
+
+type TControlImplementationNameSource = {
+  details?: string | null
+  controls?: { edges?: Array<{ node?: { refCode?: string | null } | null } | null> | null } | null
+}
+
+const getControlImplementationName = (node: TControlImplementationNameSource | null | undefined): string => {
+  const refCode = node?.controls?.edges?.[0]?.node?.refCode
+  return refCode ? `Control Implementation for ${refCode}` : (node?.details?.slice(0, 50) ?? '')
 }
 
 export function extractTableRows(objectKey: QueryResponseMapKey | undefined, data: QueryResponse | undefined, inputName?: string): TableRow[] {
@@ -637,20 +654,23 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
     }
 
     case 'controls': {
-      const items = (data as GetAllControlsQuery).controls?.edges ?? []
+      const items = (data as GetAssociationPickerControlsQuery).controls?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
         name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.refCode ?? '',
         referenceFramework: item?.node?.referenceFramework ?? null,
+        title: item?.node?.title ?? null,
+        category: item?.node?.category ?? null,
+        subcontrolCount: item?.node?.subcontrols?.totalCount ?? 0,
       }))
     }
     case 'controlImplementations': {
       const items = (data as GetAllControlImplementationsQuery).controlImplementations?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.controls?.edges?.[0]?.node?.refCode ? `Control Implementation for ${item.node.controls.edges[0].node.refCode}` : (item?.node?.details?.slice(0, 50) ?? ''),
+        name: getControlImplementationName(item?.node),
         inputName: selectedInputName,
         refCode: '',
         controls: item?.node?.controls,
@@ -658,13 +678,15 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
     }
 
     case 'subcontrols': {
-      const items = (data as GetAllSubcontrolsQuery).subcontrols?.edges ?? []
+      const items = (data as GetAssociationPickerSubcontrolsQuery).subcontrols?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
         name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.refCode ?? '',
         referenceFramework: item?.node?.referenceFramework ?? null,
+        title: item?.node?.title ?? null,
+        parentRefCode: item?.node?.control?.refCode ?? null,
       }))
     }
 
@@ -775,6 +797,8 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
         name: getObjectDisplayName(item?.node),
         inputName: selectedInputName,
         refCode: item?.node?.displayName ?? '',
+        assetType: item?.node?.assetType ?? null,
+        environmentName: item?.node?.environmentName ?? null,
       }))
     }
 
@@ -843,7 +867,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
   }
 }
 
-type TObjectWhereInput = {
+export type TObjectWhereInput = {
   [ObjectTypeObjects.ACTION_PLAN]: ActionPlanWhereInput
   [ObjectTypeObjects.CONTROL]: ControlWhereInput
   [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: ControlImplementationWhereInput
@@ -871,9 +895,9 @@ type TSearchPredicate<K extends ObjectTypeObjects> = Extract<keyof TObjectWhereI
 
 const SEARCH_ATTRIBUTES: { [K in ObjectTypeObjects]: TSearchPredicate<K>[] } = {
   [ObjectTypeObjects.ACTION_PLAN]: ['nameContainsFold', 'titleContainsFold', 'descriptionContainsFold'],
-  [ObjectTypeObjects.CONTROL]: ['refCodeContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.CONTROL]: ['refCodeContainsFold', 'titleContainsFold', 'descriptionContainsFold'],
   [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: ['detailsContainsFold'],
-  [ObjectTypeObjects.SUB_CONTROL]: ['refCodeContainsFold', 'descriptionContainsFold'],
+  [ObjectTypeObjects.SUB_CONTROL]: ['refCodeContainsFold', 'titleContainsFold', 'descriptionContainsFold'],
   [ObjectTypeObjects.CONTROL_OBJECTIVE]: ['nameContainsFold', 'desiredOutcomeContainsFold'],
   [ObjectTypeObjects.PROGRAM]: ['nameContainsFold', 'descriptionContainsFold'],
   [ObjectTypeObjects.TASK]: ['titleContainsFold', 'detailsContainsFold'],
@@ -891,6 +915,20 @@ const SEARCH_ATTRIBUTES: { [K in ObjectTypeObjects]: TSearchPredicate<K>[] } = {
   [ObjectTypeObjects.REMEDIATION]: ['titleContainsFold', 'summaryContainsFold'],
   [ObjectTypeObjects.REVIEW]: ['titleContainsFold', 'summaryContainsFold'],
   [ObjectTypeObjects.VULNERABILITY]: ['cveIDContainsFold', 'displayNameContainsFold', 'externalIDContainsFold', 'descriptionContainsFold'],
+}
+
+const SEARCH_ATTRIBUTE_LABELS: Record<string, string> = {
+  cveID: 'CVE ID',
+  displayName: 'name',
+  fullName: 'name',
+}
+
+export const getSearchPlaceholder = (objectType: ObjectTypeObjects): string => {
+  const labels = SEARCH_ATTRIBUTES[objectType].map((predicate) => {
+    const attribute = predicate.replace(/ContainsFold$/, '')
+    return SEARCH_ATTRIBUTE_LABELS[attribute] ?? toLowerLabel(toHumanLabel(attribute))
+  })
+  return `Search by ${formatList([...new Set(labels)], 'disjunction')}`
 }
 
 export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchValue: string, ownerID: string) => {
@@ -995,6 +1033,18 @@ const SECTION_DISPLAY_NAMES_OVERRIDES: Partial<Record<AssociationSectionKey, str
 export const getSectionDisplayName = (key: string): string => {
   return SECTION_DISPLAY_NAMES_OVERRIDES[key as AssociationSectionKey] ?? key.charAt(0).toUpperCase() + key.slice(1)
 }
+
+const isAssociationMapKey = (key: string): key is keyof typeof ObjectAssociationMap => key in ObjectAssociationMap
+
+export const getAssociationTypeLabel = (objectType: ObjectTypeObjects): string => {
+  const { sectionKey } = OBJECT_QUERY_CONFIG[objectType]
+  return isAssociationMapKey(sectionKey) ? ObjectAssociationMap[sectionKey].label : getSectionDisplayName(sectionKey)
+}
+
+export const buildSubcontrolWhere = (ownerID: string, hiddenIds: string[]): SubcontrolWhereInput => ({
+  ...generateWhere(ObjectTypeObjects.SUB_CONTROL, '', ownerID),
+  ...(hiddenIds.length > 0 ? { idNotIn: hiddenIds } : {}),
+})
 
 type TAssociationRemovalConfig<TInput extends object, TSectionKey extends AssociationSectionKey> = {
   sectionKeyToDataField: Record<TSectionKey, (typeof ASSOCIATION_SECTION_CONFIG)[TSectionKey]['dataField']>

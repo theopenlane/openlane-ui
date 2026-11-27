@@ -335,6 +335,9 @@ export const GET_ENTITY_COMMENTS = gql`
 export const GET_ENTITY_ASSOCIATIONS = gql`
   query GetEntityAssociations($entityId: ID!) {
     entity(id: $entityId) {
+      id
+      name
+      displayName
       assets {
         edges {
           node {

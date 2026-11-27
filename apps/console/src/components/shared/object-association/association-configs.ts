@@ -100,6 +100,7 @@ export const ASSET_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   ],
   dialogConfig: {
     dataRootField: 'asset',
+    sourceType: ObjectTypeObjects.ASSET,
     invalidateQueryKey: 'assets',
     successMessage: 'Asset updated',
     allowedObjectTypes: assetAllowedObjectTypes,
@@ -165,6 +166,7 @@ export const ENTITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   ],
   dialogConfig: {
     dataRootField: 'entity',
+    sourceType: ObjectTypeObjects.ENTITY,
     invalidateQueryKey: 'entities',
     successMessage: 'Vendor updated',
     allowedObjectTypes: entityAllowedObjectTypes,
@@ -219,6 +221,7 @@ export const IDENTITY_HOLDER_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   ],
   dialogConfig: {
     dataRootField: 'identityHolder',
+    sourceType: ObjectTypeObjects.IDENTITY_HOLDER,
     invalidateQueryKey: 'identityHolders',
     successMessage: 'Personnel updated',
     allowedObjectTypes: identityHolderAllowedObjectTypes,
@@ -289,6 +292,7 @@ export const FINDING_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   ],
   dialogConfig: {
     dataRootField: 'finding',
+    sourceType: ObjectTypeObjects.FINDING,
     invalidateQueryKey: 'findings',
     successMessage: 'Finding updated',
     allowedObjectTypes: findingAllowedObjectTypes,
@@ -315,6 +319,7 @@ export const REMEDIATION_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   sectionMappings: [SECTION_MAPPINGS.controls, SECTION_MAPPINGS.subcontrols, SECTION_MAPPINGS.findings, SECTION_MAPPINGS.vulnerabilities],
   dialogConfig: {
     dataRootField: 'remediation',
+    sourceType: ObjectTypeObjects.REMEDIATION,
     invalidateQueryKey: 'remediations',
     successMessage: 'Remediation updated',
     allowedObjectTypes: remediationAllowedObjectTypes,
@@ -376,6 +381,7 @@ export const VULNERABILITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   ],
   dialogConfig: {
     dataRootField: 'vulnerability',
+    sourceType: ObjectTypeObjects.VULNERABILITY,
     invalidateQueryKey: 'vulnerabilities',
     successMessage: 'Vulnerability updated',
     allowedObjectTypes: vulnerabilityAllowedObjectTypes,
@@ -433,6 +439,7 @@ export const REVIEW_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   ],
   dialogConfig: {
     dataRootField: 'review',
+    sourceType: ObjectTypeObjects.REVIEW,
     invalidateQueryKey: 'reviews',
     successMessage: 'Review updated',
     allowedObjectTypes: reviewAllowedObjectTypes,
@@ -514,6 +521,7 @@ export const CONTROL_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   ],
   dialogConfig: {
     dataRootField: 'control',
+    sourceType: ObjectTypeObjects.CONTROL,
     invalidateQueryKey: 'controls',
     successMessage: 'Control updated',
     allowedObjectTypes: controlAllowedObjectTypes,
@@ -576,6 +584,7 @@ export const SUBCONTROL_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   ],
   dialogConfig: {
     dataRootField: 'subcontrol',
+    sourceType: ObjectTypeObjects.SUB_CONTROL,
     invalidateQueryKey: 'subcontrols',
     successMessage: 'Subcontrol updated',
     allowedObjectTypes: subcontrolAllowedObjectTypes,
@@ -642,6 +651,7 @@ export const POLICY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   ],
   dialogConfig: {
     dataRootField: 'internalPolicy',
+    sourceType: ObjectTypeObjects.INTERNAL_POLICY,
     invalidateQueryKey: 'internalPolicies',
     successMessage: 'Policy updated',
     allowedObjectTypes: policyAllowedObjectTypes,
@@ -685,6 +695,7 @@ export const PROCEDURE_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   ],
   dialogConfig: {
     dataRootField: 'procedure',
+    sourceType: ObjectTypeObjects.PROCEDURE,
     invalidateQueryKey: 'procedures',
     successMessage: 'Procedure updated',
     allowedObjectTypes: procedureAllowedObjectTypes,
@@ -763,6 +774,7 @@ export const RISK_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   ],
   dialogConfig: {
     dataRootField: 'risk',
+    sourceType: ObjectTypeObjects.RISK,
     invalidateQueryKey: 'risks',
     successMessage: 'Risk updated',
     allowedObjectTypes: riskAllowedObjectTypes,

@@ -18,12 +18,11 @@ const openAssociationDialog = async (page: Page) => {
   return dialog
 }
 
-const selectAssociationObjectType = async (page: Page, dialog: Locator, objectType: 'Internal Policy' | 'Procedure') => {
-  await dialog.getByRole('combobox').click()
-  await page.getByRole('option', { name: objectType, exact: true }).click()
+const selectAssociationObjectType = async (dialog: Locator, objectType: 'Internal Policies' | 'Procedures') => {
+  await dialog.getByRole('button', { name: new RegExp(`^${objectType}`) }).click()
 }
 
-const getAssociationRowCheckbox = (dialog: Locator) => dialog.getByRole('checkbox').nth(1)
+const getAssociationRowCheckbox = (dialog: Locator, name: string) => dialog.getByRole('row').filter({ hasText: name }).getByRole('checkbox')
 
 test.describe('procedures — list + create', () => {
   test('/procedures renders the Procedures heading for an owner', async ({ page }) => {
@@ -148,13 +147,13 @@ test.describe('procedures — list + create', () => {
     const procedureUrl = page.url()
 
     const procedureDialog = await openAssociationDialog(page)
-    await selectAssociationObjectType(page, procedureDialog, 'Internal Policy')
+    await selectAssociationObjectType(procedureDialog, 'Internal Policies')
 
-    const policySearch = procedureDialog.getByPlaceholder(/search internal policies/i)
+    const policySearch = procedureDialog.getByPlaceholder(/^Search by/)
     await policySearch.fill(linkedPolicy)
     await expect(procedureDialog.getByText(linkedPolicy)).toBeVisible({ timeout: 10_000 })
 
-    const policyCheckbox = getAssociationRowCheckbox(procedureDialog)
+    const policyCheckbox = getAssociationRowCheckbox(procedureDialog, linkedPolicy)
     await policyCheckbox.click()
     await expect(policyCheckbox).toBeChecked()
 
@@ -167,21 +166,21 @@ test.describe('procedures — list + create', () => {
     await expect(page.getByText(linkedProcedure)).toBeVisible({ timeout: 10_000 })
 
     const policyDialog = await openAssociationDialog(page)
-    await selectAssociationObjectType(page, policyDialog, 'Procedure')
+    await selectAssociationObjectType(policyDialog, 'Procedures')
 
-    const procedureSearch = policyDialog.getByPlaceholder(/search procedures/i)
+    const procedureSearch = policyDialog.getByPlaceholder(/^Search by/)
     await procedureSearch.fill(linkedProcedure)
     await expect(policyDialog.getByText(linkedProcedure)).toBeVisible({ timeout: 10_000 })
-    await expect(getAssociationRowCheckbox(policyDialog)).toBeChecked()
+    await expect(getAssociationRowCheckbox(policyDialog, linkedProcedure)).toBeChecked()
     await policyDialog.getByRole('button', { name: /^cancel$/i }).click()
     await expect(policyDialog).toBeHidden({ timeout: 10_000 })
 
     await page.goto(procedureUrl)
     const procedureDialogReloaded = await openAssociationDialog(page)
-    await selectAssociationObjectType(page, procedureDialogReloaded, 'Internal Policy')
-    await procedureDialogReloaded.getByPlaceholder(/search internal policies/i).fill(linkedPolicy)
+    await selectAssociationObjectType(procedureDialogReloaded, 'Internal Policies')
+    await procedureDialogReloaded.getByPlaceholder(/^Search by/).fill(linkedPolicy)
     await expect(procedureDialogReloaded.getByText(linkedPolicy)).toBeVisible({ timeout: 10_000 })
-    await expect(getAssociationRowCheckbox(procedureDialogReloaded)).toBeChecked()
+    await expect(getAssociationRowCheckbox(procedureDialogReloaded, linkedPolicy)).toBeChecked()
   })
 })
 

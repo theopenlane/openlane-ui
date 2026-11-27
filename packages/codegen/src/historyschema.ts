@@ -898,6 +898,55 @@ export interface UpdateBulkAssetMutation {
   updateBulkAsset: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
+export type GetAssociationPickerControlsQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+  orderBy?: Array<Types.ControlOrder> | Types.ControlOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+  subcontrolWhere?: Types.SubcontrolWhereInput | null | undefined
+  withSubcontrols?: boolean | null | undefined
+}>
+
+export interface GetAssociationPickerControlsQuery {
+  controls: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        __typename: 'Control'
+        id: string
+        displayID: string
+        refCode: string
+        title: string | null
+        category: string | null
+        referenceFramework: string | null
+        subcontrols?: { totalCount: number }
+      } | null
+    } | null> | null
+    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type GetAssociationPickerSubcontrolsQueryVariables = Exact<{
+  where?: Types.SubcontrolWhereInput | null | undefined
+  orderBy?: Array<Types.SubcontrolOrder> | Types.SubcontrolOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+}>
+
+export interface GetAssociationPickerSubcontrolsQuery {
+  subcontrols: {
+    totalCount: number
+    edges: Array<{
+      node: { __typename: 'Subcontrol'; id: string; displayID: string; refCode: string; title: string | null; referenceFramework: string | null; control: { id: string; refCode: string } } | null
+    } | null> | null
+    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
 export type CampaignTargetsWithFilterQueryVariables = Exact<{
   where?: Types.CampaignTargetWhereInput | null | undefined
   orderBy?: Array<Types.CampaignTargetOrder> | Types.CampaignTargetOrder | null | undefined
@@ -1910,6 +1959,8 @@ export type GetControlAssociationsByIdQueryVariables = Exact<{
 
 export interface GetControlAssociationsByIdQuery {
   control: {
+    id: string
+    refCode: string
     internalPolicies: {
       totalCount: number
       edges: Array<{
@@ -3543,6 +3594,9 @@ export type GetEntityAssociationsQueryVariables = Exact<{
 
 export interface GetEntityAssociationsQuery {
   entity: {
+    id: string
+    name: string | null
+    displayName: string | null
     assets: {
       totalCount: number
       edges: Array<{ node: { id: string; name: string; displayName: string | null; environmentName: string | null; scopeName: string | null; assetType: Types.AssetAssetType } | null } | null> | null
@@ -4360,6 +4414,8 @@ export type GetFindingAssociationsQueryVariables = Exact<{
 
 export interface GetFindingAssociationsQuery {
   finding: {
+    displayName: string | null
+    externalID: string | null
     id: string
     controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; description: string | null; displayID: string } | null } | null> | null }
     controlMappings: { totalCount: number; edges: Array<{ node: { id: string; controlID: string } | null } | null> | null }
@@ -5050,6 +5106,8 @@ export type GetIdentityHolderAssociationsQueryVariables = Exact<{
 
 export interface GetIdentityHolderAssociationsQuery {
   identityHolder: {
+    id: string
+    fullName: string
     assets: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayName: string | null } | null } | null> | null }
     entities: { totalCount: number; edges: Array<{ node: { id: string; name: string | null; displayName: string | null } | null } | null> | null }
     campaigns: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayID: string } | null } | null> | null }
@@ -5789,6 +5847,8 @@ export type GetInternalPolicyAssociationsByIdQueryVariables = Exact<{
 
 export interface GetInternalPolicyAssociationsByIdQuery {
   internalPolicy: {
+    id: string
+    name: string
     procedures: {
       totalCount: number
       edges: Array<{
@@ -7256,6 +7316,8 @@ export type GetProcedureAssociationsByIdQueryVariables = Exact<{
 
 export interface GetProcedureAssociationsByIdQuery {
   procedure: {
+    id: string
+    name: string
     risks: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayID: string; details: string | null } | null } | null> | null }
     internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayID: string; summary: string | null } | null } | null> | null }
     controls: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; refCode: string; description: string | null } | null } | null> | null }
@@ -8801,6 +8863,8 @@ export type GetRiskAssociationsQueryVariables = Exact<{
 
 export interface GetRiskAssociationsQuery {
   risk: {
+    id: string
+    name: string
     controls: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; refCode: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null }
     programs: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; name: string; description: string | null } | null } | null> | null }
@@ -9365,6 +9429,8 @@ export type GetSubcontrolAssociationsByIdQueryVariables = Exact<{
 
 export interface GetSubcontrolAssociationsByIdQuery {
   subcontrol: {
+    id: string
+    refCode: string
     internalPolicies: {
       totalCount: number
       edges: Array<{
@@ -11791,6 +11857,10 @@ export type GetVulnerabilityAssociationsQueryVariables = Exact<{
 
 export interface GetVulnerabilityAssociationsQuery {
   vulnerability: {
+    id: string
+    cveID: string | null
+    displayName: string | null
+    externalID: string
     controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; description: string | null; displayID: string } | null } | null> | null }
     subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
     findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }

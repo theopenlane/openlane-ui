@@ -150,8 +150,7 @@ test.describe('policies — associations & flows', () => {
     const dialog = page.getByRole('dialog').filter({ hasText: 'Associate Related Objects' })
     await expect(dialog).toBeVisible({ timeout: 15_000 })
 
-    await dialog.getByText('Select object').click()
-    await page.getByRole('option', { name: /^Control$/ }).click()
+    await dialog.getByRole('button', { name: /^Controls/ }).click()
 
     await dialog.getByPlaceholder(/.+/).fill(refCode)
     const controlRow = dialog.getByRole('row').filter({ hasText: refCode })
