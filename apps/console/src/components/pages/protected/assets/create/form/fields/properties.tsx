@@ -1,15 +1,13 @@
 'use client'
 
-import React, { useMemo, useRef } from 'react'
-import { useFormContext, Controller } from 'react-hook-form'
-import { usePersistFormField, type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
+import React from 'react'
+import { Controller } from 'react-hook-form'
+import { type TPersistOptions } from '@/components/shared/crud-base/persist-form-field'
 import { Tag } from 'lucide-react'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { type AssetQuery, type UpdateAssetInput } from '@repo/codegen/src/schema'
-import { type AssetFormData } from '../../../hooks/use-form-schema'
-import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
-import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { useInlineTags } from '../../../hooks/use-inline-tags'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { FormMessage } from '@repo/ui/form'
@@ -23,23 +21,9 @@ type PropertiesProps = {
   isEditAllowed: boolean
 }
 
-const allProperties = ['tags']
-
 const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditing, setInternalEditing, handleUpdateField, isEditAllowed }) => {
-  const { control, formState, watch, resetField } = useFormContext<AssetFormData>()
-  const persistField = usePersistFormField<AssetFormData>()
-
   const { tagOptions } = useGetTags()
-
-  const tags = watch('tags')
-  const tagValues = useMemo(() => {
-    return (tags ?? [])
-      .filter((item): item is string => typeof item === 'string')
-      .map((item) => ({
-        value: item,
-        label: item,
-      }))
-  }, [tags])
+  const { control, tagValues, triggerRef, isInlineEditing } = useInlineTags({ savedTags: data?.tags ?? [], internalEditing, setInternalEditing, handleUpdate: handleUpdateField })
 
   const renderTags = () => {
     const hasTags = data?.tags && data.tags.length > 0
@@ -51,58 +35,18 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
     )
   }
 
-  const triggerRef = useRef<HTMLDivElement>(null)
-  const popoverRef = useRef<HTMLDivElement>(null)
-
-  const blurTags = () => {
-    const current = data?.tags || []
-    const next = tagValues.map((item) => item.value)
-    const changed = current.length !== next.length || current.some((val) => !next.includes(val))
-
-    if (changed && handleUpdateField) {
-      void persistField('tags', next, (options) => handleUpdateField({ tags: next }, options))
-    }
-  }
-
-  useClickOutsideWithPortal(
-    () => {
-      setInternalEditing(null)
-
-      if (internalEditing === 'tags') {
-        blurTags()
-      }
-    },
-    {
-      refs: { triggerRef, popoverRef },
-      enabled: !!internalEditing && allProperties.includes(internalEditing),
-    },
-  )
-
-  useEscapeKey(
-    () => {
-      if (!internalEditing) {
-        return
-      }
-      if (internalEditing === 'tags') {
-        resetField('tags')
-        setInternalEditing(null)
-      }
-    },
-    { enabled: !!internalEditing && allProperties.includes(internalEditing) },
-  )
-
   return (
     <div className="flex flex-col gap-4">
       {/* Tags */}
       <div className="flex items-center gap-4">
-        <Tag className="text-primary" size={16} />
+        <Tag className="text-muted-foreground" size={16} />
         <p className="text-sm w-[120px]">Tags</p>
 
-        {isEditing || internalEditing === 'tags' ? (
+        {isEditing || isInlineEditing ? (
           <Controller
             name="tags"
             control={control}
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <div className="w-[250px]" ref={triggerRef}>
                 <MultipleSelector
                   options={tagOptions}
@@ -113,7 +57,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
                   value={tagValues}
                   onChange={(selectedOptions) => field.onChange(selectedOptions.map((opt) => opt.value))}
                 />
-                <FormMessage error={formState.errors.tags} />
+                <FormMessage error={fieldState.error} />
               </div>
             )}
           />

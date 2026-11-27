@@ -11,6 +11,7 @@ import { SetRiskAssociationDialog } from '@/components/pages/protected/risks/set
 import { SetVendorAssociationDialog } from '@/components/pages/protected/vendors/set-vendor-association-dialog'
 import { SetVulnerabilityAssociationDialog } from '@/components/pages/protected/vulnerabilities/set-vulnerability-association-dialog'
 import { SetFindingAssociationDialog } from '@/components/pages/protected/findings/set-finding-association-dialog'
+import { SetAssetAssociationDialog } from '@/components/pages/protected/assets/set-asset-association-dialog'
 import { SetPersonnelAssociationDialog } from '@/components/pages/protected/personnel/set-personnel-association-dialog'
 
 type TObjectAssociationSwitchProps = {
@@ -55,10 +56,11 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
         return <SetVulnerabilityAssociationDialog vulnerabilityId={nodeId} />
       case ObjectAssociationNodeEnum.FINDING:
         return <SetFindingAssociationDialog findingId={nodeId} />
+      case ObjectAssociationNodeEnum.ASSET:
+        return <SetAssetAssociationDialog assetId={nodeId} />
       case ObjectAssociationNodeEnum.SCAN:
       case ObjectAssociationNodeEnum.REVIEW:
       case ObjectAssociationNodeEnum.REMEDIATION:
-      case ObjectAssociationNodeEnum.ASSET:
         return null
     }
   }

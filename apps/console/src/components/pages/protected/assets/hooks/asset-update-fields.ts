@@ -1,9 +1,10 @@
 import { type UpdateAssetInput } from '@repo/codegen/src/schema'
-import { associationsInput, dateOrClear, orClear, richTextOrClear, type TFieldMappers, passthrough } from '@/hooks/useDirtyInput'
+import { associationsInput, dateOrClear, isEmptyInputValue, orClear, richTextOrClear, type TFieldMappers, passthrough, toInlineInput } from '@/hooks/useDirtyInput'
 import { responsibilityInput, responsibilityTargetFor } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { UserFacingError } from '@/utils/graphQlErrorMatcher'
 import { type AssetFormData } from './use-form-schema'
 
-const ASSET_INTERNAL_OWNER = responsibilityTargetFor<UpdateAssetInput>()('internalOwner')
+export const ASSET_INTERNAL_OWNER = responsibilityTargetFor<UpdateAssetInput>()('internalOwner')
 
 export const ASSET_UPDATE_FIELDS = {
   description: richTextOrClear('clearDescription'),
@@ -38,3 +39,16 @@ export const ASSET_UPDATE_FIELDS = {
   name: passthrough,
   sourceType: passthrough,
 } satisfies TFieldMappers<AssetFormData, UpdateAssetInput>
+
+const inlineCostInput = (cost: UpdateAssetInput['estimatedMonthlyCost']): UpdateAssetInput => {
+  if (cost === undefined) return {}
+  if (isEmptyInputValue(cost)) return { clearEstimatedMonthlyCost: true }
+  const value = Number(cost)
+  if (!Number.isFinite(value)) throw new UserFacingError('Enter the cost as a number, such as 1240.50.')
+  return { estimatedMonthlyCost: value }
+}
+
+export const toAssetInlineInput = ({ estimatedMonthlyCost, ...input }: UpdateAssetInput): UpdateAssetInput => ({
+  ...toInlineInput<AssetFormData, UpdateAssetInput>(input, ASSET_UPDATE_FIELDS),
+  ...inlineCostInput(estimatedMonthlyCost),
+})

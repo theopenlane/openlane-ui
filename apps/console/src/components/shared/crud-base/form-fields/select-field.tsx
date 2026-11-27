@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef } from 'react'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { type FieldValues, useFormContext } from 'react-hook-form'
@@ -11,6 +12,8 @@ import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-e
 import { cn } from '@repo/ui/lib/utils'
 import { fieldItemLayoutClassName, fieldMessageLayoutClassName, type TFieldLayout } from './field-layout'
 import { InlineEditDisplay } from './inline-edit-display'
+import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 interface SelectFieldProps<TUpdateInput> {
   name: string
@@ -63,6 +66,19 @@ export const SelectField = <TUpdateInput,>({
   const isFieldEditing = internalEditing === name
   const shouldShowInput = isCreate || isEditing || isFieldEditing
 
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const isInlineEditing = isFieldEditing && !isCreate && !isEditing
+  const closeInlineEdit = () => setInternalEditing(null)
+  useClickOutsideWithPortal(closeInlineEdit, { refs: { triggerRef, contentRef }, enabled: isInlineEditing })
+  useEscapeKey(closeInlineEdit, { enabled: isInlineEditing })
+
+  const handleValueChange = async (onChange: (value: string) => void, value: string) => {
+    onChange(value)
+    setInternalEditing(null)
+    if (!isEditing && !isCreate && handleUpdate) await handleUpdate({ [name]: value } as TUpdateInput)
+  }
+
   const displayValue = options.find((opt) => opt.value === rawValue)?.label || rawValue
 
   return (
@@ -77,57 +93,45 @@ export const SelectField = <TUpdateInput,>({
             {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
           </div>
           {shouldShowInput ? (
-            <FormControl>
-              {onCreateOption ? (
-                <CreatableCustomTypeEnumSelect
-                  itemLabel={label.toLowerCase()}
-                  placeholder={placeholder}
-                  value={field.value ?? undefined}
-                  options={options}
-                  onCreateOption={onCreateOption}
-                  useCustomDisplay={useCustomDisplay}
-                  onValueChange={async (val) => {
-                    field.onChange(val)
-                    if (!isEditing && !isCreate && handleUpdate) {
-                      await Promise.resolve(handleUpdate({ [name]: val } as TUpdateInput))
-                    }
-                    setInternalEditing(null)
-                  }}
-                />
-              ) : (
-                <Select
-                  value={field.value ?? undefined}
-                  onValueChange={async (val) => {
-                    field.onChange(val)
-                    if (!isEditing && !isCreate && handleUpdate) {
-                      await Promise.resolve(handleUpdate({ [name]: val } as TUpdateInput))
-                    }
-                    setInternalEditing(null)
-                  }}
-                >
-                  <FormControl>
-                    <SelectTrigger className={cn('w-full', triggerClassName)}>
-                      <SelectValue placeholder={placeholder ?? 'Select'}>
-                        {renderOption && field.value ? (
-                          renderOption(field.value)
-                        ) : useCustomDisplay ? (
-                          <CustomTypeEnumValue value={field.value} options={options} placeholder={field.value} />
-                        ) : (
-                          <span>{options.find((opt) => opt.value === field.value)?.label ?? field.value}</span>
-                        )}
-                      </SelectValue>
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {options.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
-                        {renderOption ? renderOption(o.value) : useCustomDisplay ? <CustomTypeEnumOptionChip option={o} /> : <span>{o.label}</span>}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </FormControl>
+            <div ref={triggerRef} className="w-full min-w-0">
+              <FormControl>
+                {onCreateOption ? (
+                  <CreatableCustomTypeEnumSelect
+                    itemLabel={label.toLowerCase()}
+                    contentRef={contentRef}
+                    placeholder={placeholder}
+                    value={field.value ?? undefined}
+                    options={options}
+                    onCreateOption={onCreateOption}
+                    useCustomDisplay={useCustomDisplay}
+                    onValueChange={(val) => handleValueChange(field.onChange, val)}
+                  />
+                ) : (
+                  <Select value={field.value ?? undefined} onValueChange={(val) => handleValueChange(field.onChange, val)}>
+                    <FormControl>
+                      <SelectTrigger className={cn('w-full', triggerClassName)}>
+                        <SelectValue placeholder={placeholder ?? 'Select'}>
+                          {renderOption && field.value ? (
+                            renderOption(field.value)
+                          ) : useCustomDisplay ? (
+                            <CustomTypeEnumValue value={field.value} options={options} placeholder={field.value} />
+                          ) : (
+                            <span>{options.find((opt) => opt.value === field.value)?.label ?? field.value}</span>
+                          )}
+                        </SelectValue>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent ref={contentRef}>
+                      {options.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>
+                          {renderOption ? renderOption(o.value) : useCustomDisplay ? <CustomTypeEnumOptionChip option={o} /> : <span>{o.label}</span>}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </FormControl>
+            </div>
           ) : (
             <InlineEditDisplay
               className={cn('text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full', layout === 'horizontal' && 'flex justify-end')}

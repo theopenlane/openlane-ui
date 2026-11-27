@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type Value } from 'platejs'
+import { isNavigableUrl } from '@/utils/normalizeUrl'
 import { AssetAssetType, AssetSourceType } from '@repo/codegen/src/schema'
 import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
@@ -34,7 +35,11 @@ const formSchema = z.object({
   securityTierName: z.string().optional(),
   sourceIdentifier: z.string().optional(),
   sourceType: z.enum(AssetSourceType).optional(),
-  website: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
+  website: z
+    .string()
+    .trim()
+    .optional()
+    .refine((url) => !url || isNavigableUrl(url), 'Please enter a valid URL'),
   controlIDs: z.array(z.string()).optional(),
   subcontrolIDs: z.array(z.string()).optional(),
   internalPolicyIDs: z.array(z.string()).optional(),
@@ -67,11 +72,11 @@ export const bulkEditFieldSchema = z.object({
 
 export type AssetFormData = z.infer<typeof formSchema>
 
-const useFormSchema = () => {
+const useFormSchema = (defaultValues: Partial<AssetFormData> = {}) => {
   return {
     form: useForm<AssetFormData>({
       resolver: zodResolver(formSchema) as Resolver<AssetFormData>,
-      defaultValues: {},
+      defaultValues,
     }),
   }
 }

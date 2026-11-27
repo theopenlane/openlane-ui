@@ -671,8 +671,10 @@ export interface AssetQuery {
     region: string | null
     scopeName: string | null
     securityTierName: string | null
+    sourceDefinitionID: string | null
     sourceIdentifier: string | null
     sourceType: Types.AssetSourceType
+    observedAt: string | null
     tags: Array<string> | null
     website: string | null
     categories: Array<string> | null
@@ -734,23 +736,33 @@ export interface DeleteBulkAssetMutation {
 
 export type GetAssetAssociationsQueryVariables = Exact<{
   assetId: string
+  withScans: boolean
+  withEntities: boolean
+  withIdentityHolders: boolean
+  withControls: boolean
+  withInternalPolicies: boolean
+  withSubcontrols: boolean
+  withFindings: boolean
+  withVulnerabilities: boolean
+  withReviews: boolean
+  withRemediations: boolean
 }>
 
 export interface GetAssetAssociationsQuery {
   asset: {
-    scans: { totalCount: number; edges: Array<{ node: { id: string; target: string } | null } | null> | null }
-    entities: { totalCount: number; edges: Array<{ node: { id: string; name: string | null; displayName: string | null } | null } | null> | null }
-    identityHolders: {
+    scans?: { totalCount: number; edges: Array<{ node: { id: string; target: string } | null } | null> | null }
+    entities?: { totalCount: number; edges: Array<{ node: { id: string; name: string | null; displayName: string | null } | null } | null> | null }
+    identityHolders?: {
       totalCount: number
       edges: Array<{ node: { id: string; fullName: string; displayID: string; identityHolderType: Types.IdentityHolderIdentityHolderType; title: string | null } | null } | null> | null
     }
-    controls: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; description: string | null; displayID: string; referenceFramework: string | null } | null } | null> | null }
-    internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayID: string } | null } | null> | null }
-    subcontrols: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
-    findings: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
-    vulnerabilities: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
-    reviews: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
-    remediations: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
+    controls?: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; description: string | null; displayID: string; referenceFramework: string | null } | null } | null> | null }
+    internalPolicies?: { totalCount: number; edges: Array<{ node: { id: string; name: string; displayID: string } | null } | null> | null }
+    subcontrols?: { totalCount: number; edges: Array<{ node: { id: string; refCode: string; displayID: string } | null } | null> | null }
+    findings?: { totalCount: number; edges: Array<{ node: { id: string; displayName: string | null; displayID: string } | null } | null> | null }
+    vulnerabilities?: { totalCount: number; edges: Array<{ node: { id: string; cveID: string | null; externalID: string; displayName: string | null; displayID: string } | null } | null> | null }
+    reviews?: { totalCount: number; edges: Array<{ node: { id: string; title: string } | null } | null> | null }
+    remediations?: { totalCount: number; edges: Array<{ node: { id: string; title: string | null; displayID: string } | null } | null> | null }
   }
 }
 
@@ -761,6 +773,282 @@ export type UpdateBulkAssetMutationVariables = Exact<{
 
 export interface UpdateBulkAssetMutation {
   updateBulkAsset: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
+}
+
+export type GetAssetRelationshipsQueryVariables = Exact<{
+  assetId: string
+  first?: number | null | undefined
+  withSystems: boolean
+  withPlatforms: boolean
+}>
+
+export interface GetAssetRelationshipsQuery {
+  asset: {
+    id: string
+    connectedAssets: {
+      totalCount: number
+      edges: Array<{ node: { id: string; name: string; displayName: string | null; assetType: Types.AssetAssetType; assetSubtypeName: string | null } | null } | null> | null
+    }
+    connectedFrom: {
+      totalCount: number
+      edges: Array<{ node: { id: string; name: string; displayName: string | null; assetType: Types.AssetAssetType; assetSubtypeName: string | null } | null } | null> | null
+    }
+    sourcePlatform?: { id: string; name: string } | null
+    platforms?: { totalCount: number; edges: Array<{ node: { id: string; name: string; status: Types.PlatformPlatformStatus } | null } | null> | null }
+    systemDetails?: {
+      totalCount: number
+      edges: Array<{
+        node: {
+          id: string
+          systemName: string
+          version: string | null
+          sensitivityLevel: Types.SystemDetailSystemSensitivityLevel | null
+          lastReviewed: string | null
+          authorizationBoundary: string | null
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type GetAssetTopologyPlatformsQueryVariables = Exact<{
+  assetId: string
+  where?: Types.PlatformWhereInput | null | undefined
+  first?: number | null | undefined
+  systemsFirst?: number | null | undefined
+  assetsFirst?: number | null | undefined
+  withSystems: boolean
+}>
+
+export interface GetAssetTopologyPlatformsQuery {
+  platforms: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        name: string
+        status: Types.PlatformPlatformStatus
+        linkedAsset: { totalCount: number }
+        assetSystems?: { edges: Array<{ node: { id: string } | null } | null> | null }
+        systemDetails?: {
+          totalCount: number
+          edges: Array<{
+            node: {
+              id: string
+              systemName: string
+              sensitivityLevel: Types.SystemDetailSystemSensitivityLevel | null
+              assets: {
+                totalCount: number
+                edges: Array<{ node: { id: string; name: string; displayName: string | null; assetType: Types.AssetAssetType; assetSubtypeName: string | null } | null } | null> | null
+              }
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetAssetTopologySystemsQueryVariables = Exact<{
+  where?: Types.SystemDetailWhereInput | null | undefined
+  first?: number | null | undefined
+  assetsFirst?: number | null | undefined
+}>
+
+export interface GetAssetTopologySystemsQuery {
+  systemDetails: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        systemName: string
+        sensitivityLevel: Types.SystemDetailSystemSensitivityLevel | null
+        assets: {
+          totalCount: number
+          edges: Array<{ node: { id: string; name: string; displayName: string | null; assetType: Types.AssetAssetType; assetSubtypeName: string | null } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetAssetVulnerabilitiesQueryVariables = Exact<{
+  where?: Types.VulnerabilityWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetAssetVulnerabilitiesQuery {
+  vulnerabilities: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        cveID: string | null
+        displayID: string
+        displayName: string | null
+        externalID: string
+        summary: string | null
+        severity: string | null
+        securityLevel: Types.VulnerabilitySecurityLevel | null
+        open: boolean | null
+        vulnerabilityStatusName: string | null
+        source: string | null
+        sourceDefinitionID: string | null
+        remediationSLA: number | null
+        discoveredAt: string | null
+        createdAt: any
+        createdBy: string | null
+      } | null
+    } | null> | null
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+  }
+}
+
+export type GetAssetFindingsQueryVariables = Exact<{
+  where?: Types.FindingWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetAssetFindingsQuery {
+  findings: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        displayID: string
+        displayName: string | null
+        externalID: string | null
+        category: string | null
+        severity: string | null
+        securityLevel: Types.FindingSecurityLevel | null
+        open: boolean | null
+        findingStatusName: string | null
+        source: string | null
+        sourceDefinitionID: string | null
+        remediationSLA: number | null
+        reportedAt: string | null
+        createdAt: any
+        createdBy: string | null
+      } | null
+    } | null> | null
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+  }
+}
+
+export type GetAssetRisksQueryVariables = Exact<{
+  where?: Types.RiskWhereInput | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetAssetRisksQuery {
+  risks: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        displayID: string
+        name: string
+        impact: Types.RiskRiskImpact | null
+        status: Types.RiskRiskStatus | null
+        sourceDefinitionID: string | null
+        dueDate: string | null
+        createdAt: any
+        createdBy: string | null
+      } | null
+    } | null> | null
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+  }
+}
+
+export type GetAssetVendorsQueryVariables = Exact<{
+  assetId: string
+  where?: Types.EntityWhereInput | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface GetAssetVendorsQuery {
+  asset: {
+    id: string
+    entities: {
+      totalCount: number
+      edges: Array<{
+        node: {
+          id: string
+          name: string | null
+          displayName: string | null
+          domains: Array<string> | null
+          status: Types.EntityEntityStatus | null
+          approvedForUse: boolean | null
+          providedServices: Array<string> | null
+          ssoEnforced: boolean | null
+          mfaEnforced: boolean | null
+          tier: Types.EntityVendorTier | null
+          riskRating: string | null
+          reviewFrequency: Types.EntityFrequency | null
+          nextReviewAt: string | null
+          hasSoc2: boolean | null
+          soc2PeriodEnd: string | null
+          lastReviewedAt: string | null
+          createdAt: any
+          createdBy: string | null
+          sourceDefinitionID: string | null
+          logoFile: { base64: string | null } | null
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type GetVendorAssetsQueryVariables = Exact<{
+  where?: Types.AssetWhereInput | null | undefined
+  orderBy?: Array<Types.AssetOrder> | Types.AssetOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  last?: number | null | undefined
+  before?: any
+  withVulnerabilities: boolean
+  withFindings: boolean
+}>
+
+export interface GetVendorAssetsQuery {
+  assets: {
+    totalCount: number
+    edges: Array<{
+      node: {
+        id: string
+        name: string
+        displayName: string | null
+        assetType: Types.AssetAssetType
+        assetSubtypeName: string | null
+        environmentName: string | null
+        openVulnerabilities?: { totalCount: number }
+        openFindings?: { totalCount: number }
+      } | null
+    } | null> | null
+    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type GetAssetReadinessReviewsQueryVariables = Exact<{
+  where?: Types.ReviewWhereInput | null | undefined
+  orderBy?: Array<Types.ReviewOrder> | Types.ReviewOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface GetAssetReadinessReviewsQuery {
+  reviews: { edges: Array<{ node: { id: string; reviewedAt: string | null } | null } | null> | null }
+}
+
+export type GetAssetOptionsQueryVariables = Exact<{
+  where?: Types.AssetWhereInput | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface GetAssetOptionsQuery {
+  assets: { edges: Array<{ node: { id: string; name: string; displayName: string | null; assetType: Types.AssetAssetType; assetSubtypeName: string | null } | null } | null> | null }
 }
 
 export type CampaignTargetsWithFilterQueryVariables = Exact<{
@@ -6995,6 +7283,15 @@ export interface DeletePlatformMutation {
   deletePlatform: { deletedID: string }
 }
 
+export type GetPlatformOptionsQueryVariables = Exact<{
+  where?: Types.PlatformWhereInput | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface GetPlatformOptionsQuery {
+  platforms: { edges: Array<{ node: { id: string; name: string } | null } | null> | null }
+}
+
 export type CreateProcedureMutationVariables = Exact<{
   input: Types.CreateProcedureInput
 }>
@@ -9808,6 +10105,15 @@ export type UpdateBulkSystemDetailMutationVariables = Exact<{
 
 export interface UpdateBulkSystemDetailMutation {
   updateBulkSystemDetail: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
+}
+
+export type GetSystemDetailOptionsQueryVariables = Exact<{
+  where?: Types.SystemDetailWhereInput | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface GetSystemDetailOptionsQuery {
+  systemDetails: { edges: Array<{ node: { id: string; systemName: string } | null } | null> | null }
 }
 
 export type GetTagsQueryVariables = Exact<{ [key: string]: never }>

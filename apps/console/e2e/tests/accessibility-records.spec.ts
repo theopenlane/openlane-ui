@@ -3,6 +3,7 @@ import path from 'node:path'
 
 import { test as authTest } from '../fixtures/auth'
 import {
+  createAsset,
   createControl,
   createFinding,
   createIdentityHolder,
@@ -45,6 +46,7 @@ const seedRecords = async (): Promise<SeededRecords> => {
     vulnerability: await createVulnerability(api, name('Vulnerability'), uniqueRef('A11Y-CVE')),
     personnel: await createIdentityHolder(api, personnelName, `${personnelName.replace(/[^a-z0-9]/gi, '').toLowerCase()}@e2e-openlane.dev`),
     platform: await createPlatform(api, name('Platform')),
+    asset: await createAsset(api, name('Asset')),
     vendor: await createVendor(api, name('Vendor')),
     standard: await createStandard(api, name('Standard')),
     assessment,

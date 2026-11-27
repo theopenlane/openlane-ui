@@ -4,6 +4,7 @@ import { LOGIN_EMAIL_INPUT, SIGNUP_EMAIL_INPUT } from './constants'
 import { isRecord } from '@/utils/type-guards'
 
 export const SEEDED_RECORD_KEYS = [
+  'asset',
   'control',
   'subcontrol',
   'mappedControl',
@@ -105,6 +106,7 @@ const RECORD_SCANS: Readonly<Record<string, RecordScan>> = {
   '/exposure/risks/[id]': { params: recordId('risk'), tabs: ['risk-review', 'mitigation', 'activity'] },
   '/exposure/findings/[id]': { params: recordId('finding'), tabs: ['remediation', 'comments', 'history'] },
   '/exposure/vulnerabilities/[id]': { params: recordId('vulnerability'), tabs: ['exposure-map', 'remediation', 'comments', 'history'] },
+  '/registry/assets/[id]': { params: recordId('asset'), tabs: ['relationships', 'exposure', 'vendor', 'history'] },
   '/registry/personnel/[id]': { params: recordId('personnel'), tabs: ['linked-accounts', 'documents', 'assessments', 'campaigns', 'history'] },
   '/registry/platforms/[id]': { params: recordId('platform') },
   '/registry/vendors/[id]': { params: recordId('vendor'), tabs: ['risk-review', 'contacts', 'directory', 'documents', 'activity'] },

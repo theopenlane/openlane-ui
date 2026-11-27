@@ -72,6 +72,7 @@ export const SEGMENTS: Record<string, string[]> = {
   ],
 
   registry: [
+    'asset-detail-flows.spec.ts',
     'bulk-csv-imports.spec.ts',
     'bulk-edit-dialogs.spec.ts',
     'documents-and-evidence-flows.spec.ts',

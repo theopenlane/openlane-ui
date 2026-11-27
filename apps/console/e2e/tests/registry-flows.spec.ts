@@ -1,7 +1,6 @@
 import { test, expect } from '../fixtures/auth'
 import { createAsset, getOwnerApi, gql, type ApiSession } from '../utils/api'
 import { uniqueName, uniqueRef } from '../utils/unique'
-import { slideoutClose, slideoutMenuAction } from '../utils/slideout'
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -37,24 +36,15 @@ test('asset lifecycle persists edited metadata through search before deletion', 
   await expect(originalRow).toBeVisible({ timeout: 20_000 })
   await originalRow.getByRole('cell').filter({ hasText: originalName }).first().click()
 
-  const sheet = page.getByRole('dialog')
-  await expect(sheet).toBeVisible({ timeout: 20_000 })
-  await sheet
-    .getByRole('button', { name: /^Edit$/ })
-    .first()
-    .click()
-  await sheet.getByLabel('Identifier', { exact: true }).fill(identifier)
-  await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
+  await expect(page.getByRole('button', { name: 'Edit asset' })).toBeVisible({ timeout: 20_000 })
+  await page.getByRole('button', { name: 'Edit asset' }).click()
+  await page.getByLabel('Identifier', { exact: true }).fill(identifier)
+  await page.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
-  await expect(page.getByText('Asset Updated', { exact: true }).first()).toBeVisible({ timeout: 20_000 })
+  await expect(page.getByText('Asset updated', { exact: true }).first()).toBeVisible({ timeout: 20_000 })
 
   await page.reload({ waitUntil: 'domcontentloaded' })
-  await expect(sheet).toBeVisible({ timeout: 30_000 })
-  await expect(sheet.getByText(identifier, { exact: true }).first()).toBeVisible({ timeout: 20_000 })
-  await expect(sheet.getByText(identifier, { exact: true }).first()).toBeVisible({ timeout: 20_000 })
-
-  await slideoutClose(sheet).click()
-  await expect(sheet).toBeHidden({ timeout: 15_000 })
+  await expect(page.getByText(identifier, { exact: true }).first()).toBeVisible({ timeout: 30_000 })
 
   await page.goto('/registry/assets', { waitUntil: 'domcontentloaded', timeout: 180_000 })
   const search2 = page.getByPlaceholder(/^Search$/)
@@ -64,14 +54,14 @@ test('asset lifecycle persists edited metadata through search before deletion', 
   await expect(updatedRow).toBeVisible({ timeout: 30_000 })
   await updatedRow.getByRole('cell').filter({ hasText: originalName }).first().click()
 
-  await expect(sheet).toBeVisible({ timeout: 20_000 })
-  await slideoutMenuAction(page, sheet, /^Delete$/)
+  await page.getByTestId('asset-actions-menu').click()
+  await page.getByRole('menuitem', { name: /^Delete$/ }).click()
 
   const confirmation = page.getByRole('alertdialog')
   await expect(confirmation.getByRole('heading', { name: /^Delete Asset$/ })).toBeVisible({ timeout: 10_000 })
   await confirmation.getByRole('button', { name: /^Delete$/ }).click()
 
-  await expect(page.getByText(/asset has been successfully deleted/i).first()).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByText(/asset deleted successfully/i).first()).toBeVisible({ timeout: 30_000 })
   await search.fill(updatedName)
   await expect(page.getByRole('row', { name: new RegExp(escapeRegExp(updatedName)) })).toHaveCount(0, { timeout: 20_000 })
 })

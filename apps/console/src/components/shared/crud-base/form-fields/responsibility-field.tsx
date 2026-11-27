@@ -28,6 +28,7 @@ import { PersonnelOptionItem } from './personnel-option-item'
 import { ResponsibilitySelectionLabel } from './responsibility-type-icon'
 import { cn } from '@repo/ui/lib/utils'
 import { fieldItemLayoutClassName, type TFieldLayout } from './field-layout'
+import { InlineEditDisplay } from './inline-edit-display'
 
 interface ResponsibilityFieldProps {
   name: string
@@ -132,13 +133,13 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
     setOpen(false)
     setSearchText('')
 
+    if (!isEditing) {
+      setInternalEditing(null)
+    }
+
     if (!isEditing && !isCreate && handleUpdate) {
       const payload = buildResponsibilityInlineUpdate(fieldBaseName, selectionToUse, { allowPersonnel, stringFieldName })
       await handleUpdate(payload)
-    }
-
-    if (!isEditing) {
-      setInternalEditing(null)
     }
   }
 
@@ -172,8 +173,8 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
               <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>
               {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
             </div>
-            <FormControl>
-              {isFieldEditing ? (
+            {isFieldEditing ? (
+              <FormControl>
                 <div ref={triggerRef} className="w-full">
                   <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
@@ -279,15 +280,15 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                     </PopoverContent>
                   </Popover>
                 </div>
-              ) : (
-                <div
-                  className={cn('flex min-w-0 items-center gap-2 rounded-md px-1 py-2 text-sm cursor-pointer hover:bg-accent w-full', layout === 'horizontal' && 'justify-end')}
-                  {...activatable(isEditAllowed ? handleClick : undefined)}
-                >
-                  {currentValue ? <ResponsibilitySelectionLabel selection={currentValue} /> : <span className="text-muted-foreground italic">Not set</span>}
-                </div>
-              )}
-            </FormControl>
+              </FormControl>
+            ) : (
+              <InlineEditDisplay
+                className={cn('flex min-w-0 items-center gap-2 rounded-md px-1 py-2 text-sm cursor-pointer hover:bg-accent w-full', layout === 'horizontal' && 'justify-end')}
+                onActivate={isEditAllowed ? handleClick : undefined}
+              >
+                {currentValue ? <ResponsibilitySelectionLabel selection={currentValue} /> : <span className="text-muted-foreground italic">Not set</span>}
+              </InlineEditDisplay>
+            )}
           </FormItem>
         )
       }}
