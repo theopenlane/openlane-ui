@@ -2421,6 +2421,7 @@ export interface GetControlRelatedControlsQuery {
     relatedControls: Array<{
       id: string
       refCode: string
+      title: string | null
       status: Types.ControlControlStatus | null
       referenceFramework: string | null
       isSubcontrol: boolean
@@ -9594,9 +9595,11 @@ export interface GetSubcontrolRelatedControlsQuery {
     relatedControls: Array<{
       id: string
       refCode: string
+      title: string | null
       status: Types.ControlControlStatus | null
       referenceFramework: string | null
       isSubcontrol: boolean
+      parentControlID: string | null
       mappedControlReferenceIDs: Array<string> | null
       category: string | null
       subcategory: string | null

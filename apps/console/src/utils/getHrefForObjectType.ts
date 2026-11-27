@@ -91,3 +91,6 @@ export const getHrefForSearchEntityType = (
       return getHrefForObjectType(pluralizeTypeName(entityType), { id: entityId })
   }
 }
+
+export const controlOrSubcontrolHref = ({ id, parentControlId }: { id: string; parentControlId?: string }): string =>
+  parentControlId ? getHrefForObjectType('subcontrols', { id, controlId: parentControlId }) : getHrefForObjectType('controls', { id })

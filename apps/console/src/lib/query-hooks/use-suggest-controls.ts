@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { type QueryClient, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type GraphQLClient } from 'graphql-request'
 import { GET_CONTROL_SUGGESTION_CANDIDATES } from '@repo/codegen/query/control'
@@ -8,10 +8,12 @@ import {
   ControlControlStatus,
   SubcontrolControlStatus,
   type ControlWhereInput,
+  type GetControlRelatedControlsQuery,
   type GetControlSuggestionCandidatesQuery,
   type GetControlSuggestionCandidatesQueryVariables,
   type GetControlSuggestionMappingsQuery,
   type GetControlSuggestionMappingsQueryVariables,
+  type GetSubcontrolRelatedControlsQuery,
   type GetSubcontrolSuggestionCandidatesQuery,
   type GetSubcontrolSuggestionCandidatesQueryVariables,
   type MappedControlMappingType,
@@ -22,6 +24,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { MAX_CONNECTION_RESULTS } from '@/constants/pagination'
+import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/system-standards'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
@@ -34,7 +37,10 @@ import {
   type TControlSuggestionCandidate,
 } from '@/lib/control-suggestions/schema'
 import { getNodes } from '@/lib/graphql-hooks/connection'
+import { useGetControlRelatedControls } from '@/lib/graphql-hooks/control'
+import { useGetSubcontrolRelatedControls } from '@/lib/graphql-hooks/subcontrol'
 import { fetchAllConnectionNodes } from '@/lib/graphql-hooks/fetch-all-connection-nodes'
+import { compareNatural } from '@/lib/sort'
 import { UserFacingError } from '@/utils/graphQlErrorMatcher'
 
 const SUGGESTIONS_STALE_TIME_MS = 10 * 60 * 1000 // 10min
@@ -76,10 +82,12 @@ type TMappingNode = NonNullable<NonNullable<NonNullable<GetControlSuggestionMapp
 
 type TControlFields = SuggestionMappedControlFieldsFragment | SuggestionMappedSubcontrolFieldsFragment
 
+const INACTIVE_CONTROL_STATUSES = [ControlControlStatus.ARCHIVED, ControlControlStatus.NOT_APPLICABLE]
+
 const CONTROL_ELIGIBILITY: ControlWhereInput = {
   systemOwned: false,
   isTrustCenterControl: false,
-  or: [{ statusIsNil: true }, { statusNotIn: [ControlControlStatus.ARCHIVED, ControlControlStatus.NOT_APPLICABLE] }],
+  or: [{ statusIsNil: true }, { statusNotIn: INACTIVE_CONTROL_STATUSES }],
 }
 
 const SUBCONTROL_ELIGIBILITY: SubcontrolWhereInput = {
@@ -288,4 +296,35 @@ export const pruneLinkedSuggestions = (groups: TSuggestionGroup[], linkedIds: Re
     .filter(({ control, mapped }) => !linkedIds.has(control.id) || mapped.length > 0)
   const unlinked = [...new Map(visibleGroups.flatMap(({ control, mapped }) => [control, ...mapped]).map((item) => [item.id, item])).values()].filter(({ id }) => !linkedIds.has(id))
   return { visibleGroups, unlinked }
+}
+
+export type TMappingSource = { controlId: string } | { subcontrolId: string }
+
+type TRelatedControl = NonNullable<GetControlRelatedControlsQuery['control']['relatedControls']>[number] | NonNullable<GetSubcontrolRelatedControlsQuery['subcontrol']['relatedControls']>[number]
+
+const isInherited = (control: TRelatedControl) => 'inheritedFromSubcontrolIDs' in control && !!control.inheritedFromSubcontrolIDs?.length
+
+const isDirectlyMappedAndLinkable = (control: TRelatedControl) =>
+  !isInherited(control) && !(control.status && INACTIVE_CONTROL_STATUSES.includes(control.status)) && control.referenceFramework !== OPENLANE_TRUST_CENTER_STANDARD.shortName
+
+const toMappingSuggestions = (sourceId: string, related: TRelatedControl[]): TSuggestedControl[] => {
+  const suggestions = related
+    .filter((control) => control.id !== sourceId && isDirectlyMappedAndLinkable(control))
+    .map(({ id, refCode, title, referenceFramework, parentControlID }) => ({ id, refCode, title, referenceFramework, parentControlId: parentControlID ?? undefined }))
+  const unique = [...new Map(suggestions.map((suggestion) => [suggestion.id, suggestion])).values()]
+  return unique.sort((a, b) => compareNatural(a.referenceFramework ?? '', b.referenceFramework ?? '') || compareNatural(a.refCode, b.refCode))
+}
+
+export const useMappedControlSuggestions = (source: TMappingSource) => {
+  const controlId = 'controlId' in source ? source.controlId : undefined
+  const subcontrolId = 'subcontrolId' in source ? source.subcontrolId : undefined
+  const sourceId = 'controlId' in source ? source.controlId : source.subcontrolId
+  const controlQuery = useGetControlRelatedControls(controlId, !!controlId)
+  const subcontrolQuery = useGetSubcontrolRelatedControls(subcontrolId, !!subcontrolId)
+  const query = controlId ? controlQuery : subcontrolQuery
+  const related = controlId ? controlQuery.data?.control.relatedControls : subcontrolQuery.data?.subcontrol.relatedControls
+
+  const suggestions = useMemo(() => toMappingSuggestions(sourceId, related ?? []), [sourceId, related])
+
+  return { suggestions, isPending: query.isPending || query.isPlaceholderData, error: query.error }
 }

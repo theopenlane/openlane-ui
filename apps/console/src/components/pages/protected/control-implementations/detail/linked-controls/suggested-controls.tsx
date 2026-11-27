@@ -12,7 +12,7 @@ import { CUSTOM_STANDARD_FILTER_VALUE } from '@/components/shared/table-filter/c
 import { useNotification } from '@/hooks/useNotification'
 import { useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementation'
 import { partitionByParent, type TSuggestedControl, type TSuggestionGroup } from '@/lib/query-hooks/use-suggest-controls'
-import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import { controlOrSubcontrolHref } from '@/utils/getHrefForObjectType'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { pluralizeWithCount } from '@/utils/strings'
 
@@ -23,9 +23,6 @@ type TSuggestedControlsProps = {
   linkedIds: ReadonlySet<string>
   onLinked: () => void
 }
-
-const suggestionHref = ({ id, parentControlId }: TSuggestedControl) =>
-  parentControlId ? getHrefForObjectType('subcontrols', { id, controlId: parentControlId }) : getHrefForObjectType('controls', { id })
 
 const MappingTypeLabel = ({ mappingType }: { mappingType: MappedControlMappingType }) => (
   <span className="inline-flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
@@ -51,7 +48,7 @@ const SuggestionRow = ({ control, mappingType, isLinked, isLinking, onLink }: TS
   return (
     <li className={cn('flex flex-wrap items-center gap-x-3 gap-y-1 py-2 pr-4 text-sm', mappingType ? 'pl-10' : 'pl-4')}>
       <ControlHoverCard id={control.id} isSubcontrol={!!parentControlId}>
-        <Link href={suggestionHref(control)} newTab className="shrink-0">
+        <Link href={controlOrSubcontrolHref(control)} newTab className="shrink-0">
           {refCode}
         </Link>
       </ControlHoverCard>
