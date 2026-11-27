@@ -1,8 +1,10 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/lib/auth/auth'
 import { serverSecureFetch } from '@/lib/server/core-fetch'
 import { forwardTfaPendingCookie } from '@/lib/auth/utils/tfa-pending-cookie'
 
 interface SSOCallbackRequest {
+  intent?: string
   code: string
   state: string
   organization_id: string
@@ -26,7 +28,16 @@ export async function POST(request: NextRequest) {
       ...(cookies ? { cookie: cookies } : {}),
     }
 
-    const ssoCallbackData = await serverSecureFetch(`${process.env.API_REST_URL}/v1/sso/callback`, {
+    const isTestingSSO = body.intent === 'test'
+    if (isTestingSSO) {
+      const session = await auth()
+      if (!session?.user?.accessToken) {
+        return NextResponse.json({ success: false }, { status: 401 })
+      }
+      headers.Authorization = `Bearer ${session.user.accessToken}`
+    }
+
+    const ssoCallbackData = await serverSecureFetch(`${process.env.API_REST_URL}/v1/sso/${isTestingSSO ? 'test/callback' : 'callback'}`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
