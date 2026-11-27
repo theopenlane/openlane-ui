@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useMemo, useState, type FormEvent } from 'react'
 import { ArrowLeft, ChevronDown, ExternalLink, LoaderCircle, SearchIcon, Sparkles } from 'lucide-react'
 import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -10,39 +10,13 @@ import { Callout } from '@/components/shared/callout/callout'
 import { docsHelpDemo } from '@repo/dally/ai'
 import { DOCS_URL } from '@/constants/docs'
 import { useDocsFullPage, useDocsHelp } from '@/hooks/useDocsHelp'
+import { usePlugSupportWidget } from '@/hooks/usePlugSupportWidget'
 import { DocsFaqSection, stripFaqSection, useDocsFaq } from './docs-faq'
 import { toHumanLabel } from '@/utils/strings'
 import type { DocsHelpChunk, DocsSection } from '@/types/docs-help'
 
 const DOCS_HOST = new URL(DOCS_URL).host
 const DOCS_SECTION_SEGMENTS = 2
-const PLUG_POLL_INTERVAL_MS = 500
-const PLUG_POLL_ATTEMPTS = 10
-
-const isPlugWidgetReady = () => typeof window !== 'undefined' && !!window.plugSDK?.__plug_initialized__ && typeof window.plugSDK.toggleWidget === 'function'
-
-const usePlugSupportWidget = () => {
-  const [ready, setReady] = useState(isPlugWidgetReady)
-
-  useEffect(() => {
-    if (ready) return
-    let attempts = 0
-    const timer = setInterval(() => {
-      attempts += 1
-      if (isPlugWidgetReady()) {
-        setReady(true)
-        clearInterval(timer)
-      } else if (attempts >= PLUG_POLL_ATTEMPTS) {
-        clearInterval(timer)
-      }
-    }, PLUG_POLL_INTERVAL_MS)
-    return () => clearInterval(timer)
-  }, [ready])
-
-  const openSupport = useCallback(() => window.plugSDK?.toggleWidget?.(true), [])
-  return ready ? openSupport : undefined
-}
-
 const docPathOf = (source: string): string | undefined => {
   try {
     return new URL(source).pathname
