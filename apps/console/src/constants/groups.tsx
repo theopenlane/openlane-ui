@@ -1,3 +1,4 @@
+import { SELECT_COLUMN_ID } from '@repo/ui/pinned-columns'
 import { OBJECT_TYPE_PERMISSIONS_CONFIG, type TypesWithPermissions } from '@repo/codegen/src/type-names'
 import { REPORT_ENTITIES } from '@repo/codegen/src/report-schema.generated'
 import { excludeSystemOwnedWhere } from '@/lib/report/report-filters'
@@ -18,7 +19,7 @@ export const generateColumns = (selectedObject: TypesWithPermissions | null, ite
 
   const baseColumns: ColumnDef<TableDataItem>[] = [
     {
-      id: 'checked',
+      id: SELECT_COLUMN_ID,
       size: 10,
       minSize: 10,
       maxSize: 10,

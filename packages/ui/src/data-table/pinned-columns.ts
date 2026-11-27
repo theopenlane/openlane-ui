@@ -10,13 +10,5 @@ export const sortPinnedColumns = <TColumn>(columns: TColumn[], getColumnId: (col
 export const reconcileColumnOrder = (storedOrder: string[]): string[] => {
   if (storedOrder.length === 0) return storedOrder
 
-  const leading: string[] = []
-  const rest: string[] = []
-
-  for (const id of storedOrder) {
-    if (id === SELECT_COLUMN_ID) leading.push(id)
-    else if (id !== ROW_ACTIONS_COLUMN_ID) rest.push(id)
-  }
-
-  return [...leading, ...rest]
+  return [SELECT_COLUMN_ID, ...storedOrder.filter((id) => !isPinnedColumnId(id))]
 }

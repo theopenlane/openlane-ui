@@ -26,6 +26,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { groupTableForInvitesColumns } from '../table/columns'
 import { type VisibilityState } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
+import { SELECT_COLUMN_ID } from '@repo/ui/pinned-columns'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -55,7 +56,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const [isEmailInputValid, setIsEmailInputValid] = useState(true)
   const { canManageMembers, canInviteAdmins, canInviteMembers, isLoading: isLoadingPermission } = useOrgMemberPermissions()
   const columnVisibility = useMemo<VisibilityState>(() => {
-    const hiddenGroupPicker: VisibilityState = { check: false }
+    const hiddenGroupPicker: VisibilityState = { [SELECT_COLUMN_ID]: false }
     return isLoadingPermission || canManageMembers ? {} : hiddenGroupPicker
   }, [isLoadingPermission, canManageMembers])
 
