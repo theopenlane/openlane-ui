@@ -19,8 +19,17 @@ import { ObjectTypeObjects } from '@/components/shared/object-association/object
 import { Callout } from '@/components/shared/callout/callout'
 import { DocsSourceLink } from '@/components/shared/docs-help/suggestion-card'
 import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
+import { type TMappingSource } from '@/lib/query-hooks/use-suggest-controls'
+import { MappedControlSuggestions } from './mapped-control-suggestions'
 
 const CREATE_ASSOCIATION_KEYS = ['controlIDs', 'subcontrolIDs'] as const
+
+const toMappingSource = (defaults?: Partial<TFormData>): TMappingSource | undefined => {
+  const controlIds = defaults?.controlIDs ?? []
+  const subcontrolIds = defaults?.subcontrolIDs ?? []
+  if (controlIds.length + subcontrolIds.length !== 1) return undefined
+  return controlIds.length ? { controlId: controlIds[0] } : { subcontrolId: subcontrolIds[0] }
+}
 
 export const CreateControlImplementationForm = ({
   formId,
@@ -42,6 +51,7 @@ export const CreateControlImplementationForm = ({
   const plateEditorHelper = usePlateEditor()
   const buildDirtyInput = useDirtyInput(form)
   const { handleSubmit } = form
+  const mappingSource = useMemo(() => (isEditing || showControlPicker ? undefined : toMappingSource(createDefaults)), [isEditing, showControlPicker, createDefaults])
   const initialAssociations = useMemo(() => ({ controlIDs: createDefaults?.controlIDs ?? [], subcontrolIDs: createDefaults?.subcontrolIDs ?? [] }), [createDefaults])
 
   const { mutateAsync: createImplementation } = useCreateControlImplementation()
@@ -94,6 +104,7 @@ export const CreateControlImplementationForm = ({
         )}
         <ControlImplementationFields form={form} detailsInitialValue={(defaultValues ?? createDefaults)?.details} />
       </form>
+      {mappingSource && <MappedControlSuggestions form={form} source={mappingSource} />}
       {showControlPicker && !isEditing && (
         <div className="mt-4 space-y-4 rounded-lg border p-4">
           <p className="text-sm font-medium">Linked Controls</p>

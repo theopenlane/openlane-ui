@@ -372,9 +372,11 @@ export const GET_SUBCONTROL_RELATED_CONTROLS = gql`
       relatedControls {
         id
         refCode
+        title
         status
         referenceFramework
         isSubcontrol
+        parentControlID
         mappedControlReferenceIDs
         category
         subcategory

@@ -52,6 +52,8 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
       form.reset({
         implementationDate: new Date(),
         status: ControlImplementationDocumentStatus.DRAFT,
+        controlIDs: [],
+        subcontrolIDs: [],
         ...createdWith,
       })
     }
